@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>QUnit Main Test Suite</title>
+	<link rel="stylesheet" href="../../../assets/qunit/qunit.css">
+
+</head>
+<body>
+	<div id="qunit"></div>
+	<div id="qunit-fixture">test markup</div>
+
+        <script type="text/javascript">
+            var built_at="";
+        </script>
+
+        <script src="../../../assets/qunit/qunit.js"></script>
+        <script src="../js/blanket.js"></script>
+        <script src="../../../js/contrail-all-1.js?built_at="></script>
+        <script src="../../../js/contrail-all-2.js?built_at="></script>
+        <script src="../../../js/contrail-all-3.js?built_at="></script>
+        <script src="../../../js/contrail-all-4.js?built_at="></script>
+        <script src="../../../js/contrail-all-5.js?built_at="></script>
+
+        <script data-cover src="../js/monitor_infra_dashboard.js?built_at="></script>
+        <script data-cover src="../js/monitor_infra_utils.js?built_at="></script>
+        <script data-cover src="../js/monitor_infra_computenode.js?built_at="></script>
+        <script src="monitor_infra_computenode_mock.js?built_at="></script>
+        <script src="monitor_infra_computenode_test.js?built_at="></script>
+
+	<!--<script src="/js/sinon-1.7.3.js"></script>
+	<script src="/js/sinon-qunit-1.0.0.js"></script>-->
+        <!--<script src="/js/qunit-tests.js?built_at="></script>-->
+</body>
+</html>

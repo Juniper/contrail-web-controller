@@ -1,0 +1,9 @@
+<!--
+ Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+-->
+
+<script type="text/x-handlebars-template" id="cdb-template">
+    <div id="cdb-container">
+        <div id='cdb-results'></div>
+    </div>
+</script>

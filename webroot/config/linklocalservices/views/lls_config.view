@@ -1,0 +1,110 @@
+<script id="lls-config-template" type="text/x-handlebars-template">
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div id="gridLLS"/>
+            </div>
+        </div>
+    </div>
+</script>
+
+<!-- Modal -->
+<div id="windowCreateLLS" class="modal modal-840 hide" tabindex="-1">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+        <h6 class="modal-header-title"></h6>
+    </div>
+    <div class="modal-body">
+        <div>
+            <form class="form-horizontal">
+                <div class="row-fluid margin-0-0-10">
+                    <div class="rule-item-header">
+                        <div class="row-fluid">
+                            <div class="span2">
+                                <h6>Service Name</h6>
+                            </div>
+                            <div class="span4">
+                                <h6>Link Local Service Address</h6>
+                                <div class="row-fluid">
+                                    <div class = "span6">
+                                        <p>IP</p>
+                                    </div>
+                                    <div class = "span6">
+                                        <p>Port</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="span6">
+                                <h6>Fabric Address</h6>
+                                <div class="row-fluid">
+                                    <div class = "span8">
+                                        <p>IP / DNS</p>
+                                    </div>
+                                    <div class = "span4">
+                                        <p>Port</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="margin-10-0-0">
+                        <div class="row-fluid">
+                            <div class="span2">
+                                <div class="span12 pull-left" id="ddLocalServiceName"></div>
+                            </div>
+                            <div class="span4">
+                                <div class="span12">
+                                    <div class = "span6">
+                                        <input type="text" id="txtLocalServiceIP" placeholder="IP Address" class="span12" />
+                                    </div>
+                                    <div class = "span6">
+                                        <input type="text" id="txtLocalServicePort" placeholder="Port" class="span12" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="span6">
+                                <div class="span12">
+                                    <div class="span2">
+                                        <div class="span12 pull-left" id="ddFabServiceIPDNS"></div>
+                                    </div>
+                                    <div class = "span6">
+                                        <div class="span12">
+                                            <input type="text" id="txtFabricDNSIP_0" placeholder="" class="span9" />
+                                            <div id="addinterfaces" class="span3 pull-right">
+                                                <div title="Add more interfaces" class="margin-5"><i class="icon-plus" onclick="appendFabEntry(this, true);"></i></div>
+                                            </div>
+                                        </div>
+                                        <div id="fabTuples" class="row-fluid"></div>                                        
+                                    </div>
+                                    <div class = "span4">
+                                        <input type="text" id="txtFabricServicePort" placeholder="Port" class="span12" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>            
+            </form>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button id="btnCreateLLSCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button id="btnCreateLLSOK" class="btn btn-primary btn-mini">Save</button>
+    </div>
+</div>
+
+<div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+        <h6 class="modal-header-title"></h6>
+    </div>
+    <div class="modal-body">
+        <div class="row-fluid text-center" >
+            <h6>Confirm Link Local Service(s) delete</h6>
+        </div>       
+    </div>
+    <div class="modal-footer">
+        <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+    </div>
+</div>

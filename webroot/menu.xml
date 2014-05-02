@@ -1,0 +1,545 @@
+<!--
+ Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+-->
+
+<menu>
+    <items>
+        <item>
+            <label>MONITOR</label>
+            <depedencies>
+                <role></role>
+            </depedencies>
+            <items>
+                <item>
+                    <label>Infrastructure</label>
+                    <items>
+                        <item>
+                            <hash>mon_infra_dashboard</hash>
+                            <label>Overview</label>
+                            <rootDir>/monitor/infra</rootDir>
+                            <view>monitor_infra_dashboard.view</view>
+                            <js>monitor_infra_utils.js</js>
+                            <js>monitor_infra_dashboard.js</js>
+                            <class>infraMonitorView</class>
+                            <queryParams>
+                                <tab>vRouters</tab>
+                            </queryParams>
+                            <searchStrings>Infrastructure Dashboard</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_control</hash>
+                            <label>Overview</label>
+                            <rootDir>/monitor/infra</rootDir>
+                            <view>monitor_infra_dashboard.view</view>
+                            <view>monitor_infra_controlnode.view</view>
+                            <js>monitor_infra_utils.js</js>
+                            <js>monitor_infra_dashboard.js</js>
+                            <js>monitor_infra_controlnode.js</js>
+                            <class>infraMonitorView</class>
+                            <queryParams>
+                                <node>Control Nodes</node>
+                            </queryParams>
+                            <searchStrings>Monitor Control Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_compute</hash>
+                            <label>Overview</label>
+                            <rootDir>/monitor/infra</rootDir>
+                            <view>monitor_infra_dashboard.view</view>
+                            <view>monitor_infra_computenode.view</view>
+                            <js>monitor_infra_utils.js</js>
+                            <js>monitor_infra_dashboard.js</js>
+                            <js>monitor_infra_computenode.js</js>
+                            <class>infraMonitorView</class>
+                            <queryParams>
+                                <node>vRouters</node>
+                            </queryParams>
+                            <searchStrings>Monitor Compute Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_analytics</hash>
+                            <label>Overview</label>
+                            <rootDir>/monitor/infra</rootDir>
+                            <view>monitor_infra_dashboard.view</view>
+                            <view>monitor_infra_analyticnode.view</view>
+                            <js>monitor_infra_utils.js</js>
+                            <js>monitor_infra_dashboard.js</js>
+                            <js>monitor_infra_analyticnode.js</js>
+                            <class>infraMonitorView</class>
+                            <queryParams>
+                                <node>Analytics Nodes</node>
+                            </queryParams>
+                            <searchStrings>Monitor Analytics Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_config</hash>
+                            <label>Overview</label>
+                            <rootDir>/monitor/infra</rootDir>
+                            <view>monitor_infra_dashboard.view</view>
+                            <view>monitor_infra_confignode.view</view>
+                            <js>monitor_infra_utils.js</js>
+                            <js>monitor_infra_dashboard.js</js>
+                            <js>monitor_infra_confignode.js</js>
+                            <queryParams>
+                                <node>Config Nodes</node>
+                            </queryParams>
+                            <class>infraMonitorView</class>
+                            <searchStrings>Monitor Config Nodes</searchStrings>
+                        </item>
+                        <!--
+                        <item>
+                            <label>Software Upgrade</label>
+                        </item>
+                        -->
+                    </items>
+                </item>
+                <item>
+                    <name>networking</name>
+                    <label>Networking</label>
+                    <items>
+                        <item>
+                            <label>Networks</label>
+                            <hash>mon_network_dashboard</hash>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.1.view</view>
+                            <js>tenant_monitor_network.1.js</js>
+                            <class>tenantNetworkMonitorView</class>
+                        </item>
+                        <item>
+                            <label>Networks</label>
+                            <hash>mon_net_dashboard</hash>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.view</view>
+                            <js>tenant_monitor_network.js</js>
+                            <js>tenant_monitor_domain.js</js>
+                            <class>tenantNetworkMonitorView</class>
+                            <queryParams>
+                                <fqName>default-domain</fqName>
+                            </queryParams>
+                            <searchStrings>Networking Dashboard</searchStrings>
+                        </item>
+                        <item>
+                            <label>Networks</label>
+                            <hash>mon_net_projects</hash>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.view</view>
+                            <js>tenant_monitor_project.js</js>
+                            <js>tenant_monitor_domain.js</js>
+                            <js>tenant_monitor_topology.js</js>
+                            <js>tenant_monitor_network.js</js>
+                            <class>tenantNetworkMonitorView</class>
+                            <queryParams>
+                                <view>list</view>
+                                <type>project</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor Projects</searchStrings>
+                        </item>
+                        <item>
+                            <label>Networks</label>
+                            <hash>mon_net_networks</hash>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.view</view>
+                            <js>tenant_monitor_domain.js</js>
+                            <js>tenant_monitor_topology.js</js>
+                            <js>tenant_monitor_network.js</js>
+                            <class>tenantNetworkMonitorView</class>
+                            <queryParams>
+                                <view>list</view>
+                                <type>network</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor Networks</searchStrings>
+
+                        </item>
+                        <item>
+                            <label>Instances</label>
+                            <hash>mon_net_instances</hash>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.view</view>
+                            <js>tenant_monitor_network.js</js>
+                            <js>tenant_monitor_instance.js</js>
+                            <class>tenantNetworkMonitorView</class>
+                            <queryParams>
+                                <view>list</view>
+                                <type>instance</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor instances</searchStrings>
+                        </item>
+                        <item>
+                            <label>Networks</label>
+                            <hash>mon_tenant_old</hash>
+                            <hide>true</hide>
+                            <rootDir>/monitor/tenant_network</rootDir>
+                            <view>tenant_monitor_network.backup.view</view>
+                            <js>tenant_monitor_network.backup.js</js>
+                            <class>tenantNetworkMonView</class>
+                        </item>
+                        <!--
+                        <item>
+                            <label>IPAM</label>
+                        </item>
+                        <item>
+                            <label>DNS</label>
+                        </item>
+                        <item>
+                            <label>Quotas &amp; Over Subscriptions</label>
+                        </item>
+                        -->
+                    </items>
+                </item>
+                <item>
+                    <name>debug</name>
+                    <label>Debug</label>
+                    <items>
+                        <item>
+                            <label>Packet Capture</label>
+                            <hash>mon_debug_pcapture</hash>
+                            <rootDir>/monitor/debug/packet_capture</rootDir>
+                            <js>packet_capture.js</js>
+                            <view>packet_capture.view</view>
+                            <class>PacketCaptureObj</class>
+                            <searchStrings>Packet Capture, Analyzer</searchStrings>
+                        </item>
+                        <!--
+                        <item>
+                            <label>Ping</label>
+                            <hash>mon_ping</hash>
+                            <rootDir>/monitor/ping</rootDir>
+                            <view>mon_ping.view</view>
+                            <js>mon_ping.js</js>
+                            <class>monitorPingView</class>
+                        </item>
+                       <item>
+                           <label>Trace Route</label>
+                       </item>
+                       <item>
+                           <label>DHCP</label>
+                       </item>
+                       <item>
+                           <label>DNS</label>
+                       </item>
+                        -->
+                    </items>
+                </item>
+            </items>
+        </item>
+        <item>
+            <name>configure</name>
+            <label>CONFIGURE</label>
+            <items>
+                <item>
+                    <label>Infrastructure</label>
+                    <items>
+                        <!--
+                        <item>
+                            <label>Server Setup</label>
+                        </item>
+                        -->
+                        <item>
+                            <label>BGP Peers</label>
+                            <hash>config_infra_bgp</hash>
+                            <rootDir>/config/bgp</rootDir>
+                            <view>bgp_config.view</view>
+                            <js>bgp_config.js</js>
+                            <class>bgpConfigObj</class>
+                            <searchStrings>Configure BGP Peers</searchStrings>
+                        </item>
+                        <item>
+                            <label>Forwarding Options</label>
+                            <hash>config_infra_fwdoptions</hash>
+                            <rootDir>/config/forwardingoptions</rootDir>
+                            <view>fwd_options_config.view</view>
+                            <js>fwd_options_config.js</js>
+                            <class>fwdOptionsConfigObj</class>
+                            <searchStrings>Configure Fowarding Options</searchStrings>
+                        </item>
+                        <item>
+                            <label>Link Local Services</label>
+                            <hash>config_infra_lls</hash>
+                            <rootDir>/config/linklocalservices</rootDir>
+                            <view>lls_config.view</view>
+                            <js>lls_config.js</js>
+                            <class>llsConfigObj</class>
+                            <searchStrings>Configure Link Local Services</searchStrings>
+                        </item>
+                        <!--
+                        <item>
+                            <label>Services</label>
+                        </item>
+                        -->
+                    </items>
+                </item>
+                <item>
+                    <label>Networking</label>
+                    <items>
+                        <item>
+                            <label>Networks</label>
+                            <hash>config_net_vn</hash>
+                            <rootDir>/config/vn</rootDir>
+                            <js>vn_config.js</js>
+                            <view>vn_config.view</view>
+                            <class>virtualnetworkConfigObj</class>
+                            <searchStrings>Configure Networks</searchStrings>
+                        </item>
+                        <item>
+                            <label>Policies</label>
+                            <hash>config_net_policies</hash>
+                            <rootDir>/config/networkpolicies</rootDir>
+                            <js>policy_config.js</js>
+                            <view>policy_config.view</view>
+                            <class>networkpolicyConfigObj</class>
+                            <searchStrings>Configure Network Policies</searchStrings>
+                        </item>
+                        <item>
+                            <label>Services</label>
+                            <hash>config_sc_svcinst</hash>
+                            <rootDir>/config/servicechaining</rootDir>
+                            <js>config_servicechaining.js</js>
+                            <class>servicechainingConfigObj</class>
+                        </item>
+                        <item>
+                            <label>Virtual DNS</label>
+                            <hash>config_dns_servers</hash>
+                            <rootDir>/config/virtualdns</rootDir>
+                            <js>config_virtualdns.js</js>
+                            <class>virtualdnsConfigObj</class>
+                        </item>
+                        <item>
+                            <label>Virtual DNS</label>
+                            <hash>config_dns_records</hash>
+                            <rootDir>/config/virtualdns</rootDir>
+                            <js>config_virtualdns.js</js>
+                            <class>virtualdnsConfigObj</class>
+                        </item>
+                        <item>
+                            <label>DNS Server</label>
+                            <hash>config_dns_dnsservers</hash>
+                            <rootDir>/config/dns/servers</rootDir>
+                            <js>dnsservers_config.js</js>
+                            <view>dnsservers_config.view</view>
+                            <class>dnsServersConfigObj</class>
+                            <searchStrings>Configure DNS Servers</searchStrings>
+                       </item>
+                        <item>
+                            <label>DNS Records</label>
+                            <hash>config_dns_dnsrecords</hash>
+                            <rootDir>/config/dns/records</rootDir>
+                            <js>dnsrecords_config.js</js>
+                            <view>dnsrecords_config.view</view>
+                            <class>dnsRecordsConfigObj</class>
+                            <searchStrings>Configure DNS Records</searchStrings>
+                        </item>
+			
+			 <item>
+                            <label>DNS Dynamic Records</label>
+                            <hash>config_dynamic_dnsrecords</hash>
+                            <rootDir>/config/dns/records</rootDir>
+                            <js>dnsrecords_dynamic_config.js</js>
+                            <view>dnsrecords_dynamic_config.view</view>
+                            <class>dnsRecordsDynamicConfigObj</class>
+                            <searchStrings>Configure Dynamic DNS Records</searchStrings>
+                        </item>
+
+                       
+                        <item>
+                            <label>Allocate Floating IPs</label>
+                            <hash>config_net_fip</hash>
+                            <rootDir>/config/fip</rootDir>
+                            <js>fip_config.js</js>
+                            <view>fip_config.view</view>
+                            <class>FloatingIPConfigObj</class>
+                            <searchStrings>Allocate Floating IPs</searchStrings>
+                        </item>
+                        <item>
+                            <label>IP Address Management</label>
+                            <hash>config_net_ipam</hash>
+                            <rootDir>/config/ipaddressmanagement</rootDir>
+                            <js>ipam_config.js</js>
+                            <view>ipam_config.view</view>
+                            <class>IPAddressManagementObj</class>
+                            <searchStrings>IP Address Management, IPAM</searchStrings>
+                        </item>
+                        <item>
+                            <label>Service Template</label>
+                            <hash>config_sc_svctemplate</hash>
+                            <rootDir>/config/services/template</rootDir>
+                            <js>svctemplate_config.js</js>
+                            <view>svctemplate_config.view</view>
+                            <class>ServiceTemplatesObj</class>
+                            <searchStrings>Configure Service Templates</searchStrings>
+                        </item>
+                        <item>
+                            <label>Service Instances</label>
+                            <hash>config_sc_svcInstances</hash>
+                            <rootDir>/config/services/instances</rootDir>
+                            <js>svcinstances_config.js</js>
+                            <view>svcinstances_config.view</view>
+                            <class>ServicesInstancesObj</class>
+                            <searchStrings>Configure Service Instances</searchStrings>
+                        </item>
+
+                        <!--
+                        <item>
+                            <label>IPAM</label>
+                        </item>
+                        -->
+                    </items>
+                </item>
+                <!--
+                <item>
+                    <label>Templates</label>
+                    <items>
+                        <item>
+                            <label>Networks</label>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>History</label>
+                </item>
+                <item>
+                    <label>Quotas</label>
+                </item>
+                -->
+            </items>
+        </item>
+        <item>
+            <label>SETTING</label>
+            <items>
+                <item>
+                    <hash>setting_configdb_fqname</hash>
+                    <label>FQ Name Table</label>
+                    <rootDir>/setting/config_db</rootDir>
+                    <view>cdb_query.view</view>
+                    <js>cdb_query.js</js>
+                    <class>fqNameTableObj</class>
+                </item>
+                <item>
+                    <hash>setting_configdb_uuid</hash>
+                    <label>UUID Table</label>
+                    <rootDir>/setting/config_db</rootDir>
+                    <view>cdb_query.view</view>
+                    <js>cdb_query.js</js>
+                    <class>uuidTableObj</class>
+                </item>
+            </items>
+        </item>
+        <item>
+            <label>QUERY</label>
+            <items>
+                <item>
+                    <hash>query_flow_series</hash>
+                    <label>Flow Queries</label>
+                    <rootDir>/reports</rootDir>
+                    <view>flow_queries.view</view>
+                    <view>queries.view</view>
+                    <js>flow_queries.js</js>
+                    <class>flowSeriesObj</class>
+                    <searchStrings>Query Flow Series</searchStrings>
+                </item>
+                <item>
+                    <hash>query_flow_records</hash>
+                    <label>Flow Records</label>
+                    <rootDir>/reports</rootDir>
+                    <view>flow_queries.view</view>
+                    <view>queries.view</view>
+                    <js>flow_queries.js</js>
+                    <class>flowRecordsObj</class>
+                    <searchStrings>Query Flow Records</searchStrings>
+                </item>
+                <item>
+                    <hash>query_flow_queue</hash>
+                    <label>Flow Query Queue</label>
+                    <rootDir>/reports</rootDir>
+                    <view>flow_queries.view</view>
+                    <view>queries.view</view>
+                    <js>flow_queries.js</js>
+                    <class>flowQueryQueueObj</class>
+                    <searchStrings>Flow Query Queue</searchStrings>
+                </item>
+                <item>
+                    <hash>query_log_system</hash>
+                    <label>System Logs</label>
+                    <rootDir>/reports</rootDir>
+                    <view>log_queries.view</view>
+                    <view>queries.view</view>
+                    <js>log_queries.js</js>
+                    <class>systemLogsObj</class>
+                    <searchStrings>Query System Logs</searchStrings>
+                </item>
+                <item>
+                    <hash>query_log_object</hash>
+                    <label>Object Logs</label>
+                    <rootDir>/reports</rootDir>
+                    <view>log_queries.view</view>
+                    <view>queries.view</view>
+                    <js>log_queries.js</js>
+                    <class>objectLogsObj</class>
+                    <searchStrings>Query Object Logs</searchStrings>
+                </item>
+                <item>
+                    <hash>query_log_queue</hash>
+                    <label>Query Queue</label>
+                    <rootDir>/reports</rootDir>
+                    <view>log_queries.view</view>
+                    <view>queries.view</view>
+                    <js>log_queries.js</js>
+                    <class>logQueryQueueObj</class>
+                    <searchStrings>Logs Query Queue</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_cpuinfo</hash>
+                    <label>CPU Information</label>
+                    <rootDir>/reports</rootDir>
+                    <view>stat_queries.view</view>
+                    <view>queries.view</view>
+                    <js>stat_queries.js</js>
+                    <class>statCPUInfoObj</class>
+                    <searchStrings>CPU Information Statistics</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_qeperf</hash>
+                    <label>QE Performance</label>
+                    <rootDir>/reports</rootDir>
+                    <view>stat_queries.view</view>
+                    <view>queries.view</view>
+                    <js>stat_queries.js</js>
+                    <class>statQEPerformanceObj</class>
+                    <searchStrings>QE Performance Statistics</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_uvevnagent</hash>
+                    <label>VN Agent</label>
+                    <rootDir>/reports</rootDir>
+                    <view>stat_queries.view</view>
+                    <view>queries.view</view>
+                    <js>stat_queries.js</js>
+                    <class>statVNAgentObj</class>
+                    <searchStrings>VN Agent Statistics</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_smsg</hash>
+                    <label>Sandesh Messages</label>
+                    <rootDir>/reports</rootDir>
+                    <view>stat_queries.view</view>
+                    <view>queries.view</view>
+                    <js>stat_queries.js</js>
+                    <class>statSandeshMsgObj</class>
+                    <searchStrings>Sandesh Message Statistics</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_queue</hash>
+                    <label>Stats Query Queue</label>
+                    <rootDir>/reports</rootDir>
+                    <view>stat_queries.view</view>
+                    <view>queries.view</view>
+                    <js>stat_queries.js</js>
+                    <class>statQueryQueueObj</class>
+                    <searchStrings>Statistic Query Queue</searchStrings>
+                </item>
+            </items>
+        </item>
+    </items>
+</menu>
