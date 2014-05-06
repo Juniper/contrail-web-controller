@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 module("Web Utils");
 test("ifNullOrEmpty", function() {
     equal(ifNullOrEmpty(null,7),7,"ifNullOrEmpty with null should return the second argument");

@@ -1,4 +1,6 @@
-
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 function getCores(data) {
     var fileList=[],result=[];
     var fileArrList=ifNull(jsonPath(data,'$..process_state_list[*].core_file_list'),[]);

@@ -1,5 +1,5 @@
 <!--
- Copyright (coffee) 2013 Juniper Networks, Inc. All rights reserved.
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 <div id="vn_container" style="display:none"></div>
 <script type="text/x-handlebars-template" id="grid-search-toolbar-template">

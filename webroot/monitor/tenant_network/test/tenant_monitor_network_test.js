@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 module("Monitor Network",{
     setup:function() {
         this.server = sinon.fakeServer.create();

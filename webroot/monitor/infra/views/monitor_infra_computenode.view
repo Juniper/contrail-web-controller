@@ -1,3 +1,6 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
 <script type="text/x-handlebars-template" id="computenodes-template">
     <div class="row-fluid">
         <div class="row-fluid">
