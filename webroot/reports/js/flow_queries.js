@@ -89,7 +89,7 @@ function flowQueryQueueObj() {
 };
 
 function ChartViewModel() {
-    this.isFCVisible = ko.observable(false);
+    this.isFCLoaded = ko.observable(false);
     this.flowClasses = ko.observableArray([]);
     this.fsChartData = ko.observable({});
     this.seriesValues = ko.observableArray([]);
@@ -349,7 +349,7 @@ function runFSQuery() {
         tg, tgUnit;
     if ($("#" + queryPrefix + "-query-form").valid()) {
     	collapseWidget('#fs-query-widget');
-        initFSChartLoading();
+//        initFSChartLoading();
         queryId = randomUUID();
         options.queryId = queryId;
         reqQueryObj = setUTCTimeObj('fs', reqQueryObj, options);
@@ -419,7 +419,7 @@ function viewFSQueryResults(dataItem, params) {
         options.queryId = queryId;
         tgIndex = selectArray.indexOf("T=" + options.interval);
         selectArray.splice(tgIndex, 1);
-        initFSChartLoading();
+//        initFSChartLoading();
     } else {
         options = getFSDefaultOptions(false);
     }
