@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 module("Infra Compute Node",{
     //Called before executing any test case under this module
     setup: function() {
