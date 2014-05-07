@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
+
 analyticsNodesView = function () {
     var self = this,analyticNodesData;
     var aNodesGrid;
@@ -236,7 +237,7 @@ analyticsNodeView = function () {
 
     this.getAnalyticsNodeDetails = function(deferredObj,obj) {
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/analyticsnode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
         }).done(function(result) {
             deferredObj.resolve(result);
         });
@@ -339,7 +340,7 @@ analyticsNodeView = function () {
         startWidgetLoading('dashboard');
 
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/analyticsnode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
         }).done(function (result) {
                 aNodeData = result;
                 var parsedData = infraMonitorView.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
@@ -485,20 +486,20 @@ analyticsNodeView = function () {
                 initWidget4Id('#opServer-chart-box');
             }).fail(displayAjaxError.bind(null, $('#analyticsnode-dashboard')));
         $('#collector-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=Collector&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'Collector', '30', '10', obj['name'], endTime); 
         }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
         $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=QueryEngine&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'QueryEngine', '30', '10', obj['name'], endTime); 
         }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
         $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=OpServer&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'OpServer', '30', '10', obj['name'], endTime); 
         }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
     }
 
     function populateGeneratorsTab(obj) {
         layoutHandler.setURLHashParams({tab:'generators',ip:aNodeInfo['ip'], node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
         var transportCfg = {
-            url:'/api/admin/monitor/infrastructure/analyticsnode/generators?hostname=' + obj['name'] + '&count=' + 50,
+            url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], obj['name'], 50),
         };
         var generatorDS; 
         //Intialize the grid only for the first time
@@ -647,7 +648,7 @@ analyticsNodeView = function () {
         			dataSource : {
         				remote: {
 	        		        ajaxConfig: {
-		                        url: '/api/admin/monitor/infrastructure/analyticsnode/details?hostname=' + aNodeInfo['name'],
+		                        url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], aNodeInfo['name']),
 		                        //timeout: timeout,
 		                        type: 'GET'
 		                    },
@@ -731,7 +732,9 @@ analyticsNodeView = function () {
 
 function getAnalyticsNodeProcessDetails(deferredObj,obj) {
 	var cfilt = "ModuleClientState:client_info";
-	var kfilt = "*:Collector,*:QueryEngine,*:OpServer,*:Contrail-Analytics-Nodemgr,*:ConfigNode"
+	var kfilt = "*:"+ monitorInfraKfilts['COLLECTOR'] +",*:"+ monitorInfraKfilts['QUERYENGINE'] +",*:"+ 
+	                monitorInfraKfilts['OPSERVER'] +",*:" + monitorInfraKfilts['ANALYTICS_NODEMGR'] + ",*:" 
+	                + monitorInfraKfilts['CONFIG_NODE'] 
     var analyticsProcessPostData = getPostData("generator","",obj['name'],cfilt,kfilt);
     $.ajax({
     	url:TENANT_API_URL,
