@@ -142,7 +142,7 @@
                      	</div>
                     </div>
                 	<div id="{{queryPrefix}}-add-filter-clause" class="row-fluid and-clause-item">
-						<div class="span1 and-text">AND</div>
+						<div class="span1 and-text">&nbsp;</div>
 						<div class="span3 new-and-text">
 							<a class="add-clause" onclick="appendFilter('{{queryPrefix}}');">New AND Term </a>
 						</div>

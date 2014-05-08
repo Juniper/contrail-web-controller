@@ -436,7 +436,7 @@ function runOTQueryForObjLogs(objId, timeRange, type) {
         "&table=" +objectType+
         "&async=false";
     var    options = {
-        elementId:'ot-results', gridHeight:300,gridWidth:600,
+        elementId:'ot-results',gridWidth:600,
         timeOut:90000, pageSize:50,
         export:true, btnId:'ot-query-submit'
     };
