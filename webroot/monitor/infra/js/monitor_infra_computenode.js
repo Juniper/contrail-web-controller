@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
+
 computeNodesView = function () {
     var computeNodesGrid,vRoutersData = [];
     var vRouterDataWithStatusInfo = [];
@@ -372,7 +373,7 @@ computeNodeView = function () {
     
     this.getComputeNodeDetails = function(deferredObj,obj) {
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/vrouter/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'] , obj['name'])
         }).done(function(result) {
             deferredObj.resolve(result);
         });
@@ -849,7 +850,7 @@ computeNodeView = function () {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: '/api/admin/monitor/infrastructure/vrouter/interface?ip=' + getIPOrHostName(computeNodeInfo),
+                                url: contrail.format(monitorInfraUrls['VROUTER_SUMMARY'], getIPOrHostName(computeNodeInfo)),
                                 type: 'GET'
                             },
                             dataParser: self.parseInterfaceData
@@ -977,7 +978,7 @@ computeNodeView = function () {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: '/api/admin/monitor/infrastructure/vrouter/vn?ip=' + getIPOrHostName(computeNodeInfo),
+                                url: contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(computeNodeInfo)),
                                 //timeout: timeout,
                                 type: 'GET'
                             },
@@ -1051,8 +1052,7 @@ computeNodeView = function () {
         startWidgetLoading('dashboard');   
 
         $.ajax({
-            //url: '/api/admin/monitor/infrastructure/vrouter/detail?uuid=' + computeNodeInfo['uuid'] + '&' + 'ip=' + getIPOrHostName(computeNodeInfo),
-            url:'/api/admin/monitor/infrastructure/vrouter/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
         }).done(function (result) {
                     computeNodeData = result;
                     var parsedData = infraMonitorView.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
@@ -1254,10 +1254,10 @@ computeNodeView = function () {
                 endWidgetLoading('dashboard');
             }).fail(displayAjaxError.bind(null, $('#computenode-dashboard')));
         $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=vRouterAgent&minsSince=30&sampleCnt=10&source=' + computeNodeInfo['name']  + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', computeNodeInfo['name'], endTime); 
         }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
         $('#system-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=vRouterAgent&minsSince=30&sampleCnt=10&source=' + computeNodeInfo['name']  + '&endTime=' + endTime;
+            return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', computeNodeInfo['name'], endTime);
         }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
     };
 
@@ -1270,21 +1270,6 @@ computeNodeView = function () {
         
         if (!isGridInitialized($('#gridComputeACL'))) {
             $('#gridComputeACL').contrailGrid({
-                dataSource:{
-                    transport:{
-                        read:{
-                            url:function () {
-                                return '/api/admin/monitor/infrastructure/vrouter/acl?ip=' + getIPOrHostName(computeNodeInfo)
-                            }
-                        }
-                    },
-                    schema:{
-                        parse:function (response) {
-                            getSGUUIDs(getIPOrHostName(computeNodeInfo));
-                            return self.parseACLData(response);
-                        }
-                    }
-                },
                 header : {
                     title : {
                         text : 'ACL',
@@ -1386,7 +1371,7 @@ computeNodeView = function () {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: '/api/admin/monitor/infrastructure/vrouter/acl?ip=' + getIPOrHostName(computeNodeInfo),
+                                url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(computeNodeInfo)),
                                 type: 'GET'
                             },
                             dataParser: function(response) {
@@ -1515,7 +1500,7 @@ computeNodeView = function () {
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: '/api/admin/monitor/infrastructure/vrouter/acl?ip=' + getIPOrHostName(computeNodeInfo),
+                     url: monitorInfraUrls['COMPUTENODE_ACL_URL'] + '?ip=' + getIPOrHostName(computeNodeInfo),
                      parse:function(response){
                          var retArr = [{text:'All',value:'All'}];
                          response = jsonPath(response,'$..AclSandeshData')[0];
@@ -1654,7 +1639,7 @@ computeNodeView = function () {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: '/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo),
+                                url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo),
                                 /* TODO use this while implementing context filtering
                                 function () {
                                     var aclFilter = '';
@@ -1726,13 +1711,13 @@ computeNodeView = function () {
             aclIterKeyStack = [];
             if (acluuid != 'All') {
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo) 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
                                                             + '&aclUUID=' + acluuid,
                         type:'Get'
                     };
             } else {
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo),
                         type:'Get'
                     };
             }
@@ -1747,20 +1732,20 @@ computeNodeView = function () {
             isAclPrevFirstTimeClicked = true;
             if(acluuid == 'All' && flowKeyStack.length > 0 && flowKeyStack[flowKeyStack.length - 1] != null){
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo) 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
                                                             + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1],
                         type:'Get'
                     };
             }
             else if (acluuid != 'All' && aclIterKeyStack.length > 0 && aclIterKeyStack[aclIterKeyStack.length -1] != null){
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo) 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
                         + '&iterKey=' + aclIterKeyStack[aclIterKeyStack.length -1],
                         type:'Get'
                     };
             } else if (acluuid == "All"){
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo),
                         type:'Get'
                     };
             }
@@ -1785,24 +1770,24 @@ computeNodeView = function () {
             aclIterKeyStack.pop();
             if(acluuid == 'All' && flowKeyStack.length > 0) {
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo) 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
                             + '&flowKey=' + flowKeyStack.pop(),
                         type:'Get'
                     };
             } else if (acluuid == 'All' && flowKeyStack.length < 1){
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo),
                         type:'Get'
                     };
             } else if(acluuid != 'All' && aclIterKeyStack.length > 0) {
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo) 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
                         + '&iterKey=' + aclIterKeyStack.pop(),
                         type:'Get'
                     };
             } else if(acluuid != 'All' && aclIterKeyStack.length < 1) {
                 newAjaxConfig = {
-                        url:'/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(computeNodeInfo)
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo)
                             + '&aclUUID=' + acluuid,
                         type:'Get'
                     };
@@ -1841,7 +1826,7 @@ computeNodeView = function () {
             cboVRF = $('#comboVRF').contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: '/api/admin/monitor/infrastructure/vrouter/vrf-list?ip=' + getIPOrHostName(computeNodeInfo),
+                     url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(computeNodeInfo)),
                      parse:function(response){
                          var ret = [];
                          if(!(response instanceof Array)){
@@ -1965,7 +1950,7 @@ computeNodeView = function () {
                 index = getIndexForType(selectedVRF,selectedRadio);
             }
             var newAjaxConfig = {
-                url:'/api/admin/monitor/infrastructure/vrouter/'+ selectedRadio +'-routes?ip=' + getIPOrHostName(computeNodeInfo) + '&vrfindex=' + index,
+                url: monitorInfraUrls['VROUTER_BASE'] + selectedRadio +'-routes?ip=' + getIPOrHostName(computeNodeInfo) + '&vrfindex=' + index,
                 type:'Get'
             };
             routesGrid.setRemoteAjaxConfig(newAjaxConfig);
@@ -2054,7 +2039,7 @@ computeNodeView = function () {
                                             selectedVrf = initialSelection['value'];
                                         }
                                         var ucIndex = getIndexForType(selectedVrf,'ucast');
-                                        return '/api/admin/monitor/infrastructure/vrouter/ucast-routes?ip=' + getIPOrHostName(computeNodeInfo) + '&vrfindex=' + ucIndex
+                                        return contrail.format(monitorInfraUrls['VROUTER_UNICAST_ROUTES'] , getIPOrHostName(computeNodeInfo), ucIndex)
                                     }(),
                                     type: 'GET'
                                 },
@@ -2149,7 +2134,7 @@ computeNodeView = function () {
                                     url: function(){
                                         var selectedVrf = cboVRF.value();;
                                         var mcIndex = getIndexForType(selectedVrf,'mcast');
-                                        return '/api/admin/monitor/infrastructure/vrouter/mcast-routes?ip=' + getIPOrHostName(computeNodeInfo) + '&vrfindex=' + mcIndex;
+                                        return contrail.format(monitorInfraUrls['VROUTER_MCAST_ROUTES'], getIPOrHostName(computeNodeInfo), mcIndex);
                                     }(),
                                     type: 'GET'
                                 },
@@ -2244,7 +2229,7 @@ computeNodeView = function () {
                                     url: function(){
                                         var selectedVrf = cboVRF.value();;
                                         var l2index = getIndexForType(selectedVrf,'l2');
-                                        return '/api/admin/monitor/infrastructure/vrouter/l2-routes?ip=' + getIPOrHostName(computeNodeInfo) + '&vrfindex=' + l2index;
+                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES '], getIPOrHostName(computeNodeInfo), l2index);
                                     }(),
                                     type: 'GET'
                                 },
@@ -2360,7 +2345,7 @@ function getStatusesForAllvRouterProcesses(processStateList){
 
 function getvRoutersDashboardDataForSummary(deferredObj,dataSource) {
     $.ajax({
-        url:'/api/admin/monitor/infrastructure/vrouters/summary?addGen'
+        url: monitorInfraUrls['VROUTER_SUMMARY']
     }).done(function(result) {
         var r = infraMonitorView.parsevRoutersDashboardData(result);
         $.each(r,function(idx,obj){

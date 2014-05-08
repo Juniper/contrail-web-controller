@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
+
 controlNodesView = function () {
     var self = this;
     var ctrlNodesGrid,ctrlNodesData = [];
@@ -225,7 +226,7 @@ controlNodeView = function () {
     
     this.getControlNodeDetails = function(deferredObj,obj) {
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/controlnode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], obj['name'])
         }).done(function(result) {
             deferredObj.resolve(result);
         });
@@ -433,7 +434,7 @@ controlNodeView = function () {
     function populatePeersTab(obj) {
         layoutHandler.setURLHashParams({tab:'peers',node:'Control Nodes:' + obj['name']},{triggerHashChange:false});
         var transportCfg = {
-                url:'/api/admin/monitor/infrastructure/controlnode/paged-bgppeer?hostname=' + obj['name'] + '&count=' + 40
+                url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], obj['name'], 40)
             };
             var peersDS;
         //Intialize the grid only for the first time
@@ -576,7 +577,7 @@ controlNodeView = function () {
 //             dataValueField: 'id',
              dataSource: {
             	 type:'remote',
-                 url: '/api/admin/monitor/infrastructure/controlnode/routes/rout-inst-list?ip=' + getIPOrHostName(ctrlNodeInfo),
+                 url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(ctrlNodeInfo)),
                  parse:function(response){
                 	 var ret = []
                 	 ret =['All'].concat(response['routeInstances']);
@@ -610,7 +611,7 @@ controlNodeView = function () {
              //dataValueField: 'value',
              dataSource: {
              	type: 'remote',
-                 url: '/api/admin/monitor/infrastructure/controlnode/peer-list?hostname=' + obj['name'],
+                 url: contrail.format(monitorInfraUrls['CONTROLNODE_PEER_LIST'],obj['name']),
                  parse:function(response){
                 	 var ret = ['All']
                 	if(!(response instanceof Array)){
@@ -687,7 +688,7 @@ controlNodeView = function () {
         }
         if (!isGridInitialized($('#gridRoutes'))) {
             var routesGrid = $('#gridRoutes').data('contrailGrid');
-            var url = '/api/admin/monitor/infrastructure/controlnode/routes?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString);
+            var url =  monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString);
             var ajaxConfig = {
                     url: url,
                     type: 'GET'
@@ -718,7 +719,7 @@ controlNodeView = function () {
                 if (limit != 'All')
                     routeQueryString['limit'] = limit;
                // filterRoutes();
-                newAjaxConfig['url'] = '/api/admin/monitor/infrastructure/controlnode/routes?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString);
+                newAjaxConfig['url'] = monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString);
                 routesGrid.setRemoteAjaxConfig(newAjaxConfig);
                 reloadGrid(routesGrid);
             });
@@ -802,7 +803,7 @@ controlNodeView = function () {
 	        		        ajaxConfig: {
 	                            url: function(){
 	                                routeQueryString['limit'] = '50';
-	                                return '/api/admin/monitor/infrastructure/controlnode/routes?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString)
+	                                return monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(ctrlNodeInfo) + '&' + $.param(routeQueryString)
 	                            }(),
 	                            type: 'GET'
 	                        },
@@ -863,7 +864,7 @@ controlNodeView = function () {
         $('#controlnode-dashboard').html(dashboardTemplate({title:'Control Node',colCount:2, showSettings:true, widgetBoxId:'dashboard'}));
         startWidgetLoading('dashboard');   
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/controlnode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], obj['name'])
         }).done(function (result) {
                 ctrlNodeData = result;
                 var parsedData = infraMonitorView.parseControlNodesDashboardData([{name:obj['name'],value:result}])[0];
@@ -1056,7 +1057,7 @@ controlNodeView = function () {
                 initWidget4Id('#control-chart-box');
             }).fail(displayAjaxError.bind(null, $('#controlnode-dashboard')));
         $('#control-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=ControlNode&minsSince=30&sampleCnt=10&source=' + ctrlNodeInfo['name']  + '&endTime=' + endTime;
+            return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ControlNode', '30', '10', ctrlNodeInfo['name'], endTime); 
         }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
     }
 
