@@ -2,24 +2,6 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var infraNodesTree;
-var noDataStr = '-';
-var controlNodetabs = ['details', 'peers', 'routes', 'console','servicechaining'];
-var computeNodeTabs = ['details', 'interfaces', 'networks', 'acl', 'flows','routes', 'console'];
-var analyticsNodeTabs = ['details', 'generators', 'qequeries', 'console'];
-var configNodeTabs = ['details', 'console', 'generators', 'qequeries'];
-var controlProcsForLastTimeStamp = ['ControlNode'];
-var computeProcsForLastTimeStamp = ['VRouterAgent'];
-var analyticsProcsForLastTimeStamp = ['Collector','OpServer'];
-var configProcsForLastTimeStamp = ['ApiServer','DiscoveryService','ServiceMonitor','Schema'];
-var excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr',
-    'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper'];
-var vRouterDashboardChartInitialized = false;
-var controlNodesDashboardChartInitialized = false;
-var analyticsNodesDashboardChartInitialized = false;
-var configNodesDashboardChartInitialized = false;
-var summaryChartsInitializationStatus = {vRouters:false,controlNode:false,analyticsNode:false,configNode:false};
-
 function infraMonitorClass() {
     var self = this;
     var xhrObjects = [];
@@ -164,7 +146,7 @@ function infraMonitorClass() {
     this.getLogs = function(deferredObj) {
         var retArr = [];
         $.ajax({
-            url:'/api/admin/reports/query?where=&filters=&level=4&fromTimeUTC=now-10m' + 
+            url: monitorInfraUrls['QUERY'] + '?where=&filters=&level=4&fromTimeUTC=now-10m' + 
                 '&toTimeUTC=now&table=MessageTable&limit=10'
         }).done(function(result) {
             retArr = $.map(result['data'],function(obj,idx) {
@@ -1175,7 +1157,7 @@ function infraMonitorClass() {
             $('#msgCategory').contrailDropdown({
                 dataSource:{
                     type:'remote',
-                    url: '/api/admin/table/values/MessageTable/Category',
+                    url: monitorInfraUrls['MSGTABLE_CATEGORY'],
                     parse:function (response) {
                         if (nodeType == 'control')
                             return ifNull(response['ControlNode'], []);
@@ -1192,7 +1174,7 @@ function infraMonitorClass() {
             $('#msgLevel').contrailDropdown({
                 dataSource:{
                     type:'remote',
-                    url: '/api/admin/table/values/MessageTable/Level',
+                    url: monitorInfraUrls['MSGTABLE_LEVEL'],
                     parse:function (response) {
                         var retArr = [];
                         $.map(response, function (value) {
@@ -1276,20 +1258,20 @@ function infraMonitorClass() {
         	var hostName = obj['name'];
         	if(nodeType == 'compute'){
         		type = 'vrouter';
-        		kfilt = hostName+":*:VRouterAgent:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['VROUTER_AGENT'] + ":*";
         	} else if (nodeType == 'control'){
         		type = 'controlnode';
-        		kfilt = hostName+":*:ControlNode:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
         	} else if (nodeType == 'analytics'){
         		type = 'Collector';
-        		kfilt = hostName+":*:Collector:*,"+
-        		        hostName+":*:OpServer:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
+        		        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
         	} else if (nodeType == 'config'){
         		type = 'confignode';
-        		kfilt = hostName+":*:ApiServer*,"+
-	                    hostName+":*:DiscoveryService:*,"+
-    	                hostName+":*:ServiceMonitor:*,"+
-    	                hostName+":*:Schema:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
+	                    hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
         	}
         	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
         	$.ajax({
@@ -1380,13 +1362,16 @@ function infraMonitorClass() {
                 //messageType:'any'
             };
             if (nodeType == 'control') {
-                filterObj['moduleId'] = 'ControlNode';
+                filterObj['moduleId'] = UVEModuleIds['CONTROLNODE'];
             } else if (nodeType == 'compute') {
-                filterObj['moduleId'] = 'VRouterAgent';
+                filterObj['moduleId'] = UVEModuleIds['VROUTER_AGENT'];
             } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId=Schema AND Source='+obj['name']+') OR (ModuleId=ApiServer AND Source='+obj['name']+') OR (ModuleId=ServiceMonitor AND Source='+obj['name']+') OR (ModuleId=DiscoveryService AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId='+ UVEModuleIds['SCHEMA'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['APISERVER'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['SERVICE_MONITOR'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['DISCOVERY_SERVICE'] +' AND Source='+obj['name']+')';
             } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId=OpServer AND Source='+obj['name']+') OR (ModuleId=Collector AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId='+ UVEModuleIds['OPSERVER'] +' AND Source='+obj['name']+') OR (ModuleId='+ UVEModuleIds['COLLECTOR'] +' AND Source='+obj['name']+')';
             }
 
             if (cboMsgCategory.value() != '') {
@@ -1517,7 +1502,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
     if(dsObj['lastUpdated'] == null){
         obj['transportCfg'] = { 
-                url:'/api/admin/monitor/infrastructure/vrouters/cached-summary',
+                url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'],
                 type:'GET'
             }
         defferedObj.done(function(){
@@ -1525,7 +1510,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
         });
     } else {
         obj['transportCfg'] = {
-                url:'/api/admin/monitor/infrastructure/vrouters/cached-summary?forceRefresh',
+                url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'] + '?forceRefresh',
                 type:'GET',
                 //set the default timeout as 5 mins
                 timeout:300000
@@ -1541,7 +1526,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
 function getAllControlNodes(defferedObj,dataSource){
     var obj = {};
     obj['transportCfg'] = { 
-            url:'/api/admin/monitor/infrastructure/controlnodes/summary',
+            url: monitorInfraUrls['CONTROLNODE_SUMMARY'],
             type:'GET'
         }
     getOutputByPagination(dataSource,
@@ -1556,7 +1541,7 @@ function getAllControlNodes(defferedObj,dataSource){
 function getAllAnalyticsNodes(defferedObj,dataSource){
     var obj = {};
     obj['transportCfg'] = { 
-            url:'/api/admin/monitor/infrastructure/analyticsnodes/summary',
+            url: monitorInfraUrls['ANALYTICS_SUMMARY'],
             type:'GET'
         }
     getOutputByPagination(dataSource,
@@ -1571,7 +1556,7 @@ function getAllAnalyticsNodes(defferedObj,dataSource){
 function getAllConfigNodes(defferedObj,dataSource){
     var obj = {};
     obj['transportCfg'] = { 
-            url:'/api/admin/monitor/infrastructure/confignodes/summary',
+            url: monitorInfraUrls['CONFIG_SUMMARY'],
             type:'GET'
         }
     getOutputByPagination(dataSource,
@@ -1593,9 +1578,7 @@ function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
         var idx=0;
         while(genData.length > 0 && idx < genData.length){
             if(genData[idx]['name'].split(':')[0] == d['name']){
-                var dataItem = primaryData[i];
-                var status = getFinalNodeStatusFromGenerators(genData[idx]['status'],dataItem['status']);
-                d['status'] = status;
+                d['status'] = getFinalNodeStatusFromGenerators(genData[idx]['status'],primaryData[i]);
                 d['isGeneratorRetrieved'] = true;
                 genData.splice(idx,1);
                 break;
@@ -1619,16 +1602,16 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
     var kfilts;
     var cfilts;
     if(dsName == 'controlNodeDS') {
-        kfilts =  '*:ControlNode*';
+        kfilts =  '*:' + UVEModuleIds['CONTROLNODE'] + '*';
         cfilts =  'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'computeNodeDS') {
-        kfilts = '*:VRouterAgent*';
+        kfilts = '*:' + UVEModuleIds['VROUTER_AGENT'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'configNodeDS') {
-        kfilts = '*:Collector*,*:OpServer*,*:QueryEngine*';
+        kfilts = '*:' + UVEModuleIds['COLLECTOR'] + '*,*:' + UVEModuleIds['OPSERVER'] + '*,*:' + UVEModuleIds['QUERYENGINE'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'analyticsNodeDS') {
-        kfilts = '*:ApiServer*';
+        kfilts = '*:' + UVEModuleIds['APISERVER'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     }
 

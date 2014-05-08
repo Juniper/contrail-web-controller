@@ -1,6 +1,7 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
+
 configNodesView = function () {
     var self = this;
     var ctrlNodesGrid,configNodesData;
@@ -209,7 +210,7 @@ configNodeView = function () {
 
     this.getConfigNodeDetails = function(deferredObj,obj) {
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/confignode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , obj['name'])
         }).done(function(result) {
             deferredObj.resolve(result);
         });
@@ -228,7 +229,7 @@ configNodeView = function () {
         $('#confignode-dashboard').html(dashboardTemplate({title:'Configuration Node',colCount:2, showSettings:true, widgetBoxId:'dashboard'}));
         startWidgetLoading('dashboard');
         $.ajax({
-            url:'/api/admin/monitor/infrastructure/confignode/details?hostname=' + obj['name']
+            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , obj['name'])
         }).done(function (result) {
         		var noDataStr = "--";
                 $('#apiServer-sparklines').initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'api_server_cpu_share', color: 'blue-sparkline'}, {name: 'api_server_mem_virt', color: 'green-sparkline'}]}, slConfig);
@@ -394,13 +395,13 @@ configNodeView = function () {
                 initWidget4Id('#schema-chart-box');
             }).fail(displayAjaxError.bind(null, $('#confignode-dashboard')));
         $('#apiServer-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=ApiServer&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ApiServer', '30', '10', obj['name'], endTime);
         }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['apiServer-chart-box'], hideWidgetIds: ['serviceMonitor-chart-box', 'schema-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
         $('#serviceMonitor-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=ServiceMonitor&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ServiceMonitor', '30', '10', obj['name'], endTime);
         }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['serviceMonitor-chart-box'], hideWidgetIds: ['apiServer-chart-box', 'schema-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
         $('#schema-chart').initMemCPULineChart($.extend({url:function() {
-            return '/api/tenant/networking/flow-series/cpu?moduleId=Schema&minsSince=30&sampleCnt=10&source=' + obj['name'] + '&endTime=' + endTime;
+            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'Schema', '30', '10', obj['name'], endTime);
         }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['schema-chart-box'], hideWidgetIds: ['apiServer-chart-box', 'serviceMonitor-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
     }
 

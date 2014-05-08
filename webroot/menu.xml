@@ -18,6 +18,7 @@
                             <label>Overview</label>
                             <rootDir>/monitor/infra</rootDir>
                             <view>monitor_infra_dashboard.view</view>
+                            <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <class>infraMonitorView</class>
@@ -32,6 +33,7 @@
                             <rootDir>/monitor/infra</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <view>monitor_infra_controlnode.view</view>
+                            <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_controlnode.js</js>
@@ -47,6 +49,7 @@
                             <rootDir>/monitor/infra</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <view>monitor_infra_computenode.view</view>
+                            <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_computenode.js</js>
@@ -62,6 +65,7 @@
                             <rootDir>/monitor/infra</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <view>monitor_infra_analyticnode.view</view>
+                            <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_analyticnode.js</js>
@@ -77,6 +81,7 @@
                             <rootDir>/monitor/infra</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <view>monitor_infra_confignode.view</view>
+                            <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_confignode.js</js>
