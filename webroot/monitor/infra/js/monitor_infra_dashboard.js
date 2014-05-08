@@ -1578,9 +1578,7 @@ function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
         var idx=0;
         while(genData.length > 0 && idx < genData.length){
             if(genData[idx]['name'].split(':')[0] == d['name']){
-                var dataItem = primaryData[i];
-                var status = getFinalNodeStatusFromGenerators(genData[idx]['status'],dataItem['status']);
-                d['status'] = status;
+                d['status'] = getFinalNodeStatusFromGenerators(genData[idx]['status'],primaryData[i]);
                 d['isGeneratorRetrieved'] = true;
                 genData.splice(idx,1);
                 break;
