@@ -51,7 +51,7 @@ var monitorInfraUrls = {
         MSGTABLE_LEVEL              : '/api/admin/table/values/MessageTable/Level'
 }
 
-var monitorInfraKfilts = {
+var UVEModuleIds = {
         VROUTER_AGENT       : 'VRouterAgent',
         CONTROLNODE         : 'ControlNode',
         COLLECTOR           : 'Collector',
@@ -65,7 +65,7 @@ var monitorInfraKfilts = {
         CONFIG_NODE         : 'ConfigNode'
 }
 
-var controlProcsForLastTimeStamp = [monitorInfraKfilts['CONTROLNODE']];
-var computeProcsForLastTimeStamp = [monitorInfraKfilts['VROUTER_AGENT']];
-var analyticsProcsForLastTimeStamp = [monitorInfraKfilts['COLLECTOR'],monitorInfraKfilts['OPSERVER']];
-var configProcsForLastTimeStamp = [monitorInfraKfilts['APISERVER'],monitorInfraKfilts['DISCOVERY_SERVICE'],monitorInfraKfilts['SERVICE_MONITOR'],monitorInfraKfilts['SCHEMA']];
+var controlProcsForLastTimeStamp = [UVEModuleIds['CONTROLNODE']];
+var computeProcsForLastTimeStamp = [UVEModuleIds['VROUTER_AGENT']];
+var analyticsProcsForLastTimeStamp = [UVEModuleIds['COLLECTOR'],UVEModuleIds['OPSERVER']];
+var configProcsForLastTimeStamp = [UVEModuleIds['APISERVER'],UVEModuleIds['DISCOVERY_SERVICE'],UVEModuleIds['SERVICE_MONITOR'],UVEModuleIds['SCHEMA']];

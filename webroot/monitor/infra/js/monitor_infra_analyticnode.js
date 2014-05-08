@@ -730,22 +730,6 @@ analyticsNodeView = function () {
     }
 }
 
-function getAnalyticsNodeProcessDetails(deferredObj,obj) {
-	var cfilt = "ModuleClientState:client_info";
-	var kfilt = "*:"+ monitorInfraKfilts['COLLECTOR'] +",*:"+ monitorInfraKfilts['QUERYENGINE'] +",*:"+ 
-	                monitorInfraKfilts['OPSERVER'] +",*:" + monitorInfraKfilts['ANALYTICS_NODEMGR'] + ",*:" 
-	                + monitorInfraKfilts['CONFIG_NODE'] 
-    var analyticsProcessPostData = getPostData("generator","",obj['name'],cfilt,kfilt);
-    $.ajax({
-    	url:TENANT_API_URL,
-        type:"post",
-        data:analyticsProcessPostData,
-        dataType:'json'
-    }).done(function(result) {
-        deferredObj.resolve(result);
-    });
-}
-
 function getGeneratorsListForAnalyticsNode(deferredObj,postData) {
     $.ajax({
     	url:TENANT_API_URL,

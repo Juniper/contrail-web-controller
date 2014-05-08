@@ -1258,20 +1258,20 @@ function infraMonitorClass() {
         	var hostName = obj['name'];
         	if(nodeType == 'compute'){
         		type = 'vrouter';
-        		kfilt = hostName+":*:" + monitorInfraKfilts['VROUTER_AGENT'] + ":*";
+        		kfilt = hostName+":*:" + UVEModuleIds['VROUTER_AGENT'] + ":*";
         	} else if (nodeType == 'control'){
         		type = 'controlnode';
-        		kfilt = hostName+":*:" + monitorInfraKfilts['CONTROLNODE'] + ":*";
+        		kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
         	} else if (nodeType == 'analytics'){
         		type = 'Collector';
-        		kfilt = hostName+":*:" + monitorInfraKfilts['COLLECTOR'] + ":*,"+
-        		        hostName+":*:" + monitorInfraKfilts['OPSERVER'] + ":*";
+        		kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
+        		        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
         	} else if (nodeType == 'config'){
         		type = 'confignode';
-        		kfilt = hostName+":*:" + monitorInfraKfilts['APISERVER'] + "*,"+
-	                    hostName+":*:" + monitorInfraKfilts['DISCOVERY_SERVICE'] + ":*,"+
-    	                hostName+":*:" + monitorInfraKfilts['SERVICE_MONITOR'] + ":*,"+
-    	                hostName+":*:" + monitorInfraKfilts['SCHEMA'] + ":*";
+        		kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
+	                    hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
         	}
         	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
         	$.ajax({
@@ -1362,16 +1362,16 @@ function infraMonitorClass() {
                 //messageType:'any'
             };
             if (nodeType == 'control') {
-                filterObj['moduleId'] = monitorInfraKfilts['CONTROLNODE'];
+                filterObj['moduleId'] = UVEModuleIds['CONTROLNODE'];
             } else if (nodeType == 'compute') {
-                filterObj['moduleId'] = monitorInfraKfilts['VROUTER_AGENT'];
+                filterObj['moduleId'] = UVEModuleIds['VROUTER_AGENT'];
             } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId='+ monitorInfraKfilts['SCHEMA'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ monitorInfraKfilts['APISERVER'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ monitorInfraKfilts['SERVICE_MONITOR'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ monitorInfraKfilts['DISCOVERY_SERVICE'] +' AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId='+ UVEModuleIds['SCHEMA'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['APISERVER'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['SERVICE_MONITOR'] +' AND Source='
+                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['DISCOVERY_SERVICE'] +' AND Source='+obj['name']+')';
             } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId='+ monitorInfraKfilts['OPSERVER'] +' AND Source='+obj['name']+') OR (ModuleId='+ monitorInfraKfilts['COLLECTOR'] +' AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId='+ UVEModuleIds['OPSERVER'] +' AND Source='+obj['name']+') OR (ModuleId='+ UVEModuleIds['COLLECTOR'] +' AND Source='+obj['name']+')';
             }
 
             if (cboMsgCategory.value() != '') {
@@ -1604,16 +1604,16 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
     var kfilts;
     var cfilts;
     if(dsName == 'controlNodeDS') {
-        kfilts =  '*:' + monitorInfraKfilts['CONTROLNODE'] + '*';
+        kfilts =  '*:' + UVEModuleIds['CONTROLNODE'] + '*';
         cfilts =  'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'computeNodeDS') {
-        kfilts = '*:' + monitorInfraKfilts['VROUTER_AGENT'] + '*';
+        kfilts = '*:' + UVEModuleIds['VROUTER_AGENT'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'configNodeDS') {
-        kfilts = '*:' + monitorInfraKfilts['COLLECTOR'] + '*,*:' + monitorInfraKfilts['OPSERVER'] + '*,*:' + monitorInfraKfilts['QUERYENGINE'] + '*';
+        kfilts = '*:' + UVEModuleIds['COLLECTOR'] + '*,*:' + UVEModuleIds['OPSERVER'] + '*,*:' + UVEModuleIds['QUERYENGINE'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'analyticsNodeDS') {
-        kfilts = '*:' + monitorInfraKfilts['APISERVER'] + '*';
+        kfilts = '*:' + UVEModuleIds['APISERVER'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     }
 
