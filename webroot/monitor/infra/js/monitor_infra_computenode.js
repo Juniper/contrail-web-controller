@@ -2286,7 +2286,7 @@ computeNodeView = function () {
                  activate: function(e, ui) {
                     infraMonitorView.clearTimers();
                     //var selTab = $(e.item).text();
-                    var selTab = ui.newTab.context.innerText;
+                    var selTab = $(ui.newTab.context).text();
                     if (selTab != 'Console') {
                     }
 
