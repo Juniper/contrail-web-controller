@@ -1081,7 +1081,7 @@ controlNodeView = function () {
 //                },
                 activate:function (e, ui) {
                     infraMonitorView.clearTimers();
-                    var selTab = ui.newTab.context.innerText;
+                    var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Peers') {
                         populatePeersTab(ctrlNodeInfo);
                         $('#gridPeers').data('contrailGrid').refreshView();

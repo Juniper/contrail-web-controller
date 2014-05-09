@@ -1500,7 +1500,7 @@ computeNodeView = function () {
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: monitorInfraUrls['COMPUTENODE_ACL_URL'] + '?ip=' + getIPOrHostName(computeNodeInfo),
+                     url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(computeNodeInfo)),
                      parse:function(response){
                          var retArr = [{text:'All',value:'All'}];
                          response = jsonPath(response,'$..AclSandeshData')[0];
@@ -2229,7 +2229,7 @@ computeNodeView = function () {
                                     url: function(){
                                         var selectedVrf = cboVRF.value();;
                                         var l2index = getIndexForType(selectedVrf,'l2');
-                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES '], getIPOrHostName(computeNodeInfo), l2index);
+                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES'], getIPOrHostName(computeNodeInfo), l2index);
                                     }(),
                                     type: 'GET'
                                 },
@@ -2286,7 +2286,7 @@ computeNodeView = function () {
                  activate: function(e, ui) {
                     infraMonitorView.clearTimers();
                     //var selTab = $(e.item).text();
-                    var selTab = ui.newTab.context.innerText;
+                    var selTab = $(ui.newTab.context).text();
                     if (selTab != 'Console') {
                     }
 
