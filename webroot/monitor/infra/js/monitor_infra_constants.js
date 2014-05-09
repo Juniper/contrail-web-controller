@@ -26,7 +26,7 @@ var monitorInfraUrls = {
         VROUTER_NETWORKS            : '/api/admin/monitor/infrastructure/vrouter/vn?ip={0}',
         VROUTER_ACL                 : '/api/admin/monitor/infrastructure/vrouter/acl?ip={0}',
         VROUTER_FLOWS               : '/api/admin/monitor/infrastructure/vrouter/flows',
-        VROUTER_VRF_LIST            : '/api/admin/monitor/infrastructure/vrouter/vrf-list',
+        VROUTER_VRF_LIST            : '/api/admin/monitor/infrastructure/vrouter/vrf-list?ip={0}',
         VROUTER_UNICAST_ROUTES      : '/api/admin/monitor/infrastructure/vrouter/ucast-routes?ip={0}&vrfindex={1}',
         VROUTER_MCAST_ROUTES        : '/api/admin/monitor/infrastructure/vrouter/mcast-routes?ip={0}&vrfindex={1}',
         VROUTER_L2_ROUTES           : '/api/admin/monitor/infrastructure/vrouter/l2-routes?ip={0}&vrfindex={1}',
