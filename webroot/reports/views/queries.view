@@ -9,7 +9,7 @@
 			<div class="or-clause-item-action pull-left margin-0-5">
 				<i class="or-clause-icon-caret icon-caret-down" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
 	   		</div>
-			<p class="or-clause-item-term span10 margin-0-5"></p>
+			<p class="or-clause-item-term span10 margin-0-5" onclick="toggleORClause('{{queryPrefix}}',this);"></p>
 			<div class="{{queryPrefix}}-or-clause-item-action- or-clause-item-action pull-right margin-0-5">
 				<i class="icon-remove" onclick="deleteWhereORTerm(this);"></i>
 			</div>
@@ -21,7 +21,7 @@
 	               	<div class="row-fluid and-clause-item">
 						<div class="span1 and-text">&nbsp;</div>
 						<div class="span3 new-and-text">
-							<a class="add-clause" onclick="appendWhere('{{queryPrefix}}',this);">New AND Term </a>
+							<a class="add-clause" onclick="appendWhere('{{queryPrefix}}',this);"><i class="icon-plus"></i> &nbsp;AND</a>
 						</div>
 					</div>
 	        	</div>
@@ -40,7 +40,7 @@
 					<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-left margin-0-5">
 						<i class="or-clause-icon-caret icon-caret-right" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
 	   				</div>
-				    <p class="or-clause-item-term span10 margin-0-5" style="display:block;">{{this.text}}</p>
+				    <p class="or-clause-item-term span10 margin-0-5" style="display:block;" onclick="toggleORClause('{{queryPrefix}}',this);">{{this.text}}</p>
 					<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-right margin-0-5">
 						<i class="icon-remove" onclick="deleteWhereORTerm(this);"></i>
 					</div>
@@ -66,17 +66,17 @@
                			<div class="row-fluid and-clause-item">
 							<div class="span1 and-text">&nbsp;</div>
 							<div class="span3 new-and-text">
-								<a class="add-clause" onclick="appendWhere('{{../queryPrefix}}',this);">New AND Term </a>
+								<a class="add-clause" onclick="appendWhere('{{../queryPrefix}}',this);"><i class="icon-plus"></i> &nbsp;AND</a>
 							</div>
 						</div>
         			</form>
     			</div>
 			</div>
         {{/each}}
-		<div id="{{queryPrefix}}-or-clause-item-new-term" class="or-clause-item row-fluid">
+		<div id="{{queryPrefix}}-or-clause-item-new-term" class="or-clause-item row-fluid margin-5-0">
 			<div class="span10">
 				<div class="or-clause-item-condensed row-fluid">
-            		<a class="add-clause new-and-text" onclick="selectNewORClause('{{queryPrefix}}');">New OR Term </a>
+            		<a class="add-clause new-and-text" onclick="selectNewORClause('{{queryPrefix}}');"><i class="icon-plus"></i> &nbsp;OR</a>
 	        	</div>
 				
 			</div>
@@ -144,7 +144,7 @@
                 	<div id="{{queryPrefix}}-add-filter-clause" class="row-fluid and-clause-item">
 						<div class="span1 and-text">&nbsp;</div>
 						<div class="span3 new-and-text">
-							<a class="add-clause" onclick="appendFilter('{{queryPrefix}}');">New AND Term </a>
+							<a class="add-clause" onclick="appendFilter('{{queryPrefix}}');"><i class="icon-plus"></i> &nbsp;AND</a>
 						</div>
 					</div>
             	</div>
