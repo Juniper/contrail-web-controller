@@ -155,7 +155,7 @@ computeNodesView = function () {
     
     function populateComputeNodes() {
         summaryChartsInitializationStatus['vRouters'] = false;
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         var compNodesTemplate = contrail.getTemplate4Id("computenodes-template");
         $(pageContainer).html(compNodesTemplate({}));
         //Initialize widget header
@@ -2284,7 +2284,7 @@ computeNodeView = function () {
             }
             $("#compute_tabstrip").contrailTabs({
                  activate: function(e, ui) {
-                    infraMonitorView.clearTimers();
+                    infraMonitorUtils.clearTimers();
                     //var selTab = $(e.item).text();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab != 'Console') {
@@ -2300,7 +2300,7 @@ computeNodeView = function () {
                     } else if (selTab == 'Flows') {
                         populateFlowsTab(computeNodeInfo, e.filters);
                     } else if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('compute', {source:computeNodeInfo['name']}, computeNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('compute', {source:computeNodeInfo['name']}, computeNodeInfo);
                     } else if (selTab == 'Debug Info') {
                         populateDebugTab(computeNodeInfo);
                     } else if (selTab == 'Details') {

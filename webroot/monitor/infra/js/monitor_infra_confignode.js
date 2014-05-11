@@ -31,7 +31,7 @@ configNodesView = function () {
     }
 
     function populateConfigNodes() {
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         summaryChartsInitializationStatus['configNode'] = false;
         var confNodesTemplate = contrail.getTemplate4Id("confignodes-template");
         $(pageContainer).html(confNodesTemplate({}));
@@ -417,10 +417,10 @@ configNodeView = function () {
 
             $("#config_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    infraMonitorView.clearTimers();
-                    var selTab = $(ui.newTab.context).text();
+                    infraMonitorUtils.clearTimers();
+                    var selTab = ui.newTab.context.innerText;
                     if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('config', {source:confNodeInfo['name']}, confNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('config', {source:confNodeInfo['name']}, confNodeInfo);
                     } else if (selTab == 'Details') {
                         populateDetailsTab(confNodeInfo);
                     }

@@ -24,7 +24,7 @@ analyticsNodesView = function () {
     }
 
     function populateAnalyticsNodes() {
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         summaryChartsInitializationStatus['analyticsNode'] = false;
         var aNodesTemplate = contrail.getTemplate4Id("analyticsnodes-template");
         $(pageContainer).html(aNodesTemplate({}));
@@ -161,14 +161,12 @@ analyticsNodesView = function () {
         })
         $(analyticsNodeDS).on('change',function(){
         	updateChartsForSummary(analyticsNodesDataSource.getItems(),"analytics");
-        	//updateCpuSparkLines(aNodesGrid,analyticsNodesDataSource.getItems());
         });
         if(analyticsNodesResult['lastUpdated'] != null && (analyticsNodesResult['error'] == null || analyticsNodesResult['error']['errTxt'] == 'abort')){
            triggerDatasourceEvents(analyticsNodeDS);
         } else {
             aNodesGrid.showGridMessage('loading');
         }
-        //applyGridDefHandlers(aNodesGrid, {noMsg:'No Analytics Nodes to display'});
     }
 }
 
@@ -705,8 +703,8 @@ analyticsNodeView = function () {
 
             $("#analytics_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    infraMonitorView.clearTimers();
-                    var selTab = $(ui.newTab.context).text();
+                    infraMonitorUtils.clearTimers();
+                    var selTab = ui.newTab.context.innerText;
                     if (selTab == 'Generators') {
                         populateGeneratorsTab(aNodeInfo);
                         $('#gridGenerators').data('contrailGrid').refreshView();
@@ -714,7 +712,7 @@ analyticsNodeView = function () {
                         populateQEQueriesTab(aNodeInfo);
                         $('#gridQEQueries').data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
                     } else if (selTab == 'Details') {
                         populateDetailsTab(aNodeInfo);
                     }

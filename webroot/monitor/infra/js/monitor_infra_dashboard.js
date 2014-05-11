@@ -8,19 +8,43 @@ function infraMonitorClass() {
     var isLoaded = 0;
     self.consoleTimer = [];
     self.downNodeCnt = {vRouter:0,controlNode:0,configNode:0,analyticNode:0};
-    //Present either in config or UVE but not both
     self.tabsLoaded = {vRouter:0,controlNode:0,configNode:0,analyticNode:0};
     var infraViewModel; 
-    var dashboardDataViewModel = function() {
+    var DashboardViewModel = function() {
         this.ctrlNodesData = ko.observableArray([]);
         this.vRoutersData = ko.observableArray([]);
         this.analyticNodesData = ko.observableArray([]);
         this.configNodesData = ko.observableArray([]);
     }
-    var dashboardDataObj = new dashboardDataViewModel();
+    var dashboardViewModel = new DashboardViewModel();
+    //Update the node counts
+    dashboardViewModel.vRoutersData.subscribe(function(data) {
+        var downNodeCnt = infraMonitorUtils.getDownNodeCnt(data);
+        infraViewModel.vRouterDownCnt(downNodeCnt);
+        infraViewModel.vRouterUpCnt(data.length-downNodeCnt);
+        //infraViewModel.vRouterCnt(data.length);
+    });
+    dashboardViewModel.ctrlNodesData.subscribe(function(data) {
+        var downNodeCnt = infraMonitorUtils.getDownNodeCnt(data);
+        infraViewModel.ctrlNodeDownCnt(downNodeCnt);
+        infraViewModel.ctrlNodeUpCnt(data.length-downNodeCnt);
+        //infraViewModel.ctrlNodeCnt(data.length);
+    });
+    dashboardViewModel.configNodesData.subscribe(function(data) {
+        var downNodeCnt = infraMonitorUtils.getDownNodeCnt(data);
+        infraViewModel.configNodeDownCnt(downNodeCnt);
+        infraViewModel.configNodeUpCnt(data.length-downNodeCnt);
+        //infraViewModel.configNodeCnt(data.length);
+    });
+    dashboardViewModel.analyticNodesData.subscribe(function(data) {
+        var downNodeCnt = infraMonitorUtils.getDownNodeCnt(data);
+        infraViewModel.analyticNodeDownCnt(downNodeCnt);
+        infraViewModel.analyticNodeUpCnt(data.length-downNodeCnt);
+        //infraViewModel.analyticNodeCnt(data.length);
+    });
     /*Selenium Testing*/
     this.getDashboardDataObj = function(){
-        return dashboardDataObj;
+        return dashboardViewModel;
     }
     /*End of Selenium Testing*/    
     this.initInfraViewModel = function() {
@@ -63,10 +87,6 @@ function infraMonitorClass() {
         });
     }
 
-    this.onWindowResize = function () {
-
-    }
-
     this.destroy = function () {
         //Cancel the pending ajax calls
         var kGrid = $('.contrail-grid').data('contrailGrid');
@@ -75,7 +95,7 @@ function infraMonitorClass() {
     }
 
     this.updatevRouterInfoBoxes = function(){
-        var data = dashboardDataObj.vRoutersData();
+        var data = dashboardViewModel.vRoutersData();
         var instBuckets,vnBuckets,intfBuckets;
         var vnCount=0,intfCnt=0,instCnt=0,vns=[];
         var vRouterCF = crossfilter(data);
@@ -132,7 +152,7 @@ function infraMonitorClass() {
 
             $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_dashboard',q:{node:'vRouters'}}}});
             initDeferred({deferredObj:deferredObj,renderFn:'initScatterChart',selector:$('#vrouter-bubble'),parseFn:function(response) {
-                return {title:'vRouters',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'vRouters',values:dashboardDataObj.vRoutersData()}]};
+                return {title:'vRouters',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'vRouters',values:dashboardViewModel.vRoutersData()}]};
             }});
         } else {
             if($('#vrouter-bubble > svg').length > 0){
@@ -169,7 +189,7 @@ function infraMonitorClass() {
             infraMonitorView.tabsLoaded['controlNode'] = 1;
             $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
             initDeferred({deferredObj:deferredObj,renderFn:'initScatterChart',selector:$('#ctrlNode-bubble'),parseFn:function(response) {
-                return {title:'Control Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:dashboardDataObj.ctrlNodesData()}]};
+                return {title:'Control Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:dashboardViewModel.ctrlNodesData()}]};
             }});
         } else {
             if($('#ctrlNode-bubble > svg').length > 0){
@@ -184,7 +204,7 @@ function infraMonitorClass() {
             infraMonitorView.tabsLoaded['configNode'] = 1;
             $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
             initDeferred({deferredObj:deferredObj,renderFn:'initScatterChart',selector:$('#configNode-bubble'),parseFn:function(response) {
-                return {title:'Config Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:dashboardDataObj.configNodesData()}]};
+                return {title:'Config Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:dashboardViewModel.configNodesData()}]};
             }});
         } else {
             if($('#configNode-bubble > svg').length > 0){
@@ -200,7 +220,7 @@ function infraMonitorClass() {
             infraMonitorView.tabsLoaded['analyticNode'] = 1;
             $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
             initDeferred({deferredObj:deferredObj,renderFn:'initScatterChart',selector:$('#analyticNode-bubble'),parseFn:function(response) {
-                return {title:'Analytic Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:dashboardDataObj.analyticNodesData()}]};
+                return {title:'Analytic Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:dashboardViewModel.analyticNodesData()}]};
             }});
         } else {
             if($('#analyticNode-bubble > svg').length > 0){
@@ -211,21 +231,8 @@ function infraMonitorClass() {
         }
     }
 
-    this.clearTimers = function () {
-        $.each(self.consoleTimer, function (idx, value) {
-            logMessage("clearing timer:", value);
-            clearTimeout(value)
-        });
-        self.consoleTimer = [];
-    }
-
     //Select the appropriate node in the tree and trigger the corresponding handler
     this.loadViewFromNode = function (hashObj) {
-        //Initialize the details view if coming from dashboard
-        if(hashObj == '') {
-            hashObj = {};
-            hashObj['node'] = 'Control Nodes';
-        }
         if (hashObj['node'].indexOf('Control Nodes:') == 0) {
             ctrlNodeView.load({name:hashObj['node'].split(':')[1],tab:hashObj['tab']});
         } else if (hashObj['node'].indexOf('vRouters:') == 0) {
@@ -259,18 +266,18 @@ function infraMonitorClass() {
          var infoListTemplate = contrail.getTemplate4Id("infoList-template");
          var alertTemplate=contrail.getTemplate4Id("alerts-template");
          var dashboardDataArr = [];
-         var dashboardData = dashboardDataObj;
+         var dashboardData = dashboardViewModel;
          var alerts_fatal=[],alerts_stop=[],alerts_nodes=[],alerts_core=[],alerts_shutdown=[];
-         var nodeAlerts=self.getNodeAlerts(dashboardDataObj);
+         var nodeAlerts=self.getNodeAlerts(dashboardViewModel);
          var nodes = ['ctrlNodesData','vRoutersData','analyticNodesData','configNodesData'];
          $.each(nodes,function(idx,value) {
-             dashboardDataArr = dashboardDataArr.concat(dashboardDataObj[value]());
+             dashboardDataArr = dashboardDataArr.concat(dashboardViewModel[value]());
          });
          for(var i=0;i<nodeAlerts.length;i++){
              alerts_nodes.push({nName:nodeAlerts[i]['name'],pName:nodeAlerts[i]['type'],sevLevel:nodeAlerts[i]['sevLevel'],
                 timeStamp:nodeAlerts[i]['timeStamp'],msg:nodeAlerts[i]['msg']});
          }
-         var processAlerts = self.getAllProcessAlerts(dashboardDataObj);
+         var processAlerts = self.getAllProcessAlerts(dashboardViewModel);
          var allAlerts = alerts_nodes.concat(processAlerts);
          allAlerts.sort(bgpMonitor.sortInfraAlerts);
          var dashboardCF = crossfilter(dashboardDataArr);
@@ -335,8 +342,6 @@ function infraMonitorClass() {
             chartObj['type'] = 'infrabubblechart';
             updateCharts.updateView(chartObj);
         }
-        infraViewModel.vRouterDownCnt(infraMonitorView.downNodeCnt['vRouter']);
-        infraViewModel.vRouterUpCnt(data.length-infraMonitorView.downNodeCnt['vRouter']);
         self.updatevRouterInfoBoxes();
         self.updateAlertsAndInfoBoxes();
     }
@@ -394,15 +399,12 @@ function infraMonitorClass() {
                 activeCntField:obj['dataFields'][ACTIVE_FIELD_IDX],inactiveCntField:obj['dataFields'][INACTIVE_FIELD_IDX]})); 
             
             //Issue calls to fetch data
-            //infraMonitorView[obj['getFn']](deferredObjs[idx]);
             var nodeDS = new SingleDataSource(dashboardConfig[idx]['dataSourceObj']);
             var  result = nodeDS.getDataSourceObj();
             var datasource = result['dataSource'];
             var deferredObj = result['deferredObj'];
             deferredObjs.push(deferredObj);
             if(idx == 0){
-                //datasource.unbind("change");
-                //datasource.bind("change",updateVrouterChartsAndInfoBoxes.bind(null,datasource));
                 $(nodeDS).on('change',function() {
                     updateVrouterChartsAndInfoBoxes(datasource);
                 });
@@ -441,26 +443,9 @@ function infraMonitorClass() {
         if(tabIdx <= -1)
             tabIdx = 0;
         $($('.infobox-container .infobox')[tabIdx]).trigger('click');
+
         $.when.apply(window,deferredObjs).done(
             function(vRouterResult,ctrlNodeResult,analyticsResult,configResult) {
-                var vRouterData = vRouterResult['dataSource'].getItems();
-                var ctrlNodeData = ctrlNodeResult['dataSource'].getItems();
-                var analyticsData = analyticsResult['dataSource'].getItems();
-                var configData = configResult['dataSource'].getItems();
-                var vRouterDS = vRouterResult['dataSource'];
-                //vRouterDS.unbind('change');
-                //Info:No need to bind again as we are already bind change event while getting singleDataSource instance
-                //vRouterDS.bind('change',updateVrouterChartsAndInfoBoxes.bind(null,vRouterDS));
-                //Initialize dashboard stats
-                infraViewModel.vRouterDownCnt(infraMonitorView.downNodeCnt['vRouter']);
-                infraViewModel.vRouterUpCnt(vRouterData.length-infraMonitorView.downNodeCnt['vRouter']);
-                infraViewModel.ctrlNodeDownCnt(infraMonitorView.downNodeCnt['controlNode']);
-                infraViewModel.ctrlNodeUpCnt(ctrlNodeData.length-infraMonitorView.downNodeCnt['controlNode']);
-                infraViewModel.analyticNodeDownCnt(infraMonitorView.downNodeCnt['analyticNode']);
-                infraViewModel.analyticNodeUpCnt(analyticsData.length-infraMonitorView.downNodeCnt['analyticNode']);
-                infraViewModel.configNodeDownCnt(infraMonitorView.downNodeCnt['configNode']);
-                infraViewModel.configNodeUpCnt(configData.length -infraMonitorView.downNodeCnt['configNode']);
-                
                 self.updateAlertsAndInfoBoxes();
             });
     }
@@ -600,13 +585,12 @@ function infraMonitorClass() {
     this.parsevRoutersDashboardData = function(result,isSummaryPage) {
         var retArr = [];
         //Reset the counter
-        infraMonitorView.downNodeCnt['vRouter'] = 0;
+        //infraMonitorView.downNodeCnt['vRouter'] = 0;
         var vRouterCnt = result.length;
         for(var i=0;i<vRouterCnt;i++) {
             var obj = {};
             var d = result[i];
             var dValue = result[i]['value'];
-            //obj['nodeState'] = d['nodeStatus'];
             obj['x'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
             obj['y'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024; //Convert to MB
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
@@ -623,13 +607,10 @@ function infraMonitorClass() {
             if(obj['ip'] == '-') {
                 obj['ip'] = obj['configIP'];
             }
-            obj['processDetails'] = getValueByJsonPath(dValue,'VrouterStatsAgent;process_state_list',[]);
-            obj['processStateAvailable'] = getValueByJsonPath(dValue,'VrouterStatsAgent;process_state_list',[]).length == 0 ? false : true;
             obj['histCpuArr'] = parseUveHistoricalValues(dValue,'','VrouterStatsAgent;cpu_share;0;history-10');
             
             obj['status'] = getOverallNodeStatus(d,'compute');
             var processes = ['contrail-vrouter','contrail-vrouter-nodemgr','supervisor-vrouter'];
-            obj['processDetails'] = getUpDownProcessStatus(processes,obj['processDetails']);
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
@@ -676,28 +657,21 @@ function infraMonitorClass() {
             if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false && obj['isPartialUveMissing'] == false) {
                 obj['uveCfgIPMisMatch'] = (obj['uveIP'].indexOf(obj['configIP']) == -1 && obj['configIP'] != '-') ? true : false;
             }
-            obj['hostNameColor'] = 'blue';
-            if(d['nodeStatus'] != 'Up'){
-                obj['color'] = 'red';
-                obj['hostNameColor'] = 'red';
-            }
             obj['processAlerts']=getProcessAlerts(d,obj,'VrouterStatsAgent;process_state_list');
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = self.processvRouterAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
             //Decide color based on parameters
             obj['color'] = getvRouterColor(d,obj);
-			obj['downNodeCnt'] = 0;
+            obj['downNodeCnt'] = 0;
             if(obj['color'] == d3Colors['red']){
                 infraMonitorView.downNodeCnt['vRouter']++;
                 obj['downNodeCnt']++;
             }
             retArr.push(obj);
         }
-        infraViewModel.vRouterDownCnt(infraMonitorView.downNodeCnt['vRouter']);
-        infraViewModel.vRouterUpCnt(retArr.length-infraMonitorView.downNodeCnt['vRouter']);
         retArr.sort(bgpMonitor.sortNodesByColor);
-        dashboardDataObj.vRoutersData(retArr);
+        dashboardViewModel.vRoutersData(retArr);
         return retArr;
     }
 
@@ -782,10 +756,8 @@ function infraMonitorClass() {
     this.parseControlNodesDashboardData = function(result) {
         var retArr = [];
         //Reset the counter
-        infraMonitorView.downNodeCnt['controlNode'] = 0;
+        //infraMonitorView.downNodeCnt['controlNode'] = 0;
         $.each(result,function(idx,d) {
-            /*if(d['nodeStatus'] == 'Down')
-                infraMonitorView.downNodeCnt['controlNode']++;*/
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..cpu_info.cpu_share')[0]);
             obj['y'] = parseInt(jsonPath(d,'$..meminfo.virt')[0])/1024; //Convert to MB
@@ -795,8 +767,6 @@ function infraMonitorClass() {
             obj['configIP'] = ifNull(jsonPath(d,'$..ConfigData..bgp_router_parameters.address')[0],'-');
             obj['isConfigMissing'] = $.isEmptyObject(jsonPath(d,'$..ConfigData')[0]) ? true : false;
             obj['configuredBgpPeerCnt'] = ifNull(jsonPath(d,'$.value.ConfigData.bgp-router.bgp_router_refs')[0],[]).length;
-            //nodeStatus is down and is present in Config server implies that it's missing in UVE
-            //obj['isUveMissing'] = (d['nodeStatus'] == 'Down') && (obj['isConfigMissing'] == false);
             obj['isUveMissing'] = $.isEmptyObject(jsonPath(d,'$..BgpRouterState')[0]) ? true : false;
             obj['ip'] = ifNull(jsonPath(d,'$..bgp_router_ip_list[0]')[0],'-');
             //If iplist is empty will display the config ip 
@@ -854,8 +824,6 @@ function infraMonitorClass() {
                     obj['uveCfgIPMisMatch'] = true;
                 } 
             }
-            //System CPU
-            //obj['cpu'] = parseFloat(jsonPath(d,'$..CpuLoadInfo.CpuLoadAvg.one_min_avg')[0]);
             obj['type'] = 'controlNode';
             obj['display_type'] = 'Control Node';
             var upTime = new XDate(jsonPath(d,'$..uptime')[0]/1000);
@@ -866,17 +834,7 @@ function infraMonitorClass() {
             }catch(e){
                 obj['status'] = 'Down';
             }
-            obj['hostNameColor'] = 'blue';
-            if(d['nodeStatus'] != 'Up'){
-                obj['color'] = d3Colors['red'];
-                obj['hostNameColor'] = d3Colors['red'];
-            }
             obj['processAlerts'] = getProcessAlerts(d,obj);
-            //Process state
-            obj['processDetails'] = ifNull(jsonPath(d,'$..process_state_list')[0],[]);
-            obj['processStateAvailable'] = getValueByJsonPath(d,'value;BgpRouterState;process_state_list',[]).length == 0 ? false : true;
-            var processes = ['contrail-control','supervisor-control','contrail-control-nodemgr','supervisor-dns','contrail-dns','contrail-named'];
-            obj['processDetails'] = getUpDownProcessStatus(processes,obj['processDetails']);
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = self.processControlNodeAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
@@ -888,10 +846,10 @@ function infraMonitorClass() {
             }
             retArr.push(obj);
         });
-        infraViewModel.ctrlNodeDownCnt(infraMonitorView.downNodeCnt['controlNode']);
-        infraViewModel.ctrlNodeUpCnt(retArr.length-infraMonitorView.downNodeCnt['controlNode']);
+        //infraViewModel.ctrlNodeDownCnt(infraMonitorView.downNodeCnt['controlNode']);
+        //infraViewModel.ctrlNodeUpCnt(retArr.length-infraMonitorView.downNodeCnt['controlNode']);
         retArr.sort(bgpMonitor.sortNodesByColor);
-        dashboardDataObj.ctrlNodesData(retArr);
+        dashboardViewModel.ctrlNodesData(retArr);
         return retArr;
     }
 
@@ -901,7 +859,7 @@ function infraMonitorClass() {
     this.parseAnalyticNodesDashboardData = function(result) {
         var retArr = [];
         //Reset the counter
-        infraMonitorView.downNodeCnt['analyticNode'] = 0;
+        //infraMonitorView.downNodeCnt['analyticNode'] = 0;
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="Collector")]..cpu_share')[0]);
@@ -920,13 +878,6 @@ function infraMonitorClass() {
                 obj['status'] = getOverallNodeStatus(d,"analytics");
             }catch(e){
                 obj['status'] = 'Down';
-            }
-            //obj['color'] = Math.floor(Math.random()*5);
-            //obj['color'] = 4;
-            if(obj['status'].toLowerCase().search("down") != -1) {
-                obj['hostNameColor'] = "red";
-            } else {
-                obj['hostNameColor'] = "blue";
             }
           //get the ips
           var iplist = ifNull(jsonPath(d,'$..self_ip_list')[0],noDataStr); 
@@ -950,31 +901,25 @@ function infraMonitorClass() {
             if(isEmptyObject(jsonPath(d,'$.value.ModuleCpuState.module_cpu_info[?(@.module_id=="Collector")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.CollectorState.build_info')[0])) {
                 obj['isPartialUveMissing'] = true;
             }
-            //Process state
-            obj['processDetails'] = ifNull(jsonPath(d,'$..process_state_list')[0],[]);
-            obj['processStateAvailable'] = getValueByJsonPath(d,'value;ModuleCpuState;process_state_list',[]).length == 0 ? false : true;
-            var processes = ['supervisor-analytics','contrail-analytics-nodemgr','contrail-collector','contrail-opserver',
-                             'contrail-qe','redis-query','redis-sentinel','redis-uve'];             
-            obj['processDetails'] = getUpDownProcessStatus(processes,obj['processDetails']);
           //get the cpu for analytics node
-		  var cpuInfo = jsonPath(d,'$..ModuleCpuState.module_cpu_info')[0];
-          obj['isGeneratorRetrieved'] = false;
-      	  var genInfos = ifNull(jsonPath(d,'$.value.CollectorState.generator_infos')[0],[])
-    	  obj['genCount'] = genInfos.length;
-          obj['nodeAlerts'] = self.processAnalyticsNodeAlerts(obj);
-          obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
-          obj['color'] = getAanalyticNodeColor(d,obj);
-          obj['downNodeCnt'] = 0;
-          if(obj['color'] == d3Colors['red']){
+            var cpuInfo = jsonPath(d,'$..ModuleCpuState.module_cpu_info')[0];
+            obj['isGeneratorRetrieved'] = false;
+            var genInfos = ifNull(jsonPath(d,'$.value.CollectorState.generator_infos')[0],[])
+            obj['genCount'] = genInfos.length;
+            obj['nodeAlerts'] = self.processAnalyticsNodeAlerts(obj);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
+            obj['color'] = getAanalyticNodeColor(d,obj);
+            obj['downNodeCnt'] = 0;
+            if(obj['color'] == d3Colors['red']){
                 infraMonitorView.downNodeCnt['analyticNode']++;
                 obj['downNodeCnt']++;
-          }
+            }
           retArr.push(obj);
         });
-        infraViewModel.analyticNodeDownCnt(infraMonitorView.downNodeCnt['analyticNode']);
-        infraViewModel.analyticNodeUpCnt(retArr.length-infraMonitorView.downNodeCnt['analyticNode']);
+        //infraViewModel.analyticNodeDownCnt(infraMonitorView.downNodeCnt['analyticNode']);
+        //infraViewModel.analyticNodeUpCnt(retArr.length-infraMonitorView.downNodeCnt['analyticNode']);
         retArr.sort(bgpMonitor.sortNodesByColor);
-        dashboardDataObj.analyticNodesData(retArr);
+        dashboardViewModel.analyticNodesData(retArr);
         return retArr;
     }
 
@@ -984,7 +929,7 @@ function infraMonitorClass() {
     this.parseConfigNodesDashboardData = function(result) {
         var retArr = [];
         //Reset the counter
-        infraMonitorView.downNodeCnt['configNode'] = 0;
+        //infraMonitorView.downNodeCnt['configNode'] = 0;
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")]..cpu_share')[0]);
@@ -1000,23 +945,11 @@ function infraMonitorClass() {
             obj['name'] = d['name'];
             obj['processAlerts'] = getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
-           /* try{
-                obj['procStateListStatus'] = getOverallNodeStatus(d,"config");
-            }catch(e){
-                obj['procStateListStatus'] = 'Down';
-            }
-            obj['status'] = '-';*/
             try{
                 obj['status'] = getOverallNodeStatus(d,"config");
             }catch(e){
                 obj['status'] = 'Down';
             }
-          //Disabling the red highlight for now since when HA proxy is enabled some might show as down.
-//          if(obj['status'].toLowerCase().search("down") != -1) {
-//              obj['hostNameColor'] = "red";
-//          } else {
-//              obj['hostNameColor'] = "blue";
-//          }
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$..api_server_cpu_share[*].history-10');
             var iplist = jsonPath(d,'$..config_node_ip')[0];
              obj['ip'] = obj['summaryIps'] = noDataStr;
@@ -1032,16 +965,10 @@ function infraMonitorClass() {
                 });
                 obj['summaryIps'] = ipString;
             }
-            obj['hostNameColor'] = "blue";
-            if(isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.build_info')[0])) {
+            if(isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")].cpu_info')[0]) || 
+                    isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.build_info')[0])) {
                 obj['isPartialUveMissing'] = true;
             }
-            //Process state
-            obj['processDetails'] = ifNull(jsonPath(d,'$..process_state_list')[0],[]);
-            obj['processStateAvailable'] = getValueByJsonPath(d,'value;configNode;ModuleCpuState;process_state_list',[]).length == 0 ? false : true;
-            var processes = ['supervisor-config','contrail-api','contrail-config-nodemgr','contrail-discovery','contrail-schema',
-                             'contrail-svc-monitor','ifmap','redis-config'];                         
-            obj['processDetails'] = getUpDownProcessStatus(processes,obj['processDetails']);
             obj['isGeneratorRetrieved'] = false;
           //get the cpu for config node
 	          var cpuInfo1 ;
@@ -1058,10 +985,10 @@ function infraMonitorClass() {
             }
             retArr.push(obj);
         });
-        infraViewModel.configNodeDownCnt(infraMonitorView.downNodeCnt['configNode']);
-        infraViewModel.configNodeUpCnt(retArr.length - infraMonitorView.downNodeCnt['configNode']);
+        //infraViewModel.configNodeDownCnt(infraMonitorView.downNodeCnt['configNode']);
+        //infraViewModel.configNodeUpCnt(retArr.length - infraMonitorView.downNodeCnt['configNode']);
         retArr.sort(bgpMonitor.sortNodesByColor);
-        dashboardDataObj.configNodesData(retArr);
+        dashboardViewModel.configNodesData(retArr);
         return retArr;
     }
 
@@ -1081,360 +1008,6 @@ function infraMonitorClass() {
         return retArr;
     }
     
-    this.populateMessagesTab = function (nodeType, options, obj) {
-        var consoleTabTemplate = Handlebars.compile($('#console-tab-template').html());
-        var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;
-        var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
-        if (nodeType == 'control') {
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Control Nodes:{0}', obj['name'])},{triggerHashChange:false});
-            $('#ctrlNodeMessagesTab').html(consoleTabTemplate({}));
-        } else if (nodeType == "analytics"){
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Analytics Nodes:{0}', obj['name'])},{triggerHashChange:false});
-            $('#analyticsNodeMessagesTab').html(consoleTabTemplate({}));
-        } else if (nodeType == "config"){
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Config Nodes:{0}', obj['name'])},{triggerHashChange:false});
-            $('#configNodeMessagesTab').html(consoleTabTemplate({}));
-        } else {
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('vRouters:{0}', obj['name'])},{triggerHashChange:false});
-            $('#computeNodeMessagesTab').html(consoleTabTemplate({}));
-        }
-        initWidget4Id('#console-msgs-box');
-        //Disable Auto-refresh for time-being
-        //$('#msgAutoRefresh').attr('disabled','disabled');
-
-        var MIN = 60, HOUR = MIN * 60;
-        if ($('#msgTimeRange').data('contrailDropdown') == null) {
-            $('#msgAutoRefresh').attr('checked', 'checked');
-            $('#msgAutoRefresh').on('click', function () {
-                if ($(this).is(':checked')) {
-                    if (userChangedQuery)
-                        loadLogs();
-                    else 
-                        fetchLastLogtimeAndCallLoadLogs('',nodeType);
-                } else {
-                    infraMonitorView.clearTimers();
-                }
-            });
-            $('#msgTimeRange').contrailDropdown({
-                data:[
-                    {lbl:'Last 5 mins', value:'5m'},
-                    {lbl:'Last 10 mins', value:'10m'},
-                    {lbl:'Last 30 mins', value:'30m'},
-                    {lbl:'Last 1 hr', value:'1h'},
-                    {lbl:'Last 2 hrs', value:'2h'},
-                    {lbl:'Last 4 hrs', value:'4h'},
-                    {lbl:'Last 6 hrs', value:'6h'},
-                    {lbl:'Last 10 hrs', value:'10h'},
-                    {lbl:'Last 12 hrs', value:'12h'},
-                    {lbl:'Last 18 hrs', value:'18h'},
-                    {lbl:'Last 24 hrs', value:'24h'},
-                    {lbl:'Custom', value:'custom'}
-                ],
-                dataTextField:'lbl',
-                dataValueField:'value',
-                change:selectTimeRange
-            });
-            $("#console-from-time").contrailDateTimePicker({
-               // format:"MMM dd, yyyy hh:mm:ss tt",
-                format: 'M d, Y h:i:s A',
-//                min:new Date(2013, 2, 1),
-//                value:new Date(),
-//                timeFormat:"hh:mm:ss tt",
-//                interval:10
-            });
-            $("#console-to-time").contrailDateTimePicker({
-               // format:"MMM dd, yyyy hh:mm:ss tt",
-                format:"MMM dd, yyyy hh:mm:ss tt",
-//                min:new Date(2013, 2, 1),
-//                value: new Date(),
-//                timeFormat:"hh:mm:ss tt",
-//                interval:10
-            });
-            $('#msgType').contrailCombobox({
-                dataSource:[],
-                placeholder:'Any'
-            });
-            $('#msgCategory').contrailDropdown({
-                dataSource:{
-                    type:'remote',
-                    url: monitorInfraUrls['MSGTABLE_CATEGORY'],
-                    parse:function (response) {
-                        if (nodeType == 'control')
-                            return ifNull(response['ControlNode'], []);
-                        else if (nodeType == 'compute')
-                            return ifNull(response['VRouterAgent'], []);
-                        else if (nodeType == 'analytics')
-                            return ifNull(response['Collector'], []);
-                        else if (nodeType == 'config')
-                            return ifNull(response['ApiServer'], []);
-                    }
-                },
-                placeholder:'All'
-            });
-            $('#msgLevel').contrailDropdown({
-                dataSource:{
-                    type:'remote',
-                    url: monitorInfraUrls['MSGTABLE_LEVEL'],
-                    parse:function (response) {
-                        var retArr = [];
-                        $.map(response, function (value) {
-                            $.each(value, function (key, value) {
-                                retArr.push({text:value, value:key});
-                            });
-                        });
-                        return retArr;
-                    }
-                },
-                dataTextField:'text',
-                dataValueField:'value'
-            });
-            $('#msgLimit').contrailDropdown({
-                data:$.map(['All',10, 50, 100, 200, 500], function (value) {
-                    return {value:value, text:(value == 'All')? 'All':contrail.format('{0} messages', value)};
-                }),
-                dataTextField:'text',
-                dataValueField:'value'                    
-            });
-        }
-        cboTimeRange = $('#msgTimeRange').data('contrailDropdown');
-        cboMsgCategory = $('#msgCategory').data('contrailDropdown');
-        cboMsgType = $('#msgType').data('contrailCombobox');
-        cboMsgLevel = $('#msgLevel').data('contrailDropdown');
-        cboMsgLimit = $('#msgLimit').data('contrailDropdown');
-        cboMsgFromTime = $('#console-from-time').data('contrailDateTimePicker');
-        cboMsgToTime = $('#console-to-time').data('contrailDateTimePicker');
-        toTimeEle = $('#console-to-time');
-        fromTimeEle = $('#console-from-time');
-
-        cboTimeRange.value('custom');
-        cboMsgLevel.value('5');
-        cboMsgLimit.value('50')
-        
-        $('#btnDisplayLogs').on('click', function () {
-            userChangedQuery = true;
-            loadLogs();
-        });
-
-        //var gridConsole;
-        //To show the latest records
-        function moveToLastPage(e) {
-            //Process only if grid is visible
-            //console.info('console grid dataBound',gridConsole.dataSource._total,gridConsole.dataSource._page);
-            //console.info('console grid dataBound',e.response.length,gridConsole.dataSource._page);
-            //if($(gridConsole.element).is(':visible')) {
-            //console.info('console grid visible',$(gridConsole.element).is(':visible'));
-//            if (e.response == null)
-//                return;
-            var hashParams = layoutHandler.getURLHashParams();
-            if (hashParams['tab'] != null && hashParams['tab'] == 'console') {
-               /* var totalCnt = e.response.length, pageSize = gridConsole.dataSource._pageSize;
-                if (totalCnt > 0) {
-                    var lastPageNo = Math.ceil(totalCnt / pageSize);
-                    setTimeout(function () {
-                        selectGridPage(lastPageNo);
-                    }, 100);
-                }*/
-                if ($('#msgAutoRefresh').is(':checked')) {
-                    //Don't start the timer,if one is already pending
-                    if (self.consoleTimer.length == 0) {
-                        var timerId = setTimeout(function () {
-                            if(userChangedQuery)
-                                loadLogs(timerId);
-                            else 
-                                fetchLastLogtimeAndCallLoadLogs(timerId,nodeType);
-                        }, 10000);
-                        logMessage("Setting timer:", timerId);
-                        self.consoleTimer.push(timerId);
-                    }
-                }
-            }
-        }
-        function selectGridPage(lastPageNo) {
-            gridConsole.dataSource.page(lastPageNo);
-            gridConsole.content.scrollTop(gridConsole.tbody.height());
-        }
-        function fetchLastLogtimeAndCallLoadLogs(timerId,nodeType){
-        	var type,moduleType="",kfilt="";
-        	var hostName = obj['name'];
-        	if(nodeType == 'compute'){
-        		type = 'vrouter';
-        		kfilt = hostName+":*:" + UVEModuleIds['VROUTER_AGENT'] + ":*";
-        	} else if (nodeType == 'control'){
-        		type = 'controlnode';
-        		kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
-        	} else if (nodeType == 'analytics'){
-        		type = 'Collector';
-        		kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
-        		        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
-        	} else if (nodeType == 'config'){
-        		type = 'confignode';
-        		kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
-	                    hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
-    	                hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
-    	                hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
-        	}
-        	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
-        	$.ajax({
-                url:TENANT_API_URL,
-                type:'post',
-                data:postData,
-                dataType:'json'
-            }).done(function (result) {
-                var logLevelStats = [], lastLog, lastTimeStamp,allStats = [];
-                try{
-                    allStats =  ifNullOrEmptyObject(jsonPath(result,"$..log_level_stats"),[]);
-                }catch(e){}
-                if(allStats instanceof Array){
-                    for(var i = 0; i < allStats.length;i++){
-                        if(!($.isEmptyObject(allStats[i]))){
-                            if( allStats[i] instanceof Array){
-                                logLevelStats = logLevelStats.concat(allStats[i]);
-                            } else {
-                                logLevelStats.push(allStats[i]);
-                            }
-                        }
-                    }
-                }
-                if(logLevelStats != null){
-                    lastLog = getMaxGeneratorValueInArray(logLevelStats,"last_msg_timestamp");
-                    if(lastLog != null){
-                        lastTimeStamp = parseInt(lastLog.last_msg_timestamp)/1000 + 1000;
-                        lastLogLevel = lastLog.level;
-                    }
-                }
-                if(lastTimeStamp == null || lastMsgLogTime != lastTimeStamp){
-                    lastMsgLogTime = lastTimeStamp;
-                    if(lastMsgLogTime != null && lastLogLevel != null){
-                        var dateTimePicker = $("#console-to-time").data("contrailDateTimePicker");
-                        dateTimePicker.val(new Date(lastMsgLogTime));
-                        dateTimePicker = $("#console-from-time").data("contrailDateTimePicker");
-                        //dateTimePicker.val(adjustDate(new Date(lastMsgLogTime), {sec:-1 * defaultTimeRange}));
-                        dateTimePicker.val(moment(new Date(lastMsgLogTime)).subtract('s', defaultTimeRange));
-                        //select the level option which has the last log
-                        //$("#msgLevel option:contains(" + lastLogLevel + ")").attr('selected', 'selected');
-                        var dropdownlist = $("#msgLevel").data("contrailDropdown");
-                        dropdownlist.text(lastLogLevel);
-                    } else {
-                        var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown");
-                        timerangedropdownlistvalue.value('5m');
-
-                        $('#consoleFromTimeDiv').hide();
-                        $('#consoleToTimeDiv').hide();
-                        $('#msgFromTime').hide();
-                        $('#msgToTime').hide();
-                        selectTimeRange({val:"1800"}) ;
-                    }
-                    loadLogs(timerId,true);
-//TODO : see if this is required                    gridConsole.dataSource.unbind('requestEnd');
-//                    gridConsole.dataSource.bind('requestEnd', moveToLastPage);
-                   moveToLastPage();
-                }
-            }).fail(displayAjaxError.bind(null, $('#computenode-dashboard')));
-        }
-        function selectTimeRange(obj) {
-            if (obj.val == 'custom') {
-                $('#consoleFromTimeDiv').show();
-                $('#consoleToTimeDiv').show();
-                $('#msgFromTime').show();
-                $('#msgToTime').show();
-            } else {
-                $('#consoleFromTimeDiv').hide();
-                $('#consoleToTimeDiv').hide();
-                $('#msgFromTime').hide();
-                $('#msgToTime').hide();
-                
-            }
-        }
-        function loadLogs(timerId) {
-            logMessage("Timer triggered:", timerId);
-            if ((timerId != null) && (timerId != '') && $.inArray(timerId, self.consoleTimer) == -1) {
-                logMessage("Timer cancelled:", timerId);
-                return;
-            } else if (timerId != null && ($.inArray(timerId, self.consoleTimer) != -1)) {
-                //Remove timerId from self.consoleTimer (pending timers)
-                self.consoleTimer.splice($.inArray(timerId, self.consoleTimer), 1);
-            }
-            var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown").value();
-             
-            var filterObj = {
-                table:'MessageTable',
-                source:options['source']
-                //messageType:'any'
-            };
-            if (nodeType == 'control') {
-                filterObj['moduleId'] = UVEModuleIds['CONTROLNODE'];
-            } else if (nodeType == 'compute') {
-                filterObj['moduleId'] = UVEModuleIds['VROUTER_AGENT'];
-            } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId='+ UVEModuleIds['SCHEMA'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['APISERVER'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['SERVICE_MONITOR'] +' AND Source='
-                                    +obj['name']+') OR (ModuleId='+ UVEModuleIds['DISCOVERY_SERVICE'] +' AND Source='+obj['name']+')';
-            } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId='+ UVEModuleIds['OPSERVER'] +' AND Source='+obj['name']+') OR (ModuleId='+ UVEModuleIds['COLLECTOR'] +' AND Source='+obj['name']+')';
-            }
-
-            if (cboMsgCategory.value() != '') {
-                filterObj['category'] = cboMsgCategory.value();
-            }
-            if ((cboMsgLevel.value() != null) && (cboMsgLevel.value() != '')) {
-                filterObj['level'] = cboMsgLevel.value();
-            } else
-                filterObj['level'] = 5;
-            if (cboMsgType.value() != '')
-                filterObj['messageType'] = cboMsgType.value();
-            if (cboMsgLimit.value() != '' && cboMsgLimit != 'All')
-                filterObj['limit'] = cboMsgLimit.value();
-         /*   if(!userChangedQuery){
-                filterObj['toTimeUTC'] = lastMsgLogTime;
-                filterObj['fromTimeUTC'] = adjustDate(new Date(filterObj['toTimeUTC']), {sec:-1 * defaultTimeRange}).getTime();
-            }
-            else {
-                filterObj['toTimeUTC'] = (new Date()).getTime();
-                filterObj['fromTimeUTC'] = adjustDate(new Date(filterObj['toTimeUTC']), {sec:-1 * cboTimeRange.value()}).getTime();
-            }
-          */
-            if(timerangedropdownlistvalue === 'custom'){
-                filterObj['toTimeUTC'] = new Date(toTimeEle.val()).getTime();
-                filterObj['fromTimeUTC'] = new Date(fromTimeEle.val()).getTime();
-            } else {
-            	filterObj['toTimeUTC'] = "now";
-            	filterObj['fromTimeUTC'] = "now-"+ cboTimeRange.value();//adjustDate(new Date(filterObj['toTimeUTC']), {sec:-1 * cboTimeRange.value()}).getTime();
-            }
-            loadSLResults({elementId:'gridConsole', btnId:'btnDisplayLogs', timeOut:60000,
-                pageSize:20, //gridHeight:500,
-                reqFields:['MessageTS', 'Category','Messagetype', 'Xmlmessage']}, filterObj);
-            gridConsole = $('#gridConsole').data('contrailGrid');
-            //Take to the last page and scroll to bottom
-            //gridConsole.bind('dataBound',function() {
-            //gridConsole.bind('dataBinding',function() {
-            //gridConsole.bind('dataBound',moveToLastPage);
-        };
-        //$('#btnDisplayLogs').trigger('click');
-        if(userChangedQuery){
-            loadLogs();
-//            TODO : see if this is required. 
-//            gridConsole.dataSource.unbind('requestEnd');
-//            gridConsole.dataSource.bind('requestEnd', moveToLastPage);
-            
-            moveToLastPage();
-        }
-        else {
-            fetchLastLogtimeAndCallLoadLogs('',nodeType);
-        }
-        
-        $('#btnResetLogs').on('click', function () {
-            cboTimeRange.value(5 * MIN);
-            cboMsgType.value('');
-            cboMsgLimit.value('10');
-            cboMsgCategory.value('');
-            cboMsgLevel.value('5');
-            if(userChangedQuery)
-                loadLogs();
-            else 
-                fetchLastLogtimeAndCallLoadLogs('',nodeType);
-        });
-    }
 }
 
 /**
@@ -1489,14 +1062,6 @@ function getProcessAlerts(data,obj,processPath){
 }
 
 var infraMonitorView = new infraMonitorClass();
-
-function formatMemory(memory) {
-    if(memory == null || memory['virt'] == null)
-        return noDataStr;
-    var usedMemory = parseInt(memory['virt']) * 1024;
-    //var totalMemory = parseInt(memory['total']) * 1024;
-    return contrail.format('{0}', formatBytes(usedMemory));
-}
 
 function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
@@ -1587,13 +1152,6 @@ function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
         };
         updatedData.push(d);
     });
-    
-    //primaryDS.data(updatedData);
-    /* ToDo: vRouter summary page
-    if(options['nodeType'] == 'computeNode' && options['page'] == 'summary'){
-        cmpNodesView.setvRoutersDataWithStatus(updatedData);
-    }
-    */
     return updatedData;
 }
 
@@ -1633,42 +1191,4 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
 
     });
 }
-
-function updateChartsForSummary(dsData, nodeType) {
-    var title,key,chartId,isChartInitialized = false;
-    var nodeData = dsData;
-    var data = [];
-    if(nodeData != null){
-        data = updateCharts.setUpdateParams($.extend(true,[],nodeData));
-    }
-    if(nodeType == 'compute'){
-		title = 'vRouters';
-		key = 'vRouters';
-		chartId = 'vrouters-bubble';
-	} else if(nodeType =="control"){
-		title = 'Control Nodes';
-		key = 'controlNode';
-		chartId = 'controlNodes-bubble';
-	} else if(nodeType == "analytics"){
-		title = 'Analytic Nodes';
-		key = 'analyticsNode';
-		chartId = 'analyticNodes-bubble';
-	} else if(nodeType == "config"){
-		title = 'Config Nodes';
-		key = 'configNode';
-		chartId = 'configNodes-bubble';
-	}
-    var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
-    var chartObj = {},nwObj = {};
-    if(!summaryChartsInitializationStatus[key]){
-        $('#' + chartId).initScatterChart(chartsData[0]);
-        summaryChartsInitializationStatus[key] = true;
-    }  else {
-        chartObj['selector'] = $('#content-container').find('#' + chartId + ' > svg').first()[0];
-        chartObj['data'] = [{key:key,values:data}];
-        chartObj['type'] = 'infrabubblechart';
-        updateCharts.updateView(chartObj);
-    }
-}
-
 

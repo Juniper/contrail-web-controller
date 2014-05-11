@@ -23,7 +23,7 @@ controlNodesView = function () {
     }
 
     function populateControlNodes() {
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         summaryChartsInitializationStatus['controlNode'] = false;
         var ctrlNodesTemplate = contrail.getTemplate4Id("controlnodes-template");
         $(pageContainer).html(ctrlNodesTemplate({}));
@@ -867,7 +867,7 @@ controlNodeView = function () {
             url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], obj['name'])
         }).done(function (result) {
                 ctrlNodeData = result;
-                var parsedData = infraMonitorView.parseControlNodesDashboardData([{name:obj['name'],value:result}])[0];
+                var parsedData = infraMonitorUtils.parseControlNodesDashboardData([{name:obj['name'],value:result}])[0];
                 var noDataStr = "--";
                 var cpu = "N/A",
                     memory = "N/A",
@@ -1080,8 +1080,8 @@ controlNodeView = function () {
 //                    }
 //                },
                 activate:function (e, ui) {
-                    infraMonitorView.clearTimers();
-                    var selTab = $(ui.newTab.context).text();
+                    infraMonitorUtils.clearTimers();
+                    var selTab = ui.newTab.context.innerText;
                     if (selTab == 'Peers') {
                         populatePeersTab(ctrlNodeInfo);
                         $('#gridPeers').data('contrailGrid').refreshView();
@@ -1089,7 +1089,7 @@ controlNodeView = function () {
                         populateRoutesTab(ctrlNodeInfo);
                         $('#gridRoutes').data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('control', {source:ctrlNodeInfo['name']}, ctrlNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('control', {source:ctrlNodeInfo['name']}, ctrlNodeInfo);
                     } else if (selTab == 'Details') {
                         populateDetailsTab(ctrlNodeInfo);
                     } 
