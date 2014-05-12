@@ -5,16 +5,16 @@
 configNodesView = function () {
     var self = this;
     var ctrlNodesGrid,configNodesData;
-    this.setLocalDSData = function(data){
-    	localDS.data(data);
-    }
-    this.getLocalDS = function(){
-    	return localDS;
-    }
     this.load = function (obj) {
-    	layoutHandler.setURLHashParams({node:'Config Nodes'},{merge:false,triggerHashChange:false});
-        populateConfigNodes();
-       
+      var hashParams = ifNull(obj['hashParams'],{});
+      if(hashParams['node'] == null)
+         populateConfigNodes();
+      else
+         confNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab']});
+      //layoutHandler.setURLHashParams({node:'Config Nodes'},{merge:false,triggerHashChange:false});
+    }
+    this.updateViewByHash = function(hashObj,lastHashObj) {
+        console.info('Hello');
     }
 
     this.getConfigNodesData = function() {
@@ -25,13 +25,13 @@ configNodesView = function () {
     }
 
     this.destroy = function () {
-    	var kGrid = $('.contrail-grid').data('contrailGrid');
-    	if(kGrid != null)
-    		kGrid.destroy();
+      var kGrid = $('.contrail-grid').data('contrailGrid');
+      if(kGrid != null)
+         kGrid.destroy();
     }
 
     function populateConfigNodes() {
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         summaryChartsInitializationStatus['configNode'] = false;
         var confNodesTemplate = contrail.getTemplate4Id("confignodes-template");
         $(pageContainer).html(confNodesTemplate({}));
@@ -158,7 +158,7 @@ configNodesView = function () {
             //updateCpuSparkLines(confNodesGrid,configNodesDataSource.getItems());
         });
         if(configNodesResult['lastUpdated'] != null && (configNodesResult['error'] == null || configNodesResult['error']['errTxt'] == 'abort')){
-        	triggerDatasourceEvents(configNodeDS);
+         triggerDatasourceEvents(configNodeDS);
         } else {
             confNodesGrid.showGridMessage('loading');
         }
@@ -189,19 +189,19 @@ configNodeView = function () {
         self.populateConfigNode(obj);
         //Update URL Hashparams only if tab is empty*/
         confNodeInfo = obj;
-    	if((confNodeInfo == null || confNodeInfo.ip ==  null ||  confNodeInfo.ip == '') && confNodeInfo.tab != null){
-			//issue details call and populate ip
-			var configNodeDeferredObj = $.Deferred();
-			self.getConfigNodeDetails(configNodeDeferredObj,confNodeInfo);
-			configNodeDeferredObj.done(function(data) {
-				try{
-					confNodeInfo['ip'] = data.configNode.ModuleCpuState.config_node_ip[0];
-				} catch(e){}
-    	        self.populateConfigNode(confNodeInfo);
+      if((confNodeInfo == null || confNodeInfo.ip ==  null ||  confNodeInfo.ip == '') && confNodeInfo.tab != null){
+         //issue details call and populate ip
+         var configNodeDeferredObj = $.Deferred();
+         self.getConfigNodeDetails(configNodeDeferredObj,confNodeInfo);
+         configNodeDeferredObj.done(function(data) {
+            try{
+               confNodeInfo['ip'] = data.configNode.ModuleCpuState.config_node_ip[0];
+            } catch(e){}
+              self.populateConfigNode(confNodeInfo);
             });
-		} else {
-	        self.populateConfigNode(confNodeInfo);
-		}
+      } else {
+           self.populateConfigNode(confNodeInfo);
+      }
     }
 
     this.destroy = function () {
@@ -222,7 +222,7 @@ configNodeView = function () {
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        layoutHandler.setURLHashParams({tab:'', node:'Config Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'', node:obj['name']},{triggerHashChange:false});
         startWidgetLoading('config-sparklines');
         toggleWidgetsVisibility(['apiServer-chart-box'], ['serviceMonitor-chart-box', 'schema-chart-box']);
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
@@ -231,13 +231,13 @@ configNodeView = function () {
         $.ajax({
             url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , obj['name'])
         }).done(function (result) {
-        		var noDataStr = "--";
+            var noDataStr = "--";
                 $('#apiServer-sparklines').initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'api_server_cpu_share', color: 'blue-sparkline'}, {name: 'api_server_mem_virt', color: 'green-sparkline'}]}, slConfig);
                 $('#serviceMonitor-sparklines').initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'service_monitor_cpu_share', color: 'blue-sparkline'}, {name: 'service_monitor_mem_virt', color: 'green-sparkline'}]}, slConfig);
                 $('#schema-sparklines').initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'schema_xmer_cpu_share', color: 'blue-sparkline'}, {name: 'schema_xmer_mem_virt', color: 'green-sparkline'}]}, slConfig);
                 endWidgetLoading('config-sparklines');
                 confNodeData = result;
-                var parsedData = infraMonitorView.parseConfigNodesDashboardData([{name:obj['name'],value:confNodeData}])[0];
+                var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['name'],value:confNodeData}])[0];
                 var cpu = "N/A",
                     memory = "N/A",
                     confNodeDashboardInfo, oneMinCPU, fiveMinCPU, fifteenMinCPU,
@@ -245,22 +245,18 @@ configNodeView = function () {
                 var procStateList, overallStatus = noDataStr;
                 var configProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
-                try{
-                    overallStatus = getOverallNodeStatusForDetails(parsedData);
-                }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
-                try{
-                	procStateList = jsonPath(confNodeData,"$..process_state_list")[0];
-                	if(!(procStateList instanceof Array)){
-            			procStateList = [procStateList];
-            		}
-                	configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
-                }catch(e){}
+                overallStatus = getOverallNodeStatusForDetails(parsedData);
+            	procStateList = getValueByJsonPath(confNodeData,"configNode;ModuleCpuState;process_state_list",[]);
+            	if(!(procStateList instanceof Array)){
+        			procStateList = [procStateList];
+        		}
+            	configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
                 confNodeDashboardInfo = [
-                 	{lbl:'Hostname', value:obj['name']},
+                  {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function (){
-                    	var ips = '';
+                     var ips = '';
                         try{
-                        	iplist = ifNull(jsonPath(confNodeData,'$..config_node_ip')[0],noDataStr);
+                        	iplist = getValueByJsonPath(confNodeData,"configNode;ModuleCpuState;config_node_ip",[]);
                         	if(iplist instanceof Array){
                     			nodeIp = iplist[0];//using the first ip in the list for status
                     		} else {
@@ -276,7 +272,7 @@ configNodeView = function () {
                                 }
                             }
                         } else {
-                        	ips = noDataStr;
+                           ips = noDataStr;
                         }
                         return ips;
                     })()},
@@ -284,111 +280,95 @@ configNodeView = function () {
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                 	{lbl:INDENT_RIGHT+'API Server', value:(function(){
-                    	try{
-                    		return configProcessStatusList['contrail-api'];
-                    	}catch(e){return noDataStr;}
+                    	return configProcessStatusList['contrail-api'];
                     })()},
                     {lbl:INDENT_RIGHT+'Schema Transformer', value:(function(){
-                    	try{
-                    		return configProcessStatusList['contrail-schema'];
-                    	}catch(e){return noDataStr;}
+                    	return configProcessStatusList['contrail-schema'];
                     })()},
                     {lbl:INDENT_RIGHT+'Service Monitor', value:(function(){
-                    	try{
-                    		return configProcessStatusList['contrail-svc-monitor'];
-                    	}catch(e){return noDataStr;}
+                    	return configProcessStatusList['contrail-svc-monitor'];
                     })()},
                     /*{lbl:INDENT_RIGHT+'Config Node Manager', value:(function(){
-                    	try{
-                    		return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
                     })()},*/
                     {lbl:INDENT_RIGHT+'Discovery', value:(function(){
-                    	try{
-                    		return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
                     })()},
                    /* {lbl:INDENT_RIGHT+'Zookeeper', value:(function(){
-                    	try{
-                    		return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
                     })()},*/
                     {lbl:INDENT_RIGHT+'Ifmap', value:(function(){
-                    	try{
-                    		return ifNull(configProcessStatusList['ifmap'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['ifmap'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Config', value:(function(){
-                    	try{	
-                    		return ifNull(configProcessStatusList['redis-config'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['redis-config'],noDataStr);
                     })()},
                     {lbl:'Analytics Node', value:(function(){
-                    	var anlNode = noDataStr; 
-                    	var secondaryAnlNode, status;
-                    	try{
-                    		//anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
-                    		anlNode = jsonPath(confNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
-                    		status = jsonPath(confNodeData,"$..ModuleClientState..status")[0];
-                    		secondaryAnlNode = ifNull(jsonPath(confNodeData,"$..ModuleClientState..secondary")[0],"").split(':')[0];
-                    	}catch(e){
-                    		anlNode = "--";
-                    	}
-                    	try{
-                    		if(anlNode != null && anlNode != noDataStr && status.toLowerCase() == "established")
-                    			anlNode = anlNode.concat(' (Up)');
-                    	}catch(e){
-                    		if(anlNode != null && anlNode != noDataStr) {
-                    			anlNode = anlNode.concat(' (Down)');
-                    		}
-                    	}
-                    	if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
-                    		anlNode.concat(', ' + secondaryAnlNode);
-                    	}
-                    	return ifNull(anlNode,noDataStr);
-                	})()},
+                     var anlNode = noDataStr; 
+                     var secondaryAnlNode, status;
+                     try{
+                        //anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
+                        anlNode = jsonPath(confNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
+                        status = jsonPath(confNodeData,"$..ModuleClientState..status")[0];
+                        secondaryAnlNode = ifNull(jsonPath(confNodeData,"$..ModuleClientState..secondary")[0],"").split(':')[0];
+                     }catch(e){
+                        anlNode = "--";
+                     }
+                     try{
+                        if(anlNode != null && anlNode != noDataStr && status.toLowerCase() == "established")
+                           anlNode = anlNode.concat(' (Up)');
+                     }catch(e){
+                        if(anlNode != null && anlNode != noDataStr) {
+                           anlNode = anlNode.concat(' (Down)');
+                        }
+                     }
+                     if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
+                        anlNode.concat(', ' + secondaryAnlNode);
+                     }
+                     return ifNull(anlNode,noDataStr);
+                  })()},
                   //  {lbl:'Analytics Messages', value:(function(){return (parseInt(confNodeData.ApiServer.ModuleServerState["generator_info"]["connect_time"]) 
                   //    > parseInt(confNodeData.ModuleServerState["generator_info"]["reset_time"]))?"Up":"Down"})()},
-                	{lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
-                	{lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
-                	{lbl:'Last Log', value: (function(){
-                		var lmsg;
-                		lmsg = getLastLogTimestamp(confNodeData,"config");
-                		if(lmsg != null){
-                			try{
-                				return new Date(parseInt(lmsg)/1000).toLocaleString();	
-                			}catch(e){return noDataStr;}
-                		} else return noDataStr;
-                		})()}
+                  {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
+                  {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
+                  {lbl:'Last Log', value: (function(){
+                     var lmsg;
+                     lmsg = getLastLogTimestamp(confNodeData,"config");
+                     if(lmsg != null){
+                        try{
+                           return new Date(parseInt(lmsg)/1000).toLocaleString();   
+                        }catch(e){return noDataStr;}
+                     } else return noDataStr;
+                     })()}
                 ]
                 /*Selenium Testing*/
                 confNodeDetailsData = confNodeDashboardInfo;
-                /*End of Selenium Testing*/                				
+                /*End of Selenium Testing*/                          
                 var cores=getCores(confNodeData);
                 for(var i=0;i<cores.length;i++)
-                	confNodeDashboardInfo.push(cores[i]);
+                  confNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#confignode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
                 $('#confignode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:confNodeDashboardInfo, nodeData:confNodeData, showSettings:true, ip:nodeIp}));
                 var ipDeferredObj = $.Deferred();
                 getReachableIp(iplist,"8084",ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
-	                if(nodeIp != null && nodeIp != noDataStr) {
-	                	$('#linkIntrospect').unbind('click');
-	                    $('#linkIntrospect').click(function(){
-	                        window.open('/proxy?proxyURL=http://'+nodeIp+':8084&indexPage', '_blank');
-	                    });
-	                    $('#linkStatus').unbind('click');
-	                    $('#linkStatus').on('click', function(){
-	                        showStatus(nodeIp);
-	                    });
-	                    $('#linkLogs').unbind('click');
-	                    $('#linkLogs').on('click', function(){
-	                        showLogs(nodeIp);
-	                    });
-	                }
+                   if(nodeIp != null && nodeIp != noDataStr) {
+                     $('#linkIntrospect').unbind('click');
+                       $('#linkIntrospect').click(function(){
+                           window.open('/proxy?proxyURL=http://'+nodeIp+':8084&indexPage', '_blank');
+                       });
+                       $('#linkStatus').unbind('click');
+                       $('#linkStatus').on('click', function(){
+                           showStatus(nodeIp);
+                       });
+                       $('#linkLogs').unbind('click');
+                       $('#linkLogs').on('click', function(){
+                           showLogs(nodeIp);
+                       });
+                   }
                 });
-				
+            
                 endWidgetLoading('dashboard');
                 initWidget4Id('#apiServer-chart-box');
                 initWidget4Id('#serviceMonitor-chart-box');
@@ -417,10 +397,10 @@ configNodeView = function () {
 
             $("#config_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    infraMonitorView.clearTimers();
-                    var selTab = $(ui.newTab.context).text();
+                    infraMonitorUtils.clearTimers();
+                    var selTab = ui.newTab.context.innerText;
                     if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('config', {source:confNodeInfo['name']}, confNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('config', {source:confNodeInfo['name']}, confNodeInfo);
                     } else if (selTab == 'Details') {
                         populateDetailsTab(confNodeInfo);
                     }
@@ -441,32 +421,32 @@ confNodesView = new configNodesView();
 confNodeView = new configNodeView();
 
 function getStatusesForAllConfigProcesses(processStateList){
-	var ret = [];
-	if(processStateList != null){
-		for(var i=0; i < processStateList.length; i++){
-			var currProc = processStateList[i];
-			if(currProc.process_name == "contrail-discovery:0"){
-				ret['contrail-discovery'] = getProcessUpTime(currProc);
-			} else if(currProc.process_name == "contrail-discovery"){
-				ret['contrail-discovery'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "contrail-api:0"){
-				ret['contrail-api'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "contrail-api"){
-				ret['contrail-api'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "redis-config"){
-				ret['redis-config'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "contrail-config-nodemgr"){
-				ret['contrail-config-nodemgr'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "contrail-svc-monitor"){
-				ret['contrail-svc-monitor'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "ifmap"){
-				ret['ifmap'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == "contrail-schema"){
-				ret['contrail-schema'] = getProcessUpTime(currProc);
-			} else if (currProc.process_name == 'contrail-zookeeper') {
+   var ret = [];
+   if(processStateList != null){
+      for(var i=0; i < processStateList.length; i++){
+         var currProc = processStateList[i];
+         if(currProc.process_name == "contrail-discovery:0"){
+            ret['contrail-discovery'] = getProcessUpTime(currProc);
+         } else if(currProc.process_name == "contrail-discovery"){
+            ret['contrail-discovery'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "contrail-api:0"){
+            ret['contrail-api'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "contrail-api"){
+            ret['contrail-api'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "redis-config"){
+            ret['redis-config'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "contrail-config-nodemgr"){
+            ret['contrail-config-nodemgr'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "contrail-svc-monitor"){
+            ret['contrail-svc-monitor'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "ifmap"){
+            ret['ifmap'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == "contrail-schema"){
+            ret['contrail-schema'] = getProcessUpTime(currProc);
+         } else if (currProc.process_name == 'contrail-zookeeper') {
                 ret['contrail-zookeeper'] = getProcessUpTime(currProc);
             }
-		}
-	}
-	return ret;
+      }
+   }
+   return ret;
 }

@@ -33,8 +33,15 @@ computeNodesView = function () {
         return dimensions;
     }
     this.load = function (obj) {
-        populateComputeNodes();
-        layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
+        var hashParams = ifNull(obj['hashParams'],{});
+        if(hashParams['node'] == null)
+            populateComputeNodes();
+        else
+            cmpNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab'], filters:hashParams['filters']});
+        //layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
+    }
+    this.updateViewByHash = function(hashObj,lastHashObj) {
+        console.info('Hello');
     }
     this.destroy = function () {
         //contView.destroy();
@@ -155,7 +162,7 @@ computeNodesView = function () {
     
     function populateComputeNodes() {
         summaryChartsInitializationStatus['vRouters'] = false;
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         var compNodesTemplate = contrail.getTemplate4Id("computenodes-template");
         $(pageContainer).html(compNodesTemplate({}));
         //Initialize widget header
@@ -356,10 +363,8 @@ computeNodeView = function () {
             var computeNodeDeferredObj = $.Deferred();
             self.getComputeNodeDetails(computeNodeDeferredObj,computeNodeInfo);
             computeNodeDeferredObj.done(function(data) {
-                try{
-                    //If IP address is not available in UVE,pick it from ConfigData
-                    computeNodeInfo['ip'] = ifNull(getValueByJsonPath(data,'VrouterAgent;self_ip_list;0'),data['ConfigData']['virtual-router']['virtual_router_ip_address']);
-                }catch(e){}
+                //If IP address is not available in UVE,pick it from ConfigData
+                computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
                 self.populateComputeNode(computeNodeInfo);
             });
         } else {
@@ -407,9 +412,7 @@ computeNodeView = function () {
                 if(obj['type'] == "vport"){
                     if(obj.fip_list != null) {
                         var fipList = [];
-                        try{
-                            fipList = jsonPath(obj,"$..FloatingIpSandeshList")[0];
-                        }catch(e){}
+                        fipList = ifNull(jsonPath(obj,"$..FloatingIpSandeshList")[0],[]);
                         obj['disp_fip_list'] = floatingIPCellTemplate(fipList);
                     }
                     retArray.push({uuid:obj['uuid'],name:obj['name'],label:obj['label'],active:obj['active'],
@@ -452,7 +455,7 @@ computeNodeView = function () {
     this.parseACLData = function(response){
 
         var retArr = [];
-        response = jsonPath(response,"$..AclSandeshData")[0];
+        response = getValueByJsonPath(response,"AclResp;acl_list;list;AclSandeshData");
         //Loop through ACLs
         if(response != null){
             if(!(response instanceof Array)) {
@@ -460,10 +463,7 @@ computeNodeView = function () {
             } 
             for (var i = 0; i < response.length; i++) {
                 var currACL = [];
-                try{
-                    currACL = jsonPath(response[i],"$..AclEntrySandeshData")[0];
-                } catch (e) {
-                }
+                currACL = getValueByJsonPath(response[i],"entries;list;AclEntrySandeshData",[]);
                 //Loop through ACEs
                 if(!(currACL instanceof Array)) {
                     currACL = [currACL];
@@ -480,26 +480,14 @@ computeNodeView = function () {
                             flowCnt = '';
                         }
                         var protoRange = srcPortRange = dstPortRange = actionVal = srcVn = destVn = aceid = srcType = dstType = srcSgId = dstSgId = noDataStr;
+                        protoRange = getValueByJsonPath(currACE,"proto_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"proto_l;list;SandeshRange;max");
+                        srcPortRange = getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;max");
+                        dstPortRange = getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;max");
+                        actionVal = getValueByJsonPath(currACE,"action_l;list;ActionStr;action");
+                        srcType = getValueByJsonPath(currACE,"src_type");
+                        dstType = getValueByJsonPath(currACE,"dst_type");
                         try{
-                            protoRange = jsonPath(currACE,"$.proto_l.list.SandeshRange.min")[0] + " - " + jsonPath(currACE,"$.proto_l.list.SandeshRange.max")[0];
-                        } catch(e){}
-                        try{
-                            srcPortRange = jsonPath(currACE,"$.src_port_l.list.SandeshRange.min")[0] + " - " + jsonPath(currACE,"$.src_port_l.list.SandeshRange.max")[0];
-                        }catch(e){}
-                        try{
-                            dstPortRange = jsonPath(currACE,"$.dst_port_l.list.SandeshRange.min")[0] + " - " + jsonPath(currACE,"$.dst_port_l.list.SandeshRange.max")[0];
-                        }catch(e){}
-                        try{
-                            actionVal = jsonPath(currACE,"$.action_l.list.ActionStr.action")[0];
-                        }catch(e){}
-                        try{
-                            srcType = jsonPath(currACE,"$.src_type")[0];
-                        }catch(e){}
-                        try{
-                            dstType = jsonPath(currACE,"$.dst_type")[0];
-                        }catch(e){}
-                        try{
-                            srcVn = ifNullOrEmptyObject(jsonPath(currACE,"$.src")[0],noDataStr);
+                            srcVn = ifNullOrEmptyObject(getValueByJsonPath(currACE,"src"),noDataStr);
                             if(srcType == 'sg'){
                                 srcSgId = srcVn;
                                 srcVn = noDataStr;
@@ -518,7 +506,7 @@ computeNodeView = function () {
                             }
                         }catch(e){}
                         try{
-                            destVn = ifNullOrEmptyObject(jsonPath(currACE,"$.dst")[0],noDataStr);
+                            destVn = ifNullOrEmptyObject(getValueByJsonPath(currACE,"dst"),noDataStr);
                             if(dstType == 'sg'){
                                 dstSgId = destVn;
                                 destVn = noDataStr;
@@ -740,7 +728,7 @@ computeNodeView = function () {
     }
     function populateInterfaceTab(obj) {
         //Push only tab & node parameter in URL
-        layoutHandler.setURLHashParams({tab:'interfaces',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
         
         if (!isGridInitialized('#gridComputeInterfaces')) {
             $('#gridComputeInterfaces').contrailGrid({
@@ -891,7 +879,7 @@ computeNodeView = function () {
 
         if (obj == null)
             obj = computeNodeInfo;
-        layoutHandler.setURLHashParams({tab:'networks',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
         if (!isGridInitialized('#gridComputeVN')) {
             $("#gridComputeVN").contrailGrid({
                 header : {
@@ -1031,7 +1019,7 @@ computeNodeView = function () {
                     //computeNodeTabStrip.select(tabIdx);
                     var dataItem = this.dataItem(this.select()[0].parentNode);
                     var filters = dataItem.vrf;
-                    layoutHandler.setURLHashParams({tab:'routes',node:'vRouters:' + obj['name']});
+                    layoutHandler.setURLHashParams({tab:'routes',node: obj['name']});
                 }
             }
         }
@@ -1042,7 +1030,7 @@ computeNodeView = function () {
         var endTime = getCurrentTime4MemCPUCharts(), startTime = endTime - 600000;
         var slConfig = {startTime: startTime, endTime: endTime};
         var nodeIp; 
-        layoutHandler.setURLHashParams({tab:'',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#computenode-dashboard', true);
         startWidgetLoading('vrouter-sparklines');
         toggleWidgetsVisibility(['vrouter-chart-box'], ['system-chart-box']);
@@ -1055,7 +1043,7 @@ computeNodeView = function () {
             url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
         }).done(function (result) {
                     computeNodeData = result;
-                    var parsedData = infraMonitorView.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
+                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
                     var noDataStr = '--',
                     cpu = "N/A",
                     memory = "N/A",
@@ -1072,28 +1060,19 @@ computeNodeView = function () {
                 var procStateList, overallStatus = noDataStr;
                 var vRouterProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
-                try{
-                    overallStatus = getOverallNodeStatusForDetails(parsedData);
-                }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
-                try{
-                    procStateList = jsonPath(computeNodeData,"$..process_state_list")[0];
-                    vRouterProcessStatusList = getStatusesForAllvRouterProcesses(procStateList);
-                }catch(e){}
+                overallStatus = getOverallNodeStatusForDetails(parsedData);
+                procStateList = getValueByJsonPath(computeNodeData,"VrouterStatsAgent;process_state_list");
+                vRouterProcessStatusList = getStatusesForAllvRouterProcesses(procStateList);
                 computeNodeDashboardInfo = [
                     {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function(){
-                        try{
-                            var ip = ifNullOrEmpty(getVrouterIpAddresses(computeNodeData,"details"),noDataStr);
-                            return ip;
-                        } catch(e){return noDataStr;}
+                        return ifNullOrEmpty(getVrouterIpAddresses(computeNodeData,"details"),noDataStr);
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
-                        try{
-                            return ifNull(vRouterProcessStatusList['contrail-vrouter'],noDataStr);
-                        }catch(e){return noDataStr;}
+                        return ifNull(vRouterProcessStatusList['contrail-vrouter'],noDataStr);
                     })()},
                     /*{lbl:INDENT_RIGHT+'vRouter Node Manager', value:(function(){
                         try{
@@ -1181,30 +1160,29 @@ computeNodeView = function () {
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
                     {lbl:'XMPP Messages', value:(function(){
-                        try {
-                            return (ifNull(computeNodeData.VrouterStatsAgent.xmpp_stats_list[0].in_msgs, noDataStr) + ' In, ' + 
-                            ifNull(computeNodeData.VrouterStatsAgent.xmpp_stats_list[0].out_msgs, noDataStr) + ' Out');
-                        }catch (e){return '0';}
+                        var xmppStatsList = getValueByJsonPath(computeNodeData,'VrouterStatsAgent;xmpp_stats_list',[]);
+                        var inMsgs = outMsgs = 0; 
+                        for(var i = 0; i < xmppStatsList.length ; i++) {
+                            inMsgs += getValueByJsonPath(xmppStatsList[i],'in_msgs',0);
+                            outMsgs += getValueByJsonPath(xmppStatsList[i],'out_msgs',0);
+                        }
+                        return (inMsgs + ' In, ' + outMsgs + ' Out');
                     })()},
                     {lbl:'Flow Count', value:(function(){
-                        try {
-                            return (ifNull(computeNodeData.VrouterStatsAgent.active_flows, noDataStr) + ' Active, ' + 
-                            ifNull(computeNodeData.VrouterStatsAgent.total_flows, noDataStr) + ' Total');
-                        }catch (e){return '0';}
+                        return (getValueByJsonPath(computeNodeData,"VrouterStatsAgent;active_flows", noDataStr) + ' Active, ' + 
+                                getValueByJsonPath(computeNodeData,"VrouterStatsAgent;total_flows", noDataStr) + ' Total');
                     })()},  
                     {lbl:'Networks', value:parsedData['vnCnt']},
                     {lbl:'Interfaces', value:(function(){
-                    	try{
-                    		var downInts = parsedData['errorIntfCnt'];
-                    		var totInts = parsedData['intfCnt'];
-	                    	var ret;
-	                        if(downInts > 0){
-	                        	downInts = ", <span class='text-error'>" + downInts + " Down</span>";
-	                        } else {
-	                        	downInts = "";
-	                        } 
-	                        return totInts + " Total" + downInts;
-                    	}catch(e){return noDataStr;}
+                		var downInts = parsedData['errorIntfCnt'];
+                		var totInts = parsedData['intfCnt'];
+                    	var ret;
+                        if(downInts > 0){
+                        	downInts = ", <span class='text-error'>" + downInts + " Down</span>";
+                        } else {
+                        	downInts = "";
+                        } 
+                        return totInts + " Total" + downInts;
                     })()},
                     {lbl:'Instances', value:parsedData['instCnt']},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
@@ -1262,7 +1240,7 @@ computeNodeView = function () {
     };
 
     function populateACLTab(obj) {
-        layoutHandler.setURLHashParams({tab:'acl',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
         var selectedAcl = 'All';
         if(obj['filters'] != null){
             selectedAcl = obj['filters'];
@@ -1495,7 +1473,7 @@ computeNodeView = function () {
         }*/
         $('#btnNextFlows').unbind("click").click(onNextClick);
         $('#btnPrevFlows').unbind("click").click(onPrevClick);
-        layoutHandler.setURLHashParams({tab:'flows',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
         if (!isInitialized('#aclDropDown')){
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
@@ -1807,7 +1785,7 @@ computeNodeView = function () {
     }
 
     function populateRoutesTab(obj) {
-        layoutHandler.setURLHashParams({tab:'routes',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
         var routesGrid,ucIndex,mcIndex;
         var rdoRouteType = $('#routeType').val();
         var cboVRF;
@@ -2284,7 +2262,7 @@ computeNodeView = function () {
             }
             $("#compute_tabstrip").contrailTabs({
                  activate: function(e, ui) {
-                    infraMonitorView.clearTimers();
+                    infraMonitorUtils.clearTimers();
                     //var selTab = $(e.item).text();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab != 'Console') {
@@ -2300,7 +2278,7 @@ computeNodeView = function () {
                     } else if (selTab == 'Flows') {
                         populateFlowsTab(computeNodeInfo, e.filters);
                     } else if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('compute', {source:computeNodeInfo['name']}, computeNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('compute', {source:computeNodeInfo['name']}, computeNodeInfo);
                     } else if (selTab == 'Debug Info') {
                         populateDebugTab(computeNodeInfo);
                     } else if (selTab == 'Details') {
@@ -2347,7 +2325,7 @@ function getvRoutersDashboardDataForSummary(deferredObj,dataSource) {
     $.ajax({
         url: monitorInfraUrls['VROUTER_SUMMARY']
     }).done(function(result) {
-        var r = infraMonitorView.parsevRoutersDashboardData(result);
+        var r = infraMonitorUtils.parsevRoutersDashboardData(result);
         $.each(r,function(idx,obj){
             dataSource.add(obj);
         });

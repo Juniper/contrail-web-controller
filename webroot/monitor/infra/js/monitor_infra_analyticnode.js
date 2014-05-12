@@ -6,8 +6,12 @@ analyticsNodesView = function () {
     var self = this,analyticNodesData;
     var aNodesGrid;
     this.load = function (obj) {
-    	layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
-        populateAnalyticsNodes();
+        var hashParams = ifNull(obj['hashParams'],{});
+        if(hashParams['node'] == null)
+            populateAnalyticsNodes();
+        else
+            aNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab']});
+    	//layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
     }
     this.getAnalyticNodesData = function() {
         return analyticNodesData;
@@ -24,7 +28,7 @@ analyticsNodesView = function () {
     }
 
     function populateAnalyticsNodes() {
-        infraMonitorView.clearTimers();
+        infraMonitorUtils.clearTimers();
         summaryChartsInitializationStatus['analyticsNode'] = false;
         var aNodesTemplate = contrail.getTemplate4Id("analyticsnodes-template");
         $(pageContainer).html(aNodesTemplate({}));
@@ -161,14 +165,12 @@ analyticsNodesView = function () {
         })
         $(analyticsNodeDS).on('change',function(){
         	updateChartsForSummary(analyticsNodesDataSource.getItems(),"analytics");
-        	//updateCpuSparkLines(aNodesGrid,analyticsNodesDataSource.getItems());
         });
         if(analyticsNodesResult['lastUpdated'] != null && (analyticsNodesResult['error'] == null || analyticsNodesResult['error']['errTxt'] == 'abort')){
            triggerDatasourceEvents(analyticsNodeDS);
         } else {
             aNodesGrid.showGridMessage('loading');
         }
-        //applyGridDefHandlers(aNodesGrid, {noMsg:'No Analytics Nodes to display'});
     }
 }
 
@@ -221,9 +223,8 @@ analyticsNodeView = function () {
 			var analyticsNodeDeferredObj = $.Deferred();
 			self.getAnalyticsNodeDetails(analyticsNodeDeferredObj,aNodeInfo);
 			analyticsNodeDeferredObj.done(function(data) {
-				try{
-					aNodeInfo['ip'] = data.CollectorState.self_ip_list[0];
-				} catch(e){}
+			    var ipList = getValueByJsonPath(data,"CollectorState.self_ip_list",[])
+				aNodeInfo['ip'] = ipList[0];
     	        self.populateAnalyticsNode(aNodeInfo);
             });
 		} else {
@@ -252,15 +253,10 @@ analyticsNodeView = function () {
                 var name = d.name;
                 var status = noDataStr;
                 var rawJson = d;
-                try {
-                    var generatorInfo = jsonPath(d,"$.value.ModuleServerState.generator_info")[0];
-                    var collectorName = jsonPath(d,"$.value.ModuleClientState.client_info.collector_name")[0];
-                    var strtTime = jsonPath(d,"$.value.ModuleClientState.client_info.start_time")[0];
-                    status = getStatusForGenerator(generatorInfo,collectorName,strtTime);
-                } catch(e){}
-                
-                
-                
+                var generatorInfo = getValueByJsonPath(d,"value;ModuleServerState;generator_info");
+                var collectorName = getValueByJsonPath(d,"value;ModuleClientState;client_info;collector_name");
+                var strtTime = getValueByJsonPath(d,"value;ModuleClientState;client_info;start_time");
+                status = getStatusForGenerator(generatorInfo,collectorName,strtTime);
                 var msgStats;
                 try { 
                     msgStats= d['value']["ModuleServerState"]["msg_stats"][0]["msgtype_stats"];
@@ -288,19 +284,15 @@ analyticsNodeView = function () {
     this.parseQEQueries = function(response){
 
     	var retArr = [];
-    	try {
-    		retArr =  response.QueryStats.queries_being_processed;
-    	} catch(e) {retArr = [];}
-    	try {
-    		var pendingQueries = response.QueryStats.pending_queries;
-    		//Set the progress to pending for pending queries.
-    		pendingQueries = $.each(pendingQueries,function(idx,obj) {
-    			obj['progress'] = "Pending in queue";
-    			return obj;
-    		});
-    		//Merge the 2 lists for display
-    		retArr = retArr.concat(pendingQueries);
-    	} catch(e) { retArr = [];} 
+    	retArr =  getValueByJsonPath(response,"QueryStats;queries_being_processed",[]);
+		var pendingQueries = getValueByJsonPath(response,"QueryStats.pending_queries",[]);
+		//Set the progress to pending for pending queries.
+		pendingQueries = $.each(pendingQueries,function(idx,obj) {
+			obj['progress'] = "Pending in queue";
+			return obj;
+		});
+		//Merge the 2 lists for display
+		retArr = retArr.concat(pendingQueries);
     	var ret = [];
     	$.each(retArr,function(idx,obj) {
     	  var rawJson = obj;
@@ -330,7 +322,7 @@ analyticsNodeView = function () {
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#analyticsnode-dashboard', true);
         //Destroy chart if it exists
         startWidgetLoading('analytics-sparklines');
@@ -343,7 +335,7 @@ analyticsNodeView = function () {
             url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
         }).done(function (result) {
                 aNodeData = result;
-                var parsedData = infraMonitorView.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
+                var parsedData = infraMonitorUtils.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
                 var noDataStr = "--";
                 var cpu = "N/A",
                     memory = "N/A",
@@ -356,20 +348,15 @@ analyticsNodeView = function () {
                 var procStateList, overallStatus = noDataStr;
                 var analyticsProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
-                try{
-                    overallStatus = getOverallNodeStatusForDetails(parsedData);
-                }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
-                try{
-                	procStateList = jsonPath(aNodeData,"$..process_state_list")[0];
-                	analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
-                }catch(e){}
+                
+                overallStatus = getOverallNodeStatusForDetails(parsedData);
+            	procStateList = getValueByJsonPath(aNodeData,"ModuleCpuState;process_state_list",[]);
+            	analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
                 aNodeDashboardInfo = [
                     {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function(){
                         var ips = '';
-                        try{
-                        	iplist = aNodeData.CollectorState.self_ip_list;
-                        } catch(e){return noDataStr;}
+                        iplist = getValueByJsonPath(aNodeData,"CollectorState;self_ip_list",[]);
                         if(iplist != null && iplist.length>0){
                             for (var i=0; i< iplist.length;i++){
                                 if(i+1 == iplist.length) {
@@ -392,34 +379,22 @@ analyticsNodeView = function () {
                     	}catch(e){return noDataStr;}
                     })()},*/
                     {lbl:INDENT_RIGHT+'Collector', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-qe'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-qe'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'OpServer', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Query', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis UVE', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
                     })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
@@ -429,7 +404,6 @@ analyticsNodeView = function () {
                     })()},
                     {lbl:'Generators', value:(function(){
                         var ret='';
-                        //ret = ret + 'Total ';
                         var genno;
                         try{
 	                        if(aNodeData.CollectorState["generator_infos"]!=null){
@@ -497,7 +471,7 @@ analyticsNodeView = function () {
     }
 
     function populateGeneratorsTab(obj) {
-        layoutHandler.setURLHashParams({tab:'generators',ip:aNodeInfo['ip'], node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'generators',ip:aNodeInfo['ip'], node: obj['name']},{triggerHashChange:false});
         var transportCfg = {
             url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], obj['name'], 50),
         };
@@ -596,7 +570,7 @@ analyticsNodeView = function () {
     }
 
     function populateQEQueriesTab(obj) {
-        layoutHandler.setURLHashParams({tab:'qequeries', node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'qequeries', node: obj['name']},{triggerHashChange:false});
         //Intialize the grid only for the first time
         if (!isGridInitialized('#gridQEQueries')) {
         	$("#gridQEQueries").contrailGrid({
@@ -705,8 +679,8 @@ analyticsNodeView = function () {
 
             $("#analytics_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    infraMonitorView.clearTimers();
-                    var selTab = $(ui.newTab.context).text();
+                    infraMonitorUtils.clearTimers();
+                    var selTab = ui.newTab.context.innerText;
                     if (selTab == 'Generators') {
                         populateGeneratorsTab(aNodeInfo);
                         $('#gridGenerators').data('contrailGrid').refreshView();
@@ -714,7 +688,7 @@ analyticsNodeView = function () {
                         populateQEQueriesTab(aNodeInfo);
                         $('#gridQEQueries').data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
-                        infraMonitorView.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
+                        infraMonitorUtils.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
                     } else if (selTab == 'Details') {
                         populateDetailsTab(aNodeInfo);
                     }
