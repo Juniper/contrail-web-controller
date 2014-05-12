@@ -5,9 +5,16 @@
 controlNodesView = function () {
     var self = this;
     var ctrlNodesGrid,ctrlNodesData = [];
+
     this.load = function (obj) {
-    	layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
-        populateControlNodes();
+        var hashParams = ifNull(obj['hashParams'],{});
+        if(hashParams['node'] == null)
+            populateControlNodes();
+        else
+            ctrlNodeView.load({name:hashParams['node'].split(':')[1],tab:hashParams['tab']});
+        //layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
+    }
+    this.updateViewByHash = function() {
     }
     this.setCtrlNodesData = function(data) {
         ctrlNodesData = data;
@@ -17,9 +24,9 @@ controlNodesView = function () {
     }
 
     this.destroy = function () {
-    	var kGrid = $('.contrail-grid').data('contrailGrid');
-    	if(kGrid != null)
-    		kGrid.destroy();
+      var kGrid = $('.contrail-grid').data('contrailGrid');
+      if(kGrid != null)
+         kGrid.destroy();
     }
 
     function populateControlNodes() {
@@ -171,7 +178,7 @@ controlNodesView = function () {
 }
 
 function onCtrlNodeRowSelChange(dc) {
-	ctrlNodesGrid = $('#gridControlNodes').data('contrailGrid');
+   ctrlNodesGrid = $('#gridControlNodes').data('contrailGrid');
    ctrlNodeView.load({name:dc['name'], ip:dc['ip']});
 }
 
@@ -181,7 +188,7 @@ controlNodeView = function () {
     var ctrlNodeInfo = {}, self = this;
     var ctrlNodeData = {};
     var RoutesViewModel = function () {
-    	this.routingInstances = ko.observableArray([]);
+      this.routingInstances = ko.observableArray([]);
         this.routingInstanceValue = ko.observable('All');
         this.routeTables = ko.observableArray([]);
         this.routeTableValue =  ko.observable('All');
@@ -204,20 +211,20 @@ controlNodeView = function () {
     /*End of Selenium Testing*/
     this.load = function (obj) {
         pushBreadcrumb([obj['name']]);
-    	ctrlNodeInfo = obj;
-    	if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
-			//issue details call and populate ip
-			var controlNodeDeferredObj = $.Deferred();
-			self.getControlNodeDetails(controlNodeDeferredObj,ctrlNodeInfo);
-			controlNodeDeferredObj.done(function(data) {
-				try{
-					ctrlNodeInfo['ip'] = data.BgpRouterState.bgp_router_ip_list[0];
-				}catch(e){}
-    	        self.populateControlNode(ctrlNodeInfo);
+      ctrlNodeInfo = obj;
+      if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
+         //issue details call and populate ip
+         var controlNodeDeferredObj = $.Deferred();
+         self.getControlNodeDetails(controlNodeDeferredObj,ctrlNodeInfo);
+         controlNodeDeferredObj.done(function(data) {
+            try{
+               ctrlNodeInfo['ip'] = data.BgpRouterState.bgp_router_ip_list[0];
+            }catch(e){}
+              self.populateControlNode(ctrlNodeInfo);
             });
-		} else {
-	        self.populateControlNode(ctrlNodeInfo);
-		}
+      } else {
+           self.populateControlNode(ctrlNodeInfo);
+      }
     }
 
     this.destroy = function () {
@@ -234,75 +241,75 @@ controlNodeView = function () {
         
     this.processPeerInfo = function(peerInfo)
     {
-    	var ret = [];
-    	var hostname = ctrlNodeInfo['name'];
+      var ret = [];
+      var hostname = ctrlNodeInfo['name'];
         try {
-        	//first process the bgp peers
-        	var bgpPeerInfo = peerInfo['bgp-peer']['value'];
-        	ret = self.processPeerDetails(bgpPeerInfo,'bgp',ret,hostname);
-        	//now process xmpp peers
-        	var xmppPeerInfo = peerInfo['xmpp-peer']['value'];
-        	ret = self.processPeerDetails(xmppPeerInfo,'xmpp',ret,hostname);
+         //first process the bgp peers
+         var bgpPeerInfo = peerInfo['bgp-peer']['value'];
+         ret = self.processPeerDetails(bgpPeerInfo,'bgp',ret,hostname);
+         //now process xmpp peers
+         var xmppPeerInfo = peerInfo['xmpp-peer']['value'];
+         ret = self.processPeerDetails(xmppPeerInfo,'xmpp',ret,hostname);
         } catch(e) {}
         return ret;
     }
     
     this.processPeerDetails = function(bgpPeerInfo,type,ret,hostname){
-    	for(var i = 0; i < bgpPeerInfo.length; i++) {
-    		var obj = {};
-    		obj['raw_json'] = bgpPeerInfo[i];
-    		var peerInfodata ;
-    		if(type == 'bgp'){
-        		try {
-    	            var nameArr = bgpPeerInfo[i]['name'].split(':');
-    	            if ((hostname == nameArr[4])) {
-    	                obj['encoding'] = 'BGP';
-    	                obj['peer_address'] = ifNull(bgpPeerInfo[i].value.BgpPeerInfoData.peer_address,noDataStr);
-    	            } else {
-    	            	continue;//skip if it is not for this control node
-    	            }
-    	            peerInfodata = bgpPeerInfo[i].value.BgpPeerInfoData;
-    	        } catch(e) {
-    	        	obj['peer_address'] = '-';
-    	        }
-    		} else if (type == 'xmpp') {
-    			try{
+      for(var i = 0; i < bgpPeerInfo.length; i++) {
+         var obj = {};
+         obj['raw_json'] = bgpPeerInfo[i];
+         var peerInfodata ;
+         if(type == 'bgp'){
+            try {
+                  var nameArr = bgpPeerInfo[i]['name'].split(':');
+                  if ((hostname == nameArr[4])) {
+                      obj['encoding'] = 'BGP';
+                      obj['peer_address'] = ifNull(bgpPeerInfo[i].value.BgpPeerInfoData.peer_address,noDataStr);
+                  } else {
+                     continue;//skip if it is not for this control node
+                  }
+                  peerInfodata = bgpPeerInfo[i].value.BgpPeerInfoData;
+              } catch(e) {
+               obj['peer_address'] = '-';
+              }
+         } else if (type == 'xmpp') {
+            try{
                     var nameArr = bgpPeerInfo[i]['name'].split(':');
                     obj['peer_address'] = nameArr[1];
                     obj['encoding'] = 'XMPP';
                     peerInfodata = bgpPeerInfo[i].value.XmppPeerInfoData;
-    			} catch(e){}
-    		}
-    		try{
-    			obj['name'] = ifNull(jsonPath(bgpPeerInfo[i],'$..name')[0],noDataStr);
-    		}catch(e){
-    			obj['name'] = "-"
-    		}
-    		try{
-    			obj['send_state'] = ifNull(jsonPath(peerInfodata,'$..send_state'),noDataStr);
-    			if(obj['send_state'] == false) 
-                	obj['send_state'] = '-';
-    		}catch(e){
-    			obj['send_state'] = '-';
-    		}
-    		try{
-    			obj['peer_asn'] = ifNull(jsonPath(peerInfodata,'$..peer_asn')[0],noDataStr);
-    			if(obj['peer_asn'] == null) 
-                	obj['peer_asn'] = '-';
-    		}catch(e){
-    			obj['peer_asn'] = '-';
-    		}
-    		try{
-    			obj = self.copyObject(obj, peerInfodata['state_info']);
-    		}catch(e){}
-    		try{
-    			obj = self.copyObject(obj, peerInfodata['event_info']);
-    		}catch(e){
-    			obj['routing_tables'] = '-';
-    		}	
-    		try{
-            	obj['routing_tables'] = peerInfodata['routing_tables'];
-    		}catch(e){}
+            } catch(e){}
+         }
+         try{
+            obj['name'] = ifNull(jsonPath(bgpPeerInfo[i],'$..name')[0],noDataStr);
+         }catch(e){
+            obj['name'] = "-"
+         }
+         try{
+            obj['send_state'] = ifNull(jsonPath(peerInfodata,'$..send_state'),noDataStr);
+            if(obj['send_state'] == false) 
+                  obj['send_state'] = '-';
+         }catch(e){
+            obj['send_state'] = '-';
+         }
+         try{
+            obj['peer_asn'] = ifNull(jsonPath(peerInfodata,'$..peer_asn')[0],noDataStr);
+            if(obj['peer_asn'] == null) 
+                  obj['peer_asn'] = '-';
+         }catch(e){
+            obj['peer_asn'] = '-';
+         }
+         try{
+            obj = self.copyObject(obj, peerInfodata['state_info']);
+         }catch(e){}
+         try{
+            obj = self.copyObject(obj, peerInfodata['event_info']);
+         }catch(e){
+            obj['routing_tables'] = '-';
+         }  
+         try{
+               obj['routing_tables'] = peerInfodata['routing_tables'];
+         }catch(e){}
             try {
                 obj['last_flap'] = new XDate(peerInfodata['flap_info']['flap_time']/1000).toLocaleString();
             } catch(e) {
@@ -331,8 +338,8 @@ controlNodeView = function () {
                 obj['introspect_state'] = '-';
             }
             ret.push(obj);
-    	}//for loop for bgp peers END
-    	return ret;
+      }//for loop for bgp peers END
+      return ret;
     }
     
     this.copyObject = function(dest, src)
@@ -356,15 +363,15 @@ controlNodeView = function () {
         //routes = flattenList(routes);
         var routesLen = routes.length;
         for (var i = 0; i < routesLen; i++) {
-        	var isRtTableDisplayed = false;
-        	if(!(routes[i] instanceof Array)) {
-        		routes[i] = [routes[i]];
+         var isRtTableDisplayed = false;
+         if(!(routes[i] instanceof Array)) {
+            routes[i] = [routes[i]];
             }
             $.each(routes[i], function (idx, value) {
                 var currRoute = value;
                 var paths = jsonPath(currRoute,"$..ShowRoutePath")[0];
                 if(!(paths instanceof Array)) {
-                	paths = [paths];
+                  paths = [paths];
                 }
                 var pathsLen = paths.length;
                 var alternatePaths = [],bestPath = {};
@@ -372,57 +379,57 @@ controlNodeView = function () {
                 var securityGroup = "--";
                 //Multiple paths can be there for a given prefix
                 $.each(paths, function (idx,obj) {
-                	if(isRtTableDisplayed){
-                    	rtTable = '';
+                  if(isRtTableDisplayed){
+                     rtTable = '';
                     } 
-                	var rtable= routeTables[i];
-                	var origVn = obj['origin_vn'];
-                	var addfamily = '-';
-                	if(rtable != null){
-                		addfamily = (rtable.split('.').length == 3) ? rtable.split('.')[1] : rtable;
-                	}
-                	var rawJson = obj;
-                	var sg = getSecurityGroup(jsonPath(obj,"$..communities..element")[0]);
-                	//Fitering based on Address Family, Peer Source and Protocol selection
-                	if((selAddFamily == "All" || selAddFamily == addfamily) && 
-                			(selPeerSrc == "All" || selPeerSrc == obj['source']) &&
-                			(selProtocol == "All" || selProtocol == obj['protocol'])){
-                		var src = obj['source'];
-                		src = ifNullOrEmptyObject(src, "-").split(":").pop();
-                    	origVn = ifNullOrEmptyObject(origVn, "-") ;
+                  var rtable= routeTables[i];
+                  var origVn = obj['origin_vn'];
+                  var addfamily = '-';
+                  if(rtable != null){
+                     addfamily = (rtable.split('.').length == 3) ? rtable.split('.')[1] : rtable;
+                  }
+                  var rawJson = obj;
+                  var sg = getSecurityGroup(jsonPath(obj,"$..communities..element")[0]);
+                  //Fitering based on Address Family, Peer Source and Protocol selection
+                  if((selAddFamily == "All" || selAddFamily == addfamily) && 
+                        (selPeerSrc == "All" || selPeerSrc == obj['source']) &&
+                        (selProtocol == "All" || selProtocol == obj['protocol'])){
+                     var src = obj['source'];
+                     src = ifNullOrEmptyObject(src, "-").split(":").pop();
+                     origVn = ifNullOrEmptyObject(origVn, "-") ;
                         if(idx == 0) {
-                        	routesArr.push({
-                        		prefix:currRoute['Prefix'],
-                            	dispPrefix:currRoute['prefix'],
-                            	table:rtTable,
-                            	instance:routeInstances[i],
-                            	addrFamily:addfamily,
-                            	sg:ifEmpty(sg,'-'),
-                            	raw_json:rawJson,
-                            	originVn:origVn,
-                            	protocol:obj['protocol'],
-                            	source:src,
-                            	next_hop:obj['next_hop'],
-                            	label:obj['label']
-                        	});
+                           routesArr.push({
+                              prefix:currRoute['Prefix'],
+                              dispPrefix:currRoute['prefix'],
+                              table:rtTable,
+                              instance:routeInstances[i],
+                              addrFamily:addfamily,
+                              sg:ifEmpty(sg,'-'),
+                              raw_json:rawJson,
+                              originVn:origVn,
+                              protocol:obj['protocol'],
+                              source:src,
+                              next_hop:obj['next_hop'],
+                              label:obj['label']
+                           });
                         } else {
-                        	routesArr.push({
-                        		prefix:currRoute['Prefix'],
-                            	dispPrefix:'',
-                            	table:rtTable,
-                            	instance:routeInstances[i],
-                            	addrFamily:addfamily,
-                            	sg:ifEmpty(sg,'-'),
-                            	raw_json:rawJson,
-                            	originVn:origVn,
-                            	protocol:obj['protocol'],
-                            	source:src,
-                            	next_hop:obj['next_hop'],
-                            	label:obj['label']
-                        	});
+                           routesArr.push({
+                              prefix:currRoute['Prefix'],
+                              dispPrefix:'',
+                              table:rtTable,
+                              instance:routeInstances[i],
+                              addrFamily:addfamily,
+                              sg:ifEmpty(sg,'-'),
+                              raw_json:rawJson,
+                              originVn:origVn,
+                              protocol:obj['protocol'],
+                              source:src,
+                              next_hop:obj['next_hop'],
+                              label:obj['label']
+                           });
                         }
                         isRtTableDisplayed = true;
-                	}
+                  }
                 });
             });
         }
@@ -432,14 +439,14 @@ controlNodeView = function () {
     }
 
     function populatePeersTab(obj) {
-        layoutHandler.setURLHashParams({tab:'peers',node:'Control Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'peers',node: obj['name']},{triggerHashChange:false});
         var transportCfg = {
                 url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], obj['name'], 40)
             };
             var peersDS;
         //Intialize the grid only for the first time
         if (!isGridInitialized('#gridPeers')) {
-        	peersDS = new ContrailDataView();
+         peersDS = new ContrailDataView();
             getOutputByPagination(peersDS,{transportCfg:transportCfg,parseFn:self.processPeerInfo});
             $("#gridPeers").contrailGrid({
                 header : {
@@ -455,47 +462,47 @@ controlNodeView = function () {
                     }
                 },
                 columnHeader : {
-                	columns:[
+                  columns:[
                              {
                                  field:"peer_address",
                                  id:"peer_address",
                                  name:"Peer",
                                  width:150,
                                  cssClass: 'cell-hyperlink-blue',
-		                     	 events: {
-		                     		onClick: function(e,dc){
-		                     			showObjLog(dc.name, dc.encoding + '_peer'); 
-		                     		}
-		                     	},
-		                     	sortable:true
+                               events: {
+                                 onClick: function(e,dc){
+                                    showObjLog(dc.name, dc.encoding + '_peer'); 
+                                 }
+                              },
+                              sortable:true
                              },
                              {
                                  field:"encoding",
                                  id:"encoding",
                                  name:"Peer Type",
                                  width:125,
- 		                     	 sortable:true
+                               sortable:true
                              },
                              {
                                  field:"peer_asn",
                                  id:"peer_asn",
                                  name:"Peer ASN",
                                  width:125,
- 		                     	 sortable:true
+                               sortable:true
                              },
                              {
                                  field:"introspect_state",
                                  id:"introspect_state",
                                  name:"Status",
                                  width:250,
- 		                     	 sortable:true
+                               sortable:true
                              },
                              {
                                  field:"last_flap",
                                  id:"last_flap",
                                  name:"Last flap",
                                  width:200,
- 		                     	 sortable:true                    
+                               sortable:true                    
                              },
                              {
                                  field:'messsages_in',
@@ -503,46 +510,46 @@ controlNodeView = function () {
                                  width:160,
                                  name:"Messages (Recv/Sent)",
                                  formatter : function(r, c, v, cd, dc) {
-                         			return dc.messsages_in + ' / ' + dc.messsages_out;
-                         		 },
- 		                     	 sortable:true
+                                 return dc.messsages_in + ' / ' + dc.messsages_out;
+                               },
+                               sortable:true
                              }
                          ],
                 },
-        		body : {
-        			options : {
-        				//checkboxSelectable: true,
-        				forceFitColumns: true,
-        				detail:{
-        					template: $("#gridsTemplateJSONDetails").html()
-        				}
-        			},
-        			dataSource : {
-	        			dataView : peersDS
-        			},
-        			statusMessages: {
-        				loading: {
-        					text: 'Loading Peers..',
-        				},
-        				empty: {
-        					text: 'No Peers to display'
-        				}, 
-        				errorGettingData: {
-        					type: 'error',
-        					iconClasses: 'icon-warning',
-        					text: 'Error in getting Data.'
-        				}
-        			}
-        		},
-    			footer : {
-    				pager : {
-    					options : {
-    						pageSize : 50,
-    						pageSizeSelect : [10, 50, 100, 200, 500 ]
-    					}
-    				}
-    			}
-        	});
+            body : {
+               options : {
+                  //checkboxSelectable: true,
+                  forceFitColumns: true,
+                  detail:{
+                     template: $("#gridsTemplateJSONDetails").html()
+                  }
+               },
+               dataSource : {
+                  dataView : peersDS
+               },
+               statusMessages: {
+                  loading: {
+                     text: 'Loading Peers..',
+                  },
+                  empty: {
+                     text: 'No Peers to display'
+                  }, 
+                  errorGettingData: {
+                     type: 'error',
+                     iconClasses: 'icon-warning',
+                     text: 'Error in getting Data.'
+                  }
+               }
+            },
+            footer : {
+               pager : {
+                  options : {
+                     pageSize : 50,
+                     pageSizeSelect : [10, 50, 100, 200, 500 ]
+                  }
+               }
+            }
+         });
             peersGrid = $("#gridPeers").data("contrailGrid");
             peersGrid.showGridMessage('loading');
         } else {
@@ -564,14 +571,14 @@ controlNodeView = function () {
     }
 
     function populateRoutesTab(obj) {
-        layoutHandler.setURLHashParams({tab:'routes',node:'Control Nodes:' + obj['name']},{triggerHashChange:false});
-	      var  txtPrefixSearch = $('#txtPrefixSearch').contrailAutoComplete({
-	    	  source:[]
-	      });
-	      var routeTableList = ["All","enet","evpn","inet","inetmcast","l3vpn"];
-	      var routeLimits = [10, 50, 100, 200];
-	      var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
-	      
+        layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
+         var  txtPrefixSearch = $('#txtPrefixSearch').contrailAutoComplete({
+           source:[]
+         });
+         var routeTableList = ["All","enet","evpn","inet","inetmcast","l3vpn"];
+         var routeLimits = [10, 50, 100, 200];
+         var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
+         
          $( "#comboRoutingInstance" ).contrailCombobox({
 //             dataTextField: 'text',
 //             dataValueField: 'id',
@@ -579,30 +586,30 @@ controlNodeView = function () {
             	 type:'remote',
                  url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(ctrlNodeInfo)),
                  parse:function(response){
-                	 var ret = []
-                	 ret =['All'].concat(response['routeInstances']);
-//                	 $.each(response,function(idx,obj){
-//                		 ret.push({'text':obj,'id':obj});
-//                	 })
-                	 return ret; 
+                   var ret = []
+                   ret =['All'].concat(response['routeInstances']);
+//                    $.each(response,function(idx,obj){
+//                       ret.push({'text':obj,'id':obj});
+//                    })
+                   return ret; 
                  }
              },
          });
          var comboRoutingInstance = $( "#comboRoutingInstance" ).data('contrailCombobox');
          
          $( "#comboRoutingTable" ).contrailDropdown({
-         	data:routeTableList
+            data:routeTableList
          });
          var comboRoutingTable = $( "#comboRoutingTable" ).data('contrailDropdown');
         
          $.each(routeLimits,function(idx,obj){
-         	routeLimits[idx] = {'value':obj,'text':obj+' Routes'};
+            routeLimits[idx] = {'value':obj,'text':obj+' Routes'};
          });
          routeLimits = [{'text':'All','value':'All'}].concat(routeLimits);
          $( "#comboRouteLimit" ).contrailDropdown({
-         	dataTextField: 'text',
+            dataTextField: 'text',
              dataValueField: 'value',
-         	data:routeLimits
+            data:routeLimits
          });
          var comboLimit = $( "#comboRouteLimit" ).data('contrailDropdown');
          
@@ -613,30 +620,30 @@ controlNodeView = function () {
              	type: 'remote',
                  url: contrail.format(monitorInfraUrls['CONTROLNODE_PEER_LIST'],obj['name']),
                  parse:function(response){
-                	 var ret = ['All']
-                	if(!(response instanceof Array)){
-                		response = [response];
-         		}
-                	 ret =['All'].concat(response);
-//                	 $.each(response,function(idx,obj){
-//                		 ret.push({text:obj,value:obj});
-//               	 })
-                	 return ret; 
+                   var ret = ['All']
+                  if(!(response instanceof Array)){
+                     response = [response];
+               }
+                   ret =['All'].concat(response);
+//                    $.each(response,function(idx,obj){
+//                       ret.push({text:obj,value:obj});
+//                 })
+                   return ret; 
                  }
              },
          });
          var comboPeerSource = $( "#comboPeerSource" ).data('contrailDropdown');
          
         $( "#comboProtocol" ).contrailDropdown({
-        	data:protocols
+         data:protocols
         });
         var comboProtocol = $( "#comboProtocol" ).data('contrailDropdown');
         var routeQueryString = {}, routeTableSel = '';
         
         //Bug : 2360 : Setting default values before the responses for the particular comboboxes are retrieved
         function setDefaults(){
-        	comboRoutingInstance.value('All');
-        	comboRoutingTable.value('All');
+         comboRoutingInstance.value('All');
+         comboRoutingTable.value('All');
             comboPeerSource.value('All');
             comboProtocol.value('All');
             comboLimit.value('50');
@@ -707,9 +714,9 @@ controlNodeView = function () {
                 if (routeInst != 'All')
                     routeQueryString['routingInst'] = routeInst;
                 if (routeTable != 'All') {
-                	routeQueryString['addrFamily'] = routeTable;
+                  routeQueryString['addrFamily'] = routeTable;
                 } else
-                	routeQueryString['addrFamily'] = '';
+                  routeQueryString['addrFamily'] = '';
                 if (peerSource != 'All')
                     routeQueryString['peerSource'] = peerSource;
                 if (protocol != 'All')
@@ -740,54 +747,54 @@ controlNodeView = function () {
                 },
                 columnHeader : {
                     columns : [
-	                    {
-						    field:"table",
-						    name:"Routing Table",
-						    width:250
-						},
-	                    {
-	                        field:"dispPrefix",
-	                        name:"Prefix",
-	                        width:200
-	                    },
-						{
-	                        field:"protocol",
-	                        name:"Protocol",
-	                        //width:75
-	                    },
-	                    {
-	                        field:"source",
-	                        name:"Source",
-	                        width:130,
-	                      //  template:cellTemplate({cellText:'#= source.split(":").pop() #', tooltip:true})
-	                    },
-	                    {
-	                        field:"next_hop",
-	                        name:"Next hop",
-	                        width:100
-	                    },
-	                    {
-	                        field:"label",
-	                        name:"Label",
-	                        width:70
-	                    },
-	                    {
-	                        field:"sg",
-	                        name:"Security Group",
-	                        width:80
-	                    },
-	                    {
-		                    field:"originVn",
-		                    name:"Origin VN",
-		                    /*cssClass: 'cell-hyperlink-blue',
-		                    events: {
+                       {
+                      field:"table",
+                      name:"Routing Table",
+                      width:250
+                  },
+                       {
+                           field:"dispPrefix",
+                           name:"Prefix",
+                           width:200
+                       },
+                  {
+                           field:"protocol",
+                           name:"Protocol",
+                           //width:75
+                       },
+                       {
+                           field:"source",
+                           name:"Source",
+                           width:130,
+                         //  template:cellTemplate({cellText:'#= source.split(":").pop() #', tooltip:true})
+                       },
+                       {
+                           field:"next_hop",
+                           name:"Next hop",
+                           width:100
+                       },
+                       {
+                           field:"label",
+                           name:"Label",
+                           width:70
+                       },
+                       {
+                           field:"sg",
+                           name:"Security Group",
+                           width:80
+                       },
+                       {
+                          field:"originVn",
+                          name:"Origin VN",
+                          /*cssClass: 'cell-hyperlink-blue',
+                          events: {
                                 onClick: function(e,dc){
                                     var tabIdx = $.inArray("networks", ctrlNodeTabStrip);
                                     selectTab(ctrlNodeTabStrip,tabIdx);
                                 }
                              },*/
-		                    width:180
-	                    }
+                          width:180
+                       }
                     ]
                 },
         		body : {
@@ -857,7 +864,7 @@ controlNodeView = function () {
         var nodeIp;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        layoutHandler.setURLHashParams({tab:'', node:'Control Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'', node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#controlnode-dashboard', true);
         startWidgetLoading('control-sparklines');
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
@@ -882,147 +889,147 @@ controlNodeView = function () {
                     overallStatus = getOverallNodeStatusForDetails(parsedData);
                 }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
                 try{
-                	procStateList = jsonPath(ctrlNodeData,"$..process_state_list")[0];
-                	controlProcessStatusList = getStatusesForAllControlProcesses(procStateList);
+                  procStateList = jsonPath(ctrlNodeData,"$..process_state_list")[0];
+                  controlProcessStatusList = getStatusesForAllControlProcesses(procStateList);
                 }catch(e){}
                 ctrlNodeDashboardInfo = [
-                 	{lbl:'Hostname', value:obj['name']},
+                  {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address',value:(function(){
                         try{
-                        	var ips = ifNull(jsonPath(ctrlNodeData,'$..bgp_router_ip_list')[0],[]);
-                        	var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
-                        	return ip;
+                           var ips = ifNull(jsonPath(ctrlNodeData,'$..bgp_router_ip_list')[0],[]);
+                           var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
+                           return ip;
                         } catch(e){return noDataStr;}
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     {lbl:INDENT_RIGHT+'Control Node', value:(function(){
-                    	try{
-                    		return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                     try{
+                        return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
+                     }catch(e){return noDataStr;}
                     })()},
                     /*{lbl:INDENT_RIGHT+'Control Node Manager', value:(function(){
-                    	try{
-                    		return ifNull(controlProcessStatusList['contrail-control-nodemgr'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                     try{
+                        return ifNull(controlProcessStatusList['contrail-control-nodemgr'],noDataStr);
+                     }catch(e){return noDataStr;}
                     })()},*/
                     {lbl:'Ifmap Connection', value:(function(){
-                    	var cnfNode = '';
-                    	try{
-	                    	var url = ctrlNodeData.BgpRouterState.ifmap_info.url;
-	                    	if(url != null && url != undefined && url != ""){
-		                    	var pos = url.indexOf(':8443');
-		                    	if(pos != -1)
-		                    		cnfNode = url.substr(0, pos);
-		                        pos = cnfNode.indexOf('https://');
-		                        if(pos != -1)
-		                        	cnfNode = cnfNode.slice(pos + 8) ;
-	                    	}
-	                        var status = ctrlNodeData.BgpRouterState.ifmap_info.connection_status;
-	                        var stateChangeAtTime = ctrlNodeData.BgpRouterState.ifmap_info.connection_status_change_at;
-	                        var stateChangeSince = "";
-	                        var statusString = "";
-	                        if(stateChangeAtTime != null){
-	                        	var stateChangeAtTime = new XDate(stateChangeAtTime/1000);
-	                            var currTime = new XDate();
-	                            stateChangeSince = diffDates(stateChangeAtTime,currTime);
-	                        }
-	                        if(status != null && status != undefined && status != ""){
-	                        	if(stateChangeSince != ""){
-	                        		if(status.toLowerCase() == "up" || status.toLowerCase() == "down"){
-		                        		status = status + " since";
-		                        	}
-	                        		statusString = status + " " + stateChangeSince;
-	                        	} else {
-	                        		statusString = status;
-	                        	}
-	                        }
-	                        if(statusString != ""){
-	                        	cnfNode = cnfNode.concat( ' (' + statusString + ')');
-	                        }
-                    	}catch (e){}
+                     var cnfNode = '';
+                     try{
+                        var url = ctrlNodeData.BgpRouterState.ifmap_info.url;
+                        if(url != null && url != undefined && url != ""){
+                           var pos = url.indexOf(':8443');
+                           if(pos != -1)
+                              cnfNode = url.substr(0, pos);
+                              pos = cnfNode.indexOf('https://');
+                              if(pos != -1)
+                                 cnfNode = cnfNode.slice(pos + 8) ;
+                        }
+                           var status = ctrlNodeData.BgpRouterState.ifmap_info.connection_status;
+                           var stateChangeAtTime = ctrlNodeData.BgpRouterState.ifmap_info.connection_status_change_at;
+                           var stateChangeSince = "";
+                           var statusString = "";
+                           if(stateChangeAtTime != null){
+                              var stateChangeAtTime = new XDate(stateChangeAtTime/1000);
+                               var currTime = new XDate();
+                               stateChangeSince = diffDates(stateChangeAtTime,currTime);
+                           }
+                           if(status != null && status != undefined && status != ""){
+                              if(stateChangeSince != ""){
+                                 if(status.toLowerCase() == "up" || status.toLowerCase() == "down"){
+                                    status = status + " since";
+                                 }
+                                 statusString = status + " " + stateChangeSince;
+                              } else {
+                                 statusString = status;
+                              }
+                           }
+                           if(statusString != ""){
+                              cnfNode = cnfNode.concat( ' (' + statusString + ')');
+                           }
+                     }catch (e){}
                         return ifNull(cnfNode,noDataStr);
                     })()},
                     {lbl:'Analytics Node', value:(function(){
-                    	var anlNode = noDataStr; 
-                    	var secondaryAnlNode, status;
-                    	try{
-                    		//anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
-                    		anlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
-                    		status = jsonPath(ctrlNodeData,"$..ModuleClientState..status")[0];
-                    		secondaryAnlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..secondary")[0].split(':')[0];
-                    	}catch(e){
-                    		anlNode = "--";
-                    	}
-                    	try{
-                    		if(anlNode != null && anlNode != noDataStr && status.toLowerCase() == "established")
-                    			anlNode = anlNode.concat(' (Up)');
-                    	}catch(e){
-                    		if(anlNode != null && anlNode != noDataStr) {
-                    			anlNode = anlNode.concat(' (Down)');
-                    		}
-                    	}
-                    	if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
-                    		anlNode.concat(', ' + secondaryAnlNode);
-                    	}
-                    	return ifNull(anlNode,noDataStr);
+                     var anlNode = noDataStr; 
+                     var secondaryAnlNode, status;
+                     try{
+                        //anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
+                        anlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
+                        status = jsonPath(ctrlNodeData,"$..ModuleClientState..status")[0];
+                        secondaryAnlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..secondary")[0].split(':')[0];
+                     }catch(e){
+                        anlNode = "--";
+                     }
+                     try{
+                        if(anlNode != null && anlNode != noDataStr && status.toLowerCase() == "established")
+                           anlNode = anlNode.concat(' (Up)');
+                     }catch(e){
+                        if(anlNode != null && anlNode != noDataStr) {
+                           anlNode = anlNode.concat(' (Down)');
+                        }
+                     }
+                     if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
+                        anlNode.concat(', ' + secondaryAnlNode);
+                     }
+                     return ifNull(anlNode,noDataStr);
                     })()},
                     //TODO{lbl:'Config Messages', value:ctrlNodeData['configMessagesIn'] + ' In, ' + ctrlNodeData['configMessagesOut'] + ' Out'},
                     {lbl:'Analytics Messages', value:(function(){
                         var msgs = getAnalyticsMessagesCountAndSize(ctrlNodeData,['ControlNode']);
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
-            		{lbl:'Peers', value:(function(){
-            			var totpeers= 0,uppeers=0;
-            			try{
-	            			totpeers= ifNull(parsedData['totalBgpPeerCnt'],0);
-	            			uppeers = ifNull(parsedData['upBgpPeerCnt'],0);
-            			}catch(e){}
-            			var downpeers = 0;
-            			if(totpeers > 0){
-            				downpeers = totpeers - uppeers;
-            			}
-            			if (downpeers > 0){
-            				downpeers = ", <span class='text-error'>"+ downpeers +" Down</span>";
-            			} else {
-            				downpeers = "";
-            			}
-            			return contrail.format('BGP Peers: {0} Total {1}',totpeers,downpeers);
-            		})()},
+                  {lbl:'Peers', value:(function(){
+                     var totpeers= 0,uppeers=0;
+                     try{
+                        totpeers= ifNull(parsedData['totalBgpPeerCnt'],0);
+                        uppeers = ifNull(parsedData['upBgpPeerCnt'],0);
+                     }catch(e){}
+                     var downpeers = 0;
+                     if(totpeers > 0){
+                        downpeers = totpeers - uppeers;
+                     }
+                     if (downpeers > 0){
+                        downpeers = ", <span class='text-error'>"+ downpeers +" Down</span>";
+                     } else {
+                        downpeers = "";
+                     }
+                     return contrail.format('BGP Peers: {0} Total {1}',totpeers,downpeers);
+                  })()},
                     {lbl:'',value:(function(){
-                    	var totXmppPeers = 0,upXmppPeers = 0,downXmppPeers = 0,subsCnt = 0;
-                    	try{
-                    		totXmppPeers = parsedData['totalXMPPPeerCnt'];
-                    		upXmppPeers = parsedData['upXMPPPeerCnt'];
-                    		subsCnt = ifNull(jsonPath(ctrlNodeData,'$..BgpRouterState.ifmap_server_info.num_peer_clients')[0],0)
-                    		if(totXmppPeers > 0){
-                    			downXmppPeers = totXmppPeers - upXmppPeers;
-                			}
-                    		if (downXmppPeers > 0){
-                    			downXmppPeers = ", <span class='text-error'>"+ downXmppPeers +" Down</span>";
-                			} else {
-                				downXmppPeers = "";
-                			}
-                    		if (subsCnt > 0){
-                    			subsCnt = ", "+ subsCnt +" subscribed for configuration";
-                			} else {
-                				subsCnt = ""
-                			}
-                    	}catch(e){return noDataStr;}
-                    	return contrail.format('vRouters: {0} Established in Sync{1}{2} ',
-                    			upXmppPeers,downXmppPeers,subsCnt);
+                     var totXmppPeers = 0,upXmppPeers = 0,downXmppPeers = 0,subsCnt = 0;
+                     try{
+                        totXmppPeers = parsedData['totalXMPPPeerCnt'];
+                        upXmppPeers = parsedData['upXMPPPeerCnt'];
+                        subsCnt = ifNull(jsonPath(ctrlNodeData,'$..BgpRouterState.ifmap_server_info.num_peer_clients')[0],0)
+                        if(totXmppPeers > 0){
+                           downXmppPeers = totXmppPeers - upXmppPeers;
+                        }
+                        if (downXmppPeers > 0){
+                           downXmppPeers = ", <span class='text-error'>"+ downXmppPeers +" Down</span>";
+                        } else {
+                           downXmppPeers = "";
+                        }
+                        if (subsCnt > 0){
+                           subsCnt = ", "+ subsCnt +" subscribed for configuration";
+                        } else {
+                           subsCnt = ""
+                        }
+                     }catch(e){return noDataStr;}
+                     return contrail.format('vRouters: {0} Established in Sync{1}{2} ',
+                           upXmppPeers,downXmppPeers,subsCnt);
                     })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
                     {lbl:'Last Log', value: (function(){
-                    	var lmsg;
-                		lmsg = getLastLogTimestamp(ctrlNodeData,"control");
-                		if(lmsg != null){
-                			try{
-                				return new Date(parseInt(lmsg)/1000).toLocaleString();	
-                			}catch(e){return noDataStr;}
-                		} else return noDataStr;
+                     var lmsg;
+                     lmsg = getLastLogTimestamp(ctrlNodeData,"control");
+                     if(lmsg != null){
+                        try{
+                           return new Date(parseInt(lmsg)/1000).toLocaleString();   
+                        }catch(e){return noDataStr;}
+                     } else return noDataStr;
                     })()}
                 ]
                 /*Selenium Testing*/
@@ -1030,28 +1037,28 @@ controlNodeView = function () {
                 /*End of Selenium Testing*/
                 var cores=getCores(ctrlNodeData);
                 for(var i=0;i<cores.length;i++)
-                	ctrlNodeDashboardInfo.push(cores[i]);
+                  ctrlNodeDashboardInfo.push(cores[i]);
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
                 $('#dashboard-box .widget-body').html(dashboardBodyTemplate({colCount:2, d:ctrlNodeDashboardInfo, nodeData:ctrlNodeData, showSettings:true, ip:nodeIp}));
                 var ipList = getControlNodeIpAddressList(ctrlNodeData);
                 var ipDeferredObj = $.Deferred();
-            	getReachableIp(ipList,"8083",ipDeferredObj);
-            	ipDeferredObj.done(function(nodeIp){
-	                if(nodeIp != null && nodeIp != noDataStr) {
-	                	$('#linkIntrospect').unbind('click');
-	                    $('#linkIntrospect').click(function(){
-	                        window.open('/proxy?proxyURL=http://'+nodeIp+':8083&indexPage', '_blank');
-	                    });
-	                    $('#linkStatus').unbind('click');
-	                    $('#linkStatus').on('click', function(){
-	                        showStatus(nodeIp);
-	                    });
-	                    $('#linkLogs').unbind('click');
-	                    $('#linkLogs').on('click', function(){
-	                        showLogs(nodeIp);
-	                    });
-	                }
-            	});
+               getReachableIp(ipList,"8083",ipDeferredObj);
+               ipDeferredObj.done(function(nodeIp){
+                   if(nodeIp != null && nodeIp != noDataStr) {
+                     $('#linkIntrospect').unbind('click');
+                       $('#linkIntrospect').click(function(){
+                           window.open('/proxy?proxyURL=http://'+nodeIp+':8083&indexPage', '_blank');
+                       });
+                       $('#linkStatus').unbind('click');
+                       $('#linkStatus').on('click', function(){
+                           showStatus(nodeIp);
+                       });
+                       $('#linkLogs').unbind('click');
+                       $('#linkLogs').on('click', function(){
+                           showLogs(nodeIp);
+                       });
+                   }
+               });
 
                 endWidgetLoading('dashboard');
                 initWidget4Id('#control-chart-box');
@@ -1110,33 +1117,33 @@ ctrlNodesView = new controlNodesView();
 ctrlNodeView = new controlNodeView();
 
 function getStatusesForAllControlProcesses(processStateList){
-	var ret = [];
-	if(processStateList != null){
-		for(var i=0; i < processStateList.length; i++){
-			var currProc = processStateList[i];
-			if(currProc.process_name == "contrail-control-nodemgr"){
-				ret['contrail-control-nodemgr'] = getProcessUpTime(currProc);
-			} else if(currProc.process_name == "contrail-control"){
-				ret['contrail-control'] = getProcessUpTime(currProc);
-			}
-		}
-	}
-	return ret;
+   var ret = [];
+   if(processStateList != null){
+      for(var i=0; i < processStateList.length; i++){
+         var currProc = processStateList[i];
+         if(currProc.process_name == "contrail-control-nodemgr"){
+            ret['contrail-control-nodemgr'] = getProcessUpTime(currProc);
+         } else if(currProc.process_name == "contrail-control"){
+            ret['contrail-control'] = getProcessUpTime(currProc);
+         }
+      }
+   }
+   return ret;
 }
 
 function getControlNodeIpAddressList(data){
-	var ips = getValueByJsonPath(data,'$..bgp_router_ip_list',[]);
-	var configip = jsonPath(data,'$..ConfigData..bgp_router_parameters.address')[0];
-	var ipList = [];
-	if(ips.length > 0){
-		$.each(ips,function(idx,obj){
-			if(obj != null && ipList.indexOf(obj) == -1){
-				ipList.push(obj);
-			}
-		});
-	}
-	if(configip != null && ipList.indexOf(configip) == -1){
-		ipList.push(configip);
-	}
-	return ipList;
+   var ips = getValueByJsonPath(data,'$..bgp_router_ip_list',[]);
+   var configip = jsonPath(data,'$..ConfigData..bgp_router_parameters.address')[0];
+   var ipList = [];
+   if(ips.length > 0){
+      $.each(ips,function(idx,obj){
+         if(obj != null && ipList.indexOf(obj) == -1){
+            ipList.push(obj);
+         }
+      });
+   }
+   if(configip != null && ipList.indexOf(configip) == -1){
+      ipList.push(configip);
+   }
+   return ipList;
 }

@@ -6,8 +6,12 @@ analyticsNodesView = function () {
     var self = this,analyticNodesData;
     var aNodesGrid;
     this.load = function (obj) {
-    	layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
-        populateAnalyticsNodes();
+        var hashParams = ifNull(obj['hashParams'],{});
+        if(hashParams['node'] == null)
+            populateAnalyticsNodes();
+        else
+            aNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab']});
+    	//layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
     }
     this.getAnalyticNodesData = function() {
         return analyticNodesData;
@@ -328,7 +332,7 @@ analyticsNodeView = function () {
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#analyticsnode-dashboard', true);
         //Destroy chart if it exists
         startWidgetLoading('analytics-sparklines');
@@ -341,7 +345,7 @@ analyticsNodeView = function () {
             url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
         }).done(function (result) {
                 aNodeData = result;
-                var parsedData = infraMonitorView.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
+                var parsedData = infraMonitorUtils.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
                 var noDataStr = "--";
                 var cpu = "N/A",
                     memory = "N/A",
@@ -495,7 +499,7 @@ analyticsNodeView = function () {
     }
 
     function populateGeneratorsTab(obj) {
-        layoutHandler.setURLHashParams({tab:'generators',ip:aNodeInfo['ip'], node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'generators',ip:aNodeInfo['ip'], node: obj['name']},{triggerHashChange:false});
         var transportCfg = {
             url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], obj['name'], 50),
         };
@@ -594,7 +598,7 @@ analyticsNodeView = function () {
     }
 
     function populateQEQueriesTab(obj) {
-        layoutHandler.setURLHashParams({tab:'qequeries', node:'Analytics Nodes:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'qequeries', node: obj['name']},{triggerHashChange:false});
         //Intialize the grid only for the first time
         if (!isGridInitialized('#gridQEQueries')) {
         	$("#gridQEQueries").contrailGrid({

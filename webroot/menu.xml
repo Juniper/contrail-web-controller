@@ -35,9 +35,8 @@
                             <view>monitor_infra_controlnode.view</view>
                             <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
-                            <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_controlnode.js</js>
-                            <class>infraMonitorView</class>
+                            <class>ctrlNodesView</class>
                             <queryParams>
                                 <node>Control Nodes</node>
                             </queryParams>
@@ -51,9 +50,8 @@
                             <view>monitor_infra_computenode.view</view>
                             <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
-                            <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_computenode.js</js>
-                            <class>infraMonitorView</class>
+                            <class>cmpNodesView</class>
                             <queryParams>
                                 <node>vRouters</node>
                             </queryParams>
@@ -67,9 +65,8 @@
                             <view>monitor_infra_analyticnode.view</view>
                             <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
-                            <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_analyticnode.js</js>
-                            <class>infraMonitorView</class>
+                            <class>aNodesView</class>
                             <queryParams>
                                 <node>Analytics Nodes</node>
                             </queryParams>
@@ -83,12 +80,11 @@
                             <view>monitor_infra_confignode.view</view>
                             <js>monitor_infra_constants.js</js>
                             <js>monitor_infra_utils.js</js>
-                            <js>monitor_infra_dashboard.js</js>
                             <js>monitor_infra_confignode.js</js>
                             <queryParams>
                                 <node>Config Nodes</node>
                             </queryParams>
-                            <class>infraMonitorView</class>
+                            <class>confNodesView</class>
                             <searchStrings>Monitor Config Nodes</searchStrings>
                         </item>
                         <!--

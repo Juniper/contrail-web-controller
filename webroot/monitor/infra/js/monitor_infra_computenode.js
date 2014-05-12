@@ -33,8 +33,15 @@ computeNodesView = function () {
         return dimensions;
     }
     this.load = function (obj) {
-        populateComputeNodes();
-        layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
+        var hashParams = ifNull(obj['hashParams'],{});
+        if(hashParams['node'] == null)
+            populateComputeNodes();
+        else
+            cmpNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab'], filters:hashParams['filters']});
+        //layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
+    }
+    this.updateViewByHash = function(hashObj,lastHashObj) {
+        console.info('Hello');
     }
     this.destroy = function () {
         //contView.destroy();
@@ -740,7 +747,7 @@ computeNodeView = function () {
     }
     function populateInterfaceTab(obj) {
         //Push only tab & node parameter in URL
-        layoutHandler.setURLHashParams({tab:'interfaces',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
         
         if (!isGridInitialized('#gridComputeInterfaces')) {
             $('#gridComputeInterfaces').contrailGrid({
@@ -891,7 +898,7 @@ computeNodeView = function () {
 
         if (obj == null)
             obj = computeNodeInfo;
-        layoutHandler.setURLHashParams({tab:'networks',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
         if (!isGridInitialized('#gridComputeVN')) {
             $("#gridComputeVN").contrailGrid({
                 header : {
@@ -1031,7 +1038,7 @@ computeNodeView = function () {
                     //computeNodeTabStrip.select(tabIdx);
                     var dataItem = this.dataItem(this.select()[0].parentNode);
                     var filters = dataItem.vrf;
-                    layoutHandler.setURLHashParams({tab:'routes',node:'vRouters:' + obj['name']});
+                    layoutHandler.setURLHashParams({tab:'routes',node: obj['name']});
                 }
             }
         }
@@ -1042,7 +1049,7 @@ computeNodeView = function () {
         var endTime = getCurrentTime4MemCPUCharts(), startTime = endTime - 600000;
         var slConfig = {startTime: startTime, endTime: endTime};
         var nodeIp; 
-        layoutHandler.setURLHashParams({tab:'',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#computenode-dashboard', true);
         startWidgetLoading('vrouter-sparklines');
         toggleWidgetsVisibility(['vrouter-chart-box'], ['system-chart-box']);
@@ -1055,7 +1062,7 @@ computeNodeView = function () {
             url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
         }).done(function (result) {
                     computeNodeData = result;
-                    var parsedData = infraMonitorView.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
+                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
                     var noDataStr = '--',
                     cpu = "N/A",
                     memory = "N/A",
@@ -1262,7 +1269,7 @@ computeNodeView = function () {
     };
 
     function populateACLTab(obj) {
-        layoutHandler.setURLHashParams({tab:'acl',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
         var selectedAcl = 'All';
         if(obj['filters'] != null){
             selectedAcl = obj['filters'];
@@ -1495,7 +1502,7 @@ computeNodeView = function () {
         }*/
         $('#btnNextFlows').unbind("click").click(onNextClick);
         $('#btnPrevFlows').unbind("click").click(onPrevClick);
-        layoutHandler.setURLHashParams({tab:'flows',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
         if (!isInitialized('#aclDropDown')){
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
@@ -1807,7 +1814,7 @@ computeNodeView = function () {
     }
 
     function populateRoutesTab(obj) {
-        layoutHandler.setURLHashParams({tab:'routes',node:'vRouters:' + obj['name']},{triggerHashChange:false});
+        layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
         var routesGrid,ucIndex,mcIndex;
         var rdoRouteType = $('#routeType').val();
         var cboVRF;
@@ -2347,7 +2354,7 @@ function getvRoutersDashboardDataForSummary(deferredObj,dataSource) {
     $.ajax({
         url: monitorInfraUrls['VROUTER_SUMMARY']
     }).done(function(result) {
-        var r = infraMonitorView.parsevRoutersDashboardData(result);
+        var r = infraMonitorUtils.parsevRoutersDashboardData(result);
         $.each(r,function(idx,obj){
             dataSource.add(obj);
         });
