@@ -44,8 +44,7 @@ configNodesView = function () {
         $('#config-nodes-grid').contrailGrid({
             header : {
                 title : {
-                    text : 'Config Nodes',
-                    cssClass : 'blue',
+                    text : 'Config Nodes'
                 },
                 customControls: []
             },

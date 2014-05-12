@@ -40,8 +40,7 @@ controlNodesView = function () {
         $('#gridControlNodes').contrailGrid({
             header : {
                 title : {
-                    text : 'Control Nodes',
-                    cssClass : 'blue',
+                    text : 'Control Nodes'
                 },
                 customControls: []
             },
@@ -444,14 +443,7 @@ controlNodeView = function () {
             $("#gridPeers").contrailGrid({
                 header : {
                     title : {
-                        text : 'Peers',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
+                        text : 'Peers'
                     }
                 },
                 columnHeader : {
@@ -728,14 +720,7 @@ controlNodeView = function () {
             $("#gridRoutes").contrailGrid({
                 header : {
                     title : {
-                        text : 'Routes',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
+                        text : 'Routes'
                     }
                 },
                 columnHeader : {
