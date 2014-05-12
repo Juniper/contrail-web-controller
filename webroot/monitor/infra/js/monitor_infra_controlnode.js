@@ -211,16 +211,15 @@ controlNodeView = function () {
     /*End of Selenium Testing*/
     this.load = function (obj) {
         pushBreadcrumb([obj['name']]);
-      ctrlNodeInfo = obj;
-      if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
-         //issue details call and populate ip
-         var controlNodeDeferredObj = $.Deferred();
-         self.getControlNodeDetails(controlNodeDeferredObj,ctrlNodeInfo);
-         controlNodeDeferredObj.done(function(data) {
-            try{
-               ctrlNodeInfo['ip'] = data.BgpRouterState.bgp_router_ip_list[0];
-            }catch(e){}
-              self.populateControlNode(ctrlNodeInfo);
+    	ctrlNodeInfo = obj;
+    	if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
+			//issue details call and populate ip
+			var controlNodeDeferredObj = $.Deferred();
+			self.getControlNodeDetails(controlNodeDeferredObj,ctrlNodeInfo);
+			controlNodeDeferredObj.done(function(data) {
+			    var ip_list = getValueByJsonPath(data,"BgpRouterState;bgp_router_ip_list",[]);
+			    ctrlNodeInfo['ip'] =  ip_list[0];
+    	        self.populateControlNode(ctrlNodeInfo);
             });
       } else {
            self.populateControlNode(ctrlNodeInfo);
@@ -241,16 +240,15 @@ controlNodeView = function () {
         
     this.processPeerInfo = function(peerInfo)
     {
-      var ret = [];
-      var hostname = ctrlNodeInfo['name'];
-        try {
-         //first process the bgp peers
-         var bgpPeerInfo = peerInfo['bgp-peer']['value'];
-         ret = self.processPeerDetails(bgpPeerInfo,'bgp',ret,hostname);
-         //now process xmpp peers
-         var xmppPeerInfo = peerInfo['xmpp-peer']['value'];
-         ret = self.processPeerDetails(xmppPeerInfo,'xmpp',ret,hostname);
-        } catch(e) {}
+
+    	var ret = [];
+    	var hostname = ctrlNodeInfo['name'];
+    	//first process the bgp peers
+    	var bgpPeerInfo = getValueByJsonPath(peerInfo,'bgp-peer;value',[]);
+    	ret = self.processPeerDetails(bgpPeerInfo,'bgp',ret,hostname);
+    	//now process xmpp peers
+    	var xmppPeerInfo = getValueByJsonPath(peerInfo,'xmpp-peer;value',[]);
+    	ret = self.processPeerDetails(xmppPeerInfo,'xmpp',ret,hostname);
         return ret;
     }
     
@@ -315,16 +313,8 @@ controlNodeView = function () {
             } catch(e) {
                 obj['last_flap'] = '-';
             }
-            try {
-                obj['messsages_in'] = peerInfodata['peer_stats_info']['rx_proto_stats']['total'];
-            } catch(e) {
-                obj['messsages_in'] = '-';
-            }
-            try {
-                obj['messsages_out'] = peerInfodata['peer_stats_info']['tx_proto_stats']['total'];
-            } catch(e) {
-                obj['messsages_out'] = '-';
-            }
+            obj['messsages_in'] = getValueByJsonPath(peerInfodata,'peer_stats_info;rx_proto_stats;total',noDataStr);
+            obj['messsages_out'] = getValueByJsonPath(peerInfodata,'peer_stats_info;tx_proto_stats;total',noDataStr);
             try {
                 var state = obj['state'];
                 var introspecState = null;
@@ -895,19 +885,14 @@ controlNodeView = function () {
                 ctrlNodeDashboardInfo = [
                   {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address',value:(function(){
-                        try{
-                           var ips = ifNull(jsonPath(ctrlNodeData,'$..bgp_router_ip_list')[0],[]);
-                           var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
-                           return ip;
-                        } catch(e){return noDataStr;}
+                    	var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
+                    	return ip;
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     {lbl:INDENT_RIGHT+'Control Node', value:(function(){
-                     try{
-                        return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
                     })()},
                     /*{lbl:INDENT_RIGHT+'Control Node Manager', value:(function(){
                      try{
@@ -980,45 +965,41 @@ controlNodeView = function () {
                         var msgs = getAnalyticsMessagesCountAndSize(ctrlNodeData,['ControlNode']);
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
-                  {lbl:'Peers', value:(function(){
-                     var totpeers= 0,uppeers=0;
-                     try{
-                        totpeers= ifNull(parsedData['totalBgpPeerCnt'],0);
-                        uppeers = ifNull(parsedData['upBgpPeerCnt'],0);
-                     }catch(e){}
-                     var downpeers = 0;
-                     if(totpeers > 0){
-                        downpeers = totpeers - uppeers;
-                     }
-                     if (downpeers > 0){
-                        downpeers = ", <span class='text-error'>"+ downpeers +" Down</span>";
-                     } else {
-                        downpeers = "";
-                     }
-                     return contrail.format('BGP Peers: {0} Total {1}',totpeers,downpeers);
-                  })()},
+            		{lbl:'Peers', value:(function(){
+            			var totpeers= 0,uppeers=0;
+            			totpeers= ifNull(parsedData['totalBgpPeerCnt'],0);
+            			uppeers = ifNull(parsedData['upBgpPeerCnt'],0);
+            			var downpeers = 0;
+            			if(totpeers > 0){
+            				downpeers = totpeers - uppeers;
+            			}
+            			if (downpeers > 0){
+            				downpeers = ", <span class='text-error'>"+ downpeers +" Down</span>";
+            			} else {
+            				downpeers = "";
+            			}
+            			return contrail.format('BGP Peers: {0} Total {1}',totpeers,downpeers);
+            		})()},
                     {lbl:'',value:(function(){
-                     var totXmppPeers = 0,upXmppPeers = 0,downXmppPeers = 0,subsCnt = 0;
-                     try{
-                        totXmppPeers = parsedData['totalXMPPPeerCnt'];
-                        upXmppPeers = parsedData['upXMPPPeerCnt'];
-                        subsCnt = ifNull(jsonPath(ctrlNodeData,'$..BgpRouterState.ifmap_server_info.num_peer_clients')[0],0)
-                        if(totXmppPeers > 0){
-                           downXmppPeers = totXmppPeers - upXmppPeers;
-                        }
-                        if (downXmppPeers > 0){
-                           downXmppPeers = ", <span class='text-error'>"+ downXmppPeers +" Down</span>";
-                        } else {
-                           downXmppPeers = "";
-                        }
-                        if (subsCnt > 0){
-                           subsCnt = ", "+ subsCnt +" subscribed for configuration";
-                        } else {
-                           subsCnt = ""
-                        }
-                     }catch(e){return noDataStr;}
-                     return contrail.format('vRouters: {0} Established in Sync{1}{2} ',
-                           upXmppPeers,downXmppPeers,subsCnt);
+                    	var totXmppPeers = 0,upXmppPeers = 0,downXmppPeers = 0,subsCnt = 0;
+                		totXmppPeers = parsedData['totalXMPPPeerCnt'];
+                		upXmppPeers = parsedData['upXMPPPeerCnt'];
+                		subsCnt = ifNull(jsonPath(ctrlNodeData,'$..BgpRouterState.ifmap_server_info.num_peer_clients')[0],0)
+                		if(totXmppPeers > 0){
+                			downXmppPeers = totXmppPeers - upXmppPeers;
+            			}
+                		if (downXmppPeers > 0){
+                			downXmppPeers = ", <span class='text-error'>"+ downXmppPeers +" Down</span>";
+            			} else {
+            				downXmppPeers = "";
+            			}
+                		if (subsCnt > 0){
+                			subsCnt = ", "+ subsCnt +" subscribed for configuration";
+            			} else {
+            				subsCnt = ""
+            			}
+                    	return contrail.format('vRouters: {0} Established in Sync{1}{2} ',
+                    			upXmppPeers,downXmppPeers,subsCnt);
                     })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},

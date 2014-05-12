@@ -245,27 +245,23 @@ configNodeView = function () {
                 var procStateList, overallStatus = noDataStr;
                 var configProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
-                try{
-                    overallStatus = getOverallNodeStatusForDetails(parsedData);
-                }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
-                try{
-                  procStateList = jsonPath(confNodeData,"$..process_state_list")[0];
-                  if(!(procStateList instanceof Array)){
-                     procStateList = [procStateList];
-                  }
-                  configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
-                }catch(e){}
+                overallStatus = getOverallNodeStatusForDetails(parsedData);
+            	procStateList = getValueByJsonPath(confNodeData,"configNode;ModuleCpuState;process_state_list",[]);
+            	if(!(procStateList instanceof Array)){
+        			procStateList = [procStateList];
+        		}
+            	configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
                 confNodeDashboardInfo = [
                   {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function (){
                      var ips = '';
                         try{
-                           iplist = ifNull(jsonPath(confNodeData,'$..config_node_ip')[0],noDataStr);
-                           if(iplist instanceof Array){
-                           nodeIp = iplist[0];//using the first ip in the list for status
-                        } else {
-                           nodeIp = iplist;
-                        }
+                        	iplist = getValueByJsonPath(confNodeData,"configNode;ModuleCpuState;config_node_ip",[]);
+                        	if(iplist instanceof Array){
+                    			nodeIp = iplist[0];//using the first ip in the list for status
+                    		} else {
+                    			nodeIp = iplist;
+                    		}
                         } catch(e){return noDataStr;}
                         if(iplist != null && iplist != noDataStr && iplist.length>0){
                             for (var i=0; i< iplist.length;i++){
@@ -283,45 +279,29 @@ configNodeView = function () {
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
-                  {lbl:INDENT_RIGHT+'API Server', value:(function(){
-                     try{
-                        return configProcessStatusList['contrail-api'];
-                     }catch(e){return noDataStr;}
+                	{lbl:INDENT_RIGHT+'API Server', value:(function(){
+                    	return configProcessStatusList['contrail-api'];
                     })()},
                     {lbl:INDENT_RIGHT+'Schema Transformer', value:(function(){
-                     try{
-                        return configProcessStatusList['contrail-schema'];
-                     }catch(e){return noDataStr;}
+                    	return configProcessStatusList['contrail-schema'];
                     })()},
                     {lbl:INDENT_RIGHT+'Service Monitor', value:(function(){
-                     try{
-                        return configProcessStatusList['contrail-svc-monitor'];
-                     }catch(e){return noDataStr;}
+                    	return configProcessStatusList['contrail-svc-monitor'];
                     })()},
                     /*{lbl:INDENT_RIGHT+'Config Node Manager', value:(function(){
-                     try{
-                        return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
                     })()},*/
                     {lbl:INDENT_RIGHT+'Discovery', value:(function(){
-                     try{
-                        return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
                     })()},
                    /* {lbl:INDENT_RIGHT+'Zookeeper', value:(function(){
-                     try{
-                        return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
                     })()},*/
                     {lbl:INDENT_RIGHT+'Ifmap', value:(function(){
-                     try{
-                        return ifNull(configProcessStatusList['ifmap'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['ifmap'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Config', value:(function(){
-                     try{  
-                        return ifNull(configProcessStatusList['redis-config'],noDataStr);
-                     }catch(e){return noDataStr;}
+                    	return ifNull(configProcessStatusList['redis-config'],noDataStr);
                     })()},
                     {lbl:'Analytics Node', value:(function(){
                      var anlNode = noDataStr; 

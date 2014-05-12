@@ -223,9 +223,8 @@ analyticsNodeView = function () {
 			var analyticsNodeDeferredObj = $.Deferred();
 			self.getAnalyticsNodeDetails(analyticsNodeDeferredObj,aNodeInfo);
 			analyticsNodeDeferredObj.done(function(data) {
-				try{
-					aNodeInfo['ip'] = data.CollectorState.self_ip_list[0];
-				} catch(e){}
+			    var ipList = getValueByJsonPath(data,"CollectorState.self_ip_list",[])
+				aNodeInfo['ip'] = ipList[0];
     	        self.populateAnalyticsNode(aNodeInfo);
             });
 		} else {
@@ -254,15 +253,10 @@ analyticsNodeView = function () {
                 var name = d.name;
                 var status = noDataStr;
                 var rawJson = d;
-                try {
-                    var generatorInfo = jsonPath(d,"$.value.ModuleServerState.generator_info")[0];
-                    var collectorName = jsonPath(d,"$.value.ModuleClientState.client_info.collector_name")[0];
-                    var strtTime = jsonPath(d,"$.value.ModuleClientState.client_info.start_time")[0];
-                    status = getStatusForGenerator(generatorInfo,collectorName,strtTime);
-                } catch(e){}
-                
-                
-                
+                var generatorInfo = getValueByJsonPath(d,"value;ModuleServerState;generator_info");
+                var collectorName = getValueByJsonPath(d,"value;ModuleClientState;client_info;collector_name");
+                var strtTime = getValueByJsonPath(d,"value;ModuleClientState;client_info;start_time");
+                status = getStatusForGenerator(generatorInfo,collectorName,strtTime);
                 var msgStats;
                 try { 
                     msgStats= d['value']["ModuleServerState"]["msg_stats"][0]["msgtype_stats"];
@@ -290,19 +284,15 @@ analyticsNodeView = function () {
     this.parseQEQueries = function(response){
 
     	var retArr = [];
-    	try {
-    		retArr =  response.QueryStats.queries_being_processed;
-    	} catch(e) {retArr = [];}
-    	try {
-    		var pendingQueries = response.QueryStats.pending_queries;
-    		//Set the progress to pending for pending queries.
-    		pendingQueries = $.each(pendingQueries,function(idx,obj) {
-    			obj['progress'] = "Pending in queue";
-    			return obj;
-    		});
-    		//Merge the 2 lists for display
-    		retArr = retArr.concat(pendingQueries);
-    	} catch(e) { retArr = [];} 
+    	retArr =  getValueByJsonPath(response,"QueryStats;queries_being_processed",[]);
+		var pendingQueries = getValueByJsonPath(response,"QueryStats.pending_queries",[]);
+		//Set the progress to pending for pending queries.
+		pendingQueries = $.each(pendingQueries,function(idx,obj) {
+			obj['progress'] = "Pending in queue";
+			return obj;
+		});
+		//Merge the 2 lists for display
+		retArr = retArr.concat(pendingQueries);
     	var ret = [];
     	$.each(retArr,function(idx,obj) {
     	  var rawJson = obj;
@@ -358,20 +348,15 @@ analyticsNodeView = function () {
                 var procStateList, overallStatus = noDataStr;
                 var analyticsProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
-                try{
-                    overallStatus = getOverallNodeStatusForDetails(parsedData);
-                }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
-                try{
-                	procStateList = jsonPath(aNodeData,"$..process_state_list")[0];
-                	analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
-                }catch(e){}
+                
+                overallStatus = getOverallNodeStatusForDetails(parsedData);
+            	procStateList = getValueByJsonPath(aNodeData,"ModuleCpuState;process_state_list",[]);
+            	analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
                 aNodeDashboardInfo = [
                     {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function(){
                         var ips = '';
-                        try{
-                        	iplist = aNodeData.CollectorState.self_ip_list;
-                        } catch(e){return noDataStr;}
+                        iplist = getValueByJsonPath(aNodeData,"CollectorState;self_ip_list",[]);
                         if(iplist != null && iplist.length>0){
                             for (var i=0; i< iplist.length;i++){
                                 if(i+1 == iplist.length) {
@@ -394,34 +379,22 @@ analyticsNodeView = function () {
                     	}catch(e){return noDataStr;}
                     })()},*/
                     {lbl:INDENT_RIGHT+'Collector', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-qe'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-qe'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'OpServer', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Query', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Redis UVE', value:(function(){
-                    	try{
-                    		return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
-                    	}catch(e){return noDataStr;}
+                    	return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
                     })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
@@ -431,7 +404,6 @@ analyticsNodeView = function () {
                     })()},
                     {lbl:'Generators', value:(function(){
                         var ret='';
-                        //ret = ret + 'Total ';
                         var genno;
                         try{
 	                        if(aNodeData.CollectorState["generator_infos"]!=null){
