@@ -27,12 +27,12 @@ function dnsRecordsDynamicConfig(){
         //initializing grid
         gridDynamicDNSRec = $("#gridDynamicDNSRec").contrailGrid({
             header : {
-                // title: {
-                    // text : 'Active DNS Database',
-                    // cssClass : 'blue',
-                    // icon : 'icon-list',
-                    // iconCssClass : 'blue'                
-                // },
+                title: {
+                    text : 'Active DNS Database',
+                    cssClass : 'blue',
+                    icon : 'icon-list',
+                    iconCssClass : 'blue'                
+                },
                 customControls: ['<a id="btnNextRecords" title="Next"><i class="icon-arrow-right"></i></a>',
                     '<a id="btnPrevRecords" class="disabled-link"  title="Previous"><i class="icon-arrow-left"></i></a>',
                     'DNS Server: <div style="display:inline;" id="lblServer"/>']
@@ -85,7 +85,7 @@ function dnsRecordsDynamicConfig(){
                         text: 'Loading Active DNS Records..'
                     },
                     empty: {
-                        text: 'No Active DNS Record Found.'
+                        text: 'No Active DNS Records.'
                     }, 
                     errorGettingData: {
                         type: 'error',

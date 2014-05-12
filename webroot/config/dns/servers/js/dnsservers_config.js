@@ -81,12 +81,12 @@ function fetchData() {
 function initComponents() {
     $("#gridDNSServer").contrailGrid({
         header : {
-            // title:{
-                // text : 'DNS Servers',
-                // cssClass : 'blue',
-                // icon : 'icon-list',
-                // iconCssClass : 'blue'                
-            // },
+            title:{
+                text : 'DNS Servers',
+                cssClass : 'blue',
+                icon : 'icon-list',
+                iconCssClass : 'blue'                
+            },
             customControls: ['<a id="btnDeleteDNSServer" class="disabled-link" title="Delete DNS Server(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateDNSServer" title="Create DNS Server"><i class="icon-plus"></i></a>',
                 '<div id="ddProjectSwitcher"/>',
@@ -162,7 +162,7 @@ function initComponents() {
                     text: 'Loading DNS Servers..'
                 },
                 empty: {
-                    text: 'No DNS Server Found.'
+                    text: 'No DNS Servers.'
                 }, 
                 errorGettingData: {
                     type: 'error',
