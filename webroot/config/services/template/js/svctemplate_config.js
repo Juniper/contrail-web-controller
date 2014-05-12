@@ -78,12 +78,12 @@ function fetchData() {
 function initComponents() {
     gridsvcTemplate = $("#gridsvcTemplate").contrailGrid({
         header : {
-            //title : {
-            //    text : 'Service Templates',
-            //    cssClass : 'blue',
-            //    icon : 'icon-list',
-            //    iconCssClass : 'blue'
-            //},
+            title : {
+                text : 'Service Templates',
+                cssClass : 'blue',
+                icon : 'icon-list',
+                iconCssClass : 'blue'
+            },
             defaultControls: {
                 collapseable: false,
                 exportable: false,
