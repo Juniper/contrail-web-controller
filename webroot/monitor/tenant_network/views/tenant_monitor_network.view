@@ -354,7 +354,7 @@
             {{/if}}
         </div>
         {{!-- var rawdata = ifNull(data['rawData'],data);--}}
-        <div class="row-fluid advancedDetails" hidden="true" id="advancedDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}">
+        <div class="row-fluid advancedDetails" style="display:none;" id="advancedDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}">
             {{#if url}}
                 <i class="icon-spinner icon-spin blue bigger-125"></i>
             {{else}}
