@@ -191,8 +191,7 @@ computeNodesView = function () {
         $('#divcomputesgrid').contrailGrid({
             header : {
                 title : {
-                    text : 'Virtual Routers',
-                    cssClass : 'blue',
+                    text : 'Virtual Routers'
                 },
                 customControls: []
             },
@@ -734,15 +733,8 @@ computeNodeView = function () {
             $('#gridComputeInterfaces').contrailGrid({
                 header : {
                     title : {
-                        text : 'Interfaces',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
-                    },
+                        text : 'Interfaces'
+                    }
                 },
                 columnHeader: {
                    columns:[
@@ -884,15 +876,8 @@ computeNodeView = function () {
             $("#gridComputeVN").contrailGrid({
                 header : {
                     title : {
-                        text : 'Networks',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
-                    },
+                        text : 'Networks'
+                    }
                 },
                 columnHeader : {
                     columns:[
@@ -1250,15 +1235,8 @@ computeNodeView = function () {
             $('#gridComputeACL').contrailGrid({
                 header : {
                     title : {
-                        text : 'ACL',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
-                    },
+                        text : 'ACL'
+                    }
                 },
                 columnHeader: {
                    columns:[
@@ -1509,15 +1487,8 @@ computeNodeView = function () {
             $("#gridComputeFlows").contrailGrid({
                 header : {
                     title : {
-                        text : 'Flows',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
-                    },
+                        text : 'Flows'
+                    }
                 },
                 columnHeader : {
                     columns: [
@@ -1963,15 +1934,8 @@ computeNodeView = function () {
                 $("#gridvRouterUnicastRoutes").contrailGrid({
                     header : {
                         title : {
-                            text : 'Routes',
-                            cssClass : 'blue'
-                        },
-                        defaultControls: {
-                            collapseable: true,
-                            exportable: false,
-                            refreshable: false,
-                            searchable: true
-                        },
+                            text : 'Routes'
+                        }
                     },
                     columnHeader : {
                         columns:[
@@ -2061,15 +2025,8 @@ computeNodeView = function () {
                 $("#gridvRouterMulticastRoutes").contrailGrid({
                     header : {
                         title : {
-                            text : 'Routes',
-                            cssClass : 'blue'
-                        },
-                        defaultControls: {
-                            collapseable: true,
-                            exportable: false,
-                            refreshable: false,
-                            searchable: true
-                        },
+                            text : 'Routes'
+                        }
                     },
                     columnHeader : {
                         columns:[
@@ -2156,15 +2113,8 @@ computeNodeView = function () {
                 $("#gridvRouterL2Routes").contrailGrid({
                     header : {
                         title : {
-                            text : 'Routes',
-                            cssClass : 'blue'
-                        },
-                        defaultControls: {
-                            collapseable: true,
-                            exportable: false,
-                            refreshable: false,
-                            searchable: true
-                        },
+                            text : 'Routes'
+                        }
                     },
                     columnHeader : {
                         columns:[
