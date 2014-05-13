@@ -11,10 +11,11 @@ controlNodesView = function () {
         if(hashParams['node'] == null)
             populateControlNodes();
         else
-            ctrlNodeView.load({name:hashParams['node'].split(':')[1],tab:hashParams['tab']});
+            ctrlNodeView.load({name:hashParams['node'],tab:hashParams['tab']});
         //layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function() {
+        this.load({hashParams:hashObj});
     }
     this.setCtrlNodesData = function(data) {
         ctrlNodesData = data;

@@ -10,11 +10,11 @@ configNodesView = function () {
       if(hashParams['node'] == null)
          populateConfigNodes();
       else
-         confNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab']});
+         confNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
       //layoutHandler.setURLHashParams({node:'Config Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
-        console.info('Hello');
+        this.load({hashParams:hashObj});
     }
 
     this.getConfigNodesData = function() {
