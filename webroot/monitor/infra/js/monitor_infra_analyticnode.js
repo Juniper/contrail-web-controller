@@ -41,8 +41,7 @@ analyticsNodesView = function () {
         $('#analytics-nodes-grid').contrailGrid({
             header : {
                 title : {
-                    text : 'Analytics Nodes',
-                    cssClass : 'blue',
+                    text : 'Analytics Nodes'
                 },
                 customControls: []
             },
@@ -483,14 +482,7 @@ analyticsNodeView = function () {
             $("#gridGenerators").contrailGrid({
                 header : {
                     title : {
-                        text : 'Generators',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
+                        text : 'Generators'
                     }
                 },
                 columnHeader : {
@@ -576,15 +568,8 @@ analyticsNodeView = function () {
         	$("#gridQEQueries").contrailGrid({
                 header : {
                     title : {
-                        text : 'QE Queries',
-                        cssClass : 'blue'
-                    },
-                    defaultControls: {
-                        collapseable: true,
-                        exportable: false,
-                        refreshable: false,
-                        searchable: true
-                    },
+                        text : 'QE Queries'
+                    }
                 },
                 columnHeader : {
                 	columns:[
