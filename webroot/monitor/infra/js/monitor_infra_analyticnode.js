@@ -10,8 +10,11 @@ analyticsNodesView = function () {
         if(hashParams['node'] == null)
             populateAnalyticsNodes();
         else
-            aNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab']});
+            aNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
     	//layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
+    }
+    this.updateViewByHash = function(hashObj,lastHashObj) {
+        this.load({hashParams:hashObj});
     }
     this.getAnalyticNodesData = function() {
         return analyticNodesData;
@@ -24,7 +27,6 @@ analyticsNodesView = function () {
     	var kGrid = $('.contrail-grid').data('contrailGrid');
     	if(kGrid != null)
     		kGrid.destroy();
-    	analyticsNodesDataSource.unbind("change",syncAnalyticsNodeLocalDataSource);
     }
 
     function populateAnalyticsNodes() {
