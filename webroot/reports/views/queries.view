@@ -148,7 +148,63 @@
 						</div>
 					</div>
             	</div>
-			</div>
+
+                <div class="row-fluid">
+                    {{#if fields.length}}
+                    <h5>Sort By</h5>
+                    {{#each fields}}
+                    {{#IfCompare @index 0 operator="%3"}}
+                    {{#IfCompare @index 0 operator="!="}}
+                </div>
+                <div class="row-fluid">
+                    {{else}}
+                    <div class="row-fluid">
+                        {{/IfCompare}}
+                        {{else}}
+                        {{#IfCompare @index 0 operator="=="}}
+                        <div class="row-fluid">
+                            {{/IfCompare}}
+                            {{/IfCompare}}
+                            {{#IfCompare this.name 'T' operator="=="}}
+                            <div class="span4">
+                                <input type="radio" name="{{this.name}}" value="{{this.name}}" data-bind=""
+                                       class="ace-input"/> <span class="ace-lbl"> {{this.name}}</span>
+                            </div>
+                            {{else}}
+                            {{#IfCompare this.name 'T=' operator="=="}}
+                            <div class="span4">
+                                <input type="radio" name="{{this.name}}" value="{{this.name}}" data-bind=""
+                                       class="ace-input"/> <span class="ace-lbl"> {{this.name}}</span>
+                            </div>
+                            {{else}}
+                            <div class="span4">
+                                <input type="radio" name="sortBy" value="{{this.name}}" data-bind=""
+                                       class="ace-input"/> <span class="ace-lbl">{{this.name}}</span>
+                            </div>
+                            {{/IfCompare}}
+                            {{/IfCompare}}
+                            {{#IfCompare @index array.length operator="lessByOne"}}
+                        </div>
+                        {{/IfCompare}}
+                        {{/each}}
+                    </div>
+                    <div class="row-fluid margin-10-0">
+                        <div class="span4">
+                            <label>Sort Order</label>
+                            <div>
+                                <select name="sortOrder" data-bind="options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                </select>
+                            </div>
+                        </div>
+                        {{/if}}
+                        <div class="span4">
+                            <label>Limit By</label>
+                            <div>
+                                <input class="span12" type="text" name="limit" value="" data-bind="value: limit"/>
+                            </div>
+                        </div>
+                    </div>
+			    </div>
         </form>
     </div>
 </script>

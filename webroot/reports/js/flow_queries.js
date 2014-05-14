@@ -112,7 +112,6 @@ function FlowFilterViewModel(queryPrefix, resetFunction) {
     this.isEnabled = getFSDefaultFilterIsEnabled();
     this.limit = ko.observable("");
     this.sortOrder = ko.observable("asc");
-    this.checkedFilters = ko.observableArray([]);
     this.reset = resetFunction;
 };
 

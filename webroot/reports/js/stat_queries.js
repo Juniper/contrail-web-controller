@@ -18,9 +18,9 @@ function setStatValidValues(tableName, queryPrefix) {
         populateStatSelectPopupTemplate(queryPrefix);
     });
     setFromValues('/api/admin/tables', 'fromTables', queries[queryPrefix].queryViewModel, queryPrefix);
-    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].whereViewModel], 'columns');
+    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].whereViewModel, queries[queryPrefix].filterViewModel], 'columns', null, true);
     setValidValues('/api/admin/table/values/' + tableName + '/name', 'name', viewModels);
-    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].filterViewModel], 'columns', null, true);
+    //setColumnValues('/api/admin/table/schema/' + tableName, 'fields', [queries[queryPrefix].filterViewModel], 'columns', null, "all");
     //TODO: Create a cache and get the values from that cache
 };
 
@@ -38,14 +38,16 @@ function populateStatQueryForm(queryJSON, tg, tgUnit, queryPrefix, reRunTimeRang
 function addStatSelect(queryPrefix) {
     var query = queries[queryPrefix],
         selectedFields = $('#' + queryPrefix + '-select-popup-form').serializeArray(),
-        selectValue = "", fieldValue, checkedFields = [];
+        selectValue = "", fieldValue, checkedFields = [], checkedFilterFields = [];
     query.selectWindow.modal('hide');
     $.each(selectedFields, function (i, selectedFields) {
         fieldValue = selectedFields.value;
         checkedFields.push(fieldValue);
         selectValue += (i != 0 ? ", " : "") + fieldValue;
+        checkedFilterFields.push({"name":fieldValue, "value":fieldValue});
     });
     query.selectViewModel.checkedFields(checkedFields);
+    query.filterViewModel.fields(checkedFilterFields);
     $('#' + queryPrefix + '-select').val(selectValue);
     initTimeGranularity(checkedFields, query, queryPrefix);
 };
@@ -274,8 +276,15 @@ acpuQuery['whereViewModel'] = new WhereViewModel('acpu', function(){
 acpuQuery['filterViewModel'] = new FilterViewModel('acpu', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#acpu-filter').val('');
 });
+
+function resetStatFilter(dis){
+    dis.limit = ko.observable("150000");
+    dis.sortOrder = ko.observable("asc");
+    dis.fields([]);
+};
 
 function loadStatCPUInfo() {
     $(contentContainer).html('');
@@ -360,6 +369,7 @@ qeperfQuery['whereViewModel'] = new WhereViewModel('qeperf', function() {
 qeperfQuery['filterViewModel'] = new FilterViewModel('qeperf', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#qeperf-filter').val('');
 });
 
@@ -430,6 +440,7 @@ vnaQuery['whereViewModel'] = new WhereViewModel('vna', function() {
 vnaQuery['filterViewModel'] = new FilterViewModel('vna', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#vna-filter').val('');
 });
 
@@ -497,6 +508,7 @@ smsgQuery['whereViewModel'] = new WhereViewModel('vna', function() {
 smsgQuery['filterViewModel'] = new FilterViewModel('smsg', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#smsg-filter').val('');
 });
 
