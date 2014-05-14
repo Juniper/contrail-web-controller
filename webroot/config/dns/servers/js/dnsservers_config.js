@@ -458,6 +458,7 @@ function populateProjects(result) {
         }
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         setSessionStorageForProject();
+        $("#ddProjectSwitcher").data('contrailDropdown').hide();
     }
     fetchDataForGridDNSServer();
 }
