@@ -14,7 +14,7 @@ controlNodesView = function () {
             ctrlNodeView.load({name:hashParams['node'],tab:hashParams['tab']});
         //layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
     }
-    this.updateViewByHash = function() {
+    this.updateViewByHash = function(hashObj,lastHashObj) {
         this.load({hashParams:hashObj});
     }
     this.setCtrlNodesData = function(data) {
