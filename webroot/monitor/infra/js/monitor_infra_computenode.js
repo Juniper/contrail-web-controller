@@ -37,11 +37,11 @@ computeNodesView = function () {
         if(hashParams['node'] == null)
             populateComputeNodes();
         else
-            cmpNodeView.load({name:hashParams['node'].split(':')[1], tab:hashParams['tab'], filters:hashParams['filters']});
+            cmpNodeView.load({name:hashParams['node'], tab:hashParams['tab'], filters:hashParams['filters']});
         //layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
-        console.info('Hello');
+        this.load({hashParams:hashObj});
     }
     this.destroy = function () {
         //contView.destroy();
