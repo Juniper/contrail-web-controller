@@ -606,27 +606,6 @@ function portSummaryRenderer() {
                 field:"flow_count",
                 name:"Flow Count",
                 minWidth: 90
-            }, {
-                field:"",
-                menu: false,
-                attributes: {
-                    "class": "table-cell"
-                },
-                minWidth: 50,
-                formatter:function(r,c,v,cd,dc){
-                    return '<div class="inline position-relative">' +
-                    '    <div class="dropdown-toggle" data-toggle="dropdown">' +
-                    '        <i class="icon-cog icon-only bigger-110"></i>' +
-                    '    </div>' +
-                    '    <ul class="dropdown-menu dropdown-icon-only dropdown-light pull-right dropdown-caret dropdown-close">' +
-                    '        <li>' +
-                    '            <a onclick="startPacketCapture4Flow(\'gridFlows\', this, \'parseAnalyzerRuleParams4FlowByPort\');" class="tooltip-success" data-rel="tooltip" data-placement="left" data-original-title="Start Packet Capture">' +
-                    '                Start Packet Capture' +
-                    '            </a>' +
-                    '        </li>' +
-                    '    </ul>' +
-                    '</div>';
-                }
             }
         ];
         if(obj['fqName'].split(':').length==2)
@@ -681,7 +660,16 @@ function portSummaryRenderer() {
                 widgetGridTitle:'Flows',
                 widgetGridActions: ['<a class="toggleProtocol selected">ICMP</a>','<a class="toggleProtocol selected">UDP</a>','<a class="toggleProtocol selected">TCP</a>'],
                 noMsg:'No Flows for the given criteria',
-                scrollable: false
+                scrollable: false,
+                actionCell: [
+     				{
+     					title: 'Start Packet Capture',
+     					iconClass: 'icon-edit',
+     					onClick: function(rowIndex){
+     						startPacketCapture4Flow('gridFlows', rowIndex, 'parseAnalyzerRuleParams4FlowByPort');
+     					}
+     				}
+     			]
             },
             columns:lcolumns.concat(columns),
             parseFn:function(response){
