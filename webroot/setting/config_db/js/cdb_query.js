@@ -74,11 +74,11 @@ function createGrid(gridConfig, disableBackButton) {
 	$("#cdb-results").contrailGrid({
         header: {
             title:{
-                text: gridConfig.gridTitle,
-                cssClass: 'blue',
-                icon: 'icon-list',
-                iconCssClass: 'blue'
+                text: gridConfig.gridTitle
             },
+            defaultControls: {
+				refreshable: true
+			},
             customControls:disableBackButton ? [] : ['<a data-action="collapse" onclick=reloadTable("' + gridConfig.table + '");><i class="icon-arrow-left"></i> Back</a>']
         },
         columnHeader: {
