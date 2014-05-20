@@ -83,7 +83,7 @@ analyticsNodeView = function () {
             $("#analytics_tabstrip").contrailTabs({
                 activate:function (e, ui) {
                     infraMonitorUtils.clearTimers();
-                    var selTab = ui.newTab.context.innerText;
+                    var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Generators') {
                         monitorInfraAnalyticsGeneratorsClass.populateGeneratorsTab(aNodeInfo);
                         $('#gridGenerators').data('contrailGrid').refreshView();

@@ -92,7 +92,7 @@ configNodeView = function () {
             $("#config_tabstrip").contrailTabs({
                 activate:function (e, ui) {
                     infraMonitorUtils.clearTimers();
-                    var selTab = ui.newTab.context.innerText;
+                    var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Console') {
                         infraMonitorUtils.populateMessagesTab('config', {source:confNodeInfo['name']}, confNodeInfo);
                     } else if (selTab == 'Details') {

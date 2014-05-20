@@ -80,9 +80,9 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     {lbl:INDENT_RIGHT+'Redis Query', value:(function(){
                         return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
                     })()},
-                    {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
+                   /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
                         return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
-                    })()},
+                    })()},*/
                     {lbl:INDENT_RIGHT+'Redis UVE', value:(function(){
                         return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
                     })()},

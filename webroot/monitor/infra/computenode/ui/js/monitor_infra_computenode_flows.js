@@ -34,19 +34,22 @@ monitorInfraComputeFlowsClass = (function() {
             if(isFromACLFlows) {
                 $.each(response,function(idx,obj) {
                     var rawJson = obj;
-                    ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn'],noDataStr),
-                        dst_vn:ifNullOrEmptyObject(obj['dst_vn'],noDataStr),
-                        sip:ifNullOrEmptyObject(obj['sip'],noDataStr),
+                    ret.push({src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
+                        dst_vn:ifNullOrEmptyObject(obj['dest_vn'],noDataStr),
+                        sip:ifNullOrEmptyObject(obj['src'],noDataStr),
+                        src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
+                        dst_port:ifNullOrEmptyObject(obj['dst_port'],noDataStr),
+                        setup_time_utc:ifNullOrEmptyObject(obj['setup_time_utc'],noDataStr),
                         protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
                         dip:ifNullOrEmptyObject(obj['dst'],noDataStr),
                         stats_bytes:ifNullOrEmptyObject(obj['bytes'],noDataStr),
                         stats_packets:ifNullOrEmptyObject(obj['packets'],noDataStr),
                         raw_json:rawJson});
                 });
-            }
-            $.each(response,function(idx,obj) {
-                var rawJson = obj;
-                ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn'],noDataStr),
+            } else {
+                $.each(response,function(idx,obj) {
+                    var rawJson = obj;
+                    ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn'],noDataStr),
                         dst_vn:ifNullOrEmptyObject(obj['dst_vn'],noDataStr),
                         protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
                         sip:ifNullOrEmptyObject(obj['sip'],noDataStr),
@@ -57,7 +60,8 @@ monitorInfraComputeFlowsClass = (function() {
                         stats_bytes:ifNullOrEmptyObject(obj['stats_bytes'],noDataStr),
                         stats_packets:ifNullOrEmptyObject(obj['stats_packets'],noDataStr),
                         raw_json:rawJson});
-            });
+                });
+            }
         }
         //Push the flowKey to the stack for Next use
         if(flowKey != null && !$.isEmptyObject(flowKey)){
