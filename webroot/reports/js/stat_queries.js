@@ -17,7 +17,6 @@ function setStatValidValues(tableName, queryPrefix) {
     setSelectValues('/api/admin/table/schema/' + tableName, 'fields', [queries[queryPrefix].selectViewModel], 'columns', [], function() {
         populateStatSelectPopupTemplate(queryPrefix);
     });
-    setFromValues('/api/admin/tables', 'fromTables', queries[queryPrefix].queryViewModel, queryPrefix);
     setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].whereViewModel, queries[queryPrefix].filterViewModel], 'columns', null, true);
     setValidValues('/api/admin/table/values/' + tableName + '/name', 'name', viewModels);
     //setColumnValues('/api/admin/table/schema/' + tableName, 'fields', [queries[queryPrefix].filterViewModel], 'columns', null, "all");
@@ -56,7 +55,7 @@ function populateStatSelectPopupTemplate(queryPrefix) {
     var query = queries[queryPrefix],
         fields = query.selectViewModel.fields();
     var data = {queryPrefix: queryPrefix, fields: $.makeArray(fields), modalClass: 'modal-700'};
-    if(queryPrefix == 'qeperf') {
+    if(queryPrefix == 'qeperf' || queryPrefix == 'acpu') {
         data['modalClass'] = 'modal-980';
     }
     query.selectTemplate = statSelectPopupTemplate(data);
@@ -248,7 +247,6 @@ acpuQuery['defaultColumns'] = [];
 
 acpuQuery['queryViewModel'] = new QueryViewModel('acpu', function(){
                                     this.defaultTRValue("1800");
-                                    this.fromTables([]);
                                     this.isCustomTRVisible(false);
                                     this.isTGVisible(false);
                                     queries.acpu.selectViewModel.reset();
@@ -256,7 +254,7 @@ acpuQuery['queryViewModel'] = new QueryViewModel('acpu', function(){
                                     queries.acpu.filterViewModel.reset();
                               }, true);
 
-acpuQuery['selectViewModel'] = new SelectViewModel('vna', function() {
+acpuQuery['selectViewModel'] = new SelectViewModel('acpu', function() {
     this.fields([]);
     this.isEnabled['T'](true);
     this.checkedFields([]);
@@ -290,6 +288,7 @@ function loadStatCPUInfo() {
     $(contentContainer).html('');
     $(contentContainer).html(qeTemplate);
 
+    setFromValues('/api/admin/tables', 'fromTables', queries['acpu'].queryViewModel, 'acpu');
     setStatValidValues('StatTable.AnalyticsCpuState.cpu_info', 'acpu');
     initStatQueryView('acpu');
     populateStatSelectPopupTemplate('acpu');
@@ -298,6 +297,16 @@ function loadStatCPUInfo() {
 
     initWidgetBoxes();
     currTab = 'query_stat_cpuinfo';
+    $('#acpu-table').on("select2-selecting", function(e) {
+        fromTableChangeHandler(e);
+    });
+};
+
+function fromTableChangeHandler(e){
+    queries.acpu.selectViewModel.reset();
+    queries.acpu.whereViewModel.reset();
+    queries.acpu.filterViewModel.reset();
+    setStatValidValues(e.val, 'acpu');
 };
 
 //CPU Information Query - End
