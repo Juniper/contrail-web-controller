@@ -75,7 +75,13 @@ monitorInfraControlSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110
+                        minWidth:110,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.name;
+            				}
+            			}
                     },
                     {
                         field:"ip",
@@ -83,12 +89,18 @@ monitorInfraControlSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
-                        minWidth:110
+                        minWidth:90,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.ip;
+            				}
+            			}
                     },
                     {
                         field:"version",
                         name:"Version",
-                        minWidth:110
+                        minWidth:150
                     },
                     {
                         field:"status",
@@ -105,7 +117,13 @@ monitorInfraControlSummaryClass = (function() {
                         searchFn:function(d){
                             return d['cpu'];
                         },
-                        minWidth:150
+                        minWidth:150,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc['cpu'];
+            				}
+            			}
                     },
                     {
                         field:"memory",

@@ -74,7 +74,13 @@ monitorInfraConfigSummaryClass = (function() {
                         searchFn:function(d) {
                             return d['name'];
                         },
-                        minWidth:90
+                        minWidth:90,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.name;
+            				}
+            			},
                     },
                     {
                         field:"ip",
@@ -83,6 +89,12 @@ monitorInfraConfigSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.ip;
+            				}
+            			}
                     },
                     {
                         field:"version",
@@ -98,7 +110,13 @@ monitorInfraConfigSummaryClass = (function() {
                         searchFn:function(d) {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
-                        minWidth:110
+                        minWidth:110,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return getNodeStatusContentForSummayPages(dc,'text');
+            				}
+            			}
                     },
                     {
                         field:"cpu",
@@ -110,7 +128,13 @@ monitorInfraConfigSummaryClass = (function() {
                         searchFn:function(d){
                             return d['cpu'];
                         },
-                        minWidth:110
+                        minWidth:110,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.cpu;
+            				}
+            			}
                     },
                     {
                         field:"memory",
@@ -139,7 +163,7 @@ monitorInfraConfigSummaryClass = (function() {
             confNodesGrid.showGridMessage('loading');
         }
         //applyGridDefHandlers(confNodesGrid, {noMsg:'No Config Nodes to display'});
-    }
+    };
     return {populateConfigNodes:populateConfigNodes};
 })();
 

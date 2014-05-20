@@ -223,6 +223,12 @@ monitorInfraComputeSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.name;
+            				}
+            			},
                         events: {
                            onClick: function(e,dc){
                               onComputeNodeChange(dc);
@@ -236,7 +242,13 @@ monitorInfraComputeSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
-                        minWidth:110
+                        minWidth:110,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.ip;
+            				}
+            			},
                     },
                     {
                         field:"version",
@@ -252,19 +264,31 @@ monitorInfraComputeSummaryClass = (function() {
                         searchFn: function(d) {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
-                        minWidth:150
-                    },
+                        minWidth:150,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return getNodeStatusContentForSummayPages(dc,'text');
+            				}
+            			},                    
+            		},
                     {
                         field:"cpu",
                         name:"CPU (%)",
                         minWidth:150,
                         formatter:function(r,c,v,cd,dc) {
-                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'  + dc['cpu'] +  '</span>'
+                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'  + dc['cpu'] +  '</span>';
                         },
                         asyncPostRender: renderSparkLines,
                         searchFn:function(d){
                             return d['cpu'];
-                        }
+                        },
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.cpu;
+            				}
+            			},
                     },
                     {
                         field:"memory",

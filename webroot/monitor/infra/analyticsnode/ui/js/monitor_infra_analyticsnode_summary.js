@@ -66,6 +66,12 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.name;
+            				}
+            			},
                         events: {
                            onClick: function(e,dc){
                               onAnalyticsNodeRowSelChange(dc);
@@ -84,6 +90,12 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.ip;
+            				}
+            			}
                     },
                     {
                         field:"version",
@@ -103,7 +115,13 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         searchFn:function(d) {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
-                        minWidth:110
+                        minWidth:110,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return getNodeStatusContentForSummayPages(dc,'text');
+            				}
+            			}
                     },
                     {
                         field:"cpu",
@@ -116,7 +134,13 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         searchFn:function(d){
                             return d['cpu'];
                         },
-                        minWidth:120
+                        minWidth:120,
+                        exportConfig: {
+            				allow: true,
+            				advFormatter: function(dc) {
+            					return dc.cpu
+            				}
+            			}
                     },
                     {
                         field:"memory",
@@ -138,10 +162,10 @@ monitorInfraAnalyticsSummaryClass = (function() {
         aNodesGrid = $('#analytics-nodes-grid').data('contrailGrid');
         analyticsDeferredObj.done(function() {
            aNodesGrid.removeGridLoading();
-        })
+        });
         analyticsDeferredObj.fail(function() {
            aNodesGrid.showGridMessage('errorGettingData');
-        })
+        });
         $(analyticsNodeDS).on('change',function(){
             updateChartsForSummary(analyticsNodesDataSource.getItems(),"analytics");
         });
