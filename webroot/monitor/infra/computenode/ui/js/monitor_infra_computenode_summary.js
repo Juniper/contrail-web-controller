@@ -55,6 +55,8 @@ monitorInfraComputeSummaryClass = (function() {
                 return true;
             return false;
         });
+        //update the charts
+        updateChartsForSummary(selectedData,"compute");
     }
     
     function updateCrossFilter(vRouterData){
