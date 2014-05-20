@@ -32,6 +32,7 @@ monitorInfraControlSummaryClass = (function() {
                 options: {
                     rowHeight : 30,
                     autoHeight : true,
+                    forceFitColumns:true,
                     enableAsyncPostRender: true,
                     lazyLoading:true
                 },
@@ -74,7 +75,7 @@ monitorInfraControlSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        width:110
+                        minWidth:110
                     },
                     {
                         field:"ip",
@@ -82,17 +83,17 @@ monitorInfraControlSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
-                        width:110
+                        minWidth:110
                     },
                     {
                         field:"version",
                         name:"Version",
-                        width:110
+                        minWidth:110
                     },
                     {
                         field:"status",
                         name:"Status",
-                        width:150
+                        minWidth:150
                     },
                     {
                         field:"cpu",
@@ -104,17 +105,17 @@ monitorInfraControlSummaryClass = (function() {
                         searchFn:function(d){
                             return d['cpu'];
                         },
-                        width:150
+                        minWidth:150
                     },
                     {
                         field:"memory",
                         name:"Memory",
-                        width:110
+                        minWidth:110
                     },
                     {
                         field:"establishedPeerCount",
                         name:"BGP Peers",
-                        width:140,
+                        minWidth:140,
                         formatter:function(r,c,v,cd,dc){
                             return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
                         }
@@ -125,7 +126,7 @@ monitorInfraControlSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc){
                             return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
                         },
-                        width:140
+                        minWidth:140
                     }
                 ],
             }
