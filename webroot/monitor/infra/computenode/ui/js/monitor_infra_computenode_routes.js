@@ -312,6 +312,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"label",
                                  id:"label",
                                  name:"Next hop details",
+                                 minWidth:200,
                                  formatter:function(r,c,v,cd,dc){
                                      return bgpMonitor.getNextHopDetails(dc);
                                  }
@@ -403,6 +404,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"label",
                                  id:"label",
                                  name:"Next hop details",
+                                 minWidth:200,
                                  formatter:function(r,c,v,cd,dc){
                                      return bgpMonitor.getNextHopDetailsForMulticast(dc);
                                  }
@@ -491,6 +493,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"label",
                                  id:"label",
                                  name:"Next hop details",
+                                 minWidth:200,
                                  formatter:function(r,c,v,cd,dc){
                                      return bgpMonitor.getNextHopDetailsForL2(dc);
                                  }
