@@ -54,8 +54,7 @@ controlNodesView = function () {
             },
             body: {
                 options: {
-                    rowHeight : 30,
-                    autoHeight : true,
+                	forceFitColumns: true,
                     enableAsyncPostRender: true,
                     lazyLoading:true
                 },
@@ -98,7 +97,7 @@ controlNodesView = function () {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110
+                        width: 110
                     },
                     {
                         field:"ip",
@@ -106,17 +105,17 @@ controlNodesView = function () {
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
                         },
-                        minWidth:110
+                        width: 110
                     },
                     {
                         field:"version",
                         name:"Version",
-                        minWidth:110
+                        width: 210
                     },
                     {
                         field:"status",
                         name:"Status",
-                        minWidth:150
+                        width: 150
                     },
                     {
                         field:"cpu",
@@ -128,17 +127,17 @@ controlNodesView = function () {
                         searchFn:function(d){
                             return d['cpu'];
                         },
-                        minWidth:150
+                        width: 150
                     },
                     {
                         field:"memory",
                         name:"Memory",
-                        minWidth:110
+                        width: 110
                     },
                     {
                         field:"establishedPeerCount",
                         name:"BGP Peers",
-                        minWidth:140,
+                        width: 140,
                         formatter:function(r,c,v,cd,dc){
                             return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
                         }
@@ -149,7 +148,7 @@ controlNodesView = function () {
                         formatter:function(r,c,v,cd,dc){
                             return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
                         },
-                        minWidth:140
+                        width: 140
                     }
                 ],
             }

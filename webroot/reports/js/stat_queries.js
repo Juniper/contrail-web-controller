@@ -17,10 +17,9 @@ function setStatValidValues(tableName, queryPrefix) {
     setSelectValues('/api/admin/table/schema/' + tableName, 'fields', [queries[queryPrefix].selectViewModel], 'columns', [], function() {
         populateStatSelectPopupTemplate(queryPrefix);
     });
-    setFromValues('/api/admin/tables', 'fromTables', queries[queryPrefix].queryViewModel, queryPrefix);
-    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].whereViewModel], 'columns');
+    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].whereViewModel, queries[queryPrefix].filterViewModel], 'columns', null, true);
     setValidValues('/api/admin/table/values/' + tableName + '/name', 'name', viewModels);
-    setColumnValues('/api/admin/table/schema/' + tableName, 'selectFields', [queries[queryPrefix].filterViewModel], 'columns', null, true);
+    //setColumnValues('/api/admin/table/schema/' + tableName, 'fields', [queries[queryPrefix].filterViewModel], 'columns', null, "all");
     //TODO: Create a cache and get the values from that cache
 };
 
@@ -38,14 +37,16 @@ function populateStatQueryForm(queryJSON, tg, tgUnit, queryPrefix, reRunTimeRang
 function addStatSelect(queryPrefix) {
     var query = queries[queryPrefix],
         selectedFields = $('#' + queryPrefix + '-select-popup-form').serializeArray(),
-        selectValue = "", fieldValue, checkedFields = [];
+        selectValue = "", fieldValue, checkedFields = [], checkedFilterFields = [];
     query.selectWindow.modal('hide');
     $.each(selectedFields, function (i, selectedFields) {
         fieldValue = selectedFields.value;
         checkedFields.push(fieldValue);
         selectValue += (i != 0 ? ", " : "") + fieldValue;
+        checkedFilterFields.push({"name":fieldValue, "value":fieldValue});
     });
     query.selectViewModel.checkedFields(checkedFields);
+    query.filterViewModel.fields(checkedFilterFields);
     $('#' + queryPrefix + '-select').val(selectValue);
     initTimeGranularity(checkedFields, query, queryPrefix);
 };
@@ -54,7 +55,7 @@ function populateStatSelectPopupTemplate(queryPrefix) {
     var query = queries[queryPrefix],
         fields = query.selectViewModel.fields();
     var data = {queryPrefix: queryPrefix, fields: $.makeArray(fields), modalClass: 'modal-700'};
-    if(queryPrefix == 'qeperf') {
+    if(queryPrefix == 'qeperf' || queryPrefix == 'acpu') {
         data['modalClass'] = 'modal-980';
     }
     query.selectTemplate = statSelectPopupTemplate(data);
@@ -246,7 +247,6 @@ acpuQuery['defaultColumns'] = [];
 
 acpuQuery['queryViewModel'] = new QueryViewModel('acpu', function(){
                                     this.defaultTRValue("1800");
-                                    this.fromTables([]);
                                     this.isCustomTRVisible(false);
                                     this.isTGVisible(false);
                                     queries.acpu.selectViewModel.reset();
@@ -254,7 +254,7 @@ acpuQuery['queryViewModel'] = new QueryViewModel('acpu', function(){
                                     queries.acpu.filterViewModel.reset();
                               }, true);
 
-acpuQuery['selectViewModel'] = new SelectViewModel('vna', function() {
+acpuQuery['selectViewModel'] = new SelectViewModel('acpu', function() {
     this.fields([]);
     this.isEnabled['T'](true);
     this.checkedFields([]);
@@ -274,13 +274,21 @@ acpuQuery['whereViewModel'] = new WhereViewModel('acpu', function(){
 acpuQuery['filterViewModel'] = new FilterViewModel('acpu', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#acpu-filter').val('');
 });
+
+function resetStatFilter(dis){
+    dis.limit = ko.observable("150000");
+    dis.sortOrder = ko.observable("asc");
+    dis.fields([]);
+};
 
 function loadStatCPUInfo() {
     $(contentContainer).html('');
     $(contentContainer).html(qeTemplate);
 
+    setFromValues('/api/admin/tables', 'fromTables', queries['acpu'].queryViewModel, 'acpu');
     setStatValidValues('StatTable.AnalyticsCpuState.cpu_info', 'acpu');
     initStatQueryView('acpu');
     populateStatSelectPopupTemplate('acpu');
@@ -289,6 +297,16 @@ function loadStatCPUInfo() {
 
     initWidgetBoxes();
     currTab = 'query_stat_cpuinfo';
+    $('#acpu-table').on("select2-selecting", function(e) {
+        fromTableChangeHandler(e);
+    });
+};
+
+function fromTableChangeHandler(e){
+    queries.acpu.selectViewModel.reset();
+    queries.acpu.whereViewModel.reset();
+    queries.acpu.filterViewModel.reset();
+    setStatValidValues(e.val, 'acpu');
 };
 
 //CPU Information Query - End
@@ -360,6 +378,7 @@ qeperfQuery['whereViewModel'] = new WhereViewModel('qeperf', function() {
 qeperfQuery['filterViewModel'] = new FilterViewModel('qeperf', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#qeperf-filter').val('');
 });
 
@@ -430,6 +449,7 @@ vnaQuery['whereViewModel'] = new WhereViewModel('vna', function() {
 vnaQuery['filterViewModel'] = new FilterViewModel('vna', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#vna-filter').val('');
 });
 
@@ -497,6 +517,7 @@ smsgQuery['whereViewModel'] = new WhereViewModel('vna', function() {
 smsgQuery['filterViewModel'] = new FilterViewModel('smsg', function() {
     this.filterClauseSubmit([]);
     this.filterClauseSubmit("");
+    resetStatFilter(this);
     $('#smsg-filter').val('');
 });
 
