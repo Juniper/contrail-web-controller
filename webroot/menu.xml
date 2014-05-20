@@ -12,6 +12,11 @@
             <items>
                 <item>
                     <label>Infrastructure</label>
+                    <rootDir>/monitor/infra</rootDir>
+                    <js>monitor_infra_constants.js</js>
+                    <js>monitor_infra_utils.js</js>
+                    <view>monitor_infra_dashboard.view</view>
+                    <class>infraMonitorView</class>
                     <items>
                         <item>
                             <hash>mon_infra_dashboard</hash>
@@ -30,12 +35,13 @@
                         <item>
                             <hash>mon_infra_control</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra</rootDir>
-                            <view>monitor_infra_dashboard.view</view>
+                            <rootDir>/monitor/infra/controlnode/ui</rootDir>
                             <view>monitor_infra_controlnode.view</view>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_controlnode.js</js>
+                            <js>monitor_infra_controlnode_summary.js</js>
+                            <js>monitor_infra_controlnode_details.js</js>
+                            <js>monitor_infra_controlnode_peers.js</js>
+                            <js>monitor_infra_controlnode_routes.js</js>
                             <class>ctrlNodesView</class>
                             <queryParams>
                                 <node>Control Nodes</node>
@@ -45,12 +51,16 @@
                         <item>
                             <hash>mon_infra_compute</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra</rootDir>
-                            <view>monitor_infra_dashboard.view</view>
+                            <rootDir>/monitor/infra/computenode/ui</rootDir>
                             <view>monitor_infra_computenode.view</view>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_computenode.js</js>
+                            <js>monitor_infra_computenode_summary.js</js>
+                            <js>monitor_infra_computenode_details.js</js>
+                            <js>monitor_infra_computenode_interfaces.js</js>
+                            <js>monitor_infra_computenode_networks.js</js>
+                            <js>monitor_infra_computenode_acl.js</js>
+                            <js>monitor_infra_computenode_flows.js</js>
+                            <js>monitor_infra_computenode_routes.js</js>
                             <class>cmpNodesView</class>
                             <queryParams>
                                 <node>vRouters</node>
@@ -60,12 +70,13 @@
                         <item>
                             <hash>mon_infra_analytics</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra</rootDir>
-                            <view>monitor_infra_dashboard.view</view>
+                            <rootDir>/monitor/infra/analyticsnode/ui</rootDir>
                             <view>monitor_infra_analyticnode.view</view>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_analyticnode.js</js>
+                            <js>monitor_infra_analyticsnode_summary.js</js>
+                            <js>monitor_infra_analyticsnode_details.js</js>
+                            <js>monitor_infra_analyticsnode_generators.js</js>
+                            <js>monitor_infra_analyticsnode_qequeries.js</js>
                             <class>aNodesView</class>
                             <queryParams>
                                 <node>Analytics Nodes</node>
@@ -75,12 +86,11 @@
                         <item>
                             <hash>mon_infra_config</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra</rootDir>
-                            <view>monitor_infra_dashboard.view</view>
+                            <rootDir>/monitor/infra/confignode/ui</rootDir>
                             <view>monitor_infra_confignode.view</view>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_confignode.js</js>
+                            <js>monitor_infra_confignode_summary.js</js>
+                            <js>monitor_infra_confignode_details.js</js>
                             <queryParams>
                                 <node>Config Nodes</node>
                             </queryParams>

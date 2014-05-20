@@ -10,7 +10,7 @@ var analyticsNodeTabs = ['details', 'generators', 'qequeries', 'console'];
 var configNodeTabs = ['details', 'console', 'generators', 'qequeries'];
 
 var excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr',
-    'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper'];
+    'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel'];
 var vRouterDashboardChartInitialized = false;
 var controlNodesDashboardChartInitialized = false;
 var analyticsNodesDashboardChartInitialized = false;
@@ -36,7 +36,7 @@ var monitorInfraUrls = {
         CONTROLNODE_PEERS           : '/api/admin/monitor/infrastructure/controlnode/paged-bgppeer?hostname={0}&count={1}',
         CONTROLNODE_ROUTE_INST_LIST : '/api/admin/monitor/infrastructure/controlnode/routes/rout-inst-list?ip={0}',
         CONTROLNODE_PEER_LIST       : '/api/admin/monitor/infrastructure/controlnode/peer-list?hostname={0}',
-        CONTROLNODE_ROUTES          : '/api/admin/monitor/infrastructure/controlnode/routes?ip={0}',
+        CONTROLNODE_ROUTES          : '/api/admin/monitor/infrastructure/controlnode/routes',
         
         ANALYTICS_SUMMARY           : '/api/admin/monitor/infrastructure/analyticsnodes/summary',
         ANALYTICS_DETAILS           : '/api/admin/monitor/infrastructure/analyticsnode/details?hostname={0}',
