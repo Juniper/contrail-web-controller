@@ -110,11 +110,9 @@ monitorInfraComputeFlowsClass = (function() {
                                  uuidArr.push(response[i].uuid);
                              }
                          }
-                        // $.map(uuidArr, function (value) {
-                             $.each(uuidArr, function (key, value) {
-                                 retArr.push({text:value, value:value});
-                             });
-                        // });
+                         $.each(uuidArr, function (key, value) {
+                             retArr.push({text:value, value:value});
+                         });
                          return retArr;
                      }
                  },
@@ -143,12 +141,12 @@ monitorInfraComputeFlowsClass = (function() {
                                     searchFn: function(data) {
                                        return getAclSgUuuidString(data);
                                     },
-                                    minWidth:270
+                                    minWidth:260
                                     },
                                    {
                                        field:"protocol",
                                        name:"Protocol",
-                                       minWidth:70,
+                                       minWidth:60,
                                        formatter:function(r,c,v,cd,dc){
                                            return formatProtocol(dc['protocol']);
                                        }
@@ -163,17 +161,17 @@ monitorInfraComputeFlowsClass = (function() {
                                                selectTab(computeNodeTabStrip,tabIdx);
                                            }
                                         },
-                                       minWidth:220
+                                       minWidth:195
                                    },
                                    {
                                        field:"sip",
                                        name:"Src IP",
-                                       minWidth:80
+                                       minWidth:100
                                    },
                                    {
                                        field:"src_port",
                                        name:"Src Port",
-                                       minWidth:70
+                                       minWidth:50
                                    },
                                    {
                                        field:"dst_vn",
@@ -185,22 +183,22 @@ monitorInfraComputeFlowsClass = (function() {
                                                selectTab(computeNodeTabStrip,tabIdx);
                                            }
                                         },
-                                       minWidth:220
+                                       minWidth:195
                                    },
                                    {
                                        field:"dip",
                                        name:"Dest IP",
-                                       minWidth:80
+                                       minWidth:100
                                    },
                                    {
                                        field:"dst_port",
                                        name:"Dest Port",
-                                       minWidth:70
+                                       minWidth:50
                                    },
                                    {
                                        field:"stats_bytes",
                                        name:"Bytes/Pkts",
-                                       minWidth:135,
+                                       minWidth:80,
                                        formatter:function(r,c,v,cd,dc){
                                            return contrail.format("{0}/{1}",dc['stats_bytes'],dc['stats_packets']);
                                        },
