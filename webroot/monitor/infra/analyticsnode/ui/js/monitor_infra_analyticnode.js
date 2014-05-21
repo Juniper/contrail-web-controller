@@ -32,7 +32,6 @@ analyticsNodesView = function () {
 
 analyticsNodeView = function () {
     var consoleGrid ;
-    var aNodeTabStrip = "analytics_tabstrip";
     var aNodeInfo = {}, self = this;
     var aNodeData = {};
     /*Selenium Testing*/

@@ -29,7 +29,6 @@ function onComputeNodeChange(dc) {
 
 computeNodeView = function () {
     var intfGrid, vnGrid, aclGrid, flowGrid, computeNodeInfo,computeNodeData;
-    var computeNodeTabStrip = "compute_tabstrip";
     var self = this;
     var cmptNodeDetailsData;
     this.getCmptNodeDetailsData = function(){
