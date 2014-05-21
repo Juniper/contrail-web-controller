@@ -24,12 +24,26 @@ monitorInfraControlDetailsClass = (function() {
                 ctrlNodeData = result;
                 var parsedData = infraMonitorUtils.parseControlNodesDashboardData([{name:obj['name'],value:result}])[0];
                 var noDataStr = "--";
-                var cpu = "N/A",
-                    memory = "N/A",
-                    ctrlNodeDashboardInfo, oneMinCPU, fiveMinCPU, fifteenMinCPU,
-                    usedMemory, totalMemory;   
-                $('#control-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'BgpRouterState':[{name: 'cpu_share', color: 'blue-sparkline'}, {name: 'virt_mem', color: 'green-sparkline'}]}, slConfig);
-                endWidgetLoading('control-sparklines');
+                var cpu = "N/A", memory = "N/A", ctrlNodeDashboardInfo;
+                $.ajax({
+                    url: '/api/admin/current-time'
+                }).done(function (resultJSON) {
+                    endTime = resultJSON['currentTime'];
+                }).fail(function() {
+                    endTime = getCurrentTime4MemCPUCharts();
+                }).always(function() {
+                    var slConfig;
+                    startTime = endTime - 600000;
+                    slConfig = {startTime: startTime, endTime: endTime};
+                    $('#control-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'BgpRouterState': [
+                        {name: 'cpu_share', color: 'blue-sparkline'},
+                        {name: 'virt_mem', color: 'green-sparkline'}
+                    ]}, slConfig);
+                    endWidgetLoading('control-sparklines');
+                    $('#control-chart').initMemCPULineChart($.extend({url:function() {
+                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ControlNode', '30', '10', obj['name'], endTime);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                });
                 var procStateList, overallStatus = noDataStr;
                 var controlProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
@@ -202,9 +216,6 @@ monitorInfraControlDetailsClass = (function() {
                 endWidgetLoading('dashboard');
                 initWidget4Id('#control-chart-box');
             }).fail(displayAjaxError.bind(null, $('#controlnode-dashboard')));
-        $('#control-chart').initMemCPULineChart($.extend({url:function() {
-            return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ControlNode', '30', '10', obj['name'], endTime); 
-        }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
     }
     return {populateDetailsTab:populateDetailsTab}
 })();
