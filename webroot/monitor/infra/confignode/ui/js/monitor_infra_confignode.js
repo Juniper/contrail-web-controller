@@ -35,7 +35,6 @@ configNodesView = function () {
 
 configNodeView = function () {
     var consoleGrid;
-    var configNodeTabStrip = "config_tabstrip";
     var generatorsGrid;
     var confNodeInfo = {}, self = this;
     var confNodeData = {};

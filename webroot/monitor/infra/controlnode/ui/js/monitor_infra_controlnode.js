@@ -40,7 +40,6 @@ controlNodesView = function () {
 
 controlNodeView = function () {
     var consoleGrid;
-    var ctrlNodeTabStrip = "control_tabstrip";
     var ctrlNodeInfo = {}, self = this;
     var ctrlNodeData = {};
     /*Selenium Testing*/
