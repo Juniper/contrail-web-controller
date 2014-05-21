@@ -95,12 +95,12 @@ function initComponents() {
 
     $("#gridsvcInstances").contrailGrid({
         header : {
-            //title : {
-            //    text : 'Service Instances',
-            //    cssClass : 'blue',
-            //    icon : 'icon-list',
-            //    iconCssClass : 'blue'
-            //},
+            title : {
+                text : 'Service Instances',
+                cssClass : 'blue',
+                icon : 'icon-list',
+                iconCssClass : 'blue'
+            },
             defaultControls: {
                 collapseable: false,
                 exportable: false,
