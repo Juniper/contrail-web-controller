@@ -1014,7 +1014,7 @@ function showLoginWindow(ip, action){
     loginWindow.modal({backdrop:'static', keyboard: false, show:false});
     $("#btnLoginWindowCancel").unbind('click');
     $("#btnLoginWindowCancel").click(function (a) {
-    $('#divLoginError').html("");
+        $('#divLoginError').html("");
         loginWindow.hide();
     });
     $("#btnLoginWindowLogin").unbind('click');
@@ -1038,12 +1038,17 @@ function showLoginWindow(ip, action){
 };
 
 function populateStatus(usrName,pwd,ip,loginWindow) {
+    startWidgetLoading('dashboard');
+    $('#divBasic').hide();
+    $('#divAdvanced').hide();
+    $('#divStatus').show();
     var postData = {"username":usrName,"password":pwd};
     $.ajax({
         url:'/api/service/networking/device-status/' + ip,
         type:'post',
         data:postData
     }).done(function(response) {
+        endWidgetLoading('dashboard');
         CONTRAIL_STATUS_USER["ip_"+ip] = usrName;
         CONTRAIL_STATUS_PWD["ip_"+ip] = pwd;
         if(loginWindow != null){
@@ -1057,6 +1062,7 @@ function populateStatus(usrName,pwd,ip,loginWindow) {
         $('#divAdvanced').parents('.widget-box').find('.widget-header h4 .subtitle').remove();
         $('#divAdvanced').parents('.widget-box').find('.widget-header h4').append('<span class="subtitle">(Status)</span>')
     }).fail(function(response) {
+        endWidgetLoading('dashboard');
         if(response != null && response.responseText != null && response.responseText.search("Error: Authentication failure") != -1){
             $('#divLoginError').html("Invalid username or password");
             showLoginWindow(ip);
