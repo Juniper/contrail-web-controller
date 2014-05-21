@@ -16,6 +16,10 @@ var controlNodesDashboardChartInitialized = false;
 var analyticsNodesDashboardChartInitialized = false;
 var configNodesDashboardChartInitialized = false;
 var summaryChartsInitializationStatus = {vRouters:false,controlNode:false,analyticsNode:false,configNode:false};
+var computeNodeTabStrip = "compute_tabstrip";
+var configNodeTabStrip = "config_tabstrip";
+var aNodeTabStrip = "analytics_tabstrip";
+var ctrlNodeTabStrip = "control_tabstrip";
 
 var monitorInfraUrls = {
         VROUTER_BASE                : '/api/admin/monitor/infrastructure/vrouter/',

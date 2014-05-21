@@ -511,7 +511,7 @@ function onClickGridLink(e,selRowDataItem){
     } else if($.inArray(name,['instance']) > -1) {
         layoutHandler.setURLHashParams({vmName:selRowDataItem['vmName'],fqName:selRowDataItem['name'],srcVN:selRowDataItem['vn'][0]},{merge:false,p:'mon_net_instances'});
     } else if($.inArray(name,['vRouter']) > -1) {
-        layoutHandler.setURLHashParams({node: selRowDataItem['vRouter'], tab:''}, {p:'mon_infra_compute',merge:false});
+        layoutHandler.setURLHashParams({node: selRowDataItem['vRouter'], tab:''}, {p:'mon_infra_vrouter',merge:false});
     }
 }
 
