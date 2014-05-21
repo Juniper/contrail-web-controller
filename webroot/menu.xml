@@ -12,19 +12,17 @@
             <items>
                 <item>
                     <label>Infrastructure</label>
-                    <rootDir>/monitor/infra</rootDir>
+                    <rootDir>/monitor/infra/common/ui</rootDir>
                     <js>monitor_infra_constants.js</js>
                     <js>monitor_infra_utils.js</js>
-                    <view>monitor_infra_dashboard.view</view>
+                    <view>monitor_infra_common.view</view>
                     <class>infraMonitorView</class>
                     <items>
                         <item>
                             <hash>mon_infra_dashboard</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra</rootDir>
+                            <rootDir>/monitor/infra/dashboard/ui</rootDir>
                             <view>monitor_infra_dashboard.view</view>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
                             <js>monitor_infra_dashboard.js</js>
                             <class>infraMonitorView</class>
                             <queryParams>
@@ -49,18 +47,18 @@
                             <searchStrings>Monitor Control Nodes</searchStrings>
                         </item>
                         <item>
-                            <hash>mon_infra_compute</hash>
+                            <hash>mon_infra_vrouter</hash>
                             <label>Overview</label>
-                            <rootDir>/monitor/infra/computenode/ui</rootDir>
-                            <view>monitor_infra_computenode.view</view>
-                            <js>monitor_infra_computenode.js</js>
-                            <js>monitor_infra_computenode_summary.js</js>
-                            <js>monitor_infra_computenode_details.js</js>
-                            <js>monitor_infra_computenode_interfaces.js</js>
-                            <js>monitor_infra_computenode_networks.js</js>
-                            <js>monitor_infra_computenode_acl.js</js>
-                            <js>monitor_infra_computenode_flows.js</js>
-                            <js>monitor_infra_computenode_routes.js</js>
+                            <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                            <view>monitor_infra_vrouter.view</view>
+                            <js>monitor_infra_vrouter.js</js>
+                            <js>monitor_infra_vrouter_summary.js</js>
+                            <js>monitor_infra_vrouter_details.js</js>
+                            <js>monitor_infra_vrouter_interfaces.js</js>
+                            <js>monitor_infra_vrouter_networks.js</js>
+                            <js>monitor_infra_vrouter_acl.js</js>
+                            <js>monitor_infra_vrouter_flows.js</js>
+                            <js>monitor_infra_vrouter_routes.js</js>
                             <class>cmpNodesView</class>
                             <queryParams>
                                 <node>vRouters</node>
