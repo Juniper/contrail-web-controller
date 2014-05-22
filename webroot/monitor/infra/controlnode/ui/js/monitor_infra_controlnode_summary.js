@@ -37,7 +37,12 @@ monitorInfraControlSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: controlNodesDataSource
+                    dataView: controlNodesDataSource,
+                    events:{
+                        onUpdateDataCB:function(){
+                            monitorInfraGridUpdate('gridControlNodes');
+                        }
+                    }
                 },
                  statusMessages: {
                      loading: {
@@ -105,6 +110,13 @@ monitorInfraControlSummaryClass = (function() {
                     {
                         field:"status",
                         name:"Status",
+                        sortable:true,
+                        formatter:function(r,c,v,cd,dc) {
+                            return getNodeStatusContentForSummayPages(dc,'html');
+                        },
+                        searchFn:function(d) {
+                            return getNodeStatusContentForSummayPages(dc,'text');
+                        },
                         minWidth:150
                     },
                     {

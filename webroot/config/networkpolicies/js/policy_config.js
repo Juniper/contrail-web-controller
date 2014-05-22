@@ -73,7 +73,7 @@ function initComponents() {
     $("#gridPolicy").contrailGrid({
         header : {
             title : {
-                text : 'Network Policys',
+                text : 'Policies',
                 cssClass : 'blue',
                 icon : 'icon-list',
                 iconCssClass : 'blue'
@@ -88,7 +88,7 @@ function initComponents() {
             {
                 id:"NetworkPolicy", 
                 field:"NetworkPolicy",
-                name:"Network Policy",
+                name:"Policy",
                 width: 200,
                 sortable: true
             },

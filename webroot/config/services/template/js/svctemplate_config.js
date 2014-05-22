@@ -78,18 +78,18 @@ function fetchData() {
 function initComponents() {
     gridsvcTemplate = $("#gridsvcTemplate").contrailGrid({
         header : {
-            //title : {
-            //    text : 'Service Templates',
-            //    cssClass : 'blue',
-            //    icon : 'icon-list',
-            //    iconCssClass : 'blue'
-            //},
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
+            title : {
+                text : 'Service Templates',
+                cssClass : 'blue',
+                icon : 'icon-list',
+                iconCssClass : 'blue'
             },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: ['<a id="btnDeletesvcTemplate" class="disabled-link" title="Delete Service Templates"><i class="icon-trash"></i></a>',
                 '<a id="btnCreatesvcTemplate" class="disabled-link" onclick="sTempCreateWindow(\'add\');return false;" title="Create Service Templates"><i class="icon-plus"></i></a>',
                 'Domain: <div id="ddDomainSwitcher" />']

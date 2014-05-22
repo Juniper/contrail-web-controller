@@ -95,18 +95,18 @@ function initComponents() {
 
     $("#gridsvcInstances").contrailGrid({
         header : {
-            //title : {
-            //    text : 'Service Instances',
-            //    cssClass : 'blue',
-            //    icon : 'icon-list',
-            //    iconCssClass : 'blue'
-            //},
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
+            title : {
+                text : 'Service Instances',
+                cssClass : 'blue',
+                icon : 'icon-list',
+                iconCssClass : 'blue'
             },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: ['<a id="btnDeletesvcInstances" class="disabled-link" title="Delete Service Instances"><i class="icon-trash"></i></a>',
                 '<a id="btnCreatesvcInstances" class="disabled-link" onclick="svcInstancesCreateWindow(\'add\');return false;" title="Create Service Instances"><i class="icon-plus"></i></a>',
                 'Project:<div id="ddProjectSwitcher" />',
@@ -1192,10 +1192,10 @@ var interfacesLen = $("#instanceDiv").children().length;
  var widgetHeaderH5 = document.createElement("h5");
  widgetHeaderH5.className = "smaller";
  widgetHeaderDiv.appendChild(widgetHeaderH5);
+ widgetHeaderH5.setAttribute("onclick", "collapseElement(this)");
 
  var widgetHeaderH5I = document.createElement("i");
- widgetHeaderH5I.className = "icon-caret-right grey";
- widgetHeaderH5I.setAttribute("onclick", "collapseElement(this)");
+ widgetHeaderH5I.className = "icon-caret-right grey"; 
  widgetHeaderH5.appendChild(widgetHeaderH5I);
 
  var widgetHeaderH5Span = document.createElement("span");
