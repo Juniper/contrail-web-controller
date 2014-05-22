@@ -64,12 +64,12 @@ function initComponents() {
                 icon : 'icon-list',
                 iconCssClass : 'blue'
             },
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
-            },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: [
                 '<a id="btnDeleteLLS" class="disabled-link" title="Delete Link Local Service(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateLLS" onclick="showLLSEditWindow(\'add\');return false;" title="Create Link Local Service"><i class="icon-plus"></i></a>'

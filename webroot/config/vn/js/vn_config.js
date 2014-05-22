@@ -91,12 +91,12 @@ function initComponents() {
                 icon : 'icon-list',
                 iconCssClass : 'blue'
             },
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
-            },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: ['<a id="btnDeleteVN" class="disabled-link" title="Delete Virtual Network(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateVN" onclick="showVNEditWindow(\'add\');return false;" title="Create Virtual Network"><i class="icon-plus"></i></a>',
                 'Project:<div id="ddProjectSwitcher" />',
@@ -460,8 +460,7 @@ function initActions() {
                 if (srTuples && srTuples.length > 0) {
                     for (var j = 0; j < srTuples.length; j++) {
                         var srTuple = $($(srTuples[j]).find("div")[0]).children();
-                        $($(srTuple[0]).find("div")[0]).contrailDropdown();
-                        var srIpam =$($(srTuple[0]).find("div")[0]).data("contrailDropdown").text();
+                        var srIpam =$($(srTuple[0]).find("div.contrailDropdown")[1]).data("contrailDropdown").text();
                         if(srIpam.indexOf(":") === -1) {
                             srIpam = selectedDomain + ":" + selectedProject + ":" + srIpam;
                         }
@@ -1065,12 +1064,12 @@ function clearRTEntries() {
 }
 
 function createSREntry(staticRoute, len) {
-    var selectIpams = document.createElement("div");
-    selectIpams.className = "span12";
-    selectIpams.setAttribute("placeholder", "Select IPAM");
+    var selectIpamsSR = document.createElement("div");
+    selectIpamsSR.className = "span12 contrailDropdown";
+    selectIpamsSR.setAttribute("placeholder", "Select IPAM");
     var divIpam = document.createElement("div");
     divIpam.className = "span3";
-    divIpam.appendChild(selectIpams);
+    divIpam.appendChild(selectIpamsSR);
     
     var inputTxtSR = document.createElement("input");
     inputTxtSR.type = "text";
@@ -1124,12 +1123,12 @@ function createSREntry(staticRoute, len) {
         existingIpams.splice(existingIpams.indexOf(""), 1);
     }
 
-    $(selectIpams).contrailDropdown();
-    $(selectIpams).data("contrailDropdown").setData(existingIpams);
-    $(selectIpams).data("contrailDropdown").value(existingIpams[0]);
+    $(selectIpamsSR).contrailDropdown();
+    $(selectIpamsSR).data("contrailDropdown").setData(existingIpams);
+    $(selectIpamsSR).data("contrailDropdown").value(existingIpams[0]);
 
     if (null !== staticRoute && typeof staticRoute !== "undefined") {
-        $(selectIpams).data("contrailDropdown").value(staticRoute.ipam);
+        $(selectIpamsSR).data("contrailDropdown").value(staticRoute.ipam);
         $(inputTxtSR).val(staticRoute.hostroute)
     }    
     return rootDiv; 

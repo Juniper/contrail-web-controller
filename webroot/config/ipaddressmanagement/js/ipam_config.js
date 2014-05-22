@@ -78,12 +78,12 @@ function initComponents() {
                 icon : 'icon-list',
                 iconCssClass : 'blue'
             },
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
-            },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: [
                 '<a id="btnDeleteIpam"class="disabled-link" title="Delete IPAM(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateEditipam" onclick="ipamCreateEditWindow(\'add\');return false;" title="Create IPAM"><i class="icon-plus"></i></a>',

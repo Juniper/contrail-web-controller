@@ -495,8 +495,9 @@ function fetchData() {
     }).success(function (res) {
             ggasnObj = jsonPath(res, "$.*")[0];
             ggasn = ggasnObj["autonomous_system"];
-            $("#btneditgasn").val("Global ASN - " + ggasn);
+            //$("#btneditgasn").val("Global ASN - " + ggasn);
             $('#btneditgasn').removeClass('disabled-link');
+            $("#btneditgasn").attr("title", "Global ASN - " + ggasn);
         }).fail(function (msg) {
             if(msg && msg.statusText !== "abort") {
             showInfoWindow("Error in getting Global ASN.", "Error");
@@ -663,16 +664,16 @@ function initComponents() {
                 icon : 'icon-list',
                 iconCssClass : 'blue'
             },
-            defaultControls: {
-                collapseable: false,
-                exportable: false,
-                refreshable: false,
-                searchable: true
-            },
+            //defaultControls: {
+            //    collapseable: false,
+            //    exportable: false,
+            //    refreshable: false,
+            //    searchable: true
+            //},
             customControls: [
                 '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>',
-                '<a id="btneditgasn" class="disabled-link" onclick="openGasnWindow();return false;" title="Edit Gloabal ASN"><i class="icon-globe"></i></a>'
+                '<a id="btneditgasn" class="disabled-link" onclick="openGasnWindow();return false;" title="Edit Global ASN"><i class="icon-globe"></i></a>'
             ]
         },
         columnHeader : {
@@ -989,7 +990,7 @@ function getGasnJSON() {
 }
 
 function gasnSuccess(res) {
-    $("#btneditgasn").val("Global ASN - " + ggasn);
+    $("#btneditgasn").attr("title", "Global ASN - " + ggasn);
     fetchData();
 }
 

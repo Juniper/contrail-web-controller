@@ -125,8 +125,8 @@
                     <div>
                         <div class="widget-box transparent collapsed">
                             <div class="widget-header">
-                                <h4 class="smaller">
-                                    <i class="icon-caret-right grey" onclick="collapseElement(this);"></i>
+                                <h4 class="smaller" onclick="collapseElement(this);">
+                                    <i class="icon-caret-right grey" ></i>
                                     <span>Route Targets</span>
                                 </h4>
                             </div>
@@ -156,8 +156,8 @@
                     <div>
                         <div class="widget-box transparent collapsed">
                             <div class="widget-header">
-                                <h4 class="smaller">
-                                    <i class="icon-caret-right grey" onclick="collapseElement(this);"></i>
+                                <h4 class="smaller" onclick="collapseElement(this);">
+                                    <i class="icon-caret-right grey" ></i>
                                     <span>Floating IP Pools</span>
                                 </h4>
                             </div>
@@ -190,8 +190,8 @@
                     <div>
                         <div class="widget-box transparent collapsed">
                             <div class="widget-header">
-                                <h4 class="smaller">
-                                    <i class="icon-caret-right grey" onclick="collapseElement(this);"></i>
+                                <h4 class="smaller" onclick="collapseElement(this);">
+                                    <i class="icon-caret-right grey"></i>
                                     <span>Host Routes</span>
                                 </h4>
                             </div>
@@ -224,8 +224,8 @@
                     <div>
                         <div class="widget-box transparent collapsed">
                             <div class="widget-header">
-                                <h4 class="smaller">
-                                    <i class="icon-caret-right grey" onclick="collapseElement(this);"></i>
+                                <h4 class="smaller" onclick="collapseElement(this);">
+                                    <i class="icon-caret-right grey" ></i>
                                     <span>Advanced Options</span>
                                 </h4>
                             </div>
