@@ -98,6 +98,13 @@ monitorInfraControlSummaryClass = (function() {
                     {
                         field:"status",
                         name:"Status",
+                        sortable:true,
+                        formatter:function(r,c,v,cd,dc) {
+                            return getNodeStatusContentForSummayPages(dc,'html');
+                        },
+                        searchFn:function(d) {
+                            return getNodeStatusContentForSummayPages(dc,'text');
+                        },
                         minWidth:150
                     },
                     {
