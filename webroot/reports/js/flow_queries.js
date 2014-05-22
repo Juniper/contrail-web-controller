@@ -339,6 +339,17 @@ function addFSFilter() {
 };
 
 function runFSQuery() {
+    var serverCurrentTime;
+    $.ajax({
+        url: '/api/admin/current-time'
+    }).done(function (resultJSON) {
+        serverCurrentTime = resultJSON['currentTime'];
+    }).always(function() {
+        runFSQueryCB(serverCurrentTime)
+    });
+}
+
+function runFSQueryCB(serverCurrentTime) {
     var reqQueryObj = $('#fs-query-form').serializeObject(),
         queryPrefix = 'fs',
         select = $("#fs-query-form input[name='select']").val(),
@@ -346,9 +357,9 @@ function runFSQuery() {
         options = getFSDefaultOptions(showChartToggle),
         queryId, fsGridDisplay, selectArray, labelStepUnit, fcGridDisplay,
         tg, tgUnit;
+    options['serverCurrentTime'] = serverCurrentTime;
     if ($("#" + queryPrefix + "-query-form").valid()) {
     	collapseWidget('#fs-query-widget');
-//        initFSChartLoading();
         queryId = randomUUID();
         options.queryId = queryId;
         reqQueryObj = setUTCTimeObj('fs', reqQueryObj, options);
@@ -378,15 +389,31 @@ function runFSQuery() {
 };
 
 function viewFSQueryResults(dataItem, params) {
+    var serverCurrentTime;
+    $.ajax({
+        url: '/api/admin/current-time'
+    }).done(function (resultJSON) {
+        serverCurrentTime = resultJSON['currentTime'];
+    }).always(function() {
+        viewFSQueryResultsCB(dataItem, params, serverCurrentTime)
+    });
+}
+
+function viewFSQueryResultsCB(dataItem, params, serverCurrentTime) {
     var options = null, queryId = dataItem.queryId,
         queryJSON = dataItem.queryJSON, reqQueryObj = {},
         tg = dataItem.tg, tgUnit = dataItem.tgUnit, tgIndex,
         reRun = params['reRun'], timeObj = params['timeObj'],
         reRunQueryObj = params['reRunQueryObj'], queryPrefix = params['queryPrefix'],
-        selectArray, fsGridDisplay, labelStepUnit, fcGridDisplay;
+        selectArray, fsGridDisplay, labelStepUnit, fcGridDisplay, reRunTimeRange;
     selectArray = queryJSON['select_fields'];
-
     if(reRun) {
+        if(timeObj["reRunTimeRange"] != null) {
+            reRunTimeRange = parseInt(timeObj["reRunTimeRange"]);
+            timeObj['fromTime'] = timeObj['fromTimeUTC'] = serverCurrentTime - (reRunTimeRange*1000);
+            timeObj['toTime'] = timeObj['toTimeUTC'] = serverCurrentTime;
+            reRunQueryObj.engQueryStr = getEngQueryStr(reRunQueryObj);
+        }
         queryId = randomUUID();
         reqQueryObj = reRunQueryObj;
         reqQueryObj = setUTCTimeObj(queryPrefix, reqQueryObj, options, timeObj);
@@ -418,7 +445,6 @@ function viewFSQueryResults(dataItem, params) {
         options.queryId = queryId;
         tgIndex = selectArray.indexOf("T=" + options.interval);
         selectArray.splice(tgIndex, 1);
-//        initFSChartLoading();
     } else {
         options = getFSDefaultOptions(false);
     }
