@@ -1239,7 +1239,7 @@ function handleProjects(e) {
 
 function autoPopulateGW(me) {
     var ip = $(me).val();
-    if(ip.indexOf("/") !== -1) {
+    if(ip.indexOf("/") !== -1 && !isNaN(ip.split("/")[1])) {
         try {
             var ip_arrs = ip_range(ip, []);
             var default_gw = ip_arrs[ip_arrs.length - 1];
