@@ -33,7 +33,12 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: analyticsNodesDataSource
+                    dataView: analyticsNodesDataSource,
+                    events:{
+                        onUpdateDataCB:function(){
+                            monitorInfraGridUpdate('analytics-nodes-grid');
+                        }
+                    }
                 },
                  statusMessages: {
                      loading: {
@@ -188,7 +193,7 @@ function mergeCollectorDataAndPrimaryData(collectorData,primaryDS){
     if(collectors.length == 0){
         return;
     }
-    var primaryData = primaryDS.data();
+    var primaryData = primaryDS.getItems();
     var updatedData = [];
     $.each(primaryData,function(i,d){
         var idx=0;
@@ -203,20 +208,22 @@ function mergeCollectorDataAndPrimaryData(collectorData,primaryDS){
         };
         updatedData.push(d);
     });
-    primaryDS.data(updatedData);
+    primaryDS.setItems(updatedData);
+    return primaryDS;
 }
 
-function startFetchingCollectorStateGenInfos(primaryDS){
+function startFetchingCollectorStateGenInfos(deferredObj,primaryDS,dsName){
     var retArr = [];
     var cfilts = 'CollectorState:generator_infos';
-    var postData = getPostData("collector",'','',cfilts,'');
+    var postData = getPostData("analytics-node",'','',cfilts,'');
     $.ajax({
         url:TENANT_API_URL,
         type:'POST',
         data:postData
     }).done(function(result) {
         if(result != null && result [0] != null){
-            mergeCollectorDataAndPrimaryData(result[0],primaryDS);
+            primaryDS =  mergeCollectorDataAndPrimaryData(result[0],primaryDS);
+            deferredObj.resolve({dataSource:primaryDS});
         }
     }).fail(function(result) {
         //nothing to do..the generators numbers will not be updated

@@ -37,7 +37,12 @@ monitorInfraControlSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: controlNodesDataSource
+                    dataView: controlNodesDataSource,
+                    events:{
+                        onUpdateDataCB:function(){
+                            monitorInfraGridUpdate('gridControlNodes');
+                        }
+                    }
                 },
                  statusMessages: {
                      loading: {

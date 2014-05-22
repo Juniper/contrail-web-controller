@@ -190,7 +190,12 @@ monitorInfraComputeSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: vRoutersDataSource
+                    dataView: vRoutersDataSource,
+                    events:{
+                        onUpdateDataCB:function(){
+                            monitorInfraGridUpdate('divcomputesgrid');
+                        }
+                    }
                 },
                  statusMessages: {
                      loading: {

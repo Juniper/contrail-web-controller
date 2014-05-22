@@ -33,7 +33,12 @@ monitorInfraConfigSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: configNodesDataSource
+                    dataView: configNodesDataSource,
+                    events:{
+                        onUpdateDataCB:function(){
+                            monitorInfraGridUpdate('config-nodes-grid');
+                        }
+                    }
                 },
                  statusMessages: {
                      loading: {
