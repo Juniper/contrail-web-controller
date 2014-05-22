@@ -239,8 +239,6 @@
     {{else}}
         {{#IfCompare sevLevel sevLevels.WARNING}} 
             <span class="status-badge-rounded-small status-partially-active"></span>
-        {{else}}
-            <span class="status-badge-rounded-small"></span>
         {{/IfCompare}}
     {{/IfCompare}}
 </script>
