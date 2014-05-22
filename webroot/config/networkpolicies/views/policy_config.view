@@ -50,7 +50,7 @@
             <div class="row-fluid margin-0-0-10">
                 <div class="span6">
                     <label class="control-label">Policy Name</label>
-                    <input type="text" id="txtPolicyName" placeholder="Network Policy" class="span10" />
+                    <input type="text" id="txtPolicyName" placeholder="Policy Name" class="span10" />
                 </div> 
             </div>
             <div class="row-fluid margin-0-0-10">

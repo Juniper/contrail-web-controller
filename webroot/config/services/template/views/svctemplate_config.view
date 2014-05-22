@@ -111,8 +111,8 @@ padding-top:25px;
             </div>
                 <div id="widgetStaticRoutes" class="widget-box transparent collapsed span5">
                     <div class="widget-header">
-                        <h5 class="smaller">
-                            <i class="icon-caret-right grey" onclick="collapseElement(this);"></i>
+                        <h5 class="smaller" onclick="collapseElement(this);">
+                            <i class="icon-caret-right grey" ></i>
                             <span>Advanced options</span>
                         </h5>
                     </div>
