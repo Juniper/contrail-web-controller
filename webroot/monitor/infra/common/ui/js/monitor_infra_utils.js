@@ -2009,7 +2009,8 @@ function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
         };
         updatedData.push(d);
     });
-    return updatedData;
+    genDS.setItems(updatedData);
+    return {dataSource:genDS};
 }
 
 function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
@@ -2045,7 +2046,10 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
                         loadedDeferredObj:genDeferredObj});
     genDeferredObj.done(function(genData) {
         deferredObj.resolve(mergeGeneratorAndPrimaryData(genData['dataSource'],dataSource));
-
     });
 }
 
+function monitorInfraGridUpdate(gridId){
+    if(gridId != null)
+        $("#"+gridId).data('contrailGrid').refreshView();
+}
