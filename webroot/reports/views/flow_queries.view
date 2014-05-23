@@ -390,10 +390,6 @@
     </div>
 </script>
 
-<script type="text/x-handlebars-template" id="no-data">
-    <div class='no-data-text pull-left'>Time-series graph is not available for this query.</div>
-</script>
-
 <!-- Flow-Series View Ends -->
 
 <!-- Flow-Record View Begins -->
