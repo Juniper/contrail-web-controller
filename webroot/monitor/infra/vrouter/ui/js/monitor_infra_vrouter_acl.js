@@ -235,14 +235,6 @@ monitorInfraComputeACLClass = (function() {
                             text: 'Error in getting Data.'
                         }
                     }
-                },
-                footer : {
-                    pager : {
-                        options : {
-                            pageSize : 50,
-                            pageSizeSelect : [10, 50, 100, 200, 500 ]
-                        }
-                    }
                 }
             })
             aclGrid = $('#gridComputeACL').data('contrailGrid');

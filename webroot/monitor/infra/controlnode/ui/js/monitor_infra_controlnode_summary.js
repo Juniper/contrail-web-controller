@@ -58,14 +58,6 @@ monitorInfraControlSummaryClass = (function() {
                      }
                  }
             },
-             footer : {
-                 pager : {
-                     options : {
-                         pageSize : 50,
-                         pageSizeSelect : [10, 50, 100, 200, 500 ]
-                     }
-                 }
-             },
             columnHeader: {
                 columns:[
                     {
