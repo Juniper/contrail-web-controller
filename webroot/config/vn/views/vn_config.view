@@ -139,7 +139,9 @@
                                                     <h6>Route Target</h6>
                                                 </div>
                                                 <div class="pull-left" style="margin-left:5px">
-                                                    <div title="Add Route Target below"><i class="icon-plus" onclick="appendRTEntry(this, true);"></i></div>
+                                                    <div title="Add Route Target below" class="margin-5 padding-10-0">
+                                                        <i class="icon-plus pull-left" onclick="appendRTEntry(this, true);"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -173,7 +175,9 @@
                                                     <h6>Projects</h6>
                                                 </div>
                                                 <div class="pull-left" style="margin-left:5px">
-                                                    <div title="Add Floating IP Pool below"><i class="icon-plus" onclick="appendFipEntry(this, true);"></i></div>
+                                                    <div title="Add Floating IP Pool below" class="margin-5 padding-10-0">
+                                                        <i class="icon-plus pull-left" onclick="appendFipEntry(this, true);"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -207,7 +211,9 @@
                                                     <h6>Route Prefix</h6>
                                                 </div>
                                                 <div class="pull-left" style="margin-left:5px">
-                                                    <div title="Add Host Route below"><i class="icon-plus" onclick="appendSREntry(this, true);"></i></div>
+                                                    <div title="Add Host Route below" class="margin-5 padding-10-0">
+                                                        <i class="icon-plus pull-left" onclick="appendSREntry(this, true);"></i>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>

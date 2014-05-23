@@ -87,9 +87,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Virtual Networks',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,

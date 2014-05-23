@@ -126,9 +126,9 @@ function dnsRecordsConfig() {
             header : {
                 title: {
                     text : 'DNS Records',
-                    cssClass : 'blue',
-                    icon : 'icon-list',
-                    iconCssClass : 'blue'                
+                    //cssClass : 'blue',
+                    //icon : 'icon-list',
+                    //iconCssClass : 'blue'                
                 },
                 customControls: ['<a id="btnDeleteDNSRecord" class="disabled-link" title="Delete DNS Server(s)"><i class="icon-trash"></i></a>',
                     '<a id="btnCreateDNSRecord" title="Create DNS Server"><i class="icon-plus"></i></a>',

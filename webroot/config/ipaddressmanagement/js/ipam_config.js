@@ -74,9 +74,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'IP Address Management',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,

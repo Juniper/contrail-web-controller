@@ -74,9 +74,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Policies',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             customControls: ['<a id="btnDeletePolicy" class="disabled-link" title="Delete Network Policy(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreatePolicy" onclick="showPolicyEditWindow(\'add\');return false;" title="Create Network Policy"><i class="icon-plus"></i></a>',

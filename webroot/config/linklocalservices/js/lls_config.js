@@ -60,9 +60,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Link Local Services',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
