@@ -1,0 +1,21 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<packageList>
+    <package>
+        <name>webController</name>
+        <parseURL>
+            <path>webController:webroot/common/xml/parseURL.xml</path>
+            <output>webController:webroot/common/api/url.routes.js</output>
+        </parseURL>
+        <jobProcess>
+            <path>webController:webroot/common/xml/jobProcess.xml</path>
+            <output>webController:webroot/common/api/jobsCb.api.js</output>
+        </jobProcess>
+        <featureList>
+            <path>webController:webroot/common/xml/featureList.xml</path>
+            <output>webController:webroot/common/api/feature.list.js</output>
+        </featureList>
+    </package>
+</packageList>
