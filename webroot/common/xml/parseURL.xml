@@ -24,7 +24,7 @@
     </require>
     <require>
         <define>tenantapi</define>
-        <path>../../monitor/tenant_network/api/tenant.api</path>
+        <path>../../monitor/tenant-network/api/tenant.api</path>
     </require>
     <require>
         <define>cdbqueryapi</define>
@@ -85,7 +85,7 @@
     </require>
     <require>
         <define>nwMonApi</define>
-        <path>../../monitor/tenant_network/api/network.mon.api</path>
+        <path>../../monitor/tenant-network/api/network.mon.api</path>
     </require>
     <require>
         <define>global</define>

@@ -206,3 +206,19 @@ function instSummaryRenderer() {
         return result;
     }
 }
+
+/**
+ * Getter for all Instances
+ */
+function getAllInstances(deferredObj,dataSource,dsObj) {
+    var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list'];
+    var obj = {};
+    obj['transportCfg'] = { 
+            url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,
+            type:'POST',
+            data:{data:[{"type":"virtual-machine", "cfilt":instCfilts.join(',')}]}
+        }
+    //Todo: pass deferredObj as loadedDeferredObj
+    getOutputByPagination(dataSource,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,loadedDeferredObj:deferredObj},dsObj);
+    obj['dataSource'] = dataSource;
+}

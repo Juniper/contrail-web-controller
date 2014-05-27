@@ -1,0 +1,38 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<script type="text/x-handlebars-template" id="project-template">
+    <div class="project-template row-fluid">
+        <div id="project-tabs" class="row-fluid">
+            <ul>
+                <li><a href="#network-project-summary-tab">Summary</a></li>
+                <li><a href="#network-project-instances-tab">Instances</a></li>
+                <!--<li>IP Management</li>-->
+            </ul>
+            <div id="network-project-summary-tab" class="summary-view">
+                <div class="widget-box transparent">
+                    <div class="widget-header">
+                        <h4 class="smaller">{{topologyTitle}}</h4>
+                        <div class="widget-toolbar pull-right">
+                            <a data-action="collapse">
+                                <i class="icon-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div id="topology" class="topology"></div>
+                            <div id="toolTip"></div>
+                        </div>
+                        <!--<h4 class="smaller">{{title}}</h4>-->
+                    </div>
+                </div>
+              <div id="projects-summary-charts" class='summary-charts' class='table'></div>
+            </div>
+            <div id="network-project-instances-tab">
+                <div id='projInstances'></div>
+            </div>
+        <div>
+    </div>
+</script>
