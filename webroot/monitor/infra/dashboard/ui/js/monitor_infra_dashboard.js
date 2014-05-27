@@ -149,9 +149,7 @@ function infraMonitorClass() {
         });
     }
 
-    function loadInfoBoxes(hashParams) {
-        var deferredObjs = [];
-        loadLogs();
+    function loadInfoBoxes() {
 
         $('.infobox-container').on('click','.infobox',function() {
             tabs = [];
@@ -165,18 +163,15 @@ function infraMonitorClass() {
             $('.infobox').removeClass('infobox-blue infobox-dark active').addClass('infobox-grey');
             $($('.infobox')[tabIdx]).removeClass('infobox-grey').addClass('infobox-blue infobox-dark active');
             var currTabContainer = $('#dashboard-charts .dashboard-chart-item')[tabIdx];
+            //Show the current tab content
             $(currTabContainer).show();
             //Trigger refresh on svg charts
             $(currTabContainer).find('svg').trigger('refresh');
         });
-        //Select node tab based on URL hash parameter
-        var tabIdx = $.inArray(ifNull(hashParams['tab']),tabs);
-        if(tabIdx <= -1)
-            tabIdx = 0;
-        $($('.infobox-container .infobox')[tabIdx]).trigger('click');
 
         //When all node details are fetched,upedate alerts & info boxes
         /*
+        var deferredObjs = [];
         $.when.apply(window,deferredObjs).done(
             function(vRouterResult,ctrlNodeResult,analyticsResult,configResult) {
                 self.updateAlertsAndInfoBoxes();
@@ -212,12 +207,20 @@ function infraMonitorClass() {
         $(contentContainer).html('');
         $(contentContainer).html(infraDashboardTemplate);
 
-        loadInfoBoxes(hashParams);
+        loadInfoBoxes();
+        loadLogs();
+        addTabs();
+
         //Initialize the common stuff
         $($('#dashboard-stats .widget-header')[0]).initWidgetHeader({title:'Logs',widgetBoxId :'logs'});
         $($('#dashboard-stats .widget-header')[1]).initWidgetHeader({title:'System Information', widgetBoxId: 'sysinfo'});
         $($('#dashboard-stats .widget-header')[2]).initWidgetHeader({title:'Alerts', widgetBoxId: 'alerts' });
-        addTabs();
+
+        //Select node tab based on URL hash parameter
+        var tabIdx = $.inArray(ifNull(hashParams['tab']),tabs);
+        if(tabIdx <= -1)
+            tabIdx = 0;
+        $($('.infobox-container .infobox')[tabIdx]).trigger('click');
     }
 }
 
