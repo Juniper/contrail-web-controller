@@ -57,6 +57,18 @@ monitorInfraComputeSummaryClass = (function() {
         });
         //update the charts
         updateChartsForSummary(selectedData,"compute");
+        
+        //update the header
+        var infoElem = $('#vrouter-header h4');
+        var innerText = infoElem.text().split('(')[0].trim();
+        var totalCnt = vRoutersDataSource.getItems().length;
+        var filteredCnt = vRoutersDataSource.getLength();
+        //totalCnt = ifNull(options['totalCntFn'](), totalCnt);
+        if (totalCnt == filteredCnt)
+            innerText += ' (' + totalCnt + ')';
+        else
+            innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
+        infoElem.text(innerText);
     }
     
     function updateCrossFilter(vRouterData){
@@ -302,7 +314,7 @@ monitorInfraComputeSummaryClass = (function() {
         } else {
             computeNodesGrid.showGridMessage('loading');
         }
-        $(vRouterDS).on('change',function() {
+       /* $(vRouterDS).on('change',function() {
             var infoElem = $('#vrouter-header h4');
             var innerText = infoElem.text().split('(')[0].trim();
             var totalCnt = vRoutersDataSource.getItems().length;
@@ -313,7 +325,7 @@ monitorInfraComputeSummaryClass = (function() {
             else
                 innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
             infoElem.text(innerText);
-        });
+        });*/
         /*
         applyGridDefHandlers(computeNodesGrid, {noMsg:'No vRouters to display',
             selector:$('#vrouter-header h4'),
