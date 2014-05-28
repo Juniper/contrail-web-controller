@@ -687,6 +687,7 @@ function appendRuleEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(ruleEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreatePolicy",ruleEntry,false);
 }
 
 function createRuleEntry(rule, len) {

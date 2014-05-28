@@ -824,6 +824,7 @@ function appendInterfaceEntry(who, defaultRow,element) {
             parentEl.parentNode.insertBefore(sIEntry, parentEl.nextSibling);
         }
         setIPwithID(dynamicID);
+scrollUp("#windowCreateStemp",sIEntry,false);
 }
 function createInterfaceEntry(data, id,element) {
 

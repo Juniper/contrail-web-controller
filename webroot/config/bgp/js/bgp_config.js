@@ -741,7 +741,7 @@ function initComponents() {
                 errorGettingData: {
                     type: 'error',
                     iconClasses: 'icon-warning',
-                    text: 'Error in getting BGE Peers.'
+                    text: 'Error in getting BGP Peers.'
                 }
             }
         }

@@ -73,9 +73,10 @@
                                     <div class = "span6">
                                         <div class="span12">
                                             <input type="text" id="txtFabricDNSIP_0" placeholder="" class="span9" />
-                                            <div id="addinterfaces" class="span3 pull-right">
-                                                <div title="Add more interfaces" class="margin-5"><i class="icon-plus" onclick="appendFabEntry(this, true);"></i></div>
-                                            </div>
+                                            <div class="span1 pull-right margin-5">&nbsp;&nbsp;&nbsp;</div>
+                                            <div id="addinterfaces" class="span1 pull-right margin-5">
+                                                <i class="icon-plus" onclick="appendFabEntry(this, true);" title="Add more interfaces"></i>
+                                            </div>											
                                         </div>
                                         <div id="fabTuples" class="row-fluid"></div>                                        
                                     </div>

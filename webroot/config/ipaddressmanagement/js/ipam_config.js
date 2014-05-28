@@ -549,6 +549,7 @@ function appendVNEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(vnEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateipam",vnEntry,false);
 }
 
 function deleteVNEntry(who) {
