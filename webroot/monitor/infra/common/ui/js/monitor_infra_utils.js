@@ -699,7 +699,7 @@ var infraMonitorUtils = {
                                 loadLogs(timerId);
                             else 
                                 fetchLastLogtimeAndCallLoadLogs(timerId,nodeType);
-                        }, 10000);
+                        }, CONSOLE_LOGS_REFRESH_INTERVAL);
                         logMessage("Setting timer:", timerId);
                         consoleTimer.push(timerId);
                     }
@@ -779,7 +779,7 @@ var infraMonitorUtils = {
                         $('#consoleToTimeDiv').hide();
                         $('#msgFromTime').hide();
                         $('#msgToTime').hide();
-                        selectTimeRange({val:"1800"}) ;
+                        selectTimeRange({val:"5m"}) ;
                     }
                     loadLogs(timerId,true);
 //TODO : see if this is required                    gridConsole.dataSource.unbind('requestEnd');
@@ -799,7 +799,6 @@ var infraMonitorUtils = {
                 $('#consoleToTimeDiv').hide();
                 $('#msgFromTime').hide();
                 $('#msgToTime').hide();
-                
             }
         }
         function loadLogs(timerId) {
@@ -878,7 +877,8 @@ var infraMonitorUtils = {
         }
         
         $('#btnResetLogs').on('click', function () {
-            cboTimeRange.value(5 * MIN);
+            cboTimeRange.value('5m');
+            selectTimeRange({val:"5m"});
             cboMsgType.value('');
             cboMsgLimit.value('10');
             cboMsgCategory.value('');
