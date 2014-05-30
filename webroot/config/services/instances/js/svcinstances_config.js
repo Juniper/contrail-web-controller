@@ -560,16 +560,7 @@ function successHandlerForGridStatusUpdate(result) {
             }
         }
     }
-    //console.log(svcDS);
-
-$("#gridsvcInstances").data("contrailGrid").refreshData(svcDS);
-$("#gridsvcInstances").data("contrailGrid")._grid.invalidate();
-$("#gridsvcInstances").data("contrailGrid").refreshView();
-
-//$("#gridsvcInstances").data("contrailGrid")._grid.updateRowCount();
-    //$("#gridsvcInstances").data("contrailGrid")._dataView.setData(svcDS);
-    //$("#gridsvcInstances").data("contrailGrid").refreshData(svcDS);
-    //$("#gridsvcInstances")._grid.render();
+    $("#gridsvcInstances").data("contrailGrid")._dataView.updateData(svcDS);
     refreshSvcInstances(reload);
 }
 

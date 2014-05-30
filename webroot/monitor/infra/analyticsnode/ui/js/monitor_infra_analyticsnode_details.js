@@ -7,8 +7,6 @@
  */
 monitorInfraAnalyticsDetailsClass = (function() {
     this.populateDetailsTab = function (obj) {
-        var endTime = getCurrentTime4MemCPUCharts(), startTime = endTime - 600000;
-        var slConfig = {startTime: startTime, endTime: endTime};
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
@@ -27,14 +25,42 @@ monitorInfraAnalyticsDetailsClass = (function() {
                 aNodeData = result;
                 var parsedData = infraMonitorUtils.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
                 var noDataStr = "--";
-                var cpu = "N/A",
-                    memory = "N/A",
-                    aNodeDashboardInfo, oneMinCPU, fiveMinCPU, fifteenMinCPU,
-                    usedMemory, totalMemory;
-                $('#collector-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'collector_cpu_share', color: 'blue-sparkline'}, {name: 'collector_mem_virt', color: 'green-sparkline'}]}, slConfig);
-                $('#queryengine-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'queryengine_cpu_share', color: 'blue-sparkline'}, {name: 'queryengine_mem_virt', color: 'green-sparkline'}]}, slConfig);
-                $('#opServer-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState':[{name: 'opserver_cpu_share', color: 'blue-sparkline'}, {name: 'opserver_mem_virt', color: 'green-sparkline'}]}, slConfig);
-                endWidgetLoading('analytics-sparklines');
+                var cpu = "N/A", memory = "N/A", aNodeDashboardInfo;
+                var endTime, startTime;
+                $.ajax({
+                    url: '/api/admin/current-time'
+                }).done(function (resultJSON) {
+                    endTime = resultJSON['currentTime'];
+                    console.log(" ## endTime:: " + endTime);
+                }).fail(function() {
+                    endTime = getCurrentTime4MemCPUCharts();
+                }).always(function() {
+                    var slConfig;
+                    startTime = endTime - 600000;
+                    slConfig = {startTime: startTime, endTime: endTime};
+                    $('#collector-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                        {name: 'collector_cpu_share', color: 'blue-sparkline'},
+                        {name: 'collector_mem_virt', color: 'green-sparkline'}
+                    ]}, slConfig);
+                    $('#queryengine-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                        {name: 'queryengine_cpu_share', color: 'blue-sparkline'},
+                        {name: 'queryengine_mem_virt', color: 'green-sparkline'}
+                    ]}, slConfig);
+                    $('#opServer-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                        {name: 'opserver_cpu_share', color: 'blue-sparkline'},
+                        {name: 'opserver_mem_virt', color: 'green-sparkline'}
+                    ]}, slConfig);
+                    endWidgetLoading('analytics-sparklines');
+                    $('#collector-chart').initMemCPULineChart($.extend({url:function() {
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'Collector', '30', '10', obj['name'], endTime);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'QueryEngine', '30', '10', obj['name'], endTime);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'OpServer', '30', '10', obj['name'], endTime);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                });
                 var procStateList, overallStatus = noDataStr;
                 var analyticsProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
@@ -149,15 +175,6 @@ monitorInfraAnalyticsDetailsClass = (function() {
                 initWidget4Id('#queryengine-chart-box');
                 initWidget4Id('#opServer-chart-box');
             }).fail(displayAjaxError.bind(null, $('#analyticsnode-dashboard')));
-        $('#collector-chart').initMemCPULineChart($.extend({url:function() {
-            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'Collector', '30', '10', obj['name'], endTime); 
-        }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-        $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
-            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'QueryEngine', '30', '10', obj['name'], endTime); 
-        }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-        $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
-            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'OpServer', '30', '10', obj['name'], endTime); 
-        }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
     }
     return {populateDetailsTab:populateDetailsTab};
 })();

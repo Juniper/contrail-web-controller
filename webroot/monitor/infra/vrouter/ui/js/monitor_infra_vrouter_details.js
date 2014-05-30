@@ -7,8 +7,6 @@
  */
 monitorInfraComputeDetailsClass = (function() {
     this.populateDetailsTab = function (obj) {
-        var endTime = getCurrentTime4MemCPUCharts(), startTime = endTime - 600000;
-        var slConfig = {startTime: startTime, endTime: endTime};
         var nodeIp; 
         layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#computenode-dashboard', true);
@@ -34,9 +32,27 @@ monitorInfraComputeDetailsClass = (function() {
                 //var cwd = cwd1/3;
                 var parentWidth = parseInt($('#computenode-dashboard').width());
                 var chartWdth = parentWidth/2;
-                $('#vrouter-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'cpu_share', color: 'blue-sparkline'}, {name: 'virt_mem', color: 'green-sparkline'}]}, slConfig);
-                $('#system-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'one_min_avg_cpuload', color: 'blue-sparkline'}, {name: 'used_sys_mem', color: 'green-sparkline'}]}, slConfig);
-                endWidgetLoading('vrouter-sparklines');
+                var endTime, startTime;
+                $.ajax({
+                    url: '/api/admin/current-time'
+                }).done(function (resultJSON) {
+                    endTime = resultJSON['currentTime'];
+                }).fail(function() {
+                    endTime = getCurrentTime4MemCPUCharts();
+                }).always(function() {
+                    var slConfig;
+                    startTime = endTime - 600000;
+                    slConfig = {startTime: startTime, endTime: endTime};
+                    $('#vrouter-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'cpu_share', color: 'blue-sparkline'}, {name: 'virt_mem', color: 'green-sparkline'}]}, slConfig);
+                    $('#system-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'one_min_avg_cpuload', color: 'blue-sparkline'}, {name: 'used_sys_mem', color: 'green-sparkline'}]}, slConfig);
+                    endWidgetLoading('vrouter-sparklines');
+                    $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
+                    $('#system-chart').initMemCPULineChart($.extend({url:function() {
+                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
+                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
+                });
                 var procStateList, overallStatus = noDataStr;
                 var vRouterProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
@@ -211,12 +227,6 @@ monitorInfraComputeDetailsClass = (function() {
 
                 endWidgetLoading('dashboard');
             }).fail(displayAjaxError.bind(null, $('#computenode-dashboard')));
-        $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
-            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime); 
-        }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
-        $('#system-chart').initMemCPULineChart($.extend({url:function() {
-            return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
-        }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
     };
     return {populateDetailsTab:populateDetailsTab};
 })();
