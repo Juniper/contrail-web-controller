@@ -134,7 +134,16 @@ monitorInfraComputeACLClass = (function() {
                        {
                            field:"flow_count",
                            name:"Flows",
-                           minWidth:65
+                           minWidth:65,
+                           cssClass:'cell-hyperlink-blue',
+                           events: {
+                               onClick: function(e,dc){
+                                   var tabIdx = $.inArray("flows", computeNodeTabs);
+                                   var data = {tab:"flows",filters:[{aclUUID:dc['uuid']}]};
+                                   $('#' + computeNodeTabStrip).data('tabFilter',data);
+                                   selectTab(computeNodeTabStrip,tabIdx);
+                               }
+                            }
                        },
                        {
                            field:"ace_action",
