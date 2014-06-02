@@ -32,9 +32,11 @@ monitorInfraComputeFlowsClass = (function() {
                 response = [response];
             }
             if(isFromACLFlows) {
+                var aclUUID = $('#aclDropDown').data('contrailDropdown').value();
                 $.each(response,function(idx,obj) {
                     var rawJson = obj;
-                    ret.push({src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
+                    ret.push({acl_uuid:aclUUID,
+                        src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
                         dst_vn:ifNullOrEmptyObject(obj['dest_vn'],noDataStr),
                         sip:ifNullOrEmptyObject(obj['src'],noDataStr),
                         src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
@@ -80,20 +82,25 @@ monitorInfraComputeFlowsClass = (function() {
     
     }
     
-    this.populateFlowsTab = function (obj,filters) {
+    this.populateFlowsTab = function (obj) {
         var isAclPrevFirstTimeClicked = true;
         var isAllPrevFirstTimeClicked = true;
         var selectedAcl = 'All';
+        var tabFilter =  $('#' + computeNodeTabStrip).data('tabFilter');
+        var filters;
+        if(tabFilter != null && tabFilter['tab'] == 'flows'){
+            filters = tabFilter['filters'];
+            $('#' + computeNodeTabStrip).removeData('tabFilter');
+        }
+        if (filters != null){
+            selectedAcl = filters[0]['aclUUID'];
+        }
         flowKeyStack = [];
         aclIterKeyStack = [];
-        /*TODO this filtering is causing issues like unable to move next and previous so commenting for now.
-         * if(obj['filters'] != null){
-            selectedAcl = obj['filters'];
-        }*/
         $('#btnNextFlows').unbind("click").click(onNextClick);
         $('#btnPrevFlows').unbind("click").click(onPrevClick);
         layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
-        if (!isInitialized('#aclDropDown')){
+        if (!isDropdownInitialized('aclDropDown')){
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
                     type: 'remote',
@@ -120,9 +127,12 @@ monitorInfraComputeFlowsClass = (function() {
                 dataTextField:'text',
                 change:onSelectAcl
             }).data('contrailDropdown');
+            $('#aclDropDown').data('contrailDropdown').value(selectedAcl);
         } 
-        
-        if (!isInitialized('#gridComputeFlows')) {
+        if(selectedAcl != 'All'){
+            $('#aclDropDown').data('contrailDropdown').value(selectedAcl);
+        }   
+        if (!isGridInitialized('#gridComputeFlows')) {
             $("#gridComputeFlows").contrailGrid({
                 header : {
                     title : {
@@ -227,15 +237,14 @@ monitorInfraComputeFlowsClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj),
-                                /* TODO use this while implementing context filtering
-                                function () {
+                                url: function () {
                                     var aclFilter = '';
                                     if(selectedAcl != 'All'){
                                         aclFilter = '&aclUUID=' + selectedAcl;
+                                        return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + aclFilter;
                                     }
-                                    return '/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(obj) + aclFilter;
-                                }*/
+                                    return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj);
+                                }(),
                                 type: 'GET'
                             },
                             dataParser: self.parseFlowsData
@@ -255,14 +264,7 @@ monitorInfraComputeFlowsClass = (function() {
                         }
                     }
                 },
-                footer : {
-                    pager : {
-                        options : {
-                            pageSize : 50,
-                            pageSizeSelect : [10, 50, 100, 200, 500 ]
-                        }
-                    }
-                },
+                footer : false,
                 change:onFlowChange
             });
             flowGrid = $('#gridComputeFlows').data('contrailGrid');
@@ -271,17 +273,24 @@ monitorInfraComputeFlowsClass = (function() {
              * if(filters == null || filters == "" || filters == undefined){
                 flowGrid.dataSource.filter({});
             }*/
-        } else {
-            /* TODO use it when implementing context filtering 
-             * if(filters != null) {
-                flowGrid.filter({field: "acl_uuid", operator: "startswith", value: filters});
-            }
-            flowGrid.dataSource.transport.options.read.url = '/api/admin/monitor/infrastructure/vrouter/flows?ip=' + getIPOrHostName(obj);
-            */
+        } else { 
+            var newAjaxConfig;
+            flowGrid = $('#gridComputeFlows').data('contrailGrid');
+            if(selectedAcl != 'All'){
+                newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
+                                                            + '&aclUUID=' + selectedAcl,
+                        type:'Get'
+                    };
+                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+            } 
             reloadGrid(flowGrid);
-            //flowGrid.showColumn(0);
         }
         function getAclSgUuuidString (data){
+            //if the request is based on a particular acl return the uuid
+            if(data['acl_uuid'] != null && data['acl_uuid'] != 'All'){
+                return data['acl_uuid'];
+            }
             var aclUuid = ifNull(jsonPath(data,"$..policy..FlowAclUuid..uuid")[0],noDataStr);
             var sgUuid = ifNull(jsonPath(data,"$..sg..FlowAclUuid..uuid")[0],noDataStr);
             if(aclUuid != null)
