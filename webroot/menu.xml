@@ -1,14 +1,19 @@
 <!--
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
-
+<!--
+Access tag details 
+If the access tag is not there then every one can access the menu/menu items
+If access tag is there then only the roles and orchestration models mentioned in the tags are allowed
+If any role/orchModel tag is with negation(!) value then every one has access to menu/menu item except the one mentioned with negation
+and need to add the iconClass tag wherever we need to show some icons
+ -->
 <menu>
     <items>
         <item>
-            <label>MONITOR</label>
-            <depedencies>
-                <role></role>
-            </depedencies>
+            <label>Monitor</label>
+            <name>monitor</name>
+            <iconClass>icon-bar-chart</iconClass>
             <items>
                 <item>
                     <label>Infrastructure</label>
@@ -17,10 +22,20 @@
                     <js>monitor_infra_utils.js</js>
                     <view>monitor_infra_common.view</view>
                     <class>infraDashboardView</class>
+                    <iconClass>icon-desktop</iconClass>
+                    <access>
+                        <roles>
+                            <role>admin</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>cloudstack</model>
+                        </orchModels>
+                    </access>
                     <items>
                         <item>
                             <hash>mon_infra_dashboard</hash>
-                            <label>Overview</label>
+                            <label>Dashboard</label>
                             <rootDir>/monitor/infra/dashboard/ui</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <js>monitor_infra_dashboard.js</js>
@@ -32,7 +47,7 @@
                         </item>
                         <item>
                             <hash>mon_infra_control</hash>
-                            <label>Overview</label>
+                            <label>Control Nodes</label>
                             <rootDir>/monitor/infra/controlnode/ui</rootDir>
                             <view>monitor_infra_controlnode.view</view>
                             <js>monitor_infra_controlnode.js</js>
@@ -41,14 +56,11 @@
                             <js>monitor_infra_controlnode_peers.js</js>
                             <js>monitor_infra_controlnode_routes.js</js>
                             <class>ctrlNodesView</class>
-                            <queryParams>
-                                <node>Control Nodes</node>
-                            </queryParams>
                             <searchStrings>Monitor Control Nodes</searchStrings>
                         </item>
                         <item>
                             <hash>mon_infra_vrouter</hash>
-                            <label>Overview</label>
+                            <label>Virtual Routers</label>
                             <rootDir>/monitor/infra/vrouter/ui</rootDir>
                             <view>monitor_infra_vrouter.view</view>
                             <js>monitor_infra_vrouter.js</js>
@@ -60,14 +72,11 @@
                             <js>monitor_infra_vrouter_flows.js</js>
                             <js>monitor_infra_vrouter_routes.js</js>
                             <class>cmpNodesView</class>
-                            <queryParams>
-                                <node>vRouters</node>
-                            </queryParams>
                             <searchStrings>Monitor Compute Nodes</searchStrings>
                         </item>
                         <item>
                             <hash>mon_infra_analytics</hash>
-                            <label>Overview</label>
+                            <label>Analytics Nodes</label>
                             <rootDir>/monitor/infra/analyticsnode/ui</rootDir>
                             <view>monitor_infra_analyticnode.view</view>
                             <js>monitor_infra_analyticnode.js</js>
@@ -76,22 +85,16 @@
                             <js>monitor_infra_analyticsnode_generators.js</js>
                             <js>monitor_infra_analyticsnode_qequeries.js</js>
                             <class>aNodesView</class>
-                            <queryParams>
-                                <node>Analytics Nodes</node>
-                            </queryParams>
                             <searchStrings>Monitor Analytics Nodes</searchStrings>
                         </item>
                         <item>
                             <hash>mon_infra_config</hash>
-                            <label>Overview</label>
+                            <label>Config Nodes</label>
                             <rootDir>/monitor/infra/confignode/ui</rootDir>
                             <view>monitor_infra_confignode.view</view>
                             <js>monitor_infra_confignode.js</js>
                             <js>monitor_infra_confignode_summary.js</js>
                             <js>monitor_infra_confignode_details.js</js>
-                            <queryParams>
-                                <node>Config Nodes</node>
-                            </queryParams>
                             <class>confNodesView</class>
                             <searchStrings>Monitor Config Nodes</searchStrings>
                         </item>
@@ -105,17 +108,10 @@
                 <item>
                     <name>networking</name>
                     <label>Networking</label>
+                    <iconClass>icon-sitemap</iconClass>
                     <items>
                         <item>
-                            <label>Networks</label>
-                            <hash>mon_network_dashboard</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.1.view</view>
-                            <js>tenant_monitor_network.1.js</js>
-                            <class>tenantNetworkMonitorView</class>
-                        </item>
-                        <item>
-                            <label>Networks</label>
+                            <label>Dashboard</label>
                             <hash>mon_net_dashboard</hash>
                             <rootDir>/monitor/tenant_network</rootDir>
                             <view>tenant_monitor_network.view</view>
@@ -128,7 +124,7 @@
                             <searchStrings>Networking Dashboard</searchStrings>
                         </item>
                         <item>
-                            <label>Networks</label>
+                            <label>Projects</label>
                             <hash>mon_net_projects</hash>
                             <rootDir>/monitor/tenant_network</rootDir>
                             <view>tenant_monitor_network.view</view>
@@ -176,31 +172,12 @@
                             </queryParams>
                             <searchStrings>Monitor instances</searchStrings>
                         </item>
-                        <item>
-                            <label>Networks</label>
-                            <hash>mon_tenant_old</hash>
-                            <hide>true</hide>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.backup.view</view>
-                            <js>tenant_monitor_network.backup.js</js>
-                            <class>tenantNetworkMonView</class>
-                        </item>
-                        <!--
-                        <item>
-                            <label>IPAM</label>
-                        </item>
-                        <item>
-                            <label>DNS</label>
-                        </item>
-                        <item>
-                            <label>Quotas &amp; Over Subscriptions</label>
-                        </item>
-                        -->
                     </items>
                 </item>
                 <item>
                     <name>debug</name>
                     <label>Debug</label>
+                    <iconClass>icon-puzzle-piece</iconClass>
                     <items>
                         <item>
                             <label>Packet Capture</label>
@@ -236,10 +213,21 @@
         </item>
         <item>
             <name>configure</name>
-            <label>CONFIGURE</label>
+            <label>Configure</label>
+            <iconClass>icon-wrench</iconClass>
             <items>
                 <item>
                     <label>Infrastructure</label>
+                    <access>
+	                   <roles>
+	                       <role>admin</role>
+	                   </roles>
+	                   <orchModels>
+	                       <model>openstack</model>
+	                       <model>cloudstack</model>
+	                   </orchModels>
+                    </access>
+                    <iconClass>icon-desktop</iconClass>
                     <items>
                         <!--
                         <item>
@@ -282,6 +270,16 @@
                 </item>
                 <item>
                     <label>Networking</label>
+                    <access>
+                       <roles>
+                           <role>admin</role>
+                           <role>user</role>
+                       </roles>
+                       <orchModels>
+                           <model>openstack</model>
+                       </orchModels>
+                    </access>
+                    <iconClass>icon-sitemap</iconClass>
                     <items>
                         <item>
                             <label>Networks</label>
@@ -302,57 +300,6 @@
                             <searchStrings>Configure Network Policies</searchStrings>
                         </item>
                         <item>
-                            <label>Services</label>
-                            <hash>config_sc_svcinst</hash>
-                            <rootDir>/config/servicechaining</rootDir>
-                            <js>config_servicechaining.js</js>
-                            <class>servicechainingConfigObj</class>
-                        </item>
-                        <item>
-                            <label>Virtual DNS</label>
-                            <hash>config_dns_servers</hash>
-                            <rootDir>/config/virtualdns</rootDir>
-                            <js>config_virtualdns.js</js>
-                            <class>virtualdnsConfigObj</class>
-                        </item>
-                        <item>
-                            <label>Virtual DNS</label>
-                            <hash>config_dns_records</hash>
-                            <rootDir>/config/virtualdns</rootDir>
-                            <js>config_virtualdns.js</js>
-                            <class>virtualdnsConfigObj</class>
-                        </item>
-                        <item>
-                            <label>DNS Server</label>
-                            <hash>config_dns_dnsservers</hash>
-                            <rootDir>/config/dns/servers</rootDir>
-                            <js>dnsservers_config.js</js>
-                            <view>dnsservers_config.view</view>
-                            <class>dnsServersConfigObj</class>
-                            <searchStrings>Configure DNS Servers</searchStrings>
-                       </item>
-                        <item>
-                            <label>DNS Records</label>
-                            <hash>config_dns_dnsrecords</hash>
-                            <rootDir>/config/dns/records</rootDir>
-                            <js>dnsrecords_config.js</js>
-                            <view>dnsrecords_config.view</view>
-                            <class>dnsRecordsConfigObj</class>
-                            <searchStrings>Configure DNS Records</searchStrings>
-                        </item>
-			
-			 <item>
-                            <label>DNS Dynamic Records</label>
-                            <hash>config_dynamic_dnsrecords</hash>
-                            <rootDir>/config/dns/records</rootDir>
-                            <js>dnsrecords_dynamic_config.js</js>
-                            <view>dnsrecords_dynamic_config.view</view>
-                            <class>dnsRecordsDynamicConfigObj</class>
-                            <searchStrings>Configure Dynamic DNS Records</searchStrings>
-                        </item>
-
-                       
-                        <item>
                             <label>Allocate Floating IPs</label>
                             <hash>config_net_fip</hash>
                             <rootDir>/config/fip</rootDir>
@@ -370,6 +317,21 @@
                             <class>IPAddressManagementObj</class>
                             <searchStrings>IP Address Management, IPAM</searchStrings>
                         </item>
+                   </items>
+                </item>
+                <item>
+                    <label>Services</label>
+                    <access>
+                       <roles>
+                           <role>admin</role>
+                           <role>user</role>
+                       </roles>
+                       <orchModels>
+                           <model>openstack</model>
+                       </orchModels>
+                    </access>
+                    <iconClass>icon-link</iconClass>
+                    <items>
                         <item>
                             <label>Service Template</label>
                             <hash>config_sc_svctemplate</hash>
@@ -388,14 +350,46 @@
                             <class>ServicesInstancesObj</class>
                             <searchStrings>Configure Service Instances</searchStrings>
                         </item>
-
+                    </items>
+                </item>
+                <item>
+                    <label>DNS</label>
+                    <access>
+                       <roles>
+                           <role>admin</role>
+                           <role>user</role>
+                       </roles>
+                       <orchModels>
+                           <model>openstack</model>
+                       </orchModels>
+                    </access>
+                    <iconClass>icon-globe</iconClass>
+                    <items>
+                        <item>
+                            <label>Servers</label>
+                            <hash>config_dns_dnsservers</hash>
+                            <rootDir>/config/dns/servers</rootDir>
+                            <js>dnsservers_config.js</js>
+                            <view>dnsservers_config.view</view>
+                            <class>dnsServersConfigObj</class>
+                            <searchStrings>Configure DNS Servers</searchStrings>
+                       </item>
+                        <item>
+                            <label>Records</label>
+                            <hash>config_dns_dnsrecords</hash>
+                            <rootDir>/config/dns/records</rootDir>
+                            <js>dnsrecords_config.js</js>
+                            <view>dnsrecords_config.view</view>
+                            <class>dnsRecordsConfigObj</class>
+                            <searchStrings>Configure DNS Records</searchStrings>
+                        </item>
+                    </items>
+                </item>
                         <!--
                         <item>
                             <label>IPAM</label>
                         </item>
                         -->
-                    </items>
-                </item>
                 <!--
                 <item>
                     <label>Templates</label>
@@ -415,139 +409,185 @@
             </items>
         </item>
         <item>
-            <label>SETTING</label>
+            <label>Setting</label>
+            <name>setting</name>
+            <iconClass>icon-cog</iconClass>
+            <access>
+                <roles>
+                    <role>admin</role>
+                </roles>
+                <orchModels>
+                    <model>openstack</model>
+                    <model>cloudstack</model>
+                </orchModels>
+            </access>
             <items>
                 <item>
-                    <hash>setting_configdb_fqname</hash>
-                    <label>FQ Name Table</label>
-                    <rootDir>/setting/config_db</rootDir>
-                    <view>cdb_query.view</view>
-                    <js>cdb_query.js</js>
-                    <class>fqNameTableObj</class>
-                </item>
-                <item>
-                    <hash>setting_configdb_uuid</hash>
-                    <label>UUID Table</label>
-                    <rootDir>/setting/config_db</rootDir>
-                    <view>cdb_query.view</view>
-                    <js>cdb_query.js</js>
-                    <class>uuidTableObj</class>
+                    <label>Config DB</label>
+                    <iconClass>icon-table</iconClass>
+                    <items>
+	                    <item>
+		                    <hash>setting_configdb_fqname</hash>
+		                    <label>FQ Name Table</label>
+		                    <rootDir>/setting/config_db</rootDir>
+		                    <view>cdb_query.view</view>
+		                    <js>cdb_query.js</js>
+		                    <class>fqNameTableObj</class>
+	                    </item>
+	                    <item>
+		                    <hash>setting_configdb_uuid</hash>
+		                    <label>UUID Table</label>
+		                    <rootDir>/setting/config_db</rootDir>
+		                    <view>cdb_query.view</view>
+		                    <js>cdb_query.js</js>
+		                    <class>uuidTableObj</class>
+	                    </item>
+                    </items>
                 </item>
             </items>
         </item>
         <item>
-            <label>QUERY</label>
+            <label>Query</label>
+            <name>query</name>
+            <iconClass>icon-search</iconClass>
+            <access>
+	            <roles>
+	                <role>admin</role>
+	            </roles>
+	            <orchModels>
+	                <model>openstack</model>
+	                <model>cloudstack</model>
+	            </orchModels>
+            </access>
             <items>
                 <item>
-                    <hash>query_flow_series</hash>
-                    <label>Flow Queries</label>
-                    <rootDir>/reports</rootDir>
-                    <view>flow_queries.view</view>
-                    <view>queries.view</view>
-                    <js>flow_queries.js</js>
-                    <class>flowSeriesObj</class>
-                    <searchStrings>Query Flow Series</searchStrings>
+	                <label>Flows</label>
+		            <iconClass>icon-exchange</iconClass>
+	                <items>
+		                <item>
+		                    <hash>query_flow_series</hash>
+		                    <label>Flow Queries</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>flow_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>flow_queries.js</js>
+		                    <class>flowSeriesObj</class>
+		                    <searchStrings>Query Flow Series</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_flow_records</hash>
+		                    <label>Flow Records</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>flow_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>flow_queries.js</js>
+		                    <class>flowRecordsObj</class>
+		                    <searchStrings>Query Flow Records</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_flow_queue</hash>
+		                    <label>Query Queue</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>flow_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>flow_queries.js</js>
+		                    <class>flowQueryQueueObj</class>
+		                    <searchStrings>Flow Query Queue</searchStrings>
+		                </item>
+	                </items>
                 </item>
-                <item>
-                    <hash>query_flow_records</hash>
-                    <label>Flow Records</label>
-                    <rootDir>/reports</rootDir>
-                    <view>flow_queries.view</view>
-                    <view>queries.view</view>
-                    <js>flow_queries.js</js>
-                    <class>flowRecordsObj</class>
-                    <searchStrings>Query Flow Records</searchStrings>
-                </item>
-                <item>
-                    <hash>query_flow_queue</hash>
-                    <label>Flow Query Queue</label>
-                    <rootDir>/reports</rootDir>
-                    <view>flow_queries.view</view>
-                    <view>queries.view</view>
-                    <js>flow_queries.js</js>
-                    <class>flowQueryQueueObj</class>
-                    <searchStrings>Flow Query Queue</searchStrings>
-                </item>
-                <item>
-                    <hash>query_log_system</hash>
-                    <label>System Logs</label>
-                    <rootDir>/reports</rootDir>
-                    <view>log_queries.view</view>
-                    <view>queries.view</view>
-                    <js>log_queries.js</js>
-                    <class>systemLogsObj</class>
-                    <searchStrings>Query System Logs</searchStrings>
-                </item>
-                <item>
-                    <hash>query_log_object</hash>
-                    <label>Object Logs</label>
-                    <rootDir>/reports</rootDir>
-                    <view>log_queries.view</view>
-                    <view>queries.view</view>
-                    <js>log_queries.js</js>
-                    <class>objectLogsObj</class>
-                    <searchStrings>Query Object Logs</searchStrings>
-                </item>
-                <item>
-                    <hash>query_log_queue</hash>
-                    <label>Query Queue</label>
-                    <rootDir>/reports</rootDir>
-                    <view>log_queries.view</view>
-                    <view>queries.view</view>
-                    <js>log_queries.js</js>
-                    <class>logQueryQueueObj</class>
-                    <searchStrings>Logs Query Queue</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_cpuinfo</hash>
-                    <label>CPU Information</label>
-                    <rootDir>/reports</rootDir>
-                    <view>stat_queries.view</view>
-                    <view>queries.view</view>
-                    <js>stat_queries.js</js>
-                    <class>statCPUInfoObj</class>
-                    <searchStrings>CPU Information Statistics</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_qeperf</hash>
-                    <label>QE Performance</label>
-                    <rootDir>/reports</rootDir>
-                    <view>stat_queries.view</view>
-                    <view>queries.view</view>
-                    <js>stat_queries.js</js>
-                    <class>statQEPerformanceObj</class>
-                    <searchStrings>QE Performance Statistics</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_uvevnagent</hash>
-                    <label>VN Agent</label>
-                    <rootDir>/reports</rootDir>
-                    <view>stat_queries.view</view>
-                    <view>queries.view</view>
-                    <js>stat_queries.js</js>
-                    <class>statVNAgentObj</class>
-                    <searchStrings>VN Agent Statistics</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_smsg</hash>
-                    <label>Sandesh Messages</label>
-                    <rootDir>/reports</rootDir>
-                    <view>stat_queries.view</view>
-                    <view>queries.view</view>
-                    <js>stat_queries.js</js>
-                    <class>statSandeshMsgObj</class>
-                    <searchStrings>Sandesh Message Statistics</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_queue</hash>
-                    <label>Stats Query Queue</label>
-                    <rootDir>/reports</rootDir>
-                    <view>stat_queries.view</view>
-                    <view>queries.view</view>
-                    <js>stat_queries.js</js>
-                    <class>statQueryQueueObj</class>
-                    <searchStrings>Statistic Query Queue</searchStrings>
-                </item>
+	            <item>
+	                <label>Logs</label>
+	                <iconClass>icon-hdd</iconClass>
+	                <items>
+		               <item>
+		                   <hash>query_log_system</hash>
+		                   <label>System Logs</label>
+		                   <rootDir>/reports</rootDir>
+		                   <view>log_queries.view</view>
+		                   <view>queries.view</view>
+		                   <js>log_queries.js</js>
+		                   <class>systemLogsObj</class>
+		                   <searchStrings>Query System Logs</searchStrings>
+		               </item>
+		               <item>
+		                   <hash>query_log_object</hash>
+		                   <label>Object Logs</label>
+		                   <rootDir>/reports</rootDir>
+		                   <view>log_queries.view</view>
+		                   <view>queries.view</view>
+		                   <js>log_queries.js</js>
+		                   <class>objectLogsObj</class>
+		                   <searchStrings>Query Object Logs</searchStrings>
+		               </item>
+		               <item>
+		                   <hash>query_log_queue</hash>
+		                   <label>Query Queue</label>
+		                   <rootDir>/reports</rootDir>
+		                   <view>log_queries.view</view>
+		                   <view>queries.view</view>
+		                   <js>log_queries.js</js>
+		                   <class>logQueryQueueObj</class>
+		                   <searchStrings>Logs Query Queue</searchStrings>
+		               </item>
+	                </items>
+	            </item>
+	            <!-- 
+	            <item>
+	                <label>Statistics</label>
+	                <items>
+		                <item>
+		                    <hash>query_stat_cpuinfo</hash>
+		                    <label>CPU Information</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>stat_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>stat_queries.js</js>
+		                    <class>statCPUInfoObj</class>
+		                    <searchStrings>CPU Information Statistics</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_stat_qeperf</hash>
+		                    <label>QE Performance</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>stat_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>stat_queries.js</js>
+		                    <class>statQEPerformanceObj</class>
+		                    <searchStrings>QE Performance Statistics</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_stat_uvevnagent</hash>
+		                    <label>VN Agent</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>stat_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>stat_queries.js</js>
+		                    <class>statVNAgentObj</class>
+		                    <searchStrings>VN Agent Statistics</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_stat_smsg</hash>
+		                    <label>Sandesh Messages</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>stat_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>stat_queries.js</js>
+		                    <class>statSandeshMsgObj</class>
+		                    <searchStrings>Sandesh Message Statistics</searchStrings>
+		                </item>
+		                <item>
+		                    <hash>query_stat_queue</hash>
+		                    <label>Stats Query Queue</label>
+		                    <rootDir>/reports</rootDir>
+		                    <view>stat_queries.view</view>
+		                    <view>queries.view</view>
+		                    <js>stat_queries.js</js>
+		                    <class>statQueryQueueObj</class>
+		                    <searchStrings>Statistic Query Queue</searchStrings>
+		                </item>
+	                </items>
+	            </item>-->
             </items>
         </item>
     </items>

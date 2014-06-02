@@ -91,7 +91,6 @@ monitorInfraComputeNetworksClass = (function() {
                                  iconClass: 'icon-cog',
                                  onClick: function(rowIndex){
                                      var rowData = vnGrid._dataView.getItem(rowIndex);
-                                     //window.location.href = "/tenants/monitor/network\\#p=config_net_vn&q=";
                                      layoutHandler.setURLHashParams({},{p:'config_net_vn',merge:false});
                                  }
                              },
@@ -100,8 +99,7 @@ monitorInfraComputeNetworksClass = (function() {
                                  iconClass: 'icon-tasks',
                                  onClick: function(rowIndex){
                                      var rowData = vnGrid._dataView.getItem(rowIndex);
-                                     //window.location.href = "/tenants/monitor/network\\#p=mon_net_networks&q[fqName]=" + rowData['name'];
-                                     layoutHandler.setURLHashParams({fqnName:rowData['name']},{p:'mon_net_networks',merge:false});
+                                     layoutHandler.setURLHashParams({fqName:rowData['name']},{p:'mon_net_networks',merge:false});
                                  }
                              },
                              {
@@ -135,14 +133,6 @@ monitorInfraComputeNetworksClass = (function() {
                             type: 'error',
                             iconClasses: 'icon-warning',
                             text: 'Error in getting Data.'
-                        }
-                    }
-                },
-                footer : {
-                    pager : {
-                        options : {
-                            pageSize : 50,
-                            pageSizeSelect : [10, 50, 100, 200, 500 ]
                         }
                     }
                 }

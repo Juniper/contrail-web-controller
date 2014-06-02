@@ -21,6 +21,8 @@ var configNodeTabStrip = "config_tabstrip";
 var aNodeTabStrip = "analytics_tabstrip";
 var ctrlNodeTabStrip = "control_tabstrip";
 
+var CONSOLE_LOGS_REFRESH_INTERVAL = 90000;//Auto refresh interval in console tab (ms)
+
 var monitorInfraUrls = {
         VROUTER_BASE                : '/api/admin/monitor/infrastructure/vrouter/',
         VROUTER_SUMMARY             : '/api/admin/monitor/infrastructure/vrouters/summary',

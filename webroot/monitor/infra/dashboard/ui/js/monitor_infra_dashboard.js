@@ -149,9 +149,7 @@ function infraMonitorClass() {
         });
     }
 
-    function loadInfoBoxes(hashParams) {
-        var deferredObjs = [];
-        loadLogs();
+    function loadInfoBoxes() {
 
         $('.infobox-container').on('click','.infobox',function() {
             tabs = [];
@@ -165,18 +163,15 @@ function infraMonitorClass() {
             $('.infobox').removeClass('infobox-blue infobox-dark active').addClass('infobox-grey');
             $($('.infobox')[tabIdx]).removeClass('infobox-grey').addClass('infobox-blue infobox-dark active');
             var currTabContainer = $('#dashboard-charts .dashboard-chart-item')[tabIdx];
+            //Show the current tab content
             $(currTabContainer).show();
             //Trigger refresh on svg charts
             $(currTabContainer).find('svg').trigger('refresh');
         });
-        //Select node tab based on URL hash parameter
-        var tabIdx = $.inArray(ifNull(hashParams['tab']),tabs);
-        if(tabIdx <= -1)
-            tabIdx = 0;
-        $($('.infobox-container .infobox')[tabIdx]).trigger('click');
 
         //When all node details are fetched,upedate alerts & info boxes
         /*
+        var deferredObjs = [];
         $.when.apply(window,deferredObjs).done(
             function(vRouterResult,ctrlNodeResult,analyticsResult,configResult) {
                 self.updateAlertsAndInfoBoxes();
@@ -212,12 +207,20 @@ function infraMonitorClass() {
         $(contentContainer).html('');
         $(contentContainer).html(infraDashboardTemplate);
 
-        loadInfoBoxes(hashParams);
+        loadInfoBoxes();
+        loadLogs();
+        addTabs();
+
         //Initialize the common stuff
         $($('#dashboard-stats .widget-header')[0]).initWidgetHeader({title:'Logs',widgetBoxId :'logs'});
         $($('#dashboard-stats .widget-header')[1]).initWidgetHeader({title:'System Information', widgetBoxId: 'sysinfo'});
         $($('#dashboard-stats .widget-header')[2]).initWidgetHeader({title:'Alerts', widgetBoxId: 'alerts' });
-        addTabs();
+
+        //Select node tab based on URL hash parameter
+        var tabIdx = $.inArray(ifNull(hashParams['tab']),tabs);
+        if(tabIdx <= -1)
+            tabIdx = 0;
+        $($('.infobox-container .infobox')[tabIdx]).trigger('click');
     }
 }
 
@@ -245,10 +248,10 @@ function addTabs() {
         */
         var updateView = function(data) {
             var chartObj = {};
-            var chartsData = {title:'vRouters',d:[{key:'vRouters',values:data}],link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}}};
+            var chartsData = {title:'vRouters',d:[{key:'vRouters',values:data}],chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,xPositive:true,addDomainBuffer:true}};
             var chartObj = {};
             if(!isScatterChartInitialized('#vrouter-bubble')) {
-                $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_dashboard',q:{node:'vRouters'}}}});
+                $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
                 $('#vrouter-bubble').initScatterChart(chartsData);
             } else {
                 data = updateCharts.setUpdateParams(data);
@@ -336,9 +339,9 @@ function addTabs() {
         var updateView = function(data) {
             if(!isScatterChartInitialized('#ctrlNode-bubble')) {
                 $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
-                var chartsData = {title:'Control Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:data}]};
-                $('#ctrlNode-bubble').initScatterChart(chartsData);
-            } else {
+                var chartsData = {title:'Control Nodes',chartOptions:{tooltipFn:bgpMonitor.controlNodetooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:data}]};
+                $('#ctrlNode-bubble').initScatterChart(chartsData); 
+            } else { 
             }
         }
 
@@ -369,7 +372,7 @@ function addTabs() {
         this.updateView = function(data) {
             if(!isScatterChartInitialized('#analyticNode-bubble')) {
                 $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
-                var chartsData = {title:'Analytic Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:data}]};
+                var chartsData = {title:'Analytic Nodes',chartOptions:{tooltipFn:bgpMonitor.analyticNodeTooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:data}]};
                 $('#analyticNode-bubble').initScatterChart(chartsData);
             } else {
             }
@@ -402,7 +405,7 @@ function addTabs() {
         var updateView = function(data) {
             if(!isScatterChartInitialized('#configNode-bubble')) {
                 $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
-                var chartsData = {title:'Config Nodes',chartOptions:{xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:data}]};
+                var chartsData = {title:'Config Nodes',chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:data}]};
                 $('#configNode-bubble').initScatterChart(chartsData);
             } else {
             }
