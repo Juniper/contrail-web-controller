@@ -350,14 +350,6 @@ monitorInfraComputeSummaryClass = (function() {
                 innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
             infoElem.text(innerText);
         });*/
-        /*
-        applyGridDefHandlers(computeNodesGrid, {noMsg:'No vRouters to display',
-            selector:$('#vrouter-header h4'),
-            totalCntFn: function() { 
-                return self.getvRoutersDataWithStatus().length;
-            },
-            dataView:vRoutersDataSource
-        });*/
     }
     return {populateComputeNodes:populateComputeNodes};
 })();
