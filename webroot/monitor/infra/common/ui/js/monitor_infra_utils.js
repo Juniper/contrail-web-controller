@@ -163,9 +163,10 @@ function getControlNodeColor(d,obj) {
     var nodeColor = getNodeColor(obj);
     if(nodeColor != false)
         return nodeColor;
-    if(obj['downBgpPeerCnt'] == 0 && obj['downXMPPPeerCnt'] == 0)
+    //If connected to atleast one XMPP Peer
+    if(obj['totalXMPPPeerCnt'] - obj['downXMPPPeerCnt'] > 0)
         return d3Colors['green'];
-    else
+    else if(obj['downBgpPeerCnt'] == 0 && obj['downXMPPPeerCnt'] == 0)
         return d3Colors['blue'];    //Default color
 }
 
@@ -268,10 +269,6 @@ var infraMonitorUtils = {
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
             //Decide color based on parameters
             obj['color'] = getvRouterColor(d,obj);
-            obj['downNodeCnt'] = 0;
-            if(obj['color'] == d3Colors['red']){
-                obj['downNodeCnt']++;
-            }
             retArr.push(obj);
         }
         retArr.sort(bgpMonitor.sortNodesByColor);
@@ -365,10 +362,6 @@ var infraMonitorUtils = {
             obj['nodeAlerts'] = infraMonitorAlertUtils.processControlNodeAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
             obj['color'] = getControlNodeColor(d,obj);
-            obj['downNodeCnt'] = 0;
-            if(obj['color'] == d3Colors['red']){
-                obj['downNodeCnt']++;
-            }
             retArr.push(obj);
         });
         retArr.sort(bgpMonitor.sortNodesByColor);
@@ -429,10 +422,6 @@ var infraMonitorUtils = {
             obj['nodeAlerts'] = infraMonitorAlertUtils.processAnalyticsNodeAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
             obj['color'] = getAanalyticNodeColor(d,obj);
-            obj['downNodeCnt'] = 0;
-            if(obj['color'] == d3Colors['red']){
-                obj['downNodeCnt']++;
-            }
           retArr.push(obj);
         });
         retArr.sort(bgpMonitor.sortNodesByColor);
@@ -484,18 +473,9 @@ var infraMonitorUtils = {
                 obj['isPartialUveMissing'] = true;
             }
             obj['isGeneratorRetrieved'] = false;
-          //get the cpu for config node
-	          var cpuInfo1 ;
-	          try{
-	          	cpuInfo1 = jsonPath(d,'$..configNode.ModuleCpuState.module_cpu_info');
-	          }catch(e){}
-            obj['downNodeCnt'] = 0;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processConfigNodeAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
             obj['color'] = getConfigNodeColor(d,obj);
-            if(obj['color'] == d3Colors['red']){
-                obj['downNodeCnt']++;
-            }
             retArr.push(obj);
         });
         retArr.sort(bgpMonitor.sortNodesByColor);
