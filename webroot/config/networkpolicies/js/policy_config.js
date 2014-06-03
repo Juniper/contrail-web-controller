@@ -451,8 +451,9 @@ function initActions() {
                                 rule["src_ports"][j]["start_port"] = parseInt(startPortsArray[j]);
                                 rule["src_ports"][j]["end_port"] = parseInt(endPortsArray[j]);
                             }
+                        } else {
+                            return false;
                         }
-
                     } else
                         return false;
                 } else {
@@ -480,6 +481,8 @@ function initActions() {
                                 rule["dst_ports"][j]["start_port"] = parseInt(startPortsArray[j]);
                                 rule["dst_ports"][j]["end_port"] = parseInt(endPortsArray[j]);
                             }
+                        } else {
+                            return false;
                         }
                     } else
                         return false;
