@@ -27,6 +27,7 @@ function networkPolicyConfigObj() {
     var idCount =0;
     var polAjaxcount = 0;
     var ajaxParam;
+    var dynamicID = 0;
 
     //Method definitions
     this.load = load;
@@ -47,6 +48,7 @@ function networkPolicyConfigObj() {
     this.createPolicySuccessCb = createPolicySuccessCb;
     this.createPolicyFailureCb = createPolicyFailureCb;
     this.validate = validate;
+    this.dynamicID = dynamicID;
     this.destroy = destroy;
 }
 
@@ -211,7 +213,7 @@ function initComponents() {
         dataTextField:"text",
         dataValueField:"value"
     });
-    
+    dynamicID = 0;
     $('body').append($("#windowCreatePolicy"));
     windowCreatePolicy = $("#windowCreatePolicy");
     windowCreatePolicy.on("hide", closeCreatePolicyWindow);
@@ -307,9 +309,11 @@ function initActions() {
                 var protocol = $($(ruleTuple[1]).find("div")).data("contrailCombobox").text();
                 protocol = getProtocol(protocol);
 
-                var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").value();
+                var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").text();
                 srcVN = checkValidSourceNetwork(srcVN);
-                srcVN = getFQNofVN(selectedDomain, selectedProject, srcVN);
+                if(srcVN.toLowerCase() != "any" && srcVN.toLowerCase() != "local"){
+                    srcVN = getFQNofVN(selectedDomain, selectedProject, srcVN);
+                }
                 var srcPorts = $($(ruleTuple[3]).find("input")).val();
 
                 var direction = $($(ruleTuple[4]).find("div.span12")[1]).data("contrailDropdown").value();
@@ -320,9 +324,11 @@ function initActions() {
                     direction = "<>";
                 }
 
-                var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").value();
+                var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").text();
                 destVN = checkValidDestinationNetwork(destVN);
-                destVN = getFQNofVN(selectedDomain, selectedProject, destVN);
+                if(destVN.toLowerCase() != "any" && destVN.toLowerCase() != "local"){
+                    destVN = getFQNofVN(selectedDomain, selectedProject, destVN);
+                }
                 var destPorts = $($(ruleTuple[6]).find("input")).val();
                 var applyServicesEnabled = $($(ruleTuple[7]).find("input"))[0].checked;
                 var mirrorServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked
@@ -394,10 +400,14 @@ function initActions() {
                     if ("any" === srcVN.toLowerCase())
                         rule["src_addresses"][0]["virtual_network"] = "any";
                     else {
-                        if(srcVN.indexOf(":") !== -1) {
-                            rule["src_addresses"][0]["virtual_network"] = srcVN;
-                        } else {
-                            rule["src_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, srcVN].join(":");   
+                        if ("local" === srcVN.toLowerCase())
+                            rule["src_addresses"][0]["virtual_network"] = "local";
+                        else {
+                            if(srcVN.indexOf(":") !== -1) {
+                                rule["src_addresses"][0]["virtual_network"] = srcVN;
+                            } else {
+                                rule["src_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, srcVN].join(":");   
+                            }
                         }
                     }
                 }
@@ -410,10 +420,14 @@ function initActions() {
                     if ("any" === destVN.toLowerCase())
                         rule["dst_addresses"][0]["virtual_network"] = "any";
                     else {
-                        if(destVN.indexOf(":") !== -1) {
-                            rule["dst_addresses"][0]["virtual_network"] = destVN;
-                        } else {
-                            rule["dst_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, destVN].join(":");  
+                        if ("local" === destVN.toLowerCase())
+                            rule["dst_addresses"][0]["virtual_network"] = "local";
+                        else {
+                            if(destVN.indexOf(":") !== -1) {
+                                rule["dst_addresses"][0]["virtual_network"] = destVN;
+                            } else {
+                                rule["dst_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, destVN].join(":");  
+                            }
                         }
                     }
                 }
@@ -691,6 +705,7 @@ function appendRuleEntry(who, defaultRow) {
 }
 
 function createRuleEntry(rule, len) {
+    dynamicID += 1;
     var vns = jsonPath(configObj, "$.virtual-networks[*]");
     
     var selectDivAction = document.createElement("div");
@@ -709,6 +724,7 @@ function createRuleEntry(rule, len) {
     selectDivSrcNetwork.className = "span2 pull-left";
     var selectSrcNetwork = document.createElement("div");
     selectSrcNetwork.className = "span12";
+    selectSrcNetwork.setAttribute("id" , "selectSrcNetwork_"+dynamicID);
     selectDivSrcNetwork.appendChild(selectSrcNetwork);
 
     var inputTxtSrcPorts = document.createElement("input");
@@ -729,6 +745,7 @@ function createRuleEntry(rule, len) {
     selectDivDestNetwork.className = "span2 pull-left";
     var selectDestNetwork = document.createElement("div");
     selectDestNetwork.className = "span12";
+    selectDestNetwork.setAttribute("id", "selectDestNetwork_"+dynamicID);
     selectDivDestNetwork.appendChild(selectDestNetwork);
 
     var inputTxtDestPorts = document.createElement("input");
@@ -823,8 +840,7 @@ function createRuleEntry(rule, len) {
     $(selectSrcNetwork).contrailCombobox({
         dataTextField:"text",
         dataValueField:"value",
-        dataSource: {
-        },
+        dataSource:{} ,
         placeholder: "any"
     });
 
@@ -838,14 +854,14 @@ function createRuleEntry(rule, len) {
     $(selectDestNetwork).contrailCombobox({
         dataTextField:"text",
         dataValueField:"value",
-        dataSource: {
-        },
+        dataSource:{} ,
         placeholder: "any"
     });
 
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
-    var allVns = [{"text":"any","value":0},{"text":"local","value":1}];
+    var allVns = [{"text":"any","value":"any"},{"text":"local","value":"local"}];
+    var dupAllVns = [{"text":"any","value":"any"},{"text":"local","value":"local"}];
     for (var i = 0; i < vns.length; i++) {
         var vn = vns[i];
         var virtualNetwork =
@@ -853,22 +869,30 @@ function createRuleEntry(rule, len) {
             "$..virtual-networks[?(@.fq_name[0]=='" + vn["fq_name"][0] + 
             "' && @.fq_name[1]=='" + vn["fq_name"][1] + 
             "' && @.fq_name[2]=='" + vn["fq_name"][2] + "')]")[0]["fq_name"];
-        vn = vn["fq_name"][2];
         var domain = virtualNetwork[0];
         var project = virtualNetwork[1];
         allVns[i+2] = {};
-        allVns[i+2].value  = i + 2;
+        allVns[i+2].value  = vn["uuid"];
+        dupAllVns[i+2] = {};
+        dupAllVns[i+2].value  = vn["uuid"];
         if(domain === selectedDomain && project === selectedProject) {
-            allVns[i+2].text  = vn;
+            if(vn["fq_name"][2].toLowerCase() === "any" || vn["fq_name"][2].toLowerCase() === "local"){
+                allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
+                dupAllVns[i+2].text = domain + ":" + project + ":" +   vn["fq_name"][2];
+            } else {
+                allVns[i+2].text  = vn["fq_name"][2];
+                dupAllVns[i+2].text  = vn["fq_name"][2];
+            }
         }
         else {
-            allVns[i+2].text  = domain + ":" + project + ":" + vn;
+            allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
+            dupAllVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
         }
     }
     $(selectSrcNetwork).data("contrailCombobox").setData(allVns);
-    $(selectSrcNetwork).data("contrailCombobox").value("any");
-    $(selectDestNetwork).data("contrailCombobox").setData(allVns);
-    $(selectDestNetwork).data("contrailCombobox").value("any");
+    $(selectSrcNetwork).data("contrailCombobox").text("any");
+    $(selectDestNetwork).data("contrailCombobox").setData(dupAllVns);
+    $(selectDestNetwork).data("contrailCombobox").text("any");
     
     var sts = jsonPath(configObj, "$.service_templates[*].service-template");
     var analyzerInsts = [];
@@ -968,7 +992,10 @@ function createRuleEntry(rule, len) {
                     var domain = srcNetwork[i].split(":")[0];
                     var project = srcNetwork[i].split(":")[1];
                     if(domain === selectedDomain && project === selectedProject) {
-                        srcNetwork[i]  = srcNetwork[i].split(":")[2];
+                        if(srcNetwork[i].split(":")[2].toLowerCase() !== "any" &&
+                            srcNetwork[i].split(":")[2].toLowerCase() !== "local") {
+                            srcNetwork[i]  = srcNetwork[i].split(":")[2];
+                        }
                     }
                 }
             }
@@ -985,7 +1012,10 @@ function createRuleEntry(rule, len) {
                     var domain = destNetwork[i].split(":")[0];
                     var project = destNetwork[i].split(":")[1];
                     if(domain === selectedDomain && project === selectedProject) {
-                        destNetwork[i]  = destNetwork[i].split(":")[2];
+                        if(destNetwork[i].split(":")[2].toLowerCase() !== "any" &&
+                            destNetwork[i].split(":")[2].toLowerCase() !== "local") {
+                            destNetwork[i]  = destNetwork[i].split(":")[2];
+                        }
                     }
                 }
             }
@@ -1449,11 +1479,11 @@ function validate() {
                         showInfoWindow("Fully Qualified Name of Destination Network should be in the format Domain:Project:NetworkName.", "Invalid FQN");
                         return false;
                     }                    
-                    if(srcVN === "local" || srcVN === "any") {
+                    if(srcVN.toLowerCase() === "local" || srcVN.toLowerCase() === "any") {
                         showInfoWindow("Source network cannot be 'any' or 'local' while applying services.", "Invalid Rule");
                         return false;
                     }
-                    if(destVN === "local" || destVN === "any") {
+                    if(destVN.toLowerCase() === "local" || destVN.toLowerCase() === "any") {
                         showInfoWindow("Destination network cannot be 'any' or 'local' while applying services.", "Invalid Rule");
                         return false;
                     }

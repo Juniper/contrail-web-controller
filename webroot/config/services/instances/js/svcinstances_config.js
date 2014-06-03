@@ -1735,7 +1735,7 @@ Handlebars.registerHelper("instDetail",function(InstDetailArr,options) {
     for(k=0;k<InstDetailArr.length;k++){
         returnHtml += '<div>';
         returnHtml += '<div class="span2">' + InstDetailArr[k][1] +'</div>';
-        returnHtml += '<div class="span1">';
+        returnHtml += '<div class="span2">';
         var Stat = String(InstDetailArr[k][2]).toUpperCase();
         if(Stat == "SPAWNING"){ 
             returnHtml += '<img src="/img/loading.gif">';
@@ -1749,8 +1749,8 @@ Handlebars.registerHelper("instDetail",function(InstDetailArr,options) {
             returnHtml += 'Updating';
         }
         returnHtml += InstDetailArr[k][2]+' </div>';
-        returnHtml += '</div><div class="span2">' +InstDetailArr[k][3] +'</div>';
-        returnHtml += '<div class="span7">';
+        returnHtml += '<div class="span2">' +InstDetailArr[k][3] +'</div>';
+        returnHtml += '<div class="span6">';
         var InstDetailStr = InstDetailArr[k][4].split("~~");
         if(InstDetailStr.length > 1) {
             returnHtml += '<div class="span10">';
@@ -1766,7 +1766,7 @@ Handlebars.registerHelper("instDetail",function(InstDetailArr,options) {
             returnHtml += '<div class="span10">'+ InstDetailStr +'</div>';
         }
         returnHtml += '<div class="span2"><u><a onClick="showViewConsoleWindow(\''+InstDetailArr[k][0] +'\', \''+ InstDetailArr[k][1] +'\');"> View Console </a></u></div>';
-        returnHtml += '</div>';
+        returnHtml += '</div></div>';
     }
     return returnHtml;
 });

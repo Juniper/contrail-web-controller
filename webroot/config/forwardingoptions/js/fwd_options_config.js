@@ -72,7 +72,7 @@ function initActions() {
 
         	for (var i = 0; i < epTuples.length; i++) {
         		var epTuple = $($($(epTuples[i]).find("div")[0]).find("div")[0]);
-                var priority = $($(epTuple).find("div")[3]).data("contrailDropdown").text();
+                var priority = $($(epTuple).find("div.span12")[1]).data("contrailDropdown").text();
                 if(encapsulationLabels.indexOf(priority) !== -1) {
                 	priorities.push(encapsulationValues[encapsulationLabels.indexOf(priority)]);	
                 }

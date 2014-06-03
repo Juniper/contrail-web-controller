@@ -47,9 +47,9 @@
                             <div class="span10">
                                 <div class="span12 bgCol">
                                     <div class="span2"><label>Virtual Machine</label></div>
-                                    <div class="span1"><label>Status</label></div>
+                                    <div class="span2"><label>Status</label></div>
                                     <div class="span2"><label>Power State</label></div>
-                                    <div class="span7">
+                                    <div class="span6">
                                         <div class="span10"><label>Networks</label></div>
                                         <div class="span2"><label></label></div>
                                     </div>
