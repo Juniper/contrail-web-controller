@@ -97,9 +97,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Service Instances',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
@@ -721,6 +721,7 @@ dynamicID += 1;
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(sIEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateSvcInstances",sIEntry,false);
 }
 function createStaticRouteEntry(data, id,element,containerInst) {
 
@@ -1183,7 +1184,8 @@ var interfacesLen = $("#instanceDiv").children().length;
  var widgetHeaderH5 = document.createElement("h5");
  widgetHeaderH5.className = "smaller";
  widgetHeaderDiv.appendChild(widgetHeaderH5);
- widgetHeaderH5.setAttribute("onclick", "collapseElement(this)");
+ //widgetHeaderH5.setAttribute("onclick", "collapseElement(this)");
+ widgetHeaderH5.setAttribute("onclick", "scrollUp(\"#windowCreateSvcInstances\",this,true);");
 
  var widgetHeaderH5I = document.createElement("i");
  widgetHeaderH5I.className = "icon-caret-right grey"; 

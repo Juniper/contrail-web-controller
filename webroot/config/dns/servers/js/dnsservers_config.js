@@ -83,9 +83,9 @@ function initComponents() {
         header : {
             title:{
                 text : 'DNS Servers',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'                
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'                
             },
             customControls: ['<a id="btnDeleteDNSServer" class="disabled-link" title="Delete DNS Server(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateDNSServer" title="Create DNS Server"><i class="icon-plus"></i></a>',

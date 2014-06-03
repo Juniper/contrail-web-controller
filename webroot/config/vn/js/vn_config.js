@@ -87,9 +87,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Virtual Networks',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
@@ -673,6 +673,7 @@ function appendFipEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(fipEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateVN",fipEntry,false);
 }
 
 function deleteFipEntry(who) {
@@ -797,6 +798,7 @@ function appendIPAMEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(ipamEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateVN",ipamEntry,false);
 
     var ipamTuples = $("#ipamTuples")[0].children;
     var existingIpams = [];
@@ -1043,6 +1045,8 @@ function appendRTEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(rtEntry, parentEl.nextSibling);
     }
+    //if($(rootDiv)[0].getBoundingClientRect().height >= Math.abs(
+    scrollUp("#windowCreateVN",rtEntry,false);
 }
 
 function deleteRTEntry(who) {
@@ -1167,6 +1171,7 @@ function appendSREntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(srEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateVN",srEntry,false);
 }
 
 function deleteSREntry(who) {

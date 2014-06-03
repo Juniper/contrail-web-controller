@@ -72,9 +72,9 @@ $("#gridfip").contrailGrid({
         header : {
             title : {
                 text : 'Floating IP',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             customControls: [
                 '<a id="btnDeletefip" class="disabled-link" title="Release Floating IP(s)"><i class="icon-trash"></i></a>',

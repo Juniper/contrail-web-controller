@@ -29,9 +29,9 @@ function dnsRecordsDynamicConfig(){
             header : {
                 title: {
                     text : 'Active DNS Database',
-                    cssClass : 'blue',
-                    icon : 'icon-list',
-                    iconCssClass : 'blue'                
+                    //cssClass : 'blue',
+                    //icon : 'icon-list',
+                    //iconCssClass : 'blue'              
                 },
                 customControls: ['<a id="btnNextRecords" title="Next"><i class="icon-arrow-right"></i></a>',
                     '<a id="btnPrevRecords" class="disabled-link"  title="Previous"><i class="icon-arrow-left"></i></a>',

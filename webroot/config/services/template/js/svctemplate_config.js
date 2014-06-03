@@ -80,9 +80,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'Service Templates',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
@@ -824,6 +824,7 @@ function appendInterfaceEntry(who, defaultRow,element) {
             parentEl.parentNode.insertBefore(sIEntry, parentEl.nextSibling);
         }
         setIPwithID(dynamicID);
+scrollUp("#windowCreateStemp",sIEntry,false);
 }
 function createInterfaceEntry(data, id,element) {
 

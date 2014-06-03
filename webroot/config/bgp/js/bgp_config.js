@@ -660,9 +660,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'BGP Peers',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
@@ -741,7 +741,7 @@ function initComponents() {
                 errorGettingData: {
                     type: 'error',
                     iconClasses: 'icon-warning',
-                    text: 'Error in getting BGE Peers.'
+                    text: 'Error in getting BGP Peers.'
                 }
             }
         }

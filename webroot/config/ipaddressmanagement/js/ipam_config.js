@@ -74,9 +74,9 @@ function initComponents() {
         header : {
             title : {
                 text : 'IP Address Management',
-                cssClass : 'blue',
-                icon : 'icon-list',
-                iconCssClass : 'blue'
+                //cssClass : 'blue',
+                //icon : 'icon-list',
+                //iconCssClass : 'blue'
             },
             //defaultControls: {
             //    collapseable: false,
@@ -549,6 +549,7 @@ function appendVNEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(vnEntry, parentEl.nextSibling);
     }
+    scrollUp("#windowCreateipam",vnEntry,false);
 }
 
 function deleteVNEntry(who) {
