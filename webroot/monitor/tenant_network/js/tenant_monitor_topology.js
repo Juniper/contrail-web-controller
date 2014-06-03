@@ -3,7 +3,10 @@
  */
 
 var topologyView = new topologyRenderer();
-
+var topologyColors = {
+        blue: '#3182BD',
+        red: '#E4564F'
+};
 //Connectivity Details for Project/Network
 function topologyRenderer() {
     var self = this;
@@ -310,7 +313,7 @@ function topologyRenderer() {
 
     this.constructLinkData = function(link,linksCount,bwRng) {
     	var configData = {};
-    	configData['lineColor'] = "#3182bd";
+    	configData['lineColor'] = topologyColors['blue'];
     	configData['partialConnected'] = false;
     	if(link['more_attributes'] != undefined && link['more_attributes']['in_stats'] != undefined && link['more_attributes']['out_stats'] != undefined
     			&& link['more_attributes']['in_stats'].length>0 && link['more_attributes']['out_stats'].length>0 ){
@@ -325,19 +328,21 @@ function topologyRenderer() {
     	configData['more_attributes'] = link['more_attributes'];
     	configData['dir'] = link['dir'];
     	configData['loss'] = loss;
-    	if(link['error'] != undefined || loss['loss_percent'] > 10 ) {
-    		//configData['lineColor'] = '#E4564F';
-    	    configData['lineColor'] = '#3182bd';
-    	}
-    	if(linksCount > 1 && (loss['loss_percent'] < 10 || !loss['diff']) && !configData['partialConnected'])
-    		configData['width'] = topologyView.getLinkWidth(bwRng['bytes'][0],bwRng.bytes[bwRng['bytes'].length-1],result['bytes_new']);
+    	/*if(link['error'] != null || loss['loss_percent'] > 10 ) {
+        configData['lineColor'] = '#E4564F';
+        }*/
+        //currently we are marking the link as red only if it partially connected 
+        if(link['error'] != null)
+            configData['lineColor'] = topologyColors['red'];
+        if(linksCount > 1 && (loss['loss_percent'] < 10 || !loss['diff']) && !configData['partialConnected'])
+            configData['width'] = topologyView.getLinkWidth(bwRng['bytes'][0],bwRng.bytes[bwRng['bytes'].length-1],result['bytes_new']);
         } else {
-    	if(link['error'] != undefined) {
-    		configData['partialConnected'] = true;
-    		configData['error'] = link['error'];
-    		//configData['lineColor'] = '#E4564F';
-    		configData['lineColor'] = '#3182bd';
-    	}
+            if(link['error'] != undefined) {
+                configData['partialConnected'] = true;
+                configData['error'] = link['error'];
+                configData['lineColor'] = topologyColors['red'];
+                //configData['lineColor'] = '#3182bd';
+            }
     	configData['width'] = 1.25;
     	configData['packets'] = 0;
     	configData['bytes'] = 0;
