@@ -110,7 +110,7 @@ function topologyRenderer() {
                         var siData=ifNull(jsonPath(response,'$..service-instances')[0],[]);
                         for(var j=0;j<siData.length;j++){
                             if(siData[j]['service-instance']['fq_name'].join(':') == nodes[i]['name'])
-                                configData['vm_count'] = ifNull(siData[j]['service-instance']['virtual_machine_back_refs'].length,0);
+                                configData['vm_count'] = ifNull(siData[j]['service-instance']['virtual_machine_back_refs'],[]).length;
                         }
                         // Bubble size in case of service instance is constant 
                         configData['size'] = size;
