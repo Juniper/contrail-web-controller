@@ -108,15 +108,18 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <name>networking</name>
                     <label>Networking</label>
+                    <rootDir>/monitor/tenant-network/common/ui</rootDir>
+                    <js>tenant_monitor_topology.js</js>
+                    <js>tenant_monitor_utils.js</js>
+                    <view>tenant_monitor_common.view</view>
                     <iconClass>icon-sitemap</iconClass>
                     <items>
                         <item>
                             <label>Dashboard</label>
                             <hash>mon_net_dashboard</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_network.js</js>
-                            <js>tenant_monitor_domain.js</js>
+                            <rootDir>/monitor/tenant-network/dashboard/ui</rootDir>
+                            <view>tenant_monitor_dashboard.view</view>
+                            <js>tenant_monitor_dashboard.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
                                 <fqName>default-domain</fqName>
@@ -126,12 +129,9 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Projects</label>
                             <hash>mon_net_projects</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
+                            <rootDir>/monitor/tenant-network/project/ui</rootDir>
                             <js>tenant_monitor_project.js</js>
-                            <js>tenant_monitor_domain.js</js>
-                            <js>tenant_monitor_topology.js</js>
-                            <js>tenant_monitor_network.js</js>
+                            <view>tenant_monitor_project.view</view>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
                                 <view>list</view>
@@ -143,10 +143,8 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Networks</label>
                             <hash>mon_net_networks</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
+                            <rootDir>/monitor/tenant-network/network/ui</rootDir>
                             <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_domain.js</js>
-                            <js>tenant_monitor_topology.js</js>
                             <js>tenant_monitor_network.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
@@ -160,9 +158,8 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Instances</label>
                             <hash>mon_net_instances</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_network.js</js>
+                            <rootDir>/monitor/tenant-network/instance/ui</rootDir>
+                            <view>tenant_monitor_instance.view</view>
                             <js>tenant_monitor_instance.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>

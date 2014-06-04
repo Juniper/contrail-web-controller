@@ -1,0 +1,61 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="summary-stats-template">
+    <div class="row-fluid">
+        <div class="span6">
+            <ul class="item-list">
+            {{#eachCustomIncrement this 0 2}}
+                <li>
+                    <label class="inline">
+                        <span class="key">{{lbl}}</span>
+                        <span class="value" data-bind='html:{{field}}'>&nbsp;</span>
+                    </label>
+                </li>
+            {{/eachCustomIncrement}}
+            </ul>
+        </div>
+        <div class="span6">
+            <ul class="item-list">
+              {{#eachCustomIncrement this 1 2}}  
+                <li>
+                    <label class="inline">
+                        <span class="key">{{lbl}}</span>
+                        <span class="value" data-bind='html:{{field}}'>&nbsp;</span>
+                    </label>
+                </li>
+            {{/eachCustomIncrement}}
+            </ul>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="summary-template">
+    <div class='summary-template row-fluid'>
+        <div class='summary-view row-fluid'>
+            {{#if widgetBoxId}}
+                <div id="{{widgetBoxId}}-box" class="widget-box transparent">
+                    <div class="widget-header">
+                        <h4 class="smaller"><i id="{{widgetBoxId}}-loading" class="icon-spinner icon-spin blue bigger-125" style="display:none"></i> {{title}}</h4>
+            {{else}}
+                <div class="widget-box transparent">
+                    <div class="widget-header">
+                        <h4 class="smaller"> {{title}} </h4>
+            {{/if}}
+                        <div class="widget-toolbar pull-right">
+                            <a data-action="collapse">
+                                <i class="icon-chevron-up"></i>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div class='summary-stats row-fluid'>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <div class='summary-charts row-fluid'></div>
+        </div>
+    </div>
+</script>
