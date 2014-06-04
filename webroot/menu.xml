@@ -300,15 +300,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure Network Policies</searchStrings>
                         </item>
                         <item>
-                            <label>Allocate Floating IPs</label>
-                            <hash>config_net_fip</hash>
-                            <rootDir>/config/fip/ui</rootDir>
-                            <js>fip_config.js</js>
-                            <view>fip_config.view</view>
-                            <class>FloatingIPConfigObj</class>
-                            <searchStrings>Allocate Floating IPs</searchStrings>
-                        </item>
-                        <item>
                             <label>IP Address Management</label>
                             <hash>config_net_ipam</hash>
                             <rootDir>/config/ipaddressmanagement/ui</rootDir>
@@ -316,6 +307,15 @@ and need to add the iconClass tag wherever we need to show some icons
                             <view>ipam_config.view</view>
                             <class>IPAddressManagementObj</class>
                             <searchStrings>IP Address Management, IPAM</searchStrings>
+                        </item>
+                        <item>
+                            <label>Allocate Floating IPs</label>
+                            <hash>config_net_fip</hash>
+                            <rootDir>/config/fip</rootDir>
+                            <js>fip_config.js</js>
+                            <view>fip_config.view</view>
+                            <class>FloatingIPConfigObj</class>
+                            <searchStrings>Allocate Floating IPs</searchStrings>
                         </item>
                    </items>
                 </item>
@@ -466,7 +466,7 @@ and need to add the iconClass tag wherever we need to show some icons
 	                <items>
 		                <item>
 		                    <hash>query_flow_series</hash>
-		                    <label>Flow Queries</label>
+		                    <label>Flow Series</label>
 		                    <rootDir>/reports</rootDir>
 		                    <view>flow_queries.view</view>
 		                    <view>queries.view</view>
