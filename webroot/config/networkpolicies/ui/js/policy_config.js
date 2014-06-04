@@ -1033,7 +1033,8 @@ function createRuleEntry(rule, len) {
                 $(inputTxtSrcPorts).val("ANY");
             } else {
                 for (var i = 0; i < rule["src_ports"].length; i++) {
-                    if (rule["src_ports"][i]["end_port"] !== -1)
+                    if (rule["src_ports"][i]["end_port"] !== -1 &&
+                        rule["src_ports"][i]["start_port"] != rule["src_ports"][i]["end_port"])
                         portDesc[i] = rule["src_ports"][i]["start_port"] + " - " + rule["src_ports"][i]["end_port"];
                     else
                         portDesc[i] = rule["src_ports"][i]["start_port"];
@@ -1049,7 +1050,8 @@ function createRuleEntry(rule, len) {
                 $(inputTxtDestPorts).val("ANY");
             } else {
                 for (var i = 0; i < rule["dst_ports"].length; i++) {
-                    if (rule["dst_ports"][i]["end_port"] !== -1)
+                    if (rule["dst_ports"][i]["end_port"] !== -1 && 
+                        rule["dst_ports"][i]["start_port"] != rule["dst_ports"][i]["end_port"])
                         portDesc[i] = rule["dst_ports"][i]["start_port"] + " - " + rule["dst_ports"][i]["end_port"];
                     else
                         portDesc[i] = rule["dst_ports"][i]["start_port"];
