@@ -28,10 +28,9 @@ monitorInfraAnalyticsDetailsClass = (function() {
                 var cpu = "N/A", memory = "N/A", aNodeDashboardInfo;
                 var endTime, startTime;
                 $.ajax({
-                    url: '/api/admin/current-time'
+                    url: '/api/service/networking/web-server-info'
                 }).done(function (resultJSON) {
-                    endTime = resultJSON['currentTime'];
-                    console.log(" ## endTime:: " + endTime);
+                    endTime = resultJSON['serverUTCTime'];
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {

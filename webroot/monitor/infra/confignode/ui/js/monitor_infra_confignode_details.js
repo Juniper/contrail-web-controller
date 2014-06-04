@@ -23,9 +23,9 @@ monitorInfraConfigDetailsClass = (function() {
         }).done(function (result) {
                 var noDataStr = "--";
                 $.ajax({
-                    url: '/api/admin/current-time'
+                    url: '/api/service/networking/web-server-info'
                 }).done(function (resultJSON) {
-                    endTime = resultJSON['currentTime'];
+                    endTime = resultJSON['serverUTCTime'];
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {
