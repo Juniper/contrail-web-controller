@@ -108,15 +108,18 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <name>networking</name>
                     <label>Networking</label>
+                    <rootDir>/monitor/tenant-network/common/ui</rootDir>
+                    <js>tenant_monitor_topology.js</js>
+                    <js>tenant_monitor_utils.js</js>
+                    <view>tenant_monitor_common.view</view>
                     <iconClass>icon-sitemap</iconClass>
                     <items>
                         <item>
                             <label>Dashboard</label>
                             <hash>mon_net_dashboard</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_network.js</js>
-                            <js>tenant_monitor_domain.js</js>
+                            <rootDir>/monitor/tenant-network/dashboard/ui</rootDir>
+                            <view>tenant_monitor_dashboard.view</view>
+                            <js>tenant_monitor_dashboard.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
                                 <fqName>default-domain</fqName>
@@ -126,12 +129,9 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Projects</label>
                             <hash>mon_net_projects</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
+                            <rootDir>/monitor/tenant-network/project/ui</rootDir>
                             <js>tenant_monitor_project.js</js>
-                            <js>tenant_monitor_domain.js</js>
-                            <js>tenant_monitor_topology.js</js>
-                            <js>tenant_monitor_network.js</js>
+                            <view>tenant_monitor_project.view</view>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
                                 <view>list</view>
@@ -143,10 +143,8 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Networks</label>
                             <hash>mon_net_networks</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
+                            <rootDir>/monitor/tenant-network/network/ui</rootDir>
                             <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_domain.js</js>
-                            <js>tenant_monitor_topology.js</js>
                             <js>tenant_monitor_network.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
@@ -160,9 +158,8 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Instances</label>
                             <hash>mon_net_instances</hash>
-                            <rootDir>/monitor/tenant_network</rootDir>
-                            <view>tenant_monitor_network.view</view>
-                            <js>tenant_monitor_network.js</js>
+                            <rootDir>/monitor/tenant-network/instance/ui</rootDir>
+                            <view>tenant_monitor_instance.view</view>
                             <js>tenant_monitor_instance.js</js>
                             <class>tenantNetworkMonitorView</class>
                             <queryParams>
@@ -237,7 +234,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>BGP Peers</label>
                             <hash>config_infra_bgp</hash>
-                            <rootDir>/config/bgp</rootDir>
+                            <rootDir>/config/bgp/ui</rootDir>
                             <view>bgp_config.view</view>
                             <js>bgp_config.js</js>
                             <class>bgpConfigObj</class>
@@ -246,7 +243,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Forwarding Options</label>
                             <hash>config_infra_fwdoptions</hash>
-                            <rootDir>/config/forwardingoptions</rootDir>
+                            <rootDir>/config/forwardingoptions/ui</rootDir>
                             <view>fwd_options_config.view</view>
                             <js>fwd_options_config.js</js>
                             <class>fwdOptionsConfigObj</class>
@@ -255,7 +252,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Link Local Services</label>
                             <hash>config_infra_lls</hash>
-                            <rootDir>/config/linklocalservices</rootDir>
+                            <rootDir>/config/linklocalservices/ui</rootDir>
                             <view>lls_config.view</view>
                             <js>lls_config.js</js>
                             <class>llsConfigObj</class>
@@ -284,7 +281,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Networks</label>
                             <hash>config_net_vn</hash>
-                            <rootDir>/config/vn</rootDir>
+                            <rootDir>/config/vn/ui</rootDir>
                             <js>vn_config.js</js>
                             <view>vn_config.view</view>
                             <class>virtualnetworkConfigObj</class>
@@ -293,11 +290,20 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Policies</label>
                             <hash>config_net_policies</hash>
-                            <rootDir>/config/networkpolicies</rootDir>
+                            <rootDir>/config/networkpolicies/ui</rootDir>
                             <js>policy_config.js</js>
                             <view>policy_config.view</view>
                             <class>networkpolicyConfigObj</class>
                             <searchStrings>Configure Network Policies</searchStrings>
+                        </item>
+                        <item>
+                            <label>IP Address Management</label>
+                            <hash>config_net_ipam</hash>
+                            <rootDir>/config/ipaddressmanagement/ui</rootDir>
+                            <js>ipam_config.js</js>
+                            <view>ipam_config.view</view>
+                            <class>IPAddressManagementObj</class>
+                            <searchStrings>IP Address Management, IPAM</searchStrings>
                         </item>
                         <item>
                             <label>Allocate Floating IPs</label>
@@ -307,15 +313,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <view>fip_config.view</view>
                             <class>FloatingIPConfigObj</class>
                             <searchStrings>Allocate Floating IPs</searchStrings>
-                        </item>
-                        <item>
-                            <label>IP Address Management</label>
-                            <hash>config_net_ipam</hash>
-                            <rootDir>/config/ipaddressmanagement</rootDir>
-                            <js>ipam_config.js</js>
-                            <view>ipam_config.view</view>
-                            <class>IPAddressManagementObj</class>
-                            <searchStrings>IP Address Management, IPAM</searchStrings>
                         </item>
                    </items>
                 </item>
@@ -335,7 +332,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Service Template</label>
                             <hash>config_sc_svctemplate</hash>
-                            <rootDir>/config/services/template</rootDir>
+                            <rootDir>/config/services/template/ui</rootDir>
                             <js>svctemplate_config.js</js>
                             <view>svctemplate_config.view</view>
                             <class>ServiceTemplatesObj</class>
@@ -344,7 +341,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Service Instances</label>
                             <hash>config_sc_svcInstances</hash>
-                            <rootDir>/config/services/instances</rootDir>
+                            <rootDir>/config/services/instances/ui</rootDir>
                             <js>svcinstances_config.js</js>
                             <view>svcinstances_config.view</view>
                             <class>ServicesInstancesObj</class>
@@ -368,7 +365,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Servers</label>
                             <hash>config_dns_dnsservers</hash>
-                            <rootDir>/config/dns/servers</rootDir>
+                            <rootDir>/config/dns/servers/ui</rootDir>
                             <js>dnsservers_config.js</js>
                             <view>dnsservers_config.view</view>
                             <class>dnsServersConfigObj</class>
@@ -377,7 +374,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Records</label>
                             <hash>config_dns_dnsrecords</hash>
-                            <rootDir>/config/dns/records</rootDir>
+                            <rootDir>/config/dns/records/ui</rootDir>
                             <js>dnsrecords_config.js</js>
                             <view>dnsrecords_config.view</view>
                             <class>dnsRecordsConfigObj</class>
@@ -466,7 +463,7 @@ and need to add the iconClass tag wherever we need to show some icons
 	                <items>
 		                <item>
 		                    <hash>query_flow_series</hash>
-		                    <label>Flow Queries</label>
+		                    <label>Flow Series</label>
 		                    <rootDir>/reports</rootDir>
 		                    <view>flow_queries.view</view>
 		                    <view>queries.view</view>
