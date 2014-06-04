@@ -34,9 +34,9 @@ monitorInfraComputeDetailsClass = (function() {
                 var chartWdth = parentWidth/2;
                 var endTime, startTime;
                 $.ajax({
-                    url: '/api/admin/current-time'
+                    url: '/api/service/networking/web-server-info'
                 }).done(function (resultJSON) {
-                    endTime = resultJSON['currentTime'];
+                    endTime = resultJSON['serverUTCTime'];
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {
