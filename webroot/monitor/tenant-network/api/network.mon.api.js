@@ -17,6 +17,7 @@ var cacheApi = require(ctrlerConfig.core_path + '/src/serverroot/web/core/cache.
     infraCmn = require('../../../common/api/infra.common.api'),
     logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
+    ctrlGlobal = require('../../../common/api/global'),
     appErrors = require(ctrlerConfig.core_path + '/src/serverroot/errors/app.errors');
 
 nwMonApi = module.exports;
@@ -945,9 +946,38 @@ function getFlowSeriesByCPU (req, res)
     };
 
     var url = '/flow_series/cpu';
+    var key = null;
+    switch (moduleId) {
+    case 'ControlNode':
+        key = ctrlGlobal.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES;
+        break;
+    case 'vRouterAgent':
+        key = ctrlGlobal.STR_GET_VROUTER_NODE_CPU_FLOW_SERIES;
+        break;
+    case 'Collector':
+        key = ctrlGlobal.STR_GET_COLLECTOR_CPU_FLOW_SERIES;
+        break;
+    case 'QueryEngine':
+        key = ctrlGlobal.STR_GET_QE_CPU_FLOW_SERIES;
+        break;
+    case 'OpServer':
+        key = ctrlGlobal.STR_GET_OPS_CPU_FLOW_SERIES;
+        break;
+    case 'ApiServer':
+        key = ctrlGlobal.STR_GET_API_SERVER_CPU_FLOW_SERIES;
+        break;
+    case 'ServiceMonitor':
+        key = ctrlGlobal.STR_GET_SVC_MON_CPU_FLOW_SERIES;
+        break;
+    case 'Schema':
+        key = ctrlGlobal.STR_GET_SCHEMA_FLOW_SERIES;
+        break;
+    default:
+        logutils.logger.error("Invalid moduleId specified: " + moduleId);
+        assert(0);
+    }
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
-                                             global.STR_JOB_TYPE_CACHE,
-                                             global.STR_GET_CPU_FLOW_SERIES,
+                                             global.STR_JOB_TYPE_CACHE, key,
                                              url, 0, 1, 0, -1, true, appData);
 }
 
