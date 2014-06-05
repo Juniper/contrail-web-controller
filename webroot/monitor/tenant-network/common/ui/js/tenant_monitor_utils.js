@@ -1564,25 +1564,23 @@ function initializeRefreshBtn() {
  */
 function getVirtualNetworksData(deferredObj,dataSource,dsObj) {
     //Check whether networkDatatSource is available and if not populate, else take it
-    //options = ifNull(options,{});
-    //var objType = ifNull(options['objType'],'');
     var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
                 'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
                 'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
     var obj = {};
+    //If the role is admin then we will display all the projects else 
+    var url = globalObj['webServerInfo']['role'] == 'admin' ? '/api/tenants/projects/default-domain' :'/api/tenants/config/projects';
     $.when($.ajax({
-                url:'/api/tenants/projects/default-domain',
+                url:url,
                 abortOnNavigate:enableHardRefresh == true ? false : true
             }), $.ajax({
                 url:'/api/tenants/config/virtual-networks',
                 abortOnNavigate:enableHardRefresh == true ? false : true
             })).done(function(projList,vnList) {
-                var kfilts = [],projNamesArr = [],projData = [];
+                var projNamesArr = [],projData = [];
                 $.each(ifNull(projList[0]['projects'],[]),function(idx,projObj) {
-                    kfilts.push(projObj['fq_name'].join(':') + ':*');
                     projData.push(projObj);
                     projNamesArr.push(projObj['fq_name'].join(':'));
-                    //globalObj['dataSources']['projectData'] = projData;
                     if(globalObj['dataSources']['projectDS'] != null)
                         globalObj['dataSources']['projectDS']['data'] = projData;
                     else
