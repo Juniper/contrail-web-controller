@@ -308,7 +308,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Allocate Floating IPs</label>
                             <hash>config_net_fip</hash>
-                            <rootDir>/config/fip</rootDir>
+                            <rootDir>/config/fip/ui</rootDir>
                             <js>fip_config.js</js>
                             <view>fip_config.view</view>
                             <class>FloatingIPConfigObj</class>
