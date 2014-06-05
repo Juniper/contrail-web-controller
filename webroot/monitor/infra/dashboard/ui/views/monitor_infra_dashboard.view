@@ -66,17 +66,16 @@
 
 <script type="text/x-handlebars-template" id="moreAlerts-template">
 <div id="moreAlerts" class="modal modal-840 hide">
-	  <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+	<div class="modal-header">
+    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
         <h6 class="modal-header-title">Alerts</h6>
-     </div>
-     <div class="modal-body">
-	   <div id="alertContent" style="height:333px">
-	 </div>
-	  <div class="modal-footer">
-	     <button id="alertsClose" class="btn btn-primary btn-mini" data-dismiss="modal" aria-hidden="true">Close</button>
-	  </div> 
-	 </div>
+    </div>
+    <div class="modal-body">
+	 	<div id="alertContent"></div>
+	</div>
+	<div class="modal-footer">
+	     <button id="alertsClose" class="btn btn-primary btn-mini" data-dismiss="modal" aria-hidden="true">Close</button> 
+	</div>
 </div>
 </script>
 
