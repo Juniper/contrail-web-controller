@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
+
 /*jshint node:true */
 module.exports = function( grunt ) {
 

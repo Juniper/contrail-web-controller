@@ -1,5 +1,5 @@
 <!--
- Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 
 <!-- Flow View Begins -->
@@ -12,9 +12,12 @@
         <div id="fs-query" class="row-fluid"></div>
         <div id="fs-results" class="row-fluid"></div>
         <div id="fs-chart" class="row-fluid hide">
+			<div class="chart-load-status">
+				<p> Loading Flow Series Charts ... </p>
+			</div>
         	<div id="ts-chart"></div>
-            <div class="margin-15-0-0" data-bind="visible: isFCVisible">
-            	<div id="fs-flow-classes" class="row-fluid"></div>
+            <div class="">
+            	<div id="fs-flow-classes" class="row-fluid hide margin-15-0-0"></div>
            	</div>
         </div>
     </div>
@@ -28,19 +31,19 @@
     <div id="{{queryPrefix}}-or-clause-items" class="row-fluid">
         {{#each whereClauseView}}
 			{{setLoopIndex @index}}
-			<div class="or-clause-item row-fluid">
-				<div class="span1 or-text">OR</div>
-				<div id="{{../queryPrefix}}-or-clause-item-{{@index}}" class="span11">
+			<div class="row-fluid or-text">OR</div>
+			<div id="{{../queryPrefix}}-or-clause-item-{{@index}}" class="or-clause-item row-fluid">
+				
 	        		<div class="or-clause-item-condensed row-fluid">
 						<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-left margin-0-5">
-							<i class="icon-caret-right" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
+							<i class="or-clause-icon-caret icon-caret-right" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
 	   					</div>
-				    	<p class="or-clause-item-term span10 margin-0-5" style="display:block;">{{this.text}}</p>
+				    	<p class="or-clause-item-term span10 margin-0-5" style="display:block;" onclick="toggleORClause('{{queryPrefix}}',this);">{{this.text}}</p>
 						<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-right margin-0-5">
 							<i class="icon-remove" onclick="deleteWhereORTerm(this);"></i>
 						</div>
 	    	    	</div>
-					<div class="or-clause-item-edit hide">
+					<div class="or-clause-item-edit">
         				<form onsubmit="return false;">
            	 				<div class="{{../queryPrefix}}-where-clause and-clauses">
                         		{{#each this.whereClauseEdit}}
@@ -62,19 +65,20 @@
                         		{{/each}}
 							</div>
                				<div class="row-fluid and-clause-item">
+								<div class="span1 and-text">&nbsp;</div>
 								<div class="span3 new-and-text">
-									<a class="add-clause" onclick="appendWhere('{{../queryPrefix}}',this);">New AND Term </a>
+									<a class="add-clause" onclick="appendWhere('{{../queryPrefix}}',this);"><i class="icon-plus"></i> &nbsp;AND</a>
 								</div>
 							</div>
         				</form>
     				</div>
-				</div>
+				
 			</div>
         {{/each}}
-		<div id="{{queryPrefix}}-or-clause-item-new-term" class="or-clause-item row-fluid">
+		<div id="{{queryPrefix}}-or-clause-item-new-term" class="or-clause-item row-fluid margin-5-0">
 			<div class="span10">
 				<div class="or-clause-item-condensed row-fluid">
-            		<a class="add-clause new-or-text" onclick="selectNewORClause('{{queryPrefix}}');">New OR Term </a>
+            		<a class="add-clause new-or-text" onclick="selectNewORClause('{{queryPrefix}}');"><i class="icon-plus"></i> &nbsp;OR</a>
 	        	</div>
 			</div>
     	</div>
@@ -83,24 +87,22 @@
 
 <script type="text/x-handlebars-template" id="flow-append-and-clause-template">
     <div id="append-where-clause-{{andIndex}}" class="row-fluid and-clause-item">
-        <div class="row-fluid margin-0-0-5">
-			<div class="span1 and-text">AND</div>
-            <select class="{{queryPrefix}}-new-and-clause-field span3" name="field[]"
-                    data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1, 'dropdownCssClass' : 'select2-large-width'}">
-            </select>
-            <select class="span1" name="operator[]"
-                    data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
-            </select>
-			<div class="span3">
-            	<input type="text" class="span12" name="value[]" value=""/>
-            </div>
-			<div class="span3">
-                <input type="text" class="span12" name="value2[]" value=""/>
-            </div>
-            <div class="{{queryPrefix}}-delete-new-and-clause span1">
-				<i class="icon-remove"></i>
-			</div>
+        <div class="span1 and-text">AND</div>
+        <select class="{{queryPrefix}}-new-and-clause-field span3" name="field[]"
+        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1, 'dropdownCssClass' : 'select2-large-width'}">
+      	</select>
+        <select class="span1" name="operator[]"
+        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+      	</select>
+		<div class="span3">
+           	<input type="text" class="span12" name="value[]" value=""/>
         </div>
+		<div class="span3">
+       		<input type="text" class="span12" name="value2[]" value=""/>
+     	</div>
+        <div class="{{queryPrefix}}-delete-new-and-clause span1">
+			<i class="icon-remove"></i>
+		</div>
     </div>
 </script>
 
@@ -386,10 +388,6 @@
 	    	<button class="btn btn-primary btn-mini" onclick="addFSFilter();">Apply</button>
 		</div>
     </div>
-</script>
-
-<script type="text/x-handlebars-template" id="no-data">
-    <div class='no-data-text pull-left'>Time-series graph is not available for this query.</div>
 </script>
 
 <!-- Flow-Series View Ends -->

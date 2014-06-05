@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
 var flowSeriesObj = new flowSeriesObj(),
@@ -12,22 +12,22 @@ var fsQuery = queries['fs'],
     frQuery = queries['fr'];
 
 fsQuery['columnDisplay'] = [
-    {select:"T", display:{id:"T", field:"T", width:210, name:"Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.T);}, filterable:false, groupable:false}},
+    {select:"T", display:{id:"T", field:"T", width:180, minWidth:180, name:"Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.T);}, filterable:false, groupable:false}},
     {select:"vrouter", display:{id:"vrouter",field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
     {select:"sourcevn", display:{id:"sourcevn",field:"sourcevn", width:250, name:"Source VN", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
     {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
-    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:150, name:"Source IP", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
-    {select:"destip", display:{id:"destip", field:"destip", width:150, name:"Destination IP", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
-    {select:"sport", display:{id:"sport", field:"sport", width:150, name:"Source Port", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
-    {select:"dport", display:{id:"dport", field:"dport", width:150, name:"Destination Port", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
-    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:150, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
-    {select:"protocol", display:{id:"protocol", field:"protocol", width:150, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"bytes", display:{id:"bytes", field:"bytes", width:150, name:"Bytes", format:"{0:n0}", groupable:false}},
-    {select:"sum(bytes)", display:{id:"sum_bytes", field:"sum_bytes", width:150, name:"SUM(Bytes)", format:"{0:n0}", groupable:false}},
-    {select:"avg(bytes)", display:{id:"avg_bytes", field:"avg_bytes", width:150, name:"AVG(Bytes)", format:"{0:n0}", groupable:false}},
-    {select:"packets", display:{id:"packets", field:"packets", width:150, name:"Packets", format:"{0:n0}", groupable:false}},
-    {select:"sum(packets)", display:{id:"sum_packets", field:"sum_packets", width:150, name:"SUM(Packets)", format:"{0:n0}", groupable:false}},
-    {select:"avg(packets)", display:{id:"avg_packets", field:"avg_packets", width:150, name:"AVG(Packets)", format:"{0:n0}", groupable:false}}
+    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:120, name:"Source IP", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
+    {select:"destip", display:{id:"destip", field:"destip", width:120, name:"Destination IP", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
+    {select:"sport", display:{id:"sport", field:"sport", width:120, name:"Source Port", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
+    {select:"dport", display:{id:"dport", field:"dport", width:120, name:"Destination Port", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
+    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:120, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
+    {select:"protocol", display:{id:"protocol", field:"protocol", width:100, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
+    {select:"bytes", display:{id:"bytes", field:"bytes", width:120, name:"Bytes", format:"{0:n0}", groupable:false}},
+    {select:"sum(bytes)", display:{id:"sum_bytes", field:"sum_bytes", width:100, name:"SUM(Bytes)", format:"{0:n0}", groupable:false}},
+    {select:"avg(bytes)", display:{id:"avg_bytes", field:"avg_bytes", width:100, name:"AVG(Bytes)", format:"{0:n0}", groupable:false}},
+    {select:"packets", display:{id:"packets", field:"packets", width:100, name:"Packets", format:"{0:n0}", groupable:false}},
+    {select:"sum(packets)", display:{id:"sum_packets", field:"sum_packets", width:100, name:"SUM(Packets)", format:"{0:n0}", groupable:false}},
+    {select:"avg(packets)", display:{id:"avg_packets", field:"avg_packets", width:100, name:"AVG(Packets)", format:"{0:n0}", groupable:false}}
 ];
 
 fsQuery['fcColumnDisplay'] = [
@@ -41,19 +41,19 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
-    {select:"setup_time", display:{id:"setup_time", field:"setup_time", width:210, name:"Setup Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.setup_time); }, filterable:false, groupable:false}},
+    {select:"setup_time", display:{id:"setup_time", field:"setup_time", width:180, minWidth:180, name:"Setup Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.setup_time); }, filterable:false, groupable:false}},
     {select:"teardown_time", display:{id:"teardown_time", field:"teardown_time", width:210, name:"Teardown Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.teardown_time); }, filterable:false, groupable:false}},
     {select:"vrouter", display:{id:"vrouter", field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
     {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:250, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
     {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
-    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:150, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
-    {select:"destip", display:{id:"destip", field:"destip", width:150, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
-    {select:"sport", display:{id:"sport", field:"sport", width:150, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
-    {select:"dport", display:{id:"dport", field:"dport", width:150, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
-    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:150, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
-    {select:"protocol", display:{id:"protocol", field:"protocol", width:150, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"agg-bytes", display:{id:'["agg-bytes"]', field:'["agg-bytes"]', width:150, name:"Aggregate Bytes", format:"{0:n0}", groupable:false}},
-    {select:"agg-packets", display:{id:'["agg-packets"]', field:'["agg-packets"]', width:150, name:"Aggregate Packets", format:"{0:n0}", groupable:false}}
+    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:120, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
+    {select:"destip", display:{id:"destip", field:"destip", width:120, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
+    {select:"sport", display:{id:"sport", field:"sport", width:120, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
+    {select:"dport", display:{id:"dport", field:"dport", width:120, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
+    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:120, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
+    {select:"protocol", display:{id:"protocol", field:"protocol", width:120, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
+    {select:"agg-bytes", display:{id:'["agg-bytes"]', field:'["agg-bytes"]', width:120, name:"Aggregate Bytes", format:"{0:n0}", groupable:false}},
+    {select:"agg-packets", display:{id:'["agg-packets"]', field:'["agg-packets"]', width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}}
 ];
 
 frQuery['defaultColumns'] = ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'];
@@ -89,7 +89,7 @@ function flowQueryQueueObj() {
 };
 
 function ChartViewModel() {
-    this.isFCVisible = ko.observable(false);
+    this.isFCLoaded = ko.observable(false);
     this.flowClasses = ko.observableArray([]);
     this.fsChartData = ko.observable({});
     this.seriesValues = ko.observableArray([]);
@@ -112,7 +112,6 @@ function FlowFilterViewModel(queryPrefix, resetFunction) {
     this.isEnabled = getFSDefaultFilterIsEnabled();
     this.limit = ko.observable("");
     this.sortOrder = ko.observable("asc");
-    this.checkedFilters = ko.observableArray([]);
     this.reset = resetFunction;
 };
 
@@ -340,6 +339,17 @@ function addFSFilter() {
 };
 
 function runFSQuery() {
+    var serverCurrentTime;
+    $.ajax({
+        url: '/api/admin/current-time'
+    }).done(function (resultJSON) {
+        serverCurrentTime = resultJSON['currentTime'];
+    }).always(function() {
+        runFSQueryCB(serverCurrentTime)
+    });
+}
+
+function runFSQueryCB(serverCurrentTime) {
     var reqQueryObj = $('#fs-query-form').serializeObject(),
         queryPrefix = 'fs',
         select = $("#fs-query-form input[name='select']").val(),
@@ -347,9 +357,9 @@ function runFSQuery() {
         options = getFSDefaultOptions(showChartToggle),
         queryId, fsGridDisplay, selectArray, labelStepUnit, fcGridDisplay,
         tg, tgUnit;
+    options['serverCurrentTime'] = serverCurrentTime;
     if ($("#" + queryPrefix + "-query-form").valid()) {
     	collapseWidget('#fs-query-widget');
-        initFSChartLoading();
         queryId = randomUUID();
         options.queryId = queryId;
         reqQueryObj = setUTCTimeObj('fs', reqQueryObj, options);
@@ -379,15 +389,31 @@ function runFSQuery() {
 };
 
 function viewFSQueryResults(dataItem, params) {
+    var serverCurrentTime;
+    $.ajax({
+        url: '/api/admin/current-time'
+    }).done(function (resultJSON) {
+        serverCurrentTime = resultJSON['currentTime'];
+    }).always(function() {
+        viewFSQueryResultsCB(dataItem, params, serverCurrentTime)
+    });
+}
+
+function viewFSQueryResultsCB(dataItem, params, serverCurrentTime) {
     var options = null, queryId = dataItem.queryId,
         queryJSON = dataItem.queryJSON, reqQueryObj = {},
         tg = dataItem.tg, tgUnit = dataItem.tgUnit, tgIndex,
         reRun = params['reRun'], timeObj = params['timeObj'],
         reRunQueryObj = params['reRunQueryObj'], queryPrefix = params['queryPrefix'],
-        selectArray, fsGridDisplay, labelStepUnit, fcGridDisplay;
+        selectArray, fsGridDisplay, labelStepUnit, fcGridDisplay, reRunTimeRange;
     selectArray = queryJSON['select_fields'];
-
     if(reRun) {
+        if(timeObj["reRunTimeRange"] != null) {
+            reRunTimeRange = parseInt(timeObj["reRunTimeRange"]);
+            timeObj['fromTime'] = timeObj['fromTimeUTC'] = serverCurrentTime - (reRunTimeRange*1000);
+            timeObj['toTime'] = timeObj['toTimeUTC'] = serverCurrentTime;
+            reRunQueryObj.engQueryStr = getEngQueryStr(reRunQueryObj);
+        }
         queryId = randomUUID();
         reqQueryObj = reRunQueryObj;
         reqQueryObj = setUTCTimeObj(queryPrefix, reqQueryObj, options, timeObj);
@@ -419,7 +445,6 @@ function viewFSQueryResults(dataItem, params) {
         options.queryId = queryId;
         tgIndex = selectArray.indexOf("T=" + options.interval);
         selectArray.splice(tgIndex, 1);
-        initFSChartLoading();
     } else {
         options = getFSDefaultOptions(false);
     }

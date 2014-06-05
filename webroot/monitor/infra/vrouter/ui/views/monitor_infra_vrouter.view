@@ -1,0 +1,206 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="computenodes-template">
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="widget-box transparent" id="recent-box">
+                    <div class="widget-header" id='vrouter-header'></div>
+                    <div class="widget-body">
+                        <div class="widget-main padding-4">
+                            <div class="row-fluid">
+                                <div class="span12">
+                                    <div id="vrouters-bubble" class="infra-node-chart" style="margin:-10px 0 0 0;height:290px;">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row-fluid">
+                                <div class="span12 charts" style="box-sizing: border-box; padding-left: 60px;">
+                                    <div id="vn-chart" class="chart span4 margin-0-0-10">
+                                        <div class="title">vRouters over Virtual Networks</div>
+                                    </div>
+                                    <div id="inst-chart" class="span4 margin-0-0-10 chart">
+                                        <div class="title">vRouters over Instances</div>
+                                    </div>
+                                    <div id="intf-chart" class="chart span4 margin-0-0-10">
+                                        <div class="title text-center">vRouters over Interfaces</div>
+                                    </div>
+                                </div>
+                                <div class="hr hr16 hr-dotted"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div id="divcomputesgrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="computenode-template">
+    <div class='contrail' >
+        <div id="compute_tabstrip">
+            <ul>
+                <li><a href="#mon-infra-compute-details-tab">Details</a></li>
+                <li><a href="#mon-infra-compute-interfaces-tab">Interfaces</a></li>
+                <li><a href="#mon-infra-compute-networks-tab">Networks</a></li>
+                <li><a href="#mon-infra-compute-acl-tab">ACL</a></li>
+                <li><a href="#mon-infra-compute-flows-tab">Flows</a></li>
+                <li><a href="#mon-infra-compute-routes-tab">Routes</a></li>
+                <li><a href="#mon-infra-compute-console-tab">Console</a></li>
+            </ul>
+            <div class="row-fluid" id="mon-infra-compute-details-tab">
+                <div id='computenode-dashboard' class='span5'></div>
+                
+                <div id='vrouter-detail-charts' class="span7">
+                    <div class="row-fluid">
+                        <div id="vrouter-sparklines-box" class="widget-box transparent">
+                            <div class="widget-header">
+                                <h4 class="smaller">
+                                    <i id="vrouter-sparklines-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    CPU and Memory Utilization
+                                </h4>
+                                <div class="widget-toolbar pull-right">
+                                    <a  data-action="collapse">
+                                        <i class="icon-chevron-up"></i>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="widget-body">
+                                <div class="widget-main padding-4">
+                                    <div class="row-fluid">
+                                        <div id="vrouter-sparklines" class="span4 vrouter-chart-link sparklines-box">
+                                            <p class="sparkline-title">vRouter</p>
+                                            <div class="row-fluid">
+                                               <span class="span3"><small>CPU</small></span> <span id="cpu_share_sparkline" class="span8 pull-right"></span>
+                                             </div>
+                                             <div class="row-fluid">
+                                               <span class="span3"><small>Memory</small></span> <span id="virt_mem_sparkline" class="span8 pull-right"></span>
+                                             </div>
+                                        </div>
+                                        <div id="system-sparklines" class="span4 system-chart-link sparklines-box">
+                                            <p class="sparkline-title">System</p>
+                                            <div class="row-fluid">
+                                               <span class="span3"><small>CPU</small></span> <span id="one_min_avg_cpuload_sparkline" class="span8 pull-right"></span>
+                                             </div>
+                                             <div class="row-fluid">
+                                               <span class="span3"><small>Memory</small></span> <span id="used_sys_mem_sparkline" class="span8 pull-right"></span>
+                                             </div>
+                                        </div>
+                                    </div>
+                                </div><!-- /widget-main -->
+                            </div><!--/widget-body -->
+                        </div><!--/widget-box-->
+                        <div class="widget-box transparent" id="vrouter-chart-box">
+	            		<div class="widget-header">
+	            		
+	            			<h4 class="smaller">
+                                <i id="vrouter-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                vRouter CPU/Memory Utilization
+	            			</h4>
+                            <div class="widget-toolbar pull-right">
+                                <a  data-action="collapse">
+                                    <i class="icon-chevron-up"></i>
+                                </a>
+                            </div>
+	            		</div>
+	            		<div class="widget-body">
+	            			<div class="widget-main padding-4">
+	            				<div id='vrouter-chart' class='row-fluid'>
+	            				</div>
+	            			</div><!-- /widget-main -->
+	            		</div><!--/widget-body -->
+	            	</div><!--/widget-box-->
+	            	<div class="widget-box transparent hide" id="system-chart-box">
+	            		<div class="widget-header">
+	            			<h4 class="smaller">
+                                <i id="system-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                System CPU/Memory Utilization
+	            			</h4>
+	            			<div class="widget-toolbar">
+	            				<a  data-action="collapse">
+	            					<i class="icon-chevron-up"></i>
+	            				</a>
+	            			</div>
+	            		</div>
+	            		<div class="widget-body">
+	            			<div class="widget-main padding-4">
+	            				<div id='system-chart' class='row-fluid'></div>
+	        				</div><!-- /widget-main -->
+	            		</div><!--/widget-body -->
+	            	</div><!--/widget-box-->
+					</div>
+				</div>
+				<div class="footer-links">
+                                        <a id="linkLogs" class="pull-right hide">Logs</a>  
+					<a id="linkIntrospect" class="pull-right">Introspect</a>
+					<a id="linkStatus" class="pull-right">Status</a>
+				</div>
+            </div>
+            <div id="mon-infra-compute-interfaces-tab">
+                <div id="contInterfaces" class='height-100'>
+                    <div id='gridComputeInterfaces'></div>
+                </div>
+            </div>
+            <div id="mon-infra-compute-networks-tab">
+                <div id="contVN" class='height-100'>
+                    <div class='contrail' id='gridComputeVN'></div>
+                </div>
+            </div>
+            <div id="mon-infra-compute-acl-tab">
+                <div id="contACL" class='height-100'>
+                    <div class='contrail' id='gridComputeACL'></div>
+                </div>
+            </div>
+            <div id="mon-infra-compute-flows-tab">
+                <div id='contFlows' class='height-100'>
+                    
+                    <div class='row-fluid'>
+	                    <div class='span10'>
+		                    <div class='row-fluid'>
+		                    	<label for='aclDropDown' class='margin-5-0 span2'>ACL UUID</label>
+		                    	<div class='span6' id='aclDropDown'></div>
+	                    	</div>
+	                    </div>
+                    	<div class='pull-right'>
+	                    	<button id='btnPrevFlows' class='btn btn-primary btn-mini'><< Prev</button>
+	                    	<button id='btnNextFlows' class='btn btn-primary btn-mini'>Next >></button>
+                    	</div>
+                    </div>
+                    <div class='contrail' id='gridComputeFlows'></div>
+                </div>
+            </div>
+            <div id="mon-infra-compute-routes-tab">
+                <div id='contvRouterRoutes' class='row-fluid'>
+                    <div id='formRoutes' class='row-fluid margin-0-0-10'>
+						<div class="span4">
+	                        <label for='comboVRF' class='small'>VRF</label>
+    		                <div>    
+								<input id='comboVRF' class='span12' tabindex=0></input>
+							</div>
+						</div>
+						<div class="span4">
+                        	<label for='comboVRF'>Show Routes</label>
+							<div>
+		                        <input type='radio' name='routeType' id='rdboxUnicast' checked='checked' class="ace-input" value='ucast' tabindex=0/><span class="ace-lbl">Unicast&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        		<input type='radio' name='routeType' id='rdboxMulticast' class="ace-input" class="ace-input" value='mcast' tabindex=0/><span class="ace-lbl">Multicast&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                        		<input type='radio' name='routeType' id='rdboxL2' class="ace-input" class="ace-input" value='l2' tabindex=0/><span class="ace-lbl">L2&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    		</div>
+						</div>
+					</div>
+                    <div id='gridvRouterUnicastRoutes'></div>
+                    <div id='gridvRouterMulticastRoutes'></div>
+                    <div id='gridvRouterL2Routes' ></div>
+                </div>
+            </div>
+            <div id="mon-infra-compute-console-tab">
+	            <div id='computeNodeMessagesTab'></div>
+	        </div>
+        </div>
+    </div>
+</script>
+

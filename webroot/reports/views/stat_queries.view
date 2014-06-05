@@ -1,4 +1,4 @@
-<!-- Copyright (c) 2013 Juniper Networks, Inc. All rights reserved. -->
+<!-- Copyright (c) 2014 Juniper Networks, Inc. All rights reserved. -->
 
 <script type="text/x-handlebars-template" id="stat-template">
     <div id="sqq-container" class="row-fluid hide">
@@ -176,7 +176,7 @@
                             <div>
                                 <div class="input-append inset span12">
                                     <textarea id="{{queryPrefix}}-filter" name="filters" class="span12 filter-textarea" rows="1" value=""></textarea>
-                                    <span class="add-on"><i class="icon-pencil" onclick="openFilter('{{queryPrefix}}');"></i></span>
+                                        <span class="add-on"><i class="icon-pencil" onclick="openFilter('{{queryPrefix}}', 'modal-840');"></i></span>
                                 </div>
                             </div>
                         </div>

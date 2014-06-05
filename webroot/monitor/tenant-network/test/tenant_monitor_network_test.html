@@ -1,0 +1,38 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>QUnit Main Test Suite</title>
+    <link rel="stylesheet" href="../../../assets/qunit/qunit.css">
+
+</head>
+<body>
+    <div id="qunit"></div>
+    <div id="qunit-fixture">test markup</div>
+
+        <script type="text/javascript">
+            var built_at="";
+        </script>
+
+        <script src="../../../assets/qunit/qunit.js"></script>
+        <script src="../../../assets/sinon/sinon.js"></script>
+        <script src="../../../js/contrail-all-1.js?built_at="></script>
+        <script src="../../../js/contrail-all-2.js?built_at="></script>
+        <script src="../../../js/contrail-all-3.js?built_at="></script>
+        <script src="../../../js/contrail-all-4.js?built_at="></script>
+        <script src="../../../js/contrail-all-5.js?built_at="></script>
+        <script data-cover src="../js/tenant_monitor_network.js?built_at="></script>
+        <script data-cover src="../js/tenant_monitor_domain.js?built_at="></script>
+        <script data-cover src="../js/tenant_monitor_topology.js?built_at="></script>
+        <script data-cover src="../js/tenant_monitor_instance.js?built_at="></script>
+        <script data-cover src="../js/tenant_monitor_project.js?built_at="></script>
+        <script src="tenant_monitor_network_mock.js?built_at="></script>
+        <script src="tenant_monitor_network_test.js?built_at="></script>
+    <!--<script src="/js/sinon-1.7.3.js"></script>
+    <script src="/js/sinon-qunit-1.0.0.js"></script>-->
+        <!--<script src="/js/qunit-tests.js?built_at="></script>-->
+</body>
+</html>

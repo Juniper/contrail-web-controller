@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
 PacketCaptureObj = new PacketCapture();
@@ -64,10 +64,7 @@ function initComponents() {
     $("#gridAnalyzer").contrailGrid({
     	header : {
 			title : {
-				text : 'Analyzers',
-				cssClass : 'blue',
-				icon : 'icon-list',
-				iconCssClass : 'blue'
+				text : 'Analyzers'
 			},
 			customControls: ['<a id="btnDeleteAnalyzer" class="disabled-link" title="Remove Analyzer(s)"><i class="icon-trash"></i></a>',
 	                            '<a id="btnCreateAnalyzer" title="Create Analyzer"><i class="icon-plus"></i></a>',
@@ -80,17 +77,20 @@ function initComponents() {
 				id: 'AnalyzerName',
 				field: 'AnalyzerName',
 				name: 'Analyzer Name',
+				width: 200,
 				sortable: true
 			},
 			{
 				id: "VirtualNetwork",
 				field: "VirtualNetwork",
-				name: "Virtual Network"
+				name: "Virtual Network",
+				width: 150
 			},
 			{
 				id:"AssociatedNetwork",
 				field:"AssociatedNetwork",
 				name:"Associated Networks",
+				width: 150,
 				formatter: function(r, c, v, cd, dc) {
 					var returnString = '';
 					if(typeof dc.AssociatedNetworks === "object") {
@@ -117,9 +117,10 @@ function initComponents() {
 				id:"PolicyRules",
 				field:"PolicyRules",
 				name:"Analyzer Rules",
+				width: 500,
 				formatter: function(r, c, v, cd, dc) {
+					var returnString = '';
 					if(typeof dc.PolicyRules === "object") {
-						var returnString = '';
 						for(var i=0;i < dc.PolicyRules.length,i<2;i++) {
 							if(typeof dc.PolicyRules[i] !== "undefined") {
 								returnString += dc.PolicyRules[i] + '<br>';
@@ -144,7 +145,7 @@ function initComponents() {
 			{
 				id:"vmStatus",
 				field:"vmStatus",
-				width: "100",
+				width: 100,
 				name:"Status",
 				formatter: function(r, c, v, cd, dc) {
 					var vmStatus = dc.vmStatus;
@@ -217,8 +218,8 @@ function initComponents() {
 			pager : {
 				type : 'client',
 				options : {
-					pageSize : 5,
-					pageSizeSelect : [5, 10, 50 ]
+					pageSize : 50,
+					pageSizeSelect : [5, 10, 50, 100]
 				}
 			}
 		}
@@ -307,7 +308,7 @@ function deleteAnalyzers(selectedRows){
     	var selectedRowIds = [];
     	$.each(selectedRows, function(key,val) {
     		selectedRowIds.push(val.id);
-    	})
+    	});
     	
     	gridAnalyzer._dataView.deleteDataByIds(selectedRowIds);
         
@@ -350,7 +351,7 @@ function initActions() {
     });
     
     btnCnfDelAnalyzerPopupOK.click(function (a) {
-        var selected_rows = gridAnalyzer.getCheckedRows()
+        var selected_rows = gridAnalyzer.getCheckedRows();
         deleteAnalyzers(selected_rows);
         confirmDelete.modal('hide');
     });
@@ -715,7 +716,7 @@ function successHandlerForGridAnalyzerRow(analyzerPolicy, analyzers) {
             vmUUId = null;
             reload = true;
         } else {
-            vmUUId = vmBackRefs[0]["uuid"]
+            vmUUId = vmBackRefs[0]["uuid"];
         }
         if(analyzers[i]['ConfigData']['service-instance']['service_instance_properties']['left_virtual_network'] != "") {
             virtualNetwork = getVNName(analyzers[i]['ConfigData']['service-instance']['service_instance_properties']['left_virtual_network']);
@@ -758,7 +759,7 @@ function closeCreateAnalyzerWindow() {
 function clearValuesFromDomElements() {
     mode = "";
     txtPolicyName.val("");
-    txtAnalyzerName.val("")
+    txtAnalyzerName.val("");
     txtAnalyzerName[0].disabled = false;
     msAssociatedNetworks.data("contrailMultiselect").value("");
     dlVirtualNetwork.value("Automatic");
@@ -782,7 +783,7 @@ function launchAnalyzer(rowIndex) {
     var vmUUID = selectedRow['VMUUID'];
     var analyzerName = selectedRow['AnalyzerName'];
     if(vmUUID == null) {
-        showInfoWindow("Analyzer is not ready. Please try after few minutes.", "Launch Analyzer")
+        showInfoWindow("Analyzer is not ready. Please try after few minutes.", "Launch Analyzer");
     } else {
         var url = "/api/tenants/config/service-instance-vm?project_id=" + selectedProject + "&vm_id=" + vmUUID;
         doAjaxCall(url, "GET", null, "launchAnayzerInstanceCB", "failureLaunchVNCcb", false, {"sameWindow": true, "title": "VNC Console: " + analyzerName});
@@ -847,7 +848,7 @@ function showAnalyzerEditWindow(mode,rowIndex) {
                 var selectedRow = gridAnalyzer._dataView.getItem(rowIndex);
                 windowCreateAnalyzer.find('.modal-header-title').text('Edit Analyzer: ' + selectedRow.AnalyzerName);
                 txtPolicyName.val(selectedRow.NetworkPolicy);
-                txtAnalyzerName.val(selectedRow.AnalyzerName)
+                txtAnalyzerName.val(selectedRow.AnalyzerName);
                 txtAnalyzerName[0].disabled = true;
 
                 dlVirtualNetwork.value(selectedRow.VirtualNetwork);
@@ -1006,7 +1007,7 @@ function getAnalyzerPolicy(analyzerPolicyName) {
             } else if (i == ruleTuples.length - 1) {
                 rule["ui_rule_id"]["last"] = null;
             } else {
-                rule["ui_rule_id"]["after"] = i - 1 + ".0"
+                rule["ui_rule_id"]["after"] = i - 1 + ".0";
             }
             rule["direction"] = direction;
             rule["protocol"] = protocol.toLowerCase();
@@ -1074,7 +1075,7 @@ function getAnalyzer() {
 function getVNName(vnFullName) {
     var vnArray;
     if(vnFullName == "any" || vnFullName == "local") {
-        return vnFullName
+        return vnFullName;
     } else {
         vnArray = vnFullName.split(":");
         if (vnArray.length == 3) {

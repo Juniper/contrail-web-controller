@@ -1,16 +1,14 @@
 /*
- * Copyright (c) 2013 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var cdbTemplate = Handlebars.compile($('#cdb-template').html());
-var table = "",
-    gridTitle = 'Config DB';
+var cdbTemplate = contrail.getTemplate4Id('cdb-template');
 
 var fqNameTableObj = new fqNameTableObj(),
     uuidTableObj = new uuidTableObj();
 
 var cdbColumns = {
-    key: [{
+    keys: [{
         field:"key",
         name:"Key",
         cssClass:'cell-hyperlink-blue',
@@ -21,7 +19,7 @@ var cdbColumns = {
             }
         }
     }],
-    keyValues: [{
+    keyvalues: [{
             field:"keyvalue",
             name:"Key Value",
             searchable: true
@@ -39,74 +37,75 @@ function uuidTableObj() {
 };
 
 function loadFQNameTable() {
-    $(contentContainer).html('');
     $(contentContainer).html(cdbTemplate);
-    var url = "/api/query/cassandra/keys/obj_fq_name_table";
-    currTab = 'setting_configdb_fqname';
-    table = "obj_fq_name_table";
-    gridTitle = 'FQ Name Table Keys';
-    createGrid([], 'key', true);
-    doAjaxCall(url, "GET", null, "successListKeys", "failureListKeys", false, null);
+    var gridConfig = {
+    		url: "/api/query/cassandra/keys/obj_fq_name_table", 
+    	    table: "obj_fq_name_table",
+    		gridTitle: 'FQ Name Table Keys',
+    		columnName: 'keys'
+    };
+    createGrid(gridConfig, true);
 };
 
 function loadUUIDTable() {
-    $(contentContainer).html('');
     $(contentContainer).html(cdbTemplate);
-    var url = "/api/query/cassandra/keys/obj_uuid_table";
-    currTab = 'setting_configdb_uuid';
-    table = "obj_uuid_table";
-    gridTitle = 'UUID Table Keys';
-    createGrid([], 'keyValues', true);
-    doAjaxCall(url, "GET", null, "successListKeys", "failureListKeys", false, null);
-};
-
-function successListKeys(results) {
-    createGrid(results.keys, 'key', true, results["editEnabled"]);
-    if(results.length == 0) {
-        $('#cdb-results').data('contrailGrid').showGridMessage('empty');
-    }
-};
-
-function failureListKeys(error) {
-    createGrid([], 'keyValues', true);
-    $('#cdb-results').data('contrailGrid').showGridMessage('errorGettingData');
+    var gridConfig = {
+    		url: "/api/query/cassandra/keys/obj_uuid_table", 
+    	    table: "obj_uuid_table",
+    		gridTitle: 'UUID Table Keys',
+    		columnName: 'keys'
+    };
+    createGrid(gridConfig, true);
 };
 
 function loadKeyValues(elementId) {
-    var elements = elementId.split("~"),
-         url = "/api/query/cassandra/values/" + elements[0] + "/" + elements[1];
-    gridTitle = 'Key Values: ' + elements[1]
-    createGrid([], 'keyValues', true);
-    doAjaxCall(url, "GET", null, "successListValues", "failureListValues", false, null);
+    var elements = elementId.split("~");
+    var gridConfig = {
+    		url: '/api/query/cassandra/values/' + elements[0] + '/' + elements[1], 
+    	    table: elements[0],
+    		gridTitle: 'Key Values: ' + elements[1],
+    		columnName: 'keyvalues'
+    };
+    createGrid(gridConfig, false);
 };
 
-function createGrid(results, columnName, disableBackButton, editEnabled) {
-    $("#cdb-results").contrailGrid({
+function createGrid(gridConfig, disableBackButton) {
+	var editEnabled = true;
+	$("#cdb-results").contrailGrid({
         header: {
             title:{
-                text: gridTitle,
-                cssClass: 'blue',
-                icon: 'icon-list',
-                iconCssClass: 'blue'
+                text: gridConfig.gridTitle
             },
-            customControls:disableBackButton ? [] : ['<a data-action="collapse" onclick="reloadTable();"><i class="icon-arrow-left"></i> Back</a>']
+            defaultControls: {
+				refreshable: true
+			},
+            customControls:disableBackButton ? [] : ['<a data-action="collapse" onclick=reloadTable("' + gridConfig.table + '");><i class="icon-arrow-left"></i> Back</a>']
         },
         columnHeader: {
-            columns: cdbColumns[columnName]
+            columns: cdbColumns[gridConfig.columnName]
         },
         body: {
             options: {
                 forceFitColumns: true,
                 actionCell: function(dc){
-                    if(editEnabled){
-                        return getActionCog(columnName);
+                	if(editEnabled){
+                        return getActionCog(gridConfig.columnName);
                     }else {
                         return [];
                     }
                 }
             },
             dataSource : {
-                data : results
+            	remote: {
+                    ajaxConfig: {
+                        url: gridConfig.url
+                    },
+                    dataParser: function(response){
+                    	editEnabled = response.editEnabled;
+                    	return response[gridConfig.columnName];
+                    },
+                    serverSidePagination: false
+                }
             },
             statusMessages: {
                 empty: {
@@ -130,25 +129,16 @@ function createGrid(results, columnName, disableBackButton, editEnabled) {
     });
 };
 
-function successListValues(results) {
-    createGrid(results["keyvalues"], 'keyValues', false, results["editEnabled"]);
-};
-
-function failureListValues(error) {
-    createGrid([], 'keyValues', false);
-    $('#cdb-results').data('contrailGrid').showGridMessage('errorGettingData');
-};
-
 function getActionCog(columnName){
     return [{
         title: 'Delete',
             iconClass: 'icon-trash',
         onClick: function(rowIndex){
             var selectedRow = $('#cdb-results').data('contrailGrid')._dataView.getItem(rowIndex);
-            if(columnName === "key"){
-                onDeleteKey(selectedRow);
-            }else if(columnName === "keyValues"){
-                onDeleteValue4Key(selectedRow);
+            if(columnName === "keys"){
+            	createConfirmWindow4CDB(selectedRow, "delete-key");
+            }else if(columnName === "keyvalues"){
+            	createConfirmWindow4CDB(selectedRow, "delete-key-value");
             }
         }
     }];
@@ -163,14 +153,6 @@ function deleteValue4Key(selectedRow) {
     var url = "/api/query/cassandra/value/" + selectedRow.table + "/" + selectedRow.key + "/" + selectedRow.keyvalue;
     doAjaxCall(url, "DELETE", null, "successDeleteKeyValue", "failureDeleteKeyValue", false, null);
 };
-
-function onDeleteKey(e) {
-    createConfirmWindow4CDB(e, "delete-key");
-}
-
-function onDeleteValue4Key(e) {
-    createConfirmWindow4CDB(e, "delete-key-value");
-}
 
 function createConfirmWindow4CDB(selectedRow, type) {
     $.contrailBootstrapModal({
@@ -190,6 +172,8 @@ function createConfirmWindow4CDB(selectedRow, type) {
 		        } else if (type == "delete-key-value") {
                     deleteValue4Key(selectedRow);
 		        }
+				$('#delete-confirmation').modal('hide');
+				
 			},
 			className: 'btn-primary'
 		}]
@@ -198,7 +182,7 @@ function createConfirmWindow4CDB(selectedRow, type) {
 
 function successDeleteKey(results) {
     showInfoWindow("You have successfully deleted the key.", "Delete Success");
-    reloadTable();
+    $("#cdb-results").data('contrailGrid').refreshData();
 };
 
 function failureDeleteKey(error) {
@@ -207,14 +191,14 @@ function failureDeleteKey(error) {
 
 function successDeleteKeyValue(results) {
     showInfoWindow("You have successfully deleted the key-value.", "Delete Success");
-    reloadTable();
+    $("#cdb-results").data('contrailGrid').refreshData();
 };
 
 function failureDeleteKeyValue(error) {
     showInfoWindow("An error occurred while deleting the key-value.", "Delete Error");
 };
 
-function reloadTable() {
+function reloadTable(table) {
     if (table == "obj_fq_name_table") {
         loadFQNameTable();
     } else if (table == "obj_uuid_table") {

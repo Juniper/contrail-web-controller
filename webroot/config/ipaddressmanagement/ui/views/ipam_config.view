@@ -1,0 +1,154 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<script type="text/x-handlebars-template" id="gridIpamDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>IPAM Name</label></div>
+                <div class="span10"> {{ipam_name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>DNS Server</label></div>
+                <div class="span10"> {{dns}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>NTP Server</label></div>
+                <div class="span10">{{ntp}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Domain Name</label></div>
+                <div class="span10">{{domain_Name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>IP Blocks</label></div>
+                <div class="span10">
+                    {{#IfCompare ip_blocks.length 0 operator=">"}}
+                        {{#each ip_blocks}}
+                            {{#IfCompare this 'string' operator="typeof"}}
+                                {{this}}
+                            {{/IfCompare}}
+                        {{/each}}
+                    {{/IfCompare}}
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<div id="windowCreateipam" class="modal hide modal-700" tabindex="-1" >
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+        <h6 class="modal-header-title"></h6>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+           <div class="control-group">
+                <label class="control-label" class="span3">Name</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <input type="text" id="txtIPAMName" class="span10" />
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label" class="span3">DNS Method</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <div class="span10 pull-left" id="ddDNS"  ></div>
+                    </div>
+                </div>
+            </div>
+            <div class="control-group hide" id="dnsTenantBlock">
+                <label class="control-label" class="span3">Tenant DNS Server IP</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <input type="text" id="txtdnsTenant"  class="span10" />
+                    </div>
+                </div>
+            </div>
+            <div class="control-group hide" id="dnsvirtualBlock" >
+                    <label class="control-label" class="span3">Virtual DNS</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <div id="ddDnsVirtual" class="span10" ></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="control-group">
+                <label class="control-label" class="span3">NTP Server IP</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <input type="text" id="txtNTPServer" class="span10" />
+                    </div>
+                </div>
+            </div>
+            <div class="control-group hide" id="dnsDomainName">
+                <label class="control-label" class="span3">Domain Name</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <input type="text" id="txtDomainName" class="span10" />
+                    </div>
+                </div>
+            </div>
+            <div class="control-group">
+                <label class="control-label">Associate IP Blocks to Networks</label>
+                <div class="controls">
+                    <div class="row-fluid margin-0-0-10">
+                        <div class="rule-item-header">
+                            <div class="row-fluid">
+                                <div class="span3">
+                                    <h6>Virtual Network</h6>
+                                </div>
+                                <div class="span3">
+                                    <h6>IP Block</h6>
+                                </div>
+                                <div class="span3">
+                                    <h6>Gateway</h6>
+                                </div>
+                                <div class="span1 pull-left">
+                                    <div title="Add IPAM below" class="margin-5 padding-10-0">
+                                        <i id="btnCommonAddVN" class="pull-left icon-plus" onclick="appendVNEntry(this, true);"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid">
+                            <div id="vnTuples" class="row-fluid"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button id="btnCreateEditipamCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button id="btnCreateEditipamOK" class="btn btn-primary btn-mini">Save</button>
+    </div>
+</div>
+<div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+        <h6 class="modal-header-title"></h6>
+    </div>
+    <div class="modal-body">
+        <div class="row-fluid text-center" >
+            <h6>Confirm IPAM(s) delete </h6>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+        <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+    </div>
+</div>
+
+<script id="ipam-config-template" type="text/x-handlebars-template">
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div id="gridipam"/>
+            </div>
+        </div>
+    </div>
+</script>

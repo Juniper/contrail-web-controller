@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 function VirtulNetworkMockData() {
     this.loadRouteTargetDom = function(numberOfEntries, asns, rts) {
         var domStr = this.getRouteTargetDomString(numberOfEntries, asns, rts);

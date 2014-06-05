@@ -1,3 +1,6 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
 module.exports = function(config) {
   config.set({
     basePath: '../..',    //"contrail-web-ui" directory
@@ -32,15 +35,15 @@ module.exports = function(config) {
         "webroot/monitor/tenant_network/test/tenant_monitor_network_mock.js",
         "webroot/monitor/tenant_network/test/tenant_monitor_network_test.js",
 
-        "webroot/config/services/instances/js/svcinstances_config.js",
-        "webroot/config/services/instances/views/svcinstances_config.view",
-        "webroot/config/services/instances/views/svcinstances_config_ut.view",
-        "webroot/config/services/instances/test/config_service_instance_test.js",
-        "webroot/config/services/instances/test/config_service_instance_mock.js",
-        "webroot/config/services/template/js/svctemplate_config.js",
-        "webroot/config/services/template/views/svctemplate_config.view",
-        "webroot/config/services/template/test/config_service_template_test.js",
-        "webroot/config/services/template/test/config_service_template_mock.js",
+        "webroot/config/services/ui/instances/js/svcinstances_config.js",
+        "webroot/config/services/ui/instances/views/svcinstances_config.view",
+        "webroot/config/services/ui/instances/views/svcinstances_config_ut.view",
+        "webroot/config/services/ui/instances/test/config_service_instance_test.js",
+        "webroot/config/services/ui/instances/test/config_service_instance_mock.js",
+        "webroot/config/services/ui/template/js/svctemplate_config.js",
+        "webroot/config/services/ui/template/views/svctemplate_config.view",
+        "webroot/config/services/ui/template/test/config_service_template_test.js",
+        "webroot/config/services/ui/template/test/config_service_template_mock.js",
     ],
     plugins:[
         'karma-phantomjs-launcher',
@@ -67,10 +70,10 @@ module.exports = function(config) {
     preprocessors: { 
         'webroot/monitor/bgp/js/*.js': ['coverage'],
         'webroot/monitor/tenant_network/js/*.js': ['coverage'],
-        'webroot/config/services/instances/js/*.js': ['coverage'],
-		'webroot/config/services/instances/views/*.view' : ['html2js'],
-        'webroot/config/services/template/js/*.js': ['coverage'],
-		'webroot/config/services/template/views/*.view' : ['html2js'],
+        'webroot/config/ui/services/instances/js/*.js': ['coverage'],
+		'webroot/config/ui/services/instances/views/*.view' : ['html2js'],
+        'webroot/config/ui/services/template/js/*.js': ['coverage'],
+		'webroot/config/ui/services/template/views/*.view' : ['html2js'],
         '*.html': []
         },
     htmlReporter: {
