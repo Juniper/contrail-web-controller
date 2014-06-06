@@ -38,11 +38,6 @@ monitorInfraControlSummaryClass = (function() {
                 },
                 dataSource: {
                     dataView: controlNodesDataSource,
-                    events:{
-                        onUpdateDataCB:function(){
-                            monitorInfraGridUpdate('gridControlNodes');
-                        }
-                    }
                 },
                  statusMessages: {
                      loading: {
