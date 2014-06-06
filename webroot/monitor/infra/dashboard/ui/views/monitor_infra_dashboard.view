@@ -10,11 +10,13 @@
 </script>
 
 <script type="text/x-handlebars-template" id="vrouter-dashboard-tab">
-    <div style="width: 160px">
-        <div id="sparkLineStats" class="infobox-container"></div>
-    </div>
-    <div style="margin-left: 160px;">
-        <div id="vrouter-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px"></div>
+    <div class="span12">
+        <div style="width: 160px">
+            <div id="sparkLineStats" class="infobox-container"></div>
+        </div>
+        <div style="margin-left: 160px;">
+            <div id="vrouter-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px"></div>
+        </div>
     </div>
 </script>
 
