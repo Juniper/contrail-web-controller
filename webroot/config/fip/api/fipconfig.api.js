@@ -81,12 +81,13 @@ function fipListAggCb (error, results, callback)
  * 2. Gets the list of Fip backrefs and does an individual
  *    get for each one of them.
  */
-function getFipsForProjectCb (error, fipListData, response, appData) 
+function getFipsForProjectCb (error, fipListData, response, appData)
 {
     var reqUrl            = null;
     var dataObjArr        = [];
     var i = 0, fipLength  = 0;
     var fipConfigBackRefs = {};
+    var fipObjArr = [];
 
     if (error) {
        commonUtils.handleJSONResponse(error, response, null);
@@ -115,11 +116,88 @@ function getFipsForProjectCb (error, fipListData, response, appData)
     }
 
     async.map(dataObjArr,
-              commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-              function(error, results) {
-              fipListAggCb(error, results, function (err, data) {
-                commonUtils.handleJSONResponse(error, response, data);
-              });
+        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+        function(error, results) {
+        fipListAggCb(error, results, function (err, fipAggList) {
+            if (err) {
+               commonUtils.handleJSONResponse(err, response, null);
+               return;
+            }
+            if(fipAggList && fipAggList['floating_ip_back_refs'] && fipAggList['floating_ip_back_refs'].length > 0) {
+                for(var i=0; i<fipAggList['floating_ip_back_refs'].length; i++) {
+                    var fipBackRef = fipAggList['floating_ip_back_refs'][i];
+                    if('floating-ip' in fipBackRef && 
+                        'virtual_machine_interface_refs' in fipBackRef['floating-ip'] &&
+                        fipBackRef['floating-ip']['virtual_machine_interface_refs'].length > 0) {
+                        for(var j=0; j<fipBackRef['floating-ip']['virtual_machine_interface_refs'].length; j++) {
+                            var vmiRef = fipBackRef['floating-ip']['virtual_machine_interface_refs'][j];
+                            fipObjArr.push({'appData' : appData, 'vmiRef' : vmiRef, 'fip' : fipBackRef, 'fip_uuid' : fipBackRef['floating-ip']['uuid']});
+                        }
+                    }
+                }
+                if(fipAggList['floating_ip_back_refs'].length > 0) {
+                    async.mapSeries(fipObjArr, getInstanceIPForVirtualMachineInterface, function(err, fipDetailData) {
+                        if(err) {
+                            commonUtils.handleJSONResponse(error, response, fipAggList);
+                        }
+                        else {
+                            updateFipAggrList(err, response, fipAggList, fipDetailData);
+                        }
+                    });
+                } else {
+                    commonUtils.handleJSONResponse(error, response, fipAggList);
+                }
+          }
+        });
+    });
+}
+
+/**
+ * @updateFipAggrList
+ * private function
+ * 1. Callback from getFipsForProjectCb
+ * 2. Updates the original list of floating ip backrefs with  
+ *    floating ip list with instance_ip_refs details, if any, of individual 
+ *    virtual machine interface got from getInstanceIPForVirtualMachineInterface. 
+ */
+function updateFipAggrList(err, response, fipAggList, fipDetailData) {
+    for(var i=0; i<fipAggList['floating_ip_back_refs'].length; i++) {
+        for(var j=0; j<fipDetailData.length; j++) {
+            if(fipAggList['floating_ip_back_refs'][i]['floating-ip']['uuid'] ==
+              fipDetailData[j]['floating-ip']['uuid']) {
+                fipAggList['floating_ip_back_refs'][i] = fipDetailData[j];
+            }
+        }
+    }
+    commonUtils.handleJSONResponse(err, response, fipAggList);
+}
+
+/**
+ * @getInstanceIPForVirtualMachineInterface
+ * private function
+ * 1. Gets instance_ip_refs for each VMI of a Floating IP.
+ * 2. Updates the list of floating ip backrefs with instance_ip_back_refs 
+ *    of individual virtual machine interface of the floating ip. 
+ */
+function getInstanceIPForVirtualMachineInterface(fipObj, callback) {
+    var appData = fipObj['appData'];    
+    var reqUrl = '/virtual-machine-interface/' + fipObj['vmiRef']['uuid'];
+    var fip = fipObj["fip"];
+    configApiServer.apiGet(reqUrl, appData, function(err, vmiData) {
+        if (err) {
+            callback(err, null);
+            return;
+        } else {
+            for(var i=0; i<fip['floating-ip']['virtual_machine_interface_refs'].length; i++) {
+                var vmiRef = fip['floating-ip']['virtual_machine_interface_refs'][i];
+                if(vmiRef["uuid"] === vmiData['virtual-machine-interface']["uuid"]) {
+                    fip['floating-ip']['virtual_machine_interface_refs'][i]["instance_ip_back_ref"] = [];
+                    fip['floating-ip']['virtual_machine_interface_refs'][i]["instance_ip_back_ref"] = 
+                        vmiData['virtual-machine-interface']['instance_ip_back_refs']
+                    callback(err, fip);
+                }
+            }
+        }
     });
 }
 
@@ -349,7 +427,7 @@ function deleteFloatingIp (request, response, appData)
 /**
  * @setFipVMInterface
  * private function
- * 1. Callback for updateFip
+ * 1. Callback for updateFloatingIp
  * 2. Updates the vm interface backrefs
  */
 function setFipVMInterface(error, fipConfig, fipPostData, fipId, response,
@@ -411,7 +489,7 @@ function updateFloatingIp (request, response, appData)
 
         vmRef = fipPostData['floating-ip']
                            ['virtual_machine_interface_refs'][0];
-        if ((!('to' in vmRef)) || (vmRef['to'].length != 2)) {
+        if ((!('to' in vmRef)) || (vmRef['to'].length != 3)) {
             error = new appErrors.RESTServerError('Add valid Instance \n' +
                                                   JSON.stringify(vmRef));
             commonUtils.handleJSONResponse(error, response, null);

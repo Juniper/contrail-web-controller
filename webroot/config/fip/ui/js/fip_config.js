@@ -251,7 +251,7 @@ function initActions() {
         fip["floating-ip"] = {};
         fip["floating-ip"]["virtual_machine_interface_refs"] = [];
         fip["floating-ip"]["virtual_machine_interface_refs"][0] = {};
-        fip["floating-ip"]["virtual_machine_interface_refs"][0]["to"] = JSON.parse(selectedInstance);
+        fip["floating-ip"]["virtual_machine_interface_refs"][0]["to"] = JSON.parse(selectedInstance).to;
         doAjaxCall("/api/tenants/config/floating-ip/" + $('#btnAssociatePopupOK').data('uuid'), "PUT", JSON.stringify(fip),
             "createFIPSuccessCb", "createFFIPailureCb");
 
@@ -356,7 +356,6 @@ function handleDomains() {
 
 function populateProjects(result) {
     if (result && result.projects && result.projects.length > 0) {
-        //var projects = jsonPath(result, "$.projects[*].fq_name[1]");
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
@@ -374,7 +373,6 @@ function populateProjects(result) {
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-        //btnCreatefip.attr("disabled",false);
     }    
     fetchDataForGridFIP();
 }
@@ -387,22 +385,13 @@ function handleProjects(e) {
 
 function fetchDataForGridFIP() {
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").value();
-    //doAjaxCall(
-    //    "/api/tenants/config/floating-ips/" + selectedProject, "GET",
-    //    null, "successHandlerForGridFIP", "failureHandlerForGridFIP", null, null
-    //);
+    doAjaxCall(
+        "/api/tenants/config/floating-ips/" + selectedProject, "GET",
+        null, "successHandlerForGridFIPRow", "failureHandlerForGridFIP", null, null
+    );    
     
     $("#cb_gridfip").attr("checked", false);
     $("#gridfip").data("contrailGrid")._dataView.setData([]);
-
-    
-    gridfip.showGridMessage('loading');
-    idCount = 0;
-    fipAjaxcount++;
-    ajaxParam = selectedProject +"_"+ fipAjaxcount;
-
-    doAjaxCall("/api/admin/config/get-data?type=floating-ip&count=4&fqnUUID="+selectedProject, 
-        "GET", null, "successHandlerForGridFIP", "failureHandlerForGridFIP", null, ajaxParam);
 }
 function successHandlerForGridFIP(result,cbparam) {
     if(cbparam != ajaxParam){
@@ -428,30 +417,30 @@ function showDisassociateWindow(rowIndex) {
     confirmDisassociate.modal('show');
 }
 
-function successHandlerForGridFIPRow(result) {
+function successHandlerForGridFIPRow(fipBackRefs) {
     var fipData = $("#gridfip").data("contrailGrid")._dataView.getItems();
-    var fips = jsonPath(result, "$..floating-ip");
+    fipData = [];
+    var fips = jsonPath(fipBackRefs, "$..floating-ip");
     for (var i = 0; i < fips.length; i++) {
         var fip = fips[i];
         var ip_addr = ""
         ip_addr = String(jsonPath(fip, "$.floating_ip_address"));
         var instanceId = "-";
         var instance = jsonPath(fip, "$.virtual_machine_interface_refs");
-        if (typeof instance === "object" && instance.length === 1)
-            instanceId = String(instance[0][0].to[0]);
+        if (typeof instance === "object" && instance.length === 1) {
+            instance = instance[0];
+            instance = jsonPath(instance, "$..instance_ip_back_ref[*].uuid");
+            if(false !== instance && instance.length > 0) {
+                instanceId = instance.join(",");
+            }
+        }
         var fipPool = "-";
         var fipPoolVal = jsonPath(fip, "$.fq_name");
         if (typeof fipPoolVal === "object" && fipPoolVal.length === 1)
             fipPool = String(fipPoolVal[0][2]) + ":" + String(fipPoolVal[0][3]);
         var uuid = ""
         uuid = String(jsonPath(fip, "$.uuid"));
-        fipData.push({"id":idCount++, "ip_addr":ip_addr, "instance":instanceId, "fipPool":fipPool, "uuid":uuid});
-    }
-    if(result.more == true || result.more == "true"){
-        gridfip.showGridMessage('loading');
-    } else {
-        if(!fipData || fipData.length<=0)
-            gridfip.showGridMessage('empty');
+        fipData.push({"id":fipData.length, "ip_addr":ip_addr, "instance":instanceId, "fipPool":fipPool, "uuid":uuid});
     }
     $("#gridfip").data("contrailGrid")._dataView.setData(fipData);
 }
@@ -532,8 +521,8 @@ function fipAssociateWindow(rowIndex) {
                 if ('instance_ip_address' in vmiObj) {
                     vmiName = "(" + vmiObj['instance_ip_address'] + ") ";
                 }
-                vmiName += vmiObj.to[0];
-                vmi.push({text:vmiName, value:JSON.stringify(vmiObj.to)})
+                vmiName += vmiObj['instance_uuid'];
+                vmi.push({text:vmiName, value:JSON.stringify(vmiObj)});
             }
             if(vmi && vmi.length > 0) {
                 ddAssociate.data("contrailDropdown").setData(vmi);
