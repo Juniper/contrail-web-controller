@@ -34,11 +34,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
                 },
                 dataSource: {
                     dataView: analyticsNodesDataSource,
-                    events:{
-                        onUpdateDataCB:function(){
-                            monitorInfraGridUpdate('analytics-nodes-grid');
-                        }
-                    }
                 },
                  statusMessages: {
                      loading: {

@@ -203,11 +203,6 @@ monitorInfraComputeSummaryClass = (function() {
                 },
                 dataSource: {
                     dataView: vRoutersDataSource,
-                    events:{
-                        onUpdateDataCB:function(){
-                            monitorInfraGridUpdate('divcomputesgrid');
-                        }
-                    }
                 },
                  statusMessages: {
                      loading: {
