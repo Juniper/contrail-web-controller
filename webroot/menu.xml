@@ -21,7 +21,6 @@ and need to add the iconClass tag wherever we need to show some icons
                     <js>monitor_infra_constants.js</js>
                     <js>monitor_infra_utils.js</js>
                     <view>monitor_infra_common.view</view>
-                    <class>infraDashboardView</class>
                     <iconClass>icon-desktop</iconClass>
                     <access>
                         <roles>
@@ -39,7 +38,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <rootDir>/monitor/infra/dashboard/ui</rootDir>
                             <view>monitor_infra_dashboard.view</view>
                             <js>monitor_infra_dashboard.js</js>
-                            <class>infraDashboardView</class>
+                            <class>infraMonitorDashboardView</class>
                             <queryParams>
                                 <tab>vRouters</tab>
                             </queryParams>
