@@ -194,6 +194,7 @@ function clearBgpWindow() {
     $("#txtrid").val("");
     $("#txtaddr").val("");
     $("#txtport").val("");
+    $("#txtholdtime").val(90);
     $("#txtname")[0].disabled = false;
     $("#txtasn")[0].disabled = false;
     $("#txtvendor")[0].disabled = false;
@@ -203,6 +204,7 @@ function clearBgpWindow() {
     $("#chkexternal").click();
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
+    $('#multifamily').data('contrailMultiselect').value(['inet-vpn','route-target']);
 }
 
 function closeBgpWindow() {
@@ -220,7 +222,7 @@ function validate() {
     family = $("#txtfamily").val().trim();
     family = family.split("-");
     vendor = $("#txtvendor").val().trim();
-
+    holdTime = $("#txtholdtime").val().trim();
     if ("" == name) {
         showInfoWindow("Enter a BGP router name", "Input required");
         return false;
@@ -273,19 +275,41 @@ function validate() {
     for (var i = 0; i < selectdata.length; i++) {
         peers[i] = selectdata[i].label;
     }
+    try {
+        holdTime = parseInt(holdTime);
+        if (holdTime < 1 || holdTime > 65535 || isNaN(holdTime)) {
+            showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
+            return false;
+        }
+    } catch (e) {
+        showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
+        return false;
+    }    
     return true;
 }
 
 function getBGPJson() {
     var bgp_params = [];
-    var name, asn, rid, addr, port, vendor, family = [], peers = [], type;
+    var name, asn, rid, addr, port, vendor, ctrlTypeFamily = [], peers = [], type, holdTime, bgpTypeFamily = [];
     name = $("#txtname").val().trim();
     asn = parseInt($("#txtasn").val().trim());
     rid = $("#txtrid").val().trim();
     addr = $("#txtaddr").val().trim();
     port = parseInt($("#txtport").val().trim());
-    family = $("#txtfamily").val().trim();
     vendor = $("#txtvendor").val().trim();
+    holdTime = $('#txtholdtime').val().trim();
+    var selBGPAddFamily = $('#multifamily').data('contrailMultiselect').getSelectedData();
+    if(selBGPAddFamily.length > 0) {
+        for(var bgpAdd = 0; bgpAdd < selBGPAddFamily.length;  bgpAdd++) {
+           bgpTypeFamily.push(selBGPAddFamily[bgpAdd].text);     
+        }
+    } 
+    var selControlAddFmly = $('#txtfamily').data('contrailMultiselect').getSelectedData(); 
+    if(selControlAddFmly.length > 0) {
+        for(var bgpAdd = 0; bgpAdd < selControlAddFmly.length;  bgpAdd++) {
+           ctrlTypeFamily.push(selControlAddFmly[bgpAdd].text);     
+        }
+    }     
     if ($("#chkjnpr")[0].checked === true) {
         type = "control";
         vendor = "contrail";
@@ -333,13 +357,14 @@ function getBGPJson() {
                     "parent_name":"__default__",
                     "bgp_router_parameters":{
                         "address_families":{
-                            "family": (type === "control") ? ["inet-vpn", "e-vpn"] : ["inet-vpn"]
+                            "family": (type === "control") ? ctrlTypeFamily : bgpTypeFamily
                         },
                         "autonomous_system":asn,
                         "address":addr,
                         "identifier":rid,
                         "port":port,
-                        "vendor":vendor
+                        "vendor":vendor,
+                        "hold-time":holdTime
                     },
                     "bgp_router_refs":peers,
                     "name":name
@@ -356,13 +381,14 @@ function getBGPJson() {
                     "parent_name":"__default__",
                     "bgp_router_parameters":{
                         "address_families":{
-                            "family": (type === "control") ? ["inet-vpn", "e-vpn"] : ["inet-vpn"]
+                            "family": (type === "control") ? ctrlTypeFamily : bgpTypeFamily
                         },
                         "autonomous_system":asn,
                         "address":addr,
                         "identifier":rid,
                         "port":port,
-                        "vendor":vendor
+                        "vendor":vendor,
+                        "hold-time":holdTime                        
                     },
                     "bgp_router_refs":peers,
                     "name":name
@@ -378,13 +404,14 @@ function getBGPJson() {
                     "parent_name":"__default__",
                     "bgp_router_parameters":{
                         "address_families":{
-                            "family": (type === "control") ? ["inet-vpn", "e-vpn"] : ["inet-vpn"]
+                            "family": (type === "control") ? ctrlTypeFamily : bgpTypeFamily
                         },
                         "autonomous_system":asn,
                         "address":addr,
                         "identifier":rid,
                         "port":port,
-                        "vendor":vendor
+                        "vendor":vendor,
+                        "hold-time":holdTime                        
                     },
                     "name":name
                 }
@@ -401,13 +428,14 @@ function getBGPJson() {
                     "parent_name":"__default__",
                     "bgp_router_parameters":{
                         "address_families":{
-                            "family": (type === "control") ? ["inet-vpn", "e-vpn"] : ["inet-vpn"]
+                            "family": (type === "control") ? ctrlTypeFamily : bgpTypeFamily
                         },
                         "autonomous_system":asn,
                         "address":addr,
                         "identifier":rid,
                         "port":port,
-                        "vendor":vendor
+                        "vendor":vendor,
+                        "hold-time":holdTime                        
                     },
                     "name":name
                 }
@@ -418,7 +446,7 @@ function getBGPJson() {
 }
 
 function addEditBgp(data) {
-    var bgp_params;
+    var bgp_params, bgpEditselectdata = [];
     if (mode == "edit") {
         var vendor, detailStr, peers = [],
             tmp_availablelist = [],
@@ -446,16 +474,18 @@ function addEditBgp(data) {
                 $("#txtfamily").val(detailStr[i].split("Address family")[1].trim());
             } else if (detailStr[i].indexOf("Vendor") != -1) {
                 $("#txtvendor").val(detailStr[i].substr(7));
-            }
+            } else if (detailStr[i].indexOf("Hold Time") != -1) {
+                $("#txtholdtime").val(detailStr[i].split("Hold Time")[1].trim());
+            }            
         }
         data.details.forEach(function (d) {
             if (d.name == "Peers") {
                 peers = d.value.split(",");
                 peers.forEach(function (a) {
-                    bgpselectdata.push({"label":a, "value":a});
+                    bgpEditselectdata.push({"label":a, "value":a});
                 });
-                $('#msbgppeer').data('contrail2WayMultiselect').setRightData(bgpselectdata);
-                tmp_selectlist = clone(bgpselectdata);
+                $('#msbgppeer').data('contrail2WayMultiselect').setRightData(bgpEditselectdata);
+                tmp_selectlist = clone(bgpEditselectdata);
             }
         });
         vendor = $("#txtvendor").val().trim();
@@ -571,6 +601,10 @@ function fetchData() {
                                 detailStr += "Address family " + addr_families + "; ";
                                 details.push({ "name":"Address family", "value":addr_families });
                             }
+                            if(d["hold-time"] && d["hold-time"].trim() != "") {
+                                detailStr += "Hold Time " + d["hold-time"] + "; ";
+                                details.push({ "name":"Hold Time", "value":d["hold-time"]});                                
+                            } 
                         }
                         if (d.address && "" != d.address) {
                             bgpData.push({
@@ -752,12 +786,32 @@ function initComponents() {
         beforeMoveOneToLeft: handlertol,        
         leftTitle: 'Available Peers',
         rightTitle: 'Configured Peers',
-        sizeLeft: 8,
-        sizeRight: 8
+        sizeLeft: 10,
+        sizeRight: 10
     });
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(bgpavailabledata);
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData(bgpselectdata);
 
+    $('#multifamily').contrailMultiselect({
+        dataTextField:"text",
+        dataValueField:"value"        
+    });
+    var msFamily = $('#multifamily').data('contrailMultiselect');
+    msFamily.setData([{text : 'inet-vpn', value : 'inet-vpn', locked : true},
+        {text : 'route-target', value : 'route-target'}
+    ]);
+    msFamily.value(['inet-vpn', 'route-target']);
+    $('#txtfamily').contrailMultiselect({
+        dataTextField:"text",
+        dataValueField:"value"         
+    });
+    var cnFamily = $("#txtfamily").data('contrailMultiselect');
+    cnFamily.setData([{text : 'inet-vpn', value : 'inet-vpn', locked : true},
+        {text : 'e-vpn', value : 'e-vpn', locked : true},
+        {text : 'route-target', value : 'route-target', locked : true}
+    ]);
+    cnFamily.value(['inet-vpn', 'e-vpn', 'route-target']);
+    cnFamily.enable(false)
     bgpwindow = $("#bgpwindow");
     bgpwindow.on("hide", clearBgpWindow);
     bgpwindow.modal({backdrop:'static', keyboard: 'false', show:false});
@@ -768,7 +822,6 @@ function initComponents() {
     $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
-    fetchData();
 }
 
 function btnaddbgpClick() {
@@ -780,7 +833,7 @@ function btnaddbgpClick() {
     $("#txtasn").val(ggasn);
     $("#txtport").val("179");
     $("#chkextern").click();
-    $("#txtname").focus();
+    $("#txtname").focus();    
 }
 
 function initActions() {
@@ -881,12 +934,12 @@ function copyToRouterID() {
     $("#txtrid").val($("#txtaddr").val());
 }
 function selectJnpr() {
-    //chkjnpr clicked.
-    $("#txtasn").hide();
-    $('#lblasn').hide();
+    $("#asnpanel").addClass('hide')
     $("#txtasn").val(ggasn);
-    $("#vendor-n-family").hide();
-    $("#txtfamily").val("inet-vpn,e-vpn");
+    $("#vendor-n-family").addClass('hide');
+    $("#multipanel").addClass('hide');        
+    $("#txtfamily").val("inet-vpn,e-vpn,route-target");
+    $("#txtpanel").removeClass('hide');
     $("#peersdiv").hide();
     populateMultiselect("chkjnpr");
 }
@@ -928,13 +981,13 @@ function populateMultiselect(who) {
 }
 
 function selectExternal() {
-    //chkexternal clicked.
-    $("#txtasn").show();
-    $('#lblasn').show();
-    $("#vendor-n-family").show();
-    $("#txtfamily").val("inet-vpn");
+    $("#asnpanel").removeClass('hide');
+    $("#vendor-n-family").removeClass('hide');
+    $("#txtpanel").addClass('hide');
+    $("#multipanel").removeClass('hide');
     $("#peersdiv").show();
     populateMultiselect("chkexternal");
+    $('#bgpbody').scrollTop(100);
 }
 
 function closeGasnWindow() {
@@ -1073,5 +1126,14 @@ function destroy() {
         bgpConfigTemplate.remove();
         bgpConfigTemplate = $();
     }
-    
+    multifamily = $("#multifamily").data("contrailMultiselect");
+    if(isSet(multifamily)) {
+        multifamily.destroy();
+        multifamily = $();
+    } 
+    txtfamily = $("#txtfamily").data("contrailMultiselect");
+    if(isSet(txtfamily)) {
+        txtfamily.destroy();
+        txtfamily = $();
+    }    
 }
