@@ -189,7 +189,11 @@
                     <div class="row-fluid">
                         <div class="span2"><label>{{this.name}}</label></div>
                         {{#IfCompare this.name  "Hold Time" operator="=="}}
-                            <div class="span10">{{this.value}} (seconds)</div>
+                            {{#IfCompare this.value  "-" operator="=="}}
+                                <div class="span10">{{this.value}}</div>
+                            {{else}}
+                                <div class="span10">{{this.value}} (seconds)</div>                          
+                            {{/IfCompare}}   
                         {{else}}
                             <div class="span10">{{this.value}}</div>                         
                         {{/IfCompare}}

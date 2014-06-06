@@ -475,7 +475,9 @@ function addEditBgp(data) {
             } else if (detailStr[i].indexOf("Vendor") != -1) {
                 $("#txtvendor").val(detailStr[i].substr(7));
             } else if (detailStr[i].indexOf("Hold Time") != -1) {
-                $("#txtholdtime").val(detailStr[i].split("Hold Time")[1].trim());
+                var holdTimeVal = detailStr[i].split("Hold Time")[1].trim();
+                holdTimeVal = holdTimeVal === "-" ? "" : holdTimeVal;              
+                $("#txtholdtime").val(holdTimeVal);
             }            
         }
         data.details.forEach(function (d) {
@@ -806,12 +808,13 @@ function initComponents() {
         dataValueField:"value"         
     });
     var cnFamily = $("#txtfamily").data('contrailMultiselect');
-    cnFamily.setData([{text : 'inet-vpn', value : 'inet-vpn', locked : true},
+    cnFamily.setData([{text : 'route-target', value : 'route-target', locked : true},
+        {text : 'inet-vpn', value : 'inet-vpn', locked : true},
         {text : 'e-vpn', value : 'e-vpn', locked : true},
-        {text : 'route-target', value : 'route-target', locked : true}
+        {text : 'erm-vpn', value : 'erm-vpn', locked : true}
     ]);
-    cnFamily.value(['inet-vpn', 'e-vpn', 'route-target']);
-    cnFamily.enable(false)
+    cnFamily.value(['route-target','inet-vpn', 'e-vpn', 'erm-vpn']);
+    cnFamily.enable(false);
     bgpwindow = $("#bgpwindow");
     bgpwindow.on("hide", clearBgpWindow);
     bgpwindow.modal({backdrop:'static', keyboard: 'false', show:false});
@@ -938,7 +941,6 @@ function selectJnpr() {
     $("#txtasn").val(ggasn);
     $("#vendor-n-family").addClass('hide');
     $("#multipanel").addClass('hide');        
-    $("#txtfamily").val("inet-vpn,e-vpn,route-target");
     $("#txtpanel").removeClass('hide');
     $("#peersdiv").hide();
     populateMultiselect("chkjnpr");
