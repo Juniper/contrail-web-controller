@@ -1,0 +1,37 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>ctrlerConfig</define>
+        <path>../js/controller.config.global</path>
+    </require>
+    <require>
+        <define>parseURLReq</define>
+        <path>ctrlerConfig.core_path + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>infraCmn</define>
+        <path>./infra.common.api</path>
+    </require>
+    <item>
+        <!-- Get Sandesh Data -->
+        <url>/api/admin/monitor/infrastructure/get-sandesh-data</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>infraCmn.getSandeshData</callback>
+    </item>
+    <item>
+        <!-- Use cfilt/mfilt/kfilt to get filtered data -->
+        <url>/api/tenant/get-data</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>infraCmn.getServerResponseByModType</callback>
+    </item>
+    <item>
+        <url>/api/service/networking/get-network-reachable-ip</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>infraCmn.getReachableIP</callback>
+    </item>
+</urlLists>

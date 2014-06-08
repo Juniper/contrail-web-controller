@@ -14,6 +14,8 @@ var commonUtils = require(ctrlerConfig.core_path +
     jsonPath = require('JSONPath').eval,
     assert = require('assert'),
     request = require('request'),
+    appErrors = require(ctrlerConfig.core_path +
+                        '/src/serverroot/errors/app.errors'),
     async = require('async');
 
 function getModuleType (modName)
