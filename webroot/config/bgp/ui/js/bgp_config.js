@@ -810,10 +810,9 @@ function initComponents() {
     var cnFamily = $("#txtfamily").data('contrailMultiselect');
     cnFamily.setData([{text : 'route-target', value : 'route-target', locked : true},
         {text : 'inet-vpn', value : 'inet-vpn', locked : true},
-        {text : 'e-vpn', value : 'e-vpn', locked : true},
-        {text : 'erm-vpn', value : 'erm-vpn', locked : true}
+        {text : 'e-vpn', value : 'e-vpn', locked : true}
     ]);
-    cnFamily.value(['route-target','inet-vpn', 'e-vpn', 'erm-vpn']);
+    cnFamily.value(['route-target','inet-vpn', 'e-vpn']);
     cnFamily.enable(false);
     bgpwindow = $("#bgpwindow");
     bgpwindow.on("hide", clearBgpWindow);

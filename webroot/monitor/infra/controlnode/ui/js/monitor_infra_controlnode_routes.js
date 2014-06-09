@@ -115,7 +115,7 @@ monitorInfraControlRoutesClass = (function() {
          var  txtPrefixSearch = $('#txtPrefixSearch').contrailAutoComplete({
            source:[]
          });
-         var routeTableList = ["All","enet","evpn","inet","erm-vpn","l3vpn"];
+         var routeTableList = ["All","enet","evpn","inet","inetmcast","l3vpn"];
          var routeLimits = [10, 50, 100, 200];
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
          
