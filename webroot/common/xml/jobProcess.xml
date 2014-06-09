@@ -192,7 +192,35 @@
     <callback>processFlowDetailsByFlowTupleRequestByJob</callback>
   </item>
   <item>
-    <jobName>getCPULoadFlowSeries</jobName>
+    <jobName>getControlNodeCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getvRouterCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getSvcMonCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getAPIServerCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getSchemaCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getCollectorCPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getQECPULoadFlowSeries</jobName>
+    <callback>processCPULoadFlowSeriesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getOpServerCPULoadFlowSeries</jobName>
     <callback>processCPULoadFlowSeriesRequestByJob</callback>
   </item>
 </jobLists>

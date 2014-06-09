@@ -2,182 +2,35 @@
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 
-<script type="text/x-handlebars-template" id="infoList-template">
-    <ul class="item-list">
-        {{#each this}}
-            <li>
-                <label class="inline">
-                    <span class="key"> {{lbl}} </span>
-                    <span class="value"> {{value}} </span>
-                </label>
-            </li>
-        {{/each}}
-    </ul>
-</script>
-<script type="text/x-handlebars-template" id="logList-template">
-    <ul class="item-list">
-        {{#each this}}
-            <div class="itemdiv commentdiv infobox-blue">
-                <div class="body">
-                    <div class="row-fluid">
-                        <div class="name span9 break-and-wrap-word">
-                            <a style="cursor:default"> {{moduleId}} </a>
-                            </div>
-                            <div class="time span3">
-                                <i class="icon-time" style="cursor:default"></i>
-                                <span class="green"> {{timeStr}} </span>
-                            </div>
-                        </div>
-                        <div class="text"> {{message}} </div>
-                    </div>
-                </div>
-        {{else}}
-            <p>No Logs found.</p>
-        {{/each}}
-    </ul>
-</script>
-
-<script type="text/x-handlebars-template" id="alerts-template">
-    <ul class="item-list">
-        {{#each this}}
-            <div class="itemdiv commentdiv infobox-blue">
-                <div class="body">
-                    {{#typeof timeStamp "string"}}
-                        <div class="time">
-                            <i class="icon-time"></i>
-                            <span> {{#getRelativeTime timeStamp}}{{/getRelativeTime}} </span>
-                        </div>
-                    {{/typeof}}
-                    {{#IfCompare nName null }}
-                        <div class="text"> {{msg}}</div>                        
-                    {{else}}
-                        <div class="text"> {{nName}} , {{pName}} , {{msg}}</div>
-                    {{/IfCompare}}
-                </div>
-            </div>
-            {{else}}
-                <p>No Alerts found.</p>
-        {{/each}}
-        {{#IfCompare this.length 0 operator=">"}}
-            <div id="moreAlertsLink" style="cursor:pointer;"><a>More</a></div>
-        {{/IfCompare}}
-    </ul>
-</script>
-
-<script type="text/x-handlebars-template" id="moreAlerts-template">
-<div id="moreAlerts" class="modal modal-840 hide">
-	  <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
-        <h6 class="modal-header-title">Alerts</h6>
-     </div>
-     <div class="modal-body">
-	   <div id="alertContent" style="height:333px">
-	 </div>
-	  <div class="modal-footer">
-	     <button id="alertsClose" class="btn btn-primary btn-mini" data-dismiss="modal" aria-hidden="true">Close</button>
-	  </div> 
-	 </div>
-</div>
-</script>
-
-<script type="text/x-handlebars-template" id="infra-dashboard">
-    <div class="row-fluid">
-        <div class="row-fluid">
-            <div id='topStats' class="span12 infobox-container"></div>
-        </div>
-		<hr class="hr-8"/>
-        <div id="dashboard-charts" class="row-fluid">
-           	<div class="dashboard-chart-item" style="float:left; width:100%;">
-				<div style="margin-left: 160px;">
-					<div id="vrouter-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;width:100%;height:290px"></div>
-				</div>
-			</div>
-			<div style="float: left;width: 160px;margin-left: -100%;">
-				<div id="sparkLineStats" class="infobox-container"></div>
-				{{! 
-                    <div id="verSlider" class="span1 vSlider" style="width:40px">
-                        <input/>
-                        <input/>
-                    </div>
-                }}
-			</div>
-                        
-            <div class="row-fluid dashboard-chart-item hide">
-                <div class="span12">
-                    <div id="ctrlNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
-                    </div>
-                </div>
-            </div>
-          
-	        <div class="row-fluid dashboard-chart-item hide">
-            	<div class="span12">
-                	<div id="analyticNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
-                    </div>
-                </div>
-            </div>
-
-            <div class="row-fluid dashboard-chart-item hide">
-                <div class="span12">
-                    <div id="configNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
-                    </div>
-                </div>
-			</div>
-        </div>  {{! End- dashboard-charts }}
-        
-		<hr />
-
-		<div id="dashboard-stats" class="row-fluid">
-            <div class="span4">
-                <div id="logs-box" class="widget-box transparent">
-                    <div class="widget-header"></div>
-                    <div class="widget-body">
-                        <div class="widget-main padding-4">
-						</div>
-                    </div>
-                </div>
-            </div>
-            <div class="span4">
-                <div id="sysinfo-box" class="widget-box transparent">
-                    <div class="widget-header"></div>
-                    <div class="widget-body">
-                        <div id="system-info-stat" class="widget-main">
-                            
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="span4">
-                <div id="alerts-box" class="widget-box transparent">
-                    <div class="widget-header"></div>
-                    <div class="widget-body">
-						<div id="alerts-box-content" class="widget-main padding-4">
-                        	
-						</div>
-					</div>
-                </div>
-            </div>
+<script type="text/x-handlebars-template" id="ctrlnode-dashboard-tab">
+    <div class="span12">
+        <div id="ctrlNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
         </div>
     </div>
 </script>
 
-<script type="text/x-handlebars-template" id="infobox-template">
-    <div id="{{id}}" class="infobox infobox-grey">
-        <div class="infobox-icon">
-            <i class="icon-sitemap"></i>
+<script type="text/x-handlebars-template" id="vrouter-dashboard-tab">
+    <div class="span12">
+        <div style="width: 160px">
+            <div id="sparkLineStats" class="infobox-container"></div>
         </div>
-        {{#if totalCntField}} 
-            <div class="infobox-data">
-                <span class="infobox-data-number" data-bind='text:{{totalCntField}}'>&nbsp;</span>
-            </div>
-            {{!--<div class="stat stat-success" data-bind='text:{{activeCntField}}'>&nbsp;</div>--}}
-            <div class="stat stat-important" style="display:none" data-bind='text:{{inactiveCntField}}'>&nbsp;</div>
-        {{else}}
-            <div class="infobox-data">
-                <span class="infobox-data-number">{{totalCnt}}</span>
-            </div>
-            <div class="stat stat-success">{{activeCnt}}</div>
-            <div class="stat stat-important">{{inactiveCnt}}</div>
-        {{/if}}
-        <div class="infobox-content">{{title}}</div>
+        <div style="margin-left: 160px;">
+            <div id="vrouter-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px"></div>
+        </div>
     </div>
 </script>
+
+<script type="text/x-handlebars-template" id="analyticnode-dashboard-tab">
+    <div class="span12">
+        <div id="analyticNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="confignode-dashboard-tab">
+    <div class="span12">
+        <div id="configNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
+        </div>
+    </div>
+</script>
+

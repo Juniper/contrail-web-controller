@@ -223,6 +223,12 @@ function parseConfigControlNodeData (configControlNodeData)
             } catch(e) {
                  resultJSON[i]["address_families"] = global.RESP_DATA_NOT_AVAILABLE;
             }
+            try {
+                 resultJSON[i]["hold-time"] =
+                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"]);
+            } catch(e) {
+                 resultJSON[i]["hold-time"] = global.RESP_DATA_NOT_AVAILABLE;
+            }            
         }
     } catch(e) {
     }
@@ -362,6 +368,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["address_families"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"];
 	bgpJSON["bgp-router"]["bgp_router_parameters"].vendor = bgpUpdates["bgp-router"]["bgp_router_parameters"].vendor;
 	bgpJSON["bgp-router"]["bgp_router_parameters"].port = bgpUpdates["bgp-router"]["bgp_router_parameters"].port;
+	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold-time"];    
 	var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
 		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
 	if (!newBGPRefs || newBGPRefs.length == 0) {
@@ -401,7 +408,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 					var newPeer = {};
 					newPeer["to"] = newBGPRefs[i].to
 					newPeer["href"] = newBGPRefs[i].href
-					newPeer["attr"] = global.EMPTY_BGP_PEER_ATTR_JSON;
+					newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
 					newPeers[newPeers.length] = newPeer;
 				}
 			}
@@ -447,7 +454,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 								//bgpPeerObj["uuid"] = content["bgp-router"].uuid;
 								bgpPeerObj["to"] = bgpUpdates["bgp-router"]["fq_name"];
 								bgpPeerObj["href"] = bgpUpdates["bgp-router"].href;
-								bgpPeerObj["attr"] = global.EMPTY_BGP_PEER_ATTR_JSON;
+								bgpPeerObj["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
 								for (var i = 0; i < bgpPeers.length; i++) {
 									addBGPPeer(bgpPeers[i].uuid, bgpPeerObj,
                                                appData);
@@ -462,6 +469,18 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 				}, bgpHeader);
 			}
 		});
+}
+
+/**
+ * Prepare BGP Router attribute session object.
+ * @param {Object} JSON of updates to BGP Router
+ */
+function prepareBGPPeerAttrJSON(bgpUpdates) {
+    var addFamily = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"]["family"]; 
+    var attrJSON = {"session": [
+        {"attributes": [{"bgp_router": null, "address_families": {"family": addFamily}}], "uuid": null}
+    ]};
+    return attrJSON;
 }
 
 // Handle request to update a BGP Router.

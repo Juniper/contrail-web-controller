@@ -34,11 +34,6 @@ monitorInfraConfigSummaryClass = (function() {
                 },
                 dataSource: {
                     dataView: configNodesDataSource,
-                    events:{
-                        onUpdateDataCB:function(){
-                            monitorInfraGridUpdate('config-nodes-grid');
-                        }
-                    }
                 },
                  statusMessages: {
                      loading: {
