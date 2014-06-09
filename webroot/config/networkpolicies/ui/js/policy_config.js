@@ -852,7 +852,7 @@ function createRuleEntry(rule, len) {
         dataValueField:"value",
         placeholder: "<>"
     });
-    $(selectDirection).data("contrailDropdown").setData([{"text":"<>","value":0},{"text":">","value":1}]);
+    $(selectDirection).data("contrailDropdown").setData([{"text":"<>","value":"<>"},{"text":">","value":">"}]);
 
     $(selectDestNetwork).contrailCombobox({
         dataTextField:"text",
@@ -1527,7 +1527,7 @@ function validate() {
                     });
                     //If length of unique values is 1, then all the selected
                     //instances are of same type.
-                    if(uniqueTypes.length > 1) {
+                    /*if(uniqueTypes.length > 1) {
                         if(uniqueTypes.indexOf("in-network") !== -1 || uniqueTypes.indexOf("in-network-nat") !== -1) {
                             var msg = "Only Transparent mode services can be applied when there are more than one instance.";                                    
                             showInfoWindow(msg, "Invalid Rule");
@@ -1598,7 +1598,7 @@ function validate() {
                                 return false;
                             }                               
                         }
-                    }
+                    }*/
                 }
             }
 
