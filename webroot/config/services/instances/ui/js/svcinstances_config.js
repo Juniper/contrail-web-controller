@@ -1419,8 +1419,8 @@ function clearPopupValues() {
     $(txtsvcInstanceName).val("");
     $(txtMaximumInstances).val("");
     var ddsvcTemplateData = $("#ddsvcTemplate").data("contrailDropdown").getAllData();
-    $("#ddsvcTemplate").data("contrailDropdown").value(ddsvcTemplateData[0].value);
-
+    if(ddsvcTemplateData.length > 0)
+        $("#ddsvcTemplate").data("contrailDropdown").value(ddsvcTemplateData[0].value);
 }
 /*
  * Create Window
@@ -1458,7 +1458,9 @@ function svcInstancesCreateWindow(mode,rowIndex) {
 
             var svcTemplates = [];
             var svcTemplateObjs = jsonPath(results[0][0], "$..service-template");
-            var svcTemplatesLen = svcTemplateObjs.length;
+            var svcTemplatesLen = 0;
+            if(svcTemplateObjs != "false" && svcTemplateObjs != false)
+                var svcTemplatesLen = svcTemplateObjs.length;
 
             for (var i = 0; i < svcTemplatesLen; i++) {
                 var svcMode = (svcTemplateObjs[i].service_template_properties.service_mode == null) ? 
@@ -1492,8 +1494,22 @@ function svcInstancesCreateWindow(mode,rowIndex) {
 
             }
             templateImages = jsonPath(results[2], "$..name");
-            $("#ddsvcTemplate").data("contrailDropdown").setData(svcTemplates);
-            $("#ddsvcTemplate").data("contrailDropdown").value(svcTemplates[0].value);
+			//svcTemplates = [];
+
+            if(svcTemplates.length > 0){
+                $("#ddsvcTemplate").data("contrailDropdown").setData(svcTemplates);
+                $("#ddsvcTemplate").data("contrailDropdown").value(svcTemplates[0].value);
+                windowCreateSvcInstances.modal('show');
+                txtsvcInstanceName.focus();
+            } else {
+                showInfoWindow("No Service Template found.", "Add Service Template");
+                return false;
+            }
+            if(!isValidDomainAndProject(selectedDomainName, selectedProjectName)){
+                gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
+                gridsvcInstances.showGridMessage('errorGettingData');
+                return;
+            }
             networks = []; 
             for(var j=0;j < results[1][0]['virtual-networks'].length;j++){
                 var val="";
@@ -1519,7 +1535,8 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 $('#btnCreatesvcInstencesOK').data('uuid',selectedRow.uuid);
                 editWindow(rowIndex);
             } else {
-                svcTemplateChange();
+                if(svcTemplates != undefined && svcTemplates.length > 0)
+                    svcTemplateChange();
                 windowCreateSvcInstances.find('.modal-header-title').text("Create Service Instances");
                 $("#txtMaximumInstances").removeAttr("disabled","disabled");
                 $("#txtsvcInstanceName").removeAttr("disabled","disabled");
@@ -1531,8 +1548,6 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             //var results = arguments;
         }
     );
-    windowCreateSvcInstances.modal('show');
-    txtsvcInstanceName.focus();
 }
 
 function createSInstanceSuccessCb() {
