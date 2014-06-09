@@ -2,7 +2,7 @@
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 
-<div id="windowCreatefip" class="modal modal-420 hide" tabindex="-1">
+<div id="windowCreatefip" class="modal modal-560 hide" tabindex="-1">
 	<div class="modal-header">
 		<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
 	    <h6 class="modal-header-title"></h6>
@@ -13,7 +13,7 @@
             	<label class="control-label" class="span3">Floating IP Pool</label>
             	<div class="controls">
             		<div class="row-fluid">
-	                	<div class="span9 pull-left" id="ddFipPool" ></div>&nbsp;
+	                	<div class="span10 pull-left" id="ddFipPool" ></div>&nbsp;
                         <input type="text" id="txtCount" class="span2 pull-left" value="1" max=1 >
 	                	<!--<input class="span10 pull-left" id="ddFipPool" >-->
 		            </div>

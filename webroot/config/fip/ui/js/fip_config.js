@@ -102,7 +102,7 @@ $("#gridfip").contrailGrid({
             {
                 id:"fipPool",
                 field:"fipPool",
-                name:"Floating IP and Pool",
+                name:"Floating IP Pool",
                 sortable: true,
                 width: 200
             },
@@ -459,8 +459,10 @@ function showFIPEditWindow(mode) {
         windowCreatefip.modal('show');
         $("#btnCreatefipOK").attr("disabled","disabled");
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").value();
-        $("#ddFipPool").data("contrailDropdown").setData([""]);
-        $("#ddFipPool").data("contrailDropdown").value('');
+        $("#ddFipPool").data("contrailDropdown").setData({text:'Floating IPs not allocated for the project.',value:""});
+        //$("#ddFipPool").data("contrailDropdown").text('floating IPs not allocated for this project.');
+        $("#ddFipPool").data("contrailDropdown").enable(false);
+			
         var getAjaxs = [];
         getAjaxs[0] = $.ajax({
             url:"/api/tenants/config/floating-ip-pools/" + selectedProject,
@@ -476,13 +478,15 @@ function showFIPEditWindow(mode) {
                     var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3];
                     fipPools.push({text:poolName, value:JSON.stringify(poolObj.to)})
                 }
-                $("#ddFipPool").data("contrailDropdown").setData(fipPools);
+
                 windowCreatefip.find('.modal-header-title').text("Allocate Floating IP");
                 windowCreatefip.modal('show');
                 //todo: ddFipPool.data("contrailDropdown").focus();
                 if(fipPools.length > 0){
+                    $("#ddFipPool").data("contrailDropdown").setData(fipPools);
                     $("#btnCreatefipOK").attr("disabled",false);
                     $("#ddFipPool").data("contrailDropdown").value(fipPools[0].value);
+                    $("#ddFipPool").data("contrailDropdown").enable(true);
                 }
             },
             function () {
