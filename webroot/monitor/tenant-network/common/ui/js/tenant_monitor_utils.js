@@ -1086,86 +1086,36 @@ var tenantNetworkMonitorUtils = {
         }
 }
 
-
+//Default tooltip contents to show for infra nodes
+function getNetworkTooltipContents(obj) {
+    var tooltipContents = [
+        {lbl:'Name', value:obj['name']},
+        {lbl:'Interfaces', value:obj['x']},
+        {lbl:'Networks', value:obj['y']},
+        {lbl:'Throughput', value:formatThroughput(obj['throughput'])}
+    ];
+    return tooltipContents;
+}
 var tenantNetworkMonitor = {
-        projectTooltipFn : function(e,x,y,chart) {
-            //Get the count of overlapping bubbles
-            var matchedRecords = getOverlappedBubbles(e);
-            e['point']['overlappedNodes'] =  matchedRecords;
-            if(matchedRecords.length <= 1) {
-                var tooltipContents = tenantNetworkMonitor.getProjectTooltipContents(e);
-                return formatLblValueTooltip(tooltipContents);
-            } else if(e['point']['multiTooltip']) {
-               var result = getMultiTooltipContent(e, tenantNetworkMonitor.getProjectTooltipContents,chart);
-               result['content'] = result['content'].slice(0,result['perPage']);
-               return formatLblValueMultiTooltip(result);
-            }
+        projectTooltipFn : function(obj) {
+            return getNetworkTooltipContents(obj);
         },
-        getProjectTooltipContents : function(e) {
-            var tooltipContents = [
-               //{lbl:'Name', value:matchedRecords.length > 1 ? e['point']['name'] +
-                   //contrail.format(' ({0})',matchedRecords.length) : e['point']['name']},
-               {lbl:'Name', value:e['point']['name']},
-               {lbl:'Interfaces', value:e['point']['x']},
-               {lbl:'Networks', value:e['point']['y']},
-               {lbl:'Throughput', value:formatThroughput(e['point']['throughput'])}
-            ];
-            return tooltipContents;
+        networkTooltipFn : function(obj) {
+            return getNetworkTooltipContents(obj);
         },
-        networkTooltipFn:function (e,x,y,chart) {
-            var matchedRecords = getOverlappedBubbles(e);
-            e['point']['overlappedNodes'] =  matchedRecords;
-            if(matchedRecords.length <= 1) {
-                var tooltipContents = tenantNetworkMonitor.getNetworkTooltipContents(e); 
-                return formatLblValueTooltip(tooltipContents);
-            } else if(e['point']['multiTooltip']) {
-                var result = getMultiTooltipContent(e, tenantNetworkMonitor.getNetworkTooltipContents,chart);
-                result['content'] = result['content'].slice(0,result['perPage']);
-                return formatLblValueMultiTooltip(result);
-            }
-        },
-        getNetworkTooltipContents : function(e) {
-            var tooltipContents = [
-               //{lbl:'Name', value:matchedRecords.length > 1 ? e['point']['name'] +
-                   //contrail.format(' ({0})',matchedRecords.length) : e['point']['name']},
-               {lbl:'Name', value:e['point']['name']},
-               {lbl:'Interfaces', value:e['point']['x']},
-               {lbl:'Connected Networks', value:e['point']['y']},
-               {lbl:'Throughput', value:formatThroughput(e['point']['throughput'])}
-            ];
-            return tooltipContents;
-        },
-        portTooltipFn: function(e,x,y,chart) {
-            /*var tooltipContents = [
-             {lbl:'Name', value:typeof(e) == 'string' ? e : e['point']['type']},
-             ];*/
-            e['point']['overlappedNodes'] = markOverlappedBubblesOnHover(e,chart);
-            if(e['point']['overlappedNodes'] == undefined || e['point']['overlappedNodes'].length <= 1) {
-                var tooltipContents = tenantNetworkMonitor.getPortTooltipContents(e);
-                return formatLblValueTooltip(tooltipContents);
-            } else if(e['point']['multiTooltip']) {
-                var result = getMultiTooltipContent(e, tenantNetworkMonitor.getPortTooltipContents,chart);
-                if(result['content'].length == 1){
-                    var tooltipContents = tenantNetworkMonitor.getPortTooltipContents(e);
-                    return formatLblValueTooltip(tooltipContents);
-                }
-                result['content'] = result['content'].slice(0,result['perPage']);
-                return formatLblValueMultiTooltip(result);
-            }
-        },
-        getPortTooltipContents: function(e) {
-            if(e['point']['type'] == 'sport')
+        portTooltipFn: function(obj) {
+            if(obj['type'] == 'sport')
                 titlePrefix = 'Source';
-            else if(e['point']['type'] == 'dport')
+            else if(obj['type'] == 'dport')
                 titlePrefix = 'Destination';
-            if(e['point']['name'].toString().indexOf('-') > -1)
-                name = titlePrefix + ' Port Range (' + e['point']['name'] + ')';
+            if(obj['name'].toString().indexOf('-') > -1)
+                name = titlePrefix + ' Port Range (' + obj['name'] + ')';
             else
-                name = titlePrefix + ' Port ' + e['point']['name'];
+                name = titlePrefix + ' Port ' + obj['name'];
             var tooltipContents = [
                 {lbl:'Port Range', value:name},
-                {lbl:'Flows', value:e['point']['flowCnt']},
-                {lbl:'Bandwidth', value:formatBytes(ifNull(e['point']['origY'],e['point']['y']))},
+                {lbl:'Flows', value:obj['flowCnt']},
+                {lbl:'Bandwidth', value:formatBytes(ifNull(obj['origY'],obj['y']))},
                 //{lbl:'Type', value:e['point']['type']}
             ];
             return tooltipContents;
@@ -1262,7 +1212,7 @@ function portSummaryRenderer() {
                     var retObj = {d:[{key:'Source Port',values:portData}],
                         forceX:[startPort,endPort],xLblFormat:d3.format(''),yDataType:'bytes',fqName:obj['fqName'],
                         yLbl:'Bandwidth',link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
-                        tooltipFn:tenantNetworkMonitor.portTooltipFn,title:'Port Distribution',xLbl:'Port'
+                        chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn},title:'Port Distribution',xLbl:'Port'
                         }
                     return retObj;
                     }

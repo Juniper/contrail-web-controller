@@ -1870,6 +1870,7 @@ function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData)
 	}
 	for(var i=0; i<instanceIPList.length; i++) {
 		vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"]; 
+                vmList[i]["instance_uuid"] = instanceIPList[i]["instance-ip"]["uuid"]; 
 	}
 	commonUtils.handleJSONResponse(error, response,
 		{'virtual_machine_interface_back_refs': vmList});

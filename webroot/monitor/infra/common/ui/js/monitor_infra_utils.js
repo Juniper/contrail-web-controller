@@ -2033,11 +2033,6 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
     });
 }
 
-function monitorInfraGridUpdate(gridId){
-    if(gridId != null)
-        $("#"+gridId).data('contrailGrid').refreshView();
-}
-
 //Default tooltip contents to show for infra nodes
 function getNodeTooltipContents(currObj) {
     var tooltipContents = [
