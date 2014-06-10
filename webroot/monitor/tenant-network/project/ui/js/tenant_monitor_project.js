@@ -53,7 +53,7 @@ function projSummaryRenderer() {
                            endTime:response['endTime'],bandwidthField:'inBytes',flowCntField:'inFlowCount',portField:'dport'})}],
                     forceX:[0,1000],xLblFormat:d3.format(''),yDataType:'bytes',fqName:obj['fqName'],
                     yLbl:'Bandwidth',link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
-                    tooltipFn:tenantNetworkMonitor.portTooltipFn,title:'Port Distribution',xLbl:'Port'
+                    chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn},title:'Port Distribution',xLbl:'Port'
                     }
                 return retObj;
                 }
