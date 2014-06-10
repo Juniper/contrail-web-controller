@@ -115,7 +115,7 @@ monitorInfraControlRoutesClass = (function() {
          var  txtPrefixSearch = $('#txtPrefixSearch').contrailAutoComplete({
            source:[]
          });
-         var routeTableList = ["All","enet","evpn","inet","erm-vpn","l3vpn"];
+         var routeTableList = ["All","enet","erm-vpn","evpn","inet","inetvpn","l3vpn","rtarget"];
          var routeLimits = [10, 50, 100, 200];
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
          
@@ -281,40 +281,39 @@ monitorInfraControlRoutesClass = (function() {
                 columnHeader : {
                     columns : [
                        {
-                      field:"table",
-                      name:"Routing Table",
-                      width:250
-                  },
+                          field:"table",
+                          name:"Routing Table",
+                          minWidth:200
+                       },
                        {
                            field:"dispPrefix",
                            name:"Prefix",
-                           width:200
+                           minWidth:200
                        },
-                  {
+                       {
                            field:"protocol",
                            name:"Protocol",
-                           //width:75
+                           minWidth:40
                        },
                        {
                            field:"source",
                            name:"Source",
-                           width:130,
-                         //  template:cellTemplate({cellText:'#= source.split(":").pop() #', tooltip:true})
+                           minWidth:130
                        },
                        {
                            field:"next_hop",
                            name:"Next hop",
-                           width:100
+                           minWidth:70
                        },
                        {
                            field:"label",
                            name:"Label",
-                           width:70
+                           minWidth:40
                        },
                        {
                            field:"sg",
                            name:"Security Group",
-                           width:80
+                           minWidth:80
                        },
                        {
                           field:"originVn",
@@ -322,17 +321,16 @@ monitorInfraControlRoutesClass = (function() {
                           /*cssClass: 'cell-hyperlink-blue',
                           events: {
                                 onClick: function(e,dc){
-                                    var tabIdx = $.inArray("networks", ctrlNodeTabStrip);
-                                    selectTab(ctrlNodeTabStrip,tabIdx);
+                                    var tabIdx = $.inArray("networks", computeNodeTabs);
+                                    selectTab(computeNodeTabStrip,tabIdx);
                                 }
-                             },*/
-                          width:180
+                          },*/
+                          minWidth:180
                        }
                     ]
                 },
                 body : {
                     options : {
-                        //checkboxSelectable: true,
                         forceFitColumns: true,
                         detail:{
                             template: $("#gridsTemplateJSONDetails").html()
