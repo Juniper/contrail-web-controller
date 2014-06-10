@@ -16,7 +16,7 @@ function dnsRecordsDynamicConfig(){
     this.destroy = destroy;
 
     function load() {
-        dnsName = arguments[0].dnsName;
+        dnsName = window.location.hash.split('&')[2].split('=')[1];
         var configTemplate =  Handlebars.compile($("#DNSRecords-dynamic-config-template").html());
         $(contentContainer).html('');
         $(contentContainer).html(configTemplate);
