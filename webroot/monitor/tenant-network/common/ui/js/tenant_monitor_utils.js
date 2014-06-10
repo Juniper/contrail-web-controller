@@ -111,7 +111,7 @@ function ObjectListView() {
                 minWidth:100
             },{
                 field:'floatingIP',
-                name:'Floating IP',
+                name:'Floating IPs (In/Out)',
                 formatter:function(r,c,v,cd,dc){
                     return getMultiValueStr(dc['floatingIP']);
                 },
@@ -211,7 +211,8 @@ function ObjectListView() {
             obj['error'] = result['error'];
             obj['isAsyncLoad'] = true;
         } else if(objectType == 'instance') { 
-            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list'];
+            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
+                              'UveVirtualMachineAgent:fip_stats_list','VirtualMachineStats'];
             if(ifNull(obj['fqName'],'') == '') {
                 var instDS = new SingleDataSource('instDS');
                 var result = instDS.getDataSourceObj('instDS');
@@ -777,11 +778,12 @@ var tenantNetworkMonitorUtils = {
     instanceParseFn: function(response) {
         var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
             var currObj = obj['value'];
+            var intfStats = getValueByJsonPath(currObj,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
             obj['rawData'] = $.extend(true,{},currObj);
             obj['inBytes'] = 0;
             obj['outBytes'] = 0;
-            //Need to append * to get flat UVE structure
-            obj['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['name'] + '*';
+            // If we append * wildcard stats info are not there in response,so we changed it to flat
+            obj['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['name'] + '?flat';
             obj['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
             obj['vRouter'] = ifNull(jsonPath(currObj, '$..vrouter')[0], '-');
             obj['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
@@ -794,17 +796,17 @@ var tenantNetworkMonitorUtils = {
                     return value;
             });
             obj['ip'] = ifNull(jsonPath(currObj, '$..interface_list[*].ip_address'), []);
-            var floatingIPs = flattenArr(ifNull(jsonPath(currObj, '$..interface_list[*].floating_ips'), []));
-            obj['floatingIP'] = [];
-            $.each(floatingIPs, function (idx, fipObj) {
-                if (fipObj['ip_address'] != null)
-                    obj['floatingIP'].push(contrail.format('{0}', fipObj['ip_address'], fipObj['virtual_network']));
+            var floatingIPs = ifNull(jsonPath(currObj, '$..fip_stats_list')[0], []);
+              obj['floatingIP'] = [];
+            $.each(floatingIPs, function(idx, fipObj){
+                obj['floatingIP'].push(contrail.format('{0}<br/> ({1}/{2})', fipObj['ip_address'],formatBytes(ifNull(fipObj['in_bytes'],'-')),
+                        formatBytes(ifNull(fipObj['out_bytes'],'-'))));
             });
-            $.each(jsonPath(currObj, '$..if_stats_list[*].in_bytes'), function (idx, value) {
-                obj['inBytes'] += value;
+            $.each(intfStats, function (idx, value) {
+                obj['inBytes'] += ifNull(value['SUM(if_stats.in_bytes)'],0);
             });
-            $.each(jsonPath(currObj, '$..if_stats_list[*].out_bytes'), function (idx, value) {
-                obj['outBytes'] += value;
+            $.each(intfStats, function (idx, value) {
+                obj['outBytes'] += ifNull(value['SUM(if_stats.out_bytes)'],0);
             });
             return obj;
         });
@@ -913,26 +915,20 @@ var tenantNetworkMonitorUtils = {
         result['pType'] = data['pType'];
         return result;
     },
-    parseInstDetails: function(data) {
-        var d = data['value'];
+    parseInstDetails: function(data,rowData) {
+        var d = data;
         var interfaces = ifNullOrEmptyObject(jsonPath(d,'$..interface_list')[0],[]);
         var intfStr = [];
-        var retArr = [],interfaceDetails = [];
-        var ifStatsList = ifNullOrEmptyObject(jsonPath(d,'$..if_stats_list')[0],[]);
-        var floatingIPs = ifNullOrEmptyObject(jsonPath(d,'$..interface_list[*].floating_ips'),[]);
-        var floatingIPArr = [];
+        var retArr = [],interfaceDetails = [],fipDetails = [];
+        var ifStatsList = getValueByJsonPath(d,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
+        var fipObjArr = ifNullOrEmptyObject(jsonPath(d,'$..fip_stats_list')[0],[]);
         var spanWidths = ['span2','span1','span2','span2','span2','span1','span1'];
         var throughputIn = 0;
         var throughputOut = 0;
         spanWidths = [235,105,35,190,110,110,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
-        $.each(flattenArr(floatingIPs),function(idx,obj) {
-            if(obj['ip_address'] != null)
-                floatingIPArr.push(contrail.format('{0} ({1})',obj['ip_address'],obj['virtual_network']));
-        });
-        if(floatingIPArr.length > 0)
-            retArr.push({lbl:'Floating IP',value:floatingIPArr.join(' , ')});
-        retArr.push({lbl:'UUID',value:data['name']});
+        var spanWidthsForFip = [95,250,300,110];
+        retArr.push({lbl:'UUID',value:ifNull(rowData['name'],'-')});
         retArr.push({lbl:'CPU',value:jsonPath(d,'$..cpu_one_min_avg')[0] != null ? jsonPath(d,'$..cpu_one_min_avg')[0].toFixed(2) : '-'});
         var usedMemory = ifNullOrEmptyObject(jsonPath(d,'$..rss')[0],'-');
         var totalMemory = ifNullOrEmptyObject(jsonPath(d,'$..vm_memory_quota')[0],'-');
@@ -942,6 +938,24 @@ var tenantNetworkMonitorUtils = {
         }
         retArr.push({lbl:'Memory (Used/Total)',value:formatBytes(usedMemory*1024) + ' / ' + 
             formatBytes(totalMemory*1024)});
+        if(fipObjArr.length > 0) {
+            fipDetails.push({lbl:'Floating IPs',value:['IP Address','Floating IP Network','Interface UUID','Traffic (In/Out)'],
+                span:spanWidthsForFip,config:{labels:true}});
+        }
+        $.each(fipObjArr,function(idx,fipObj){
+            var ipAddress = ifNull(fipObj['ip_address'],'-');
+            var fipPool = ifNull(fipObj['virtual_network'],'-');
+            var intfObj = $.grep(interfaces,function(intfObj,idx) {
+                if(intfObj['name'] == fipObj['iface_name'])
+                    return true;
+                else
+                    return false;
+            });
+            var interfaceName = getValueByJsonPath(intfObj,'0;uuid','-');
+            var intfInBytes = formatBytes(ifNull(fipObj['in_bytes'],'-'));
+            var intfOutBytes = formatBytes(ifNull(fipObj['out_bytes'],'-'));
+            fipDetails.push({lbl:'',value:[ipAddress, fipPool, interfaceName,intfInBytes+"/"+intfOutBytes],span:spanWidthsForFip});
+        });
         //Add the header
         if(interfaces.length > 0) {
           //Here the Ip Address/Mac Address wraps to next line so to avoid the background color in second line 
@@ -952,19 +966,19 @@ var tenantNetworkMonitorUtils = {
         $.each(interfaces,function(idx,obj) {
             var name = obj['name'];
             var currIfStatObj = $.grep(ifStatsList,function(statObj,idx) {
-                if(statObj['name'] == obj['name'])
+                if(statObj['if_stats.name'] == obj['name'])
                     return true;
                 else
                     return false;
             });
             var intfStatus = '-';
-            var intfInBytes = getValueByJsonPath(currIfStatObj,'0;in_bytes','-');
-            var intfOutBytes = getValueByJsonPath(currIfStatObj,'0;out_bytes','-');
-            var intfInBw = getValueByJsonPath(currIfStatObj,'0;in_bandwidth_usage','-');
-            var intfOutBw = getValueByJsonPath(currIfStatObj,'0;out_bandwidth_usage','-');
-            throughputIn += getValueByJsonPath(currIfStatObj,'0;in_bandwidth_usage',0);
-            throughputOut += getValueByJsonPath(currIfStatObj,'0;out_bandwidth_usage',0);
-            var uuid = obj['name'] != null ? obj['name'].split(':').pop() : '-';
+            var intfInBytes = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bytes)','-');
+            var intfOutBytes = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bytes)','-');
+            var intfInBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)','-');
+            var intfOutBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)','-');
+            throughputIn += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)',0);
+            throughputOut += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)',0);
+            var uuid = ifNull(obj['uuid'],'-');
             if(obj['active'] != null && obj['active'] == true)
                 intfStatus = 'Active';
             else if(obj['active'] != null && obj['active'] == false)
@@ -975,7 +989,7 @@ var tenantNetworkMonitorUtils = {
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
         });
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
-        retArr = $.merge(retArr,interfaceDetails);
+        retArr = $.merge($.merge(retArr,interfaceDetails),fipDetails);
         return retArr;
     },
     parseNetworkDetails: function(data) {

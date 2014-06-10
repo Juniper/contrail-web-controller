@@ -59,16 +59,16 @@
                 <div class="row-fluid" style="">
             {{/IfCompare}}
                 {{#IfCompare config.minHeight null}}
-                    <div class="span2" style="background:#fff">
+                    <div class="span2" style="background:#fff;width:150px">
                 {{else}}
-                    <div class="span2" style="background:#fff;min-height:{{config.minHeight}};">
+                    <div class="span2" style="background:#fff;width:150px;min-height:{{config.minHeight}};">
                 {{/IfCompare}}
                     <label>{{lbl}}</label>
                 </div>
                 {{#IfCompare config null operator='!='}}
                     {{#IfCompare config.labels true operator='==='}}
                         {{#each value}}
-                            <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;">
+                            <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;word-break:break-word;">
                                 <label>{{{this}}}</label>
                             </div>
                         {{/each}}
@@ -76,7 +76,7 @@
                 {{/IfCompare}}
                 {{#IfCompare config null}}    
                     {{#each value}}
-                        <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;">
+                        <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;word-break:break-word;">
                             {{{this}}}
                         </div>
                     {{/each}}
@@ -84,7 +84,7 @@
             </div>
         {{else}}
             <div class="row-fluid">
-                <div class="span2"><label>{{lbl}}</label></div>
+                <div class="span2" style="width:150px"><label>{{lbl}}</label></div>
                 <div class="span10" style="margin-left:0px">{{value}}</div>
             </div>
         {{/IfCompare}}
