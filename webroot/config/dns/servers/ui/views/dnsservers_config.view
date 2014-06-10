@@ -99,7 +99,7 @@
 	    <button id="btnCreateDNSServerOK" class="btn btn-primary btn-mini">Save</button>
   	</div>
 </div>
-<div id="confirmDelete" class="modal modal-420 hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+<div id="confirmDelete" class="modal modal-420 hide" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 	<div class="modal-header">
 	  	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 	  	<h6 class="modal-header-title"></h6>
