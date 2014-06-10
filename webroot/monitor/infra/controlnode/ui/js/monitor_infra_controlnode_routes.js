@@ -318,13 +318,6 @@ monitorInfraControlRoutesClass = (function() {
                        {
                           field:"originVn",
                           name:"Origin VN",
-                          /*cssClass: 'cell-hyperlink-blue',
-                          events: {
-                                onClick: function(e,dc){
-                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                    selectTab(computeNodeTabStrip,tabIdx);
-                                }
-                          },*/
                           minWidth:180
                        }
                     ]
