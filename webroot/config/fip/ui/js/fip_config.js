@@ -442,6 +442,8 @@ function successHandlerForGridFIPRow(fipBackRefs) {
         uuid = String(jsonPath(fip, "$.uuid"));
         fipData.push({"id":fipData.length, "ip_addr":ip_addr, "instance":instanceId, "fipPool":fipPool, "uuid":uuid});
     }
+    if(!fipData || fipData.length<=0)
+        gridfip.showGridMessage('empty');
     $("#gridfip").data("contrailGrid")._dataView.setData(fipData);
 }
 
