@@ -7,6 +7,7 @@ function dnsRecordsDynamicConfig(){
     //Grids
     var gridDynamicDNSRec;
     var prevNextCache = [];
+    var dnsName;
     //Method Definations
     this.load = load;
     this.init = init;	
@@ -15,6 +16,7 @@ function dnsRecordsDynamicConfig(){
     this.destroy = destroy;
 
     function load() {
+        dnsName = arguments[0].dnsName;
         var configTemplate =  Handlebars.compile($("#DNSRecords-dynamic-config-template").html());
         $(contentContainer).html('');
         $(contentContainer).html(configTemplate);
@@ -132,11 +134,6 @@ function dnsRecordsDynamicConfig(){
     function fetchData(k){
         gridDynamicDNSRec._dataView.setData([]);    
 	    var domain = JSON.parse(sessionStorage["sel_domain"]);
-	    var dnsName;
-        var queryParams = window.location.href.split('&');
-        if(queryParams != undefined && queryParams.length > 1 && queryParams[1].indexOf('=') != -1) {
-            dnsName = queryParams[1].split('=')[1];
-	    }
 	    $("#lblServer").text(dnsName);
 	    gridDynamicDNSRec.showGridMessage("loading");
 	    var dnsFQN;

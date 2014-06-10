@@ -38,8 +38,7 @@ function dnsServersConfig() {
     var idCount = 0;
 	var drAjaxcount = 0;
     var ajaxParam;
-
-
+        
     //Method definitions
     this.load                       = load;
     this.init                       = init;
@@ -145,8 +144,22 @@ function initComponents() {
                     {
                         title: 'Active DNS Database',
                         onClick: function(rowIndex){
+                            var activeDNSRootPath = '/config/dns/records/ui/';
+                            var activeDNSHash = 'dnsrecords_dynamic_config'; 
+                            $.bbq.pushState({q : activeDNSHash});
                             var selectedRow = $("#gridDNSServer").data("contrailGrid")._dataView.getItem(rowIndex)
-                            layoutHandler.setURLHashParams({dnsName : selectedRow.dnsserver_name} ,{p : 'config_dynamic_dnsrecords' ,merge : false ,triggerHashChange : true});						
+                            getScript(activeDNSRootPath + '/js/' + activeDNSHash + '.js', function() {
+                                $.ajax({
+                                    type : "GET",
+                                    url : activeDNSRootPath + '/views/' + activeDNSHash + '.view' + '?built_at=' + built_at,
+                                    success : function(result) {
+                                        $("body").append(result);
+                                        pushBreadcrumb(['Active DNS Database']);    
+                                        dnsRecordsDynamicConfigObj.load({dnsName : selectedRow.dnsserver_name});   
+                                    },
+                                    cache:true
+                               });
+                            });
                         }   
                     }                    
                 ],
