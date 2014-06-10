@@ -286,18 +286,18 @@ adminapi.createBGPRouter = function (req, res, appData) {
 	logutils.logger.debug("createBGPRouter JSON: " + JSON.stringify(content));
 	delete content["bgp-router"]["bgp_router_refs"];
 		configApiServer.apiPost(url, content, appData, function (error, data) {
-			// if (!error) {
-				// data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
-				// data["bgp-router"]["_type"] = type;
-				// data["bgp-router"]["parent_name"] = parentName;
-				// data["bgp-router"]["bgp_router_parameters"] = bgpParams;
-				// logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
-				// updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
-                                        // appData);
-			// } else {
-				// error = new appErrors.RESTServerError(messages.error.create_bgpr);
-				// commonUtils.handleJSONResponse(error, res, null);
-			// }
+			/*if (!error) {
+				data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
+				data["bgp-router"]["_type"] = type;
+				data["bgp-router"]["parent_name"] = parentName;
+				data["bgp-router"]["bgp_router_parameters"] = bgpParams;
+				logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
+				updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
+                                        appData);
+			} else {
+				error = new appErrors.RESTServerError(messages.error.create_bgpr);
+				commonUtils.handleJSONResponse(error, res, null);
+			}*/
             if (error) {
                 commonUtils.handleJSONResponse(error, res, null);    
             } else {
@@ -374,61 +374,61 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"].vendor = bgpUpdates["bgp-router"]["bgp_router_parameters"].vendor;
 	bgpJSON["bgp-router"]["bgp_router_parameters"].port = bgpUpdates["bgp-router"]["bgp_router_parameters"].port;
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold-time"];    
-	// var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
-		// newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
-	// if (!newBGPRefs || newBGPRefs.length == 0) {
-		// bgpJSON["bgp-router"]["bgp_router_refs"] = [];
-	// } else {
-		// if (!bgpRefs || bgpRefs.length == 0) {
-			// bgpJSON["bgp-router"]["bgp_router_refs"] = bgpUpdates["bgp_router_refs"];
-		// } else {
-			// var newBGPRefNames = {},
-				// bgpRefNames = {},
-				// spliceArray = [],
-				// newPeers = [],
-				// i;
+	/*var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
+		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
+	if (!newBGPRefs || newBGPRefs.length == 0) {
+		bgpJSON["bgp-router"]["bgp_router_refs"] = [];
+	} else {
+		if (!bgpRefs || bgpRefs.length == 0) {
+			bgpJSON["bgp-router"]["bgp_router_refs"] = bgpUpdates["bgp_router_refs"];
+		} else {
+			var newBGPRefNames = {},
+				bgpRefNames = {},
+				spliceArray = [],
+				newPeers = [],
+				i;
 
-			// for (i = 0; i < newBGPRefs.length; i += 1) {
-				// var toArray = newBGPRefs[i].to;
-				// newBGPRefNames[toArray[toArray.length - 1]] = newBGPRefs.href;
-			// }
+			for (i = 0; i < newBGPRefs.length; i += 1) {
+				var toArray = newBGPRefs[i].to;
+				newBGPRefNames[toArray[toArray.length - 1]] = newBGPRefs.href;
+			}
 
-			// for (i = 0; i < bgpRefs.length; i += 1) {
-				// var toArray = bgpRefs[i].to;
-				// bgpRefNames[toArray[toArray.length - 1]] = bgpRefs.href;
-			// }
+			for (i = 0; i < bgpRefs.length; i += 1) {
+				var toArray = bgpRefs[i].to;
+				bgpRefNames[toArray[toArray.length - 1]] = bgpRefs.href;
+			}
 
-			// for (i = 0; i < bgpRefs.length; i += 1) {
-				// var toArray = bgpRefs[i].to;
-				// var peerName = toArray[toArray.length - 1];
-				// if (!(peerName in newBGPRefNames)) {
-					// spliceArray[spliceArray.length] = i;
-					// deleteBGPRefFromPeer(); // TODO: Implement
-				// }
-			// }
+			for (i = 0; i < bgpRefs.length; i += 1) {
+				var toArray = bgpRefs[i].to;
+				var peerName = toArray[toArray.length - 1];
+				if (!(peerName in newBGPRefNames)) {
+					spliceArray[spliceArray.length] = i;
+					deleteBGPRefFromPeer(); // TODO: Implement
+				}
+			}
 
-			// for (i = 0; i < newBGPRefs.length; i += 1) {
-				// var toArray = newBGPRefs[i].to;
-				// if (!(toArray[toArray.length - 1] in bgpRefNames)) {
-					// var newPeer = {};
-					// newPeer["to"] = newBGPRefs[i].to
-					// newPeer["href"] = newBGPRefs[i].href
-					// newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
-					// newPeers[newPeers.length] = newPeer;
-				// }
-			// }
+			for (i = 0; i < newBGPRefs.length; i += 1) {
+				var toArray = newBGPRefs[i].to;
+				if (!(toArray[toArray.length - 1] in bgpRefNames)) {
+					var newPeer = {};
+					newPeer["to"] = newBGPRefs[i].to
+					newPeer["href"] = newBGPRefs[i].href
+					newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
+					newPeers[newPeers.length] = newPeer;
+				}
+			}
 
-			// for (i = 0; i < spliceArray.length; i += 1) {
-				// var spliceIndex = spliceArray[i];
-				// (bgpJSON["bgp-router"]["bgp_router_refs"]).splice(spliceIndex - i, 1);
-			// }
+			for (i = 0; i < spliceArray.length; i += 1) {
+				var spliceIndex = spliceArray[i];
+				(bgpJSON["bgp-router"]["bgp_router_refs"]).splice(spliceIndex - i, 1);
+			}
 
-			// for (i = 0; i < newPeers.length; i += 1) {
-				// var length = bgpJSON["bgp-router"]["bgp_router_refs"].length
-				// bgpJSON["bgp-router"]["bgp_router_refs"][length] = newPeers[i];
-			// }
-		// }
-	// }
+			for (i = 0; i < newPeers.length; i += 1) {
+				var length = bgpJSON["bgp-router"]["bgp_router_refs"].length
+				bgpJSON["bgp-router"]["bgp_router_refs"][length] = newPeers[i];
+			}
+		}
+	}*/
 }
 
 /**
@@ -452,23 +452,23 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 						error = new appErrors.RESTServerError(messages.error.update_bgpr);
 						commonUtils.handleJSONResponse(error, res, null);
 					} else {
-						// try {
-							// var bgpPeers = bgpUpdates["bgp-router"]["bgp_router_refs"];
-							// if (bgpPeers) {
-								// var bgpPeerObj = {};
-								// //bgpPeerObj["uuid"] = content["bgp-router"].uuid;
-								// bgpPeerObj["to"] = bgpUpdates["bgp-router"]["fq_name"];
-								// bgpPeerObj["href"] = bgpUpdates["bgp-router"].href;
-								// bgpPeerObj["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
-								// for (var i = 0; i < bgpPeers.length; i++) {
-									// addBGPPeer(bgpPeers[i].uuid, bgpPeerObj,
-                                               // appData);
-								// }
-							// }
-						// } catch (e) {
-							// logutils.logger.error(e.stack);
-							// // TODO: On error all changes should be rolled back.s
-						// }
+						/*try {
+							var bgpPeers = bgpUpdates["bgp-router"]["bgp_router_refs"];
+							if (bgpPeers) {
+								var bgpPeerObj = {};
+								//bgpPeerObj["uuid"] = content["bgp-router"].uuid;
+								bgpPeerObj["to"] = bgpUpdates["bgp-router"]["fq_name"];
+								bgpPeerObj["href"] = bgpUpdates["bgp-router"].href;
+								bgpPeerObj["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
+								for (var i = 0; i < bgpPeers.length; i++) {
+									addBGPPeer(bgpPeers[i].uuid, bgpPeerObj,
+                                               appData);
+								}
+							}
+						} catch (e) {
+							logutils.logger.error(e.stack);
+							// TODO: On error all changes should be rolled back.s
+						}*/
 						commonUtils.handleJSONResponse(null, res, data);
 					}
 				}, bgpHeader);
