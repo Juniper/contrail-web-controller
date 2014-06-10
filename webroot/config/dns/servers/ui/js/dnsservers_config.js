@@ -38,8 +38,7 @@ function dnsServersConfig() {
     var idCount = 0;
 	var drAjaxcount = 0;
     var ajaxParam;
-
-
+    activeDNSRootPath = '/config/dns/records/ui/', activeDNSHash = 'dnsrecords_dynamic_config';     
     //Method definitions
     this.load                       = load;
     this.init                       = init;
@@ -57,10 +56,16 @@ function dnsServersConfig() {
     this.failureHandlerForDNSServer = failureHandlerForDNSServer;
     this.createDNSServerSuccessCb   = createDNSServerSuccessCb;
     this.createDNSServerFailureCb   = createDNSServerFailureCb;
+    this.updateViewByHash           = updateViewByHash;
     this.destroy                    = destroy;   
 }
 
 function load() {
+    var hashParams = arguments[0].hashParams;
+    if(hashParams.tab) {
+         loadActiveDNSRecords();   
+         return;         
+    }     
     var configTemplate = Handlebars.compile($("#DNSServer-config-template").html());
     $(contentContainer).html('');
     $(contentContainer).html(configTemplate);
@@ -68,7 +73,10 @@ function load() {
     init();
 }
 
-function init() {
+function updateViewByHash(hashObj, lastHashObj) {
+    this.load({hashParams : hashObj});
+}
+function init() {   
     this.initComponents();
     this.initActions();
     this.fetchData();
@@ -146,7 +154,7 @@ function initComponents() {
                         title: 'Active DNS Database',
                         onClick: function(rowIndex){
                             var selectedRow = $("#gridDNSServer").data("contrailGrid")._dataView.getItem(rowIndex)
-                            layoutHandler.setURLHashParams({dnsName : selectedRow.dnsserver_name} ,{p : 'config_dynamic_dnsrecords' ,merge : false ,triggerHashChange : true});						
+                            $.bbq.pushState({ q: { tab : activeDNSHash, dns : selectedRow.dnsserver_name }}); 
                         }   
                     }                    
                 ],
@@ -234,6 +242,21 @@ function initComponents() {
     confirmDeleterow = $("#confirmDeleterow");
     confirmDeleterow.modal({backdrop:'static', keyboard: false, show:false});
     $("body").append(confirmDeleterow);
+}
+
+function loadActiveDNSRecords() {
+    getScript(activeDNSRootPath + '/js/' + activeDNSHash + '.js', function() {
+        $.ajax({
+            type : "GET",
+            url : activeDNSRootPath + '/views/' + activeDNSHash + '.view' + '?built_at=' + built_at,
+            success : function(result) {
+                $("body").append(result);
+                pushBreadcrumb(['Active DNS Database']);    
+                dnsRecordsDynamicConfigObj.load();   
+            },
+            cache:true
+       });
+    });    
 }
 
 function initGridDNSServerDetail(e) {
