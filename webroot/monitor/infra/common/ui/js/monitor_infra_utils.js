@@ -863,10 +863,7 @@ var infraMonitorUtils = {
             cboMsgLimit.value('10');
             cboMsgCategory.value('');
             cboMsgLevel.value('5');
-            if(userChangedQuery)
-                loadLogs();
-            else 
-                fetchLastLogtimeAndCallLoadLogs('',nodeType);
+            loadLogs();
         });
     }
 }

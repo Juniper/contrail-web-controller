@@ -108,11 +108,6 @@ monitorInfraComputeInterfacesClass = (function() {
                        {
                            field:"disp_fip_list",
                            name:"Floating IP",
-                           //Need to check the scope of template javascript functions
-                           //template:cellTemplate({cellText:'#= disp_fip_list#', tooltip:true})
-                           formatter:function(r,c,v,cd,dc) {
-                              return cellTemplateLinks({cellText:'disp_fip_list'});
-                           },
                            minWidth:100
                        },
                        {
