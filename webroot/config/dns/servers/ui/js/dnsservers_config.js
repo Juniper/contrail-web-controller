@@ -155,7 +155,6 @@ function initComponents() {
                         onClick: function(rowIndex){
                             var selectedRow = $("#gridDNSServer").data("contrailGrid")._dataView.getItem(rowIndex)
                             $.bbq.pushState({ q: { tab : activeDNSHash, dns : selectedRow.dnsserver_name }}); 
-                            loadActiveDNSRecords(); 
                         }   
                     }                    
                 ],
