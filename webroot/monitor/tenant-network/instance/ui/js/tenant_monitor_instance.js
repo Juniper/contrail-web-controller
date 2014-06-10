@@ -211,7 +211,8 @@ function instSummaryRenderer() {
  * Getter for all Instances
  */
 function getAllInstances(deferredObj,dataSource,dsObj) {
-    var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list'];
+    var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list',
+                      'UveVirtualMachineAgent:fip_stats_list'];
     var obj = {};
     obj['transportCfg'] = { 
             url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,
