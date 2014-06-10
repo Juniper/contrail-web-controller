@@ -442,8 +442,8 @@ function initActions() {
 
                 if (startPortsArray != -1 && endPortsArray != -1 &&
                     startPortsArray.length > 0 && endPortsArray.length > 0) {
-                    if(dontAllowPortsIfServiceEnabled(applyServicesEnabled, true, false) === true &&
-                           dontAllowPortsIfServiceEnabled(mirrorServicesEnabled, true, true) === true) {
+                    //if(dontAllowPortsIfServiceEnabled(applyServicesEnabled, true, false) === true &&
+                    if(dontAllowPortsIfServiceEnabled(mirrorServicesEnabled, true, true) === true) {
                         rule["src_ports"] = [];
                         if(checkValidPortRange(startPortsArray, endPortsArray, true) === true) {
                             for (var j = 0; j < startPortsArray.length; j++) {
@@ -472,8 +472,8 @@ function initActions() {
 
                 if (startPortsArray != -1 && endPortsArray != -1 &&
                     startPortsArray.length > 0 && endPortsArray.length > 0) {
-                    if(dontAllowPortsIfServiceEnabled(applyServicesEnabled, false, false) === true &&
-                        dontAllowPortsIfServiceEnabled(mirrorServicesEnabled, false, true) === true) {
+                    //if(dontAllowPortsIfServiceEnabled(applyServicesEnabled, false, false) === true &&
+                    if(dontAllowPortsIfServiceEnabled(mirrorServicesEnabled, false, true) === true) {
                         rule["dst_ports"] = [];
                         if(checkValidPortRange(startPortsArray, endPortsArray)) {
                             for (var j = 0; j < startPortsArray.length; j++) {
@@ -1466,9 +1466,9 @@ function validate() {
                     showInfoWindow("Select atleast one service to apply.", "Invalid Rule");
                     return false;
                 }
-                if(allowOnlyProtocolAnyIfServiceEnabled(applyServicesEnabled, protocol, false) === false) {
-                    return false;
-                }
+                //if(allowOnlyProtocolAnyIfServiceEnabled(applyServicesEnabled, protocol, false) === false) {
+                //    return false;
+                //}
                 //When creating service chain with more than one service instance, 
                 //only transparent mode services can be chained
                 var allTypes = [];
