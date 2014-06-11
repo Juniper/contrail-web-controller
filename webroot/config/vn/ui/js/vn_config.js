@@ -86,7 +86,7 @@ function initComponents() {
     $("#gridVN").contrailGrid({
         header : {
             title : {
-                text : 'Networks',
+                text : 'Virtual Networks',
                 //cssClass : 'blue',
                 //icon : 'icon-list',
                 //iconCssClass : 'blue'
