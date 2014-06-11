@@ -329,7 +329,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>icon-link</iconClass>
                     <items>
                         <item>
-                            <label>Service Template</label>
+                            <label>Service Templates</label>
                             <hash>config_sc_svctemplate</hash>
                             <rootDir>/config/services/template/ui</rootDir>
                             <js>svctemplate_config.js</js>
