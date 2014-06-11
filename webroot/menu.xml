@@ -305,13 +305,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>IP Address Management, IPAM</searchStrings>
                         </item>
                         <item>
-                            <label>Allocate Floating IPs</label>
+                            <label>Manage Floating IPs</label>
                             <hash>config_net_fip</hash>
                             <rootDir>/config/fip/ui</rootDir>
                             <js>fip_config.js</js>
                             <view>fip_config.view</view>
                             <class>FloatingIPConfigObj</class>
-                            <searchStrings>Allocate Floating IPs</searchStrings>
+                            <searchStrings>Manage Floating IPs</searchStrings>
                         </item>
                    </items>
                 </item>
@@ -329,7 +329,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>icon-link</iconClass>
                     <items>
                         <item>
-                            <label>Service Template</label>
+                            <label>Service Templates</label>
                             <hash>config_sc_svctemplate</hash>
                             <rootDir>/config/services/template/ui</rootDir>
                             <js>svctemplate_config.js</js>

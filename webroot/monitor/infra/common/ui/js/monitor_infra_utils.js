@@ -51,7 +51,7 @@ var infraMonitorAlertUtils = {
             if(downProcess > 0)
                 alerts.push({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess)});
         }
-        return alerts.sort(bgpMonitor.sortInfraAlerts);
+        return alerts.sort(dashboardUtils.sortInfraAlerts);
     },
     processvRouterAlerts : function(obj) {
         var alertsList = [];
@@ -74,7 +74,7 @@ var infraMonitorAlertUtils = {
             if(obj['xmppPeerDownCnt'] > 0)
                 alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['XMPP_PEER_DOWN'].format(obj['xmppPeerDownCnt']),tooltipLbl:'Events'},infoObj));
         }
-        return alertsList.sort(bgpMonitor.sortInfraAlerts);
+        return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processControlNodeAlerts : function(obj) {
         var alertsList = [];
@@ -102,14 +102,14 @@ var infraMonitorAlertUtils = {
             if(obj['uveCfgIPMisMatch'])
                 alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_IP_MISMATCH']},infoObj));
         }
-        return alertsList.sort(bgpMonitor.sortInfraAlerts);
+        return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processConfigNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Config Node',ip:obj['ip']};
         if(obj['isPartialUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
-        return alertsList.sort(bgpMonitor.sortInfraAlerts);
+        return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processAnalyticsNodeAlerts : function(obj) {
         var alertsList = [];
@@ -121,7 +121,7 @@ var infraMonitorAlertUtils = {
                 alertsList.push($.extend({},{sevLevel:sevLevels['WARNING'],msg:errorString},infoObj));
             });
         }
-        return alertsList.sort(bgpMonitor.sortInfraAlerts);
+        return alertsList.sort(dashboardUtils.sortInfraAlerts);
     }
 }
 
@@ -266,13 +266,12 @@ var infraMonitorUtils = {
             obj['processAlerts']= infraMonitorAlertUtils.getProcessAlerts(d,obj,'VrouterStatsAgent;process_state_list');
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processvRouterAlerts(obj);
-            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
             //Decide color based on parameters
             obj['color'] = getvRouterColor(d,obj);
             retArr.push(obj);
         }
-        retArr.sort(bgpMonitor.sortNodesByColor);
-        //dashboardViewModel.vRoutersData(retArr);
+        retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
     /**
@@ -360,12 +359,11 @@ var infraMonitorUtils = {
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processControlNodeAlerts(obj);
-            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
             obj['color'] = getControlNodeColor(d,obj);
             retArr.push(obj);
         });
-        retArr.sort(bgpMonitor.sortNodesByColor);
-        //dashboardViewModel.ctrlNodesData(retArr);
+        retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
     /**
@@ -420,12 +418,11 @@ var infraMonitorUtils = {
             var genInfos = ifNull(jsonPath(d,'$.value.CollectorState.generator_infos')[0],[])
             obj['genCount'] = genInfos.length;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processAnalyticsNodeAlerts(obj);
-            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
             obj['color'] = getAanalyticNodeColor(d,obj);
           retArr.push(obj);
         });
-        retArr.sort(bgpMonitor.sortNodesByColor);
-        //dashboardViewModel.analyticNodesData(retArr);
+        retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
     /**
@@ -474,12 +471,11 @@ var infraMonitorUtils = {
             }
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processConfigNodeAlerts(obj);
-            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(bgpMonitor.sortInfraAlerts);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
             obj['color'] = getConfigNodeColor(d,obj);
             retArr.push(obj);
         });
-        retArr.sort(bgpMonitor.sortNodesByColor);
-        //dashboardViewModel.configNodesData(retArr);
+        retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
     parseGeneratorsData : function(result){
@@ -496,12 +492,6 @@ var infraMonitorUtils = {
             retArr.push(obj);
         });
         return retArr;
-    },
-    getDownNodeCnt : function(data) {
-        var downNodes = $.grep(data,function(obj,idx) {
-                           return obj['color'] == d3Colors['red']; 
-                        });
-        return downNodes.length;
     },
     isProcessStateMissing: function(dataItem) {
         var noProcessStateAlert = $.grep(dataItem['processAlerts'],function(obj,idx) {
@@ -751,6 +741,8 @@ var infraMonitorUtils = {
                         //$("#msgLevel option:contains(" + lastLogLevel + ")").attr('selected', 'selected');
                         var dropdownlist = $("#msgLevel").data("contrailDropdown");
                         dropdownlist.text(lastLogLevel);
+                        cboTimeRange.value('custom');
+                        selectTimeRange({val:"custom"}) ;
                     } else {
                         var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown");
                         timerangedropdownlistvalue.value('5m');
@@ -863,10 +855,7 @@ var infraMonitorUtils = {
             cboMsgLimit.value('10');
             cboMsgCategory.value('');
             cboMsgLevel.value('5');
-            if(userChangedQuery)
-                loadLogs();
-            else 
-                fetchLastLogtimeAndCallLoadLogs('',nodeType);
+            loadLogs();
         });
     }
 }
@@ -1096,35 +1085,6 @@ function showLogDirWindow(usrName, pwd, ip, loginWindow) {
     });
 }
 /**
- * This function takes parsed nodeData from the infra parse functions and returns object with all alerts displaying in dashboard tooltip,
- * and tooltip messages array
- */
-function getNodeStatusForSummaryPages(data,page) {
-    var result = {},msgs = [],tooltipAlerts = [];
-    for(var i = 0;i < data['alerts'].length; i++) {
-        if(data['alerts'][i]['tooltipAlert'] != false) {
-            tooltipAlerts.push(data['alerts'][i]);
-            msgs.push(data['alerts'][i]['msg']);
-        }
-    }
-    //Status is pushed to messages array only if the status is "UP" and tooltip alerts(which are displaying in tooltip) are zero
-    if(ifNull(data['status'],"").indexOf('Up') > -1 && tooltipAlerts.length == 0) {
-        msgs.push(data['status']);
-        tooltipAlerts.push({msg:data['status'],sevLevel:sevLevels['INFO']});
-    } else if(ifNull(data['status'],"").indexOf('Down') > -1) {
-        //Need to discuss and add the down status 
-        //msgs.push(data['status']);
-        //tooltipAlerts.push({msg:data['status'],sevLevel:sevLevels['ERROR']})
-    }
-    result['alerts'] = tooltipAlerts;
-    result['nodeSeverity'] = data['alerts'][0] != null ? data['alerts'][0]['sevLevel'] : sevLevels['INFO'];
-    result['messages'] = msgs;
-     var statusTemplate = contrail.getTemplate4Id('statusTemplate');
-    if(page == 'summary') 
-        return statusTemplate({sevLevel:result['nodeSeverity'],sevLevels:sevLevels});
-    return result;
-}
-/**
  * This function takes parsed nodeData from the infra parse functions and returns the status column text/html for the summary page grid
  */
 function getNodeStatusContentForSummayPages(data,type){
@@ -1170,7 +1130,7 @@ function runOTQueryForObjLogs(objId, timeRange, type) {
         "&table=" +objectType+
         "&async=false";
     var    options = {
-        elementId:'ot-results',gridWidth:600,
+        elementId:'ot-results',gridWidth:600,gridHeight:340,
         timeOut:90000, pageSize:50,
         export:true, btnId:'ot-query-submit'
     };
@@ -1865,23 +1825,27 @@ function updateChartsForSummary(dsData, nodeType) {
 		key = 'vRouters';
 		chartId = 'vrouters-bubble';
         tooltipFn = bgpMonitor.vRouterTooltipFn;
+        clickFn = bgpMonitor.onvRouterDrillDown;
 	} else if(nodeType =="control"){
 		title = 'Control Nodes';
 		key = 'controlNode';
 		chartId = 'controlNodes-bubble';
         tooltipFn = bgpMonitor.controlNodetooltipFn;
+        clickFn = bgpMonitor.onControlNodeDrillDown;
 	} else if(nodeType == "analytics"){
 		title = 'Analytic Nodes';
 		key = 'analyticsNode';
 		chartId = 'analyticNodes-bubble';
         tooltipFn = bgpMonitor.analyticNodeTooltipFn;
+        clickFn = bgpMonitor.onAnalyticNodeDrillDown;
 	} else if(nodeType == "config"){
 		title = 'Config Nodes';
 		key = 'configNode';
 		chartId = 'configNodes-bubble';
         tooltipFn = bgpMonitor.configNodeTooltipFn;
+        clickFn = bgpMonitor.onConfigNodeDrillDown;
 	}
-    var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{tooltipFn:tooltipFn,xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
+    var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{tooltipFn:tooltipFn,clickFn:clickFn,xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
     var chartObj = {},nwObj = {};
     if(!summaryChartsInitializationStatus[key]){
         $('#' + chartId).initScatterChart(chartsData[0]);
@@ -2045,6 +2009,18 @@ function getNodeTooltipContents(currObj) {
 }
 
 var bgpMonitor = {
+    onvRouterDrillDown:function(currObj) {
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
+    },
+    onControlNodeDrillDown:function(currObj) {
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_control'});
+    },
+    onAnalyticNodeDrillDown:function(currObj) {
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_analytics'});
+    },
+    onConfigNodeDrillDown:function(currObj) {
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
+    },
     vRouterTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
     },
@@ -2080,24 +2056,6 @@ var bgpMonitor = {
     	} else {
     		return type;
     	}
-    },
-    /**
-     * Sort alerts first by severity and with in same severity,sort by timestamp if available
-     */
-    sortInfraAlerts: function(a,b) {
-        if(a['sevLevel'] != b['sevLevel'])
-            return a['sevLevel'] - b['sevLevel'];
-        if(a['sevLevel'] == b['sevLevel']) {
-            if(a['timeStamp'] != null && b['timeStamp'] != null)
-                return b['timeStamp'] - a['timeStamp'];
-        }
-        return 0;
-    },
-    sortNodesByColor: function(a,b) {
-        var colorPriorities = [d3Colors['green'],d3Colors['blue'],d3Colors['orange'],d3Colors['red']];
-        var aColor = $.inArray(a['color'],colorPriorities); 
-        var bColor = $.inArray(b['color'],colorPriorities);
-        return aColor-bColor;
     },
     getTooltipContents:function(e) {
         //Get the count of overlapping bubbles

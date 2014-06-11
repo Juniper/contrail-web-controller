@@ -1530,14 +1530,14 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             }
 
             if(mode === "edit"){
-                windowCreateSvcInstances.find('.modal-header-title').text("Edit Service Instances");
+                windowCreateSvcInstances.find('.modal-header-title').text("Edit Service Instance");
                 var selectedRow = $("#gridsvcInstances").data("contrailGrid")._dataView.getItem(rowIndex);
                 $('#btnCreatesvcInstencesOK').data('uuid',selectedRow.uuid);
                 editWindow(rowIndex);
             } else {
                 if(svcTemplates != undefined && svcTemplates.length > 0)
                     svcTemplateChange();
-                windowCreateSvcInstances.find('.modal-header-title').text("Create Service Instances");
+                windowCreateSvcInstances.find('.modal-header-title').text("Create Service Instance");
                 $("#txtMaximumInstances").removeAttr("disabled","disabled");
                 $("#txtsvcInstanceName").removeAttr("disabled","disabled");
                 $("#ddsvcTemplate").data("contrailDropdown").enable();

@@ -23,7 +23,7 @@ function addTabs() {
         var ViewModel = function() {
             var self = this;
             self.data = ko.observableArray([]);
-            self.downCnt =  ko.computed(function() { return infraMonitorUtils.getDownNodeCnt(self.data());});
+            self.downCnt =  ko.computed(function() { return dashboardUtils.getDownNodeCnt(self.data());});
             self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
             self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
         }
@@ -37,7 +37,7 @@ function addTabs() {
         */
         var updateView = function(data) {
             var chartObj = {};
-            var chartsData = {title:'vRouters',d:[{key:'vRouters',values:data}],chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,xPositive:true,addDomainBuffer:true}};
+            var chartsData = {title:'vRouters',d:[{key:'vRouters',values:data}],chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,clickFn:bgpMonitor.onvRouterDrillDown,xPositive:true,addDomainBuffer:true}};
             var chartObj = {};
             if(!isScatterChartInitialized('#vrouter-bubble')) {
                 $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
@@ -116,7 +116,7 @@ function addTabs() {
         var ViewModel = function() {
             var self = this;
             self.data = ko.observableArray([]);
-            self.downCnt =  ko.computed(function() { return infraMonitorUtils.getDownNodeCnt(self.data());});
+            self.downCnt =  ko.computed(function() { return dashboardUtils.getDownNodeCnt(self.data());});
             self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
             self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
         }
@@ -129,7 +129,7 @@ function addTabs() {
         var updateView = function(data) {
             if(!isScatterChartInitialized('#ctrlNode-bubble')) {
                 $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
-                var chartsData = {title:'Control Nodes',chartOptions:{tooltipFn:bgpMonitor.controlNodetooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:data}]};
+                var chartsData = {title:'Control Nodes',chartOptions:{tooltipFn:bgpMonitor.controlNodetooltipFn,clickFn:bgpMonitor.onControlNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:data}]};
                 $('#ctrlNode-bubble').initScatterChart(chartsData); 
             } else { 
             }
@@ -152,7 +152,7 @@ function addTabs() {
         var AnalyticNodesViewModel = function() {
             var self = this;
             self.data = ko.observableArray([]);
-            self.downCnt =  ko.computed(function() { return infraMonitorUtils.getDownNodeCnt(self.data());});
+            self.downCnt =  ko.computed(function() { return dashboardUtils.getDownNodeCnt(self.data());});
             self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
             self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
         }
@@ -163,7 +163,7 @@ function addTabs() {
         this.updateView = function(data) {
             if(!isScatterChartInitialized('#analyticNode-bubble')) {
                 $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
-                var chartsData = {title:'Analytic Nodes',chartOptions:{tooltipFn:bgpMonitor.analyticNodeTooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:data}]};
+                var chartsData = {title:'Analytic Nodes',chartOptions:{tooltipFn:bgpMonitor.analyticNodeTooltipFn,clickFn:bgpMonitor.onAnalyticNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:data}]};
                 $('#analyticNode-bubble').initScatterChart(chartsData);
             } else {
             }
@@ -184,7 +184,7 @@ function addTabs() {
         var ConfigNodesViewModel = function() {
             var self = this;
             self.data = ko.observableArray([]);
-            self.downCnt =  ko.computed(function() { return infraMonitorUtils.getDownNodeCnt(self.data());});
+            self.downCnt =  ko.computed(function() { return dashboardUtils.getDownNodeCnt(self.data());});
             self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
             self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
         }
@@ -197,7 +197,7 @@ function addTabs() {
         var updateView = function(data) {
             if(!isScatterChartInitialized('#configNode-bubble')) {
                 $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
-                var chartsData = {title:'Config Nodes',chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:data}]};
+                var chartsData = {title:'Config Nodes',chartOptions:{tooltipFn:bgpMonitor.configNodeTooltipFn,clickFn:bgpMonitor.onConfigNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:data}]};
                 $('#configNode-bubble').initScatterChart(chartsData);
             } else {
             }

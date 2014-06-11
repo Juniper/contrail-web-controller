@@ -429,7 +429,7 @@ function successHandlerForGridFIPRow(fipBackRefs) {
         var instance = jsonPath(fip, "$.virtual_machine_interface_refs");
         if (typeof instance === "object" && instance.length === 1) {
             instance = instance[0];
-            instance = jsonPath(instance, "$..instance_ip_back_ref[*].uuid");
+            instance = jsonPath(instance, "$..virtual_machine_refs[*].uuid");
             if(false !== instance && instance.length > 0) {
                 instanceId = instance.join(",");
             }
@@ -462,7 +462,6 @@ function showFIPEditWindow(mode) {
         $("#btnCreatefipOK").attr("disabled","disabled");
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").value();
         $("#ddFipPool").data("contrailDropdown").setData({text:'Floating IPs not allocated for the project.',value:""});
-        //$("#ddFipPool").data("contrailDropdown").text('floating IPs not allocated for this project.');
         $("#ddFipPool").data("contrailDropdown").enable(false);
 			
         var getAjaxs = [];
@@ -527,12 +526,22 @@ function fipAssociateWindow(rowIndex) {
                 if ('instance_ip_address' in vmiObj) {
                     vmiName = "(" + vmiObj['instance_ip_address'] + ") ";
                 }
-                vmiName += vmiObj['instance_uuid'];
+                if(null !== vmiObj['vm_uuid'] && typeof vmiObj['vm_uuid'] === "string") {
+                    vmiName += vmiObj['vm_uuid'];
+                } else {
+                    vmiName += "";
+                }
                 vmi.push({text:vmiName, value:JSON.stringify(vmiObj)});
             }
             if(vmi && vmi.length > 0) {
                 ddAssociate.data("contrailDropdown").setData(vmi);
-                ddAssociate.data("contrailDropdown").value(vmi[0]);
+                ddAssociate.data("contrailDropdown").value(vmi[0].value);
+                $("#btnAssociatePopupOK").attr("disabled",false);
+                $("#ddAssociate").data("contrailDropdown").enable(true);
+            } else {
+                $("#ddAssociate").data("contrailDropdown").setData({text:'No Instance found for the project.',value:""});
+                $("#ddAssociate").data("contrailDropdown").enable(false);
+                $("#btnAssociatePopupOK").attr("disabled","disabled");
             }
             windowAssociate.find('.modal-header-title').text("Associate Floating IP");
             var selectedRow = $("#gridfip").data("contrailGrid")._dataView.getItem(rowIndex);
