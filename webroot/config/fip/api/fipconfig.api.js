@@ -176,7 +176,7 @@ function updateFipAggrList(err, response, fipAggList, fipDetailData) {
  * @getInstanceIPForVirtualMachineInterface
  * private function
  * 1. Gets instance_ip_refs for each VMI of a Floating IP.
- * 2. Updates the list of floating ip backrefs with instance_ip_back_refs 
+ * 2. Updates the list of floating ip backrefs with virtual_machine_refs 
  *    of individual virtual machine interface of the floating ip. 
  */
 function getInstanceIPForVirtualMachineInterface(fipObj, callback) {
@@ -191,9 +191,9 @@ function getInstanceIPForVirtualMachineInterface(fipObj, callback) {
             for(var i=0; i<fip['floating-ip']['virtual_machine_interface_refs'].length; i++) {
                 var vmiRef = fip['floating-ip']['virtual_machine_interface_refs'][i];
                 if(vmiRef["uuid"] === vmiData['virtual-machine-interface']["uuid"]) {
-                    fip['floating-ip']['virtual_machine_interface_refs'][i]["instance_ip_back_ref"] = [];
-                    fip['floating-ip']['virtual_machine_interface_refs'][i]["instance_ip_back_ref"] = 
-                        vmiData['virtual-machine-interface']['instance_ip_back_refs']
+                    fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] = [];
+                    fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] = 
+                        vmiData['virtual-machine-interface']['virtual_machine_refs']
                     callback(err, fip);
                 }
             }

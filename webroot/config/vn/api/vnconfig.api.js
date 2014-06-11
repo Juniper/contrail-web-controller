@@ -1837,7 +1837,14 @@ function vmIfAggCb(error, vmIfList, response, vmList, appData)
 			{'virtual_machine_interface_back_refs': vmList});		
         return;
 	}
-
+    for(var i=0; i<vmIfList.length; i++) {
+    	if('virtual_machine_refs' in vmIfList[i]["virtual-machine-interface"]) {
+    	    var vm_ref = vmIfList[i]["virtual-machine-interface"]["virtual_machine_refs"][0];
+            if (vm_ref) {
+                vmList[i]["vm_uuid"] = vm_ref["uuid"];
+            }
+        }
+    }
     for(var i=0; i<vmIfList.length; i++) {
     	if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
     		var inst_ip_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"][0];
@@ -1869,8 +1876,7 @@ function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData)
         return;
 	}
 	for(var i=0; i<instanceIPList.length; i++) {
-		vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"]; 
-                vmList[i]["instance_uuid"] = instanceIPList[i]["instance-ip"]["uuid"]; 
+		vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"];
 	}
 	commonUtils.handleJSONResponse(error, response,
 		{'virtual_machine_interface_back_refs': vmList});
