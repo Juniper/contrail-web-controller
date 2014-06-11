@@ -429,7 +429,7 @@ function successHandlerForGridFIPRow(fipBackRefs) {
         var instance = jsonPath(fip, "$.virtual_machine_interface_refs");
         if (typeof instance === "object" && instance.length === 1) {
             instance = instance[0];
-            instance = jsonPath(instance, "$..instance_ip_back_ref[*].uuid");
+            instance = jsonPath(instance, "$..virtual_machine_refs[*].uuid");
             if(false !== instance && instance.length > 0) {
                 instanceId = instance.join(",");
             }
@@ -526,7 +526,7 @@ function fipAssociateWindow(rowIndex) {
                 if ('instance_ip_address' in vmiObj) {
                     vmiName = "(" + vmiObj['instance_ip_address'] + ") ";
                 }
-                vmiName += vmiObj['instance_uuid'];
+                vmiName += vmiObj['vm_uuid'];
                 vmi.push({text:vmiName, value:JSON.stringify(vmiObj)});
             }
             if(vmi && vmi.length > 0) {
