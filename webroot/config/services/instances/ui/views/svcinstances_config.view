@@ -80,7 +80,7 @@
                 </div>
             </div>
             <div class="control-group ">
-                <label class="control-label" class="span3">Services Template</label>
+                <label class="control-label" class="span3">Service Template</label>
                 <div class="controls">
                     <div class="row-fluid">
                         <div type="text" id="ddsvcTemplate" class="span10"></div>
