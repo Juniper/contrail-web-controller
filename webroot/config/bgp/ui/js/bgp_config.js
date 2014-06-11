@@ -548,7 +548,7 @@ function fetchData() {
             bgpData.splice(0, bgpData.length);
             globalData.splice(0, globalData.length);
             bgpselectdata.splice(0, bgpselectdata.length);
-            if(res == null || typeof res == "undefined" || res.length <= 0 ||) {
+            if(res == null || typeof res == "undefined" || res.length <= 0) {
                 $("#gridBGP").data("contrailGrid").showGridMessage('empty');
                 return;
             }
