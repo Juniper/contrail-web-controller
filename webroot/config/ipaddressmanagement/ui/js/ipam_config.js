@@ -930,6 +930,9 @@ function clearCreateEdit() {
  * Populate edited IPAM's values in controls
  */
 function populateIpamEditWindow(rowIndex) {
+    var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
+    var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
+
     var selectedRow = $("#gridipam").data("contrailGrid")._dataView.getItem(rowIndex);
     var rowId = selectedRow["id"];
     var selectedIpam = configObj["network-ipams"][rowId];
@@ -998,10 +1001,11 @@ function populateIpamEditWindow(rowIndex) {
             var vn = jsonPath(selectedIpam, "$.virtual_network_back_refs[?(@.to[2]=='" + nwNames[i] + "')]")[0];
             var ipBlocks = jsonPath(vn, "$.attr.ipam_subnets[*]");
             for(var j=0; j<ipBlocks.length; j++) {
-                //if(j==0)
+                if(selectedDomain === vn.to[0] && selectedProject === vn.to[1]) {
                     nws.push({"IPBlock":ipBlocks[j]["subnet"]["ip_prefix"] + "/" + ipBlocks[j]["subnet"]["ip_prefix_len"], "Network":nwNames[i], "Gateway":ipBlocks[j]["default_gateway"]});
-                //else
-                    //nws.push({"IPBlock":ipBlocks[j]["subnet"]["ip_prefix"] + "/" + ipBlocks[j]["subnet"]["ip_prefix_len"], "Network":"",         "Gateway":ipBlocks[j]["default_gateway"]});
+                } else {
+                    nws.push({"IPBlock":ipBlocks[j]["subnet"]["ip_prefix"] + "/" + ipBlocks[j]["subnet"]["ip_prefix_len"], "Network":(vn["to"]).join(":"), "Gateway":ipBlocks[j]["default_gateway"]});
+                }
             }
         }
         for(var k=0; k<nws.length; k++) {
