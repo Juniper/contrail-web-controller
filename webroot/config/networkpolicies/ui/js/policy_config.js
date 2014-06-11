@@ -108,7 +108,7 @@ function initComponents() {
                            }
                        }
                        if(dc.AssociatedNetworks.length > 2) {
-                       returnString += '<span class="moredataText">(' + (dc.AssociatedNetworks.length-2) + ' more  )</span> \
+                       returnString += '<span class="moredataText">(' + (dc.AssociatedNetworks.length-2) + ' more)</span> \
                            <span class="moredata" style="display:none;" ></span>';
                        }
                     }
@@ -129,7 +129,7 @@ function initComponents() {
                            }
                        }
                        if(dc.PolicyRules.length > 2) {
-                       returnString += '<span class="moredataText">(' + (dc.PolicyRules.length-2) + ' more  )</span> \
+                       returnString += '<span class="moredataText">(' + (dc.PolicyRules.length-2) + ' more)</span> \
                            <span class="moredata" style="display:none;" ></span>';
                        }
                     }
