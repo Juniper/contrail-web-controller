@@ -18,6 +18,7 @@ var cacheApi = require(ctrlerConfig.core_path + '/src/serverroot/web/core/cache.
     logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
     ctrlGlobal = require('../../../common/api/global'),
+    authApi = require(ctrlerConfig.core_path + '/src/serverroot/common/auth.api'),
     appErrors = require(ctrlerConfig.core_path + '/src/serverroot/errors/app.errors');
 
 nwMonApi = module.exports;
@@ -2227,7 +2228,7 @@ function processInstanceReqByLastUUID (lastUUID, count, fromConfigList,
                                        VMList, filtUrl, callback)
 {
     getOpServerPagedResponseByLastKey(lastUUID, count, fromConfigList, VMList, 
-                                      'virtual-machine', filtUrl, 
+                                      'virtual-machine', filtUrl, null, 
                                       function(err, data) {
         if (data && data['data'] && (-1 == count)) {
             data = data['data'];
@@ -2237,17 +2238,17 @@ function processInstanceReqByLastUUID (lastUUID, count, fromConfigList,
 }
 
 function processVirtualNetworksReqByLastUUID (lastUUID, count, fromConfigList,
-                                              vnList, filtUrl, callback)
+                                              vnList, filtUrl,tenantList, callback)
 {
     getOpServerPagedResponseByLastKey(lastUUID, count, fromConfigList, vnList, 
-                                      'virtual-network', filtUrl, 
+                                      'virtual-network', filtUrl, tenantList, 
                                       function(err, data) {
         callback(err, data);
     });
 }
 
 function getOpServerPagedResponseByLastKey (lastKey, count, isFromConfig,
-                                            list, type, filtUrl, callback)
+                                            list, type, filtUrl, tenantList, callback)
 {
     var found = false;
     var retLastUUID = null;
@@ -2258,7 +2259,6 @@ function getOpServerPagedResponseByLastKey (lastKey, count, isFromConfig,
     resultJSON['data'] = [];
     resultJSON['lastKey'] = null;
     resultJSON['more'] = false;
-
     if (true == isFromConfig) {
         list = list[typeStr];
         matchStr = 'uuid';
@@ -2321,7 +2321,17 @@ function getOpServerPagedResponseByLastKey (lastKey, count, isFromConfig,
     }
     opServer.api.post(url, postData, function(err, data) {
         if (data && data['value']) {
-            var resCnt = data['value'].length;
+            var resCnt = data['value'].length,tenantNameArr = [];
+            if(type == 'virtual-network' && tenantList != null) {
+                for(var i = 0; i < tenantList['tenants'].length; i++) {
+                    tenantNameArr.push(tenantList['tenants']['name']);
+                }
+                for(var i = 0; i < data['value'].length; i++) {
+                    var vnData = data['value'][i];
+                    if(vnData['name'] != null && tenantNameArr.indexOf(vnData['name'].split(':')[1]) == -1)
+                        continue;
+                }
+            }
             if (resCnt < count) {
                 /* We have got less number of elements compared to whatever we
                  * sent to opSrever in kfilt, so these entries may be existing
@@ -2443,41 +2453,102 @@ function getVirtualNetworksDetailsByFqn (fqn, lastUUID, count, res, appData)
 
 function aggConfigVNList (fqn, appData, callback)
 {
-    var vnList     = [];
+    var vnList     = [],dataObjArr = [];
     var configURL = null;
     if (null != fqn) {
         configURL = '/virtual-networks?parent_type=project&parent_fq_name_str=' +
             fqn;
-    } else {
-        configURL = '/virtual-networks';
-    }
-    configApiServer.apiGet(configURL, appData, function(err, configVNData) {
-        if (err || (null == configVNData)) {
-            callback(err, vnList);
-            return;
-        }
-        var vnName = null;
-        if ((null != configVNData) && 
-            (null != configVNData['virtual-networks'])) {
-            var vnConfigList = configVNData['virtual-networks'];
-            var vnConfigCnt = vnConfigList.length;
-            for (var i = 0; i < vnConfigCnt; i++) {
-                try {
-                    vnName =
-                        configVNData['virtual-networks'][i]['fq_name'].join(':');
-                } catch(e) {
-                    continue;
-                }
-                vnList.push({'name': vnName});
+        configApiServer.apiGet(configURL, appData, function(err, configVNData) {
+            if (err || (null == configVNData)) {
+                callback(err, vnList);
+                return;
             }
+            if ((null != configVNData) && 
+                (null != configVNData['virtual-networks'])) {
+                vnList = getFqName(configVNData['virtual-networks']);
+            }
+            if (0 != vnList.length) {
+                vnList.sort(infraCmn.sortUVEList);
+            }
+            callback(err, vnList, null);
+        });
+    } else {
+        logutils.logger.debug("User role" + JSON.stringify(appData.authObj.req.session.userRole));
+        if(appData.authObj.req.session.userRole != 'admin') {
+            getVirtualNetworksForUser(appData,callback)
+        } else {
+            configURL = '/virtual-networks';
+            configApiServer.apiGet(configURL, appData, function(err, configVNData) {
+                logutils.logger.debug("Else block admin configVNData " + JSON.stringify(configVNData));
+                if (err || (null == configVNData)) {
+                    callback(err, vnList);
+                    return;
+                }
+                if ((null != configVNData) && 
+                    (null != configVNData['virtual-networks'])) {
+                    vnList = getFqName(configVNData['virtual-networks']);
+                }
+                if (0 != vnList.length) {
+                    vnList.sort(infraCmn.sortUVEList);
+                }
+                logutils.logger.debug("Else block admin Final vnList is " + JSON.stringify(vnList));
+                callback(err, vnList, null);
+            });
         }
-        if (0 != vnList.length) {
-            vnList.sort(infraCmn.sortUVEList);
-        }
-        callback(err, vnList);
-    });
+    }
 }
 
+function getVirtualNetworksForUser(appData,callback){
+    var vnList     = [],dataObjArr = [];
+    var configURL = null;
+    authApi.getTenantList(appData.authObj.req,
+            function(error, tenantList) {
+                logutils.logger.debug("In aggConfigVNList() reponse " + JSON.stringify(tenantList));
+                for(var i = 0; i < tenantList['tenants'].length; i++) {
+                    configURL = '/virtual-networks?parent_type=project&parent_fq_name_str=default-domain:'+
+                                tenantList['tenants'][i]['name'];
+                    commonUtils.createReqObj(dataObjArr, configURL,
+                            global.HTTP_REQUEST_GET, null, null, null,
+                            appData);
+                }
+                async.map(dataObjArr,commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+                        function(err,configVNData) {
+                            logutils.logger.debug("In asyncmap() response " + JSON.stringify(configVNData));
+                            if (err || (null == configVNData)) {
+                                callback(err, vnList);
+                                return;
+                            }
+                            var vnArray = [];
+                            for(var i = 0; i < configVNData.length; i++){
+                                vnArray = vnArray.concat(configVNData[i]['virtual-networks']);
+                            }
+                            configVNData['virtual-networks'] = vnArray;
+                            logutils.logger.debug("configVNData is " + JSON.stringify(configVNData));
+                            logutils.logger.debug("vnArray is " + JSON.stringify(vnArray));
+                            vnList = getFqName(configVNData['virtual-networks']);
+                            if (0 != vnList.length) {
+                                vnList.sort(infraCmn.sortUVEList);
+                            }
+                            callback(err, vnList,tenantList);
+                            logutils.logger.debug("Final vnList is " + JSON.stringify(vnList));
+                     });
+            });
+}
+function getFqName(data){
+    var vnList = [],vnNmae = null;
+    if (null != data) {
+        for (var i = 0; i < data.length; i++) {
+            try {
+                vnName =
+                    data[i]['fq_name'].join(':');
+            } catch(e) {
+                continue;
+            }
+            vnList.push({'name': vnName});
+        }
+    }
+    return vnList;
+}
 function getVirtualNetworksDetails (req, res, appData)
 {
     var fqn = req.query['fqn'];
@@ -2501,13 +2572,13 @@ function getVirtualNetworksDetails (req, res, appData)
         getVirtualNetworksDetailsByFqn(fqn, lastUUID, count, res, appData);
         return;
     }
-    aggConfigVNList(null, appData, function(err, vnList) {
+    aggConfigVNList(null, appData, function(err, vnList, tenantList) {
         if (0 == vnList.length) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
         processVirtualNetworksReqByLastUUID(lastUUID, count, false, vnList, 
-                                            filtUrl, function(err, data) {
+                                            filtUrl, tenantList, function(err, data) {
             commonUtils.handleJSONResponse(err, res, data);
         });
     });
@@ -2515,46 +2586,133 @@ function getVirtualNetworksDetails (req, res, appData)
 
 function getInstanceDetails (req, res, appData)
 {
+    if(req.session.userRole == 'admin') {
+        var fqnUUID = req.query['fqnUUID'];
+        var lastUUID = req.query['lastKey'];
+        var count = req.query['count'];
+        var type = req.query['type'];
+        var url = '/analytics/virtual-machines';
+        var filtUrl = null;
+    
+        var resultJSON = createEmptyPaginatedData();
+    
+        var filtData = nwMonUtils.buildBulkUVEUrls(res.req.body, appData);
+        if (filtData && filtData[0]) {
+            filtUrl = filtData[0]['reqUrl'];
+        }
+        if (null == count) {
+            count = -1;
+        } else {
+            count = parseInt(count);
+        }
+        if (null != fqnUUID) {
+            if (null == type) {
+                err = new 
+                    appErrors.RESTServerError('type is required');
+                commonUtils.handleJSONResponse(err, res, null);
+                return;
+            }
+            getInstanceDetailsByFqn(fqnUUID, lastUUID, count, res, appData);
+            return;
+        }
+        opApiServer.apiGet(url, appData, function(err, data) {
+            if (err || (null == data)) {
+                commonUtils.handleJSONResponse(err, res, resultJSON);
+                return;
+            }
+            data.sort(infraCmn.sortUVEList);
+            processInstanceReqByLastUUID(lastUUID, count, false, data, 
+                                         filtUrl, function(err, data) {
+                commonUtils.handleJSONResponse(err, res, data);
+            });
+        });
+    } else {
+        getInstancesDetailsForUser(req, res, appData);
+    }
+}
+
+function getInstancesDetailsForUser(req, res, appData) {
+    
     var fqnUUID = req.query['fqnUUID'];
     var lastUUID = req.query['lastKey'];
     var count = req.query['count'];
     var type = req.query['type'];
-    var url = '/analytics/virtual-machines';
+    var dataObjArr = [];
     var filtUrl = null;
-
-    var resultJSON = createEmptyPaginatedData();
-
     var filtData = nwMonUtils.buildBulkUVEUrls(res.req.body, appData);
     if (filtData && filtData[0]) {
         filtUrl = filtData[0]['reqUrl'];
     }
-    if (null == count) {
-        count = -1;
-    } else {
-        count = parseInt(count);
-    }
-    if (null != fqnUUID) {
-        if (null == type) {
-            err = new 
-                appErrors.RESTServerError('type is required');
-            commonUtils.handleJSONResponse(err, res, null);
-            return;
-        }
-        getInstanceDetailsByFqn(fqnUUID, lastUUID, count, res, appData);
-        return;
-    }
-    opApiServer.apiGet(url, appData, function(err, data) {
-        if (err || (null == data)) {
-            commonUtils.handleJSONResponse(err, res, resultJSON);
-            return;
-        }
-        data.sort(infraCmn.sortUVEList);
-        processInstanceReqByLastUUID(lastUUID, count, false, data, 
-                                     filtUrl, function(err, data) {
-            commonUtils.handleJSONResponse(err, res, data);
+    logutils.logger.debug("Inside the getInstancesDetailsForUser");
+    authApi.getTenantList(appData.authObj.req,
+            function(error, tenantList) {
+                logutils.logger.debug("In keystone tenantlist response " + JSON.stringify(tenantList));
+                configApiServer.apiGet('/projects', appData,
+                        function(error, apiProjects) {
+                    logutils.logger.debug("In apiServerProjects() response "+JSON.stringify(apiProjects));
+                            authApi.formatTenantList (tenantList, apiProjects, 
+                                    function(projects) {
+                                        logutils.logger.debug("keystone projects and apiserver reponse merged"+JSON.stringify(projects));
+                                        for(var i = 0; i < projects['projects'].length; i++) {
+                                            configURL = '/project/'+projects['projects'][i]['uuid'];
+                                            commonUtils.createReqObj(dataObjArr, configURL,
+                                                global.HTTP_REQUEST_GET, null, null, null,
+                                                appData);
+                                        }
+                                        async.map(dataObjArr,commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+                                            function(err,projectData) {
+                                                if(err || (null == projectData)){
+                                                    commonUtils.handleJSONResponse(err, res, null);
+                                                    return;
+                                                }
+                                                logutils.logger.debug("Project data" + JSON.stringify(projectData));
+                                                var vmiUrl = null,reqArr = [];
+                                                for(var i = 0; i < projectData.length; i++) {
+                                                    var itemData = projectData[i]['project'];
+                                                    if(itemData['virtual_machine_interfaces'] != null) {
+                                                        for(var j = 0; j < itemData['virtual_machine_interfaces'].length; j++) {
+                                                            vmiUrl = '/virtual-machine-interface/'+
+                                                            itemData['virtual_machine_interfaces'][j]['uuid'];
+                                                            commonUtils.createReqObj(reqArr, vmiUrl,
+                                                                    global.HTTP_REQUEST_GET, null, null, null,
+                                                                    appData);
+                                                        }
+                                                        async.map(reqArr,commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+                                                                function(error, vmiData) {
+                                                                    if(err || (null == projectData)){
+                                                                        commonUtils.handleJSONResponse(err, res, null);
+                                                                        return;
+                                                                    }
+                                                                    logutils.logger.debug("VMI Response "+JSON.stringify(vmiData));
+                                                                    var vmuuidObjArr = [],vmuuidArr = [];
+                                                                    for(var k = 0; k < vmiData.length; k++) {
+                                                                        var itemData = vmiData[k]['virtual-machine-interface'] != null ? vmiData[k]['virtual-machine-interface']: [];
+                                                                        logutils.logger.debug("vmi object "+JSON.stringify(itemData));
+                                                                        if(itemData['virtual_machine_refs'] != null){
+                                                                            for(var l = 0; l < itemData['virtual_machine_refs'].length; l++) {
+                                                                                if(vmuuidArr.indexOf(itemData['virtual_machine_refs'][l]['uuid']) == -1) {
+                                                                                    vmuuid.push(itemData['virtual_machine_refs'][l]['uuid']);
+                                                                                    vmuuidObjArr.push({name:itemData['virtual_machine_refs'][l]['uuid']});
+                                                                                }
+                                                                            }
+                                                                            logutils.logger.debug("VM uuid array "+JSON.stringify(vmuuidObjArr));
+                                                                        }
+                                                                    }
+                                                                    vmuuidObjArr.sort(infraCmn.sortUVEList);
+                                                                    logutils.logger.debug("After sorting and removing the duplicates VM uuids "+JSON.stringify(vmuuidObjArr));
+                                                                    processInstanceReqByLastUUID(lastUUID, count, false, vmuuidObjArr, 
+                                                                            filtUrl, function(err, vmdata) {
+                                                                                commonUtils.handleJSONResponse(err, res, vmdata);
+                                                                            });
+                                                                });
+                                                    }
+                                                }
+                                            });
+                                    });
+                        });
         });
-    });
-}
+    
+} 
 
 /* List all public functions */
 exports.getTopNetworkDetailsByDomain = getTopNetworkDetailsByDomain;
