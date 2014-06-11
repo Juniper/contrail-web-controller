@@ -709,7 +709,7 @@ function initComponents() {
             customControls: [
                 '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>',
-                '<a id="btneditgasn" class="disabled-link" onclick="openGasnWindow();return false;" title="Edit Global ASN"><i class="icon-globe"></i></a>'
+                '<a id="btneditgasn" class="disabled-link" onclick="openGasnWindow();return false;" title="Edit Global ASN"><i class="icon-tag"></i></a>'
             ]
         },
         columnHeader : {
