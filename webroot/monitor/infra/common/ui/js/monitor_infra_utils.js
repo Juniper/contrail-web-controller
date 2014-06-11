@@ -751,6 +751,8 @@ var infraMonitorUtils = {
                         //$("#msgLevel option:contains(" + lastLogLevel + ")").attr('selected', 'selected');
                         var dropdownlist = $("#msgLevel").data("contrailDropdown");
                         dropdownlist.text(lastLogLevel);
+                        cboTimeRange.value('custom');
+                        selectTimeRange({val:"custom"}) ;
                     } else {
                         var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown");
                         timerangedropdownlistvalue.value('5m');
@@ -863,10 +865,7 @@ var infraMonitorUtils = {
             cboMsgLimit.value('10');
             cboMsgCategory.value('');
             cboMsgLevel.value('5');
-            if(userChangedQuery)
-                loadLogs();
-            else 
-                fetchLastLogtimeAndCallLoadLogs('',nodeType);
+            loadLogs();
         });
     }
 }
@@ -1170,7 +1169,7 @@ function runOTQueryForObjLogs(objId, timeRange, type) {
         "&table=" +objectType+
         "&async=false";
     var    options = {
-        elementId:'ot-results',gridWidth:600,
+        elementId:'ot-results',gridWidth:600,gridHeight:340,
         timeOut:90000, pageSize:50,
         export:true, btnId:'ot-query-submit'
     };
