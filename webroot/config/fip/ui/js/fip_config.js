@@ -526,7 +526,11 @@ function fipAssociateWindow(rowIndex) {
                 if ('instance_ip_address' in vmiObj) {
                     vmiName = "(" + vmiObj['instance_ip_address'] + ") ";
                 }
-                vmiName += vmiObj['vm_uuid'];
+                if(null !== vmiObj['vm_uuid'] && typeof vmiObj['vm_uuid'] === "string") {
+                    vmiName += vmiObj['vm_uuid'];
+                } else {
+                    vmiName += "";
+                }
                 vmi.push({text:vmiName, value:JSON.stringify(vmiObj)});
             }
             if(vmi && vmi.length > 0) {
