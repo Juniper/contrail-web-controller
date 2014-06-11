@@ -462,7 +462,6 @@ function showFIPEditWindow(mode) {
         $("#btnCreatefipOK").attr("disabled","disabled");
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").value();
         $("#ddFipPool").data("contrailDropdown").setData({text:'Floating IPs not allocated for the project.',value:""});
-        //$("#ddFipPool").data("contrailDropdown").text('floating IPs not allocated for this project.');
         $("#ddFipPool").data("contrailDropdown").enable(false);
 			
         var getAjaxs = [];
@@ -532,7 +531,13 @@ function fipAssociateWindow(rowIndex) {
             }
             if(vmi && vmi.length > 0) {
                 ddAssociate.data("contrailDropdown").setData(vmi);
-                ddAssociate.data("contrailDropdown").value(vmi[0]);
+                ddAssociate.data("contrailDropdown").value(vmi[0].value);
+                $("#btnAssociatePopupOK").attr("disabled",false);
+                $("#ddAssociate").data("contrailDropdown").enable(true);
+            } else {
+                $("#ddAssociate").data("contrailDropdown").setData({text:'No Instance found for the project.',value:""});
+                $("#ddAssociate").data("contrailDropdown").enable(false);
+                $("#btnAssociatePopupOK").attr("disabled","disabled");
             }
             windowAssociate.find('.modal-header-title').text("Associate Floating IP");
             var selectedRow = $("#gridfip").data("contrailGrid")._dataView.getItem(rowIndex);
