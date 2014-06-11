@@ -353,13 +353,13 @@
                             <searchStrings>Allocate Floating IPs</searchStrings>
                         </item>
                         <item>
-                            <label>IP Address Management</label>
+                            <label>Manage Floating IPs</label>
                             <hash>config_net_ipam</hash>
                             <rootDir>/config/ipaddressmanagement</rootDir>
                             <js>ipam_config.js</js>
                             <view>ipam_config.view</view>
                             <class>IPAddressManagementObj</class>
-                            <searchStrings>IP Address Management, IPAM</searchStrings>
+                            <searchStrings>Manage Floating IPs, IPAM</searchStrings>
                         </item>
                         <item>
                             <label>Service Template</label>
