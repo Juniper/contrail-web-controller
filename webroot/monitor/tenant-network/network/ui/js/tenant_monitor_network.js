@@ -67,7 +67,7 @@ function networkSummaryRenderer() {
         $('#network-tabs').contrailTabs({
             activate: function(e, ui) {
                 //var selTab = $(ui.newTab).text();
-                var selTab = ui.newTab.context.innerText;
+                var selTab = $(ui.newTab.context).text();
                 if (selTab == 'Port Distribution') {
                     if (tabsLoaded[selTab] == 0) {
                         startWidgetLoading('charts');
