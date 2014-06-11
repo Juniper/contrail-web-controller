@@ -286,7 +286,7 @@ adminapi.createBGPRouter = function (req, res, appData) {
 	logutils.logger.debug("createBGPRouter JSON: " + JSON.stringify(content));
 	delete content["bgp-router"]["bgp_router_refs"];
 		configApiServer.apiPost(url, content, appData, function (error, data) {
-			if (!error) {
+			/*if (!error) {
 				data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
 				data["bgp-router"]["_type"] = type;
 				data["bgp-router"]["parent_name"] = parentName;
@@ -297,7 +297,12 @@ adminapi.createBGPRouter = function (req, res, appData) {
 			} else {
 				error = new appErrors.RESTServerError(messages.error.create_bgpr);
 				commonUtils.handleJSONResponse(error, res, null);
-			}
+			}*/
+            if (error) {
+                commonUtils.handleJSONResponse(error, res, null);    
+            } else {
+                commonUtils.handleJSONResponse(error, res, data);
+            }
 		}, bgpHeader);
 };
 
@@ -369,7 +374,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"].vendor = bgpUpdates["bgp-router"]["bgp_router_parameters"].vendor;
 	bgpJSON["bgp-router"]["bgp_router_parameters"].port = bgpUpdates["bgp-router"]["bgp_router_parameters"].port;
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold-time"];    
-	var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
+	/*var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
 		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
 	if (!newBGPRefs || newBGPRefs.length == 0) {
 		bgpJSON["bgp-router"]["bgp_router_refs"] = [];
@@ -423,7 +428,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 				bgpJSON["bgp-router"]["bgp_router_refs"][length] = newPeers[i];
 			}
 		}
-	}
+	}*/
 }
 
 /**
@@ -447,7 +452,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 						error = new appErrors.RESTServerError(messages.error.update_bgpr);
 						commonUtils.handleJSONResponse(error, res, null);
 					} else {
-						try {
+						/*try {
 							var bgpPeers = bgpUpdates["bgp-router"]["bgp_router_refs"];
 							if (bgpPeers) {
 								var bgpPeerObj = {};
@@ -463,7 +468,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 						} catch (e) {
 							logutils.logger.error(e.stack);
 							// TODO: On error all changes should be rolled back.s
-						}
+						}*/
 						commonUtils.handleJSONResponse(null, res, data);
 					}
 				}, bgpHeader);
