@@ -78,7 +78,6 @@ function initActions() {
                 }
         	}
         }
-        
         if(vxlanid === "configured" && priorities.indexOf("VXLAN") === -1) {
         	showInfoWindow("Encapsulation type 'VxLAN' is required while setting VxLAN identifier mode.", "Input Required");
         	return false;
@@ -232,7 +231,7 @@ function createEPEntry(ep, len) {
         if (epTuples && epTuples.length > 0) {
         	for (var i = 0; i < epTuples.length; i++) {
         		var epTuple = $($(epTuples[i]).find("div")[0]).children();
-                var priority = $($(epTuple).find("div")[3]).data("contrailDropdown").text();
+                var priority = $($(epTuple).find("div.select2-offscreen")[0]).data("contrailDropdown").text();
                 existing.push(priority);
         	}
         	var available = encapsulationLabels.diff(existing);
@@ -296,6 +295,13 @@ function validate() {
             	priorities.push(encapsulationValues[encapsulationLabels.indexOf(priority)]);	
             }
     	}
+        var unique=priorities.filter(function(itm,i,a){
+            return i==priorities.indexOf(itm);
+        });
+        if(priorities.length != unique.length){
+            showInfoWindow("Two Encapsulation cannot be same.", "Input Required");
+            return false;
+        }
     }
     if(vxlanid === "configured" && priorities.indexOf("VXLAN") === -1) {
     	showInfoWindow("Encapsulation type 'VxLAN' is required while setting VxLAN identifier mode.", "Input Required");
