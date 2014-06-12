@@ -206,4 +206,21 @@
              </ul>
          </div>
      </div>
- </script>
+ </script> 
+ <script type="text/x-handlebars-template" id="connected-nw-template">
+        <div class="row-fluid">
+          <div class="widget-box transparent">
+              <div class="widget-header">
+                  <h4 class="smaller">
+                      <i id="ts-connected-vn-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                      Traffic Statistics
+                  </h4>
+              </div>
+          <div class="widget-body">
+              <div class="widget-main">
+                  <div id="ts-connected-vn-chart" class='ts-chart height-300'></div>
+                  <div class='summary-stats'></div>
+                  <!--<div class='summary-charts'></div>-->
+              </div>
+          </div>
+  </script>
