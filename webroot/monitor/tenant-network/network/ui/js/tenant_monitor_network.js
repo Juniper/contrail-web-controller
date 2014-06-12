@@ -154,13 +154,6 @@ contView = new contentView();
 
 //@@ sourceURL=tenant_monitor_network.js
 
-function getSelInstanceFromDropDown() {
-    if($('#dropdownIP').length == 0)
-        return {};
-    var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
-    return {ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network']};
-}
-
 function initializeRefreshBtn() {
     $(pageContainer).siblings().filter('.refresh-btn').on('click',function() {
         monitorRefresh($(pageContainer));

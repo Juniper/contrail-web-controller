@@ -129,7 +129,7 @@ function instSummaryRenderer() {
         $('#instance-tabs').contrailTabs({
             activate: function(e,ui) {
                 //var selTab = $(e.item).text();
-                var selTab = ui.newTab.context.innerText;
+                var selTab = $(ui.newTab.context).text();
                 if(selTab == 'Summary' && tabsLoaded[selTab] == 1) {
                     $('#ts-instance-chart').find('svg').trigger('refresh');
                 }
