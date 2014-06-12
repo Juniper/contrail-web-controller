@@ -248,7 +248,6 @@ monitorInfraComputeACLClass = (function() {
             })
             aclGrid = $('#gridComputeACL').data('contrailGrid');
             aclGrid.showGridMessage('loading');
-            applyGridDefHandlers(aclGrid, {noMsg:'No ACL to display'});
         } else {
             reloadGrid(aclGrid);
         }
