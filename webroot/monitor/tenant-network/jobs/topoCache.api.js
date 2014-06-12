@@ -2,19 +2,18 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../common/js/controller.config.global');
 var assert = require('assert')
-    , rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api')
-    , config = require(ctrlerConfig.core_path + '/config/config.global.js')
-    , commonUtils = require(ctrlerConfig.core_path + '/src/serverroot/utils/common.utils')
-    , jobsApi = require(ctrlerConfig.core_path + '/src/serverroot/jobs/core/jobs.api')
-    , global = require(ctrlerConfig.core_path + '/src/serverroot/common/global')
-    , commonUtils = require(ctrlerConfig.core_path + '/src/serverroot/utils/common.utils')
+    , rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api')
+    , config = require(process.mainModule.exports["corePath"] + '/config/config.global.js')
+    , commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils')
+    , jobsApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/jobs.api')
+    , global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global')
+    , commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils')
     , async = require('async')
-    , logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils')
+    , logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils')
     , util = require('util')
-    , redisPub = require(ctrlerConfig.core_path + '/src/serverroot/jobs/core/redisPub')
-    , messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages');
+    , redisPub = require(process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/redisPub')
+    , messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
 
 if (!module.parent) {
 	logutils.logger.warn(util.format(messages.warn.invalid_mod_call,

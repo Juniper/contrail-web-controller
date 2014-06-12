@@ -7,15 +7,14 @@
  *      This file contains utility functions for network monitoring pages
  */
 
-var ctrlerConfig = require('../js/controller.config.global');
-var commonUtils = require(ctrlerConfig.core_path +
+var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
+    rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     infraCmn = require('./infra.common.api'),
     assert = require('assert'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-    opApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/opServer.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     async = require('async');
 
 var opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
