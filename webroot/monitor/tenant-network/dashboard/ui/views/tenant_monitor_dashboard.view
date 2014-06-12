@@ -1,34 +1,6 @@
 <!--
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
-<script type="text/x-handlebars-template" id="summary-stats-template">
-    <div class="row-fluid">
-        <div class="span6">
-            <ul class="item-list">
-            {{#eachCustomIncrement this 0 2}}
-                <li>
-                    <label class="inline">
-                        <span class="key">{{lbl}}</span>
-                        <span class="value" data-bind='html:{{field}}'>&nbsp;</span>
-                    </label>
-                </li>
-            {{/eachCustomIncrement}}
-            </ul>
-        </div>
-        <div class="span6">
-            <ul class="item-list">
-              {{#eachCustomIncrement this 1 2}}  
-                <li>
-                    <label class="inline">
-                        <span class="key">{{lbl}}</span>
-                        <span class="value" data-bind='html:{{field}}'>&nbsp;</span>
-                    </label>
-                </li>
-            {{/eachCustomIncrement}}
-            </ul>
-        </div>
-    </div>
-</script>
 
 <script type="text/x-handlebars-template" id="summary-template">
     <div class='summary-template row-fluid'>

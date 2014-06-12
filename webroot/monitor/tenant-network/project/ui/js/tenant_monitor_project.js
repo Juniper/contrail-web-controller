@@ -73,7 +73,7 @@ function projSummaryRenderer() {
                     $("#" + topoDivId).html('');
                     topologyView.renderTopology($("#" + topoDivId).data('topology'));
                 }
-                var selTab = ui.newTab.context.innerText;
+                var selTab = $(ui.newTab.context).text();
                 if(selTab == 'Summary' && tabsLoaded[selTab] == 1) {
                     $('#projects-summary-charts').find('svg').trigger('refresh');
                 } else if(selTab == 'Instances' && tabsLoaded[selTab] == 0) {

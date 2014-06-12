@@ -211,7 +211,8 @@ function ObjectListView() {
             obj['error'] = result['error'];
             obj['isAsyncLoad'] = true;
         } else if(objectType == 'instance') { 
-            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list'];
+            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list',
+                              'UveVirtualMachineAgent:fip_stats_list'];
             if(ifNull(obj['fqName'],'') == '') {
                 var instDS = new SingleDataSource('instDS');
                 var result = instDS.getDataSourceObj('instDS');
@@ -1725,4 +1726,11 @@ function getMultiValueStr(arr) {
     if(arr.length > 2)
         retStr += '<br/>' + contrail.format('({0} more)',arr.length-entriesToShow);
     return retStr;
+}
+
+function getSelInstanceFromDropDown() {
+    if($('#dropdownIP').length == 0)
+        return {};
+    var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
+    return {ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network']};
 }
