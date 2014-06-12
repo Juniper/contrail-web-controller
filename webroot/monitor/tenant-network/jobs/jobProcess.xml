@@ -1,32 +1,20 @@
 <!--
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
--->
+ -->
 
 <jobLists>
-  <!-- Define module name here which is being referenced in the generated 
-       file
-   -->
   <require>
       <define>ctrlerConfig</define>
-      <path>../js/controller.config.global</path>
+      <path>../../../common/js/controller.config.global</path>
   </require>
   <require>
-      <define>jobsApi</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/jobs/core/jobs.api'</path>
+      <define>parseJobsReq</define>
+      <path>ctrlerConfig.core_path + '/src/serverroot/common/parseJobsRequire'</path>
   </require>
   <require>
       <define>jobsProcess</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/jobs/core/jobsProcess.api'</path>
+      <path>../../../common/api/jobsProcess.api</path>
   </require>
-  <require>
-      <define>commonUtils</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/utils/common.utils'</path>
-  </require>
-  <require>
-      <define>config</define>
-      <path>ctrlerConfig.core_path + '/config/config.global'</path>
-  </require>
-  <!-- Define Job Names and the corresponding callback -->
   <item>
     <jobName>getProjectsTree</jobName>
     <callback>processTreeTopoCacheRequestByJob</callback>
@@ -34,58 +22,6 @@
   <item>
     <jobName>getNetworkTopology</jobName>
     <callback>processNetworkTopologyRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getControlNodes</jobName>
-    <callback>processControlNodeRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getNodes</jobName>
-    <callback>processNodesRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getControlNodesSummary</jobName>
-    <requireJob>getNodesTree</requireJob>
-    <callback>processControlNodesSummaryRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getNodesTree</jobName>
-    <callback>processControlNodesTreeRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getControlNodeBgpPeer</jobName>
-    <requireJob>getNodesTree</requireJob>
-    <callback>processControlNodeBgpPeerRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getControlNodeAutoCompleteList</jobName>
-    <callback>processControlNodeAutoCompleteListRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getComputeNodeInterface</jobName>
-    <requireJob>getNodesTree</requireJob>
-    <callback>processComputeNodeInterfaceRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getComputeNodeAcl</jobName>
-    <requireJob>getNodesTree</requireJob>
-    <callback>processComputeNodeAclRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getVRoutersList</jobName>
-    <callback>processvRouterListRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getVRoutersSummary</jobName>
-    <callback>processvRoutersSummaryRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getVRoutersGenerators</jobName>
-    <callback>processvRoutersGenRequestByJob</callback>
-  </item>
-  <item>
-    <jobName>getComputeNodeAclFlows</jobName>
-    <callback>processcRouterAclFlowsRequestByJob</callback>
   </item>
   <item>
     <jobName>getTopNetworkDetailsByProject</jobName>
@@ -224,4 +160,3 @@
     <callback>processCPULoadFlowSeriesRequestByJob</callback>
   </item>
 </jobLists>
-

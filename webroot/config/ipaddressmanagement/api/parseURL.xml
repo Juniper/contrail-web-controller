@@ -1,0 +1,67 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>ctrlerConfig</define>
+        <path>../../../common/js/controller.config.global</path>
+    </require>
+    <require>
+        <define>parseURLReq</define>
+        <path>ctrlerConfig.core_path + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>ipamconfigapi</define>
+        <path>./ipamconfig.api</path>
+    </require>
+    <!-- API / Feature definition for Ipam configuration -->
+    <!-- 1. List Ipams - /api/tenants/config/ipams,
+                                             listIpams
+         2. Get Ipam - /api/tenants/config/ipam/:id,
+                                             getIpam
+         3. Create Ipam - /api/tenants/config/ipams,
+                                             createIpam
+         4. Delete Ipam - /api/tenants/config/ipam/:id,
+                                              deleteIpam
+         5. Update Ipam - /api/tenants/config/ipam/:id,
+                                              updateIpam
+         6. Update DNS -  /api/tenants/config/ipam/:id/option,
+                                              updateIpamDns
+    -->
+    <item>
+        <url>/api/tenants/config/ipams</url>
+        <method>get</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.listIpams</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/ipam/:id</url>
+        <method>get</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.getIpam</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/ipams</url>
+        <method>post</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.createIpam</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/ipam/:id</url>
+        <method>delete</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.deleteIpam</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/ipam/:id</url>
+        <method>put</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.updateIpam</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/ipam/:id/option</url>
+        <method>put</method>
+        <feature>ipamconfig</feature>
+        <callback>ipamconfigapi.updateIpamDns</callback>
+    </item>
+</urlLists>

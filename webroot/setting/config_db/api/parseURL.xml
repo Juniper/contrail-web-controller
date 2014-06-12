@@ -1,0 +1,41 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>ctrlerConfig</define>
+        <path>../../../common/js/controller.config.global</path>
+    </require>
+    <require>
+        <define>parseURLReq</define>
+        <path>ctrlerConfig.core_path + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>cdbqueryapi</define>
+        <path>./cdbquery.api</path>
+    </require>
+    <item>
+        <url>/api/query/cassandra/keys/:table</url>
+        <method>get</method>
+        <feature>setting</feature>
+        <callback>cdbqueryapi.listKeys4Table</callback>
+    </item>
+    <item>
+        <url>/api/query/cassandra/values/:table/:key</url>
+        <method>get</method>
+        <feature>setting</feature>
+        <callback>cdbqueryapi.listValues4Key</callback>
+    </item>
+    <item>
+        <url>/api/query/cassandra/key/:table/:key</url>
+        <method>delete</method>
+        <feature>setting</feature>
+        <callback>cdbqueryapi.deleteValue4Key</callback>
+    </item>
+    <item>
+        <url>/api/query/cassandra/value/:table/:key/:value</url>
+        <method>delete</method>
+        <feature>setting</feature>
+        <callback>cdbqueryapi.deleteValue4Key</callback>
+    </item>
+</urlLists>
