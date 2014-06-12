@@ -339,11 +339,11 @@ function addFSFilter() {
 };
 
 function runFSQuery() {
-    var serverCurrentTime;
+    var serverCurrentTime = getCurrentTime4MemCPUCharts();
     $.ajax({
-        url: '/api/admin/current-time'
+        url: '/api/service/networking/web-server-info'
     }).done(function (resultJSON) {
-        serverCurrentTime = resultJSON['currentTime'];
+        serverCurrentTime = resultJSON['serverUTCTime'];
     }).always(function() {
         runFSQueryCB(serverCurrentTime)
     });
