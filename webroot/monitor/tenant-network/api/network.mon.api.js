@@ -2109,12 +2109,60 @@ function processVMDetailsUVE (fqName, vmUVE)
     return resultJSON;
 }
 
-function getVMListByType (type, configData, appData, callback)
+function getVMListByVMIList (vmiList, appData, callback)
 {
     var insertedVMList = {};
-    var idx = 0;
-    var vmOpList = [];
-    var dataObjArr = [];
+    var insertedVMIList = {};
+    var vmiListObjArr = [];
+    var vmiUUID = null;
+    var vmList = [];
+    var vmiReqUrl = null;
+
+    if (null == vmiList) {
+        callback(null, null);
+        return;
+    }
+    var vmiCnt = vmiList.length;
+    for (var i = 0; i < vmiCnt; i++) {
+        vmiUUID = vmiList[i]['uuid'];
+        if (null == insertedVMIList[vmiUUID]) {
+            vmiReqUrl = '/virtual-machine-interface/' + vmiUUID;
+            commonUtils.createReqObj(vmiListObjArr, vmiReqUrl,
+                                     global.HTTP_REQUEST_GET, null, null,
+                                     null, appData);
+            insertedVMIList[vmiUUID] = vmiUUID;
+        }
+    }
+    async.map(vmiListObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                     true),
+              function(err, data) {
+        if (null != data) {
+            var vmiRespCnt = data.length;
+            for (var i = 0; i < vmiRespCnt; i++) {
+                if (data[i] && data[i]['virtual-machine-interface'] &&
+                    data[i]['virtual-machine-interface']['virtual_machine_refs']){
+                    vmRefs =
+                        data[i]['virtual-machine-interface']['virtual_machine_refs'];
+                    var vmRefsCnt = vmRefs.length;
+                    for (var j = 0; j < vmRefsCnt; j++) {
+                        var vmUUID = vmRefs[j]['uuid'];
+                        if (null == insertedVMList[vmUUID]) {
+                            vmList.push(vmUUID);
+                            insertedVMList[vmUUID] = vmUUID;
+                        }
+                    }
+                }
+            }
+        }
+        callback(null, vmList);
+    });
+}
+
+function getVMListByType (type, configData, appData, callback)
+{
+    var emptyList = [];
+
     if (type == 'vn') {
         /*
         if (isServiceVN((configData['virtual-network']['fq_name']).join(':'))) {
@@ -2122,60 +2170,34 @@ function getVMListByType (type, configData, appData, callback)
             return;
         }
         */
-        vmList =
-            configData['virtual-network']['virtual_machine_interface_back_refs'];
-	if (null == vmList) {
-	    callback(null, null);
-	    return;
-	}
-        var vmCnt = vmList.length;
-        for (var i = 0; i < vmCnt; i++) {
-            vmUUID = vmList[i]['to'][0];
-            if (null == insertedVMList[vmUUID]) {
-                vmOpList[idx++] = vmUUID;
-                insertedVMList[vmUUID] = vmUUID;
-            }
-        }
-        callback(null, vmOpList);
-    } else if (type == 'project') {
-        var vnList = configData['project']['virtual_networks'];
-        if (null == vnList) {
-            callback(null, null);
+        if ((null == configData['virtual-network']) ||
+            (null ==
+             configData['virtual-network']['virtual_machine_interface_back_refs'])) {
+            callback(null, emptyList);
             return;
         }
-        var vnCnt = vnList.length;
-        for (var i = 0, j = 0; i < vnCnt; i++) {
-            /*
-            if (isServiceVN((vnList[i]['to']).join(':'))) {
-                continue;
+
+        var vmiBackRefsList =
+            configData['virtual-network']['virtual_machine_interface_back_refs'];
+        getVMListByVMIList(vmiBackRefsList, appData, function(err, vmList) {
+            if (vmList && vmList.length > 1) {
+                vmList.sort();
             }
-            */
-            reqUrl = '/virtual-network/' + vnList[i]['uuid'];
-            commonUtils.createReqObj(dataObjArr, reqUrl, null, null, null, null,
-                                     appData);
+            callback(err, vmList);
+        });
+    } else if (type == 'project') {
+        if ((null == configData['project']) || 
+            (null == configData['project']['virtual_machine_interfaces'])) {
+            callback(null, emptyList);
+            return;
         }
-        async.map(dataObjArr,
-                  commonUtils.getServerResponseByRestApi(configApiServer,
-                                                         true),
-                  function(err, data) {
-            var cnt = data.length;
-            for (i = 0; i < cnt; i++) {
-                vmList =
-                    data[i]['virtual-network']['virtual_machine_interface_back_refs'];
-                if (null == vmList) {
-                    continue;
-                }
-                var vmCnt = vmList.length;
-                for (var j = 0; j < vmCnt; j++) {
-                    vmUUID = vmList[j]['to'][0];
-                    if (null == insertedVMList[vmUUID]) {
-                        vmOpList[idx++] = vmUUID;
-                        insertedVMList[vmUUID] = vmUUID;
-                    }
-                }
+
+        var vmiList = configData['project']['virtual_machine_interfaces'];
+        getVMListByVMIList(vmiList, appData, function(err, vmList) {
+            if (vmList && vmList.length > 1) {
+                vmList.sort();
             }
-            vmOpList.sort();
-            callback(null, vmOpList);
+            callback(null, vmList);
         });
     }
 }

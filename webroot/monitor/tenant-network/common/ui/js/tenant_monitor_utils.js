@@ -1669,3 +1669,10 @@ function getMultiValueStr(arr) {
         retStr += '<br/>' + contrail.format('({0} more)',arr.length-entriesToShow);
     return retStr;
 }
+
+function getSelInstanceFromDropDown() {
+    if($('#dropdownIP').length == 0)
+        return {};
+    var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
+    return {ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network']};
+}
