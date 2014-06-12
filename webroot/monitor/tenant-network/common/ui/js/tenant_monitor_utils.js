@@ -1734,3 +1734,38 @@ function getSelInstanceFromDropDown() {
     var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
     return {ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network']};
 }
+
+var connectedNetworkView = new connectedNetworkRenderer();
+
+function connectedNetworkRenderer() {
+  this.load = function(cfg) {
+      var obj = $.extend({},cfg);
+      var data = {stats:{},charts:{},grids:{}};
+      pushBreadcrumb([obj['fqName'] + ' <-> ' + obj['srcVN']]);
+      layoutHandler.setURLHashParams({fqName:obj['fqName'],srcVN:obj['srcVN']},{p:'mon_net_networks',merge:false,triggerHashChange:false});
+      //Show Ingress/Egress Traffic in different colors
+      data['stats'] = {
+          'list' : [
+              { lbl : contrail.format('Ingress/Egress from {0} to {1}',obj['srcVN'].split(':').pop(),obj['fqName'].split(':').pop()),field:'toNetwork'},
+              { lbl : contrail.format('Egress/Ingress from {0} to {1}',obj['fqName'].split(':').pop(),obj['srcVN'].split(':').pop()),field:'fromNetwork'}
+          ],
+          parseFn: function(response) {
+              return [{
+                  'toNetwork': contrail.format("<span class='in'>{0}</span> <span class='seperator'>/</span>" +
+                          " <span class='out'>{1}</span>",formatBytes(response['toNW']['inBytes']),formatBytes(response['toNW']['outBytes'])),
+                  'fromNetwork': contrail.format("<span class='out'>{0}</span> <span class='seperator'>/</span>" +
+                          " <span class='in'>{1}</span>",formatBytes(response['toNW']['inBytes']),formatBytes(response['toNW']['outBytes']))
+                  }]
+          }
+      }
+      template = 'connected-nw-template';
+      data['stats']['url'] = constructReqURL($.extend({},obj,{type:'summary'}));
+      data['ts-chart'] = {};
+      data['ts-chart']['url'] = constructReqURL($.extend({},obj,{widget:'flowseries'}));
+      //Render the template
+      var summaryTemplate = contrail.getTemplate4Id(template);
+      var container = cfg['container'];
+      $(container).html(summaryTemplate(obj));
+      $(container).initTemplates(data);
+  }
+}
