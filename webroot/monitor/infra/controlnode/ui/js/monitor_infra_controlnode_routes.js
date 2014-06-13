@@ -120,17 +120,14 @@ monitorInfraControlRoutesClass = (function() {
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
          
          $( "#comboRoutingInstance" ).contrailCombobox({
-//             dataTextField: 'text',
-//             dataValueField: 'id',
+             defaultValue:'All',
              dataSource: {
                  type:'remote',
                  url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(obj)),
+                 async:true,
                  parse:function(response){
                    var ret = []
                    ret =['All'].concat(response['routeInstances']);
-//                    $.each(response,function(idx,obj){
-//                       ret.push({'text':obj,'id':obj});
-//                    })
                    return ret; 
                  }
              },
