@@ -42,7 +42,6 @@ function IPAMObjConfig() {
     this.handleProjects             = handleProjects;
     this.deleteIPAM                 = deleteIPAM;
     this.closeCreateIPAMWindow      = closeCreateIPAMWindow;
-    this.autoPopulateGW             = autoPopulateGW;
     this.ipamCreateEditWindow       = ipamCreateEditWindow;
     this.successHandlerForGridIPAM  = successHandlerForGridIPAM;
     this.failureHandlerForGridIPAM  = failureHandlerForGridIPAM;
@@ -73,17 +72,8 @@ function initComponents() {
     $("#gridipam").contrailGrid({
         header : {
             title : {
-                text : 'IP Address Management',
-                //cssClass : 'blue',
-                //icon : 'icon-list',
-                //iconCssClass : 'blue'
+                text : 'IP Address Management'
             },
-            //defaultControls: {
-            //    collapseable: false,
-            //    exportable: false,
-            //    refreshable: false,
-            //    searchable: true
-            //},
             customControls: [
                 '<a id="btnDeleteIpam"class="disabled-link" title="Delete IPAM(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateEditipam" onclick="ipamCreateEditWindow(\'add\');return false;" title="Create IPAM"><i class="icon-plus"></i></a>',
@@ -294,7 +284,6 @@ function initActions() {
         var dns_domain = $(txtDomainName).val();
         var mode = "";
 
-        //alert("DNS Method " + dnsMethod);
         var ipam = {};
 
         if (verify == true) {
@@ -321,8 +310,6 @@ function initActions() {
                     {dhcp_option_name:"15", dhcp_option_value:dns_domain});
             }
             if (dnsMethod == "tenant-dns-server" && dnsIP.length) {
-                //ipam["network-ipam"]["network_ipam_mgmt"]["dhcp_option_list"]["dhcp_option"].push(
-                //{dhcp_option_name : "6", dhcp_option_value: dnsIP});
                 ipam["network-ipam"]["network_ipam_mgmt"]["ipam_dns_server"]["tenant_dns_server_address"]["ip_address"] = [];
                 ipam["network-ipam"]["network_ipam_mgmt"]["ipam_dns_server"]["tenant_dns_server_address"]["ip_address"][0] = dnsIP;
                 ipam["network-ipam"]["network_ipam_mgmt"]["ipam_dns_server"]["virtual_dns_server_name"] = null;
@@ -340,89 +327,10 @@ function initActions() {
                     uuid:selectedvDNSuid};
             }
 
-            var mgmtOptions = [];
-            var vnTuples = $("#vnTuples")[0].children;
-            if (vnTuples && vnTuples.length > 0) {
-                var nwList = [];
-                for (var i = 0; i < vnTuples.length; i++) {
-                    var currentNw    = $($($($("#vnTuples").children()[i]).find(".span3")[0]).find("div.contrailDropdown")[1]).data("contrailDropdown").value().trim();
-                    var currentIpBlock = $($($($("#vnTuples").children()[i]).find(".span3")[1]).find("input")[0]).val().trim();
-                    var currentGateway = $($($($("#vnTuples").children()[i]).find(".span3")[2]).find("input")[0]).val().trim();
-                    if(nwList.lastIndexOf(currentNw) === -1) {
-                        mgmtOptions.splice(i, 0, {Network: currentNw, IPBlock:currentIpBlock, Gateway:currentGateway});
-                        nwList.splice(i, 0, currentNw);
-                    } else {
-                        var lastPos = nwList.lastIndexOf(currentNw);
-                        mgmtOptions.splice(lastPos+1, 0, {Network: "", IPBlock:currentIpBlock, Gateway:currentGateway});
-                        nwList.splice(lastPos+1, 0, currentNw);
-                    }
-                }
-            }
-
-            if (mgmtOptions && mgmtOptions.length > 0) {
-                ipam["network-ipam"]["virtual_network_refs"] = [];
-                var nwIndex = 0;
-                for (var i = 0; i < mgmtOptions.length; i++) {
-                    var ipBlock = mgmtOptions[i].IPBlock;
-                    var nw = mgmtOptions[i].Network;
-                    var gateway = mgmtOptions[i].Gateway;
-                    if (nw !== "") {
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex] = {};
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"] = [];
-                        var nwUUID = "";
-                        if(nw.indexOf(":") !== -1) {
-                            nw = nw.split(":");
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][0] = nw[0];
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][1] = nw[1];
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][2] = nw[2];
-                            nwUUID = jsonPath(configObj, "$..virtual-networks[?(@.fq_name[0]=='" + nw[0] + 
-                            "' && @.fq_name[1]=='" + nw[1] + "' && @.fq_name[2]=='" + nw[2] + "')]");
-                            if(nwUUID !== false && null !== nwUUID[0]) {
-                                nwUUID = nwUUID[0].uuid;
-                            }
-                            nw = nw.join(":");
-                        } else {
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][0] = selectedDomain;
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][1] = selectedProject;
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["to"][2] = nw;
-                            nwUUID = jsonPath(configObj, "$..virtual-networks[?(@.fq_name[0]=='" + selectedDomain + 
-                            "' && @.fq_name[1]=='" + selectedProject + "' && @.fq_name[2]=='" + nw + "')]");
-                            if(nwUUID !== false && null !== nwUUID[0]) {
-                                nwUUID = nwUUID[0].uuid;
-                            }
-                        }
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["uuid"] = nwUUID;
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"] = {};
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"] = [];
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][0] = {};
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][0]["subnet"] = {};
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][0]["subnet"]["ip_prefix"] = ipBlock.split("/")[0];
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][0]["subnet"]["ip_prefix_len"] = parseInt(ipBlock.split("/")[1]);
-                        ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][0]["default_gateway"] = gateway;
-                    }
-
-                    for (var j = i + 1; typeof mgmtOptions[j] !== "undefined"; j++) {
-                        var newNetwork = mgmtOptions[j].Network;
-                        var newIpBlock = mgmtOptions[j].IPBlock;
-                        var gateway = mgmtOptions[j].Gateway;
-                        if (newNetwork == "") {
-                            i++;
-                            var subnetLen = ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"].length;
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen] = {};
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"] = {};
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"]["ip_prefix"] = newIpBlock.split("/")[0];
-                            if (null !== newIpBlock.split("/")[1] && "" !== newIpBlock.split("/")[1].trim() && isNumber(parseInt(newIpBlock.split("/")[1])))
-                                ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"]["ip_prefix_len"]
-                                    = parseInt(newIpBlock.split("/")[1]);
-                            else
-                                ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"]["ip_prefix_len"] = 32;
-                            ipam["network-ipam"]["virtual_network_refs"][nwIndex]["attr"]["ipam_subnets"][subnetLen]["default_gateway"] = gateway;
-                        } else {
-                            break;
-                        }
-                    }
-                    nwIndex++;
-                }
+            var vnBackRefs = jsonPath(configObj, "$.network-ipams[?(@.uuid=='" + $("#btnCreateEditipamOK").data().uuid + "')]");
+            if(false !== vnBackRefs & null !== vnBackRefs[0]) {
+                vnBackRefs = vnBackRefs[0].virtual_network_back_refs;
+                ipam["network-ipam"]["virtual_network_refs"] = vnBackRefs;
             }
 
             if ($(txtIPAMName)[0].disabled == true)
@@ -441,182 +349,6 @@ function initActions() {
             windowCreateipam.modal('hide');
         }
     });
-}
-
-function createVNEntry(vnBlock, len) {
-    var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
-    var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
-    var vns = jsonPath(configObj, "$.virtual-networks[*].fq_name");            
-    var validVns = [];
-    for(var i=0; i<vns.length; i++) {
-        var vn = vns[i];
-        if(vn[0] === selectedDomain && vn[1] === selectedProject) {
-            validVns[validVns.length] = vn[2];
-        }
-        else {
-            if(checkSystemProject(vn[1]))
-                continue;
-            else
-                validVns[validVns.length] = vn[0] + ":" + vn[1] + ":" + vn[2];
-        }
-    }
-    if(validVns && validVns.length <= 0) {
-        showInfoWindow("No Virtual Networks available.", "Error");
-        return false;
-    }
-
-    var selectVns = document.createElement("div");
-    selectVns.className = "span12 contrailDropdown";
-    selectVns.setAttribute("placeholder", "Select Virtual Network");
-    var divVN = document.createElement("div");
-    divVN.className = "span3";
-    divVN.appendChild(selectVns);
-    
-    var inputTxtIPBlock = document.createElement("input");
-    inputTxtIPBlock.type = "text";
-    inputTxtIPBlock.className = "span12";
-    inputTxtIPBlock.setAttribute("placeholder", "IP Block");
-    inputTxtIPBlock.setAttribute("onblur", "autoPopulateGW(this)");
-    var divIPBlock = document.createElement("div");
-    divIPBlock.className = "span3";
-    divIPBlock.appendChild(inputTxtIPBlock);
-
-    var inputTxtGateway = document.createElement("input");
-    inputTxtGateway.type = "text";
-    inputTxtGateway.className = "span12";
-    inputTxtGateway.setAttribute("placeholder", "Gateway");
-    var divIPGateway = document.createElement("div");
-    divIPGateway.className = "span3";
-    divIPGateway.appendChild(inputTxtGateway);    
-
-    var iBtnAddRule = document.createElement("i");
-    iBtnAddRule.className = "icon-plus";
-    iBtnAddRule.setAttribute("onclick", "appendVNEntry(this);");
-    iBtnAddRule.setAttribute("title", "Add Virtual Network below");
-
-    var divPullLeftMargin5Plus = document.createElement("div");
-    divPullLeftMargin5Plus.className = "pull-left margin-5";
-    divPullLeftMargin5Plus.appendChild(iBtnAddRule);
-
-    var iBtnDeleteRule = document.createElement("i");
-    iBtnDeleteRule.className = "icon-minus";
-    iBtnDeleteRule.setAttribute("onclick", "deleteVNEntry(this);");
-    iBtnDeleteRule.setAttribute("title", "Delete Virtual Network");
-
-    var divPullLeftMargin5Minus = document.createElement("div");
-    divPullLeftMargin5Minus.className = "pull-left margin-5";
-    divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
-
-    var divRowFluidMargin5 = document.createElement("div");
-    divRowFluidMargin5.className = "row-fluid margin-0-0-5";
-    divRowFluidMargin5.appendChild(divVN);
-    divRowFluidMargin5.appendChild(divIPBlock);
-    divRowFluidMargin5.appendChild(divIPGateway);
-    
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
-
-    var rootDiv = document.createElement("div");
-    rootDiv.id = "rule_" + len;
-    rootDiv.className = 'rule-item';
-    rootDiv.appendChild(divRowFluidMargin5);
-
-    $(selectVns).contrailDropdown({
-        dropdownCssClass: 'select2-medium-width'
-    });
-    $(selectVns).data("contrailDropdown").setData(validVns);
-    $(selectVns).data("contrailDropdown").value(validVns[0]);
-
-    if (null !== vnBlock && typeof vnBlock !== "undefined") {
-        $(selectVns).data("contrailDropdown").value(vnBlock.Network);
-        $(inputTxtIPBlock).val(vnBlock.IPBlock);
-        $(inputTxtGateway).val(vnBlock.Gateway);
-    }    
-    return rootDiv;
-}
-
-function appendVNEntry(who, defaultRow) {
-    if($("#btnCommonAddVN").hasClass("disabled-link")) {
-        return;
-    }
-    if(validateVNEntry() === false)
-        return false;
-
-    var vnEntry = createVNEntry(null, $("#vnTuples").children().length);
-    if (defaultRow) {
-        $("#vnTuples").prepend($(vnEntry));
-    } else {
-        var parentEl = who.parentNode.parentNode.parentNode;
-        parentEl.parentNode.insertBefore(vnEntry, parentEl.nextSibling);
-    }
-    scrollUp("#windowCreateipam",vnEntry,false);
-}
-
-function deleteVNEntry(who) {
-    var templateDiv = who.parentNode.parentNode.parentNode;
-    $(templateDiv).remove();
-    templateDiv = $();
-}
-
-function clearVNEntries() {
-    var tuples = $("#vnTuples")[0].children;
-    if (tuples && tuples.length > 0) {
-        var tupleLength = tuples.length;
-        for (var i = 0; i < tupleLength; i++) {
-            $(tuples[i]).empty();
-        }
-        $(tuples).empty();
-        $("#vnTuples").empty();
-    }
-}
-
-function validateVNEntry() {
-    var len = $("#vnTuples").children().length;
-    if(len > 0) {
-        for(var i=0; i<len; i++) {
-            var ipblock = $($($($("#vnTuples").children()[i]).find(".span3")[1]).find("input")[0]).val().trim();
-            var gateway = $($($($("#vnTuples").children()[i]).find(".span3")[2]).find("input")[0]).val().trim();
-            if ("" === ipblock.trim() || !validip(ipblock.trim())) {
-                showInfoWindow("Enter a valid IP address in xxx.xxx.xxx.xxx/xx format", "Invalid input in Address Management");
-                return false;
-            }
-            if(ipblock.split("/").length != 2) {
-                showInfoWindow("Enter a valid IP address in xxx.xxx.xxx.xxx/xx format", "Invalid input in Address Management");
-                return false;
-            }
-            var subnetMask = parseInt(ipblock.split("/")[1]); 
-            if(subnetMask > 30) {
-                showInfoWindow("Subnet mask can not be greater than 30", "Invalid input in Address Management");
-                return false;
-            }
-
-            if (validip(gateway.trim())) {
-                if(gateway.split("/").length >= 2) {
-                    showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
-                    return false;
-                }
-            } else {
-                if("" !== gateway.trim()) {
-                    showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
-                    return false;
-                }
-            }
-        }
-    }
-    return true;
-}
-
-function autoPopulateGW(me) {
-    var ip = $(me).val();
-    if(ip.indexOf("/") !== -1) {
-        try {
-            var ip_arrs = ip_range(ip, []);
-            var default_gw = ip_arrs[ip_arrs.length - 1];
-            $(me).parent().next().find("input").val(default_gw);
-        } catch (e) {
-            $(me).parent().next().find("input").val("");
-        }
-    }
 }
 
 function deleteIPAM(selected_rows){
@@ -665,8 +397,6 @@ function validate() {
             return false;
         }
     }
-    if(validateVNEntry() === false)
-        return false;    
     return true;
 }
 
@@ -917,8 +647,7 @@ function clearCreateEdit() {
     var dnsMethod = "default-dns-server";
     ddDNSPtr.value(dnsMethod);
     ddDNSVirtualP.value(ddDNSVirtualP.getAllData()[0]);
-
-    clearVNEntries();
+    $('#btnCreateEditipamOK').data('uuid',"");
     $(txtIPAMName).val("");
     txtIPAMName[0].disabled = false;
     $(txtNTPServer).val("");
@@ -993,27 +722,6 @@ function populateIpamEditWindow(rowIndex) {
         }
     }
 
-    var nwNames = jsonPath(selectedIpam, "$.virtual_network_back_refs[*].to[2]");
-    
-    if (nwNames && nwNames.length > 0) {
-        var nws = [];
-        for (var i = 0; i < nwNames.length; i++) {
-            var vn = jsonPath(selectedIpam, "$.virtual_network_back_refs[?(@.to[2]=='" + nwNames[i] + "')]")[0];
-            var ipBlocks = jsonPath(vn, "$.attr.ipam_subnets[*]");
-            for(var j=0; j<ipBlocks.length; j++) {
-                if(selectedDomain === vn.to[0] && selectedProject === vn.to[1]) {
-                    nws.push({"IPBlock":ipBlocks[j]["subnet"]["ip_prefix"] + "/" + ipBlocks[j]["subnet"]["ip_prefix_len"], "Network":nwNames[i], "Gateway":ipBlocks[j]["default_gateway"]});
-                } else {
-                    nws.push({"IPBlock":ipBlocks[j]["subnet"]["ip_prefix"] + "/" + ipBlocks[j]["subnet"]["ip_prefix_len"], "Network":(vn["to"]).join(":"), "Gateway":ipBlocks[j]["default_gateway"]});
-                }
-            }
-        }
-        for(var k=0; k<nws.length; k++) {
-            var vnEntry = createVNEntry(nws[k], $("#vnTuples").children().length);
-            $("#vnTuples").append($(vnEntry));
-        }
-    }
-
     txtNTPServer.val(ntpServer);
     txtDomainName.val(domainName);
     checkVirtualNetwork();
@@ -1060,11 +768,6 @@ function ipamCreateEditWindow(mode,rowIndex) {
                         vnData.push({text: vns[i][0] + ":" + vns[i][1] + ":" + vns[i][2], value: vnUUIDs[i]});
                 }
             }
-            if(vnData.length == 0) {
-                $("#btnCommonAddVN").addClass("disabled-link");
-            } else {
-                $("#btnCommonAddVN").removeClass("disabled-link");
-            }         
             var vdns = results[0][0].virtual_DNSs;
             var virtualDNSs = [];
             var tmpStr = "";
