@@ -509,6 +509,7 @@ function fetchDataForGridDNSServer() {
     }
     $("#cb_gridDNSServer").attr("checked", false);
     $("#gridDNSServer").data("contrailGrid")._dataView.setData([]);
+    gridDNSServer.showGridMessage('loading');
     idCount = 0;
 	drAjaxcount++;
     ajaxParam = $("#ddDomainSwitcher").data('contrailDropdown').value() + "_" + drAjaxcount;
@@ -607,7 +608,7 @@ function successHandlerForDNSServerRow(result) {
 }
 
 function failureHandlerForDNSServer(result, cbParam) {
-    showGridMessage("#gridDNSServer", "Error in getting DNS Servers.");
+    gridDNSServer.showGridMessage('errorGettingData');
 }
 
 function closeCreateDNSServerWindow() {

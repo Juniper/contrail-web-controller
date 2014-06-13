@@ -657,6 +657,7 @@ function dnsRecordsConfig() {
 	
     function fetchDNSRecordsData() { 	
         gridDNSRecords._dataView.setData([]);
+        gridDNSRecords.showGridMessage("loading");
         idCount = 0;
         dsAjaxcount++;
         ajaxParam = currentUUID + "_" + dsAjaxcount;
