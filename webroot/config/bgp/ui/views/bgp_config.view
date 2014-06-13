@@ -78,7 +78,7 @@
                           <div class="row-fluid">
                               <input id="txtholdtime" class="span10"
                                   type="text" name="txtholdtime" 
-                                  placeholder="1 - 65535(seconds) " value="90">
+                                  placeholder="90 (1 - 65535 seconds)" value="90">
                               </input>                               
                           </div>
                       </div>                       
