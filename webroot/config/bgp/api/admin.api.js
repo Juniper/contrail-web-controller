@@ -224,10 +224,10 @@ function parseConfigControlNodeData (configControlNodeData)
                  resultJSON[i]["address_families"] = global.RESP_DATA_NOT_AVAILABLE;
             }
             try {
-                 resultJSON[i]["hold-time"] =
-                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"]);
+                 resultJSON[i]["hold_time"] =
+                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"]);
             } catch(e) {
-                 resultJSON[i]["hold-time"] = global.RESP_DATA_NOT_AVAILABLE;
+                 resultJSON[i]["hold_time"] = global.RESP_DATA_NOT_AVAILABLE;
             }            
         }
     } catch(e) {
@@ -368,7 +368,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["address_families"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"];
 	bgpJSON["bgp-router"]["bgp_router_parameters"].vendor = bgpUpdates["bgp-router"]["bgp_router_parameters"].vendor;
 	bgpJSON["bgp-router"]["bgp_router_parameters"].port = bgpUpdates["bgp-router"]["bgp_router_parameters"].port;
-	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold-time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold-time"];    
+	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold_time"];    
 	var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
 		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
 	if (!newBGPRefs || newBGPRefs.length == 0) {

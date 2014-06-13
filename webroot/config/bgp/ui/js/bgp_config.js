@@ -255,6 +255,18 @@ function validate() {
         showInfoWindow("Enter valid BGP port number between 1-9999", "Invalid input");
         return false;
     }
+    try {
+        if(holdTime != "") {
+            holdTime = parseInt(holdTime);
+            if (holdTime < 1 || holdTime > 65535 || isNaN(holdTime)) {
+                showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
+                return false;
+            }
+        }
+    } catch (e) {
+        showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
+        return false;
+    }     
     if ($(chkextern)[0].checked === true) {
         if ("" == vendor.trim()) {
             showInfoWindow("Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'.", "Input required");
@@ -275,16 +287,6 @@ function validate() {
     for (var i = 0; i < selectdata.length; i++) {
         peers[i] = selectdata[i].label;
     }
-    try {
-        holdTime = parseInt(holdTime);
-        if (holdTime < 1 || holdTime > 65535 || isNaN(holdTime)) {
-            showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
-            return false;
-        }
-    } catch (e) {
-        showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
-        return false;
-    }    
     return true;
 }
 
@@ -297,7 +299,11 @@ function getBGPJson() {
     addr = $("#txtaddr").val().trim();
     port = parseInt($("#txtport").val().trim());
     vendor = $("#txtvendor").val().trim();
-    holdTime = $('#txtholdtime').val().trim();
+    if($('#txtholdtime').val().trim() == "") {
+        holdTime = 90;    
+    } else {
+        holdTime = parseInt($('#txtholdtime').val().trim());
+    }
     var selBGPAddFamily = $('#multifamily').data('contrailMultiselect').getSelectedData();
     if(selBGPAddFamily.length > 0) {
         for(var bgpAdd = 0; bgpAdd < selBGPAddFamily.length;  bgpAdd++) {
@@ -364,7 +370,7 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold-time":holdTime
+                        "hold_time":holdTime
                     },
                     "bgp_router_refs":peers,
                     "name":name
@@ -388,7 +394,7 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold-time":holdTime                        
+                        "hold_time":holdTime                        
                     },
                     "bgp_router_refs":peers,
                     "name":name
@@ -411,7 +417,7 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold-time":holdTime                        
+                        "hold_time":holdTime                        
                     },
                     "name":name
                 }
@@ -435,7 +441,7 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold-time":holdTime                        
+                        "hold_time":holdTime                        
                     },
                     "name":name
                 }
@@ -603,9 +609,9 @@ function fetchData() {
                                 detailStr += "Address family " + addr_families + "; ";
                                 details.push({ "name":"Address family", "value":addr_families });
                             }
-                            if(d["hold-time"] && d["hold-time"].trim() != "") {
-                                detailStr += "Hold Time " + d["hold-time"] + "; ";
-                                details.push({ "name":"Hold Time", "value":d["hold-time"]});                                
+                            if(d["hold_time"]) { 
+                                detailStr += "Hold Time " + d["hold_time"] + "; ";
+                                details.push({ "name":"Hold Time", "value":d["hold_time"]});                                
                             } 
                         }
                         if (d.address && "" != d.address) {
