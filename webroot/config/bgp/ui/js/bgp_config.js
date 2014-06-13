@@ -837,12 +837,12 @@ function btnaddbgpClick() {
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(bgpavailabledata);
     mode = "add";
     bgpwindow.modal('show');
-    bgpwindow.find('.modal-body').scrollTop(0);
     bgpwindow.find('h6').text("Create BGP Peer");
     $("#txtasn").val(ggasn);
     $("#txtport").val("179");
     $("#chkextern").click();
-    $("#txtname").focus();    
+    $("#txtname").focus();  
+    bgpwindow.find('.modal-body').scrollTop(0);    
 }
 
 function initActions() {
