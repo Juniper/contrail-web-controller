@@ -89,6 +89,44 @@ function getServiceInstances (request, response, appData)
     });
 }
 
+/*
+ * @listAllServiceInstancesDetails
+ * public function
+ * URL /api/tenants/config/service-instances-details
+ * Gets the details of service-instances across all the projects
+ */
+function listAllServiceInstancesDetails (req, res, appData)
+{
+    var siURL = '/service-instances';
+    var siDataObjArr = [];
+
+    configApiServer.apiGet(siURL, appData, function(err, data) {
+        if ((null != err) || (null == data) || 
+            (null == data['service-instances'])) {
+            commonUtils.handleJSONResponse(err, res, []);
+            return;
+        }
+        var siData = data['service-instances'];
+        var siCnt = siData.length;
+        for (var i = 0; i < siCnt; i++) {
+            var siReqURL = '/service-instance/' + siData[i]['uuid'];
+            commonUtils.createReqObj(siDataObjArr, siReqURL,
+                                     global.HTTP_REQUEST_GET, null, null,
+                                     null, appData);
+        }
+        if (!siDataObjArr.length) {
+            commonUtils.handleJSONResponse(err, res, []);
+            return;
+        }
+        async.map(siDataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   false),
+                  function(err, results) {
+            commonUtils.handleJSONResponse(err, res, results);
+        });
+    });
+}
+
 /**
  * @listServiceInstances
  * public function
@@ -1263,6 +1301,7 @@ function getDefaultAnalyzerPolicyName(analyzerName) {
 
 exports.listServiceInstances = listServiceInstances;
 exports.listAllServiceInstances = listAllServiceInstances;
+exports.listAllServiceInstancesDetails = listAllServiceInstancesDetails;
 exports.listServiceInstanceTemplates = listServiceInstanceTemplates;
 exports.createServiceInstance = createServiceInstance;
 exports.deleteServiceInstance = deleteServiceInstance;

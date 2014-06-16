@@ -170,7 +170,6 @@ function getPolicyAsync (policyObj, callback)
 function readPolicys (policyObj, callback)
 {
     var dataObjArr = policyObj['reqDataArr'];
-    console.log("Getting dataObjArr:", dataObjArr);
     async.map(dataObjArr, getPolicyAsync, function(err, data) {
         callback(err, data);
     });
