@@ -301,28 +301,28 @@ monitorInfraComputeFlowsClass = (function() {
             
             var ret = '';
             if(aclUuidList.length > 0){
-                ret += "<span class='highlight-blue'>Policy:</span>";
+                ret += "<span class='text-info'>Policy:</span>";
             }
             $.each(aclUuidList,function(idx,aclUuid){
                 ret += "</br>" + aclUuid;
             });
             if(outPolicyAclUuidList.length > 0){
-                ret += (ret != '')?" </br><span class='highlight-blue'>Out Policy:</span>" : 
-                    "<span class='highlight-blue'>Out Policy:</span>";
+                ret += (ret != '')?" </br><span class='text-info'>Out Policy:</span>" : 
+                    "<span class='text-info'>Out Policy:</span>";
             }
             $.each(outPolicyAclUuidList,function(idx,outPolicyAclUuid){
                 ret += "</br>" + outPolicyAclUuid;
             });
             if(sgUuidList.length > 0){
-                ret += (ret != '')?"</br><span class='highlight-blue'>SG:</span>" : 
-                    "<span class='highlight-blue'>SG:</span>";
+                ret += (ret != '')?"</br><span class='text-info'>SG:</span>" : 
+                    "<span class='text-info'>SG:</span>";
             }
             $.each(sgUuidList,function(idx,sgUuid){
                 ret += "</br>" + sgUuid;
             });
             if(outSgUuidList.length > 0){
-                ret += (ret != '')?"</br><span class='highlight-blue'>Out SG:</span>" : 
-                    "<span class='highlight-blue'>Out SG:</span>";
+                ret += (ret != '')?"</br><span class='text-info'>Out SG:</span>" : 
+                    "<span class='text-info'>Out SG:</span>";
             }
             $.each(outSgUuidList,function(idx,outSgUuid){
                 ret += "</br>" + outSgUuid;
