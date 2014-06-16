@@ -1045,6 +1045,12 @@
         <feature>siconfig</feature>
         <callback>siconfigapi.configurePacketCapture4Flow</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/service-instances-details</url>
+        <method>get</method>
+        <feature>siconfig</feature>
+        <callback>siconfigapi.listAllServiceInstancesDetails</callback>
+    </item>
 
     <!-- API / Feature definition for Virtual DNS configuration -->
     <!-- 1. List Virtual DNS                 - /api/tenants/config/virtual-DNSs/:id,
