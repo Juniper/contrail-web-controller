@@ -925,7 +925,7 @@ var tenantNetworkMonitorUtils = {
         var spanWidths = ['span2','span1','span2','span2','span2','span1','span1'];
         var throughputIn = 0;
         var throughputOut = 0;
-        spanWidths = [150,95,35,110,190,110,110,95,55]
+        spanWidths = [235,105,35,190,110,110,95,55]
         var spanWidthsForFip = [95,250,300,110];
         retArr.push({lbl:'UUID',value:data['name']});
         retArr.push({lbl:'CPU',value:jsonPath(d,'$..cpu_one_min_avg')[0] != null ? jsonPath(d,'$..cpu_one_min_avg')[0].toFixed(2) : '-'});
@@ -951,8 +951,10 @@ var tenantNetworkMonitorUtils = {
         });
         //Add the header
         if(interfaces.length > 0) {
-            interfaceDetails.push({lbl:'Interfaces',value:['UUID','IP Address','Label','Mac Address','Network','Traffic (In/Out)','Throughput (In/Out)','Gateway','Status'],
-                span:spanWidths,config:{labels:true}});
+          //Here the Ip Address/Mac Address wraps to next line so to avoid the background color in second line 
+          //the height property set to 40px
+          interfaceDetails.push({lbl:'Interfaces',value:['Interface UUID','IP Address /<br/> Mac Address','Label','Network','Traffic (In/Out)','Throughput (In/Out)','Gateway','Status'],
+                                  span:spanWidths,config:{labels:true,minHeight:'40px'}});
         }
         $.each(interfaces,function(idx,obj) {
             var name = obj['name'];
@@ -974,9 +976,9 @@ var tenantNetworkMonitorUtils = {
                 intfStatus = 'Active';
             else if(obj['active'] != null && obj['active'] == false)
                 intfStatus = 'InActive';
-            intfStr[idx] = [uuid, obj['ip_address'], obj['label'],obj['mac_address'],obj['virtual_network'],
-                formatBytes(intfInBytes) + '/' + formatBytes(intfOutBytes),
-                formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
+            intfStr[idx] = [uuid, ifNull(obj['ip_address'],'-')+" /<br/> "+ifNull(obj['mac_address'],'-'), ifNull(obj['label'],'-'),
+                           ifNull(obj['virtual_network'],'-'), formatBytes(intfInBytes) + '/' + formatBytes(intfOutBytes),
+                           formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
         });
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
