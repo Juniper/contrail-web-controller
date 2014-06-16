@@ -744,7 +744,13 @@ function ucfirst(str) {
     var firstLetter = str.slice(0, 1);
     return firstLetter.toUpperCase() + str.substring(1);
 }
-
+function enableSingleSharedIP(e){
+    var divid = $(e.target.parentNode.parentNode).find("div")[0].id;
+    var id = getID(divid);
+    if(id !== -1){
+        setIPwithID(id);
+    }
+}
 function enableSharedIP(e) {
     for(var j=0;j < $("#allInterface").children().length; j++){
         var divid = String($("#allInterface").children()[j].id);
@@ -845,9 +851,11 @@ function createInterfaceEntry(data, id,element) {
         dataSource:{} ,
         dataTextField:"text",
         dataValueField:"value",
+        change:enableSingleSharedIP
     });
     $(selectInst).data("contrailCombobox").setData(selectInstval);
     $(selectInst).data("contrailCombobox").value(nextInstenceText);
+    
     var selectSharedIp = document.createElement("input");
     selectSharedIp.type = "checkbox";
     selectSharedIp.className = "ace-input";
