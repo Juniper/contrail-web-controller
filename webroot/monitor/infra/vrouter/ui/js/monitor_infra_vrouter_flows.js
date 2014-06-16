@@ -154,7 +154,7 @@ monitorInfraComputeFlowsClass = (function() {
                                     searchFn: function(data) {
                                        return getAclSgUuuidString(data);
                                     },
-                                    minWidth:300
+                                    minWidth:280
                                     },
                                    {
                                        field:"protocol",
@@ -300,24 +300,32 @@ monitorInfraComputeFlowsClass = (function() {
             var outSgUuidList = ifNull(jsonPath(data,"$..out_sg..FlowAclUuid..uuid"),noDataStr);
             
             var ret = '';
+            if(aclUuidList.length > 0){
+                ret += "<span class='text-info'>Policy:</span>";
+            }
             $.each(aclUuidList,function(idx,aclUuid){
-                ret += (idx != 0)?"</br>" + INDENT_RIGHT + INDENT_RIGHT :"Policy: ";
-                ret += aclUuid;
+                ret += "</br>" + aclUuid;
             });
-            ret += (outPolicyAclUuidList.length > 0 && ret != '')? "</br>":"";
+            if(outPolicyAclUuidList.length > 0){
+                ret += (ret != '')?" </br><span class='text-info'>Out Policy:</span>" : 
+                    "<span class='text-info'>Out Policy:</span>";
+            }
             $.each(outPolicyAclUuidList,function(idx,outPolicyAclUuid){
-                ret += (idx != 0)?"</br>" + INDENT_RIGHT + INDENT_RIGHT :"Out Policy: ";
-                ret += outPolicyAclUuid;
+                ret += "</br>" + outPolicyAclUuid;
             });
-            ret += (sgUuidList.length > 0 && ret != '')? "</br>":"";
+            if(sgUuidList.length > 0){
+                ret += (ret != '')?"</br><span class='text-info'>SG:</span>" : 
+                    "<span class='text-info'>SG:</span>";
+            }
             $.each(sgUuidList,function(idx,sgUuid){
-                ret += (idx != 0)?"</br>" + INDENT_RIGHT + INDENT_RIGHT :"SG: ";
-                ret += sgUuid;
+                ret += "</br>" + sgUuid;
             });
-            ret += (outSgUuidList.length > 0 && ret != '')? "</br>":"";
+            if(outSgUuidList.length > 0){
+                ret += (ret != '')?"</br><span class='text-info'>Out SG:</span>" : 
+                    "<span class='text-info'>Out SG:</span>";
+            }
             $.each(outSgUuidList,function(idx,outSgUuid){
-                ret += (idx != 0)?"</br>" + INDENT_RIGHT + INDENT_RIGHT :"Out SG: ";
-                ret += outSgUuid;
+                ret += "</br>" + outSgUuid;
             });
             return (ret == '')? noDataStr: ret;
         }
