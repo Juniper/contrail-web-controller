@@ -875,21 +875,25 @@ function createRuleEntry(rule, len) {
         var domain = virtualNetwork[0];
         var project = virtualNetwork[1];
         allVns[i+2] = {};
-        allVns[i+2].value  = vn["uuid"];
         dupAllVns[i+2] = {};
-        dupAllVns[i+2].value  = vn["uuid"];
         if(domain === selectedDomain && project === selectedProject) {
             if(vn["fq_name"][2].toLowerCase() === "any" || vn["fq_name"][2].toLowerCase() === "local"){
                 allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
                 dupAllVns[i+2].text = domain + ":" + project + ":" +   vn["fq_name"][2];
+                allVns[i+2].value  = domain + ":" + project + ":" +   vn["fq_name"][2];
+                dupAllVns[i+2].value  = domain + ":" + project + ":" +   vn["fq_name"][2];
             } else {
                 allVns[i+2].text  = vn["fq_name"][2];
                 dupAllVns[i+2].text  = vn["fq_name"][2];
+                allVns[i+2].value  = vn["fq_name"][2];
+                dupAllVns[i+2].value  = vn["fq_name"][2];
             }
         }
         else {
             allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
             dupAllVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
+            allVns[i+2].value  = domain + ":" + project + ":" + vn["fq_name"][2];
+            dupAllVns[i+2].value  = domain + ":" + project + ":" + vn["fq_name"][2];
         }
     }
     $(selectSrcNetwork).data("contrailCombobox").setData(allVns);
@@ -1342,7 +1346,7 @@ function showPolicyEditWindow(mode, rowIndex) {
     });
 
     getAjaxs[2] = $.ajax({
-        url:"/api/tenants/config/service-instances/" + projectUUId,
+        url:"/api/tenants/config/service-instances-details/",
         type:"GET"
     });
     
@@ -1369,7 +1373,7 @@ function showPolicyEditWindow(mode, rowIndex) {
                     configObj["service_templates"][i]["service-template"] = sts[i];
                 }
             }
-            var sis = jsonPath(results[2][0], "$.[*].ConfigData.service-instance");
+            var sis = jsonPath(results[2][0], "$.[*].service-instance");
             configObj["service_instances"] = [];
             if (null !== sis && sis.length > 0) {
                 for (var i = 0; i < sis.length; i++) {
@@ -1474,8 +1478,8 @@ function validate() {
                 var allTypes = [];
                 var asArray = [];
                 if(applyServices && applyServices.length > 0) {
-                    var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").value();
-                    var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").value();
+                    var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").text();
+                    var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").text();
                     if(isSet(srcVN) && isString(srcVN) && srcVN.indexOf(":") !== -1 && srcVN.split(":").length !== 3) {
                         showInfoWindow("Fully Qualified Name of Source Network should be in the format Domain:Project:NetworkName.", "Invalid FQN");
                         return false;
@@ -1543,8 +1547,8 @@ function validate() {
                     }
                     //in-network must have source and dest vn same as left and right vn. transparent must have both different.
                     if(uniqueTypes.length >= 0) {
-                        var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").value();
-                        var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").value();
+                        var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").text();
+                        var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").text();
                         if(srcVN.indexOf(":") === -1) {
                             srcVN = [selectedDomain, selectedProject, srcVN].join(":");
                         }
