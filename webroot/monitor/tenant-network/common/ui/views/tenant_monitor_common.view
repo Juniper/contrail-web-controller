@@ -58,22 +58,26 @@
             {{#IfCompare config null}}  
                 <div class="row-fluid" style="">
             {{/IfCompare}}
-                <div class="span2" style="background:#fff">
+                {{#IfCompare config.minHeight null}}
+                    <div class="span2" style="background:#fff">
+                {{else}}
+                    <div class="span2" style="background:#fff;min-height:{{config.minHeight}};">
+                {{/IfCompare}}
                     <label>{{lbl}}</label>
                 </div>
                 {{#IfCompare config null operator='!='}}
                     {{#IfCompare config.labels true operator='==='}}
                         {{#each value}}
-                            <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left">
-                                <label>{{this}}</label>
+                            <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;">
+                                <label>{{{this}}}</label>
                             </div>
                         {{/each}}
                      {{/IfCompare}}
                 {{/IfCompare}}
                 {{#IfCompare config null}}    
                     {{#each value}}
-                        <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left">
-                            {{this}}
+                        <div style="width:{{#getValue ../span @index}}{{/getValue}}px;float:left;padding-right:3px;">
+                            {{{this}}}
                         </div>
                     {{/each}}
                 {{/IfCompare}}
