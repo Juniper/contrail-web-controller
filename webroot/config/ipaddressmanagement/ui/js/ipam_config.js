@@ -646,7 +646,8 @@ function clearCreateEdit() {
     var ddDNSVirtualP = $("#ddDnsVirtual").data("contrailDropdown");
     var dnsMethod = "default-dns-server";
     ddDNSPtr.value(dnsMethod);
-    ddDNSVirtualP.value(ddDNSVirtualP.getAllData()[0]);
+    if(ddDNSVirtualP.getAllData.length > 0)
+        ddDNSVirtualP.value(ddDNSVirtualP.getAllData()[0]);
     $('#btnCreateEditipamOK').data('uuid',"");
     $(txtIPAMName).val("");
     txtIPAMName[0].disabled = false;
