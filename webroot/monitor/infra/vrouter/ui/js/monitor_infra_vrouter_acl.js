@@ -37,7 +37,10 @@ monitorInfraComputeACLClass = (function() {
                         protoRange = getValueByJsonPath(currACE,"proto_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"proto_l;list;SandeshRange;max");
                         srcPortRange = getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;max");
                         dstPortRange = getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;min") + " - " + getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;max");
-                        actionVal = getValueByJsonPath(currACE,"action_l;list;ActionStr;action");
+                        var actionList = jsonPath(currACE,'$.action_l.list.ActionStr..action');
+                        if(!(actionList instanceof Array)){
+                            actionList = [actionList];
+                        }
                         srcType = getValueByJsonPath(currACE,"src_type");
                         dstType = getValueByJsonPath(currACE,"dst_type");
                         try{
@@ -94,7 +97,7 @@ monitorInfraComputeACLClass = (function() {
                             proto:protoRange,
                             src_port:srcPortRange, 
                             dst_port:dstPortRange,
-                            ace_action:actionVal,
+                            actionList:actionList,
                             raw_json:response[i]});
                 }
             }
@@ -129,12 +132,12 @@ monitorInfraComputeACLClass = (function() {
                        {
                            field:"dispuuid",
                            name:"UUID",
-                           minWidth:110,
+                           minWidth:200,
                        },
                        {
                            field:"flow_count",
                            name:"Flows",
-                           minWidth:65,
+                           minWidth:50,
                            cssClass:'cell-hyperlink-blue',
                            events: {
                                onClick: function(e,dc){
@@ -148,7 +151,10 @@ monitorInfraComputeACLClass = (function() {
                        {
                            field:"ace_action",
                            name:"Action",
-                           minWidth:60
+                           formatter:function(r,c,v,cd,dc){
+                               return getAclActions(dc);
+                           },
+                           minWidth:200
                        },
                        {
                            field:"proto",
@@ -297,6 +303,18 @@ monitorInfraComputeACLClass = (function() {
             }).fail(function(result) {
                 //nothing to do..the SG UUIDs will not be updated
             });
+        }
+        function getAclActions(d){
+            var ret = '';
+            var aclActionList = d.actionList;
+            $.each(aclActionList,function(idx,action){
+                if(idx == 0){
+                    ret += action;
+                } else {
+                    ret += ',</br>' + action;
+                }
+            });
+            return (ret == '')? noDataStr: ret;
         }
         function onACLChange() {
             var name;
