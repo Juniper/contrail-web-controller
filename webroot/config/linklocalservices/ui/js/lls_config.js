@@ -333,8 +333,8 @@ function handleCommitFailure(result) {
 }
 
 function fetchData() {
-    $("#gridLLS").data("contrailGrid").showGridMessage("loading");
     $("#gridLLS").data("contrailGrid")._dataView.setData([]);
+    $("#gridLLS").data("contrailGrid").showGridMessage("loading");
     doAjaxCall(
            "/api/tenants/config/global-vrouter-config", "GET",
         null, "populateData", "failureHandlerForGridLLS", null, null);
