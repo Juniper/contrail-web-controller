@@ -325,7 +325,8 @@ monitorInfraComputeRoutesClass = (function() {
                             forceFitColumns: true,
                             detail:{
                                 template: $("#gridsTemplateJSONDetails").html()
-                            }
+                            },
+                            sortable: false
                         },
                         dataSource : {
                             remote: {
@@ -409,7 +410,8 @@ monitorInfraComputeRoutesClass = (function() {
                             forceFitColumns: true,
                             detail:{
                                 template: $("#gridsTemplateJSONDetails").html()
-                            }
+                            },
+                            sortable: false
                         },
                         dataSource : {
                             remote: {
@@ -490,7 +492,8 @@ monitorInfraComputeRoutesClass = (function() {
                             forceFitColumns: true,
                             detail:{
                                 template: $("#gridsTemplateJSONDetails").html()
-                            }
+                            },
+                            sortable: false
                         },
                         dataSource : {
                             remote: {
