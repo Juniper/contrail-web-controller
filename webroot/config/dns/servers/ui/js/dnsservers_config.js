@@ -64,6 +64,7 @@ function dnsServersConfig() {
 function load() {
     var hashParams = arguments[0].hashParams;
     if(hashParams.tab) {
+        this.destroy();
         loadActiveDNSRecords();   
         return;         
     }
