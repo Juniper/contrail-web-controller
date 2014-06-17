@@ -157,6 +157,7 @@ function initComponents() {
                         title: 'Active DNS Database',
                         onClick: function(rowIndex){
                             var selectedRow = $("#gridDNSServer").data("contrailGrid")._dataView.getItem(rowIndex);
+                            destroy();
                             $.bbq.pushState({ q: { tab : activeDNSHash, dns : selectedRow.dnsserver_name }});
                         }   
                     }                    
