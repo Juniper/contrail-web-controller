@@ -217,7 +217,8 @@ monitorInfraComputeACLClass = (function() {
                       forceFitColumns: true,
                       detail: {
                          template: $('#gridsTemplateJSONDetails').html()
-                      }
+                      },
+                      sortable : false
                    },
                     dataSource : {
                         remote: {
