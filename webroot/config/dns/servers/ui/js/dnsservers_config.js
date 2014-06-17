@@ -63,9 +63,10 @@ function dnsServersConfig() {
 function load() {
     var hashParams = arguments[0].hashParams;
     if(hashParams.tab) {
-         loadActiveDNSRecords();   
-         return;         
-    }     
+        this.destroy();
+        loadActiveDNSRecords();   
+        return;         
+    }
     var configTemplate = Handlebars.compile($("#DNSServer-config-template").html());
     $(contentContainer).html('');
     $(contentContainer).html(configTemplate);

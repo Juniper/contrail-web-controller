@@ -646,7 +646,13 @@ function dnsRecordsConfig() {
         var selRecData = selRow.record_data;
         makeRecordDataCall(selRecData);
         var c = $("#cmbRecordClass").data("contrailDropdown"); 
-        c.text(selRow.record_class);
+        var RecClassData = c.getAllData();
+        for(var i = 0; i < RecClassData.length; i++) {
+            if(RecClassData[i].name === selRow.record_class) {
+                 c.text(RecClassData[i].text); 
+                 break;                 
+            }
+        };
         c.enable(false);
         txtRecordTTL.val(selRow.record_ttl_seconds);
     }
