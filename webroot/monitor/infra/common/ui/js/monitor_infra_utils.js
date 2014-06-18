@@ -522,17 +522,14 @@ var infraMonitorUtils = {
         var consoleTabTemplate = Handlebars.compile($('#console-tab-template').html());
         var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;
         var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
+        layoutHandler.setURLHashParams({tab:'console', node: obj['name']},{triggerHashChange:false});
         if (nodeType == 'control') {
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Control Nodes:{0}', obj['name'])},{triggerHashChange:false});
             $('#ctrlNodeMessagesTab').html(consoleTabTemplate({}));
         } else if (nodeType == "analytics"){
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Analytics Nodes:{0}', obj['name'])},{triggerHashChange:false});
             $('#analyticsNodeMessagesTab').html(consoleTabTemplate({}));
         } else if (nodeType == "config"){
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('Config Nodes:{0}', obj['name'])},{triggerHashChange:false});
             $('#configNodeMessagesTab').html(consoleTabTemplate({}));
         } else {
-            layoutHandler.setURLHashParams({tab:'console', node:contrail.format('vRouters:{0}', obj['name'])},{triggerHashChange:false});
             $('#computeNodeMessagesTab').html(consoleTabTemplate({}));
         }
         initWidget4Id('#console-msgs-box');
