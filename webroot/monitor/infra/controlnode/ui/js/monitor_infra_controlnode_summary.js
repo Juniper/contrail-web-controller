@@ -8,7 +8,6 @@
 monitorInfraControlSummaryClass = (function() {
     this.populateControlNodes = function() {
         infraMonitorUtils.clearTimers();
-        summaryChartsInitializationStatus['controlNode'] = false;
         var ctrlNodesTemplate = contrail.getTemplate4Id("controlnodes-template");
         $(pageContainer).html(ctrlNodesTemplate({}));
         var controlNodeDS = new SingleDataSource('controlNodeDS');

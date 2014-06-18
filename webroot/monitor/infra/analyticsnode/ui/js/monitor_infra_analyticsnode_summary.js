@@ -9,7 +9,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
     var aNodesGrid;
     this.populateAnalyticsNodes = function() {
         infraMonitorUtils.clearTimers();
-        summaryChartsInitializationStatus['analyticsNode'] = false;
         var aNodesTemplate = contrail.getTemplate4Id("analyticsnodes-template");
         $(pageContainer).html(aNodesTemplate({}));
         var analyticsNodeDS = new SingleDataSource('analyticsNodeDS');

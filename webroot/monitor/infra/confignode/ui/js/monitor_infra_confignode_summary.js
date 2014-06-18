@@ -9,7 +9,6 @@ monitorInfraConfigSummaryClass = (function() {
     var ctrlNodesGrid;
     this.populateConfigNodes = function() {
         infraMonitorUtils.clearTimers();
-        summaryChartsInitializationStatus['configNode'] = false;
         var confNodesTemplate = contrail.getTemplate4Id("confignodes-template");
         $(pageContainer).html(confNodesTemplate({}));
         var configNodeDS = new SingleDataSource('configNodeDS');
