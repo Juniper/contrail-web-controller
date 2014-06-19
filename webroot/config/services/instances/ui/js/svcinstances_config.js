@@ -458,7 +458,8 @@ function populateDomains(result) {
 }
 /* istanbul ignore next */
 function handleDomains() {
-    fetchDataForGridsvcInstances();
+    //fetchDataForGridsvcInstances();
+    fetchProjects("populateProjects", "failureHandlerForGridsTemp");
 }
 
 function populateProjects(result) {
@@ -474,15 +475,25 @@ function populateProjects(result) {
             dataValueField:"value",
             change:handleProjects
         });
+        btnCreatesvcInstances.removeClass('disabled-link')
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-        $('#btnCreatesvcInstances').removeClass('disabled-link');
+        fetchDataForGridsvcInstances();
+    } else {
+        $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
+        btnCreatesvcInstances.addClass('disabled-link');
+        var emptyObj = [{text:'No Service instances found',value:"Message"}];
+        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
+        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        gridsvcInstances.showGridMessage("empty");
     }
-    fetchDataForGridsvcInstances();
 }
+
 /* istanbul ignore next */
 function handleProjects(e) {
     var pname = e.added.text;
