@@ -938,7 +938,7 @@ var tenantNetworkMonitorUtils = {
         retArr.push({lbl:'Memory (Used/Total)',value:formatBytes(usedMemory*1024) + ' / ' + 
             formatBytes(totalMemory*1024)});
         if(fipObjArr.length > 0) {
-            fipDetails.push({lbl:'Floating IPs',value:['IP Address','Floating IP Pool','Interface UUID','Traffic (In/Out)'],
+            fipDetails.push({lbl:'Floating IPs',value:['IP Address','Floating IP Network','Interface UUID','Traffic (In/Out)'],
                 span:spanWidthsForFip,config:{labels:true}});
         }
         $.each(fipObjArr,function(idx,fipObj){
