@@ -85,12 +85,40 @@ function listProjectsAPIServer (error, projectLists, response, appData)
  */
 function listProjects (request, response, appData)
 {
+    var reqURL = null;
+    var projectList = {"projects": []};
 
+    var domain = request.param('domain');
+    if (null != domain) {
+        reqURL = '/domain/' + domain;
+    } else {
+        reqURL = '/projects'; 
+    }
+    configApiServer.apiGet(reqURL, appData, function(err, data) {
+        if ((null != err) || (null == data) || ((null != domain) && 
+            ((null == data['domain']) || (null == data['domain']['projects'])))) {
+            commonUtils.handleJSONResponse(err, response, projectList);
+            return;
+        }
+        if (null == domain) {
+            commonUtils.handleJSONResponse(err, response, data);
+            return;
+        }
+        var list = data['domain']['projects'];
+        var projCnt = list.length;
+        for (var i = 0; i < projCnt; i++) {
+            projectList['projects'][i] = {};
+            projectList['projects'][i]['uuid'] = list[i]['uuid'];
+            projectList['projects'][i]['fq_name'] = list[i]['to'];
+        }
+        commonUtils.handleJSONResponse(null, response, projectList);
+    });
+    /*
     authApi.getTenantList(request,
                          function(error, data) {
                          listProjectsAPIServer(error, data, response, appData);
                          });
-
+    */
 }
 
 /**
