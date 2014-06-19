@@ -1154,6 +1154,12 @@
         <callback>projectconfigapi.listProjects</callback>
     </item>
     <item>
+        <url>/api/tenants/config/project/:id</url>
+        <method>get</method>
+        <feature>projectconfig</feature>
+        <callback>projectconfigapi.getProjectByParameter</callback>
+    </item>    
+    <item>
         <url>/api/tenants/config/domains</url>
         <method>get</method>
         <feature>projectconfig</feature>

@@ -1112,7 +1112,8 @@ function populateDomains(result) {
 }
 
 function handleDomains() {
-    fetchDataForGridPolicy();
+    //fetchDataForGridPolicy();
+    fetchProjects("populateProjects", "failureHandlerForGridPolicy");
 }
 
 function populateProjects(result) {
@@ -1130,14 +1131,23 @@ function populateProjects(result) {
             dataValueField:"value",
             change:handleProjects
         });
+        btnCreatePolicy.removeClass('disabled-link')
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-        btnCreatePolicy.attr("disabled",false);
+        fetchDataForGridPolicy();
+    } else {
+        $("#gridPolicy").data("contrailGrid")._dataView.setData([]);
+        btnCreatePolicy.addClass('disabled-link');
+        var emptyObj = [{text:'No Policys found',value:"Message"}];
+        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
+        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        gridPolicy.showGridMessage("empty");
     }
-    fetchDataForGridPolicy();
 }
 
 function handleProjects(e) {

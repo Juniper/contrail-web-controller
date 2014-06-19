@@ -347,7 +347,8 @@ function populateDomains(result) {
 }
 
 function handleDomains() {
-    fetchDataForGridFIP();
+    //fetchDataForGridFIP();
+    fetchProjects("populateProjects", "failureHandlerForGridFIP");
 }
 
 function populateProjects(result) {
@@ -364,13 +365,23 @@ function populateProjects(result) {
             dataValueField:"value",
             change:handleProjects
         });
+        btnCreatefip.removeClass('disabled-link')
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-    }    
-    fetchDataForGridFIP();
+        fetchDataForGridFIP();
+    } else {
+        $("#gridfip").data("contrailGrid")._dataView.setData([]);
+        btnCreatefip.addClass('disabled-link');
+        var emptyObj = [{text:'No Floating IPs found',value:"Message"}];
+        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
+        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        gridfip.showGridMessage("empty");
+    }
 }
 
 function handleProjects(e) {

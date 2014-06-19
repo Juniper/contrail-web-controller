@@ -431,7 +431,8 @@ function populateDomains(result) {
 }    
 
 function handleDomains() {
-    fetchDataForGridIPAM();
+    //fetchDataForGridIPAM();
+    fetchProjects("populateProjects", "failureHandlerForGridIPAM");
 }
 
 function populateProjects(result) {
@@ -447,14 +448,23 @@ function populateProjects(result) {
             dataValueField:"value",
             change:handleProjects
         });
+        btnCreateEditipam.removeClass('disabled-link')
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-        btnCreateEditipam.attr("disabled",false);
+        fetchDataForGridIPAM();
+    } else {
+        $("#gridipam").data("contrailGrid")._dataView.setData([]);
+        btnCreateEditipam.addClass('disabled-link');
+        var emptyObj = [{text:'No IPAMs found',value:"Message"}];
+        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
+        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        gridipam.showGridMessage("empty");
     }
-    fetchDataForGridIPAM();
 }
 
 function handleProjects(e) {
