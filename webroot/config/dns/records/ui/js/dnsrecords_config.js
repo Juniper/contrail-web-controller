@@ -58,14 +58,22 @@ function dnsRecordsConfig() {
                 var domain = result.domains[i];
                 tmpDomain = {text : domain.fq_name[0], value : domain.uuid};
                 domains.push(tmpDomain);
-                $("#ddDomain").data("contrailDropdown").setData(domains);
-                $("#ddDomain").data("contrailDropdown").text(domains[0].text);
-                $("#ddDomain").data("contrailDropdown").value(domains[0].value);
-                fetchDNSServerDataForRecordsPage();
-            }
-        }
-        else{
-            showInfoWindow("No domain info","Message");
+            }    
+            $("#ddDomain").data("contrailDropdown").setData(domains);
+            var sel_domain = getSelectedDomainProjectObjNew("ddDomain", "contrailDropdown", 'domain');              
+            $("#ddDomain").data("contrailDropdown").value(sel_domain);
+            //reading uuid from query string
+            var queryParams = window.location.href.split("&");
+            if(queryParams != undefined && queryParams.length > 1 && queryParams[1].indexOf('=') != -1) {
+                currentUUID = queryParams[1].split('=')[1];  
+            }                
+            fetchDNSServerDataForRecordsPage();
+        } else {
+            $("#dnsRecordsGrid").data("contrailGrid")._dataView.setData([]);
+            btnAddRecord.addClass('disabled-link');
+            setDomainProjectEmptyMsg('ddDomain', 'domain');        
+            gridDNSRecords.showGridMessage("empty");   
+            emptyCookie('domain');            
         }	
     }
 
@@ -93,19 +101,17 @@ function dnsRecordsConfig() {
             ddDNSServer.setData(ds);
             ddDNSServer.text(ds[0].text);
             ddDNSServer.value(ds[0].value);
-            ddDNSServer.enable(true);
-            //reading uuid from query string
-            var queryParams = window.location.href.split("&");
-            if(queryParams != undefined && queryParams.length > 1 && queryParams[1].indexOf('=') != -1) {
-                currentUUID = queryParams[1].split('=')[1];
+            ddDNSServer.enable(true);   
+            if(currentUUID) {
                 $("#ddDNSServers").data("contrailDropdown").value(currentUUID);
             }
             else{
                 currentUUID = $("#ddDNSServers").data("contrailDropdown").value();
-            }
+            }            
             fetchDNSRecordsData();
         }
         else{
+            $("#dnsRecordsGrid").data("contrailGrid")._dataView.setData([]);        
             ds.push({text:'No DNS Server found',value:"Message"});
             var ddDNSServer = $("#ddDNSServers").data("contrailDropdown"); 
             ddDNSServer.setData(ds);
@@ -274,7 +280,7 @@ function dnsRecordsConfig() {
         $("#ddDomain").contrailDropdown({
             dataTextField : 'text',
             dataValueField : 'value',
-            change:onDomainSelChanged	     	
+            change:handleDomains	     	
         });
 
         //innitialize DNS servers drop down
@@ -328,7 +334,10 @@ function dnsRecordsConfig() {
         createAddRecordWindow('edit');
     }	
 	
-    function onDomainSelChanged(e) {
+    function handleDomains(e) {
+        var dName = e.added.text;
+        setCookie("domain", dName);    
+        currentUUID = undefined;        
         fetchDNSServerDataForRecordsPage();
     }
     
@@ -596,8 +605,8 @@ function dnsRecordsConfig() {
         var selDomain = $("#ddDomain").data("contrailDropdown").text();	
         var defaultDomainName = $("#ddDNSServers").data("contrailDropdown").text();        
         var postData = {};
-        postData["parent-type"] = "domain";
-        postData["fq-name"]	= [selDomain, String(defaultDomainName)];
+        postData["parent_type"] = "domain";
+        postData["fq_name"]	= [selDomain, String(defaultDomainName)];
         postData["virtual_DNS_records"] = [{"to" : [selDomain,String(defaultDomainName)],
             "virtual_DNS_record_data":{"record_name" : recordName, "record_type" : recordType, "record_data" : recordData, "record_class" : recordClass, "record_ttl_seconds" : recordTTL}}];
         var dnsRecordCfg = {};

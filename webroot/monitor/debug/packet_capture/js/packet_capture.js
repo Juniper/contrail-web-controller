@@ -228,7 +228,6 @@ function initComponents() {
     gridAnalyzer = $('#gridAnalyzer').data('contrailGrid');
 
     btnCreateAnalyzer = $("#btnCreateAnalyzer");
-    btnCreateAnalyzer = $("#btnCreateAnalyzer");
     btnDeleteAnalyzer = $("#btnDeleteAnalyzer");
     btnAddRule = $("#btnAddRule");
     btnDeleteRule = $("#btnDeleteRule");
@@ -330,6 +329,9 @@ function deleteAnalyzers(selectedRows){
 
 function initActions() {
     btnCreateAnalyzer.click(function (e) {
+        if($(this).hasClass('disabled-link')) {             
+            return;
+        }
         e.preventDefault();
         if(PacketCaptureObj.isAnalyzerImageCheckDone) {
             if(PacketCaptureObj.isAnalyzerImageAvailable) {
@@ -596,13 +598,24 @@ function populateDomains(result) {
             domainsDS.push({text:domainsJSON[i]['fq_name'][0], value:domainsJSON[i]['uuid']});
         }
         ddDomain.setData(domainsDS);
-        ddDomain.value(domainsDS[0].value);
-    }
-    fetchProjects("populateProjects");
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                       
+        ddDomain.value(sel_domain);
+        fetchProjects("populateProjects");
+    } else {
+        $("#gridAnalyzer").data("contrailGrid")._dataView.setData([]);
+        btnCreateAnalyzer.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');        
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridAnalyzer.showGridMessage("empty");  
+        emptyCookie('domain');
+        emptyCookie('project');                
+    }    
 };
 
-function handleDomains() {
-   fetchDataForGridAnalyzer();
+function handleDomains(e) {
+    var dName = e.added.text;
+    setCookie("domain", dName); 
+    fetchProjects("populateProjects");
 };
 
 function populateProjects(result) {
@@ -610,14 +623,25 @@ function populateProjects(result) {
     if (result && result.projects && result.projects.length > 0) {
         projectJSON = result.projects;
         for (var i = 0; i < projectJSON.length; i++) {
-            projectDS.push({"text":projectJSON[i]['fq_name'][1], "value":projectJSON[i]['uuid']});
+            //if(!checkSystemProject(projectJSON[i]['fq_name'][1])) {                                                                
+                projectDS.push({"text":projectJSON[i]['fq_name'][1], "value":projectJSON[i]['uuid']});
+            //}
         }
+        btnCreateAnalyzer.removeClass('disabled-link');    
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);        
         ddProject.setData(projectDS);
-        var selProjectObj = getNewSelectedProjectObj();
+        var selProjectObj = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
+        
         $("#ddProjectSwitcher").data("contrailDropdown").value(selProjectObj);
-    }
-    check4AnalyzerImage();
-    fetchDataForGridAnalyzer();
+        check4AnalyzerImage();
+        fetchDataForGridAnalyzer();        
+    } else {
+        $("#gridAnalyzer").data("contrailGrid")._dataView.setData([]);
+        btnCreateAnalyzer.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridAnalyzer.showGridMessage("empty");    
+        emptyCookie('project');                        
+    }    
 };
 function getNewSelectedProjectObj() {
     var cookiedProject = getCookie("project"),
