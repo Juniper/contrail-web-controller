@@ -133,7 +133,7 @@ function dnsRecordsDynamicConfig(){
 		
     function fetchData(k){
         gridDynamicDNSRec._dataView.setData([]);    
-	    var domain = JSON.parse(sessionStorage["sel_domain"]);
+	    var domain = getCookie('domain');
 	    $("#lblServer").text(dnsName);
 	    gridDynamicDNSRec.showGridMessage("loading");
 	    var dnsFQN;

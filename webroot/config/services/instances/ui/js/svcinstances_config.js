@@ -312,7 +312,9 @@ function refreshSvcInstances(reload) {
 /* istanbul ignore next */
 function initActions() {
     btnCreatesvcInstances.click(function (a) {
-        svcInstancesCreateWindow("add");
+        if(!$(this).hasClass('disabled-link')) {     
+            svcInstancesCreateWindow("add");
+        }    
     });
 
     btnDeletesvcInstances.click(function (a) {
@@ -449,13 +451,24 @@ function populateDomains(result) {
             domains.push(tmpDomain);
         }
         $("#ddDomainSwitcher").data("contrailDropdown").setData(domains);
-        $("#ddDomainSwitcher").data("contrailDropdown").value(domains[0].value);
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                        
+        $("#ddDomainSwitcher").data("contrailDropdown").value(sel_domain);
         fetchProjects("populateProjects", "failureHandlerForGridsTemp");
+    } else {
+        $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
+        btnCreatesvcInstances.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');        
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridsvcInstances.showGridMessage("empty");
+        emptyCookie('domain');
+        emptyCookie('project');        
     }
 }
 /* istanbul ignore next */
-function handleDomains() {
+function handleDomains(e) {
     //fetchDataForGridsvcInstances();
+    var dName = e.added.text;
+    setCookie("domain", dName);          
     fetchProjects("populateProjects", "failureHandlerForGridsTemp");
 }
 
@@ -464,8 +477,10 @@ function populateProjects(result) {
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
-            tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
-            projects.push(tempProjectDetail);
+            //if(!checkSystemProject(project.fq_name[1])) {                                                        
+                tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
+                projects.push(tempProjectDetail);
+            //}
         }
         $("#ddProjectSwitcher").contrailDropdown({
             dataTextField:"text",
@@ -475,19 +490,15 @@ function populateProjects(result) {
         btnCreatesvcInstances.removeClass('disabled-link')
         $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
-        $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
-        var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
+        var sel_project = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
-        setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
         fetchDataForGridsvcInstances();
     } else {
         $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
         btnCreatesvcInstances.addClass('disabled-link');
-        var emptyObj = [{text:'No Projects found',value:"Message"}];
-        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
-        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
-        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
         gridsvcInstances.showGridMessage("empty");
+        emptyCookie('project');                
     }
 }
 
@@ -878,7 +889,7 @@ function successHandlerForGridsvcInstanceRow(result) {
                     var virNetworkArr = virNetwork.split(":");
                     if(virNetworkArr.length > 1){
                         if(virNetworkArr[1] != $("#ddProjectSwitcher").data("contrailDropdown").text()){
-                            network += virNetworkArr[2]+"("+virNetworkArr[1]+")";
+                             network += virNetworkArr[2]+"("+virNetworkArr[0]+":"+virNetworkArr[1]+")";
                         } else {
                             network += virNetworkArr[2];
                         }
@@ -1434,6 +1445,9 @@ function clearPopupValues() {
  * Create Window
  */
 function svcInstancesCreateWindow(mode,rowIndex) {
+    if($("#btnCreatesvcInstances").hasClass('disabled-link')) {
+           return;
+    }
     var selectedDomainName = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").value();
     var selectedProjectName = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1530,7 +1544,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 }
                 var networkText = "";
                 if(results[1][0]['virtual-networks'][j].fq_name[1] != $("#ddProjectSwitcher").data("contrailDropdown").text()){
-                    networkText = results[1][0]['virtual-networks'][j].fq_name[2] +" ("+results[1][0]['virtual-networks'][j].fq_name[1]+")";
+                    networkText = results[1][0]['virtual-networks'][j].fq_name[2] +" ("+results[1][0]['virtual-networks'][j].fq_name[0]+":"+results[1][0]['virtual-networks'][j].fq_name[1]+")";
                 } else {
                     networkText = results[1][0]['virtual-networks'][j].fq_name[2];
                 }
