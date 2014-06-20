@@ -462,7 +462,7 @@ function populateProjects(result) {
     } else {
         $("#gridipam").data("contrailGrid")._dataView.setData([]);
         btnCreateEditipam.addClass('disabled-link');
-        var emptyObj = [{text:'No IPAMs found',value:"Message"}];
+        var emptyObj = [{text:'No Projects found',value:"Message"}];
         $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
         $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
         $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
