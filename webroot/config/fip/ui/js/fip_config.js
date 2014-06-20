@@ -198,19 +198,15 @@ $("#gridfip").contrailGrid({
         dataValueField:"value"
     });
 
-    $('body').append($("#windowCreatefip"));
     windowCreatefip = $("#windowCreatefip");
     windowCreatefip.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#windowAssociate"));
     windowAssociate = $("#windowAssociate");
     windowAssociate.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmRelease"));
     confirmRelease = $("#confirmRelease");
     confirmRelease.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmDisassociate"));
     confirmDisassociate = $("#confirmDisassociate");
     confirmDisassociate.modal({backdrop:'static', keyboard: false, show:false});
 }

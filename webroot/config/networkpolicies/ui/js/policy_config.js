@@ -214,16 +214,13 @@ function initComponents() {
         dataValueField:"value"
     });
     dynamicID = 0;
-    $('body').append($("#windowCreatePolicy"));
     windowCreatePolicy = $("#windowCreatePolicy");
     windowCreatePolicy.on("hide", closeCreatePolicyWindow);
     windowCreatePolicy.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmRemove"));
     confirmRemove = $("#confirmRemove");
     confirmRemove.modal({backdrop:'static', keyboard: false, show:false});
 }

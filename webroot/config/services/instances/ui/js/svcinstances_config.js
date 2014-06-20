@@ -267,15 +267,12 @@ function initComponents() {
     gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
     gridsvcInstances.showGridMessage('loading');
 
-    $('body').append($("#confirmDelete"));
     confirmDelete = $("#confirmDelete");
     confirmDelete.modal({backdrop:'static', keyboard: false, show:false});
     
-    $('body').append($("#consoleWindow"));
     consoleWindow = $("#consoleWindow");
     consoleWindow.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#windowCreateSvcInstances"));
     windowCreateSvcInstances = $("#windowCreateSvcInstances");
     windowCreateSvcInstances.on('hide', closeCreatesvcInstancesWindow);
     windowCreateSvcInstances.modal({backdrop:'static', keyboard: false, show:false});

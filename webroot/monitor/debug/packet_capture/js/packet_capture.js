@@ -128,7 +128,7 @@ function initComponents() {
 						}
 				  
 						if(dc.PolicyRules.length > 2) {
-							returnString += '<span class="moredataText">(' + (dc.PolicyRules.length-2) + ' more  )</span> \
+							returnString += '<span class="moredataText">(' + (dc.PolicyRules.length-2) + ' more)</span> \
 							<span class="moredata" style="display:none;" ></span>';
 						}
 					}
@@ -262,7 +262,6 @@ function initComponents() {
 
     gridAnalyzer.showGridMessage('loading');
     
-    $('body').append($("#windowCreateAnalyzer"));
     windowCreateAnalyzer = $("#windowCreateAnalyzer");
     windowCreateAnalyzer.on("hide", closeCreateAnalyzerWindow);
     windowCreateAnalyzer.modal({backdrop:'static', keyboard: false, show:false});

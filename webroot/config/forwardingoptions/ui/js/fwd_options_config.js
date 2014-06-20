@@ -41,7 +41,6 @@ function initComponents() {
     });
 
 
-	$('body').append($("#confirmMainSave"));
 	confirmMainSave = $("#confirmMainSave");
 	confirmMainSave.modal({backdrop:'static', keyboard: false, show:false});
 }

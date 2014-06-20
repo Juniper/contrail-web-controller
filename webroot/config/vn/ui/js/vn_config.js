@@ -68,6 +68,8 @@ function load() {
     var configTemplate = Handlebars.compile($("#vn-config-template").html());
     $(contentContainer).empty();
     $(contentContainer).html(configTemplate);
+    var createVNTemplate = Handlebars.compile($("#create-vn-template").html());
+    $('body').append(createVNTemplate);    
     currTab = 'config_networking_vn';
     init();
 }
@@ -125,7 +127,7 @@ function initComponents() {
                        if(dc.AttachedPolicies.length > 2) {
                            returnString += '<span class="moredataText">(' + 
                            (dc.AttachedPolicies.length-2) + 
-                           ' more  )</span><span class="moredata" style="display:none;"></span>';
+                           ' more)</span><span class="moredata" style="display:none;"></span>';
                        }
                     }
                     return returnString;
@@ -146,7 +148,7 @@ function initComponents() {
                        if(dc.IPBlocks.length > 2) {
                            returnString += '<span class="moredataText">(' + 
                            (dc.IPBlocks.length-2) + 
-                           ' more  )</span><span class="moredata" style="display:none;"></span>';
+                           ' more)</span><span class="moredata" style="display:none;"></span>';
                        }
                     }
                     return returnString;
@@ -238,17 +240,13 @@ function initComponents() {
     });
 
     gridVN.showGridMessage('loading');
-   
-    $('body').append($("#windowCreateVN"));
     windowCreateVN = $("#windowCreateVN");
     windowCreateVN.on("hide", closeCreateVNWindow);
     windowCreateVN.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmRemove"));
     confirmRemove = $("#confirmRemove");
     confirmRemove.modal({backdrop:'static', keyboard: false, show:false});
 }

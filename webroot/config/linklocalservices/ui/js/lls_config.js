@@ -173,16 +173,13 @@ function initComponents() {
         change: handleIPDNS,
         data: [{id:"ip", text:"IP"}, {id:"dns", text:"DNS"}]
     });
-    $('body').append($("#windowCreateLLS"));
     windowCreateLLS = $("#windowCreateLLS");
     windowCreateLLS.on("hide", closeCreateLLSWindow);
     windowCreateLLS.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmRemove"));
     confirmRemove = $("#confirmRemove");
     confirmRemove.modal({backdrop:'static', keyboard: false, show:false});
 }
