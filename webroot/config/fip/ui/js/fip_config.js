@@ -228,7 +228,9 @@ function initActions() {
     });
 
     btnCreatefipCancel.click(function (a) {
-        windowCreatefip.modal('hide');
+        if(!$(this).hasClass('disabled-link')) {         
+            windowCreatefip.modal('hide');
+        }    
     });
 
     btnAssociatePopupCancel.click(function (a) {
@@ -345,13 +347,24 @@ function populateDomains(result) {
             domains.push(tmpDomain);
         }
         $("#ddDomainSwitcher").data("contrailDropdown").setData(domains);
-        $("#ddDomainSwitcher").data("contrailDropdown").value(domains[0].value);
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                
+        $("#ddDomainSwitcher").data("contrailDropdown").value(sel_domain);
+        fetchProjects("populateProjects", "failureHandlerForGridFIP");        
+    } else {
+        $("#gridfip").data("contrailGrid")._dataView.setData([]);
+        btnCreatefip.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');        
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridfip.showGridMessage("empty");  
+        emptyCookie('domain');
+        emptyCookie('project');        
     }
-    fetchProjects("populateProjects", "failureHandlerForGridFIP");
 }
 
-function handleDomains() {
+function handleDomains(e) {
     //fetchDataForGridFIP();
+    var dName = e.added.text;
+    setCookie("domain", dName);        
     fetchProjects("populateProjects", "failureHandlerForGridFIP");
 }
 
@@ -360,8 +373,10 @@ function populateProjects(result) {
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
-            tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
-            projects.push(tempProjectDetail);
+            //if(!checkSystemProject(project.fq_name[1])) {                                    
+                tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
+                projects.push(tempProjectDetail);
+            //}
         }
         
         $("#ddProjectSwitcher").contrailDropdown({
@@ -372,20 +387,16 @@ function populateProjects(result) {
         btnCreatefip.removeClass('disabled-link')
         $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
-        $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
-        var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
+        var sel_project = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
-        setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
         fetchDataForGridFIP();
     } else {
         $("#gridfip").data("contrailGrid")._dataView.setData([]);
         btnCreatefip.addClass('disabled-link');
-        var emptyObj = [{text:'No Projects found',value:"Message"}];
-        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
-        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
-        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
         gridfip.showGridMessage("empty");
-    }
+        emptyCookie('project');                
+    }   
 }
 
 function handleProjects(e) {
@@ -485,10 +496,12 @@ function showFIPEditWindow(mode) {
                 //all success
                 var results = arguments;
                 var fipPools = [];
+                configObj["floating-ip-pools"] = [];        
                 for (var i = 0; i < results[0].floating_ip_pool_refs.length; i++) {
                     var poolObj = results[0].floating_ip_pool_refs[i];
                     var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3];
                     fipPools.push({text:poolName, value:JSON.stringify(poolObj.to)})
+                    configObj["floating-ip-pools"].push(poolObj);
                 }
 
                 windowCreatefip.find('.modal-header-title').text("Allocate Floating IP");

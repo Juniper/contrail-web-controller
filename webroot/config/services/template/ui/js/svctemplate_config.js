@@ -245,7 +245,9 @@ function initGridsvcTemplateDetail(e) {
 
 function initActions() {
     btnCreatesvcTemplate.click(function (a) {
-        sTempCreateWindow("add");
+        if(!$(this).hasClass('disabled-link')) {         
+            sTempCreateWindow("add");
+        }    
     });
 
     btnDeletesvcTemplate.click(function (a) {
@@ -424,22 +426,35 @@ function populateDomains(result) {
             domains.push(tmpDomain);
         }
         $("#ddDomainSwitcher").data("contrailDropdown").setData(domains);
-        $("#ddDomainSwitcher").data("contrailDropdown").value(domains[0].value);
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                        
+        $("#ddDomainSwitcher").data("contrailDropdown").value(sel_domain);
         fetchProjects("populateProjects", "failureHandlerForGridsTemp");
         $('#btnCreatesvcTemplate').removeClass('disabled-link');
-    }
-}
+    } else {
+        $("#gridsvcTemplate").data("contrailGrid")._dataView.setData([]);
+        btnCreatesvcTemplate.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');                
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridsvcTemplate.showGridMessage("empty");
+        emptyCookie('domain');
+        emptyCookie('project');        
+    }}
 
-function handleDomains() {
-    fetchDataForGridsvcTemplate();
+function handleDomains(e) {
+    var dName = e.added.text;
+    setCookie("domain", dName);  
+    btnCreatesvcTemplate.removeClass('disabled-link');    
+    fetchProjects("populateProjects", "failureHandlerForGridsTemp");
 }
 function populateProjects(result) {
     if (result && result.projects && result.projects.length > 0) {
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
-            tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
-            projects.push(tempProjectDetail);
+            //if(!checkSystemProject(project.fq_name[1])) {                                                
+                tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
+                projects.push(tempProjectDetail);
+            //}
         }
 
         $("#ddProjectSwitcher").contrailDropdown({
@@ -448,12 +463,15 @@ function populateProjects(result) {
             change:handleProjects
         });
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
-        $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
-        var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
+        var sel_project = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
-        setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
-    }
-    fetchDataForGridsvcTemplate();
+        fetchDataForGridsvcTemplate();
+    } else {
+        $("#gridsvcTemplate").data("contrailGrid")._dataView.setData([]);
+        btnCreatesvcTemplate.addClass('disabled-link');
+        gridsvcTemplate.showGridMessage("empty");
+        emptyCookie('project');                
+    }  
 }
 function setIPwithID(id){
     var interfaceType = $("#allInterface_"+id+"_ddInst").data("contrailCombobox").text();
@@ -665,6 +683,9 @@ function clearPopup() {
 }
 
 function sTempCreateWindow(mode) {
+    if($("#btnCreatesvcTemplate").hasClass('disabled-link')) { 
+        return;
+    }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").value();
     var selectedDomainText = $("#ddDomainSwitcher").data("contrailDropdown").text();
     if(!isValidDomain(selectedDomainText)){

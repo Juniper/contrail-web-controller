@@ -322,6 +322,9 @@ function initActions() {
     });
 
     btnCreateVNOK.click(function (a) {
+        if($(this).hasClass('disabled-link')) { 
+            return;
+        }     
         if (validate() !== true)
             return;
 
@@ -1201,14 +1204,25 @@ function populateDomains(result) {
             domains.push(tmpDomain);
         }
         $("#ddDomainSwitcher").data("contrailDropdown").setData(domains);
-        $("#ddDomainSwitcher").data("contrailDropdown").value(domains[0].value);
-    }
-    fetchProjects("populateProjects", "failureHandlerForGridVN");
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');
+        $("#ddDomainSwitcher").data("contrailDropdown").value(sel_domain);
+        fetchProjects("populateProjects", "failureHandlerForGridVN");
+    } else {
+        $("#gridVN").data("contrailGrid")._dataView.setData([]);
+        btnCreateVN.addClass('disabled-link');
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');        
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
+        gridVN.showGridMessage("empty");
+        emptyCookie('domain');
+        emptyCookie('project');        
+    }    
 }
 
-function handleDomains() {
+function handleDomains(e) {
     //fetchDataForGridVN();
     //Get projects for the selected domain.
+    var dName = e.added.text;
+    setCookie("domain", dName);
     fetchProjects("populateProjects", "failureHandlerForGridVN");
 }
 
@@ -1218,8 +1232,10 @@ function populateProjects(result) {
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
-            tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
-            projects.push(tempProjectDetail);
+            //if(!checkSystemProject(project.fq_name[1])) {
+                tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
+                projects.push(tempProjectDetail);
+            //}
         }
 
         $("#ddProjectSwitcher").contrailDropdown({
@@ -1230,19 +1246,15 @@ function populateProjects(result) {
         btnCreateVN.removeClass('disabled-link')
         $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
-        $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
-        var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
+        var sel_project = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
-        setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
         fetchDataForGridVN();
     } else {
         $("#gridVN").data("contrailGrid")._dataView.setData([]);
         btnCreateVN.addClass('disabled-link');
-        var emptyObj = [{text:'No Projects found',value:"Message"}];
-        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
-        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
-        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
         gridVN.showGridMessage("empty");
+        emptyCookie('project');
     }
 }
 
