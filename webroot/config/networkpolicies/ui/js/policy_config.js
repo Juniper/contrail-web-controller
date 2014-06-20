@@ -1146,7 +1146,7 @@ function populateProjects(result) {
     } else {
         $("#gridPolicy").data("contrailGrid")._dataView.setData([]);
         btnCreatePolicy.addClass('disabled-link');
-        var emptyObj = [{text:'No Policys found',value:"Message"}];
+        var emptyObj = [{text:'No Projects found',value:"Message"}];
         $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
         $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
         $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
