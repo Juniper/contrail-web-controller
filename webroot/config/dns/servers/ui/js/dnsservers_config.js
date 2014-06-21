@@ -651,7 +651,8 @@ function DNSServerCreateWindow(m, selDNSName) {
     }	    
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
-        url:"/api/tenants/config/virtual-DNSs/" + $("#ddDomainSwitcher").data('contrailDropdown').value(),
+        //url:"/api/tenants/config/virtual-DNSs/" + $("#ddDomainSwitcher").data('contrailDropdown').value(),
+        url:"/api/tenants/config/virtual-DNSs",
         type:"GET"
     });
     getAjaxs[1] = $.ajax({
