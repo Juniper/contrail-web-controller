@@ -70,8 +70,48 @@ function listVirtualDNSs (request, response, appData)
     
     configApiServer.apiGet(domainURL, appData,
                          function(error, data) {
-    						listVirtualDNSsCb(error, data, response, appData);
+                                               listVirtualDNSsCb(error, data, response, appData);
                          });
+}
+
+/**
+ * listVirtualDNSsFromAllDomains
+ * private function
+ * 1. Callback for listVirtualDNSs
+ * 2. Reads the response of all Virtual DNS from all domains
+ * list from config api server and sends it back to the client.
+ */
+function listVirtualDNSsFromAllDomains (request, response, appData) 
+{
+    //Get Virtuanl DNS Servers from all domains 
+    //the user has access to.
+    var vdnsURL = '/virtual-DNSs';
+    configApiServer.apiGet(vdnsURL, appData,
+        function(error, data) {
+            if (error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
+            }
+            if(data && data.hasOwnProperty("virtual-DNSs") && 
+                data["virtual-DNSs"].length > 0) {
+                var vdns = data["virtual-DNSs"];
+                var result = {};
+                if(vdns.length > 0) {
+                    result["virtual_DNSs"] = [];
+                }
+                for(var i=0; i<vdns.length; i++) {
+                    result["virtual_DNSs"][i] = {};
+                    result["virtual_DNSs"][i]["virtual-DNS"] = vdns[i];
+                }
+                commonUtils.handleJSONResponse(error, response, result);
+            } else {
+                var result = {
+                    "virtual_DNSs" : []
+                };
+                commonUtils.handleJSONResponse(error, response, result);
+            }
+        }
+    );
 }
 
 /**
@@ -1056,3 +1096,4 @@ exports.updateVDNSRecordDelete	  = updateVDNSRecordDelete;
 exports.updateVDNSIpams           = updateVDNSIpams;
 exports.getVirtualDNSSandeshRecords = getVirtualDNSSandeshRecords;
 exports.readVirtualDNSRecords       = readVirtualDNSRecords;
+exports.listVirtualDNSsFromAllDomains = listVirtualDNSsFromAllDomains;
