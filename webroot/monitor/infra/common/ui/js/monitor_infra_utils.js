@@ -13,13 +13,19 @@ var infraMonitorAlertUtils = {
         else
             res = ifNull(jsonPath(data,'$..process_state_list')[0],[]);
         var alerts=[];
+        var infoObj = {type:obj['display_type'],link:obj['link']};
         if(obj['isUveMissing'] == true)
             return alerts;
         filteredResponse = $.grep(res,function(obj,idx){
             return !isProcessExcluded(obj['process_name']);
         })
         if(filteredResponse.length == 0){
-            alerts.push({sevLevel:sevLevels['ERROR'],nName:data['name'],pName:obj['display_type'],msg:infraAlertMsgs['PROCESS_STATES_MISSING']});
+            alerts.push($.extend({
+                sevLevel: sevLevels['ERROR'],
+                name: data['name'],
+                pName: obj['display_type'],
+                msg: infraAlertMsgs['PROCESS_STATES_MISSING']
+            }, infoObj));
         } else {
             for(var i=0;i<filteredResponse.length;i++) {
             if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {
@@ -27,35 +33,59 @@ var infraMonitorAlertUtils = {
                 var restartCount = ifNull(filteredResponse[i]['exit_count'],0);
                 if(restartCount > 0)
                     msg +=", "+ infraAlertMsgs['PROCESS_RESTART'].format(restartCount);
-                alerts.push({tooltipAlert:false,sevLevel:sevLevels['INFO'],nName:data['name'],pName:filteredResponse[i]['process_name'],msg:msg});
+                alerts.push($.extend({
+                    tooltipAlert: false,
+                    sevLevel: sevLevels['INFO'],
+                    name: data['name'],
+                    pName: filteredResponse[i]['process_name'],
+                    msg: msg
+                }, infoObj));
             }  
             var procName = filteredResponse[i]['process_name'];
             if (filteredResponse[i]['process_state']!='PROCESS_STATE_STOPPED' && filteredResponse[i]['process_state']!='PROCESS_STATE_RUNNING' 
                     && filteredResponse[i]['last_exit_time'] != null){
                 downProcess++;
-                alerts.push({tooltipAlert:false,nName:data['name'],pName:procName,msg:'down',popupMsg:'Down',
-                    timeStamp:filteredResponse[i]['last_exit_time'],sevLevel:sevLevels['ERROR']});
+                alerts.push($.extend({
+                    tooltipAlert: false,
+                    name: data['name'],
+                    pName: procName,
+                    msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
+                    timeStamp: filteredResponse[i]['last_exit_time'],
+                    sevLevel: sevLevels['ERROR']
+                }, infoObj));
             } else if (filteredResponse[i]['process_state'] == 'PROCESS_STATE_STOPPED' && filteredResponse[i]['last_stop_time'] != null) {
                 downProcess++;
-                alerts.push({tooltipAlert:false,nName:data['name'],pName:procName,msg:'stopped',popupMsg:'Stopped',
-                    timeStamp:filteredResponse[i]['last_stop_time'],sevLevel:sevLevels['ERROR']});
+                alerts.push($.extend({
+                    tooltipAlert: false,
+                    name: data['name'],
+                    pName: procName,
+                    msg: infraAlertMsgs['PROCESS_STOPPED'].format(procName),
+                    timeStamp: filteredResponse[i]['last_stop_time'],
+                    sevLevel: sevLevels['ERROR']
+                }, infoObj));
                 //Raise only info alert if process_state is missing for a process??
             } else if  (filteredResponse[i]['process_state'] == null) {
                 downProcess++;
-                alerts.push({tooltipAlert:false,nName:data['name'],pName:filteredResponse[i]['process_name'],msg:'down',popupMsg:'Down',
-                    timeStamp:filteredResponse[i]['last_exit_time'],sevLevel:sevLevels['INFO']});
+                alerts.push($.extend({
+                    tooltipAlert: false,
+                    name: data['name'],
+                    pName: filteredResponse[i]['process_name'],
+                    msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(filteredResponse[i]['process_name']),
+                    timeStamp: filteredResponse[i]['last_exit_time'],
+                    sevLevel: sevLevels['INFO']
+                }, infoObj));
                     msg +=", "+infraAlertMsgs['RESTARTS'].format(restartCount);
-                alerts.push({nName:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg});
+                alerts.push($.extend({name:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg},infoObj));
             } 
             }
             if(downProcess > 0)
-                alerts.push({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess)});
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess)},infoObj));
         }
         return alerts.sort(dashboardUtils.sortInfraAlerts);
     },
     processvRouterAlerts : function(obj) {
         var alertsList = [];
-        var infoObj = {name:obj['name'],type:'vRouter',ip:obj['ip']};
+        var infoObj = {name:obj['name'],type:'vRouter',ip:obj['ip'],link:obj['link']};
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{msg:infraAlertMsgs['UVE_MISSING'],sevLevel:sevLevels['ERROR'],tooltipLbl:'Events'},infoObj));
         if(obj['isConfigMissing'] == true)
@@ -78,7 +108,7 @@ var infraMonitorAlertUtils = {
     },
     processControlNodeAlerts : function(obj) {
         var alertsList = [];
-        var infoObj = {name:obj['name'],type:'Control Node',ip:obj['ip']};
+        var infoObj = {name:obj['name'],type:'Control Node',ip:obj['ip'],link:obj['link']};
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         if(obj['isConfigMissing'] == true)
@@ -106,14 +136,14 @@ var infraMonitorAlertUtils = {
     },
     processConfigNodeAlerts : function(obj) {
         var alertsList = [];
-        var infoObj = {name:obj['name'],type:'Config Node',ip:obj['ip']};
+        var infoObj = {name:obj['name'],type:'Config Node',ip:obj['ip'],link:obj['link']};
         if(obj['isPartialUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processAnalyticsNodeAlerts : function(obj) {
         var alertsList = [];
-        var infoObj = {name:obj['name'],type:'Analytics Node',ip:obj['ip']};
+        var infoObj = {name:obj['name'],type:'Analytics Node',ip:obj['ip'],link:obj['link']};
         if(obj['isPartialUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         if(obj['errorStrings'] != null && obj['errorStrings'].length > 0){
@@ -229,6 +259,7 @@ var infraMonitorUtils = {
                 }
             });
             obj['name'] = d['name'];
+            obj['link'] = {p:'mon_infra_vrouter',q:{node:obj['name'],tab:''}};
             obj['instCnt'] = getValueByJsonPath(dValue,'VrouterAgent;virtual_machine_list',[]).length;
             obj['intfCnt'] = getValueByJsonPath(dValue,'VrouterAgent;total_interface_count',0);
             
@@ -300,6 +331,7 @@ var infraMonitorUtils = {
             obj['size'] = ifNull(jsonPath(d,'$..output_queue_depth')[0],0)+1; 
             obj['shape'] = 'circle';
             obj['name'] = d['name'];
+            obj['link'] = {p:'mon_infra_control',q:{node:obj['name'],tab:''}};
             obj['version'] = ifEmpty(getNodeVersion(jsonPath(d,'$.value.BgpRouterState.build_info')[0]),'-');
             obj['totalPeerCount'] = ifNull(jsonPath(d,'$..num_bgp_peer')[0],0) + ifNull(jsonPath(d,'$..num_xmpp_peer')[0],0);
             //Assign totalBgpPeerCnt as false if it doesn't exist in UVE
@@ -406,6 +438,7 @@ var infraMonitorUtils = {
                 obj['summaryIps'] = ipString;
           }
             obj['name'] = d['name'];
+            obj['link'] = {p:'mon_infra_analytics',q:{node:obj['name'],tab:''}};
             obj['errorStrings'] = ifNull(jsonPath(d,"$.value.ModuleCpuState.error_strings")[0],[]);
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
@@ -443,6 +476,7 @@ var infraMonitorUtils = {
             obj['type'] = 'configNode';
             obj['display_type'] = 'Config Node';
             obj['name'] = d['name'];
+            obj['link'] = {p:'mon_infra_config',q:{node:obj['name'],tab:''}};
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
             try{
