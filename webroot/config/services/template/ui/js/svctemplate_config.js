@@ -230,11 +230,9 @@ function initComponents() {
     gridsvcTemplate = $("#gridsvcTemplate").data("contrailGrid");
     gridsvcTemplate.showGridMessage('loading');
     
-    $('body').append($("#windowCreateStemp"));
     windowCreateStemp = $("#windowCreateStemp");
     windowCreateStemp.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmDelete"));
     confirmDelete = $("#confirmDelete");
     confirmDelete.modal({backdrop:'static', keyboard: false, show:false});
 }

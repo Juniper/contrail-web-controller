@@ -828,7 +828,6 @@ function initComponents() {
     gasnwindow = $("#gasnwindow");
     gasnwindow.modal({backdrop:'static', keyboard: 'false', show:false});
 
-    $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
 }

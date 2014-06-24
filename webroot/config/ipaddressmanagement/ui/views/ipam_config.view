@@ -36,86 +36,87 @@
         </div>
     </div>
 </script>
-<div id="windowCreateipam" class="modal hide modal-700" tabindex="-1" >
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
-        <h6 class="modal-header-title"></h6>
-    </div>
-    <div class="modal-body">
-        <form class="form-horizontal">
-           <div class="control-group">
-                <label class="control-label" class="span3">Name</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <input type="text" id="txtIPAMName" class="span10" />
+<script id="ipam-config-template" type="text/x-handlebars-template">
+    <div id="windowCreateipam" class="modal hide modal-700" tabindex="-1" >
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+               <div class="control-group">
+                    <label class="control-label" class="span3">Name</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtIPAMName" class="span10" />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group">
-                <label class="control-label" class="span3">DNS Method</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <div class="span10 pull-left" id="ddDNS"  ></div>
+                <div class="control-group">
+                    <label class="control-label" class="span3">DNS Method</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div class="span10 pull-left" id="ddDNS"  ></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group hide" id="dnsTenantBlock">
-                <label class="control-label" class="span3">Tenant DNS Server IP</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <input type="text" id="txtdnsTenant"  class="span10" />
+                <div class="control-group hide" id="dnsTenantBlock">
+                    <label class="control-label" class="span3">Tenant DNS Server IP</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtdnsTenant"  class="span10" />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group hide" id="dnsvirtualBlock" >
-                    <label class="control-label" class="span3">Virtual DNS</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <div id="ddDnsVirtual" class="span10" ></div>
+                <div class="control-group hide" id="dnsvirtualBlock" >
+                        <label class="control-label" class="span3">Virtual DNS</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div id="ddDnsVirtual" class="span10" ></div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="control-group">
-                <label class="control-label" class="span3">NTP Server IP</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <input type="text" id="txtNTPServer" class="span10" />
+                
+                <div class="control-group">
+                    <label class="control-label" class="span3">NTP Server IP</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtNTPServer" class="span10" />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="control-group hide" id="dnsDomainName">
-                <label class="control-label" class="span3">Domain Name</label>
-                <div class="controls">
-                    <div class="row-fluid">
-                        <input type="text" id="txtDomainName" class="span10" />
+                <div class="control-group hide" id="dnsDomainName">
+                    <label class="control-label" class="span3">Domain Name</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtDomainName" class="span10" />
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <div class="modal-footer">
-        <button id="btnCreateEditipamCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
-        <button id="btnCreateEditipamOK" class="btn btn-primary btn-mini">Save</button>
-    </div>
-</div>
-<div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
-        <h6 class="modal-header-title"></h6>
-    </div>
-    <div class="modal-body">
-        <div class="row-fluid text-center" >
-            <h6>Confirm IPAM(s) delete </h6>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCreateEditipamCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCreateEditipamOK" class="btn btn-primary btn-mini">Save</button>
         </div>
     </div>
-    <div class="modal-footer">
-        <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
-        <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+    
+    <div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>Confirm IPAM(s) delete </h6>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
     </div>
-</div>
-
-<script id="ipam-config-template" type="text/x-handlebars-template">
+    
     <div class="row-fluid">
         <div class="row-fluid">
             <div class="span12">

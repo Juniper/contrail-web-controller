@@ -157,7 +157,6 @@ function initComponents() {
                         title: 'Active DNS Database',
                         onClick: function(rowIndex){
                             var selectedRow = $("#gridDNSServer").data("contrailGrid")._dataView.getItem(rowIndex);
-                            destroy();
                             $.bbq.pushState({ q: { tab : activeDNSHash, dns : selectedRow.dnsserver_name }});
                         }   
                     }                    
@@ -186,7 +185,7 @@ function initComponents() {
     });
 
     gridDNSServer = $("#gridDNSServer").data("contrailGrid");
-    
+
     txtDNSServerName         = $("#txtDNSServerName");
     txtDomainName            = $("#txtDomainName");
     cmbDNSForward            = $("#cmbDNSForward");
@@ -237,15 +236,12 @@ function initComponents() {
     
     windowCreateDNSServer = $("#windowCreateDNSServer");
     windowCreateDNSServer.modal({backdrop:'static', keyboard: false, show:false});
-    $("body").append(windowCreateDNSServer);    
 
     confirmDelete = $("#confirmDelete");
     confirmDelete.modal({backdrop:'static', keyboard: false, show:false});
-    $("body").append(confirmDelete);
 
     confirmDeleterow = $("#confirmDeleterow");
     confirmDeleterow.modal({backdrop:'static', keyboard: false, show:false});
-    $("body").append(confirmDeleterow);
 }
 
 function loadActiveDNSRecords() {

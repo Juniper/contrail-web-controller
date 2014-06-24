@@ -257,16 +257,13 @@ function dnsRecordsConfig() {
         txtRecordTTL.attr('placeholder', 'TTL(86400 secs)');
 	       
         //initializing add record window	  	
-        $('body').append(addRecordWindowObj);		
         addRecordWindowObj.modal({backdrop:'static',keyboard:false,show:false});     
         addRecordWindowObj.find(".modal-header-title").text('Add DNS Record');
 	         
         //initializing delete record window
-        $('body').append(deleteRecordWindowObj);
         deleteRecordWindowObj.modal({backdrop:'static',keyboard:false,show:false});
         deleteRecordWindowObj.find(".modal-header-title").text('Confirm');
                
-        $('body').append(deleteMainRecordWindowObj);
         deleteMainRecordWindowObj.modal({backdrop:'static',keyboard:false,show:false});
         deleteMainRecordWindowObj.find(".modal-header-title").text('Confirm');	
 	

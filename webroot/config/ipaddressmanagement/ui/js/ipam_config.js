@@ -103,7 +103,7 @@ function initComponents() {
                        if(dc.ip_blocks.length > 2) {
                            returnString += '<span class="moredataText">(' + 
                            (dc.ip_blocks.length-2) + 
-                           ' more  )</span><span class="moredata" style="display:none;"></span>';
+                           ' more)</span><span class="moredata" style="display:none;"></span>';
                        }
                     } else {
                         returnString += "-";
@@ -220,16 +220,13 @@ function initComponents() {
     ];
     $("#ddDNS").data("contrailDropdown").setData(dnspool);
 
-    $('body').append($("#windowCreateipam"));
     windowCreateipam = $("#windowCreateipam");
     windowCreateipam.on("hide", closeCreateIPAMWindow);
     windowCreateipam.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmMainRemove"));
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
 
-    $('body').append($("#confirmRemove"));
     confirmRemove = $("#confirmRemove");
     confirmRemove.modal({backdrop:'static', keyboard: false, show:false});
 }

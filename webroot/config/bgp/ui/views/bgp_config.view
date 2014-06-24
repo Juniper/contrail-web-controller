@@ -179,6 +179,30 @@
             </button>
           </div>
     </div>
+    
+    <div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" 
+                aria-hidden="true">
+                <i class="icon-remove"></i>
+            </button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>Confirm BGP Peer(s) delete</h6>
+            </div>       
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" 
+                data-dismiss="modal" aria-hidden="true">
+                Cancel
+            </button>
+            <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">
+                Confirm
+            </button>
+        </div>
+    </div>    
 </script>
 
 <script type="text/x-handlebars-template" id="gridBGPDetailTemplate">
@@ -210,26 +234,4 @@
     </div>
 </script>
 
-<div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
-    <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" 
-            aria-hidden="true">
-            <i class="icon-remove"></i>
-        </button>
-        <h6 class="modal-header-title"></h6>
-    </div>
-    <div class="modal-body">
-        <div class="row-fluid text-center" >
-            <h6>Confirm BGP Peer(s) delete</h6>
-        </div>       
-    </div>
-    <div class="modal-footer">
-        <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" 
-            data-dismiss="modal" aria-hidden="true">
-            Cancel
-        </button>
-        <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">
-            Confirm
-        </button>
-    </div>
-</div>
+
