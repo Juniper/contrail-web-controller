@@ -477,7 +477,14 @@ function addEditBgp(data) {
             } else if (detailStr[i].indexOf("BGP Port") != -1) {
                 $("#txtport").val(detailStr[i].split("BGP Port")[1].trim());
             } else if (detailStr[i].indexOf("Address family") != -1) {
-                $("#txtfamily").val(detailStr[i].split("Address family")[1].trim());
+                var msFamily = $('#multifamily').data('contrailMultiselect');
+                var addFamilyData = detailStr[i].split("Address family")[1].trim();
+                addFamilyData = addFamilyData.split(',');
+                var addFamilyArry = [];
+                for(var addCnt = 0; addCnt < addFamilyData.length; addCnt++) {
+                    addFamilyArry.push(addFamilyData[addCnt]);
+                }
+                msFamily.value(addFamilyArry);
             } else if (detailStr[i].indexOf("Vendor") != -1) {
                 $("#txtvendor").val(detailStr[i].substr(7));
             } else if (detailStr[i].indexOf("Hold Time") != -1) {
