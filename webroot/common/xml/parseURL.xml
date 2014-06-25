@@ -1082,6 +1082,12 @@
     </item>
     <item>
         <url>/api/tenants/config/virtual-DNSs</url>
+        <method>get</method>
+        <feature>virtualdnsconfig</feature>
+        <callback>virtualdnsconfigapi.listVirtualDNSsFromAllDomains</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/virtual-DNSs</url>
         <method>post</method>
         <feature>virtualdnsconfig</feature>
         <callback>virtualdnsconfigapi.createVirtualDNS</callback>

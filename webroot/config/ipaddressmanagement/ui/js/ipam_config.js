@@ -761,7 +761,8 @@ function ipamCreateEditWindow(mode,rowIndex) {
     
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
-        url:"/api/tenants/config/virtual-DNSs/" + selectedDomain.value(),
+        //url:"/api/tenants/config/virtual-DNSs/" + selectedDomain.value(),
+        url:"/api/tenants/config/virtual-DNSs/",
         type:"GET"
     });
     getAjaxs[1] = $.ajax({

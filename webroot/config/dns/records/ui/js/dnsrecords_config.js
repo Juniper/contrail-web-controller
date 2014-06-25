@@ -357,7 +357,8 @@ function dnsRecordsConfig() {
             $("#txtRecordData").parent().hide();
             $("#cmbRecordData").parent().show();
             //getting dns server info to populate combo
-           doAjaxCall('/api/tenants/config/virtual-DNSs/' + parentUUID,'GET', null, 'successHandlerForRecordData', 'failureHandlerForRecordData', null, null);
+           //doAjaxCall('/api/tenants/config/virtual-DNSs/' + parentUUID,'GET', null, 'successHandlerForRecordData', 'failureHandlerForRecordData', null, null);
+           doAjaxCall('/api/tenants/config/virtual-DNSs','GET', null, 'successHandlerForRecordData', 'failureHandlerForRecordData', null, null);
         }
         else{
             $("#txtRecordData").parent().show(); 
@@ -396,8 +397,8 @@ function dnsRecordsConfig() {
             var selDNSServer = $("#ddDNSServers").data("contrailDropdown").text();
             var dnsNames = []; 	
             for(var resCount = 0;resCount < res.length;resCount++){
-                if(selDNSServer !== res[resCount].name)
-                    dnsNames.push({text : selDomain + ":"  + res[resCount].name, value : resCount});
+                //if(selDNSServer !== res[resCount].name)
+                    dnsNames.push({text : res[resCount]["fq_name"].join(":"), value : resCount});
             }
             cmbRecData.setData(dnsNames);
 		    var selectedItem = cmbRecordType.data('contrailDropdown').getSelectedData()[0];
