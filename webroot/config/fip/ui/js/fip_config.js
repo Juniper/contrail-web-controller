@@ -376,7 +376,7 @@ function populateProjects(result) {
     } else {
         $("#gridfip").data("contrailGrid")._dataView.setData([]);
         btnCreatefip.addClass('disabled-link');
-        var emptyObj = [{text:'No Floating IPs found',value:"Message"}];
+        var emptyObj = [{text:'No Projects found',value:"Message"}];
         $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
         $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
         $("#ddProjectSwitcher").data("contrailDropdown").enable(false);

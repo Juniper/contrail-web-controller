@@ -483,7 +483,7 @@ function populateProjects(result) {
     } else {
         $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
         btnCreatesvcInstances.addClass('disabled-link');
-        var emptyObj = [{text:'No Service instances found',value:"Message"}];
+        var emptyObj = [{text:'No Projects found',value:"Message"}];
         $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
         $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
         $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
