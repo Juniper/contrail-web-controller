@@ -160,7 +160,6 @@ monitorInfraComputeSummaryClass = (function() {
     }//updateCrossFilter
     
     this.populateComputeNodes = function () {
-        summaryChartsInitializationStatus['vRouters'] = false;
         infraMonitorUtils.clearTimers();
         var compNodesTemplate = contrail.getTemplate4Id("computenodes-template");
         $(pageContainer).html(compNodesTemplate({}));

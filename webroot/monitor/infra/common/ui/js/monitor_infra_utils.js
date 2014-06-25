@@ -1844,9 +1844,8 @@ function updateChartsForSummary(dsData, nodeType) {
 	}
     var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{tooltipFn:tooltipFn,clickFn:clickFn,xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
     var chartObj = {},nwObj = {};
-    if(!summaryChartsInitializationStatus[key]){
+    if(!isScatterChartInitialized('#' + chartId)) {
         $('#' + chartId).initScatterChart(chartsData[0]);
-        summaryChartsInitializationStatus[key] = true;
     }  else {
         chartObj['selector'] = $('#content-container').find('#' + chartId + ' > svg').first()[0];
         chartObj['data'] = [{key:key,values:data}];
