@@ -1219,19 +1219,29 @@ function populateProjects(result) {
             tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
             projects.push(tempProjectDetail);
         }
-        
+
         $("#ddProjectSwitcher").contrailDropdown({
             dataTextField:"text",
             dataValueField:"value",
             change:handleProjects
         });
+        btnCreateVN.removeClass('disabled-link')
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         $("#ddProjectSwitcher").data("contrailDropdown").value(projects[0].value);
         var sel_project = getSelectedProjectObjNew("ddProjectSwitcher", "contrailDropdown");
         $("#ddProjectSwitcher").data("contrailDropdown").value(sel_project);
         setCookie("project", $("#ddProjectSwitcher").data("contrailDropdown").text());
+        fetchDataForGridVN();
+    } else {
+        $("#gridVN").data("contrailGrid")._dataView.setData([]);
+        btnCreateVN.addClass('disabled-link');
+        var emptyObj = [{text:'No Networks found',value:"Message"}];
+        $("#ddProjectSwitcher").data("contrailDropdown").setData(emptyObj);
+        $("#ddProjectSwitcher").data("contrailDropdown").text(emptyObj[0].text);
+        $("#ddProjectSwitcher").data("contrailDropdown").enable(false);
+        gridVN.showGridMessage("empty");
     }
-    fetchDataForGridVN();
 }
 
 function handleProjects(e) {
