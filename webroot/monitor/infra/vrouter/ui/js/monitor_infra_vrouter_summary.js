@@ -62,7 +62,7 @@ monitorInfraComputeSummaryClass = (function() {
         var infoElem = $('#vrouter-header h4');
         var innerText = infoElem.text().split('(')[0].trim();
         var totalCnt = vRoutersDataSource.getItems().length;
-        var filteredCnt = vRoutersDataSource.getLength();
+        var filteredCnt = filteredNodeNames.length;
         //totalCnt = ifNull(options['totalCntFn'](), totalCnt);
         if (totalCnt == filteredCnt)
             innerText += ' (' + totalCnt + ')';
@@ -174,8 +174,9 @@ monitorInfraComputeSummaryClass = (function() {
        
         $(vRouterDS).on('change',function() {
             var filteredNodes = [];
-            for(var i=0;i<vRoutersDataSource.getLength();i++) {
-                filteredNodes.push(vRoutersDataSource.getItem(i));
+            var rowItems = vRoutersDataSource.getItems();
+            for(var i=0;i<rowItems.length;i++) {
+                filteredNodes.push(rowItems[i]);
             }
             updateChartsForSummary(filteredNodes,'compute');
             if(updateCrossFilters == true) 
