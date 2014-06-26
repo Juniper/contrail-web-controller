@@ -1515,20 +1515,6 @@ function summaryIpDisplay (ip,tooltip){
     return '<span title="'+ tooltip +'">' + ip + '</span>';
 }
 
-function showAdvancedDetails(){
-    $('#divBasic').hide();
-    $('#divStatus').hide();
-    $('#divAdvanced').show();
-    $('#divAdvanced').parents('.widget-box').find('.widget-header h4 .subtitle').remove();
-    $('#divAdvanced').parents('.widget-box').find('.widget-header h4').append('<span class="subtitle">(Advanced)</span>')
-}
-
-function showBasicDetails(){
-    $('#divAdvanced').hide();
-    $('#divStatus').hide();
-    $('#divBasic').show();
-    $('#divAdvanced').parents('.widget-box').find('.widget-header h4 .subtitle').remove();
-}
 
 function parseUveHistoricalValues(d,path,histPath) {
     var histData; 
