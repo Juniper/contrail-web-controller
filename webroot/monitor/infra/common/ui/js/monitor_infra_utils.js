@@ -1862,16 +1862,56 @@ function updateChartsForSummary(dsData, nodeType) {
         tooltipFn = bgpMonitor.configNodeTooltipFn;
         clickFn = bgpMonitor.onConfigNodeDrillDown;
 	}
-    var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{tooltipFn:tooltipFn,clickFn:clickFn,xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
+    var chartsData = [{
+        title: title,
+        d: splitNodesToSeriesByColor(data, {
+            Red: d3Colors['red'],
+            Orange: d3Colors['orange'],
+            Blue: d3Colors['blue'],
+            Green: d3Colors['green']
+        }),
+        chartOptions: {
+            tooltipFn: tooltipFn,
+            clickFn: clickFn,
+            xPositive: true,
+            addDomainBuffer: true
+        },
+        link: {
+            hashParams: {
+                p: 'mon_bgp',
+                q: {
+                    node: 'vRouters'
+                }
+            }
+        },
+        widgetBoxId: 'recent'
+    }];
     var chartObj = {},nwObj = {};
     if(!isScatterChartInitialized('#' + chartId)) {
         $('#' + chartId).initScatterChart(chartsData[0]);
     }  else {
         chartObj['selector'] = $('#content-container').find('#' + chartId + ' > svg').first()[0];
-        chartObj['data'] = [{key:key,values:data}];
+        chartObj['data'] = chartsData[0]['d'];
         chartObj['type'] = 'infrabubblechart';
         updateCharts.updateView(chartObj);
     }
+}
+
+function splitNodesToSeriesByColor(data,colors) {
+    var splitSeriesData = [];
+    var nodeCrossFilter = crossfilter(data);
+    var colorDimension = nodeCrossFilter.dimension(function(d) {return d.color});
+    var colorGroup = colorDimension.group();
+    $.each(colors,function(key,value) {
+        colorDimension.filterAll();
+        colorDimension.filter(value);
+        splitSeriesData.push({
+            key: key,
+            color: value,
+            values: colorDimension.top(Infinity)
+        });
+    });
+    return splitSeriesData;
 }
 
 //Handlebar functions for monitor infra 

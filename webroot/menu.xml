@@ -21,6 +21,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <js>monitor_infra_constants.js</js>
                     <js>monitor_infra_utils.js</js>
                     <view>monitor_infra_common.view</view>
+                    <css>monitor_infra_common.css</css>
                     <iconClass>icon-desktop</iconClass>
                     <access>
                         <roles>
