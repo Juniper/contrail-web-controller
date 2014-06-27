@@ -54,26 +54,22 @@ function listProjectsCb (error, apiProjects, projectLists, response)
 }
 
 /**
- * @listProjectsAPIServer
+ * @formatIdentityMgrProjects
  * private function
- * 1. Gets list of projects from API server
+ * 1. Formats the project list got from Identity Manager equivalent to API
+ *    Server project list
  */
-function listProjectsAPIServer (error, projectLists, response, appData)
+function formatIdentityMgrProjects (error, projectLists, appData, callback)
 {
     var projects   = {'projects':[]};
     var projectURL = '/projects';
  
     if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, projects);
         return;
     }
-    /*configApiServer.apiGet(projectURL, appData,
-                         function(error, data) {
-                         listProjectsCb(error, data,
-                                        projectLists, response)
-                         });
-    */
-    if(projectLists && projectLists.hasOwnProperty("tenants")) {
+
+    if (projectLists && projectLists.hasOwnProperty("tenants")) {
         var projects = {};
         projects["projects"] = [];
         var tenantLen = projectLists['tenants'].length;
@@ -87,11 +83,61 @@ function listProjectsAPIServer (error, projectLists, response, appData)
                 ]
             });
         }
-        commonUtils.handleJSONResponse(error, response, projects);
+        callback(null, projects);
     } else {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
+        callback(error, projects);
     }
+}
+
+/** 
+ * @getProjectsFromApiServer
+ * Private function
+ * 1. Gets all the projects from Api Server
+ */
+function getProjectsFromApiServer (request, appData, callback)
+{
+    var reqURL = null;
+    var projectList = {"projects": []};
+
+    var domain = request.param('domain');
+    if (null != domain) {
+        reqURL = '/domain/' + domain;
+    } else {
+        reqURL = '/projects';
+    }
+    configApiServer.apiGet(reqURL, appData, function(err, data) {
+        if ((null != err) || (null == data) || ((null != domain) &&
+            ((null == data['domain']) || (null == data['domain']['projects'])))) {
+            callback(err, projectList);
+            return;
+        }
+        if (null == domain) {
+            callback(err, data);
+            return;
+        }
+        var list = data['domain']['projects'];
+        var projCnt = list.length;
+        for (var i = 0; i < projCnt; i++) {
+            projectList['projects'][i] = {};
+            projectList['projects'][i]['uuid'] = list[i]['uuid'];
+            projectList['projects'][i]['fq_name'] = list[i]['to'];
+        }
+        callback(null, projectList);
+    });
+}
+
+/** 
+ * @getProjectsFromIdentityManager
+ * Private function
+ * 1. Gets all the projects from Identity Manager
+ */
+function getProjectsFromIdentityManager (request, appData, callback)
+{
+    authApi.getTenantList(request, function(error, data) {
+        formatIdentityMgrProjects(error, data, appData, function(error, data) {
+            callback(error, data);
+        });
+    });
 }
 
 /**
@@ -104,12 +150,19 @@ function listProjectsAPIServer (error, projectLists, response, appData)
  */
 function listProjects (request, response, appData)
 {
-
-    authApi.getTenantList(request,
-                         function(error, data) {
-                         listProjectsAPIServer(error, data, response, appData);
-                         });
-
+    var isProjectListFromApiServer = config.getDomainProjectsFromApiServer;
+    if (null == isProjectListFromApiServer) {
+        isProjectListFromApiServer = false;
+    }
+    if (true == isProjectListFromApiServer) {
+        getProjectsFromApiServer(request, appData, function(error, data) {
+            commonUtils.handleJSONResponse(error, response, data);
+        });
+    } else {
+        getProjectsFromIdentityManager(request, appData, function(error, data) {
+            commonUtils.handleJSONResponse(error, response, data);
+        });
+    }
 }
 
 /**
