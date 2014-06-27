@@ -726,6 +726,9 @@
         13. Edit Virtual Network attributes
             /api/tenants/config/virtual-network/:id
                                                 updateVirtualNetwork
+        14. List all shared virtual networks
+            /api/tenants/config/shared-virtual-networks
+                                                getSharedVirtualNetworks
     -->
     <item>
         <url>/api/tenants/config/virtual-networks</url>
@@ -804,6 +807,12 @@
         <method>get</method>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.listVirtualMachineInterfaces</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/shared-virtual-networks</url>
+        <method>get</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getSharedVirtualNetworks</callback>
     </item>
 
     <!-- API / Feature definition for Policy configuration -->
