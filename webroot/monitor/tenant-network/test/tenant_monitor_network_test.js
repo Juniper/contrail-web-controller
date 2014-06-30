@@ -22,13 +22,14 @@ test("parseNetworkDetails which parse the data when we expand the row in the net
 
 test("parseInstanceDetails which parse the data when we expand the row in the instance summary grid",function(){
     expect(2);
-    var actual = tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'completeDetails'}));
+    var inputData = monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'completeDetails'});
+    var actual = tenantNetworkMonitorUtils.parseInstDetails(inputData['data'],inputData['rowData']);
     var expected = monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'completeDetails'}); 
     deepEqual(actual,expected,"Testing parseInstanceDetails function");
-    var actualWithFip = tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'withFip'}));
+    var inputDataWithFip = monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'withFip'});
+    var actualWithFip = tenantNetworkMonitorUtils.parseInstDetails(inputDataWithFip['data'],inputDataWithFip['rowData']);
     var expectedWithFip = monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'withFip'});
-    deepEqual(tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'withFip'})),
-            monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'withFip'}),"Testing parseInstanceDetails function with Floating IP");
+    deepEqual(actualWithFip,expectedWithFip,"Testing parseInstanceDetails function with Floating IP");
 });
 
 test("parsePortMap which parse the portMapData required for the PortMap tab in networkDetails page",function(){
@@ -39,8 +40,9 @@ test("parsePortMap which parse the portMapData required for the PortMap tab in n
 
 test("instanceParseFn which parse the instance data required for the network summary grid",function(){
     expect(1);
-    deepEqual(tenantNetworkMonitorUtils.instanceParseFn(monitorNetworkMockData.getInput({fnName:'instanceParseFn',type:'completeDetails'})),
-            monitorNetworkMockData.getOutput({fnName:'instanceParseFn',type:'completeDetails'}),"Testing instanceParseFn function");
+    var actual = tenantNetworkMonitorUtils.instanceParseFn(monitorNetworkMockData.getInput({fnName:'instanceParseFn',type:'completeDetails'}));
+    var expected = monitorNetworkMockData.getOutput({fnName:'instanceParseFn',type:'completeDetails'});
+    deepEqual(actual,expected,"Testing instanceParseFn function");
 });
 
 test("networkParseFn which parse the networks data required for the network summary grid",function(){
