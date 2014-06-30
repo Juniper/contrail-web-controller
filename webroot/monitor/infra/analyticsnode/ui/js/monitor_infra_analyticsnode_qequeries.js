@@ -123,5 +123,6 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
             generatorNodeView.load({name:selRowDataItem['address']});
         }
     }
-    return {populateQEQueriesTab:populateQEQueriesTab};
+    return {populateQEQueriesTab:populateQEQueriesTab,
+        parseQEQueries:parseQEQueries};
 })();

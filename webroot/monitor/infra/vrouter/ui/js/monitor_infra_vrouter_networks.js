@@ -165,5 +165,6 @@ monitorInfraComputeNetworksClass = (function() {
             }
         }
     }
-    return {populateVNTab:populateVNTab};
+    return {populateVNTab:populateVNTab,
+        parseVNData:parseVNData};
 })();
