@@ -532,5 +532,8 @@ monitorInfraComputeRoutesClass = (function() {
         }
     
     }
-    return {populateRoutesTab:populateRoutesTab};
+    return {populateRoutesTab:populateRoutesTab,
+        parseUnicastRoutesData:parseUnicastRoutesData,
+        parseMulticastRoutesData:parseMulticastRoutesData,
+        parseL2RoutesData:parseL2RoutesData};
 })();
