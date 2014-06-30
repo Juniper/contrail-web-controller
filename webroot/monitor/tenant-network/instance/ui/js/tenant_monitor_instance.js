@@ -17,7 +17,7 @@ function instSummaryRenderer() {
     };
 
     var instViewModel = new InstanceViewModel(),
-        intfList = [], intfStatList = [];
+        intfList = [], intfStatList = [], fipStatList = [];
 
     this.load = function(cfg) {
         hideHardRefresh();
@@ -83,6 +83,7 @@ function instSummaryRenderer() {
                 instViewModel.network(obj['srcVN']);
                 intfList = getValueByJsonPath(result,'UveVirtualMachineAgent;interface_list',[]);
                 intfStatList = getValueByJsonPath(result,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
+                fipStatList = getValueByJsonPath(result,'VirtualMachineStats;fip_stats;0;StatTable.VirtualMachineStats.fip_stats',[]);
                 var selItem = getSelInstanceFromDropDown();
                 var selIntfName = '',inBytes = 0,outBytes = 0;
                 var stats = instSummaryView.getStatsOfInterface(selItem['ip']);
@@ -183,6 +184,13 @@ function instSummaryRenderer() {
         var result = {};
         if(ip == null)
             return result;
+        for(var i = 0; i < fipStatList.length; i++){
+            var fipData = fipStatList[i];
+            if(fipData['fip_stats.ip_address'] == ip) {
+                result['inBytes'] = ifNull(fipData['SUM(fip_stats.in_bytes)'],'-'),result['outBytes'] = ifNull(fipData['SUM(fip_stats.out_bytes)'],'-');
+                return result;
+            }
+        }
         for(var i = 0;i<intfList.length; i++){
             if(intfList[i]['ip_address'] == ip)
                 selIntfName = intfList[i]['name'];
