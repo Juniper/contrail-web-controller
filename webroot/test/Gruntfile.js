@@ -16,6 +16,8 @@ module.exports = function( grunt ) {
         "contrail-web-core/webroot/js/contrail-all-4.js",
         "contrail-web-core/webroot/js/contrail-all-5.js",
         "contrail-web-core/webroot/js/test/utils_mock.js",
+        "contrail-web-controller/webroot/monitor/infra/common/ui/js/monitor_infra_constants.js",
+        "contrail-web-controller/webroot/monitor/infra/common/ui/js/monitor_infra_utils.js"
         ];
 
     grunt.initConfig({
@@ -27,18 +29,41 @@ module.exports = function( grunt ) {
                 monitor_infra: {
                     options: {
                         files:commonFiles.concat([
+                            /* DASHBOARD */
                             "contrail-web-controller/webroot/monitor/infra/dashboard/ui/js/monitor_infra_dashboard.js",
-                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter.js",
-                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode.js",
-                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticnode.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_dashboard_mock.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_dashboard_test.js",
-                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_computenode_mock.js",
-                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_computenode_test.js",
+                            
+                            /* MONITOR INFRA VROUTER */
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_acl.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_details.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_flows.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_interfaces.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_networks.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_routes.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter_summary.js",
+                            "contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/monitor_infra_vrouter.js",
+                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_vrouter_mock.js",
+                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_vrouter_test.js",
+                            
+                            /* MONITOR INFRA CONTROL NODE */
+                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode_details.js",
+                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode_peers.js",
+                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode_routes.js",
+                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode_summary.js",
+                            "contrail-web-controller/webroot/monitor/infra/controlnode/ui/js/monitor_infra_controlnode.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_controlnode_mock.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_controlnode_test.js",
+                            
+                            /* MONITOR INFRA ANALYTICS NODE */
+                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticsnode_details.js",
+                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticsnode_generators.js",
+                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticsnode_qequeries.js",
+                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticsnode_summary.js",
+                            "contrail-web-controller/webroot/monitor/infra/analyticsnode/ui/js/monitor_infra_analyticnode.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_analyticsnode_mock.js",
-                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_analyticsnode_test.js",
+                            "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_analyticsnode_test.js"
+
                             ]),
                         preprocessors: {
                             'contrail-web-controller/webroot/monitor/infra/dashboard/ui/js/*.js': ['coverage'],
