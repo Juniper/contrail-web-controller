@@ -432,5 +432,6 @@ monitorInfraComputeFlowsClass = (function() {
             }
         }
     }
-    return {populateFlowsTab:populateFlowsTab};
+    return {populateFlowsTab:populateFlowsTab,
+        parseFlowsData:parseFlowsData};
 })();

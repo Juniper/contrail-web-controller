@@ -370,5 +370,6 @@ monitorInfraControlRoutesClass = (function() {
             routesGrid.showGridMessage('loading');
         }
     }
-    return {populateRoutesTab:populateRoutesTab}
+    return {populateRoutesTab:populateRoutesTab,
+        parseRoutes:parseRoutes}
 })();

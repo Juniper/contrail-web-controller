@@ -176,5 +176,6 @@ monitorInfraComputeInterfacesClass = (function() {
             reloadGrid(intfGrid);
         }
     }
-    return {populateInterfaceTab:populateInterfaceTab};
+    return {populateInterfaceTab:populateInterfaceTab,
+        parseInterfaceData:parseInterfaceData};
 })();

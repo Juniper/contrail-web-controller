@@ -225,5 +225,6 @@ monitorInfraControlPeersClass = (function() {
             peerNodeView.load({name:selRowDataItem['address']});
         }
     }
-    return {populatePeersTab:populatePeersTab}
+    return {populatePeersTab:populatePeersTab,
+        processPeerInfo:processPeerInfo}
 })();

@@ -343,5 +343,6 @@ monitorInfraComputeACLClass = (function() {
             datasource.filter(filters);
         }
     }
-    return {populateACLTab:populateACLTab};
+    return {populateACLTab:populateACLTab,
+        parseACLData:parseACLData};
 })();
