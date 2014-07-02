@@ -50,6 +50,10 @@
         <define>vnconfigapi</define>
         <path>../../config/vn/api/vnconfig.api</path>
     </require>
+   <require>
+        <define>quotasconfigapi</define>
+        <path>../../config/quotas/api/quotasconfig.api</path>
+    </require>     
     <require>
         <define>policyconfigapi</define>
         <path>../../config/networkpolicies/api/policyconfig.api</path>
@@ -931,7 +935,7 @@
         <method>get</method>
         <feature>fipconfig</feature>
         <callback>fipconfigapi.listFloatingIpPools</callback>
-    </item>
+    </item>   
 
     <!-- API / Feature definition for Service Template configuration -->
     <!-- 1. List  - /api/tenants/config/service-templates/:id,
@@ -974,7 +978,33 @@
         <callback>stconfigapi.getSystemFlavors</callback>
     </item>
 
-
+    <!-- API / Feature definition for quotas configuration -->
+    <!-- 1. fetch quotas - /api/tenants/config/project-quotas/:id,
+                                                 getProjectQuotas
+         2. update quotas - /api/tenants/config/update-quotas/:id,
+                                                 updateProjectQuotas
+         3. quotas used - /api/tenants/config/quota-used/:id,
+                                                 getProjectQuotaUsedInfo                                                 
+    --> 
+    <item>
+        <url>/api/tenants/config/project-quotas/:id</url>
+        <method>get</method>
+        <feature>quotasconfig</feature>
+        <callback>quotasconfigapi.getProjectQuotas</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/update-quotas/:id</url>
+        <method>put</method>
+        <feature>quotasconfig</feature>
+        <callback>quotasconfigapi.updateProjectQuotas</callback>
+    </item>          
+    <item>
+        <url>/api/tenants/config/quota-used/:name</url>
+        <method>get</method>
+        <feature>quotasconfig</feature>
+        <callback>quotasconfigapi.getProjectQuotaUsedInfo</callback>
+    </item>
+    
     <!-- API / Feature definition for Service Instance configuration -->
     <!-- 1. List  - /api/tenants/config/service-instances/:id,
                                                  listServiceInstances
