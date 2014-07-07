@@ -102,15 +102,9 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     {lbl:INDENT_RIGHT+'OpServer', value:(function(){
                         return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
                     })()},
-                    {lbl:INDENT_RIGHT+'Redis Query', value:(function(){
-                        return ifNull(analyticsProcessStatusList['redis-query'],noDataStr);
-                    })()},
                    /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
                         return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
                     })()},*/
-                    {lbl:INDENT_RIGHT+'Redis UVE', value:(function(){
-                        return ifNull(analyticsProcessStatusList['redis-uve'],noDataStr);
-                    })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
                     {lbl:'Messages', value:(function(){
@@ -183,17 +177,11 @@ function getStatusesForAllAnalyticsProcesses(processStateList){
     if(processStateList != null){
         for(var i=0; i < processStateList.length; i++){
             var currProc = processStateList[i];
-            if(currProc.process_name == "redis-query"){
-                ret['redis-query'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "contrail-qe"){
+            if (currProc.process_name == "contrail-qe"){
                 ret['contrail-qe'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "redis-sentinel"){
-                ret['redis-sentinel'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "contrail-analytics-nodemgr"){
+            }  else if (currProc.process_name == "contrail-analytics-nodemgr"){
                 ret['contrail-analytics-nodemgr'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "redis-uve"){
-                ret['redis-uve'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "contrail-opserver"){
+            }  else if (currProc.process_name == "contrail-opserver"){
                 ret['contrail-opserver'] = getProcessUpTime(currProc);
             } else if (currProc.process_name == "contrail-collector"){
                 ret['contrail-collector'] = getProcessUpTime(currProc);
