@@ -2,6 +2,12 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 var consoleTimer = [];
+var chartsLegend = { 
+        Working: d3Colors['green'],
+        Idle: d3Colors['blue'],
+        Warning: d3Colors['orange'],
+        Error: d3Colors['red']
+   };
 var infraMonitorAlertUtils = {
     /**
     * Process-specific alerts
@@ -231,7 +237,7 @@ var infraMonitorUtils = {
             var dValue = result[i]['value'];
             obj['x'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
             obj['y'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024; //Convert to MB
-            obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
+            obj['cpu'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
             obj['ip'] = getValueByJsonPath(dValue,'VrouterAgent;control_ip','-');
             obj['uveIP'] = obj['ip'];
             obj['summaryIps'] = getVrouterIpAddresses(dValue,"summary");
@@ -250,6 +256,7 @@ var infraMonitorUtils = {
             obj['status'] = getOverallNodeStatus(d,'compute');
             var processes = ['contrail-vrouter-agent','contrail-vrouter-nodemgr','supervisor-vrouter'];
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
+            obj['virtMemory'] = getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--');
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
             obj['shape'] = 'circle';
@@ -1830,7 +1837,11 @@ function getAnalyticsMessagesCountAndSize(d,procList){
 function formatMemory(memory) {
     if(memory == null || memory['virt'] == null)
         return noDataStr;
-    var usedMemory = parseInt(memory['virt']) * 1024;
+    var usedMemory = 0;
+    if($.isNumeric(memory))
+        usedMemory = parseInt(memory) * 1024;
+    else
+        usedMemory = parseInt(memory['virt']) * 1024;
     //var totalMemory = parseInt(memory['total']) * 1024;
     return contrail.format('{0}', formatBytes(usedMemory));
 }
@@ -2063,8 +2074,8 @@ function getNodeTooltipContents(currObj) {
     var tooltipContents = [
         {lbl:'Host Name', value: currObj['name']},
         {lbl:'Version', value:currObj['version']},
-        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu'] + '%' : currObj['cpu']},
-        {lbl:'Memory', value:currObj['memory']}
+        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu'].toFixed(2)  + '%' : currObj['cpu']},
+        {lbl:'Memory', value:formatMemory(currObj['memory'])}
     ];
     return tooltipContents;
 }
@@ -2125,8 +2136,8 @@ var bgpMonitor = {
         var tooltipContents = [
             {lbl:'Host Name', value: e['point']['name']},
             {lbl:'Version', value:e['point']['version']},
-            {lbl:'CPU', value:$.isNumeric(e['point']['cpu']) ? e['point']['cpu'] + '%' : e['point']['cpu']},
-            {lbl:'Memory', value:e['point']['memory']}
+            {lbl:'CPU', value:$.isNumeric(e['point']['cpu']) ? e['point']['cpu'].toFixed(2) + '%' : e['point']['cpu']},
+            {lbl:'Memory', value:formatMemory(e['point']['memory'])}
         ];
         if (e['point']['type'] == 'vRouter') {
         } else if (e['point']['type'] == 'controlNode') {
