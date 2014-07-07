@@ -333,18 +333,6 @@ monitorInfraComputeSummaryClass = (function() {
         } else {
             computeNodesGrid.showGridMessage('loading');
         }
-       /* $(vRouterDS).on('change',function() {
-            var infoElem = $('#vrouter-header h4');
-            var innerText = infoElem.text().split('(')[0].trim();
-            var totalCnt = vRoutersDataSource.getItems().length;
-            var filteredCnt = vRoutersDataSource.getLength();
-            //totalCnt = ifNull(options['totalCntFn'](), totalCnt);
-            if (totalCnt == filteredCnt)
-                innerText += ' (' + totalCnt + ')';
-            else
-                innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
-            infoElem.text(innerText);
-        });*/
     }
     return {populateComputeNodes:populateComputeNodes};
 })();

@@ -4,7 +4,7 @@
 
 <script type="text/x-handlebars-template" id="ctrlnode-dashboard-tab">
     <div class="span12">
-        <div id="ctrlNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
+        <div id="ctrlNode-bubble" class="infra-node-chart" style="height:290px;">
         </div>
     </div>
 </script>
@@ -15,21 +15,21 @@
             <div id="sparkLineStats" class="infobox-container"></div>
         </div>
         <div style="margin-left: 160px;">
-            <div id="vrouter-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px"></div>
+            <div id="vrouter-bubble" class="infra-node-chart" style="height:290px"></div>
         </div>
     </div>
 </script>
 
 <script type="text/x-handlebars-template" id="analyticnode-dashboard-tab">
     <div class="span12">
-        <div id="analyticNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
+        <div id="analyticNode-bubble" class="infra-node-chart" style="height:290px;">
         </div>
     </div>
 </script>
 
 <script type="text/x-handlebars-template" id="confignode-dashboard-tab">
     <div class="span12">
-        <div id="configNode-bubble" class="infra-node-chart" style="margin:-30px 0 0 0;height:290px;">
+        <div id="configNode-bubble" class="infra-node-chart" style="height:290px;">
         </div>
     </div>
 </script>
