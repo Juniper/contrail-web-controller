@@ -119,9 +119,6 @@ monitorInfraConfigDetailsClass = (function() {
                     {lbl:INDENT_RIGHT+'Ifmap', value:(function(){
                         return ifNull(configProcessStatusList['ifmap'],noDataStr);
                     })()},
-                    {lbl:INDENT_RIGHT+'Redis Config', value:(function(){
-                        return ifNull(configProcessStatusList['redis-config'],noDataStr);
-                    })()},
                     {lbl:'Analytics Node', value:(function(){
                      var anlNode = noDataStr; 
                      var secondaryAnlNode, status;
@@ -210,8 +207,6 @@ function getStatusesForAllConfigProcesses(processStateList){
              ret['contrail-api'] = getProcessUpTime(currProc);
           } else if (currProc.process_name == "contrail-api"){
              ret['contrail-api'] = getProcessUpTime(currProc);
-          } else if (currProc.process_name == "redis-config"){
-             ret['redis-config'] = getProcessUpTime(currProc);
           } else if (currProc.process_name == "contrail-config-nodemgr"){
              ret['contrail-config-nodemgr'] = getProcessUpTime(currProc);
           } else if (currProc.process_name == "contrail-svc-monitor"){
