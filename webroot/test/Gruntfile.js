@@ -8,7 +8,8 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks( "grunt-contrib-qunit" );
     grunt.loadNpmTasks('grunt-qunit-junit');
     grunt.loadNpmTasks('grunt-karma');
-
+    //this option is to avoid interruption of test case execution on failure of one in sequence
+    grunt.option('force',true);
     var commonFiles = [
         "contrail-web-core/webroot/js/contrail-all-1.js",
         "contrail-web-core/webroot/js/contrail-all-2.js",
@@ -76,11 +77,12 @@ module.exports = function( grunt ) {
                 monitor_network :{
                     options: {
                         files: commonFiles.concat([
+                            "contrail-web-controller/webroot/monitor/tenant-network/common/ui/js/tenant_monitor_utils.js",
+                            "contrail-web-controller/webroot/monitor/tenant-network/common/ui/js/tenant_monitor_topology.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/network/ui/js/tenant_monitor_network.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/dashboard/ui/js/tenant_monitor_dashboard.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/instance/ui/js/tenant_monitor_instance.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/project/ui/js/tenant_monitor_project.js",
-                            "contrail-web-controller/webroot/monitor/tenant-network/common/ui/js/tenant_monitor_topology.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/test/tenant_monitor_network_mock.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/test/tenant_monitor_network_test.js",
                         ]),

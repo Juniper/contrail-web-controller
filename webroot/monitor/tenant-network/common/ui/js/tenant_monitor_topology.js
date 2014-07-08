@@ -316,26 +316,26 @@ function topologyRenderer() {
     	configData['lineColor'] = topologyColors['blue'];
     	configData['partialConnected'] = false;
     	if(link['more_attributes'] != undefined && link['more_attributes']['in_stats'] != undefined && link['more_attributes']['out_stats'] != undefined
-    			&& link['more_attributes']['in_stats'].length>0 && link['more_attributes']['out_stats'].length>0 ){
-    	var loss = topologyView.checkPacketLoss(link);
-    	var result = topologyView.getLinkInfo(link);
-    	if(link['error'] != undefined){
-    		configData['partialConnected'] = true;
-    		configData['error'] = link['error'];}
-    	configData['width'] = 1.25;//default width value
-    	configData['packets'] = result['pkts'];
-    	configData['bytes'] = formatBytes(result.bytes);
-    	configData['more_attributes'] = link['more_attributes'];
-    	configData['dir'] = link['dir'];
-    	configData['loss'] = loss;
-    	/*if(link['error'] != null || loss['loss_percent'] > 10 ) {
-        configData['lineColor'] = '#E4564F';
-        }*/
-        //currently we are marking the link as red only if it partially connected 
-        if(link['error'] != null)
-            configData['lineColor'] = topologyColors['red'];
-        if(linksCount > 1 && (loss['loss_percent'] < 10 || !loss['diff']) && !configData['partialConnected'])
-            configData['width'] = topologyView.getLinkWidth(bwRng['bytes'][0],bwRng.bytes[bwRng['bytes'].length-1],result['bytes_new']);
+        			&& link['more_attributes']['in_stats'].length>0 && link['more_attributes']['out_stats'].length>0 ){
+        	var loss = topologyView.checkPacketLoss(link);
+        	var result = topologyView.getLinkInfo(link);
+        	if(link['error'] != undefined){
+        		configData['partialConnected'] = true;
+        		configData['error'] = link['error'];}
+        	configData['width'] = 1.25;//default width value
+        	configData['packets'] = result['pkts_new'];
+        	configData['bytes'] = formatBytes(result['bytes_new']);
+        	configData['more_attributes'] = link['more_attributes'];
+        	configData['dir'] = link['dir'];
+        	configData['loss'] = loss;
+        	/*if(link['error'] != null || loss['loss_percent'] > 10 ) {
+            configData['lineColor'] = '#E4564F';
+            }*/
+            //currently we are marking the link as red only if it partially connected 
+            if(link['error'] != null)
+                configData['lineColor'] = topologyColors['red'];
+            if(linksCount > 1 && (loss['loss_percent'] < 10 || !loss['diff']) && !configData['partialConnected'])
+                configData['width'] = topologyView.getLinkWidth(bwRng['bytes'][0],bwRng.bytes[bwRng['bytes'].length-1],result['bytes_new']);
         } else {
             if(link['error'] != undefined) {
                 configData['partialConnected'] = true;
@@ -343,9 +343,9 @@ function topologyRenderer() {
                 configData['lineColor'] = topologyColors['red'];
                 //configData['lineColor'] = '#3182bd';
             }
-    	configData['width'] = 1.25;
-    	configData['packets'] = 0;
-    	configData['bytes'] = 0;
+        	configData['width'] = 1.25;
+        	configData['packets'] = 0;
+        	configData['bytes'] = 0;
        }
        return configData;
     }
