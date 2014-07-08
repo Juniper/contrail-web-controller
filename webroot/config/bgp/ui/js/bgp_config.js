@@ -84,12 +84,10 @@ function isGlobalASN() {
 }
 
 function handleltor(left, right, options) {
-    var dataItems = [];
-    var availdata = $('#msbgppeer').data('contrail2WayMultiselect').getLeftData();
-    var selectdata = $('#msbgppeer').data('contrail2WayMultiselect').getRightData();
-    var selected = options;
+    var selected = $('#msbgppeer').data('contrail2WayMultiselect').getLeftSelectedData();
+    
     if (selected.length <= 0)
-        return;
+        return false;
     var type = "";
     if ($("#chkjnpr")[0].checked === true)
         type = "control";
@@ -105,41 +103,22 @@ function handleltor(left, right, options) {
                                 globalData[j].name +
                                 ") can be paired only with Control Nodes.",
                                 "Selection Error");
-                            return;
+                            return false;
                         }
                     }
                 }
             }
         }
     }
-
-    if (selected.length > 0) {
-        for (var i = 0; i < selected.length; i++) {
-            dataItems.push(selected[i].value);
-        }
-    }
-    for (var i = 0; i < dataItems.length; i++) {
-        selectdata.push({"label":dataItems[i], "value":dataItems[i]});
-    }
-    for (var i = 0; i < dataItems.length; i++) {
-        for (var j = 0; j < availdata.length; j++) {
-            if (dataItems[i] == availdata[j].label) {
-                availdata.splice(j, 1);
-            }
-        }
-    }
-    $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(availdata);
-    $('#msbgppeer').data('contrail2WayMultiselect').setRightData(selectdata);
-
+    
+    return true;
 }
 
 function handlertol(left, right, options) {
-    var dataItems = [];
-    var availdata = $('#msbgppeer').data('contrail2WayMultiselect').getLeftData();
-    var selectdata = $('#msbgppeer').data('contrail2WayMultiselect').getRightData();
-    var selected = options;
+    var selected = $('#msbgppeer').data('contrail2WayMultiselect').getRightSelectedData();
+    
     if (selected.length <= 0)
-        return;
+        return false;
     var type = "";
     if ($("#chkjnpr")[0].checked === true)
         type = "control";
@@ -148,7 +127,7 @@ function handlertol(left, right, options) {
     if (selected.length > 0) {
         if (isGlobalASN()) {
             showInfoWindow("Peer cannot be unpaired.", "Selection Error");
-            return;
+            return false;
         } else {
             for (var i = 0; i < selected.length; i++) {
                 for (var j = 0; j < globalData.length; j++) {
@@ -158,7 +137,7 @@ function handlertol(left, right, options) {
                                 showInfoWindow("Control Node('" +
                                     globalData[j].name + "') cannot be unpaired.",
                                     "Selection Error");
-                                return;
+                                return false;
                             }
                         }
                     }
@@ -166,24 +145,8 @@ function handlertol(left, right, options) {
             }
         }
     }
-
-    if (selected.length > 0) {
-        for (var i = 0; i < selected.length; i++) {
-            dataItems.push(selected[i].value);
-        }
-    }
-    for (var i = 0; i < dataItems.length; i++) {
-        availdata.push({"label":dataItems[i], "value":dataItems[i]});
-    }
-    for (var i = 0; i < dataItems.length; i++) {
-        for (var j = 0; j < selectdata.length; j++) {
-            if (dataItems[i] == selectdata[j].label) {
-                selectdata.splice(j, 1);
-            }
-        }
-    }
-    $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(availdata);
-    $('#msbgppeer').data('contrail2WayMultiselect').setRightData(selectdata);
+    
+    return true;
 }
 
 function clearBgpWindow() {
@@ -797,8 +760,12 @@ function initComponents() {
     });
     
     $('#msbgppeer').contrail2WayMultiselect({
-        beforeMoveOneToRight: handleltor,
-        beforeMoveOneToLeft: handlertol,        
+    	controls: {
+    		single: true,
+        	all: false
+        },
+    	beforeMoveOneToRight: handleltor,
+        beforeMoveOneToLeft: handlertol,  
         leftTitle: 'Available Peers',
         rightTitle: 'Configured Peers',
         sizeLeft: 10,
