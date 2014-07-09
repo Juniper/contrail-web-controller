@@ -2,23 +2,22 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../../common/js/controller.config.global');
-var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
+var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
     async = require('async'),
-    commonUtils = require(ctrlerConfig.core_path +
+    commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    logutils = require(ctrlerConfig.core_path +
+    logutils = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
-    appErrors = require(ctrlerConfig.core_path +
+    appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
     urlMod = require('url'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    opApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,

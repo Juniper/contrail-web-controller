@@ -8,21 +8,20 @@
  *     - Interfaces with config api server
  */
 
-var ctrlerConfig     = require('../../../common/js/controller.config.global');
-var rest             = require(ctrlerConfig.core_path +
+var rest             = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/common/rest.api');
 var projectconfigapi = module.exports;
-var logutils         = require(ctrlerConfig.core_path +
+var logutils         = require(process.mainModule.exports["corePath"] +
                                '/src/serverroot/utils/log.utils');
-var commonUtils      = require(ctrlerConfig.core_path + '/src/serverroot/utils/common.utils');
-var config           = require(ctrlerConfig.core_path + '/config/config.global.js');
-var messages         = require(ctrlerConfig.core_path + '/src/serverroot/common/messages');
-var global           = require(ctrlerConfig.core_path + '/src/serverroot/common/global');
-var appErrors        = require(ctrlerConfig.core_path + '/src/serverroot/errors/app.errors.js');
+var commonUtils      = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils');
+var config           = require(process.mainModule.exports["corePath"] + '/config/config.global.js');
+var messages         = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
+var global           = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global');
+var appErrors        = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors.js');
 var util             = require('util');
 var url              = require('url');
-var authApi          = require(ctrlerConfig.core_path + '/src/serverroot/common/auth.api');
-var configApiServer  = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api');
+var authApi          = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
+var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
