@@ -2,21 +2,20 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../common/js/controller.config.global');
-var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
   async = require('async'),
   tenantapi = module.exports,
-  logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
-  commonUtils = require(ctrlerConfig.core_path +
+  logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+  commonUtils = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/utils/common.utils'),
-  config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-  messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages'),
-  global = require(ctrlerConfig.core_path + '/src/serverroot/common/global'),
-  appErrors = require(ctrlerConfig.core_path +
+  config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+  messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
+  global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+  appErrors = require(process.mainModule.exports["corePath"] +
                       '/src/serverroot/errors/app.errors'),
   util = require('util'),
   jsonPath = require('JSONPath').eval,
-  configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api'),
+  configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
   opServer;
 
 // Instantiate config and ops server access objects.

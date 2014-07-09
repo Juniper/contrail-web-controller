@@ -6,15 +6,14 @@
  * API for communication with Query Engine.
  */
 
-var ctrlerConfig = require('../../common/js/controller.config.global');
 var qeapi = module.exports,
-    rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
-    commonUtils = require(ctrlerConfig.core_path +
+    rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages'),
-    global = require(ctrlerConfig.core_path + '/src/serverroot/common/global'),
+    messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
+    global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     qs = require('querystring'),
     underscore = require('underscore'),
     redisReadStream = require('redis-rstream'),

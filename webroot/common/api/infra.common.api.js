@@ -2,15 +2,14 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../js/controller.config.global');
-var commonUtils = require(ctrlerConfig.core_path +
+var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    configApiServer = require(ctrlerConfig.core_path +
+    configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api'),
-    opApiServer = require(ctrlerConfig.core_path +
+    opApiServer = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/opServer.api'),
     adminApiHelper = require('./adminapi.helper'),
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
     assert = require('assert'),
     request = require('request'),

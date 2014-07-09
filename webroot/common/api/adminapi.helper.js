@@ -7,18 +7,17 @@
  *     Contains Admin API helper functions used by Main Server and Job Server
  */
 
-var ctrlerConfig = require('../js/controller.config.global');
-var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
-    commonUtils = require(ctrlerConfig.core_path + '/src/serverroot/utils/common.utils'),
-    messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages'),
-    global = require(ctrlerConfig.core_path + '/src/serverroot/common/global'),
-    appErrors = require(ctrlerConfig.core_path + '/src/serverroot/errors/app.errors'),
+var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
+    messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
+    global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+    appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
     util = require('util'),
     async = require('async'),
     jsonPath = require('JSONPath').eval,
-    configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 adminApiHelper = module.exports;
 

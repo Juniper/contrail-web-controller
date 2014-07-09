@@ -7,24 +7,20 @@
        file
    -->
   <require>
-      <define>ctrlerConfig</define>
-      <path>../js/controller.config.global</path>
-  </require>
-  <require>
       <define>jobsApi</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/jobs/core/jobs.api'</path>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/jobs.api'</path>
   </require>
   <require>
       <define>jobsProcess</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/jobs/core/jobsProcess.api'</path>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/jobsProcess.api'</path>
   </require>
   <require>
       <define>commonUtils</define>
-      <path>ctrlerConfig.core_path + '/src/serverroot/utils/common.utils'</path>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'</path>
   </require>
   <require>
       <define>config</define>
-      <path>ctrlerConfig.core_path + '/config/config.global'</path>
+      <path>process.mainModule.exports["corePath"] + '/config/config.global'</path>
   </require>
   <!-- Define Job Names and the corresponding callback -->
   <item>
