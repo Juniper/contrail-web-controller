@@ -2,17 +2,16 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../common/js/controller.config.global');
-var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-    logutils = require(ctrlerConfig.core_path +
+var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    logutils = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/utils/log.utils'),
-    commonUtils = require(ctrlerConfig.core_path +
+    commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    messages = require(ctrlerConfig.core_path +
+    messages = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/messages'),
-    global = require(ctrlerConfig.core_path + '/src/serverroot/common/global'),
-    appErrors = require(ctrlerConfig.core_path +
+    global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+    appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     util = require('util'),
     qs = require('querystring'),
@@ -20,7 +19,7 @@ var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
     jsonPath = require('JSONPath').eval,
     flowCache = require('../../../common/api/flowCache.api'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
-    configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api'),
+    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
     qeAPI = require('../../../reports/api/qe.api.js'),
     assert = require('assert'),
     opServer;

@@ -2,13 +2,12 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../common/js/controller.config.global');
 var cdbqueryapi = module.exports,
-    commonUtils = require(ctrlerConfig.core_path +
+    commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
     editEnabled = config.cassandra.enable_edit,
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils');
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils');
 
 var helenus = require('helenus'),
     hosts = getCassandraHostList(config.cassandra.server_ips, config.cassandra.server_port),

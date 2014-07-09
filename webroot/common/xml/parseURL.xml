@@ -7,20 +7,16 @@
          file
      -->
      <require>
-        <define>ctrlerConfig</define>
-        <path>../js/controller.config.global</path>
-     </require>
-     <require>
         <define>longPoll</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/web/core/longPolling.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/core/longPolling.api'</path>
      </require>
      <require>
         <define>cacheApi</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/web/core/cache.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/core/cache.api'</path>
     </require>
     <require>
         <define>rbac</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/web/core/rbac.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/core/rbac.api'</path>
     </require>
     <require>
         <define>tenantapi</define>
@@ -36,11 +32,11 @@
     </require>
     <require>
         <define>handler</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/web/routes/handler'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/routes/handler'</path>
     </require>
     <require>
         <define>commonUtils</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/utils/common.utils'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'</path>
     </require>
     <require>
         <define>globalvrouterconfigapi</define>
@@ -93,7 +89,7 @@
     </require>
     <require>
         <define>global</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/common/global'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/global'</path>
     </require>
     <require>
         <define>infraControl</define>
@@ -117,11 +113,11 @@
     </require>
     <require>
         <define>sshapi</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/common/sshcommand.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/sshcommand.api'</path>
     </require>
     <require>
         <define>proxyApi</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/common/proxy.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/proxy.api'</path>
     </require>
     <require>
         <define>timeout</define>
