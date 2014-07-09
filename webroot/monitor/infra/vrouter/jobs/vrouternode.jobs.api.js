@@ -568,15 +568,30 @@ function getvRouterList (pubChannel, saveChannelKey, jobData, done)
 
 function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
 {
+    var dataObj = {};
     var appData = jobData.taskData.appData;
     appData['addGen'] = null;
     var addGen = null;
     var url = '/virtual-routers';
+    var curTime = commonUtils.getCurrentTimestamp();
+    dataObj['jobStartTime'] = jobData['jobStartTime'];
+    dataObj['jobEndTime'] = curTime;
+    dataObj['reqBy'] = jobData.taskData.reqBy;
+    dataObj['jobRefreshTimeMilliSecs'] = jobData['taskData']['nextRunDelay'];
+
     infraCmn.getvRouterList(jobData,
                            commonUtils.doEnsureExecution(function(err, nodeList,
                                                                   uuidList) {
+        if (null != err) {
+            redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                        global.HTTP_STATUS_INTERNAL_ERROR, 
+                                        global.STR_CACHE_RETRIEVE_ERROR,
+                                        global.STR_CACHE_RETRIEVE_ERROR,
+                                        0, 0, done);
+            return;
+        }
         infraCmn.dovRouterListProcess(null, uuidList, nodeList, addGen, jobData,
-                     commonUtils.doEnsureExecution(function(err, resultJSON) {
+                                      function(err, resultJSON) {
             if (undefined == resultJSON) {
                 redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                             global.HTTP_STATUS_INTERNAL_ERROR, 
@@ -596,20 +611,13 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                     }
                 }
             }
-            var dataObj = resultJSON;
-            var curTime = commonUtils.getCurrentTimestamp();
-            var dataObj = {};
-            dataObj['jobStartTime'] = jobData['jobStartTime'];
-            dataObj['jobEndTime'] = curTime;
-            dataObj['reqBy'] = jobData.taskData.reqBy;
-            dataObj['jobRefreshTimeMilliSecs'] = jobData['taskData']['nextRunDelay'];
             dataObj['data'] = resultJSON;
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                         global.HTTP_STATUS_RESP_OK,
                                         JSON.stringify(dataObj),
                                         JSON.stringify(dataObj),
                                         1, 0, done, jobData);
-        }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
+        });
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
