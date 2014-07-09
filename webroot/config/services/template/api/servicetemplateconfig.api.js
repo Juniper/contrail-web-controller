@@ -8,22 +8,21 @@
  *     - Interfaces with config api server
  */
 
-var ctrlerConfig = require('../../../../common/js/controller.config.global');
-var rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api');
+var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api');
 var async = require('async');
-var logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils');
-var commonUtils = require(ctrlerConfig.core_path +
+var logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils');
+var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils');
-var config = require(ctrlerConfig.core_path + '/config/config.global.js');
-var messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages');
-var global = require(ctrlerConfig.core_path + '/src/serverroot/common/global');
-var appErrors = require(ctrlerConfig.core_path +
+var config = require(process.mainModule.exports["corePath"] + '/config/config.global.js');
+var messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
+var global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global');
+var appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors');
 var util = require('util');
 var url = require('url');
-var imageApi = require(ctrlerConfig.core_path + '/src/serverroot/common/imagemanager.api');
-var configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api');
-var computeApi = require(ctrlerConfig.core_path + '/src/serverroot/common/computemanager.api');
+var imageApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/imagemanager.api');
+var configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+var computeApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/computemanager.api');
 
 /**
  * Bail out if called directly as "nodejs servicetemplateconfig.api.js"

@@ -2,23 +2,22 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctrlerConfig = require('../../../common/js/controller.config.global');
-var cacheApi = require(ctrlerConfig.core_path + '/src/serverroot/web/core/cache.api'),
-    global   = require(ctrlerConfig.core_path + '/src/serverroot/common/global'),
-    messages = require(ctrlerConfig.core_path + '/src/serverroot/common/messages'),
-    commonUtils = require(ctrlerConfig.core_path + '/src/serverroot/utils/common.utils'),
+var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/web/core/cache.api'),
+    global   = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+    messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
+    commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     tenantapi = require('./tenant.api'),
-    config = require(ctrlerConfig.core_path + '/config/config.global.js'),
-    rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api'),
+    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
     async = require('async'),
     jsonPath = require('JSONPath').eval,
-    opApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/opServer.api'),
-    configApiServer = require(ctrlerConfig.core_path + '/src/serverroot/common/configServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
     infraCmn = require('../../../common/api/infra.common.api'),
-    logutils = require(ctrlerConfig.core_path + '/src/serverroot/utils/log.utils'),
+    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     nwMonUtils = require('../../../common/api/nwMon.utils'),
     ctrlGlobal = require('../../../common/api/global'),
-    appErrors = require(ctrlerConfig.core_path + '/src/serverroot/errors/app.errors');
+    appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors');
 
 nwMonApi = module.exports;
 opServer = rest.getAPIServer({apiName: global.label.OPS_API_SERVER, 

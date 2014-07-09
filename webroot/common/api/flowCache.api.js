@@ -7,18 +7,17 @@
  *      This file contains caching infra for flow-series data
  */
 
-var ctrlerConfig = require('../js/controller.config.global');
 var assert = require('assert')
-    , rest = require(ctrlerConfig.core_path + '/src/serverroot/common/rest.api')
-    , config = require(ctrlerConfig.core_path + '/config/config.global.js')
-    , commonUtils = require(ctrlerConfig.core_path +
+    , rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api')
+    , config = require(process.mainModule.exports["corePath"] + '/config/config.global.js')
+    , commonUtils = require(process.mainModule.exports["corePath"] +
                             '/src/serverroot/utils/common.utils')
-    , global = require(ctrlerConfig.core_path + '/src/serverroot/common/global')
+    , global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global')
     , util = require('util')
-    , logutils = require(ctrlerConfig.core_path +
+    , logutils = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/utils/log.utils')
     , nwMonUtils = require('./nwMon.utils')
-    , messages = require(ctrlerConfig.core_path +
+    , messages = require(process.mainModule.exports["corePath"] +
                          '/src/serverroot/common/messages');
 
 if (!module.parent) {
