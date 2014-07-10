@@ -258,34 +258,31 @@ function listFloatingIps (request, response, appData)
  * private function
  * 1. Callback for getFipPoolsForProject
  */
-function getFipPoolsForProjectCb (error, projectData, response) 
+function getFipPoolsForProjectCb (error, projectData, callback)
 {
     var fipPool = {};
+    fipPool['floating_ip_pool_refs'] = [];
 
     if (error) {
-       commonUtils.handleJSONResponse(error, response, null);
-       return;
+        callback(error, fipPool);
+        return;
     }
-
-    fipPool['floating_ip_pool_refs'] = [];
 
     if ('floating_ip_pool_refs' in projectData['project']) {
         fipPool['floating_ip_pool_refs'] =
                projectData['project']['floating_ip_pool_refs'];
     }
 
-    commonUtils.handleJSONResponse(error, response, fipPool);
+    callback(null, fipPool);
 }
 
 /**
- * @listFloatingIpPools
- * public function
- * 1. URL /api/tenants/config/floating-ip-pools/:id
- * 2. Gets list of floating ip pools  from  project's fip
+ * @getFloatingIpPoolsByVNLists
+ * private function
+ * 1. Gets list of floating ip pools  from  Project's fip
  *    pool  refs
- * 3. Needs tenant / project id as the id
  */
-function listFloatingIpPools (request, response, appData) 
+function getFloatingIpPoolsByProject (request, appData, callback)
 {
     var tenantId      = null;
     var requestParams = url.parse(request.url,true);
@@ -300,8 +297,98 @@ function listFloatingIpPools (request, response, appData)
     }
     configApiServer.apiGet(projectURL, appData,
                          function(error, data) {
-                         getFipPoolsForProjectCb(error, data, response)
-                         });
+                         getFipPoolsForProjectCb(error, data, callback);
+    });
+}
+
+/**
+ * @getFloatingIpPoolsByVNLists
+ * private function
+ * 1. Gets list of floating ip pools  from  All VNs' fip
+ *    pool  refs
+ */
+function getFloatingIpPoolsByVNLists (request, appData, callback)
+{
+    var vnListURL = '/virtual-networks';
+    var fipPool = {};
+    var dataObjArr = [];
+    fipPool['floating_ip_pool_refs'] = [];
+    configApiServer.apiGet(vnListURL, appData, function(err, vnList) {
+        if ((null != err) || (null == vnList) || 
+            (null == vnList['virtual-networks'])) {
+            callback(err, fipPool);
+            return;
+        }
+        var vns = vnList['virtual-networks'];
+        var vnCnt = vns.length;
+        for (var i = 0; i < vnCnt; i++) {
+            var vnURL = '/virtual-network/' + vns[i]['uuid'] +
+            '?exclude_back_refs=true';
+            commonUtils.createReqObj(dataObjArr, vnURL, global.HTTP_REQUEST_GET,
+                                     null, null, null, appData);
+        }
+        if (!dataObjArr.length) {
+            callback(null, fipPool);
+            return;
+        }
+        async.map(dataObjArr, 
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   true),
+                  function(error, results) {
+            if ((null != error) || (null == results)) {
+                callback(error, fipPool);
+                return;
+            }
+            var resCnt = results.length;
+            for (i = 0; i < resCnt; i++) {
+                try {
+                    var vn = results[i]['virtual-network'];
+                    if ((true == vn['router_external']) &&
+                        (null != vn['floating_ip_pools'])) {
+                        fipPool['floating_ip_pool_refs'] = 
+                            fipPool['floating_ip_pool_refs'].concat(vn['floating_ip_pools']);
+                    }
+                } catch(e) {
+                    continue;
+                }
+            }
+            callback(null, fipPool);
+        });
+    });
+}
+
+/**
+ * @listFloatingIpPools
+ * public function
+ * 1. URL /api/tenants/config/floating-ip-pools/:id
+ * 2. Gets list of floating ip pools  from  project's fip
+ *    pool refs based on boolean flag, enableFipProjectsFromApiServer set in
+ *    config file.
+ *    If set true, the fip pool list needs to be retrieved from the current
+ *      project
+ *    If set false, the fip pool list needs to be retrieved across all the
+ *      projects
+ */
+function listFloatingIpPools (request, response, appData) 
+{
+    var fipProjsFromApiServer = config.enableFipProjectsFromApiServer;
+    if (null == fipProjsFromApiServer) {
+        fipProjsFromApiServer = false;
+    }
+
+    if (false == fipProjsFromApiServer) {
+        getFloatingIpPoolsByVNLists(request, appData, 
+                                    function(error, data) {
+           commonUtils.handleJSONResponse(error, response, data);
+           return;
+        });
+    } else {
+        getFloatingIpPoolsByProject(request, appData,
+                                    function(error, data) {
+            commonUtils.handleJSONResponse(error, response, data);
+            return;
+        });
+    }
 }
 
 /**
