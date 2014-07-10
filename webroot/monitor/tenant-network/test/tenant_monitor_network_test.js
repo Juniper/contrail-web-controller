@@ -22,8 +22,11 @@ test("parseNetworkDetails which parse the data when we expand the row in the net
 
 test("parseInstanceDetails which parse the data when we expand the row in the instance summary grid",function(){
     expect(2);
-    deepEqual(tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'completeDetails'})),
-            monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'completeDetails'}),"Testing parseInstanceDetails function");
+    var actual = tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'completeDetails'}));
+    var expected = monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'completeDetails'}); 
+    deepEqual(actual,expected,"Testing parseInstanceDetails function");
+    var actualWithFip = tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'withFip'}));
+    var expectedWithFip = monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'withFip'});
     deepEqual(tenantNetworkMonitorUtils.parseInstDetails(monitorNetworkMockData.getInput({fnName:'parseInstanceDetails',type:'withFip'})),
             monitorNetworkMockData.getOutput({fnName:'parseInstanceDetails',type:'withFip'}),"Testing parseInstanceDetails function with Floating IP");
 });
@@ -198,10 +201,11 @@ test("getBandwidthRange parses the links arrays and returns the bandwidth range 
 
 test("constructLinkData returns the object with packet loss %,color of the link,linkWidth etc which are required for plotting the link ",function(){
     expect(1);
-    deepEqual(topologyView.constructLinkData(monitorNetworkMockData.getInput({fnName:'constructLinkData',type:'data'})['link'],
+    var actual = topologyView.constructLinkData(monitorNetworkMockData.getInput({fnName:'constructLinkData',type:'data'})['link'],
             monitorNetworkMockData.getInput({fnName:'constructLinkData',type:'data'})['linksCount'],
-            monitorNetworkMockData.getInput({fnName:'constructLinkData',type:'data'})['bwRng']), 
-            monitorNetworkMockData.getOutput({fnName:'constructLinkData',type:'data'}));
+            monitorNetworkMockData.getInput({fnName:'constructLinkData',type:'data'})['bwRng']);
+    var expected = monitorNetworkMockData.getOutput({fnName:'constructLinkData',type:'data'});
+    deepEqual(actual,expected);
 });
 
 test("checkPacketLoss returns the object with packet loss % and flag regarding the packet loss",function(){

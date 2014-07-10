@@ -144,7 +144,7 @@ function MonitorNetworkMockData() {
                               ],
                               "if_bmap_list":[
                                  {
-                                    "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
                                     "port_bucket_bmap":{
                                        "udp_sport_bitmap":[
                                           "1",
@@ -207,7 +207,7 @@ function MonitorNetworkMockData() {
                                     "out_bandwidth_usage":0,
                                     "out_pkts":19,
                                     "in_pkts":58,
-                                    "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
+                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
                                  }
                               ],
                               "vrouter":"nodea8",
@@ -234,7 +234,7 @@ function MonitorNetworkMockData() {
                               "interface_list":[
                                  {
                                     "vm_name":"vn1-inst",
-                                    "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
                                     "floating_ips":[
 
                                     ],
@@ -276,7 +276,7 @@ function MonitorNetworkMockData() {
                                ],
                                "if_bmap_list":[
                                   {
-                                     "name":"f8161542-fb3e-4b1a-858d-822503c625ab:a7c26480-fa14-400b-ad80-9cbbb3677eab",
+                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab",
                                      "port_bucket_bmap":{
                                         "udp_sport_bitmap":[
                                            "1",
@@ -339,7 +339,7 @@ function MonitorNetworkMockData() {
                                      "out_bandwidth_usage":0,
                                      "out_pkts":205,
                                      "in_pkts":42,
-                                     "name":"f8161542-fb3e-4b1a-858d-822503c625ab:a7c26480-fa14-400b-ad80-9cbbb3677eab"
+                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab"
                                   }
                                ],
                                "vrouter":"nodeg2",
@@ -356,7 +356,7 @@ function MonitorNetworkMockData() {
                                "interface_list":[
                                   {
                                      "vm_name":"inst1-f8161542-fb3e-4b1a-858d-822503c625ab",
-                                     "name":"f8161542-fb3e-4b1a-858d-822503c625ab:a7c26480-fa14-400b-ad80-9cbbb3677eab",
+                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab",
                                      "floating_ips":[
                                         {
                                            "virtual_network":"default-domain:admin:vn2",
@@ -377,73 +377,74 @@ function MonitorNetworkMockData() {
                 },
                 output :{
                     'completeDetails' : 
-                    [
-                     {
-                        "lbl":"UUID",
-                        "value":"597cd5ec-3d29-486a-8203-14d3209994b7"
-                     },
-                     {
-                        "lbl":"CPU",
-                        "value":"0.01"
-                     },
-                     {
-                        "lbl":"Memory (Used/Total)",
-                        "value":"388.59 MB / 512 MB"
-                     },
-                     {
-                        "lbl":"Throughput (In/Out)",
-                        "value":"0 B/0 B"
-                     },
-                     {
-                        "lbl":"Interfaces",
-                        "value":[
-                           "IP Address",
-                           "Label",
-                           "Mac Address",
-                           "Network",
-                           "Traffic (In/Out)",
-                           "Throughput (In/Out)",
-                           "Gateway",
-                           "Status"
-                        ],
-                        "span":[
-                           95,
-                           35,
-                           120,
-                           230,
-                           150,
-                           150,
-                           95,
-                           85
-                        ],
-                        "config":{
-                           "labels":true
-                        }
-                     },
-                     {
-                        "lbl":"",
-                        "value":[
-                           "10.10.10.253",
-                           16,
-                           "02:2a:db:31:c0:1c",
-                           "default-domain:demo:vn1",
-                           "4.68 KB/2.01 KB",
-                           "0 B/0 B",
-                           "10.10.10.254",
-                           "Active"
-                        ],
-                        "span":[
-                           95,
-                           35,
-                           120,
-                           230,
-                           150,
-                           150,
-                           95,
-                           85
-                        ]
-                     }
-                  ],
+                        [
+                         {
+                            "lbl":"UUID",
+                            "value":"597cd5ec-3d29-486a-8203-14d3209994b7"
+                         },
+                         {
+                            "lbl":"CPU",
+                            "value":"0.01"
+                         },
+                         {
+                            "lbl":"Memory (Used/Total)",
+                            "value":"388.59 MB / 512 MB"
+                         },
+                         {
+                            "lbl":"Throughput (In/Out)",
+                            "value":"0 B/0 B"
+                         },
+                         {
+                            "lbl":"Interfaces",
+                            "value":[
+                               "Interface UUID",
+                               "IP Address /<br/> Mac Address",
+                               "Label",
+                               "Network",
+                               "Traffic (In/Out)",
+                               "Throughput (In/Out)",
+                               "Gateway",
+                               "Status"
+                            ],
+                            "span":[
+                               235,
+                               105,
+                               35,
+                               190,
+                               110,
+                               110,
+                               95,
+                               55
+                            ],
+                            "config":{
+                               "labels":true,
+                               "minHeight":"40px"
+                            }
+                         },
+                         {
+                            "lbl":"",
+                            "value":[
+                               "2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                               "10.10.10.253 /<br/> 02:2a:db:31:c0:1c",
+                               16,
+                               "default-domain:demo:vn1",
+                               "4.68 KB/2.01 KB",
+                               "0 B/0 B",
+                               "10.10.10.254",
+                               "Active"
+                            ],
+                            "span":[
+                               235,
+                               105,
+                               35,
+                               190,
+                               110,
+                               110,
+                               95,
+                               55
+                            ]
+                         }
+                      ],
                   withFip:[
                            {
                                "lbl":"Floating IP",
@@ -468,9 +469,9 @@ function MonitorNetworkMockData() {
                             {
                                "lbl":"Interfaces",
                                "value":[
-                                  "IP Address",
+                                  "Interface UUID",
+                                  "IP Address /<br/> Mac Address",
                                   "Label",
-                                  "Mac Address",
                                   "Network",
                                   "Traffic (In/Out)",
                                   "Throughput (In/Out)",
@@ -478,25 +479,26 @@ function MonitorNetworkMockData() {
                                   "Status"
                                ],
                                "span":[
-                                  95,
+                                  235,
+                                  105,
                                   35,
-                                  120,
-                                  230,
-                                  150,
-                                  150,
+                                  190,
+                                  110,
+                                  110,
                                   95,
-                                  85
+                                  55
                                ],
                                "config":{
-                                  "labels":true
+                                  "labels":true,
+                                  "minHeight":"40px"
                                }
                             },
                             {
                                "lbl":"",
                                "value":[
-                                  "192.168.1.223",
+                                  "a7c26480-fa14-400b-ad80-9cbbb3677eab",
+                                  "192.168.1.223 /<br/> 02:a7:c2:64:80:fa",
                                   36,
-                                  "02:a7:c2:64:80:fa",
                                   "default-domain:admin:vn1",
                                   "3.57 KB/16.15 KB",
                                   "0 B/0 B",
@@ -504,14 +506,14 @@ function MonitorNetworkMockData() {
                                   "Active"
                                ],
                                "span":[
-                                  95,
+                                  235,
+                                  105,
                                   35,
-                                  120,
-                                  230,
-                                  150,
-                                  150,
+                                  190,
+                                  110,
+                                  110,
                                   95,
-                                  85
+                                  55
                                ]
                             }
                          ]
@@ -4151,27 +4153,27 @@ function MonitorNetworkMockData() {
                   		            "portRange=1024-1279&startTime=1394616548012&endTime=1394617148012",
                   
                   portDistributionRangeDetail:{
-                      networkSourcePort: "/api/admin/reports/query?port=1024-1279&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394618503455" +
-                  		"&toTimeUTC=1394619103455&select=destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
-                  		"where=(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D1)+OR+" +
-                  		"(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D17)+OR+" +
-                  		"(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D6)",
-                  		networkDestPort: "/api/admin/reports/query?port=0-255&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394619178299" +
-                  				"&toTimeUTC=1394619778299&select=destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
-                  				"where=(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D1)+OR+" +
-                  				"(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D17)+OR+" +
-                  				"(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D6)",
-                  	    projectSourcePort:"/api/admin/reports/query?port=1024-1279&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394622510616&" +
-                  	    		"toTimeUTC=1394623110616&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
-                  	    		"where=(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D1)+" +
-                  	    		"OR+(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D17)+" +
-                  	    		"OR+(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D6)",
-                  	    projectDestPort:"/api/admin/reports/query?port=0-255&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394622748072&" +
-                  	    		"toTimeUTC=1394623348072&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
-                  	    		"where=(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D1)+" +
-                  	    		"OR+(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D17)+" +
-                  	    		"OR+(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D6)"
-                  		
+                      networkSourcePort: "/api/admin/reports/query?port=1024-1279&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394618503455&" +
+                      		"toTimeUTC=1394619103455&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
+                      		"where=(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D1)+OR+" +
+                      		"(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D17)+OR+" +
+                      		"(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D6)",
+                        networkDestPort: "/api/admin/reports/query?port=0-255&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394619178299&" +
+                        		"toTimeUTC=1394619778299&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
+                        		"where=(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D1)+OR+" +
+                        		"(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D17)+OR+" +
+                        		"(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3Avn3+AND+protocol%3D6)",
+                        projectSourcePort:"/api/admin/reports/query?port=1024-1279&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394622510616&" +
+                                "toTimeUTC=1394623110616&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
+                                "where=(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D1)+" +
+                                "OR+(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D17)+" +
+                                "OR+(sport%3D1024-1279+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D6)",
+                        projectDestPort:"/api/admin/reports/query?port=0-255&timeRange=600&table=FlowSeriesTable&fromTimeUTC=1394622748072&" +
+                                "toTimeUTC=1394623348072&select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count&" +
+                                "where=(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D1)+" +
+                                "OR+(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D17)+" +
+                                "OR+(dport%3D0-255+AND+sourcevn%3Ddefault-domain%3Ademo%3A*+AND+protocol%3D6)"
+                        
                 },
                 projectPortDistributionWithRelativeTime:"/api/tenant/networking/network/stats/top?minsSince=10&fqName=default-domain%3Aadmin" +
                 		"&useServerTime=true&type=port",
@@ -5866,10 +5868,10 @@ function MonitorNetworkMockData() {
                       },
                       output:{
                           data:{
-                              "lineColor":"#3182bd",
+                              "lineColor":"#3182BD",
                               "partialConnected":false,
                               "width":1.25,
-                              "bytes":"-",
+                              "bytes":"63.62 MB",
                               "more_attributes":{
                                  "in_stats":[
                                     {
@@ -5905,7 +5907,7 @@ function MonitorNetworkMockData() {
                                  "diff":true,
                                  "loss_percent":"44.68"
                               },
-                              "packets":undefined
+                              "packets":794111
                            }
                       }
                   },
