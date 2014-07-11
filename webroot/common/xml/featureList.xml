@@ -3,12 +3,8 @@
 -->
 <featureLists>
     <require>
-        <define>ctrlerConfig</define>
-        <path>../js/controller.config.global</path>
-    </require>
-    <require>
         <define>rbac</define>
-        <path>ctrlerConfig.core_path + '/src/serverroot/web/core/rbac.api'</path>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/core/rbac.api'</path>
     </require>
     <item>
         <feature>monitoring</feature>
