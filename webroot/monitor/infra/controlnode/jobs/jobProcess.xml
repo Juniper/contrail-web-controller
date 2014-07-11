@@ -1,0 +1,44 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<jobLists>
+  <!-- Define module name here which is being referenced in the generated 
+       file
+   -->
+  <require>
+      <define>jobsProcess</define>
+      <path>../../../../common/api/jobsProcess.api</path>
+  </require> 
+  <require>
+      <define>parseJobsReq</define>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseJobsRequire'</path>
+  </require> 
+  <item>
+    <jobName>getControlNodes</jobName>
+    <callback>processControlNodeRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getNodes</jobName>
+    <callback>processNodesRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getControlNodesSummary</jobName>
+    <requireJob>getNodesTree</requireJob>
+    <callback>processControlNodesSummaryRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getNodesTree</jobName>
+    <callback>processControlNodesTreeRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getControlNodeBgpPeer</jobName>
+    <requireJob>getNodesTree</requireJob>
+    <callback>processControlNodeBgpPeerRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getControlNodeAutoCompleteList</jobName>
+    <callback>processControlNodeAutoCompleteListRequestByJob</callback>
+  </item>
+</jobLists>
+
