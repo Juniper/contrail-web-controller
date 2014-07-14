@@ -10,6 +10,8 @@ module.exports = function( grunt ) {
     grunt.loadNpmTasks('grunt-karma');
     //this option is to avoid interruption of test case execution on failure of one in sequence
     grunt.option('force',true);
+    grunt.option('stack',true);
+    //These will be included for all unit test targets
     var commonFiles = [
         "contrail-web-core/webroot/js/contrail-all-1.js",
         "contrail-web-core/webroot/js/contrail-all-2.js",
@@ -20,16 +22,13 @@ module.exports = function( grunt ) {
         "contrail-web-controller/webroot/monitor/infra/common/ui/js/monitor_infra_constants.js",
         "contrail-web-controller/webroot/monitor/infra/common/ui/js/monitor_infra_utils.js"
         ];
-
-    grunt.initConfig({
-        pkg: grunt.file.readJSON( "../../../contrail-web-core/package.json" ),
-        karma: {
+    var karmaCfg = {
                 options:{
                     configFile:'karma.conf.js',
                 },
                 monitor_infra: {
                     options: {
-                        files:commonFiles.concat([
+                        files:[
                             /* DASHBOARD */
                             "contrail-web-controller/webroot/monitor/infra/dashboard/ui/js/monitor_infra_dashboard.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_dashboard_mock.js",
@@ -65,7 +64,7 @@ module.exports = function( grunt ) {
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_analyticsnode_mock.js",
                             "contrail-web-controller/webroot/monitor/infra/test/monitor_infra_analyticsnode_test.js"
 
-                            ]),
+                            ],
                         preprocessors: {
                             'contrail-web-controller/webroot/monitor/infra/dashboard/ui/js/*.js': ['coverage'],
                             'contrail-web-controller/webroot/monitor/infra/vrouter/ui/js/*.js': ['coverage'],
@@ -76,7 +75,7 @@ module.exports = function( grunt ) {
                 },
                 monitor_network :{
                     options: {
-                        files: commonFiles.concat([
+                        files: [
                             "contrail-web-controller/webroot/monitor/tenant-network/common/ui/js/tenant_monitor_utils.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/common/ui/js/tenant_monitor_topology.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/network/ui/js/tenant_monitor_network.js",
@@ -85,7 +84,7 @@ module.exports = function( grunt ) {
                             "contrail-web-controller/webroot/monitor/tenant-network/project/ui/js/tenant_monitor_project.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/test/tenant_monitor_network_mock.js",
                             "contrail-web-controller/webroot/monitor/tenant-network/test/tenant_monitor_network_test.js",
-                        ]),
+                        ],
                         preprocessors: {
                             'contrail-web-controller/webroot/monitor/tenant-network/network/ui/js/*.js': ['coverage'],
                             'contrail-web-controller/webroot/monitor/tenant-network/dashboard/ui/js/*.js': ['coverage'],
@@ -97,13 +96,13 @@ module.exports = function( grunt ) {
                 },
                 config_svc_instances :{
                     options: {
-                        files: commonFiles.concat([
+                        files: [
                             "contrail-web-controller/webroot/config/services/instances/ui/js/svcinstances_config.js",
                             "contrail-web-controller/webroot/config/services/instances/ui/views/svcinstances_config.view",
                             "contrail-web-controller/webroot/config/services/instances/ui/views/svcinstances_config_ut.view",
                             "contrail-web-controller/webroot/config/services/instances/test/config_service_instance_test.js",
                             "contrail-web-controller/webroot/config/services/instances/test/config_service_instance_mock.js",
-                        ]),
+                        ],
                         preprocessors: {
                             'contrail-web-controller/webroot/config/services/instances/ui/js/*.js': ['coverage'],
                             'contrail-web-controller/webroot/config/services/instances/ui/views/*.view' : ['html2js'],
@@ -112,19 +111,40 @@ module.exports = function( grunt ) {
                 },
                 config_svc_templates: {
                     options: {
-                        files: commonFiles.concat([
+                        files: [
                             "contrail-web-controller/webroot/config/services/template/ui/js/svctemplate_config.js",
                             "contrail-web-controller/webroot/config/services/template/ui/views/svctemplate_config.view",
                             "contrail-web-controller/webroot/config/services/template/test/config_service_template_test.js",
                             "contrail-web-controller/webroot/config/services/template/test/config_service_template_mock.js",
-                        ]),
+                        ],
                         preprocessors: {
                             'contrail-web-controller/webroot/config/services/template/ui/js/*.js': ['coverage'],
                             'contrail-web-controller/webroot/config/services/template/ui/views/*.view' : ['html2js'],
                         }
                     }
                 }
-        },
+        };
+
+        /* Start - Create all target that will run unit test cases from all features */
+        var allCfg = {'options':{
+                files:commonFiles,
+                preprocessors:{}
+            }};
+        for(var feature in karmaCfg) {
+            if(feature != 'options') {
+                allCfg['options']['files'] = allCfg['options']['files'].concat(karmaCfg[feature]['options']['files']);
+                for(var path in karmaCfg[feature]['options']['preprocessors'])
+                    allCfg['options']['preprocessors'][path] = karmaCfg[feature]['options']['preprocessors'][path];
+                karmaCfg[feature]['options']['files'] = commonFiles.concat(karmaCfg[feature]['options']['files']);
+            }
+        }
+        karmaCfg['all'] = allCfg;
+        /* End - Create all target that will run unit test cases from all features */
+    
+
+    grunt.initConfig({
+        pkg: grunt.file.readJSON( __dirname + "/../../../contrail-web-core/package.json" ),
+        karma: karmaCfg,
         jshint: {
             options: {
                 jshintrc: ".jshintrc"
