@@ -3,18 +3,17 @@
  */
 module.exports = function(config) {
   config.set({
-    basePath: '../../..',    //"contrail-web-ui" directory
+    basePath: __dirname + '/../../..',    
     autoWatch: true,
     frameworks: ['qunit','sinon'],
-    files: [
-        //{pattern:"webroot/monitor/bgp/test/monitor_infra_dashboard.html",watched:false},
-    ],
+    files: [],
     plugins:[
         'karma-phantomjs-launcher',
         'karma-coverage',
         'karma-qunit',
         'karma-sinon',
         'karma-htmlfile-reporter',
+        //'karma-html-reporter',
         'karma-junit-reporter',
         'karma-html2js-preprocessor',
         'karma-firefox-launcher',
@@ -36,7 +35,9 @@ module.exports = function(config) {
         '*.html': []
         },
     htmlReporter: {
-      outputFile: './tests/units.html'
+        /* outputDir: 'karma_html', */
+        /* templatePath: __dirname+'/node_modules/karma-html-reporter/jasmine_template.html' */
+      outputFile: __dirname + '/tests/units.html'
     },
     singleRun: true
   });
