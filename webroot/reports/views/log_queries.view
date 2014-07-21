@@ -66,6 +66,17 @@
                             </div>
                         </div>
                         <div class="row-fluid margin-0-0-5">
+                            <div class="span4">
+                                <label>Keywords</label>
+                                <div>
+                                    <div class="input-append inset span12">
+                                        <textarea id="sl-keyword" name="keywords" class="span12 filter-textarea" rows="1" value="" placeholder="Enter keyword(s)"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="toHide hide">
+                            <div class="row-fluid margin-0-0-5">
                             <div class="span8">
                                 <label>Where</label>
                                 <div>
@@ -97,11 +108,15 @@
                                     </select>
                                 </div>
                             </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid margin-0-0-5">
+                            <span onclick="toggleSysLogForm(this);" class="advanced-options-link">Show Advanced Options</span>
                         </div>
                         <div class="row-fluid margin-15-0-0">
                             <a id="sl-query-submit" class="btn btn-mini btn-primary"
                                onclick="runSLQuery();"><span>Run Query</span></a>
-                            <a class="btn btn-mini margin-0-5" data-bind="click: reset">Reset</a>                               
+                            <a class="btn btn-mini margin-0-5" data-bind="click: reset">Reset</a>
                         </div>
                     </div>
                 </form>
