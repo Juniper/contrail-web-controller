@@ -1028,14 +1028,9 @@ function doConcatArr (data)
 function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
 {
     var appData = jobData.taskData.appData;
-    var srcVNObjArr = [];
-    var destVNObjArr = [];
     var vnName = appData['srcVN'];
-    var srcWhereClause = [
-        {'sourcevn':vnName}
-    ];
-    var destWhereClause = [
-        {'destvn':vnName}
+    var whereClause = [
+        {'name':vnName}
     ];
     var minsSince = appData.minsSince;
     var timeObj;
@@ -1052,19 +1047,19 @@ function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
         timeGran = appData['timeGran'];
     }
     var strTimeGran = 'T=' + timeGran;
-    var srcSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'sourcevn'];
-    var destSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'destvn'];
-
-    var srcQueryJSON = formatQueryString('FlowSeriesTable', srcWhereClause,
-        srcSelectArr, timeObj, true, null);
-    var destQueryJSON = formatQueryString('FlowSeriesTable', destWhereClause,
-        destSelectArr, timeObj, true, null);
-    formatFlowSeriesQuery(srcQueryJSON);
-    formatFlowSeriesQuery(destQueryJSON);
+    var selectArr = ['SUM(vn_stats.out_bytes)', 'SUM(vn_stats.out_tpkts)','SUM(vn_stats.in_bytes)',
+                       'SUM(vn_stats.in_tpkts)', strTimeGran, 'name'];
+    var queryJSON = formatQueryString('StatTable_UveVirtualNetworkAgent_vn_stats', whereClause,
+            selectArr, timeObj, true, null);
+    //Removing the flow_count select field from query as not required for the OracleStats 
+    var flowCountIdx = queryJSON['select_fields'].indexOf('flow_count');
+    if (flowCountIdx > -1)
+        queryJSON['select_fields'].splice(flowCountIdx,1);
+    formatFlowSeriesQuery(queryJSON);
     logutils.logger.debug(messages.qe.qe_execution + 'VN Flow Series data ' +
         vnName);
-    flowCache.getFlowSeriesData('vn', appData, srcQueryJSON, destQueryJSON,
-        commonUtils.doEnsureExecution(function(err, data) {
+    flowCache.getFlowSeriesData('vn', appData, queryJSON, null,
+            commonUtils.doEnsureExecution(function(err, data) {
             if (data != null) {
                 resultJSON = data;
             } else {
@@ -1075,23 +1070,17 @@ function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
                 JSON.stringify(resultJSON),
                 JSON.stringify(resultJSON),
                 0, 0, done);
-        }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
+        }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT),global.FlOW_SERIES_STAT_TYPE);
 }
 
 function processVNsFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
 {
     var appData = jobData.taskData.appData;
-    var srcVNObjArr = [];
-    var destVNObjArr = [];
     var srcVN = appData['srcVN'];
     var dstVN = appData['dstVN'];
-    var srcWhereClause = [
-        {'sourcevn':srcVN},
-        {'destvn':dstVN}
-    ];
-    var destWhereClause = [
-        {'sourcevn':dstVN},
-        {'destvn':srcVN}
+    var whereClause = [
+        {'name':srcVN},
+        {'vn_stats.other_vn':dstVN}
     ];
     var minsSince = appData['minsSince'];
     var timeObj;
@@ -1107,18 +1096,19 @@ function processVNsFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
         timeGran = appData['timeGran'];
     }
     var strTimeGran = 'T=' + timeGran;
-    var srcSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'sourcevn', 'destvn'];
-    var destSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'sourcevn', 'destvn'];
+    var selectArr = ['SUM(vn_stats.out_bytes)', 'SUM(vn_stats.out_tpkts)','SUM(vn_stats.in_bytes)',
+                        'SUM(vn_stats.in_tpkts)', strTimeGran, 'name', 'vn_stats.other_vn'];
 
-    var srcQueryJSON = formatQueryString('FlowSeriesTable', srcWhereClause,
-        srcSelectArr, timeObj, true, null, 1, true);
-    var destQueryJSON = formatQueryString('FlowSeriesTable', destWhereClause,
-        destSelectArr, timeObj, true, null, 1, true);
-    formatFlowSeriesQuery(srcQueryJSON);
-    formatFlowSeriesQuery(destQueryJSON);
+    var queryJSON = formatQueryString('StatTable_UveVirtualNetworkAgent_vn_stats', whereClause,
+            selectArr, timeObj, true, null, 1, true);
+  //Removing the flow_count select field from query as not required for the OracleStats 
+    var flowCountIdx = queryJSON['select_fields'].indexOf('flow_count');
+    if (flowCountIdx > -1)
+        queryJSON['select_fields'].splice(flowCountIdx,1);
+    formatFlowSeriesQuery(queryJSON);
     logutils.logger.debug(messages.qe.qe_execution + 'Connected VNs Flow Series data ' +
         srcVN + ' ' + dstVN);
-    flowCache.getFlowSeriesData('conn-vn', appData, srcQueryJSON, destQueryJSON,
+    flowCache.getFlowSeriesData('conn-vn', appData, queryJSON, null,
         function (err, data) {
             if (data != null) {
                 resultJSON = data;
@@ -1130,7 +1120,7 @@ function processVNsFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
                 JSON.stringify(resultJSON),
                 JSON.stringify(resultJSON),
                 0, 0, done);
-        });
+        },global.FlOW_SERIES_STAT_TYPE);
 }
 
 function processTopNwDetailsByProject (pubChannel, saveChannelKey, jobData, done)
@@ -1575,15 +1565,14 @@ function processVMFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
     var appData = jobData.taskData.appData;
     var srcVNObjArr = [];
     var destVNObjArr = [];
-    var vnName = appData['vnName'];
+    var vnName = appData['vName'];
+    var vmName = appData['vmName'];
+    var vmVnName = appData['vmVnName'];
+    var fip = appData['fip'];
     var ip = appData.ip;
-    var srcWhereClause = [
-        {'sourcevn':vnName},
-        {'sourceip':ip}
-    ];
-    var destWhereClause = [
-        {'destvn':vnName},
-        {'destip':ip}
+    var context = 'vm';
+    var whereClause = [
+        {'if_stats.name':vmVnName}
     ];
     var minsSince = appData['minsSince'];
     var timeObj;
@@ -1601,20 +1590,27 @@ function processVMFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
         timeGran = appData['timeGran'];
     }
     var strTimeGran = 'T=' + timeGran;
-    var srcSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'sourcevn'];
-    var destSelectArr = ['sum(bytes)', 'sum(packets)', strTimeGran, 'destvn'];
-
-    var srcQueryJSON = formatQueryString('FlowSeriesTable', srcWhereClause,
-        srcSelectArr, timeObj, true, null,
+    var table = 'StatTable_VirtualMachineStats_if_stats';
+    var selectArr = ['SUM(if_stats.out_bytes)', 'SUM(if_stats.in_bytes)','SUM(if_stats.out_pkts)','SUM(if_stats.in_pkts)', strTimeGran, 'name'];
+    if(fip) {
+        table = 'StatTable_VirtualMachineStats_fip_stats';
+        selectArr = ['SUM(fip_stats.out_bytes)', 'SUM(fip_stats.in_bytes)','SUM(fip_stats.out_pkts)','SUM(fip_stats.in_pkts)', strTimeGran, 'name'];
+        whereClause = [
+                       {'fip_stats.ip_address':ip}
+        ];
+        context = 'fip';
+    }
+    var queryJSON = formatQueryString(table, whereClause,
+            selectArr, timeObj, true, null,
         global.TRAFFIC_DIR_INGRESS, true);
-    var destQueryJSON = formatQueryString('FlowSeriesTable', destWhereClause,
-        destSelectArr, timeObj, true, null,
-        global.TRAFFIC_DIR_INGRESS, true);
-    formatFlowSeriesQuery(srcQueryJSON);
-    formatFlowSeriesQuery(destQueryJSON);
+    //Removing the flow_count select field from query as not required for the OracleStats 
+    var flowCountIdx = queryJSON['select_fields'].indexOf('flow_count');
+    if (flowCountIdx > -1)
+        queryJSON['select_fields'].splice(flowCountIdx,1);
+    formatFlowSeriesQuery(queryJSON);
     logutils.logger.debug(messages.qe.qe_execution + 'VM Flow Series data ' +
         vnName);
-    flowCache.getFlowSeriesData('vm', appData, srcQueryJSON, destQueryJSON,
+    flowCache.getFlowSeriesData(context, appData, queryJSON, null,
         function (err, data) {
             if (data != null) {
                 resultJSON = data;
@@ -1626,7 +1622,7 @@ function processVMFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
                 JSON.stringify(resultJSON),
                 JSON.stringify(resultJSON),
                 0, 0, done);
-        });
+        },global.FlOW_SERIES_STAT_TYPE);
 }
 
 function parseVMStats (resultJSON, data)
@@ -2725,4 +2721,5 @@ exports.processConnNetStatsSummary = processConnNetStatsSummary;
 exports.processVMStatSummary = processVMStatSummary;
 exports.processVMFlowSeriesData = processVMFlowSeriesData;
 exports.processTopPeerDetails = processTopPeerDetails;
-
+exports.createTimeQueryJsonObjByServerTimeFlag = createTimeQueryJsonObjByServerTimeFlag;
+exports.formatQueryString = formatQueryString;

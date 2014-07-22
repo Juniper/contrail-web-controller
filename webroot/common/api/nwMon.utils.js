@@ -79,14 +79,18 @@ function createTimeObj (appData)
 function getStatDataByQueryJSON (srcQueryJSON, destQueryJSON, callback)
 {
     var dataObjArr = [];
-    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                             global.HTTP_REQUEST_POST,
-                             commonUtils.cloneObj(srcQueryJSON));
-    commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
-                             global.HTTP_REQUEST_POST,
-                             commonUtils.cloneObj(destQueryJSON));
-    logutils.logger.debug("Query1 executing: " + JSON.stringify(dataObjArr[0]['data']));
-    logutils.logger.debug("Query2 executing:" + JSON.stringify(dataObjArr[1]['data']));
+    if (srcQueryJSON != null) {
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
+                                global.HTTP_REQUEST_POST,
+                                commonUtils.cloneObj(srcQueryJSON));
+    }
+    if (destQueryJSON != null) {
+        commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL,
+                                global.HTTP_REQUEST_POST,
+                                commonUtils.cloneObj(destQueryJSON));
+    }
+    logutils.logger.debug("Query1 executing:" + JSON.stringify((dataObjArr[0] != null) ? dataObjArr[0]['data'] : ""));
+    logutils.logger.debug("Query2 executing:" + JSON.stringify((dataObjArr[1] != null) ? dataObjArr[1]['data'] : ""));
     async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),
               function(err, data) {
         callback(err, data);
