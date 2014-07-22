@@ -7,7 +7,7 @@ var durationStr = ' (last 30 mins)';
 var durationTitle = 'Last 30 mins';
 var FLOW_QUERY_TIMEOUT = 310000;
 var TOP_IN_LAST_MINS = 10;
-var NUM_DATA_POINTS_FOR_FLOW_SERIES = 240;
+var NUM_DATA_POINTS_FOR_FLOW_SERIES = 120;
 
 function ObjectListView() {
     //Context & type 
@@ -53,7 +53,7 @@ function ObjectListView() {
                 minWidth: 150
             },{
                 field:'inBytes',
-                name:'Traffic (In/Out)',
+                name:'Traffic (In/Out) <br/> (Last 1 hr)',
                 minWidth:150,
                 formatter:function(r,c,v,cd,dc) {
                     return contrail.format("{0} / {1}",formatBytes(dc['inBytes']),formatBytes(dc['outBytes']));
@@ -160,7 +160,7 @@ function ObjectListView() {
                 minWidth: 150
             },{
                 field:'inBytes',
-                name:'Traffic (In/Out)',
+                name:'Traffic (In/Out) <br/> (Last 1 hr)',
                 minWidth:150,
                 formatter:function(r,c,v,cd,dc){
                     return contrail.format("{0} / {1}",formatBytes(dc['inBytes']),formatBytes(dc['outBytes']));
@@ -190,7 +190,10 @@ function ObjectListView() {
             obj['deferredObj'] = result['deferredObj'];
             obj['error'] = result['error'];
             obj['idField'] = 'uuid';
-            obj['isAsyncLoad'] = true;
+            obj['isAsyncLoad'] = false;
+            obj['dataSource'].onRowsChanged.subscribe(function(e,args){
+                dataSourceChangeHandler(obj['dataSource'],args,objectType,$.Deferred());
+            });
         } else if(objectType == 'project') {
             var projectDataSource = new ContrailDataView();
             if(globalObj['dataSources']['projectDS'] != null)
@@ -199,6 +202,13 @@ function ObjectListView() {
                 globalObj['dataSources']['projectDS'] = {dataSource:projectDataSource};
             var networkDS = new SingleDataSource('networkDS');
             var result = networkDS.getDataSourceObj();
+            result['dataSource'].onRowsChanged.subscribe(function(e,args){
+                var deferredObj = $.Deferred();
+                dataSourceChangeHandler(result['dataSource'],args,'network',deferredObj);
+                deferredObj.done(function(){
+                    objListView.refreshProjectSummaryGrid(result['dataSource']);
+                });
+            });
             var projData = getProjectData(result['dataSource'].getItems(),ifNull(globalObj['dataSources']['projectDS'],{}))['projectsData'];
             projectDataSource.setData(projData);
             //projectDataSource.pageSize(50); 
@@ -209,7 +219,7 @@ function ObjectListView() {
             obj['dataSource'] = projectDataSource;
             obj['deferredObj'] = result['deferredObj'];
             obj['error'] = result['error'];
-            obj['isAsyncLoad'] = true;
+            obj['isAsyncLoad'] = false;
         } else if(objectType == 'instance') { 
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
                               'UveVirtualMachineAgent:fip_stats_list'];
@@ -220,10 +230,10 @@ function ObjectListView() {
                 obj['deferredObj'] = result['deferredObj'];
                 obj['error'] = result['error'];
                 obj['idField'] = 'name';
-                obj['isAsyncLoad'] = true;
+                obj['isAsyncLoad'] = false;
                 obj['dataSource'].onRowsChanged.subscribe(function(e,args){
-                    getStatsForVM(obj['dataSource'],ifNull(args,[]));
-                })
+                    dataSourceChangeHandler(obj['dataSource'],args,objectType,$.Deferred());
+                });
             } else if($.inArray(context,['project','network']) > -1) {
                 var contextType = context == 'project' ? 'project' : 'vn';
                 obj['transportCfg'] = { 
@@ -233,8 +243,8 @@ function ObjectListView() {
                             }
                 instanceDS = new ContrailDataView();
                 instanceDS.onRowsChanged.subscribe(function(e,args){
-                    getStatsForVM(obj['dataSource'],ifNull(args,[]));
-                })
+                    dataSourceChangeHandler(obj['dataSource'],args,objectType,$.Deferred());
+                });
                 //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
                 var instDeferredObj = $.Deferred();
                 //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
@@ -243,7 +253,7 @@ function ObjectListView() {
                                         loadedDeferredObj:loadedDeferredObj});
                 obj['dataSource'] = instanceDS;
                 obj['loadedDeferredObj'] = instDeferredObj;
-                obj['isAsyncLoad'] = true;
+                obj['isAsyncLoad'] = false;
                 //Passing the deferredObj to initGrid such that is hides loading icon in Grid/displays error message if ajax call fails
                 obj['deferredObj'] = loadedDeferredObj;
             }
@@ -699,7 +709,7 @@ function constructReqURL(obj) {
     if(obj['widget'] == 'flowseries') {
         $.extend(reqParams,{'sampleCnt':NUM_DATA_POINTS_FOR_FLOW_SERIES});
         //If useServerTime flag is true then the webserver timeStamps will be send in startTime and endTime to query engine
-        $.extend(reqParams,{'minsSince':30,'useServerTime':true});
+        $.extend(reqParams,{'minsSince':60,'useServerTime':true,'fip':obj['fip']});
     }
     //Don't append startTime/endTime if minsSince is provided as need to use realtive times 
     /*Always send the startTime and endTime instead of minsSince
@@ -771,8 +781,18 @@ var tenantNetworkMonitorUtils = {
         var retArr = $.map(ifNull(response['value'], response), function (currObj, idx) {
             currObj['rawData'] = $.extend(true,{},currObj);
             currObj['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObj['name'];
-            currObj['inBytes'] = ifNull(jsonPath(currObj, '$..in_bytes')[0], 0);
-            currObj['outBytes'] = ifNull(jsonPath(currObj, '$..out_bytes')[0], 0);
+            currObj['outBytes'] = '-';
+            currObj['inBytes'] = '-';
+            var inBytes = 0,outBytes = 0;
+            var statsObj = getValueByJsonPath(currObj,'value;UveVirtualNetworkAgent;vn_stats;0;StatTable.UveVirtualNetworkAgent.vn_stats',[]);
+            for(var i = 0; i < statsObj.length; i++){
+                inBytes += ifNull(statsObj[i]['SUM(vn_stats.in_bytes)'],0);
+                outBytes += ifNull(statsObj[i]['SUM(vn_stats.out_bytes)'],0);
+            }
+            if(getValueByJsonPath(currObj,'value;UveVirtualNetworkAgent;vn_stats') != null) {
+                currObj['outBytes'] = outBytes;
+                currObj['inBytes'] = inBytes;
+            }
             currObj['instCnt'] = ifNull(jsonPath(currObj, '$..virtualmachine_list')[0], []).length;
             currObj['inThroughput'] = ifNull(jsonPath(currObj, '$..in_bandwidth_usage')[0], 0);
             currObj['outThroughput'] = ifNull(jsonPath(currObj, '$..out_bandwidth_usage')[0], 0);
@@ -803,7 +823,7 @@ var tenantNetworkMonitorUtils = {
             obj['ip'] = ifNull(jsonPath(currObj, '$..interface_list[*].ip_address'), []);
             var floatingIPs = ifNull(jsonPath(currObj, '$..fip_stats_list')[0], []);
               obj['floatingIP'] = [];
-            if(intfStats.length > 0) {
+            if(getValueByJsonPath(currObj,'VirtualMachineStats;if_stats') != null) {
                 obj['inBytes'] = 0;
                 obj['outBytes'] = 0;
             }
@@ -1015,6 +1035,8 @@ var tenantNetworkMonitorUtils = {
         var instanes = ifNull(jsonPath(d,'$.UveVirtualNetworkAgent.virtualmachine_list')[0],[]);
         var ingressFlowCount = ifNull(jsonPath(d,'$.UveVirtualNetworkAgent.ingress_flow_count')[0],0);
         var egressFlowCount = ifNull(jsonPath(d,'$.UveVirtualNetworkAgent.egress_flow_count')[0],0);
+        var inBytes = ifNull(getValueByJsonPath(d,'UveVirtualNetworkAgent;in_bytes','-'));
+        var outBytes = ifNull(getValueByJsonPath(d,'UveVirtualNetworkAgent;out_bytes','-'));
         /*var flowCnt = ifNullOrEmptyObject(jsonPath(d,'$..flow_count')[0],0);
         //If flow count is reported from multiple vRouters,take the first one
         if(flowCnt instanceof Object)
@@ -1035,7 +1057,8 @@ var tenantNetworkMonitorUtils = {
         //retArr.push({lbl:'Instances',value:ifNull(jsonPath(d,'$..virtualmachine_list')[0],[]).length});
         retArr.push({lbl:'VRF',value:ifNullOrEmptyObject(jsonPath(d,'$..vrf_stats_list[0].name')[0],'')});
         retArr.push({lbl:'Policies',value:policyArr.join(', ')});
-        retArr.push({lbl:'Instances',value:instanes.join(', ')})
+        retArr.push({lbl:'Instances',value:instanes.join(', ')});
+        retArr.push({lbl:'Total Traffic(In/Out)',value:formatBytes(inBytes) +'/'+formatBytes(outBytes)});
         //Remove the label/values where value is empty
         retArr = $.map(retArr,function(obj,idx) {
             if(obj['value'] !== '')
@@ -1551,7 +1574,7 @@ function getVirtualNetworksData(deferredObj,dataSource,dsObj) {
     //var objType = ifNull(options['objType'],'');
     var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
                 'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
-                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
+                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
     var obj = {};
     $.when($.ajax({
                 url:'/api/tenants/projects/default-domain',
@@ -1644,8 +1667,8 @@ function getProjectData(vnData,project){
         obj['y'] = obj['vnCnt'];
         obj['size'] = obj['throughput']+1;
         obj['type'] = 'network';
-        obj['inBytes']  = ifNull(jsonPath(d,'$..in_bytes')[0],0);
-        obj['outBytes'] = ifNull(jsonPath(d,'$..out_bytes')[0],0);
+        obj['inBytes'] = $.isNumeric(d['inBytes']) ? d['inBytes'] : 0;
+        obj['outBytes'] = $.isNumeric(d['outBytes']) ? d['outBytes'] : 0;
         vnArr.push(obj);
     });
     var vnCF = crossfilter(vnArr);
@@ -1666,8 +1689,16 @@ function getProjectData(vnData,project){
             projData[d['project']] = $.extend({},defProjObj);
         }
         //projData[d['project']]['uuid'] = projList[cfgIdx]['uuid'];
-        projData[d['project']]['inBytes'] += d['inBytes'];
+        /*if($.isNumeric(d['inBytes']) && $.isNumeric(projData[d['project']]['inBytes']))
+            projData[d['project']]['inBytes'] += d['inBytes'];
+        else
+            projData[d['project']]['inBytes'] = '-';
+        if($.isNumeric(d['outBytes']) && $.isNumeric(projData[d['project']]['outBytes']))
+            projData[d['project']]['outBytes'] += d['outBytes'];
+        else
+            projData[d['project']]['outBytes'] = '-';*/
         projData[d['project']]['outBytes'] += d['outBytes'];
+        projData[d['project']]['inBytes'] += d['inBytes'];
         projData[d['project']]['inThroughput'] += d['inThroughput'];
         projData[d['project']]['outThroughput'] += d['outThroughput'];
         projData[d['project']]['intfCnt'] += d['intfCnt'];
@@ -1706,8 +1737,8 @@ function getMultiValueStr(arr) {
 function getSelInstanceFromDropDown() {
     if($('#dropdownIP').length == 0)
         return {};
-    var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
-    return {ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network']};
+    return $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
+    
 }
 
 var connectedNetworkView = new connectedNetworkRenderer();
@@ -1721,8 +1752,8 @@ function connectedNetworkRenderer() {
       //Show Ingress/Egress Traffic in different colors
       data['stats'] = {
           'list' : [
-              { lbl : contrail.format('Ingress/Egress from {0} to {1}',obj['srcVN'].split(':').pop(),obj['fqName'].split(':').pop()),field:'toNetwork'},
-              { lbl : contrail.format('Egress/Ingress from {0} to {1}',obj['fqName'].split(':').pop(),obj['srcVN'].split(':').pop()),field:'fromNetwork'}
+              { lbl : contrail.format('Ingress/Egress from {0} to {1} (Last 1 hr)',obj['srcVN'].split(':').pop(),obj['fqName'].split(':').pop()),field:'toNetwork'},
+              { lbl : contrail.format('Egress/Ingress from {0} to {1} (Last 1 hr)',obj['fqName'].split(':').pop(),obj['srcVN'].split(':').pop()),field:'fromNetwork'}
           ],
           parseFn: function(response) {
               return [{
@@ -1748,36 +1779,47 @@ function connectedNetworkRenderer() {
  * This function gets the VM stats for the new VM's added to datasource and updates it 
  * and the deferredObj is resolved when all the VM stats are fetched
  */
-function getStatsForVM(dataSource,arguments,deferredObj) {
+function getStats(dataSource,arguments,type,deferredObj) {
     var updateRows = ifNull(arguments['rows'],[]);
-    if(isStatsPopulated(dataSource,updateRows)) {
-        var kfilt = $.map(updateRows,function(item){
-            return dataSource.getItemByIdx(item)['name'];
-        });
-        $.ajax({
-            url:'/api/tenant/get-data',
-            type:'POST',
-            data:{data:[{'type':'virtual-machine','kfilt':kfilt.join(',') ,'cfilt':'VirtualMachineStats'}]}
-        }).done(function(response){
-            var data = tenantNetworkMonitorUtils.instanceParseFn(response[0]);
-            var dataMap = {};
-            for(var i=0; i<data.length; i++){
-                var key = data[i]['name'];
-                dataMap[key] = data[i];
-            }
-            var dataItems = dataSource.getItems();
-            for(var i=0; i<dataItems.length; i++){
-                var obj = dataItems[i];
-                for(var j=0; j<kfilt.length; j++) {
-                    if(kfilt[j] == obj['name']) {
-                        obj['inBytes'] = ifNull(dataMap[kfilt[j]]['inBytes'],'-');
-                        obj['outBytes'] = ifNull(dataMap[kfilt[j]]['outBytes'],'-');
-                    }
+    var cfilt,parseFn,context,dataMap = {};
+    if (type == 'instance') {
+        cfilt = 'VirtualMachineStats';
+        parseFn = tenantNetworkMonitorUtils.instanceParseFn;
+        context = 'virtual-machine'; 
+    } else {
+        cfilt = 'UveVirtualNetworkAgent:vn_stats';
+        parseFn = tenantNetworkMonitorUtils.networkParseFn;
+        context = 'virtual-network'; 
+    }
+    var kfilt = $.map(updateRows,function(item){
+        return dataSource.getItemByIdx(item)['name'];
+    });
+    $.ajax({
+        url:'/api/tenant/get-data',
+        type:'POST',
+        data:{data:[{'type':context,'kfilt':kfilt.join(',') ,'cfilt':cfilt}]}
+    }).done(function(response){
+        var data = parseFn(response[0]);
+        for(var i=0; i<data.length; i++){
+            var key = data[i]['name'];
+            dataMap[key] = data[i];
+        }
+        var dataItems = dataSource.getItems();
+        for(var i=0; i<dataItems.length; i++){
+            var obj = dataItems[i];
+            for(var j=0; j<kfilt.length; j++) {
+                if(kfilt[j] == obj['name']) {
+                    var dataObj = ifNull(dataMap[kfilt[j]],{});
+                    obj['inBytes'] = ifNull(dataObj['inBytes'],0);
+                    obj['outBytes'] = ifNull(dataObj['outBytes'],0);
+                    break;
                 }
             }
-            dataSource.updateData(dataItems);
-        });
-    } 
+        }
+        dataSource.updateData(dataItems);
+        if(deferredObj != null)
+            deferredObj.resolve();
+    });
 }
 /* Function is to check whether stats column in the rows are updated,
  * by comparing with the default value of stats "-" to avoid 
@@ -1786,7 +1828,33 @@ function getStatsForVM(dataSource,arguments,deferredObj) {
 function isStatsPopulated(dataSource,updateRows){
     var dataItem = dataSource.getItemByIdx(updateRows[0]);
     if(dataItem['inBytes'] == '-') 
-        return true;
-    else
         return false;
+    else
+        return true;
+}
+
+/*
+ * This function is common dataSource change event handler for monitor network,project,instance summary pages
+ */
+function dataSourceChangeHandler(dataSource,args,type,deferredObj){
+    var grid = $('div.contrail-grid').data('contrailGrid');
+    var updateRows = ifNull(args['rows'],[]);
+    if(!isStatsPopulated(dataSource,updateRows)) {
+        getStats(dataSource,ifNull(args,[]),type,deferredObj);
+        if(grid != null)
+            grid.showGridLoading();
+        if(deferredObj != null) {
+            deferredObj.always(function(){
+                if(grid != null) {
+                    grid.removeGridLoading();
+                }
+            });
+        }
+    } else {
+        /*
+         * Resolving the deferredobj as there is no need to 
+         * call the getStats function
+         */
+        deferredObj.resolve();
+    }
 }

@@ -30,8 +30,8 @@ function instSummaryRenderer() {
         data['stats'] = [{},{}];
         data['stats'][0] = {
                 'list' : [
-                    { lbl : 'Total Traffic (In/Out)',field:'totalTrafficBytes' },
-                    { lbl : 'Interface Traffic (In/Out)',field:'interfaceTrafficBytes'}
+                    { lbl : 'Total Traffic (In/Out) (Last 1 hr)',field:'totalTrafficBytes' },
+                    { lbl : 'Interface Traffic (In/Out) (Last 1 hr)',field:'interfaceTrafficBytes'}
                 ],
                 viewModel:instViewModel
             }
@@ -86,7 +86,7 @@ function instSummaryRenderer() {
                 fipStatList = getValueByJsonPath(result,'VirtualMachineStats;fip_stats;0;StatTable.VirtualMachineStats.fip_stats',[]);
                 var selItem = getSelInstanceFromDropDown();
                 var selIntfName = '',inBytes = 0,outBytes = 0;
-                var stats = instSummaryView.getStatsOfInterface(selItem['ip']);
+                var stats = instSummaryView.getStatsOfInterface(selItem['ip_address'],selItem['fip']);
                 inBytes = ifNull(stats['inBytes'],'-'),outBytes = ifNull(stats['outBytes'],'-');
                 instViewModel.totalTrafficBytes(formatBytes(data['inBytes'])+"/"+formatBytes(data['outBytes']));
                 instViewModel.interfaceTrafficBytes(formatBytes(inBytes)+"/"+formatBytes(outBytes));
@@ -147,6 +147,7 @@ function instSummaryRenderer() {
         });
         response['fipList'] = $.map(response['fipList'],function(obj,idx) {
             obj['name'] = contrail.format('{0} ({1})',obj['ip_address'],obj['virtual_network']);
+            obj['fip'] = true;
             return obj;
         });
         return response['ipList'].concat(response['fipList']);
@@ -154,9 +155,11 @@ function instSummaryRenderer() {
     
     this.onInstanceIntfChange = function(e,refresh,obj) {
         var refresh = ifNull(refresh,true);
-        var ip = getSelInstanceFromDropDown()['ip'];
-        var network = getSelInstanceFromDropDown()['vnName'];
-        var stats = instSummaryView.getStatsOfInterface(ip);
+        var selItem = getSelInstanceFromDropDown();
+        var ip = selItem['ip_address'];
+        var network = selItem['virtual_network'];
+        var fip = selItem['fip'];
+        var stats = instSummaryView.getStatsOfInterface(ip,fip);
         instViewModel.network(network);
         instViewModel.interfaceTrafficBytes(formatBytes(ifNull(stats['inBytes'],'-'))+"/"+formatBytes(ifNull(stats['outBytes'],'-')));
         $('.example-title.main').html(function(idx,oldHtml) {
@@ -176,19 +179,22 @@ function instSummaryRenderer() {
     
     this.getInstanceURL = function(obj) {
         var vmIntfObj = $('#dropdownIP').data('contrailDropdown').getSelectedData()[0];
-        return constructReqURL($.extend({},obj,{ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network'],vmName:obj['fqName'],vmVnName:vmIntfObj['vm_vn_name']}));
+        return constructReqURL($.extend({},obj,{ip:vmIntfObj['ip_address'],vnName:vmIntfObj['virtual_network'],
+            fip:vmIntfObj['fip'],vmName:obj['fqName'],vmVnName:vmIntfObj['vm_vn_name']}));
     }
     
-    this.getStatsOfInterface = function(ip) {
+    this.getStatsOfInterface = function(ip,isFip) {
         var selIntfName = '';
         var result = {};
         if(ip == null)
             return result;
-        for(var i = 0; i < fipStatList.length; i++){
-            var fipData = fipStatList[i];
-            if(fipData['fip_stats.ip_address'] == ip) {
-                result['inBytes'] = ifNull(fipData['SUM(fip_stats.in_bytes)'],'-'),result['outBytes'] = ifNull(fipData['SUM(fip_stats.out_bytes)'],'-');
-                return result;
+        if(isFip == true){
+            for(var i = 0; i < fipStatList.length; i++){
+                var fipData = fipStatList[i];
+                if(fipData['fip_stats.ip_address'] == ip) {
+                    result['inBytes'] = ifNull(fipData['SUM(fip_stats.in_bytes)'],'-'),result['outBytes'] = ifNull(fipData['SUM(fip_stats.out_bytes)'],'-');
+                    return result;
+                }
             }
         }
         for(var i = 0;i<intfList.length; i++){

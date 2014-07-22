@@ -12,6 +12,6 @@ global.STR_GET_SCHEMA_FLOW_SERIES = 'getSchemaCPULoadFlowSeries';
 global.STR_GET_COLLECTOR_CPU_FLOW_SERIES = 'getCollectorCPULoadFlowSeries';
 global.STR_GET_QE_CPU_FLOW_SERIES = 'getQECPULoadFlowSeries';
 global.STR_GET_OPS_CPU_FLOW_SERIES = 'getOpServerCPULoadFlowSeries';
-
+global.STAT_TYPE = 'oracleStats'
 module.exports = global;
 
