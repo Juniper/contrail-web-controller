@@ -252,63 +252,27 @@ function listFloatingIps (request, response, appData)
                          });
 }
 
-function processAsyncReq(req, callback) {
-    configApiServer.apiGet(req.url, req.appData, function(err, data){
-        callback(err, data);
-    });            
-}
-
 /**
  * @getFipPoolsForProjectCb
  * private function
  * 1. Callback for getFipPoolsForProject
  */
-function getFipPoolsForProjectCb (error, projectData, response, appData) 
+function getFipPoolsForProjectCb (error, projectData, callback)
 {
     var fipPool = {};
-    var fipPoolReqArry = [];
+    fipPool['floating_ip_pool_refs'] = [];
+
     if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, fipPool);
         return;
     }
-    fipPool['floating_ip_pool_refs'] = [];
+
     if ('floating_ip_pool_refs' in projectData['project']) {
         fipPool['floating_ip_pool_refs'] =
                projectData['project']['floating_ip_pool_refs'];
-        var poolLength = fipPool['floating_ip_pool_refs'].length;       
-        for(var poolCnt = 0; poolCnt <  poolLength; poolCnt++) {
-            var fipPoolReq = {};
-            fipPoolReq.url = '/floating-ip-pool/' + fipPool['floating_ip_pool_refs'][poolCnt].uuid;
-            fipPoolReq.appData = appData;
-            fipPoolReqArry.push(fipPoolReq);
-        }
-        if(fipPoolReqArry.length > 0) {
-            async.map(fipPoolReqArry, processAsyncReq, function(err, data){
-                var nwReqArry = [];
-                if (error) {
-                     commonUtils.handleJSONResponse(error, response, null);
-                     return;
-                }
-                if(data && data.length > 0) {
-                    for(var poolCnt = 0; poolCnt <  data.length; poolCnt++) {
-                        var nwReq = {};
-                        nwReq.url =  '/' + data[poolCnt]['floating-ip-pool']['parent_type'] + '/' + data[poolCnt]['floating-ip-pool']['parent_uuid'];    
-                        nwReq.appData =  appData;
-                        nwReqArry.push(nwReq);                        
-                    }
-                    if(nwReqArry.length > 0) { 
-                        getFIPPoolSubnets(nwReqArry, response, appData, fipPool);
-                    } else {
-                        commonUtils.handleJSONResponse(error, response, fipPool);
-                    }    
-                }                
-            });        
-        } else {
-            commonUtils.handleJSONResponse(error, response, fipPool)
-        }    
-    } else {
-        commonUtils.handleJSONResponse(error, response, null);
     }
+
+    callback(null, fipPool);
 }
 
 /**
@@ -322,6 +286,7 @@ function getFloatingIpPoolsByProject (request, appData, callback)
     var tenantId      = null;
     var requestParams = url.parse(request.url,true);
     var projectURL    = '/project';
+
     if ((tenantId = request.param('id'))) {
         projectURL += '/' + tenantId.toString();
     } else {
@@ -330,10 +295,9 @@ function getFloatingIpPoolsByProject (request, appData, callback)
          */
     }
     configApiServer.apiGet(projectURL, appData,
-        function(error, data) {
-            getFipPoolsForProjectCb(error, data, response, appData)
-        });
-                        
+                         function(error, data) {
+                         getFipPoolsForProjectCb(error, data, callback);
+    });
 }
 
 /**
@@ -656,71 +620,6 @@ function updateFloatingIp (request, response, appData)
                         });
 }
 
-/**
- * @getFIPPoolSubnets
- * private function
- * 1. gets subnets for the floating ip pools
- */
-function getFIPPoolSubnets (nwReqArry, response, appData, fipData) 
-{
-    async.map(nwReqArry, processAsyncReq, function(error, data) {
-        var subnetMap = [];
-        if(error) {
-            commonUtils.handleJSONResponse(error, response, null);
-            return;            
-        }
-        for(var nwCnt = 0; nwCnt < data.length; nwCnt++) {
-            if(data[nwCnt] && data[nwCnt]['virtual-network'] && data[nwCnt]['virtual-network']['network_ipam_refs'] 
-                && data[nwCnt]['virtual-network']['network_ipam_refs'].length > 0) {
-                var ipamRefs = data[nwCnt]['virtual-network']['network_ipam_refs'];
-                var ipamRefsLength = ipamRefs.length;
-                var subNetStr = '';
-                for(var refCnt = 0;refCnt < ipamRefsLength;refCnt++) {
-                    if(ipamRefs[refCnt]['to']) {
-                        if(ipamRefs[refCnt]['attr'] && ipamRefs[refCnt]['attr']['ipam_subnets'] 
-                            && ipamRefs[refCnt]['attr']['ipam_subnets'].length > 0) {
-                            var subNets = ipamRefs[refCnt]['attr']['ipam_subnets'];
-                            var subnetsLength =  ipamRefs[refCnt]['attr']['ipam_subnets'].length;
-                            for(var subNetCnt = 0;subNetCnt < subnetsLength;subNetCnt++) {
-                                if(subNets[subNetCnt]['subnet']) {
-                                    var subNet = subNets[subNetCnt]['subnet']
-                                    var ipBlock = subNet['ip_prefix'] + '/' + subNet['ip_prefix_len'];
-                                    if(subNetStr === '') {
-                                        subNetStr = ipBlock;
-                                    } else {
-                                        subNetStr+= ',' + ipBlock;
-                                    }
-                                }        
-                            }
-                        }   
-                    }
-                }
-                var fipPoolList = data[nwCnt]['virtual-network']['floating_ip_pools'];
-                if(fipPoolList && fipPoolList.length > 0) {
-                    for(var poolCnt = 0; poolCnt < fipPoolList.length; poolCnt++) {
-                        var fipSubnet = {};
-                        fipSubnet.uuid = fipPoolList[poolCnt].uuid;
-                        fipSubnet.subnets = subNetStr;
-                        subnetMap.push(fipSubnet);
-                    }
-                }
-            }
-        }
-        if(subnetMap.length > 0) {
-           for(var subnetCnt = 0; subnetCnt < subnetMap.length; subnetCnt++) {
-               var subNet = subnetMap[subnetCnt];
-               var fipPoolList =  fipData['floating_ip_pool_refs']
-               for(var poolCnt = 0; poolCnt < fipPoolList.length; poolCnt++) {
-                   if(subNet.uuid === fipPoolList[poolCnt].uuid) {
-                       fipPoolList[poolCnt].subnets = subNet.subnets;    
-                   }
-               }
-           }
-        }
-        commonUtils.handleJSONResponse(error, response, fipData);        
-    });        
-}
-
 /* List all public function here */
 exports.listFloatingIps     = listFloatingIps;
 exports.listFloatingIpPools = listFloatingIpPools;
@@ -728,3 +627,4 @@ exports.createFloatingIp    = createFloatingIp
 exports.deleteFloatingIp    = deleteFloatingIp
 exports.updateFloatingIp    = updateFloatingIp
 exports.listFloatingIpsAsync = listFloatingIpsAsync;
+
