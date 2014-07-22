@@ -105,6 +105,10 @@ function topologyRenderer() {
                         configData['out_bytes'] = formatBytes(nodes[i]['more_attr']['out_bytes']);
                         configData['out_tpkts'] = ifNull(nodes[i]['more_attr']['out_tpkts'],'-');
                         configData['in_tpkts'] = ifNull(nodes[i]['more_attr']['in_tpkts'],'-');
+                        configData['latest_in_bytes'] = formatBytes(nodes[i]['more_attr']['latest_in_bytes']);
+                        configData['latest_out_bytes'] = formatBytes(nodes[i]['more_attr']['latest_out_bytes']);
+                        configData['latest_out_tpkts'] = ifNull(nodes[i]['more_attr']['latest_out_tpkts'],'-');
+                        configData['latest_in_tpkts'] = ifNull(nodes[i]['more_attr']['latest_in_tpkts'],'-');
                     }
                     if(nodes[i]['node_type'] == 'service-instance'){
                         var siData=ifNull(jsonPath(response,'$..service-instances')[0],[]);
