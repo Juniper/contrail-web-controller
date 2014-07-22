@@ -293,7 +293,7 @@ function getVNVMData (vmJSON, vmName)
         console.log("In getVNVMData(): IP List JSON Parse error:" + e);
     }
     try {
-        var fipData = jsonPath(vmJSON, "$..floating_ips");
+        var fipData = jsonPath(vmJSON, "$..fip_stats_list");
         if (fipData[0].length == 0) {
             return resultJSON;
         }
@@ -304,6 +304,8 @@ function getVNVMData (vmJSON, vmName)
                 fipData[0][i]['ip_address'];
             resultJSON['fipList'][i]['virtual_network'] =
                 fipData[0][i]['virtual_network'];
+            resultJSON['fipList'][i]['vm_vn_name'] = 
+                fipData[0][i]['iface_name'];
         }
     } catch(e) {
         console.log("In getVNVMData(): Floating IP List JSON Parse error:" + e);
@@ -403,10 +405,15 @@ function getFlowSeriesByVM (req, res)
     var timeGran        = req.query['timeGran'];
     var minsAlign       = req.query['minsAlign'];
     var serverTime      = req.query['useServerTime'];
-
+    var vmName          = req.query['vmName'];
+    var vmVnName        = req.query['vmVnName'];
+    var fip             = req.query['fip'];
     var appData = {
         ip: ip,
         vnName: vnName,
+        vmName: vmName,
+        vmVnName : vmVnName,
+        fip : fip,
         sampleCnt: sampleCnt,
         minsSince: minsSince,
         minsAlign: minsAlign,
@@ -623,12 +630,8 @@ function getNetworkTopStatsDetails (req, res)
                                              appData);
 }
 
-function getTrafficInEgrStat (resultJSON, srcVN, destVN) 
+function getTrafficInEgrStat (resultJSON, srcVN, destVN,type) 
 {
-    var inStat = resultJSON['in_stats'];
-    var outStat = resultJSON['out_stats'];
-    var inStatLen = inStat.length;
-    var outStatLen = outStat.length;
     var results = {};
     results['srcVN'] = srcVN;
     results['destVN'] = destVN;
@@ -636,21 +639,41 @@ function getTrafficInEgrStat (resultJSON, srcVN, destVN)
     results['inPkts'] = 0;
     results['outBytes'] = 0;
     results['outPkts'] = 0;
-    for (var i = 0; i < inStatLen; i++) {
-        if (destVN == inStat[i]['other_vn']) {
-            results['inBytes'] = inStat[i]['bytes'];
-            results['inPkts'] = inStat[i]['tpkts'];
-            break;
+    if(type != global.STAT_TYPE) {
+        var inStat = resultJSON['in_stats'];
+        var outStat = resultJSON['out_stats'];
+        var inStatLen = inStat.length;
+        var outStatLen = outStat.length;
+        for (var i = 0; i < inStatLen; i++) {
+            if (destVN == inStat[i]['other_vn']) {
+                results['inBytes'] = inStat[i]['bytes'];
+                results['inPkts'] = inStat[i]['tpkts'];
+                break;
+            }
         }
-    }
-    for (var i = 0; i < outStatLen; i++) {
-        if (destVN == outStat[i]['other_vn']) {
-            results['outBytes'] = outStat[i]['bytes'];
-            results['outPkts'] = outStat[i]['tpkts'];
-            break;
+        for (var i = 0; i < outStatLen; i++) {
+            if (destVN == outStat[i]['other_vn']) {
+                results['outBytes'] = outStat[i]['bytes'];
+                results['outPkts'] = outStat[i]['tpkts'];
+                break;
+            }
         }
+        return results;
+    } else {
+        if(resultJSON['vn_stats'] != null && resultJSON['vn_stats'][0]['StatTable.UveVirtualNetworkAgent.vn_stats'] != null) {
+            var stats = resultJSON['vn_stats'][0]['StatTable.UveVirtualNetworkAgent.vn_stats'];
+            for(var i = 0; i < stats.length; i++){
+                if(stats[i]['vn_stats.other_vn'] == destVN) {
+                    results['inBytes'] = stats[i]['SUM(vn_stats.in_bytes)'] != null ? stats[i]['SUM(vn_stats.in_bytes)'] : 0;
+                    results['outBytes'] = stats[i]['SUM(vn_stats.out_bytes)'] != null ? stats[i]['SUM(vn_stats.out_bytes)'] : 0;
+                    results['inPkts'] = stats[i]['SUM(vn_stats.in_tpkts)'] != null ? stats[i]['SUM(vn_stats.in_tpkts)'] : 0;
+                    results['outPkts'] = stats[i]['SUM(vn_stats.out_tpkts)'] != null ? stats[i]['SUM(vn_stats.out_tpkts)'] : 0;
+                    break;
+                }
+            }
+        }
+        return results;
     }
-    return results;
 }
 
 function getVNStatsJSONSummary (resultJSON, results) 
@@ -661,13 +684,17 @@ function getVNStatsJSONSummary (resultJSON, results)
     var outStat;
     for (var i = 0; i < len; i++) {
         resultJSON[i] = {};
+        try {
+            resultJSON[i]['vn_stats'] = results[i]['UveVirtualNetworkAgent']['vn_stats']; 
+        }catch(e) {
+            resultJSON[i]['vn_stats'] = [];
+        }
         try  {
             inStat =
                 results[i]['UveVirtualNetworkAgent']['in_stats']['list']['UveInterVnStats'];
             inStatCnt = inStat.length;
             resultJSON[i]['in_stats'] = [];
             resultJSON[i]['out_stats'] = [];
-
             for (var j = 0; j < inStatCnt; j++) {
                 resultJSON[i]['in_stats'][j] = {};
                 resultJSON[i]['in_stats'][j]['other_vn'] = 
@@ -678,7 +705,6 @@ function getVNStatsJSONSummary (resultJSON, results)
                     inStat[j]['tpkts']['#text'];
             }
         } catch(e) {
-            resultJSON[i] = {};
             resultJSON[i]['in_stats'] = [];
         }
         try {
@@ -705,9 +731,9 @@ function getNetworkInGressEgressTrafficStat (srcVN, destVN, callback)
     var urlLists = []; 
     var resultJSON = []; 
 
-    var url = '/analytics/virtual-network/' + srcVN;
+    var url = '/analytics/virtual-network/' + srcVN + '?flat';
     urlLists[0] = [url];
-    url = '/analytics/virtual-network/' + destVN;
+    url = '/analytics/virtual-network/' + destVN + '?flat';
     urlLists[1] = [url];
 
     async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
