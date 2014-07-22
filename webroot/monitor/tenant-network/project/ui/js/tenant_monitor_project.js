@@ -31,7 +31,7 @@ function projSummaryRenderer() {
         var deferredObj = $.Deferred();
         //If useServerTime flag is true then the webserver timeStamps will be send in startTime and endTime to query engine
         var portDistributionURL = constructReqURL($.extend({},obj,{type:'port',useServerTime: true}));
-        var portDistributionParams = $.deparam(portDistributionURL);
+        var portDistributionParams = $.deparamURLArgs(portDistributionURL);
         $.ajax({
             url:portDistributionURL,
             timeout:FLOW_QUERY_TIMEOUT

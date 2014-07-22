@@ -422,7 +422,7 @@ function tenantNetworkMonitorClass() {
         function(hashObj) {
             function parsePortDistributionData(response,url) {
                 var result = {};
-                var portDistributionParams = $.deparam(url);
+                var portDistributionParams = $.deparamURLArgs(url);
                 var sportData = tenantNetworkMonitorUtils.parsePortDistribution(response['sport'],{startTime:portDistributionParams['startTime'],
                     endTime:portDistributionParams['endTime'],bandwidthField:'outBytes',flowCntField:'outFlowCount',portField:'sport'});
                 sportData = updateCharts.setUpdateParams(sportData);
@@ -1194,7 +1194,7 @@ function portSummaryRenderer() {
             //Issue port distribution query.
             var portDeferredObj = $.Deferred();
             var portDistributionURL = constructReqURL($.extend({},obj,{type:'port'}));
-            var portDistributionParams = $.deparam(portDistributionURL);
+            var portDistributionParams = $.deparamURLArgs(portDistributionURL);
             data['charts']['chartType'] = 'bubble';
             data['charts']['colCount'] = 1;
             data['charts']['d'] = [
