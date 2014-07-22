@@ -25,7 +25,6 @@ if (!module.parent) {
 		module.filename));
 	process.exit(1);
 }
-
 var FLOW_SERIES_CACHE_EXPIRY_TIME = 10 * 60; /* 10 Minutes */
 
 // Instantiate config and ops server access objects.
@@ -36,7 +35,7 @@ opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
 flowCache = module.exports;
 
 function getFlowSeriesDataByAPIServer (context, appData, timeObj, srcQueryJSON,
-                                       destQueryJSON, callback)
+                                       destQueryJSON, callback,type)
 {
     var resultJSON = {};
     var timeGran = timeObj['timeGran'];
@@ -47,7 +46,11 @@ function getFlowSeriesDataByAPIServer (context, appData, timeObj, srcQueryJSON,
         if ((data != null) && data.length) {
             //logutils.logger.debug("Getting Query Response as:" +
              //                     JSON.stringify(data));
-            resultJSON = parseFlowSeriesData(data, timeObj);
+            if (global.FlOW_SERIES_STAT_TYPE == type) {
+                resultJSON = parseFlowSeriesDataForOracleStats(data, timeObj,context);
+            } else {
+                resultJSON = parseFlowSeriesData(data, timeObj);
+            }
             /* Cache saving should be done in caller */
         } 
         callback(err, resultJSON);
@@ -168,7 +171,44 @@ function parseFlowSeriesData (data, timeObj)
     results['flow-series'] = resultJSON;
     return results;
 }
-
+/*
+ * Function used to parse the stats oracle response for both virtual network and virtual machine
+ */
+function parseFlowSeriesDataForOracleStats(data, timeObj,context) {
+    var resultJSON = [];
+    var results = {};
+    var statsLen,stats;
+    var props = global.STATS_PROP[context];
+    try {
+        stats = data[0]['value'];
+        statsLen = stats.length;
+    } catch(e) {
+        stats = [];
+        statsLen = 0;
+    }
+    for (var i = 0; i < statsLen; i++) {
+        var obj = {};
+        obj['time'] = stats[i]['T='];
+        obj['inBytes'] = commonUtils.ifNull(stats[i][props['inBytes']], 0);
+        obj['outBytes'] = commonUtils.ifNull(stats[i][props['outBytes']], 0);
+        obj['inPkts'] = commonUtils.ifNull(stats[i][props['inPkts']], 0);
+        obj['outPkts'] = commonUtils.ifNull(stats[i][props['outPkts']], 0);
+        obj['totalPkts'] = obj['inPkts'] + obj['outPkts'];
+        obj['totalBytes'] = obj['inBytes'] + obj['outBytes'];
+        resultJSON[i] = obj;
+    }
+    /* Now Sort the data */
+    var totCnt = resultJSON.length;
+    resultJSON.sort(sortFlowSeriesDataByTS);
+    results['summary'] = {};
+    results['summary']['start_time'] = timeObj['start_time'];
+    results['summary']['end_time'] = timeObj['end_time'];
+    results['summary']['timeGran_microsecs'] =
+        Math.floor(parseInt(timeObj['timeGran'])) * global.MILLISEC_IN_SEC *
+        global.MICROSECS_IN_MILL;
+    results['flow-series'] = resultJSON;
+    return results;
+}
 function updateFlowSeriesQueryTimeGran (query, timeGran)
 {
     var selectQuery = query['select_fields'];
@@ -187,6 +227,8 @@ function updateFlowSeriesQueryTimeGran (query, timeGran)
 
 function updateFlowSeriesQueryStartEndTime (query, startTime, endTime)
 {
+    if (null == query)
+        return;
     query['start_time'] = startTime;
     query['end_time'] = endTime;
 }
@@ -537,7 +579,7 @@ function getFlowSeriesDataByStartEndTime (context, appData, srcQueryJSON,
 }
 
 function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
-                            callback) 
+                            callback,type) 
 {
     var timeObj = nwMonUtils.createTimeObjByAppData(appData);
     var redisKey = getFlowSeriesRedisKey(context, appData);
@@ -546,7 +588,6 @@ function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
         appData['relStartTime'] = parseInt(appData['relStartTime']);
         appData['relEndTime'] = parseInt(appData['relEndTime']);
     }
-
     updateFlowSeriesQueryStartEndTime(srcQueryJSON, timeObj['start_time'],
                                       timeObj['end_time']);
     updateFlowSeriesQueryStartEndTime(destQueryJSON, timeObj['start_time'],
@@ -554,7 +595,7 @@ function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
     /* Check if the request consists of startTime and endTime */
     if (appData['relStartTime'] != null) {
         getFlowSeriesDataByStartEndTime(context, appData, srcQueryJSON,
-                                        destQueryJSON, callback);
+                                        destQueryJSON, callback,type);
         return;
     }
     /* First check if we have entry for this */
@@ -569,7 +610,7 @@ function getFlowSeriesData (context, appData, srcQueryJSON, destQueryJSON,
                                           function(err, flowData) {
                     callback(err, flowData);
                 });
-            });
+            },type);
         } else {
             /* Now check the time when we have the cache */
             getFlowSeriesDataByCache(context, appData, JSON.parse(jsonData), srcQueryJSON,
