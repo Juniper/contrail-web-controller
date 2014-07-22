@@ -2,7 +2,7 @@
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 <script type="text/x-handlebars-template" id='fip-config-template'>
-    <div id="windowCreatefip" class="modal modal-560 hide" tabindex="-1">
+    <div id="windowCreatefip" class="modal modal-700 hide" tabindex="-1">
 	    <div class="modal-header">
 	    	<button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
 	        <h6 class="modal-header-title"></h6>
@@ -13,12 +13,36 @@
                 	<label class="control-label" class="span3">Floating IP Pool</label>
                 	<div class="controls">
                 		<div class="row-fluid">
-	                    	<div class="span10 pull-left" id="ddFipPool" ></div>&nbsp;
-                            <input type="text" id="txtCount" class="span2 pull-left" value="1" max=1 >
-	                    	<!--<input class="span10 pull-left" id="ddFipPool" >-->
+	                    	<div class="span10 pull-left" id="ddFipPool" ></div>
+                            <!-- <input type="text" id="txtCount" class="span2 pull-left" value="1" max=1 > 
+	                    	<input class="span10 pull-left" id="ddFipPool" >-->
 	    	            </div>
 	                </div>
 	            </div>
+       		    <div class="control-group">
+                	<label class="control-label" class="span3">Allocation Type</label>
+                	<div class="controls">
+                		<div class="row-fluid">
+	                    	<div class="span10 pull-left" id="ddFipOption" ></div>
+		                </div>
+	                </div>
+	            </div>            
+                <div id="numPanel" class="control-group">
+                    <label class="control-label" class="span3">Number of IP Addresses </label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtCount" class="span2 pull-left" value="1" max=1 >
+                        </div>                    
+                    </div>
+                </div>
+                <div id="specificIPPanel"  class="control-group hide">
+                    <label class="control-label" class="span3">IP Address</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtSpecificIP" class="span10 pull-left" placeholder="Enter a Floating IP">
+                        </div>                    
+                    </div>
+                </div>                
 	        </form>
 	    </div>
 	    <div class="modal-footer">
