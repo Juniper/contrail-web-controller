@@ -41,7 +41,7 @@ function networkSummaryRenderer() {
         var uveDeferredObj = $.Deferred();
         //If useServerTime flag is true then the webserver timeStamps will be send in startTime and endTime to query engine
         var portDistributionURL = constructReqURL($.extend({},obj,{type:'port',useServerTime: true}));
-        var portDistributionParams = $.deparam(portDistributionURL);
+        var portDistributionParams = $.deparamURLArgs(portDistributionURL);
         data['charts']['colCount'] = 1;
         data['charts']['d'] = [
             {deferredObj:portDeferredObj,title:'Port Distribution',parseFn:function(response) {
