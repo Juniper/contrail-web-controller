@@ -7,7 +7,6 @@
  function quotasConfig() {
     //Variable definitions
     //Viewmodels
-    var quotaVM
     var quotaList = [{key : "virtual_network", name : "Virtual Networks"},
         {key : "subnet", name :"Subnets"},
         {key : "virtual_machine_interface", name :"Ports"},        
@@ -32,7 +31,6 @@
     this.handleProjects = handleProjects;   
     this.bindDatatoGrid = bindDatatoGrid;
     this.initQuotaEditView = initQuotaEditView;
-    this.initQuotaViewModel = initQuotaViewModel;
     this.validate = validate;
     this.destroy = destroy;
 
@@ -58,9 +56,9 @@
             header : {
                 title : {
                     text : 'Project Quotas',
-                    cssClass : 'blue',
-                    icon : 'icon-list',
-                    iconCssClass : 'blue'                
+                    // cssClass : 'blue',
+                    // icon : 'icon-list',
+                    // iconCssClass : 'blue'                
                 },
                 customControls: ['<a id="btnEditQuota"  title="Edit Quotas"><i class="icon-edit"></i></a>',
                     'Project: <div id="ddProjectSwitcher"/>',
@@ -78,7 +76,12 @@
                     field : 'value',
                     name : 'Quota Limit',
                     formatter:function(r,c,v,cd,dc){
-                        return (v != null && v != undefined)? v : '-';
+                        var data = dc['value'];
+                        if(data === -1) {
+                            return "Unlimited";
+                        } else {
+                            return (data != null && data != undefined)? data : 'Not Set';
+                        }
                     }
                 },
                 {
@@ -86,7 +89,8 @@
                     field : 'used',
                     name : 'Used',
                     formatter:function(r,c,v,cd,dc){
-                        return (v != null && v != undefined) ? v : '-';
+                        var data = dc['used'];
+                        return (data != null && data!= undefined) ? data : '-';
                     }                    
                 }]
             },
@@ -128,27 +132,20 @@
         $('#windowEditQuota').modal({backdrop:'static', keyboard: false, show:false});
         $('#windowEditQuota').find('.modal-header-title').text('Edit Project Quotas');
         initQuotaEditView();    
-        initQuotaViewModel();
     }   
     
-    function initQuotaViewModel() {
-        //view model for the quota inputs
-        var viewModel = function() {
-            var self = this;
-            for(var quotaCnt = 0; quotaCnt < quotaList.length; quotaCnt++) {
-                self[quotaList[quotaCnt].key] = ko.observable();    
-            }
-        }
-        quotaVM = new viewModel();
-        ko.applyBindings(quotaVM, document.getElementById("windowEditQuota"));
-    }
-    
+   
     function initQuotaEditView() {
         for(var quotaCnt = 0; quotaCnt < quotaList.length; quotaCnt++) { 
-            var eleStr = '<div class="control-group">';    
+            var eleStr = '<div class="control-group">';  
             eleStr+= '<label class="control-label" class="span3">' + quotaList[quotaCnt].name + '</label>'; 
-            eleStr+= '<div class="controls"><div class="row-fluid"><input type="text" id="txtVN" placeholder="Not Set" data-bind ="value : ' + quotaList[quotaCnt].key + '"  class="span8" /></div></div></div>'
-            $("#quotaBody").append(eleStr);        
+            eleStr+= '<div class="controls"><div class="row-fluid"><input type="text" id="' + quotaList[quotaCnt].key + '"  class="span8" /></div></div></div>'
+            $("#quotaBody").append(eleStr); 
+            $('#' + quotaList[quotaCnt].key).contrailCombobox({
+                dataTextField : 'text',
+                dataValueField : 'value',
+                placeholder : 'Not Set'
+            });            
         }
     }
     
@@ -161,8 +158,9 @@
         });
         $('#btnEditQuota').click(function(){
             if(!$(this).hasClass('disabled-link')) {
-                setQuotaViewModel();
                 $('#windowEditQuota').modal('show');  
+                $('#windowEditQuota').find('.modal-body').scrollTop(0);
+                populateQuotaEditPopup();
             }
         });
     }
@@ -282,6 +280,23 @@
         gridQuotas.showGridMessage('errorGettingData');    
     }
     
+    function populateQuotaEditPopup() {
+        var data = updateData["project"]["quota"];
+        for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
+            var quotaKey = quotaList[quotaCnt].key;
+            var comboDS = [{ text : 'Unlimited', value : -1 }];
+            var selectedValue;
+            if(data[quotaKey] !== null) {
+                selectedValue = data[quotaKey];
+            } else {
+               selectedValue = '';
+            }
+            var comboInstance =  $('#' + quotaKey).data('contrailCombobox');
+            comboInstance.setData(comboDS);
+            comboInstance.value(selectedValue);
+        }        
+    }
+    
     function bindDatatoGrid(usedInfo) {
         var data = updateData["project"]["quota"];
         if(data != null && data != undefined) {
@@ -289,23 +304,12 @@
             for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
                 var quotaName = quotaList[quotaCnt].name; 
                 var quotaKey = quotaList[quotaCnt].key;
-                quotaVM[quotaKey](data[quotaKey]);
-                dsQuota.push({id :quotaCnt, name : quotaName, value : quotaVM[quotaKey](), used : usedInfo[quotaKey]});
+                dsQuota.push({id :quotaCnt, name : quotaName, value : data[quotaKey], used : usedInfo[quotaKey]});
             }       
             $("#gridQuotas").data("contrailGrid")._dataView.setData(dsQuota);    
          } else {
              gridQuotas.showGridMessage('empty');
          }
-    }
-    
-    function setQuotaViewModel() {
-        if(updateData && updateData["project"] && updateData["project"]["quota"]) {
-            var data = updateData["project"]["quota"];
-            for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
-                var quotaKey = quotaList[quotaCnt].key;
-                quotaVM[quotaKey](data[quotaKey]);            
-            }
-        }
     }
     
     window.failureHandlerForQuotasGrid = function(err) {
@@ -317,8 +321,9 @@
         for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
             var quotaName = quotaList[quotaCnt].name;
             var quotaKey = quotaList[quotaCnt].key; 
-            if(quotaVM[quotaKey]() != null && quotaVM[quotaKey]() != "" && quotaVM[quotaKey]() != undefined) {            
-                var quotaValue = parseInt(quotaVM[quotaKey]());
+            var comboInstanceValue = $('#' + quotaKey).data('contrailCombobox').value();
+            if(comboInstanceValue != null && comboInstanceValue != "" && comboInstanceValue != undefined) {            
+                var quotaValue = parseInt(comboInstanceValue);
                 if(quotaValue < -1 || isNaN(quotaValue)) {
                    if(validateInt === '') {
                        validateInt = quotaName; 
@@ -329,7 +334,7 @@
             }
         }    
         if(validateInt != '') {
-            showInfoWindow("Enter valid  Quota for " + validateInt, "Invalid input");
+            showInfoWindow("Enter valid  quota for " + validateInt, "Invalid input");
             return false;
         }
         return true;
@@ -341,8 +346,9 @@
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").getSelectedData()[0];
         var updateQuota = data["project"]["quota"];
         for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
-            var quotaKey = quotaList[quotaCnt].key;        
-            updateQuota[quotaKey] = parseInt(quotaVM[quotaKey]());
+            var quotaKey = quotaList[quotaCnt].key;   
+            var comboInstanceValue = $('#' + quotaKey).data('contrailCombobox').value();            
+            updateQuota[quotaKey] = parseInt(comboInstanceValue);
         }
         doAjaxCall("/api/tenants/config/update-quotas/" + selectedProject.value,
             "PUT", JSON.stringify(data), "successHandlerForQuotasUpdate", "failureHandlerForQuotasUpdate", null, null);
