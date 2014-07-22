@@ -71,7 +71,7 @@ function initComponents() {
 $("#gridfip").contrailGrid({
         header : {
             title : {
-                text : 'Floating IP',
+                text : 'Manage Floating IPs',
                 //cssClass : 'blue',
                 //icon : 'icon-list',
                 //iconCssClass : 'blue'
@@ -191,8 +191,17 @@ $("#gridfip").contrailGrid({
     });
     ddFipPool = $("#ddFipPool").contrailDropdown({
         dataTextField:"text",
-        dataValueField:"value"
+        dataValueField:"value",
+        change : handleFipPool
     });
+    ddFipOption = $("#ddFipOption").contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        change:handleFipOption
+    });
+    var fipOpt = $("#ddFipOption").data('contrailDropdown')       
+    fipOpt.setData([{text : 'Dynamic', value : 'general'}, {text : 'Specific IP', value : 'specific'}]);    
+    fipOpt.value('general');    
     ddAssociate = $("#ddAssociate").contrailDropdown({
         dataTextField:"text",
         dataValueField:"value"
@@ -322,10 +331,13 @@ function initActions() {
         fip["floating-ip"] = {};
         fip["floating-ip"]["parent_type"] = "floating-ip-pool";
         fip["floating-ip"]["fq_name"] = [];
-        fip["floating-ip"]["fq_name"] = JSON.parse(selectedPool);
+        fip["floating-ip"]["fq_name"] = JSON.parse(selectedPool).to;
         fip["floating-ip"]["project_refs"] = [];
         fip["floating-ip"]["project_refs"][0] = {};
         fip["floating-ip"]["project_refs"][0]["to"] = [selectedDomain, selectedProject];
+        if(!$("#specificIPPanel").hasClass('hide')) {
+            fip["floating-ip"]["floating_ip_address"] = $('#txtSpecificIP').val();
+        }
         doAjaxCall("/api/tenants/config/floating-ips", "POST", JSON.stringify(fip),
                 "createFIPSuccessMultiple", "createFFIPailureAllocate");
         windowCreatefip.modal('hide');
@@ -362,6 +374,26 @@ function handleDomains(e) {
     var dName = e.added.text;
     setCookie("domain", dName);        
     fetchProjects("populateProjects", "failureHandlerForGridFIP");
+}
+function handleFipPool(e) {
+    var value = JSON.parse(e.val); 
+    if(value.subnets === noSubnetsMsg) {
+        $("#btnCreatefipOK").attr('disabled','disabled');        
+    } else {
+        $("#btnCreatefipOK").removeAttr('disabled');
+    }
+}
+
+function handleFipOption(e) {
+    if(e.val === 'specific') {
+        $("#specificIPPanel").removeClass('hide');            
+        $("#numPanel").addClass('hide');
+        $("#btnCreatefipOK").text('Allocate');
+    } else {
+        $("#numPanel").removeClass('hide');       
+        $("#specificIPPanel").addClass('hide');
+        $("#btnCreatefipOK").text('Save');
+    }  
 }
 
 function populateProjects(result) {
@@ -481,7 +513,13 @@ function showFIPEditWindow(mode) {
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").value();
         $("#ddFipPool").data("contrailDropdown").setData({text:'Floating IPs not allocated for the project.',value:""});
         $("#ddFipPool").data("contrailDropdown").enable(false);
-			
+		var fipOpt = $("#ddFipOption").data('contrailDropdown');
+        fipOpt.value('general');
+        $("#txtSpecificIP").val('');     
+        $("#numPanel").removeClass('hide');       
+        $("#specificIPPanel").addClass('hide');   
+        $("#btnCreatefipOK").text('Save');     
+        $("#btnCreatefipOK").removeAttr('disabled');        
         var getAjaxs = [];
         getAjaxs[0] = $.ajax({
             url:"/api/tenants/config/floating-ip-pools/" + selectedProject,
@@ -492,12 +530,17 @@ function showFIPEditWindow(mode) {
                 //all success
                 var results = arguments;
                 var fipPools = [];
-                configObj["floating-ip-pools"] = [];        
-                for (var i = 0; i < results[0].floating_ip_pool_refs.length; i++) {
-                    var poolObj = results[0].floating_ip_pool_refs[i];
-                    var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3];
-                    fipPools.push({text:poolName, value:JSON.stringify(poolObj.to)})
-                    configObj["floating-ip-pools"].push(poolObj);
+                configObj["floating-ip-pools"] = [];
+                if(results[0] && results[0].floating_ip_pool_refs 
+                    && results[0].floating_ip_pool_refs.length > 0) {                
+                    for (var i = 0; i < results[0].floating_ip_pool_refs.length; i++) {
+                        var poolObj = results[0].floating_ip_pool_refs[i];
+                        noSubnetsMsg = 'No subnets available';
+                        poolObj.subnets = poolObj.subnets ? poolObj.subnets : 'No subnets available';
+                        var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3] + ' (' + poolObj.subnets + ')';
+                        fipPools.push({text:poolName, value:JSON.stringify(poolObj)})
+                        configObj["floating-ip-pools"].push(poolObj);
+                    }
                 }
 
                 windowCreatefip.find('.modal-header-title').text("Allocate Floating IP");
@@ -737,4 +780,10 @@ function destroy() {
         configFipTemplate.remove();
         configFipTemplate = $();
     }
+    
+    ddFipOption = $("#ddFipOption").data("contrailDropdown");
+    if(isSet(ddFipOption)) {
+        ddFipOption.destroy();
+        ddFipOption = $();
+    }        
 }
