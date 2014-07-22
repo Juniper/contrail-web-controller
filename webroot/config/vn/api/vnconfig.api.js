@@ -179,7 +179,6 @@ function parseVNSubnets (error, vnConfig, callback)
                 }*/
 
                 nwIpamRefsClone[k]['subnet']['ipam'] = nwIpamRefs[i]['to'];
-                nwIpamRefsClone[k]['subnet']['ipam'] = nwIpamRefs[i]['to'];
                 k++;
             }
         }
@@ -671,23 +670,14 @@ function updateFloatingIpList (vnId, vnPutData, appData, response, callback)
     var fipDelList = [];
     configApiServer.apiGet(vnUrl, appData, function(err, configData) {
         var fipNewPoolVN = getNewFipPoolLists(vnPutData, configData);
-        logutils.logger.debug('fipNewPoolVN'+fipNewPoolVN);
         var fipDelPoolVN = getDelFipPoolLists(vnPutData, configData);
-        logutils.logger.debug('fipDelPoolVN'+fipDelPoolVN);
         try {
-                logutils.logger.debug('fipDelPoolVN'+JSON.stringify(fipDelPoolVN));
-                logutils.logger.debug('v-n'+JSON.stringify(fipDelPoolVN['virtual-network']));
-                logutils.logger.debug('pool'+JSON.stringify(fipDelPoolVN['virtual-network']['floating_ip_pools']));
-                logutils.logger.debug('len'+JSON.stringify(fipDelPoolVN['virtual-network']['floating_ip_pools'].length));
             var len = fipDelPoolVN['virtual-network']['floating_ip_pools'].length;
             for (var i = 0; i < len; i++) {
                 fipDelList[i] = {};
-                logutils.logger.debug('i'+i);
                 fipDelList[i]['virtualNetworkId'] = vnId;
-                logutils.logger.debug('vnid'+vnId);
                 fipDelList[i]['fipPoolId'] =
                     fipDelPoolVN['virtual-network']['floating_ip_pools'][i]['uuid'];
-                logutils.logger.debug('vnid'+vnId);
                 fipDelList[i]['appData'] = appData;
             }
         } catch(e) {
@@ -721,7 +711,7 @@ function updateVNPolicyRefs (vnConfig, response, appData)
     var vnPutURL = '/virtual-network/' + vnId;
 
     if(null === vnConfig['virtual-network']['virtual_network_properties'] ||
-        typeof vnConfig['virtual-network']['virtual_network_properties'] === "undefined") {
+       typeof vnConfig['virtual-network']['virtual_network_properties'] === "undefined") {
         if ('virtual_network_properties' in vnPutData['virtual-network']) {
             vnConfig['virtual-network']['virtual_network_properties'] = {};
         }
@@ -793,6 +783,7 @@ function updateVirtualNetwork (request, response, appData)
                 return;
             }
             updateRouterExternalFlag(data, vnPutData);
+			console.log("setting router_external: " + data["virtual-network"]["router_external"]);
             updateVNPolicyRefs(data, response, appData);
         });
     });
@@ -809,15 +800,16 @@ function updateVirtualNetwork (request, response, appData)
 function updateRouterExternalFlag(configData, requestData) {
     if(requestData && requestData.hasOwnProperty("virtual-network")) {
         if(requestData["virtual-network"].hasOwnProperty("router_external")) {
+		    console.log("setting router_external: " + requestData["virtual-network"]["router_external"]);
             configData["virtual-network"]["router_external"] = 
                 requestData["virtual-network"]["router_external"];
         } else {
             configData["virtual-network"]["router_external"] = false;
-            if(requestData["virtual-network"].hasOwnProperty("floating_ip_pools")) {
+            /*if(requestData["virtual-network"].hasOwnProperty("floating_ip_pools")) {
                 if(requestData["virtual-network"]["floating_ip_pools"].length > 0) {
                     configData["virtual-network"]["router_external"] = true;
                 }
-            }
+            }*/
         }
     }
 }

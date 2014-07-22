@@ -37,6 +37,7 @@ function VirtualNetworkConfig() {
     var idCount = 0;
     var ajaxParam;
     var dynamicID;
+    var l2l3Mode = "";
 
     //Method definitions
     this.load = load;
@@ -95,16 +96,7 @@ function initComponents() {
         header : {
             title : {
                 text : 'Networks',
-                //cssClass : 'blue',
-                //icon : 'icon-list',
-                //iconCssClass : 'blue'
             },
-            //defaultControls: {
-            //    collapseable: false,
-            //    exportable: false,
-            //    refreshable: false,
-            //    searchable: true
-            //},
             customControls: ['<a id="btnDeleteVN" class="disabled-link" title="Delete Virtual Network(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnCreateVN" onclick="showVNEditWindow(\'add\');return false;" title="Create Virtual Network"><i class="icon-plus"></i></a>',
                 'Project:<div id="ddProjectSwitcher" />',
@@ -116,12 +108,14 @@ function initComponents() {
                 id: "Network",
                 field: "Network",
                 name: "Network",
+                minWidth : 120,
                 sortable: true
             },
             {
                 id: "IPBlocks",
                 field: "IPBlocks",
                 name: "Subnets",
+                minWidth : 100,
                 formatter: function(r, c, v, cd, dc) {
                     var returnString = "";
                     if(typeof dc.IPBlocks === "object") {
@@ -143,6 +137,7 @@ function initComponents() {
                 id: "AttachedPolicies",
                 field: "AttachedPolicies",
                 name: "Attached Policies",
+                minWidth : 200,
                 formatter: function(r, c, v, cd, dc) {
                     var returnString = "";
                     if(typeof dc.AttachedPolicies === "object") {
@@ -164,18 +159,23 @@ function initComponents() {
                 id: "Shared",
                 field: "Shared",
                 name: "Shared",
+                minWidth : 60,
                 sortable: true
             },
             {
                 id: "adminState",
                 field: "adminState",
                 name: "Admin State",
+                minWidth : 60,
                 sortable: true
             }]
         },
         body : {
             options : {
                 checkboxSelectable: {
+                    enableRowCheckbox: function(dc) {
+                         return (dc.enableControles == true);
+                    },
                     onNothingChecked: function(e){
                         $('#btnDeleteVN').addClass('disabled-link');
                     },
@@ -184,22 +184,26 @@ function initComponents() {
                     }
                 },
                 forceFitColumns: true,
-                actionCell: [
-                    {
-                        title: 'Edit',
-                        iconClass: 'icon-edit',
-                        onClick: function(rowIndex){
-                            showVNEditWindow('edit',rowIndex);
-                        }
-                    },
-                    {
-                        title: 'Delete',
-                        iconClass: 'icon-trash',
-                        onClick: function(rowIndex){
-                            showRemoveWindow(rowIndex);
-                        }
+                actionCell: function(dc){
+                    if(dc.enableControles == true){
+                        return [{
+                            title: 'Edit',
+                            iconClass: 'icon-edit',
+                            onClick: function(rowIndex){
+                                showVNEditWindow('edit',rowIndex);
+                            }
+                        },
+                        {
+                            title: 'Delete',
+                            iconClass: 'icon-trash',
+                            onClick: function(rowIndex){
+                                showRemoveWindow(rowIndex);
+                            }
+                        }];
+                    } else{
+                         return [];
                     }
-                ],
+                },
                 detail: {
                     template: $("#gridVNDetailTemplate").html()
                 }
@@ -315,12 +319,29 @@ function initActions() {
         if(typeof vnData === 'object' && vnData.FloatingIPs && vnData.FloatingIPs.length > 0) {
             var returnString = "";
             for(var i=0; i<vnData.FloatingIPs.length; i++) {
+                if(returnString != "") returnString += "&nbsp;&nbsp;";
                 returnString += vnData.FloatingIPs[i] + " " + getAssignedProjectsForIpam(vnData.FloatingIPPools[i]) + "<br>";
             }
         }
         return returnString;
     });
-
+    Handlebars.registerHelper("showSubnet",function(allSubnets,options) {
+        var returnHtml = '';
+        for(k=0;k<allSubnets.length;k++){
+            if(k%2 == 1){    
+                returnHtml += '<div class="row-fluid bgCol">';
+            } else {
+                returnHtml += '<div class="row-fluid">';
+            }
+            returnHtml += '<div class="span3"><div class="span6">' +allSubnets[k]["CIDR"] +'</div>';
+            returnHtml += '<div class="span5">' +allSubnets[k]["default_gateway"] +'</div></div>';
+            returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
+            returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["DHCPEnabled"] +'</div>';        
+            returnHtml += '<div class="span7">' +allSubnets[k]["AllocationPool"] +'</div>';
+            returnHtml += '</div></div>';
+        }
+        return returnHtml;
+    });
     btnDeleteVN.click(function (a) {
         if(!$(this).hasClass('disabled-link')) {
             confirmMainRemove.find('.modal-header-title').text("Confirm");
@@ -374,7 +395,6 @@ function initActions() {
             var currentVn = jsonPath(configObj, "$.virtual-networks[?(@.fq_name[2]=='" + txtVNName.val().trim() + "')]");
             vnConfig["virtual-network"]["network_policy_refs"] = [];
             for (var i = 0; i < policies.length; i++) {
-                //policies[i] = policies[i].innerHTML;
                 vnConfig["virtual-network"]["network_policy_refs"][i] = {};
                 vnConfig["virtual-network"]["network_policy_refs"][i]["attr"] = {};
                 var tmpPolicy = (policies[i].value).split(":");
@@ -398,35 +418,17 @@ function initActions() {
         var allDNSServerArr = getAllDNSServer();
         var DNSServer = formatAllDNSServer(allDNSServerArr);
         var currentHostRout = [];
-                var srTuples = $("#srTuples")[0].children;
-                if (srTuples && srTuples.length > 0) {
-                    for (var j = 0; j < srTuples.length; j++) {
-                        var srTuple = $($(srTuples[j]).find("div")[0]).children();
-/*                        var srIpam =$($(srTuple[0]).find("div.contrailDropdown")[1]).data("contrailDropdown").text();
-                        if(srIpam.indexOf(":") === -1) {
-                            srIpam = selectedDomain + ":" + selectedProject + ":" + srIpam;
-                        }
-                        if(srIpam === vnIpamFqn) {
-                            if(typeof vnIpamRef["attr"]["host_routes"] === "undefined") {
-                                vnIpamRef["attr"]["host_routes"] = {};
-                                vnIpamRef["attr"]["host_routes"]["route"] = [];
-                            }
-
-                            vnIpamRef["attr"]["host_routes"]["route"]
-                            [vnIpamRef["attr"]["host_routes"]["route"].length] =
-                            {
-                                "prefix" : $($(srTuple[1]).find("input")).val().trim(),
-                                "next_hop" : null,
-                                "next_hop_type" : null 
-                            }*/
-                            var currentHostRoutText = ($($(srTuple[0]).find("input")).val().trim());
-                            var currentNextHopText = null;
-                            if(($($(srTuple[1]).find("input")).val().trim()) != "")
-                                currentNextHopText = ($($(srTuple[1]).find("input")).val().trim());
-                            currentHostRout.push({"prefix" : currentHostRoutText,"next_hop" : currentNextHopText, "next_hop_type" : null });
-                        //}
-                    }
-                }
+        var srTuples = $("#srTuples")[0].children;
+        if (srTuples && srTuples.length > 0) {
+            for (var j = 0; j < srTuples.length; j++) {
+                var srTuple = $($(srTuples[j]).find("div")[0]).children();
+                var currentHostRoutText = ($($(srTuple[0]).find("input")).val().trim());
+                var currentNextHopText = null;
+                if(($($(srTuple[1]).find("input")).val().trim()) != "")
+                    currentNextHopText = ($($(srTuple[1]).find("input")).val().trim());
+                currentHostRout.push({"prefix" : currentHostRoutText,"next_hop" : currentNextHopText, "next_hop_type" : null });
+            }
+        }
         var mgmtOptions = [];
         var ipamTuples = $("#ipamTuples")[0].children;
         if (ipamTuples && ipamTuples.length > 0) {
@@ -446,9 +448,9 @@ function initActions() {
                     for(var inc = 0; inc < tempAllocPools.length ; inc++){
                         var ips = tempAllocPools[inc].split("-");
                         if(ips.length == 2)
-                            allocation_pools[inc] = {"start":ips[0],"end":ips[1]};
+                            allocation_pools[inc] = {"start":ips[0].trim(),"end":ips[1].trim()};
                          else if(ips.length == 1)
-                            allocation_pools[inc] = {"start":ips[0],"end":ips[0]};
+                            allocation_pools[inc] = {"start":ips[0].trim(),"end":ips[0].trim()};
                     }
                     addrFromStart = true;
                 }
@@ -500,7 +502,6 @@ function initActions() {
                     else
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["subnet"]["ip_prefix_len"] = 32;
 
-                    //vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["subnet"]["ip_prefix_len"] = parseInt(cidr.split("/")[1]);
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["enable_dhcp"] = enable_dhcp;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dns_nameservers"] = [];
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dhcp_option_list"] = {};
@@ -581,8 +582,7 @@ function initActions() {
         else
             vnConfig["virtual-network"]["is_shared"] = false;
                     
-        if (floatingIpPools && floatingIpPools.length > 0) {
-            
+        if (floatingIpPools && floatingIpPools.length > 0) {            
             vnConfig["virtual-network"]["floating_ip_pools"] = [];
             for (var i = 0; i < floatingIpPools.length; i++) {
                 var fipPoolName = floatingIpPools[i].FIPPoolName;
@@ -711,7 +711,6 @@ function createFipoolEntry(fipool, len) {
     divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
 
     var rootDiv = document.createElement("div");
-    //rootDiv.id = "rule_" + len;
     rootDiv.id = "fipTuples_"+id;
     rootDiv.appendChild(divRowFluidMargin5);
 
@@ -857,7 +856,6 @@ function getAllDNSServer(){
         for (var i = 0; i < DNSServerTuples.length; i++) {
             var DNSServerTuple = $($(DNSServerTuples[i]).find("div")[0]).children();
             var srIpam = $(DNSServerTuple[0].children[0]).val();
-            //if(allDNSServer != "") allDNSServer += ",";
             allDNSServer.push(srIpam);
         }
     }
@@ -905,7 +903,7 @@ function clearFipEntries() {
     }
 }
 
-function createIPAMEntry(ipamBlock, len,id,element) {
+function createIPAMEntry(ipamBlock, id,element) {
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var networkIpams = jsonPath(configObj, "$.network-ipams[*].fq_name");
@@ -919,7 +917,7 @@ function createIPAMEntry(ipamBlock, len,id,element) {
             if(checkSystemProject(ipam[1]))
                 continue;
             else
-                validIpams[validIpams.length] = {text : ipam[2] + "(" + ipam[0] + ":" + ipam[1] +")" , value: ipam[0] + ":" + ipam[1] + ":" + ipam[2]};
+                validIpams[validIpams.length] = {text : ipam[2] + " (" + ipam[0] + ":" + ipam[1] +")" , value: ipam[0] + ":" + ipam[1] + ":" + ipam[2]};
         }
     }
     if(validIpams && validIpams.length <= 0) {
@@ -931,7 +929,6 @@ function createIPAMEntry(ipamBlock, len,id,element) {
     selectIpams.className = "span12 contrailDropdown";
     selectIpams.setAttribute("placeholder", "Select IPAM");
     selectIpams.setAttribute("id",element+"_"+id+"_ddSelIpam");
-    //selectIpams.setAttribute("id", "SelectIPAM");
     var divIpam = document.createElement("div");
     divIpam.className = "span3";
     divIpam.appendChild(selectIpams);
@@ -952,13 +949,11 @@ function createIPAMEntry(ipamBlock, len,id,element) {
     inputTxtAlocPool.col = "span12";
     inputTxtAlocPool.setAttribute("placeholder", "<start ip> - <end-ip><enter> ...");
     inputTxtAlocPool.setAttribute("title", "xxx.xxx.xxx.xxx - xxx.xxx.xxx.xxx<enter> xxx.xxx.xxx.xxx - xxx.xxx.xxx.xxx<enter>...");
-    inputTxtAlocPool.setAttribute("onblur", "validateAP(this)");
     inputTxtAlocPool.setAttribute("id",element+"_"+id+"_txtAllocPool");
     inputTxtAlocPool.setAttribute("onkeyup", "textAreaAdjust(this);");
 
     $(inputTxtAlocPool).keyup(function(e) {
         var id = getID(e.target.id);
-        //if(
         $(this).height(1);
         $(this).height(this.scrollHeight + parseFloat($(this).css("borderTopWidth")) + parseFloat($(this).css("borderBottomWidth"))-10);
     });
@@ -1007,6 +1002,7 @@ function createIPAMEntry(ipamBlock, len,id,element) {
 
     var iBtnDeleteRule = document.createElement("i");
     iBtnDeleteRule.className = "icon-minus";
+    iBtnDeleteRule.setAttribute("id",element+"_"+id+"_minusButton");
     iBtnDeleteRule.setAttribute("onclick", "deleteIPAMEntry(this);");
     iBtnDeleteRule.setAttribute("title", "Delete IPAM");
 
@@ -1026,7 +1022,6 @@ function createIPAMEntry(ipamBlock, len,id,element) {
     divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
 
     var rootDiv = document.createElement("div");
-    //rootDiv.id = "rule_" + len;//Need to check
     rootDiv.id =  element+"_"+id;
     rootDiv.className = 'rule-item';
     rootDiv.appendChild(divRowFluidMargin5);
@@ -1064,15 +1059,11 @@ function textAreaAdjust(o) {
     o.style.height = "1px";
     o.style.height = (o.scrollHeight)+"px";
 }
-function validateAP(me){
-    console.log(me.value);
-//ip_range_add
-}
 function appendIPAMEntry(who, defaultRow,element) {
     if(validateIPAMEntry() === false)
         return false;
     dynamicID++;
-    var ipamEntry = createIPAMEntry(null, $("#ipamTuples").children().length,dynamicID,element);
+    var ipamEntry = createIPAMEntry(null, dynamicID,element);
     if (defaultRow) {
         $("#ipamTuples").prepend($(ipamEntry));
     } else {
@@ -1080,72 +1071,36 @@ function appendIPAMEntry(who, defaultRow,element) {
         parentEl.parentNode.insertBefore(ipamEntry, parentEl.nextSibling);
     }
     scrollUp("#windowCreateVN",ipamEntry,false);
-
-    var ipamTuples = $("#ipamTuples")[0].children;
-    var existingIpams = [];
-    if (ipamTuples && ipamTuples.length > 0) {
-        for (var i = 0; i < ipamTuples.length; i++) {
-            var ipamTuple_id = getID(String($("#"+element).children()[i].id));
-            var ipam = $("#"+element+"_"+ipamTuple_id+"_ddSelIpam").data("contrailDropdown").value();
-            //var ipamTuple = $($(ipamTuples[i]).find("div")[0]).children();
-            //var ipam = $(ipamTuple[0].children[1]).data("contrailDropdown").value();
-            existingIpams.push(ipam);
-        }
-    }
-
-    existingIpams = existingIpams.unique();
-    /*var srTuples = $("#srTuples")[0].children;
-    if (srTuples && srTuples.length > 0) {
-        for (var i = 0; i < srTuples.length; i++) {
-            var srTuple = $($(srTuples[i]).find("div")[0]).children();
-            var srIpam = $(srTuple[0].children[1]).data("contrailDropdown")
-            var existingValue = srIpam.value();
-            srIpam.setData(existingIpams);
-            srIpam.value(existingValue);
-        }
-    }*/
 }
 
 function deleteIPAMEntry(who) {
-    //var deletingIpamEntry = $($($(who).parent().parent().find("div.span3")[0]).find("div.contrailDropdown")[1]).data("contrailDropdown").value().trim();
+    var elementId = who.id;
+    var id = "";
+    if(elementId != undefined && elementId != null){
+        id = getID(elementId);
+    }
     var howmany = 0;
     var ipamTuples = $("#ipamTuples")[0].children;
-    if(ipamTuples.length > 0){
+    if(ipamTuples.length <= 1){
         var srTuples = $("#srTuples")[0].children;
         var DNSTuples = $("#DNSServerTuples")[0].children;
         if ((srTuples && srTuples.length > 0 ) || (DNSTuples && DNSTuples.length > 0)) {
-            $("#srTuples").html("");
-            $("#DNSServerTuples").html("");
-/*        for (var i = 0; i < srTuples.length; i++) {
-            var srTuple = $($(srTuples[i]).find("div")[0]).children();
-            var srIpam = $(srTuple[0].children[1]).data("contrailDropdown")
-            var existingValue = srIpam.value().trim();
-            if(existingValue === deletingIpamEntry) {
-                var ipamTuples = $("#ipamTuples")[0].children;
-                if (ipamTuples && ipamTuples.length > 0) {
-                    for (var i = 0; i < ipamTuples.length; i++) {
-                        var ipamTuple = $($(ipamTuples[i]).find("div")[0]).children();
-                        var ipam = $(ipamTuple[0].children[1]).data("contrailDropdown").value().trim();
-                        if(ipam === existingValue) {
-                            howmany++;
-                        }
-                    }
-                }
-                if(howmany >= 1) {
-                    showInfoWindow("Remove all the Host Route(s) with ipam '" + 
-                        existingValue + "' before deleting this IPAM entry.", "Error");
-                    return false;
-                }
-            }
-        }*/
-        } 
-        $("#ipamTuples").html("");
+            showInfoWindow("Removing last subnet will remove all DNS Server and Host Route. <br>Do you want to continue?", "Conformation.","","remDNS_SR");
+        } else {
+            $("#ipamTuples").html("");
+        }
+    } else {
+        var tempDiv = $("#ipamTuples_"+id)[0];
+        $(tempDiv).remove();
+        //$(tempDiv) = $();
     }
-//    var templateDiv = who.parentNode.parentNode.parentNode;
-//    $(templateDiv).remove();
-//    templateDiv = $();
 }
-
+function remDNS_SR(){
+    $("#infoWindow").modal('hide');
+    $("#srTuples").html("");
+    $("#DNSServerTuples").html("");
+    $("#ipamTuples").html("");
+}
 function clearIPAMEntries() {
     var tuples = $("#ipamTuples")[0].children;
     if (tuples && tuples.length > 0) {
@@ -1162,8 +1117,6 @@ function validateIPAMEntry() {
     var len = $("#ipamTuples").children().length;
     if(len > 0) {
         for(var i=0; i<len; i++) {
-            //var ipblock = $($($($("#ipamTuples").children()[i]).find(".span3")[0]).find("input")[0]).val().trim();
-            //var gateway = $($($($("#ipamTuples").children()[i]).find(".span2")[3]).find("input")[0]).val().trim();
             var id = getID(String($("#ipamTuples").children()[i].id));
             var ipblock = $("#ipamTuples_"+id+"_txtCIDR").val().trim();
             var gateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
@@ -1377,11 +1330,12 @@ function clearRTEntries() {
     }
 }
 
-function createSREntry(staticRoute, len) {
+function createSREntry(staticRoute, len,id,element) {
     var nextHopSR = document.createElement("input");
     nextHopSR.type = "text";
     nextHopSR.className = "span12";
-    nextHopSR.setAttribute("placeholder", "Next Hop");
+    nextHopSR.setAttribute("placeholder", "IP Address");
+    nextHopSR.setAttribute("id",element+"_"+id+"_txtNextHop");
     var divIpam = document.createElement("div");
     divIpam.className = "span3";    
     divIpam.appendChild(nextHopSR);
@@ -1390,6 +1344,7 @@ function createSREntry(staticRoute, len) {
     inputTxtSR.type = "text";
     inputTxtSR.className = "span12";
     inputTxtSR.setAttribute("placeholder", "Route Prefix");
+    nextHopSR.setAttribute("id",element+"_"+id+"_txtRoutPrefix");
     var divSR = document.createElement("div");
     divSR.className = "span3";
     divSR.appendChild(inputTxtSR);
@@ -1421,7 +1376,8 @@ function createSREntry(staticRoute, len) {
     divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
 
     var rootDiv = document.createElement("div");
-    rootDiv.id = "rule_" + len;
+    //rootDiv.id = "rule_" + len;
+    rootDiv.id = "rule_" + id;
     rootDiv.appendChild(divRowFluidMargin5);
 
     if (null !== staticRoute && typeof staticRoute !== "undefined") {
@@ -1444,7 +1400,7 @@ function validateSREntry() {
                 return false;
             }
             srTuple = $($(srTuples[i]).find("div")[2]).children();
-            if($(srTuple[0]).val() != undefined && $(srTuple[0]).val().trim != ""){
+            if($(srTuple[0]).val() != undefined && $(srTuple[0]).val().trim() != ""){
                 var nextHop = $(srTuple[0]).val().trim();
                 if (typeof nextHop === "undefined" || "" === nextHop ||
                     nextHop.indexOf("/") >= 0 || !validip(nextHop)) {
@@ -1460,9 +1416,21 @@ function toggleFIP(){
     var checkedval = $("#router_external")[0].checked;
     if(checkedval == true){
         var fipPool = [];
-            fipPool.push({"FIPPoolName":"default", "FIPProjects":[]});
-            var fipEntry = createFipoolEntry(fipPool[0], 0);
-            $("#fipTuples").prepend($(fipEntry));
+        var fipTuples = $("#fipTuples")[0].children;
+        if (fipTuples && fipTuples.length > 0) {
+            for (var i = 0; i < fipTuples.length; i++) {
+                var id = getID($("#fipTuples").children()[i].id);
+                var poolName = $("#fipTuples_"+id+"_txtFIPPoolName").val();
+                var projects = $("#fipTuples_"+id+"_msProject").data("contrailMultiselect").getSelectedData();
+                if(poolName == "default" && projects != undefined && projects.length > 0 && projects[0].value == "ALL" ){
+                    return;
+                }
+                
+            }
+        }
+        fipPool.push({"FIPPoolName":"default", "FIPProjects":[]});
+        var fipEntry = createFipoolEntry(fipPool[0], 0);
+        $("#fipTuples").prepend($(fipEntry));
     } else {
         var fipTuples = $("#fipTuples")[0].children;
         if (fipTuples && fipTuples.length > 0) {
@@ -1486,8 +1454,8 @@ function appendSREntry(who, defaultRow) {
     }
     if(validateSREntry() === false)
         return false;
-
-    var srEntry = createSREntry(null, $("#srTuples")[0].children);
+    dynamicID++;
+    var srEntry = createSREntry(null, $("#srTuples")[0].children,dynamicID,"srTuples");
     if (defaultRow) {
         $("#srTuples").prepend($(srEntry));
     } else {
@@ -1634,7 +1602,6 @@ function successHandlerForGridVNLoop(result,cbparam){
 }
 
 function successHandlerForAppendShared(result){
-    //console.log(JSON.stringify(result));
     var uniqueNetwork = [];
     var vnData = $("#gridVN").data("contrailGrid")._dataView.getItems();
     for(var i=0;i<result.length;i++){
@@ -1730,6 +1697,7 @@ function successHandlerForGridVNRow(result) {
         if (typeof parent_uuid === "object" && parent_uuid.length === 1)
             parent_uuid = parent_uuid[0];
         var reorder_policies;
+        var reorder_policiesTxt;
         var policies = jsonPath(vn, "$.network_policy_refs[*]");
         var reorder_policies_temp = reorderPolicies(policies)
         if (reorder_policies_temp === false) {
@@ -1737,12 +1705,16 @@ function successHandlerForGridVNRow(result) {
         } else {
             if(reorder_policies_temp.length >= 1){
                 reorder_policies = [];
+                reorder_policiesTxt = "";
                 for(var k=0; k<reorder_policies_temp.length; k++) {
                     var splitPolicy = reorder_policies_temp[k].split(":");
+                    if(reorder_policiesTxt != "") reorder_policiesTxt += "&nbsp;&nbsp;";
                     if(selectedDomain == splitPolicy[0] && selectedProject == splitPolicy[1]) {
                         reorder_policies.push(splitPolicy[2]);
+                        reorder_policiesTxt += splitPolicy[2]+ "<br>";
                     } else {
                         reorder_policies.push(splitPolicy[2] +" ("+splitPolicy[0] +":"+splitPolicy[1]+")");
+                        reorder_policiesTxt += splitPolicy[2] +" ("+splitPolicy[0] +":"+splitPolicy[1]+")" + "<br>";
                     }
                 }
             }
@@ -1775,11 +1747,12 @@ function successHandlerForGridVNRow(result) {
         var DNSServer = "";
         var allDNSServer = [];
         allDNSServer = createUniqueDNSServer(ipamRefs);
-        DNSServer =  allDNSServer.join("<br>");
+        DNSServer =  allDNSServer.join("<br>&nbsp;&nbsp;");
 
         var hostRoutPrifix = "";
         var hostRoutPrifixArr = createUniqueHostRout(ipamRefs);
         for(var hrInc = 0;hrInc <hostRoutPrifixArr.length;hrInc++){
+            if(hostRoutPrifix != "") hostRoutPrifix += "&nbsp;&nbsp;";
             if(hostRoutPrifixArr[hrInc]["next_hop"] != null && hostRoutPrifixArr[hrInc]["next_hop"] != ""){
                 hostRoutPrifix += hostRoutPrifixArr[hrInc]["prefix"] + " " +hostRoutPrifixArr[hrInc]["next_hop"]+"<br>";
             } else {
@@ -1829,9 +1802,9 @@ function successHandlerForGridVNRow(result) {
         if (routeTargets === false) {
             routeTargets = "";
         }
-        var sh = "Disabled";
-        if(String(vn["is_shared"]) == "true") 
-            sh = "Enabled";
+        var sh = "Enabled";
+        if(String(vn["is_shared"]) != "true") 
+            sh = "Disabled";
         var Shared = sh;
         var ext = "Enabled";
         if(String(vn["router_external"])== "false")
@@ -1867,8 +1840,11 @@ function successHandlerForGridVNRow(result) {
         } else {
             vxlanid = "Automatic";
         }
+        var enableControles = true;
+        if(($("#ddProjectSwitcher").data("contrailDropdown").value() != vn.parent_uuid) &&  Shared == "Enabled")
+            enableControles = false;
         //if(vn.fq_name[1] == selectedProject){
-            vnData.push({"id":idCount++, "Network":vnName, "AttachedPolicies":reorder_policies, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"Extend" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid});
+            vnData.push({"id":idCount++, "Network":vnName, "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
     }
     if(result.more == true || result.more == "true"){
@@ -1882,32 +1858,32 @@ function successHandlerForGridVNRow(result) {
 
 function createUniqueHostRout(ipamRefs){
     var hostRoutPrifixArr = [];
-        if(ipamRefs != false && ipamRefs != ""){
-            for (var j = 0; j < ipamRefs.length; j++) {
-                if(ipamRefs[j]["subnet"]["host_routes"] != "" && ipamRefs[j]["subnet"]["host_routes"]["route"].length > 0){
-                    var tempRouter = ipamRefs[j]["subnet"]["host_routes"]["route"];
-                    for(var inc = 0;inc < tempRouter.length ;inc++){
-                        var unique = false;
-                        for(var uni = 0;uni < hostRoutPrifixArr.length ;uni++){
-                            if(hostRoutPrifixArr[uni]["prefix"] == tempRouter[inc]["prefix"] && hostRoutPrifixArr[uni]["next_hop"] == tempRouter[inc]["next_hop"]){
-                                unique = true;
-                                break;
-                            }
+    if(ipamRefs != false && ipamRefs != ""){
+        for (var j = 0; j < ipamRefs.length; j++) {
+            if(ipamRefs[j]["subnet"]["host_routes"] != "" && ipamRefs[j]["subnet"]["host_routes"]["route"].length > 0){
+                var tempRouter = ipamRefs[j]["subnet"]["host_routes"]["route"];
+                for(var inc = 0;inc < tempRouter.length ;inc++){
+                    var unique = false;
+                    for(var uni = 0;uni < hostRoutPrifixArr.length ;uni++){
+                        if(hostRoutPrifixArr[uni]["prefix"] == tempRouter[inc]["prefix"] && hostRoutPrifixArr[uni]["next_hop"] == tempRouter[inc]["next_hop"]){
+                            unique = true;
+                            break;
                         }
-                        if(unique == false) {
-                            hostRoutPrifixArr.push(tempRouter[inc]);
-                        }
+                    }
+                    if(unique == false) {
+                        hostRoutPrifixArr.push(tempRouter[inc]);
                     }
                 }
             }
         }
-return hostRoutPrifixArr;
+    }
+    return hostRoutPrifixArr;
 }
 function createUniqueDNSServer(ipamRefs){
     var allDNSServer = [];
-        if(ipamRefs != false && ipamRefs != ""){
-            for (var j = 0; j < ipamRefs.length; j++) {
-                if(ipamRefs[j]["subnet"]["dhcp_option_list"] != ""){
+    if(ipamRefs != false && ipamRefs != ""){
+        for (var j = 0; j < ipamRefs.length; j++) {
+            if(ipamRefs[j]["subnet"]["dhcp_option_list"] != ""){
                 var DNSServertemp = ipamRefs[j]["subnet"]["dhcp_option_list"]["dhcp_option"];
                 if(DNSServertemp.length > 0) {
                     for(var inc = 0 ; inc < DNSServertemp.length ; inc++){
@@ -1922,9 +1898,10 @@ function createUniqueDNSServer(ipamRefs){
                             }
                         }
                     }
-                }}
+                }
             }
         }
+    }
     return allDNSServer;
 }
 function reorderPolicies(policies){
@@ -1986,6 +1963,7 @@ function clearValuesFromDomElements() {
     txtVNName[0].disabled = false;
     $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
     $("#ddFwdMode").data("contrailDropdown").enable(false);
+    $("#divFwdMode").removeClass("hide");
     $("#ddAdminState").data("contrailDropdown").value("true");
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
@@ -2049,12 +2027,26 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/tenants/config/global-vrouter-config",
         type:"GET"
     });
+
+    getAjaxs[3] = $.ajax({
+        url:"/api/admin/webconfig/network/L2L3Mode",
+        type:"GET"
+    });
+    
     $.when.apply($, getAjaxs).then(
         function () {
             //all success
             clearValuesFromDomElements();
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
+            l2l3Mode = results[3][0].L2L3Mode;
+            if(l2l3Mode == "l2"){
+                $("#ddFwdMode").data("contrailDropdown").value("l2");
+                $("#divFwdMode").removeClass("hide");
+            } else {
+                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+                $("#divFwdMode").addClass("hide");
+            }
             var nps = [];
             configObj["network-policys"] = [];
             var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
@@ -2161,7 +2153,7 @@ function showVNEditWindow(mode, rowIndex) {
                     }
                     for(var k=0; k<existing.length; k++) {
                         dynamicID++;
-                        var ipamEntry = createIPAMEntry(existing[k], $("#ipamTuples").children().length,dynamicID,"ipamTuples");
+                        var ipamEntry = createIPAMEntry(existing[k], dynamicID,"ipamTuples");
                         $("#ipamTuples").append($(ipamEntry));
                         textAreaAdjust($("#ipamTuples_"+dynamicID+"_txtAllocPool")[0]);
                     }
@@ -2171,7 +2163,8 @@ function showVNEditWindow(mode, rowIndex) {
                 //Host Routes
                 var hostRoutPrifixArr = createUniqueHostRout(ipamRefs);
                 for(var hrInc = 0;hrInc <hostRoutPrifixArr.length;hrInc++){
-                    var srEntry = createSREntry(hostRoutPrifixArr[hrInc],$("#srTuples").children().length);
+                    dynamicID++;
+                    var srEntry = createSREntry(hostRoutPrifixArr[hrInc],$("#srTuples").children().length,dynamicID,"srTuples");
                     $("#srTuples").append($(srEntry));
                 }
 
@@ -2251,6 +2244,11 @@ function showVNEditWindow(mode, rowIndex) {
                         typeof vnProps["forwarding_mode"] && 
                         "" !== vnProps["forwarding_mode"].trim()) {
                         $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
+                        if(vnProps["forwarding_mode"] == "l2"){
+                            $("#divFwdMode").removeClass("hide");
+                        } else {
+                            $("#divFwdMode").addClass("hide");
+                        }
                     }
                 }
             }
@@ -2283,7 +2281,7 @@ function getAssignedProjectsForIpam(fips) {
         }
     }
     if(ap.length > 0) {
-        return "( " + ap.toString() + " )";   
+        return " (" + ap.toString() + " )";   
     }
     return "";
 }
@@ -2349,7 +2347,7 @@ function formatAlcPoolObj(alocPools){
             if(alocPools[inc]["start"] === alocPools[inc]["end"])
                 AllocationPool += alocPools[inc]["start"];
             else
-                AllocationPool += alocPools[inc]["start"]+"-"+alocPools[inc]["end"];
+                AllocationPool += alocPools[inc]["start"]+" - "+alocPools[inc]["end"];
         }
     }
     if (AllocationPool == "") AllocationPool = " ";
@@ -2503,23 +2501,3 @@ function destroy() {
         vnConfigTemplate = $();
     }
 }
-
-Handlebars.registerHelper("showSubnet",function(allSubnets,options) {
-    var returnHtml = '';
-    for(k=0;k<allSubnets.length;k++){
-        if(k%2 == 1){    
-            returnHtml += '<div class="row-fluid bgCol">';
-        } else {
-            returnHtml += '<div class="row-fluid">';
-        }
-        returnHtml += '<div class="span3"><div class="span6">' +allSubnets[k]["CIDR"] +'</div>';
-        returnHtml += '<div class="span5">' +allSubnets[k]["default_gateway"] +'</div></div>';
-        returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
-        returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["DHCPEnabled"] +'</div>';        
-        returnHtml += '<div class="span7">' +allSubnets[k]["AllocationPool"] +'</div>';
-        //returnHtml += '<div class="span3">' +allSubnets[k]["hostroute"] +'</div>';
-        //returnHtml += '<div class="span3">' +allSubnets[k]["DNSServer"] +'</div></div>';
-        returnHtml += '</div></div>';
-    }
-    return returnHtml;
-});

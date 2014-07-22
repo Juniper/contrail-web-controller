@@ -12,8 +12,10 @@ textarea {
 <script type="text/x-handlebars-template" id="gridVNDetailTemplate">
     <div>
         <div class="row-fluid">
-            <label>Subnets</label>
+            <label><h6><b>Subnets</b></h6></label>
+            
             <div class="row-fluid">
+
                 <div class="row-fluid bgCol">
                     <div class="span3">
                         <div class="span6">
@@ -44,19 +46,9 @@ textarea {
             </div>
 
             {{{showSubnet allSubnets}}}
-            <br>
-            <div class="row-fluid">
-                <div>
-                    <span class="span2"><label>Host Routes</label> </span>
-                    <span class="span10">: {{{HostRoutes}}} </span>
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div>
-                    <span class="span2"><label>DNS Server</label> </span>
-                    <span class="span10">: {{{DNSServer}}} </span>
-                </div>
-            </div>
+            
+            
+            <label><h6><b>Network Properties</b></h6></label>
             <div class="row-fluid">
                 <div>
                     <span class="span2"><label>Admin State</label> </span>
@@ -78,9 +70,7 @@ textarea {
             <div class="row-fluid">
                 <div>
                     <span class="span2"><label>Attached Network Policies</label></span>
-                    <span class="span10">: {{#each AttachedPolicies}}
-                        {{this}}<br>
-                    {{/each}}
+                    <span class="span10">: {{{AttachedPoliciesTxt}}}
                     </span>
                 </div>
             </div>
@@ -104,6 +94,19 @@ textarea {
                 <span class="span2"><label>VxLAN Identifier</label></span>
                 <span class="span10">: {{VxLanId}}</span>
             </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>DNS Servers</label> </span>
+                    <span class="span10">: {{{DNSServer}}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Host Routes</label> </span>
+                    <span class="span10">: {{{HostRoutes}}} </span>
+                </div>
+            </div>
+
         </div>
     </div>
 </script>
@@ -272,7 +275,7 @@ textarea {
                                             </div>
                                         </div>
                                                                                     
-                                        <div class="control-group">
+                                        <div class="control-group" id = "divFwdMode">
 
                                             <label class="control-label">Forwarding Mode</label>
                                             <div class="controls">
