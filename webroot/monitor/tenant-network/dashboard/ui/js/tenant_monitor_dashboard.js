@@ -19,6 +19,12 @@ function domainSummaryRenderer() {
         var renderDeferredObj = $.Deferred();
         var networkDS = new SingleDataSource('networkDS');
         var result = networkDS.getDataSourceObj();
+        $(networkDS).on("startLoading",function(){
+            $('.icon-spinner').show();
+        });
+        $(networkDS).on("endLoading",function(){
+            $('.icon-spinner').hide();
+        });
         var dashboardData,callUpdateDashboard = false;
         cfg['loadedDeferredObj'] = result['deferredObj'];
         //Info: Create a renderDeferredObj (which will be resolved on getting first set of results) and pass it to initTemplates, 
@@ -52,8 +58,8 @@ function domainSummaryRenderer() {
         obj['title'] = contrail.format('Traffic Statistics for Domain ({0})',fqName);
         obj['widgetBoxId'] = 'traffic-stats';
         data['stats']['list'] = [
-            { lbl : 'Total Traffic In',field:'inBytes'},
-            { lbl : 'Total Traffic Out',field:'outBytes'}
+            { lbl : 'Total Traffic In (Last 1 hr)',field:'inBytes'},
+            { lbl : 'Total Traffic Out (Last 1 hr)',field:'outBytes'}
         ];
         data['charts']['chartType'] = 'bubble';
         data['charts']['colCount'] = 2;
@@ -105,10 +111,6 @@ function domainSummaryRenderer() {
         $(container).html(summaryTemplate(obj));
         startWidgetLoading(obj['widgetBoxId']);
         $(container).initTemplates(data);
-        cfg['loadedDeferredObj'].always(function(){
-            endWidgetLoading(obj['widgetBoxId']);
-            $('.icon-spinner').hide();
-        });
         cfg['loadedDeferredObj'].fail(function(errObj){
             renderDeferredObj.reject(errObj);
         });
