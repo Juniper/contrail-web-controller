@@ -1546,4 +1546,10 @@
         <feature>proxy</feature>
         <callback>proxyApi.forwardProxyRequest</callback>
     </item>
+    <item>
+        <url>/api/config/settings</url>
+        <method>get</method>
+        <feature>setting</feature>
+        <callback>commonUtils.getConfigFileFields</callback>
+    </item>
 </urlLists>

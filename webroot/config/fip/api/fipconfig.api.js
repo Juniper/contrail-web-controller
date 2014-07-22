@@ -257,34 +257,31 @@ function listFloatingIps (request, response, appData)
  * private function
  * 1. Callback for getFipPoolsForProject
  */
-function getFipPoolsForProjectCb (error, projectData, response) 
+function getFipPoolsForProjectCb (error, projectData, callback)
 {
     var fipPool = {};
+    fipPool['floating_ip_pool_refs'] = [];
 
     if (error) {
-       commonUtils.handleJSONResponse(error, response, null);
-       return;
+        callback(error, fipPool);
+        return;
     }
-
-    fipPool['floating_ip_pool_refs'] = [];
 
     if ('floating_ip_pool_refs' in projectData['project']) {
         fipPool['floating_ip_pool_refs'] =
                projectData['project']['floating_ip_pool_refs'];
     }
 
-    commonUtils.handleJSONResponse(error, response, fipPool);
+    callback(null, fipPool);
 }
 
 /**
- * @listFloatingIpPools
- * public function
- * 1. URL /api/tenants/config/floating-ip-pools/:id
- * 2. Gets list of floating ip pools  from  project's fip
+ * @getFloatingIpPoolsByVNLists
+ * private function
+ * 1. Gets list of floating ip pools  from  Project's fip
  *    pool  refs
- * 3. Needs tenant / project id as the id
  */
-function listFloatingIpPools (request, response, appData) 
+function getFloatingIpPoolsByProject (request, appData, callback)
 {
     var tenantId      = null;
     var requestParams = url.parse(request.url,true);
@@ -299,8 +296,128 @@ function listFloatingIpPools (request, response, appData)
     }
     configApiServer.apiGet(projectURL, appData,
                          function(error, data) {
-                         getFipPoolsForProjectCb(error, data, response)
-                         });
+                         getFipPoolsForProjectCb(error, data, callback);
+    });
+}
+
+/**
+ * @getFloatingIpPoolsByVNLists
+ * private function
+ * 1. Gets list of floating ip pools  from  All VNs' fip
+ *    pool  refs
+ */
+function getFloatingIpPoolsByVNLists (request, appData, callback)
+{
+    var vnListURL = '/virtual-networks';
+    var fipPool = {};
+    var dataObjArr = [];
+    fipPool['floating_ip_pool_refs'] = [];
+    configApiServer.apiGet(vnListURL, appData, function(err, vnList) {
+        if ((null != err) || (null == vnList) || 
+            (null == vnList['virtual-networks'])) {
+            callback(err, fipPool);
+            return;
+        }
+        var vns = vnList['virtual-networks'];
+        var vnCnt = vns.length;
+        for (var i = 0; i < vnCnt; i++) {
+            var vnURL = '/virtual-network/' + vns[i]['uuid'] +
+            '?exclude_back_refs=true';
+            commonUtils.createReqObj(dataObjArr, vnURL, global.HTTP_REQUEST_GET,
+                                     null, null, null, appData);
+        }
+        if (!dataObjArr.length) {
+            callback(null, fipPool);
+            return;
+        }
+        async.map(dataObjArr, 
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   true),
+                  function(error, results) {
+            if ((null != error) || (null == results)) {
+                callback(error, fipPool);
+                return;
+            }
+            var resCnt = results.length;
+            for (i = 0; i < resCnt; i++) {
+                try {
+                    var vn = results[i]['virtual-network'];
+                    if ((true == vn['router_external']) &&
+                        (null != vn['floating_ip_pools'])) {
+                        fipPool['floating_ip_pool_refs'] = 
+                            fipPool['floating_ip_pool_refs'].concat(vn['floating_ip_pools']);
+                    }
+                } catch(e) {
+                    continue;
+                }
+            }
+            callback(null, fipPool);
+        });
+    });
+}
+
+/**
+ * @listFloatingIpPools
+ * public function
+ * 1. URL /api/tenants/config/floating-ip-pools/:id
+ * 2. Gets list of floating ip pools  from  project's and all VNs' fip
+ *    pool refs.
+ *
+ */
+function listFloatingIpPools (request, response, appData) 
+{
+    var resFipPools = {'floating_ip_pool_refs': []};
+    async.parallel([
+        function(callback) {
+            getFloatingIpPoolsByProject(request, appData, 
+                                        function(error, data) {
+                callback(null, data);
+            });
+        },
+        function(callback) {
+            getFloatingIpPoolsByVNLists(request, appData,
+                                        function(error, data) {
+                callback(null, data);
+            });
+        }
+    ],
+    function(err, results) {
+        var tempFipPoolObjs = {};
+        if (null == results) {
+            commonUtils.handleJSONResponse(null, response, resFipPools);
+            return;
+        }
+        var fipPoolsByProjCnt = 0;
+        var fipPoolsByVNsCnt = 0;
+        try {
+            var fipPoolsByProj = results[0]['floating_ip_pool_refs'];
+            fipPoolsByProjCnt = fipPoolsByProj.length;
+        } catch(e) {
+            fipPoolsByProjCnt = 0;
+        }
+        try {
+            var fipPoolsByVNs = results[1]['floating_ip_pool_refs'];
+            fipPoolsByVNsCnt = fipPoolsByVNs.length;
+        } catch(e) {
+            fipPoolsByVNsCnt = 0;
+        }
+        var fipFqn = null;
+        for (var i = 0; i < fipPoolsByProjCnt; i++) {
+            fipFqn = fipPoolsByProj[i]['to'].join(':');
+            if (null == tempFipPoolObjs[fipFqn]) {
+                resFipPools['floating_ip_pool_refs'].push(fipPoolsByProj[i]);
+                tempFipPoolObjs[fipFqn] = fipFqn;
+            }
+        }
+        for (i = 0; i < fipPoolsByVNsCnt; i++) {
+            fipFqn = fipPoolsByVNs[i]['to'].join(':');
+            if (null == tempFipPoolObjs[fipFqn]) {
+                resFipPools['floating_ip_pool_refs'].push(fipPoolsByVNs[i]);
+                tempFipPoolObjs[fipFqn] = fipFqn;
+            }
+        }
+        commonUtils.handleJSONResponse(err, response, resFipPools);
+    });
 }
 
 /**
