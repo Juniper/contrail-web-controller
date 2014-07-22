@@ -3,7 +3,7 @@
  */
 
 networkpolicyConfigObj = new networkPolicyConfigObj();
-
+var iconNetwork ='icon-sitemap', iconPolicy ='icon-list-alt', iconSubnet ='icon-dribbble';
 function networkPolicyConfigObj() {
     //Variable definitions
     //Dropdowns
@@ -21,6 +21,7 @@ function networkPolicyConfigObj() {
     //Textboxes
     var txtPolicyName;
 
+
     //Windows
     var windowCreatePolicy, confirmRemove, confirmMainRemove;
 
@@ -28,7 +29,6 @@ function networkPolicyConfigObj() {
     var polAjaxcount = 0;
     var ajaxParam;
     var dynamicID = 0;
-
     //Method definitions
     this.load = load;
     this.init = init;
@@ -98,7 +98,7 @@ function initComponents() {
                 id: "AssociatedNetworks",
                 field: "AssociatedNetworks",
                 name: "Associated Networks",
-                width: 300,
+                width: 150,
                 formatter: function(r, c, v, cd, dc) {
                     var returnString = "";
                     if(typeof dc.AssociatedNetworks === "object") {
@@ -119,7 +119,7 @@ function initComponents() {
                 id: "PolicyRules",
                 field: "PolicyRules",
                 name: "Rules",
-                width: 400,
+                width: 650,
                 formatter: function(r, c, v, cd, dc) {
                     var returnString = "";
                     if(typeof dc.PolicyRules === "object") {
@@ -295,36 +295,40 @@ function initActions() {
                 var rule = policyConfig["network-policy"]["network_policy_entries"]["policy_rule"][i];
 
                 var ruleTuple = $($(ruleTuples[i]).find("div")[0]).children();
-
-                var action = $($(ruleTuple[0]).find("div")).data("contrailCombobox").text();
+                var actDropDown = $($(ruleTuple[0]).find("div")[1]).data("contrailDropdown") ? 
+                    $($(ruleTuple[0]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[0]).find("div")[3]).data("contrailDropdown"); 
+                var action = actDropDown.text();
                 if(action.trim() === "") {
                     action = "pass";
                 }
                 action = action.toLowerCase();
 
-                if($($(ruleTuple[0]).find("div")).data("contrailCombobox").isEnabled() === false){
+                if(actDropDown.isEnabled() === false){
                     action = null;
                 }
-
-                var protocol = $($(ruleTuple[1]).find("div")).data("contrailCombobox").text();
+                
+                var protoDropDown = $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") ?
+                    $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[1]).find("div")[3]).data("contrailDropdown")
+                var protocol = protoDropDown.text();
                 protocol = getProtocol(protocol);
-
-                var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").text();
+                
+                var srcDropdown = $($(ruleTuple[2]).find("div")[3]).data("contrailDropdown") ? $($(ruleTuple[2]).find("div")[3]).data("contrailDropdown") : $($(ruleTuple[2]).find("div")[1]).data("contrailDropdown");
+                var srcVN = srcDropdown.value();
                 srcVN = checkValidSourceNetwork(srcVN);
                 if(srcVN.toLowerCase() != "any" && srcVN.toLowerCase() != "local"){
                     srcVN = getFQNofVN(selectedDomain, selectedProject, srcVN);
                 }
                 var srcPorts = $($(ruleTuple[3]).find("input")).val();
 
-                var direction = $($(ruleTuple[4]).find("div.span12")[1]).data("contrailDropdown").value();
+                var direction = $($(ruleTuple[4]).find("div.span12")[1]).data('contrailDropdown').value();
                 if($($(ruleTuple[4]).find("div.span12")[1]).data("contrailDropdown").isEnabled() === false) {
                     direction = "<>";
                 }
                 if (direction !== "<>" && direction !== ">") {
                     direction = "<>";
                 }
-
-                var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").text();
+                var destDropdown = $($(ruleTuple[5]).find("div")[3]).data("contrailDropdown") ? $($(ruleTuple[5]).find("div")[3]).data("contrailDropdown") : $($(ruleTuple[5]).find("div")[1]).data("contrailDropdown"); 
+                var destVN = destDropdown.value();
                 destVN = checkValidDestinationNetwork(destVN);
                 if(destVN.toLowerCase() != "any" && destVN.toLowerCase() != "local"){
                     destVN = getFQNofVN(selectedDomain, selectedProject, destVN);
@@ -340,7 +344,7 @@ function initActions() {
                     var div_id = id + "_root";
                     applyServices = 
                         //$($("#" + div_id).find("select")).data("contrailMultiselect").value();
-                        $($("#" + div_id).find("div.span12")[1]).data("contrailMultiselect").value();
+                        $($("#" + div_id).find("div.span11")[1]).data("contrailMultiselect").value();
                 }
                 
                 if(mirrorServicesEnabled == true) {
@@ -349,7 +353,7 @@ function initActions() {
                     var div = $("#" + div_id);
                     mirrorTo = 
                         //$($("#" + div_id).find("select")).data("contrailMultiSelect").value();
-                        $($("#" + div_id).find("div.span12")[1]).data("contrailMultiselect").value();
+                        $($("#" + div_id).find("div.span11")[1]).data("contrailMultiselect").value();
                 }
 
                 rule["application"] = [];
@@ -395,38 +399,59 @@ function initActions() {
                 rule["src_addresses"] = [];
                 rule["src_addresses"][0] = {};
                 rule["src_addresses"][0]["security_group"] = null;
+                rule["src_addresses"][0]["virtual_network"] = null;
                 rule["src_addresses"][0]["subnet"] = null;
-                if (srcVN && "" !== srcVN) {
-                    if ("any" === srcVN.toLowerCase())
-                        rule["src_addresses"][0]["virtual_network"] = "any";
-                    else {
-                        if ("local" === srcVN.toLowerCase())
-                            rule["src_addresses"][0]["virtual_network"] = "local";
+                var srcGrpName = getSelectedGroupName($($(ruleTuple[2]).find('i')));
+                if(srcGrpName === 'CIDR') { 
+                    srcVN = srcVN.split('/');
+                    var srcVNPostObj;
+                    if(srcVN.length == 2) {
+                        srcVNPostObj = {"ip_prefix" : srcVN[0], "ip_prefix_len" : parseInt(srcVN[1])}
+                    }
+                    rule["src_addresses"][0]["subnet"] = srcVNPostObj;
+                } else if(srcGrpName === "Networks") {
+                    if (srcVN && "" !== srcVN) {
+                        if ("any" === srcVN.toLowerCase())
+                            rule["src_addresses"][0]["virtual_network"] = "any";
                         else {
-                            if(srcVN.indexOf(":") !== -1) {
-                                rule["src_addresses"][0]["virtual_network"] = srcVN;
-                            } else {
-                                rule["src_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, srcVN].join(":");   
+                            if ("local" === srcVN.toLowerCase())
+                                rule["src_addresses"][0]["virtual_network"] = "local";
+                            else {
+                                if(srcVN.indexOf(":") !== -1) {
+                                    rule["src_addresses"][0]["virtual_network"] = srcVN;
+                                } else {
+                                    rule["src_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, srcVN].join(":");   
+                                }
                             }
                         }
                     }
                 }
-
                 rule["dst_addresses"] = [];
                 rule["dst_addresses"][0] = {};
                 rule["dst_addresses"][0]["security_group"] = null;
+                rule["dst_addresses"][0]["virtual_network"] = null;
                 rule["dst_addresses"][0]["subnet"] = null;
-                if (destVN && "" !== destVN) {
-                    if ("any" === destVN.toLowerCase())
-                        rule["dst_addresses"][0]["virtual_network"] = "any";
-                    else {
-                        if ("local" === destVN.toLowerCase())
-                            rule["dst_addresses"][0]["virtual_network"] = "local";
+                var destGrpName = getSelectedGroupName($($(ruleTuple[5]).find('i')));
+                if(destGrpName === "CIDR") {
+                    destVN = destVN.split('/');
+                    var destVNPostObj;
+                    if(destVN.length == 2) {
+                        destVNPostObj = {"ip_prefix" : destVN[0], "ip_prefix_len" : parseInt(destVN[1])}
+                    }
+                    rule["dst_addresses"][0]["subnet"] = destVNPostObj;
+                } else if(destGrpName === "Networks") {
+                    if (destVN && "" !== destVN) {
+                        if ("any" === destVN.toLowerCase())
+                            rule["dst_addresses"][0]["virtual_network"] = "any";
                         else {
-                            if(destVN.indexOf(":") !== -1) {
-                                rule["dst_addresses"][0]["virtual_network"] = destVN;
-                            } else {
-                                rule["dst_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, destVN].join(":");  
+                            if ("local" === destVN.toLowerCase())
+                                rule["dst_addresses"][0]["virtual_network"] = "local";
+                            else {
+                                if(destVN.indexOf(":") !== -1) {
+                                    rule["dst_addresses"][0]["virtual_network"] = destVN;
+                                } else {
+                                    rule["dst_addresses"][0]["virtual_network"] = [selectedDomain, selectedProject, destVN].join(":");  
+                                }
                             }
                         }
                     }
@@ -536,23 +561,61 @@ function dontAllowPortsIfServiceEnabled(serviceEnabled, sourcePort, mirrorServic
     return true;
 }
 
+function getCurrentNetRuleDropdown(e, num) {
+    var curDropdown = $($(e.parentNode.parentNode.children[num]).find("div.span12")).data('contrailDropdown') ?
+        $($(e.parentNode.parentNode.children[num]).find("div.span12")).data('contrailDropdown') : $($(e.parentNode.parentNode.children[num]).find("div.span12")[1]).data('contrailDropdown'); 
+    return curDropdown;        
+}
+
+function prepareNewInstanceValues(ds, val) {
+   var newValue = '';
+   val = val.split(',');   
+   for(var i = 0; i < ds.length; i++) {
+       for(var j = 0; j < val.length; j++) {
+           if(val[j] === ds[i].text) {
+               if(newValue === '') {
+                   newValue = ds[i].value;
+               } else {
+                   newValue = ',' + ds[i].value;
+               }
+           }
+       }
+   }
+   return newValue;
+}
+
 function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
     if(e.checked === true) {
-        $(e.parentNode.parentNode.children[0]).find("div").data("contrailCombobox").enable(false);
+         var actDropDown = $($(e.parentNode.parentNode.children[0]).find("div.span12")).data('contrailDropdown') ?
+            $($(e.parentNode.parentNode.children[0]).find("div.span12")).data('contrailDropdown') : $($(e.parentNode.parentNode.children[0]).find("div.span12")[1]).data('contrailDropdown');     
+        actDropDown.enable(false);
         $($(e.parentNode.parentNode.children[4]).find("div.span12")[1]).data("contrailDropdown").enable(false);
         //Select always 'Pass' if applying service
-        $(e.parentNode.parentNode.children[0]).find("div").data("contrailCombobox").value("PASS");
+        actDropDown.text("PASS");
         //Select always '<>' (Bidirectional) if applying service
         $($(e.parentNode.parentNode.children[4]).find("div.span12")[1]).data("contrailDropdown").value("<>");
 
         
         //Disabling 'any' on Src VN. 
         //Disabling 'local' on Src vn.
-        $(e.parentNode.parentNode.children[2]).find("div").data("contrailCombobox").enableOptionList(false,["any","local"]);
-
+        var srcDropdown = getCurrentNetRuleDropdown(e,2);
+        if(srcDropdown) {
+            var selSrcTxt = srcDropdown.text();
+            verifySrcDestSelectedItem(selSrcTxt, srcDropdown, $($(e.parentNode.parentNode.children[2]).find('i')));
+            srcDropdown.enableOptionList(false,["any","local"]);    
+            srcDropdown.text(selSrcTxt);
+            removeNewItemMainDataSource(selSrcTxt, $($(e.parentNode.parentNode.children[2]).find('i')));
+        }    
         //Disabling 'any' on Dest VN.
         //Disabling 'local' on Dest vn.
-        $(e.parentNode.parentNode.children[5]).find("div").data("contrailCombobox").enableOptionList(false,["any","local"]);
+        var destDropdown = getCurrentNetRuleDropdown(e, 5);
+        if(destDropdown) {
+            var selDestTxt = destDropdown.text();   
+            verifySrcDestSelectedItem(selDestTxt, destDropdown, $($(e.parentNode.parentNode.children[5]).find('i')));
+            destDropdown.enableOptionList(false,["any","local"]);
+            destDropdown.text(selDestTxt);  
+            removeNewItemMainDataSource(selDestTxt, $($(e.parentNode.parentNode.children[5]).find('i')));            
+        }    
 
         var tupleDiv = e.parentNode.parentNode.parentNode.children; 
         if(tupleDiv.length > 1) {
@@ -568,25 +631,42 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
         
+        var servicesLbl = document.createElement("label");
+        servicesLbl.setAttribute("id", "svcLbl");        
+        servicesLbl.innerHTML =  "Services  ";
+        servicesLbl.className = "span1";
+        servicesLbl.setAttribute('style','margin-top:5px');
         var msApplyServices = document.createElement("div");
-        msApplyServices.className = "span12";
+        msApplyServices.className = "span11";
         
         var div = document.createElement("div");
         div.className = "row-fluid margin-0-0-5";
+        div.appendChild(servicesLbl);
         div.appendChild(msApplyServices);
         var rootDiv = document.createElement("div");
         rootDiv.id = e.id + "_root";
         rootDiv.appendChild(div);
         
         $(msApplyServices).contrailMultiselect({
-            placeholder: "Select Services in the order to apply..",
-            dropdownCssClass: 'select2-medium-width'
+            dataTextField : 'text',
+            dataValueField : 'value', 
         });
 
         if (nonAnalyzerInsts && nonAnalyzerInsts.length > 0) {
             nonAnalyzerInsts = nonAnalyzerInsts.split(",");
-            $(msApplyServices).data("contrailMultiselect").setData(nonAnalyzerInsts);
+            var dsInsts = [];
+            for(var n = 0; n < nonAnalyzerInsts.length; n++) {
+                var instTxt = nonAnalyzerInsts[n].split(':');
+                if(instTxt.length === 3) {
+                    instTxt = instTxt[2] + ' (' + instTxt[0] + ':' + instTxt[1] + ')';
+                } else {
+                    instTxt = instTxt[0];
+                }
+                dsInsts.push({value : nonAnalyzerInsts[n], text : instTxt})                
+            }
+            $(msApplyServices).data("contrailMultiselect").setData(dsInsts);
             if(val && val.length > 0) {
+                //val = prepareNewInstanceValues(dsInsts, val);
                 val = val.split(",");
                 for(var i=0; i<val.length; i++) {
                     if(val[i].split(":")[0] === selectedDomain &&
@@ -603,17 +683,33 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         e.parentNode.parentNode.parentNode.appendChild(rootDiv);
     }
     else {
-        $(e.parentNode.parentNode.children[0]).find("div").data("contrailCombobox").enable(true);
+        var actDropDown = $($(e.parentNode.parentNode.children[0]).find("div.span12")).data('contrailDropdown') ?
+            $($(e.parentNode.parentNode.children[0]).find("div.span12")).data('contrailDropdown') : $($(e.parentNode.parentNode.children[0]).find("div.span12")[1]).data('contrailDropdown');    
+        actDropDown.enable(true);
 
         $($(e.parentNode.parentNode.children[4]).find("div.span12")[1]).data("contrailDropdown").enable(true);
 
         //Enabling 'any' on Src VN.
         //Enabling 'local' on Src VN.
-        $(e.parentNode.parentNode.children[2]).find("div").data("contrailCombobox").enableOptionList(true,["any","local"]);
-
+        var srcDropdown = getCurrentNetRuleDropdown(e,2);
+        if(srcDropdown) {
+            var selSrcTxt = srcDropdown.text();
+            verifySrcDestSelectedItem(selSrcTxt, srcDropdown, $($(e.parentNode.parentNode.children[2]).find('i')));
+            srcDropdown.enableOptionList(true,["any","local"]);    
+            srcDropdown.text(selSrcTxt);
+            removeNewItemMainDataSource(selSrcTxt, $($(e.parentNode.parentNode.children[2]).find('i')));                        
+        }   
+        
         //Enabling 'any' on Dest VN.
         //Enabling 'local' on Dest VN.
-        $(e.parentNode.parentNode.children[5]).find("div").data("contrailCombobox").enableOptionList(true,["any","local"]);
+        var destDropdown = getCurrentNetRuleDropdown(e, 5);
+        if(destDropdown) {
+            var selDestTxt = destDropdown.text();   
+            verifySrcDestSelectedItem(selDestTxt, destDropdown, $($(e.parentNode.parentNode.children[5]).find('i')));
+            destDropdown.enableOptionList(true,["any","local"]);
+            destDropdown.text(selDestTxt);           
+            removeNewItemMainDataSource(selDestTxt, $($(e.parentNode.parentNode.children[5]).find('i')));                        
+        }        
 
         var tupleDiv = e.parentNode.parentNode.parentNode.children; 
         if(tupleDiv.length > 1) {
@@ -642,11 +738,18 @@ function toggleMirrorServiceDiv(e, serviceInsts, val) {
                 }
             }
         }
+        var servicesLbl = document.createElement("label");
+        servicesLbl.setAttribute("id", "mirrorLbl");        
+        servicesLbl.innerHTML =  "Mirror";
+        servicesLbl.className = "span1";
+        servicesLbl.setAttribute('style','margin-top:5px');
+        
         var msMirrorServices = document.createElement("div");
-        msMirrorServices.className = "span12";
+        msMirrorServices.className = "span11";
         
         var div = document.createElement("div");
         div.className = "row-fluid margin-0-0-5";
+        div.appendChild(servicesLbl);        
         div.appendChild(msMirrorServices);
         var form = document.createElement("form");
         form.appendChild(div);
@@ -658,13 +761,26 @@ function toggleMirrorServiceDiv(e, serviceInsts, val) {
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
 
         $(msMirrorServices).contrailMultiselect({
+            dataTextField : 'text',
+            dataValueField : 'value',         
             placeholder: "Select a service to mirror...",
             dropdownCssClass: 'select2-medium-width'
         });
         if (serviceInsts && serviceInsts.length > 0) {
             serviceInsts = serviceInsts.split(",");
-            $(msMirrorServices).data("contrailMultiselect").setData(serviceInsts);
+            var dsInsts = [];
+            for(var n = 0; n < serviceInsts.length; n++) {
+                var instTxt = serviceInsts[n].split(':');
+                if(instTxt.length === 3) {
+                    instTxt = instTxt[2] + ' (' + instTxt[0] + ':' + instTxt[1] + ')';
+                } else {
+                    instTxt = instTxt[0];
+                }
+                dsInsts.push({value : serviceInsts[n], text : instTxt})                
+            }            
+            $(msMirrorServices).data("contrailMultiselect").setData(dsInsts);
             if(val && val.length > 0) {
+                val = prepareNewInstanceValues(dsInsts, val);;
                 val = val.split(",");
                 for(var i=0; i<val.length; i++) {
                     if(val[i].split(":")[0] === selectedDomain &&
@@ -696,7 +812,7 @@ function toggleMirrorServiceDiv(e, serviceInsts, val) {
 }
 
 function appendRuleEntry(who, defaultRow) {
-    var ruleEntry = createRuleEntry(null, $("#ruleTuples").children().length);
+    var ruleEntry = createRuleEntry(null, $("#ruleTuples").children().length, window.vns, window.policies, window.subnets, window.sts);
     if (defaultRow) {
         //$(ruleTuples).append(ruleEntry);
         $("#ruleTuples").prepend($(ruleEntry));
@@ -704,27 +820,81 @@ function appendRuleEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(ruleEntry, parentEl.nextSibling);
     }
+    //$("[placeholder='Ports']").attr('style', 'border: 0;color: #3182bd;');
     scrollUp("#windowCreatePolicy",ruleEntry,false);
 }
 
-function createRuleEntry(rule, len) {
+function addNewItemMainDataSource(txt, data, selector, grpType) {
+    var grpName = "Networks";
+    if(grpType) {
+        grpName = grpType; 
+    } else {
+        grpName = getSelectedGroupName(selector);
+    }
+    for(var i = 0; i < data.length; i++) {
+        if(data[i].text === grpName) {
+            data[i].children.push({text : txt, value : txt, parent : grpName});
+            break;
+        } 
+    }         
+}
+
+function removeNewItemMainDataSource(txt, selector, grpType) {
+    var grpName = "Networks";
+    if(grpType) {
+        grpName = grpType; 
+    } else {
+        grpName = getSelectedGroupName(selector);
+    }
+    for(var i = 0; i < dsSrcDest.length; i++) {
+        if(dsSrcDest[i].text === grpName) {
+            var remItemIndex = getIndexOf(dsSrcDest[i].children, txt); 
+            dsSrcDest[i].children.splice(remItemIndex, 1);
+            break;
+        } 
+    }         
+}
+
+function isItemExists(txt, data) {
+    var isThere = false;
+    for(var i = 0; i < data.length; i++) {
+        for(var j = 0; j < data[i].children.length; j++) {
+            if(txt === data[i].children[j].text) {
+                isThere = true;
+                break;
+            }    
+        }
+    }
+    return isThere;    
+}
+
+function verifySrcDestSelectedItem(selTxt, dropDown, e, grpType) {
+    if(!isItemExists(selTxt, dsSrcDest)) {
+         addNewItemMainDataSource(selTxt, dsSrcDest, e, grpType);
+         dropDown.setData(dsSrcDest);            
+    }
+}
+
+function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     dynamicID += 1;
-    var vns = jsonPath(configObj, "$.virtual-networks[*]");
-    
+
     var selectDivAction = document.createElement("div");
-    selectDivAction.className = "span1 pull-left";
+    selectDivAction.className = "span2 pull-left";
+    selectDivAction.setAttribute("style","width:5%");    
     var selectAction = document.createElement("div");
     selectAction.className = "span12";
     selectDivAction.appendChild(selectAction);
 
     var selectDivProtocol = document.createElement("div");
-    selectDivProtocol.className = "span1 pull-left";
+    selectDivProtocol.className = "span2 pull-left";
+    selectDivProtocol.setAttribute("style","width:5%");        
     var selectProtocol = document.createElement("div");
     selectProtocol.className = "span12";
     selectDivProtocol.appendChild(selectProtocol);
 
     var selectDivSrcNetwork = document.createElement("div");
     selectDivSrcNetwork.className = "span2 pull-left";
+    selectDivSrcNetwork.setAttribute("style","width:20%");            
     var selectSrcNetwork = document.createElement("div");
     selectSrcNetwork.className = "span12";
     selectSrcNetwork.setAttribute("id" , "selectSrcNetwork_"+dynamicID);
@@ -733,9 +903,11 @@ function createRuleEntry(rule, len) {
     var inputTxtSrcPorts = document.createElement("input");
     inputTxtSrcPorts.type = "text";
     inputTxtSrcPorts.className = "span12";
-    inputTxtSrcPorts.setAttribute("placeholder", "Source ports");
+    inputTxtSrcPorts.setAttribute("placeholder", "Ports");
+    inputTxtSrcPorts.setAttribute("value", "ANY");
     var divRowFluidSrcPorts = document.createElement("div");
     divRowFluidSrcPorts.className = "span1";
+    divRowFluidSrcPorts.setAttribute("style","width:4%");
     divRowFluidSrcPorts.appendChild(inputTxtSrcPorts);
 
     var selectDivDirection = document.createElement("div");
@@ -746,6 +918,7 @@ function createRuleEntry(rule, len) {
     
     var selectDivDestNetwork = document.createElement("div");
     selectDivDestNetwork.className = "span2 pull-left";
+    selectDivDestNetwork.setAttribute("style","width:20%");                
     var selectDestNetwork = document.createElement("div");
     selectDestNetwork.className = "span12";
     selectDestNetwork.setAttribute("id", "selectDestNetwork_"+dynamicID);
@@ -754,9 +927,11 @@ function createRuleEntry(rule, len) {
     var inputTxtDestPorts = document.createElement("input");
     inputTxtDestPorts.type = "text";
     inputTxtDestPorts.className = "span12";
-    inputTxtDestPorts.setAttribute("placeholder", "Destination ports");
+    inputTxtDestPorts.setAttribute("placeholder", "Ports");
+    inputTxtDestPorts.setAttribute("value", "ANY");    
     var divRowFluidDestPorts = document.createElement("div");
     divRowFluidDestPorts.className = "span1";
+    divRowFluidDestPorts.setAttribute("style","width:4%");    
     divRowFluidDestPorts.appendChild(inputTxtDestPorts);
 
     var selectApplyService = document.createElement("input");
@@ -768,6 +943,7 @@ function createRuleEntry(rule, len) {
     spanApplyService.innerHTML = "&nbsp;";
     var divRowFluidApplyService = document.createElement("div");
     divRowFluidApplyService.className = "span1";
+    divRowFluidApplyService.setAttribute("style","width:4.5%");
     divRowFluidApplyService.appendChild(selectApplyService);
     divRowFluidApplyService.appendChild(spanApplyService);
 
@@ -780,12 +956,13 @@ function createRuleEntry(rule, len) {
     spanSelectMirrorTo.innerHTML = "&nbsp;";
     var divRowFluidMirrorTo = document.createElement("div");
     divRowFluidMirrorTo.className = "span1";
+    divRowFluidMirrorTo.setAttribute("style","width:2%");    
     divRowFluidMirrorTo.appendChild(selectMirrorTo);
     divRowFluidMirrorTo.appendChild(spanSelectMirrorTo);
 
     var iBtnAddRule = document.createElement("i");
     iBtnAddRule.className = "icon-plus";
-    iBtnAddRule.setAttribute("onclick", "appendRuleEntry(this);");
+    iBtnAddRule.setAttribute("onclick", "appendRuleEntry(this, false);");
     iBtnAddRule.setAttribute("title", "Add rule below");
 
     var divPullLeftMargin5Plus = document.createElement("div");
@@ -820,33 +997,27 @@ function createRuleEntry(rule, len) {
     rootDiv.className = 'rule-item';
     rootDiv.appendChild(divRowFluidMargin10);
 
-    $(selectAction).contrailCombobox({
+    $(selectAction).contrailDropdown({
         dataTextField:"text",
         dataValueField:"value",
         dataSource: {
         },
         placeholder: "PASS"
     });
-    $(selectAction).data("contrailCombobox").setData([{"text":"PASS","value":0},{"text":"DENY","value":1}]);
-    $(selectAction).data("contrailCombobox").value("PASS");
+    $(selectAction).data("contrailDropdown").setData([{"text":"PASS","value":0},{"text":"DENY","value":1}]);
+    $(selectAction).data("contrailDropdown").text("PASS");
     
-    $(selectProtocol).contrailCombobox({
+    
+    $(selectProtocol).contrailDropdown({
         dataTextField:"text",
         dataValueField:"value",
         dataSource: {
         },
         placeholder: "ANY"
     });
-    $(selectProtocol).data("contrailCombobox").setData([{"text":"ANY","value":0},{"text":"TCP","value":1},{"text":"UDP","value":2},{"text":"ICMP","value":3}]);
-    $(selectProtocol).data("contrailCombobox").value("ANY");
-
-    $(selectSrcNetwork).contrailCombobox({
-        dataTextField:"text",
-        dataValueField:"value",
-        dataSource:{} ,
-        placeholder: "any"
-    });
-
+    $(selectProtocol).data("contrailDropdown").setData([{"text":"ANY","value":0},{"text":"TCP","value":1},{"text":"UDP","value":2},{"text":"ICMP","value":3}]);
+    $(selectProtocol).data("contrailDropdown").text("ANY");
+    
     $(selectDirection).contrailDropdown({
         dataTextField:"text",
         dataValueField:"value",
@@ -854,54 +1025,98 @@ function createRuleEntry(rule, len) {
     });
     $(selectDirection).data("contrailDropdown").setData([{"text":"<>","value":"<>"},{"text":">","value":">"}]);
 
-    $(selectDestNetwork).contrailCombobox({
-        dataTextField:"text",
-        dataValueField:"value",
-        dataSource:{} ,
-        placeholder: "any"
-    });
-
+    var mainDS = [], dupDS = [];
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
-    var allVns = [{"text":"any","value":"any"},{"text":"local","value":"local"}];
-    var dupAllVns = [{"text":"any","value":"any"},{"text":"local","value":"local"}];
+    var allVns = [{text:'Enter or Select a Network', value:"dummy", disabled : true },{"text":"any","value":"any", "parent": "Networks"},{"text":"local","value":"local", "parent": "Networks"}];
+    var dupAllVns = [{text:'Enter or Select a Network', value:"dummy", disabled : true },{"text":"any","value":"any", "parent": "Networks"},{"text":"local","value":"local", "parent": "Networks"}];
     for (var i = 0; i < vns.length; i++) {
         var vn = vns[i];
-        var virtualNetwork =
-            jsonPath(configObj, 
-            "$..virtual-networks[?(@.fq_name[0]=='" + vn["fq_name"][0] + 
-            "' && @.fq_name[1]=='" + vn["fq_name"][1] + 
-            "' && @.fq_name[2]=='" + vn["fq_name"][2] + "')]")[0]["fq_name"];
+        var virtualNetwork = vn["fq_name"];
         var domain = virtualNetwork[0];
         var project = virtualNetwork[1];
-        allVns[i+2] = {};
-        dupAllVns[i+2] = {};
+        allVns[i+3] = {};
+        dupAllVns[i+3] = {};
+        allVns[i+3].parent  = "Networks";
+        dupAllVns[i+3] = "Networks";
         if(domain === selectedDomain && project === selectedProject) {
             if(vn["fq_name"][2].toLowerCase() === "any" || vn["fq_name"][2].toLowerCase() === "local"){
-                allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
-                dupAllVns[i+2].text = domain + ":" + project + ":" +   vn["fq_name"][2];
-                allVns[i+2].value  = domain + ":" + project + ":" +   vn["fq_name"][2];
-                dupAllVns[i+2].value  = domain + ":" + project + ":" +   vn["fq_name"][2];
+                var fqNameTxt = vn["fq_name"][2] +' (' + domain + ':' + project +')';
+                var fqNameValue = domain + ":" + project + ":" + vn["fq_name"][2];
+                allVns[i+3].text  =  fqNameTxt;
+                dupAllVns[i+3].text = fqNameTxt;
+                allVns[i+3].value  = fqNameValue;
+                dupAllVns[i+3].value  = fqNameValue;
             } else {
-                allVns[i+2].text  = vn["fq_name"][2];
-                dupAllVns[i+2].text  = vn["fq_name"][2];
-                allVns[i+2].value  = vn["fq_name"][2];
-                dupAllVns[i+2].value  = vn["fq_name"][2];
+                allVns[i+3].text  = vn["fq_name"][2];
+                dupAllVns[i+3].text  = vn["fq_name"][2];
+                allVns[i+3].value  = vn["fq_name"][2];
+                dupAllVns[i+3].value  = vn["fq_name"][2];
             }
         }
         else {
-            allVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
-            dupAllVns[i+2].text  = domain + ":" + project + ":" + vn["fq_name"][2];
-            allVns[i+2].value  = domain + ":" + project + ":" + vn["fq_name"][2];
-            dupAllVns[i+2].value  = domain + ":" + project + ":" + vn["fq_name"][2];
+            var fqNameTxt = vn["fq_name"][2] +' (' + domain + ':' + project +')';
+            var fqNameValue = domain + ":" + project + ":" + vn["fq_name"][2];
+            allVns[i+3].text  = fqNameTxt;
+            dupAllVns[i+3].text  = fqNameTxt;
+            allVns[i+3].value  = fqNameValue;
+            dupAllVns[i+3].value  = fqNameValue;
         }
     }
-    $(selectSrcNetwork).data("contrailCombobox").setData(allVns);
-    $(selectSrcNetwork).data("contrailCombobox").text("any");
-    $(selectDestNetwork).data("contrailCombobox").setData(dupAllVns);
-    $(selectDestNetwork).data("contrailCombobox").text("any");
+    //prepare policies sub array
+    var allPolicies = [{text:'Enter or Select a Policy', value:"dummy", disabled : true }];
+    for(var i = 0; i < policies.length; i++) {
+        var policy = policies[i];
+        var fqn =  policy["fq_name"];
+        var domain = fqn[0];
+        var project = fqn[1];
+        allPolicies[i + 1] = {};
+        allPolicies[i + 1].parent = "Policies";
+        if(domain === selectedDomain && project === selectedProject) {
+            allPolicies[i + 1].text  = policy["fq_name"][2];
+            allPolicies[i + 1].value  = policy["fq_name"][2];
+        }
+        else {
+            var fqNameTxt = policy["fq_name"][2] +' (' + domain + ':' + project +')';
+            var fqNameValue = domain + ":" + project + ":" + policy["fq_name"][2];
+            allPolicies[i + 1].text  = fqNameTxt;
+            allPolicies[i + 1].value  = fqNameValue;
+        }               
+    }
+  
+    mainDS.push({text : 'CIDR', id : 'subnet',  children : [{text:'Enter a CIDR', value:"dummy", disabled : true }]},
+        {text : 'Networks', id : 'network', children : allVns},
+        {text : 'Policies', id : 'policy', children : allPolicies});
+        
+    dsSrcDest = mainDS;  
+    $(selectSrcNetwork).contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        query : select2Query,
+        formatResult : select2ResultFormat,
+        formatSelection : select2Format,
+    }).on('select2-close', function() {
+        loadSelect2CloseActions();
+    }).on('select2-open', function() {
+        loadSelect2OpenActions();
+    }); 
+
+    $(selectDestNetwork).contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        query : select2Query,
+        formatResult : select2ResultFormat,
+        formatSelection : select2Format,
+    }).on('select2-close', function() {
+        loadSelect2CloseActions();
+    }).on('select2-open', function() {
+        loadSelect2OpenActions();
+    });     
+    $(selectSrcNetwork).data("contrailDropdown").setData(mainDS);
+    $(selectSrcNetwork).data("contrailDropdown").value(mainDS[1].children[1].value);
+    $(selectDestNetwork).data("contrailDropdown").setData(mainDS);
+    $(selectDestNetwork).data("contrailDropdown").value(mainDS[1].children[1].value);
     
-    var sts = jsonPath(configObj, "$.service_templates[*].service-template");
     var analyzerInsts = [];
     var serviceInsts = [];
     if (null !== sts && sts.length > 0) {
@@ -958,9 +1173,9 @@ function createRuleEntry(rule, len) {
                 if (null !== action && typeof action !== "undefined") {
                     actionUnderActionList = true;
                     action = action.toUpperCase();
-                    $(selectAction).data("contrailCombobox").value(action);
+                    $(selectAction).data("contrailDropdown").text(action);
                 } else {
-                    $(selectAction).data("contrailCombobox").enable(false);
+                    $(selectAction).data("contrailDropdown").enable(false);
                 }
             }
         } else {
@@ -971,17 +1186,17 @@ function createRuleEntry(rule, len) {
             //Dont allow to edit.
             if(null !== rule["simple_action"] && typeof rule["simple_action"] !== "undefined") {
                 action = rule["simple_action"];
-                $(selectAction).data("contrailCombobox").enable(false);
-                $(selectAction).data("contrailCombobox").value(action.toUpperCase());
+                $(selectAction).data("contrailDropdown").enable(false);
+                $(selectAction).data("contrailDropdown").text(action.toUpperCase());
             } else {
-                $(selectAction).data("contrailCombobox").enable(false);
+                $(selectAction).data("contrailDropdown").enable(false);
             }
         }
         
         var protocol = rule["protocol"];
         if (null !== protocol && typeof protocol !== "undefined") {
             protocol = protocol.toUpperCase();
-            $(selectProtocol).data("contrailCombobox").value(protocol);
+            $(selectProtocol).data("contrailDropdown").text(protocol);
         }
         var direction = rule["direction"];
         if (null !== direction && typeof direction !== "undefined") {
@@ -992,9 +1207,11 @@ function createRuleEntry(rule, len) {
         if (null !== rule["src_addresses"] && typeof rule["src_addresses"] !== "undefined" &&
             rule["src_addresses"].length > 0) {
             var srcNetwork = [];
+            var srcGrpType = "Networks";
             for (var i = 0; i < rule["src_addresses"].length; i++) {
                 if (null !== rule["src_addresses"][i]["virtual_network"] &&
                     typeof rule["src_addresses"][i]["virtual_network"] !== "undefined") {
+                    srcGrpType = "Networks";
                     srcNetwork[i] = rule["src_addresses"][i]["virtual_network"];
                     var domain = srcNetwork[i].split(":")[0];
                     var project = srcNetwork[i].split(":")[1];
@@ -1004,17 +1221,27 @@ function createRuleEntry(rule, len) {
                             srcNetwork[i]  = srcNetwork[i].split(":")[2];
                         }
                     }
+                } else if(null !== rule["src_addresses"][i]["subnet"] &&
+                    typeof rule["src_addresses"][i]["subnet"] !== "undefined") {
+                    srcGrpType = "CIDR";
+                    srcNetwork[i] = rule["src_addresses"][i]["subnet"]['ip_prefix'] + '/' 
+                        + rule["src_addresses"][i]["subnet"]['ip_prefix_len'];
                 }
             }
             var srcNw = srcNetwork.join();
-            $(selectSrcNetwork).data("contrailCombobox").value(srcNw);            
+            var srcDropdown =  $(selectSrcNetwork).data("contrailDropdown");
+            verifySrcDestSelectedItem(srcNw, srcDropdown, '',  srcGrpType);
+            srcDropdown.value(srcNw);
+            removeNewItemMainDataSource(srcNw, '', srcGrpType);
         }
         if (null !== rule["dst_addresses"] && typeof rule["dst_addresses"] !== "undefined" &&
             rule["dst_addresses"].length > 0) {
             var destNetwork = [];
+            var destGrpType = "Networks";
             for (var i = 0; i < rule["dst_addresses"].length; i++) {
                 if (null !== rule["dst_addresses"][i]["virtual_network"] &&
                     typeof rule["dst_addresses"][i]["virtual_network"] !== "undefined") {
+                    destGrpType = "Networks";
                     destNetwork[i] = rule["dst_addresses"][i]["virtual_network"];
                     var domain = destNetwork[i].split(":")[0];
                     var project = destNetwork[i].split(":")[1];
@@ -1024,10 +1251,18 @@ function createRuleEntry(rule, len) {
                             destNetwork[i]  = destNetwork[i].split(":")[2];
                         }
                     }
+                } else if (null !== rule["dst_addresses"][i]["subnet"] &&
+                    typeof rule["dst_addresses"][i]["subnet"] !== "undefined") {
+                    destGrpType = "CIDR";
+                    destNetwork[i] = rule["dst_addresses"][i]["subnet"]['ip_prefix'] + '/' 
+                        + rule["dst_addresses"][i]["subnet"]['ip_prefix_len'];
                 }
             }
             var destNw = destNetwork.join();
-            $(selectDestNetwork).data("contrailCombobox").value(destNw);
+            var destDropdown =  $(selectDestNetwork).data("contrailDropdown");
+            verifySrcDestSelectedItem(destNw, destDropdown, '',  destGrpType);
+            destDropdown.value(destNw);
+            removeNewItemMainDataSource(destNw, '', destGrpType);
         }
 
         if (null !== rule["src_ports"] && typeof rule["src_ports"] !== "undefined" &&
@@ -1065,11 +1300,23 @@ function createRuleEntry(rule, len) {
         }
 
         if (null !== rule["action_list"] && typeof rule["action_list"] !== "undefined") {
+            var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
+            var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
             if (null !== rule["action_list"]["apply_service"] && typeof rule["action_list"]["apply_service"] !== "undefined" &&
                 rule["action_list"]["apply_service"].length > 0) {
                 var applyServices = [];
                 for (var i = 0; i < rule["action_list"]["apply_service"].length; i++) {
-                    applyServices[i] = rule["action_list"]["apply_service"][i];
+                    var tmpInst = rule["action_list"]["apply_service"][i].split(':');
+                    if(tmpInst.length === 3) {
+                        if(tmpInst[0] === selectedDomain &&  tmpInst[1]  ===  selectedProject) {
+                            tmpInst = tmpInst[2];
+                        } else {
+                            tmpInst = tmpInst[0] + ':' + tmpInst[1] + ':' + tmpInst[2];
+                        }   
+                    } else {
+                        tmpInst = tmpInst[0]
+                    }
+                    applyServices[i] = tmpInst;
                 }
                 if(applyServices && applyServices.length > 0) {
                     selectApplyService.setAttribute("checked", true);
@@ -1096,6 +1343,229 @@ function createRuleEntry(rule, len) {
         }
     }
     return rootDiv;
+}
+
+function getIndexOf(arry, txt) {
+    for(var i = 0; i < arry.length; i ++) {
+        if(arry[i].text === txt) {
+            return i;
+        }
+    }   
+    return 0;
+}
+
+function loadSelect2CloseActions() {
+    //show inbuilt select2 search results for custom term 
+    $('.select2-results > .select2-results-dept-0.select2-result-selectable').attr('style','display:block');    
+    if($(".select2-search") &&  $(".select2-search").length > 0) {
+        setSelectedGroupIcon("Networks");        
+    }
+    $('.select2-results').removeAttr('style');
+}
+
+function loadSelect2OpenActions() {
+    var subEleArry = $(".select2-result-sub");
+    if(subEleArry && subEleArry.length > 0) {
+        $(subEleArry[0]).addClass('hide'); 
+        $(subEleArry[2]).addClass('hide');
+    }
+    $('.select2-results').attr('style','max-height:400px;');
+    $(".select2-search").removeClass(iconSubnet);
+    $(".select2-search").removeClass(iconPolicy);            
+    $(".select2-search").removeClass(iconNetwork);
+    $(".select2-search").addClass(iconNetwork);    
+}
+
+function addNewTermDataSource(grpName, term, data) {
+    var newItem = {id : term, text : term, parent : grpName};
+    for(var i = 0; i < data.length ; i++) {
+        if(data[i].text === grpName &&  data[i].children.length === 1) {
+            data[i].children.push(newItem);
+            break;            
+        }
+    }
+}
+
+function setFocusSelectedItem(grpName, term, data) {
+    for(var i = 0; i < data.length ; i++) {
+        if(data[i].text === grpName &&  data[i].children.length === 2) {
+            $($('div:contains('+ term +')').parent()).addClass('select2-highlighted');
+            break;            
+        }
+    }
+}
+
+function select2Query(query) {
+    //using predefined process method to make work select2 selection
+    var t = query.term,filtered = { results: [] }, process;
+    process = function(datum, collection) {
+        var group, attr;
+        datum = datum[0];
+        if (datum.children) {
+            group = {};
+            for (attr in datum) {
+                if (datum.hasOwnProperty(attr)) group[attr]=datum[attr];
+            }
+            group.children=[];
+            $(datum.children).each2(function(i, childDatum) { process(childDatum, group.children); });
+            if (group.children.length || query.matcher(t, '', datum)) {
+                collection.push(group);
+            }
+        } else {
+            if (query.matcher(t, '', datum)) {
+                collection.push(datum);
+            }
+        }
+    };  
+    if(t != ""){            
+        $(dsSrcDest).each2(function(i, datum) { process(datum, filtered.results); })
+    }
+
+    var data = {results: []};
+    var grpName = getSelectedGroupName();    
+    if(query.term != undefined && query.term != "") {
+        data.results.push({ id : query.term, text : query.term, parent : grpName});
+        this.data = [];
+        $.extend(true, this.data, dsSrcDest);
+        for(var i = 0; i < this.data.length;i++) {
+            var children = [] ;
+            $.extend(true, children, this.data[i].children);;
+            for(var j = 0; j < children.length; j++) {
+                if(children[j].text.indexOf(query.term) == -1 && children[j].disabled != true) {
+                    var newIndex = getIndexOf(this.data[i].children, children[j].text); 
+                    this.data[i].children.splice(newIndex, 1);
+                }
+            }
+            data.results.push(this.data[i]);
+        }
+        addNewTermDataSource(grpName, query.term, data.results); 
+    } else{
+        data.results = dsSrcDest;
+    }
+    query.callback(data);
+    //set focus for a searched item
+    setFocusSelectedItem(grpName, query.term, data.results); 
+    
+    //hide inbuilt select2 search results for custom term 
+    $('.select2-results > .select2-results-dept-0.select2-result-selectable').attr('style','display:none');            
+    
+    var subEleArry = $(".select2-result-sub");
+    if(subEleArry && subEleArry.length > 0) {
+        $(subEleArry[0]).attr('style','max-height:150px;overflow:auto;');
+        $(subEleArry[1]).attr('style','max-height:150px;overflow:auto;');
+        $(subEleArry[2]).attr('style','max-height:150px;overflow:auto;'); 
+    } 
+    retainExpandedGroup();
+        
+    if($(".select2-result-label") && $(".select2-result-label").length > 0) { 
+        //set background color for groups
+        for(var i = 0; i < $(".select2-result-label").length; i++) {
+            if($($('.select2-result-label')[i]).find('i') && $($('.select2-result-label')[i]).find('i').length > 0) {
+                $($('.select2-result-label')[i]).attr('style','background-color:#E2E2E2;margin-top:2px;')
+                $($('.select2-result-label')[i]).attr('style','background-color:#E2E2E2;margin-top:2px;')
+            }
+        }          
+        $(".select2-result-label").on('click', function() {
+            if($(this).parent().hasClass('select2-disabled')) {
+                return;
+            }
+            $('.select2-result-sub').addClass('hide');
+            $(this).parent().find('.select2-result-sub').removeClass('hide');
+            
+            $(".select2-search").removeClass(iconSubnet);
+            $(".select2-search").removeClass(iconPolicy);            
+            $(".select2-search").removeClass(iconNetwork);            
+            setSelectedGroupIcon(this.textContent.trim());
+        });
+    }
+    if($(".select2-search") &&  $(".select2-search").length > 0) {
+        var grpName = getSelectedGroupName();   
+        setSelectedGroupIcon(grpName);        
+    }     
+}
+
+function retainExpandedGroup() {
+    var subEleArry = $(".select2-result-sub");
+    if(subEleArry && subEleArry.length > 0) {
+        subEleArry.addClass('hide');
+        var grpName = getSelectedGroupName();
+        var subEle = $(subEleArry[1]);
+        switch(grpName) {
+            case 'Networks' :
+                subEle = $(subEleArry[1]);
+                break;   
+            case 'Policies' :
+                subEle = $(subEleArry[2]);        
+                break;  
+            case 'CIDR' :
+               subEle = $(subEleArry[0]);        
+               break;                      
+        }
+        subEle.removeClass('hide');
+    }
+}
+
+
+function getSelectedGroupName(selector) {
+    var grpName = 'Networks';
+    var element = selector ? selector : $(".select2-search");
+     if(element.hasClass(iconNetwork)) {
+         grpName = 'Networks'
+     } else if(element.hasClass(iconPolicy)) {
+         grpName = "Policies"
+     } else if(element.hasClass(iconSubnet)) {
+         grpName = "CIDR";
+     }
+     return grpName;
+}
+
+function setSelectedGroupIcon(grpName) {
+    switch(grpName) {
+        case 'Networks' :
+            $(".select2-search").addClass(iconNetwork); 
+            break;   
+        case 'Policies' :
+            $(".select2-search").addClass(iconPolicy); 
+            break;  
+        case 'CIDR' :
+            $(".select2-search").addClass(iconSubnet); 
+            break;                      
+    }
+}
+
+function select2Format(state) {
+    var originalOption = state.element;
+    var fomattedTxt = state.text;
+    if(state.parent != undefined){
+        fomattedTxt = choiceSelection(state);
+    }   
+    return fomattedTxt;      
+}
+
+function select2ResultFormat(state) {
+    var originalOption = state.element;
+    var fomattedTxt = state.text;
+    if(state.id == undefined){
+        fomattedTxt = choiceSelection(state);        
+    }   
+    return fomattedTxt;      
+}
+
+function choiceSelection(state) {
+    var fomattedTxt;
+    var txt = state.parent != undefined ? state.parent : state.text
+    switch(txt) {
+        case 'Networks' :
+            fomattedTxt = '<i class="' + iconNetwork + '"></i>' + ' ' + state.text;
+            break;
+        case 'Policies' :
+            fomattedTxt = '<i class="' + iconPolicy + '"></i>' + ' ' + state.text;
+            break;
+        case 'CIDR' :
+            fomattedTxt = '<i class="' + iconSubnet + '"></i>' + ' ' + state.text;
+            break;   
+    }
+    return fomattedTxt;   
 }
 
 function deleteRuleEntry(who) {
@@ -1346,7 +1816,7 @@ function clearRuleEntries() {
 
 function showPolicyEditWindow(mode, rowIndex) {
     if($("#btnCreatePolicy").hasClass('disabled-link')) {
-        return;
+        return; 
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1371,6 +1841,12 @@ function showPolicyEditWindow(mode, rowIndex) {
         url:"/api/tenants/config/service-instances-details/",
         type:"GET"
     });
+    
+    //get policies
+    getAjaxs[3] = $.ajax({
+        url:"/api/tenants/config/policys",
+        type:"GET"
+    });    
     
     $.when.apply($, getAjaxs).then(
         function () {
@@ -1403,7 +1879,16 @@ function showPolicyEditWindow(mode, rowIndex) {
                     configObj["service_instances"][i]["service-instance"] = sis[i];
                 }
             }
-
+            //process policies data
+            var policies = jsonPath(results[3][0], '$.network-policys[*]');
+            if(null !== policies && policies.length > 0) {
+               configObj["policys-input"] = policies;
+            }
+            
+            window.vns = jsonPath(configObj, "$.virtual-networks[*]");;
+            window.policies = jsonPath(configObj, "$.policys-input[*]");;
+            window.subnets = jsonPath(configObj, "$.network-subnets[*]");
+            window.sts =  jsonPath(configObj, "$.service_templates[*].service-template");
             if (mode === "add") {
                 windowCreatePolicy.find('.modal-header-title').text('Create Policy');
                 $(txtPolicyName).focus();
@@ -1412,7 +1897,6 @@ function showPolicyEditWindow(mode, rowIndex) {
                 windowCreatePolicy.find('.modal-header-title').text('Edit Policy ' + selectedRow.NetworkPolicy);
                 txtPolicyName.val(selectedRow.NetworkPolicy);
                 txtPolicyName[0].disabled = true;
-
                 var rowId = selectedRow["id"];
                 var selectedPolicy = configObj["network-policys"][rowId];
                 if (selectedPolicy["network_policy_entries"] && selectedPolicy["network_policy_entries"]["policy_rule"] &&
@@ -1420,8 +1904,8 @@ function showPolicyEditWindow(mode, rowIndex) {
                     var policyEntries = selectedPolicy["network_policy_entries"]["policy_rule"];
                     for (var j = 0; j < policyEntries.length; j++) {
                         var rule = policyEntries[j];
-                        var ruleEntry = createRuleEntry(rule, j);
-                        $("#ruleTuples").append(ruleEntry);
+                        var ruleEntry = createRuleEntry(rule, j,  window.vns,  window.policies,  window.subnets,  window.sts);
+                        $("#ruleTuples").append(ruleEntry);                        
                     }
                 }
             }
@@ -1456,10 +1940,11 @@ function validate() {
     if (ruleTuples && ruleTuples.length > 0) {
         for (var i = 0; i < ruleTuples.length; i++) {
             var ruleTuple = $($(ruleTuples[i]).find("div")[0]).children();
-
-            var protocol = $($(ruleTuple[1]).find("div")).data("contrailCombobox").text();
+            var protoDropDown = $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") ? 
+                $($(ruleTuple[1]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[1]).find("div")[3]).data("contrailDropdown"); 
+            var protocol = protoDropDown.text();
             if(protocol.trim() !== "") {
-                var protocols = jsonPath($($(ruleTuple[1]).find("div")).data("contrailCombobox").getAllData(), "$..text");
+                var protocols = jsonPath(protoDropDown.getAllData(), "$..text");
                 if(protocols.indexOf(protocol) === -1) {
                     showInfoWindow("Select a valid Protocol.", "Invalid Rule");
                     return false;
@@ -1467,9 +1952,11 @@ function validate() {
             }
             protocol = getProtocol(protocol);
 
-            var action_value = $($(ruleTuple[0]).find("div")).data("contrailCombobox").text();
+            var actDropDown = $($(ruleTuple[0]).find("div")[1]).data("contrailDropdown") ? 
+                $($(ruleTuple[0]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[0]).find("div")[3]).data("contrailDropdown"); 
+            var action_value = actDropDown.text();
             if(action_value.trim() !== "") {
-                var action_values = jsonPath($($(ruleTuple[0]).find("div")).data("contrailCombobox").getAllData(), "$..text");
+                var action_values = jsonPath(actDropDown.getAllData(), "$..text");
                 if(action_values.indexOf(action_value) === -1) {
                     showInfoWindow("Select a valid Action.", "Invalid Rule");
                     return false;
@@ -1487,7 +1974,7 @@ function validate() {
                 var id = $($(ruleTuple[7]).find("input"))[0].id;
                 var div_id = id + "_root";
                 applyServices = 
-                    $($("#" + div_id).find("div.span12")[1]).data("contrailMultiselect").value();
+                    $($("#" + div_id).find("div.span11")[1]).data("contrailMultiselect").value();
                 if(applyServices && applyServices.length <=0) {
                     showInfoWindow("Select atleast one service to apply.", "Invalid Rule");
                     return false;
@@ -1500,8 +1987,13 @@ function validate() {
                 var allTypes = [];
                 var asArray = [];
                 if(applyServices && applyServices.length > 0) {
-                    var srcVN = $($(ruleTuple[2]).find("div")).data("contrailCombobox").text();
-                    var destVN = $($(ruleTuple[5]).find("div")).data("contrailCombobox").text();
+                    var srcDropDown = $($(ruleTuple[2]).find("div")[1]).data("contrailDropdown") ? 
+                        $($(ruleTuple[2]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[2]).find("div")[3]).data("contrailDropdown");
+                    var srcVN = srcDropDown.value();
+                    
+                    var destDropDown = $($(ruleTuple[5]).find("div")[1]).data("contrailDropdown") ? 
+                        $($(ruleTuple[5]).find("div")[1]).data("contrailDropdown") : $($(ruleTuple[5]).find("div")[3]).data("contrailDropdown");
+                    var destVN = destDropDown.value();
                     if(isSet(srcVN) && isString(srcVN) && srcVN.indexOf(":") !== -1 && srcVN.split(":").length !== 3) {
                         showInfoWindow("Fully Qualified Name of Source Network should be in the format Domain:Project:NetworkName.", "Invalid FQN");
                         return false;
@@ -1633,7 +2125,7 @@ function validate() {
                 var div_id = id + "_root";
                 var div = $("#" + div_id);
                 mirrorTo = 
-                    $($("#" + div_id).find("div.span12")[1]).data("contrailMultiselect").value();
+                    $($("#" + div_id).find("div.span11")[1]).data("contrailMultiselect").value();
                 if(mirrorTo && mirrorTo.length <=0) {
                     showInfoWindow("Select atleast one instance to mirror.", "Invalid Rule");
                     return false;
@@ -1773,5 +2265,6 @@ function destroy() {
         policyConfigTemplate.remove();
         policyConfigTemplate = $();
     }
-    
+    window.globalSubArry = [];
+    window.ruleId = '';    
 }
