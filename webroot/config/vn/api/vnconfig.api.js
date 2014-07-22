@@ -90,7 +90,7 @@ function sendVnGetResponse (error, vnConfig, callback)
 
     delete vnConfig['virtual-network']['access_control_lists'];
     delete vnConfig['virtual-network']['href'];
-    delete vnConfig['virtual-network']['id_perms'];
+    //delete vnConfig['virtual-network']['id_perms'];
     delete vnConfig['virtual-network']['routing_instances'];
     callback(error, vnConfig);
 }
@@ -123,7 +123,7 @@ function parseVNSubnets (error, vnConfig, callback)
         for (var i = 0; i < nwIpamRefsLen; i++) {
             var ipamSubnets = nwIpamRefs[i]['attr']['ipam_subnets'];
             var ipamSubnetsLen = ipamSubnets.length;
-        	var m = 0;
+            var m = 0;
             for (var j = 0; j < ipamSubnetsLen; j++) {
                 nwIpamRefsClone[k] = {};
                 nwIpamRefsClone[k]['subnet'] = {};
@@ -131,18 +131,52 @@ function parseVNSubnets (error, vnConfig, callback)
                     ipamSubnets[j]['subnet']['ip_prefix'] + '/' +
                     ipamSubnets[j]['subnet']['ip_prefix_len'];
                 if(null == ipamSubnets[j]['default_gateway'] ||
-                	typeof ipamSubnets[j]['default_gateway'] === "undefined")
-                	nwIpamRefsClone[k]['subnet']['default_gateway'] = "";
+                    typeof ipamSubnets[j]['default_gateway'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['default_gateway'] = "";
                 else
-                	nwIpamRefsClone[k]['subnet']['default_gateway'] =
-                	ipamSubnets[j]['default_gateway'];
+                    nwIpamRefsClone[k]['subnet']['default_gateway'] =
+                    ipamSubnets[j]['default_gateway'];
 
-                if(null !== nwIpamRefs[i]['attr']['host_routes'] &&
-                	typeof nwIpamRefs[i]['attr']['host_routes'] !== "undefined" && !m) {
-                	nwIpamRefsClone[k]["host_routes"] = {};
-                	nwIpamRefsClone[k]["host_routes"] = nwIpamRefs[i]['attr']['host_routes'];
-                	m++;
-                }
+                if(null == ipamSubnets[j]['enable_dhcp'] ||
+                    typeof ipamSubnets[j]['enable_dhcp'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['enable_dhcp'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['enable_dhcp'] =
+                    ipamSubnets[j]['enable_dhcp'];
+
+                if(null == ipamSubnets[j]['dns_nameservers'] ||
+                    typeof ipamSubnets[j]['dns_nameservers'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['dns_nameservers'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['dns_nameservers'] =
+                    ipamSubnets[j]['dns_nameservers'];
+
+                if(null == ipamSubnets[j]['allocation_pools'] ||
+                    typeof ipamSubnets[j]['allocation_pools'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['allocation_pools'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['allocation_pools'] =
+                    ipamSubnets[j]['allocation_pools'];
+
+                if(null == ipamSubnets[j]['host_routes'] ||
+                    typeof ipamSubnets[j]['host_routes'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['host_routes'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['host_routes'] =
+                    ipamSubnets[j]['host_routes'];
+
+                if(null == ipamSubnets[j]['dhcp_option_list'] ||
+                    typeof ipamSubnets[j]['dhcp_option_list'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['dhcp_option_list'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['dhcp_option_list'] =
+                    ipamSubnets[j]['dhcp_option_list'];
+                /*if(null !== nwIpamRefs[i]['attr']['host_routes'] &&
+                    typeof nwIpamRefs[i]['attr']['host_routes'] !== "undefined" && !m) {
+                    nwIpamRefsClone[k]["host_routes"] = {};
+                    nwIpamRefsClone[k]["host_routes"] = nwIpamRefs[i]['attr']['host_routes'];
+                    m++;
+                }*/
 
                 nwIpamRefsClone[k]['subnet']['ipam'] = nwIpamRefs[i]['to'];
                 k++;
@@ -302,6 +336,20 @@ function getVirtualNetwork (request, response, appData)
     });
 }
 
+/** 
+ * @parseSharedVN
+ * private function
+ * Parse the shared VN data got from API Server
+ */
+function parseSharedVN (vnObj, callback)
+{
+    var data = vnObj['data'];
+    var appData = vnObj['appData'];
+    getVirtualNetworkCb(null, data, appData, function(err, data) {
+        callback(null, data);
+    });
+}
+
 /**
  * @getSharedVirtualNetworks
  * public function
@@ -312,6 +360,7 @@ function getVirtualNetwork (request, response, appData)
 function getSharedVirtualNetworks (req, res, appData)
 {
     var resultJSON = [];
+    var vnObjArr = [];
     var vnURL = '/virtual-networks?detail=true&field=shared';
     configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
         if ((null != err) || (null == vnDetails) || 
@@ -325,10 +374,12 @@ function getSharedVirtualNetworks (req, res, appData)
             if ((null != vns[i]['virtual-network']) &&
                 (null != vns[i]['virtual-network']['is_shared']) &&
                 (true == vns[i]['virtual-network']['is_shared'])) {
-                resultJSON.push(vns[i]);
+                vnObjArr.push({'data':vns[i], 'appData': appData});
             }
         }
-        commonUtils.handleJSONResponse(null, res, resultJSON);
+        async.map(vnObjArr, parseSharedVN, function (err, data) {
+            commonUtils.handleJSONResponse(null, res, data);
+        });
     });
 }
 
@@ -432,10 +483,10 @@ function setVNPolicySequence (vnPostData)
         }
         var timer = null;
         if(null !== vnPostData['virtual-network']['network_policy_refs'][i]['attr'] &&
-        	typeof vnPostData['virtual-network']['network_policy_refs'][i]['attr'] !== "undefined" &&
-        	null !== vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'] &&
-        	typeof vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'] !== "undefined") {
-        	timer = vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'];
+            typeof vnPostData['virtual-network']['network_policy_refs'][i]['attr'] !== "undefined" &&
+            null !== vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'] &&
+            typeof vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'] !== "undefined") {
+            timer = vnPostData['virtual-network']['network_policy_refs'][i]['attr']['timer'];
         }
         vnPostData['virtual-network']['network_policy_refs'][i]['attr'] = {};
         vnPostData['virtual-network']['network_policy_refs']
@@ -660,20 +711,20 @@ function updateVNPolicyRefs (vnConfig, response, appData)
     var vnPutURL = '/virtual-network/' + vnId;
 
     if(null === vnConfig['virtual-network']['virtual_network_properties'] ||
-    	typeof vnConfig['virtual-network']['virtual_network_properties'] === "undefined") {
+       typeof vnConfig['virtual-network']['virtual_network_properties'] === "undefined") {
         if ('virtual_network_properties' in vnPutData['virtual-network']) {
-        	vnConfig['virtual-network']['virtual_network_properties'] = {};
+            vnConfig['virtual-network']['virtual_network_properties'] = {};
         }
     }
-	if(null !== vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] &&
-		typeof vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] !== "undefined") {
-		vnConfig['virtual-network']['virtual_network_properties']['forwarding_mode'] =
-		vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'];
-	}
-	if(null !== vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] &&
-    	typeof vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] !== "undefined") {
-    	vnConfig['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] =
-    	vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'];
+    if(null !== vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] &&
+        typeof vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] !== "undefined") {
+        vnConfig['virtual-network']['virtual_network_properties']['forwarding_mode'] =
+        vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'];
+    }
+    if(null !== vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] &&
+        typeof vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] !== "undefined") {
+        vnConfig['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] =
+        vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'];
     }
 
     vnConfig['virtual-network']['route_target_list'] = {};
@@ -710,7 +761,7 @@ function updateVNPolicyRefs (vnConfig, response, appData)
     }); 
 }
 
-function updateVirtualNetwork (request, response, appData) 
+function updateVirtualNetwork (request, response, appData)
 {
     var vnId = request.param('id');
     var vnPutData = request.body;
@@ -752,11 +803,11 @@ function updateRouterExternalFlag(configData, requestData) {
                 requestData["virtual-network"]["router_external"];
         } else {
             configData["virtual-network"]["router_external"] = false;
-            if(requestData["virtual-network"].hasOwnProperty("floating_ip_pools")) {
+            /*if(requestData["virtual-network"].hasOwnProperty("floating_ip_pools")) {
                 if(requestData["virtual-network"]["floating_ip_pools"].length > 0) {
                     configData["virtual-network"]["router_external"] = true;
                 }
-            }
+            }*/
         }
     }
 }
@@ -1845,70 +1896,70 @@ function listVMInterfacesAggCb (error, vnListData, response, appData)
         var reqUrl = '/virtual-machine-interface/' + vmList[i]['uuid'];
         commonUtils.createReqObj(dataObjArr, reqUrl,
                 global.HTTP_REQUEST_GET, null, null, null,
-                appData);    	
+                appData);        
     }
     async.map(dataObjArr,
-    		commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-    		function(error, results) {
-    		vmIfAggCb(error, results, response, vmList, appData);
-    		});
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            function(error, results) {
+            vmIfAggCb(error, results, response, vmList, appData);
+            });
 }
 
 function vmIfAggCb(error, vmIfList, response, vmList, appData) 
 {
-	var dataObjArr = [];
-	if (error) {
+    var dataObjArr = [];
+    if (error) {
         commonUtils.handleJSONResponse(error, response, null);
         return;
-	}
-	if(vmIfList.length <= 0) {
-		commonUtils.handleJSONResponse(error, response,
-			{'virtual_machine_interface_back_refs': vmList});		
+    }
+    if(vmIfList.length <= 0) {
+        commonUtils.handleJSONResponse(error, response,
+            {'virtual_machine_interface_back_refs': vmList});        
         return;
-	}
+    }
     for(var i=0; i<vmIfList.length; i++) {
-    	if('virtual_machine_refs' in vmIfList[i]["virtual-machine-interface"]) {
-    	    var vm_ref = vmIfList[i]["virtual-machine-interface"]["virtual_machine_refs"][0];
+        if('virtual_machine_refs' in vmIfList[i]["virtual-machine-interface"]) {
+            var vm_ref = vmIfList[i]["virtual-machine-interface"]["virtual_machine_refs"][0];
             if (vm_ref) {
                 vmList[i]["vm_uuid"] = vm_ref["uuid"];
             }
         }
     }
     for(var i=0; i<vmIfList.length; i++) {
-    	if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
-    		var inst_ip_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"][0];
+        if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
+            var inst_ip_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"][0];
             if (inst_ip_ref) {
                 var reqUrl = '/instance-ip/' + inst_ip_ref['uuid'];
-        	
+            
                 commonUtils.createReqObj(dataObjArr, reqUrl,
                                          global.HTTP_REQUEST_GET, 
                                          null, null, null, appData);
             }
-    	}
+        }
     }
     async.map(dataObjArr,
-    		commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-    		function(error, results) {
-    		instanceIPRefAggCb(error, results, response, vmList, appData);
-    		});
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            function(error, results) {
+            instanceIPRefAggCb(error, results, response, vmList, appData);
+            });
 }
 
 function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData) 
 {
-	if (error) {
+    if (error) {
         commonUtils.handleJSONResponse(error, response, null);
         return;
-	}
-	if(instanceIPList.length <= 0) {
-		commonUtils.handleJSONResponse(error, response,
-			{"virtual_machine_interface_back_refs" : vmList});
+    }
+    if(instanceIPList.length <= 0) {
+        commonUtils.handleJSONResponse(error, response,
+            {"virtual_machine_interface_back_refs" : vmList});
         return;
-	}
-	for(var i=0; i<instanceIPList.length; i++) {
-		vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"];
-	}
-	commonUtils.handleJSONResponse(error, response,
-		{'virtual_machine_interface_back_refs': vmList});
+    }
+    for(var i=0; i<instanceIPList.length; i++) {
+        vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"];
+    }
+    commonUtils.handleJSONResponse(error, response,
+        {'virtual_machine_interface_back_refs': vmList});
 }
 
 /**
