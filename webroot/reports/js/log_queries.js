@@ -90,6 +90,19 @@ function initSLQueryView(queryPrefix) {
     query.toTime = createNewDTPicker(queryPrefix, queryPrefix + '-to-time', showToTime, onSelectToDate, defaultToTime);
 };
 
+function toggleSysLogForm(dis){
+    var disElement = $('#sl-query-form').find('.toHide');
+    if(disElement.hasClass('open')){
+        disElement.removeClass('open');
+        $('#sl-query-form').find('.toHide').hide();
+        $(dis).html('Show Advanced Options');
+    } else{
+        disElement.addClass('open');
+        $('#sl-query-form').find('.toHide').show();
+        $(dis).html('Hide Advanced Options');
+    }
+}
+
 function setSLValidValues() {
     var viewModels = [queries.sl.whereViewModel, queries.sl.filterViewModel];
     setValidLevelValues('/api/admin/table/values/MessageTable/Level', 'levels', queries.sl.queryViewModel);

@@ -343,9 +343,30 @@ function formatQueryResultJSON(tableName, jsonData)
     return jsonData;
 };
 
-function parseSLQuery(reqQuery) 
+function parseFilterAndLimit (reqObject) {
+    var filters, filterWithLimit, filter, limit;
+    filters = reqObject['filters'];
+    if (null == filters || "" == filters) {
+        return reqObject;
+    }
+    filterWithLimit = filters.split(',');
+    filter = filterWithLimit[0];
+    limit = filterWithLimit[1];
+    if (filter != null && filter.trim() != '') {
+        filter = filter.split(':');
+        reqObject['filters'] = filter[1].trim();
+    }
+    if (limit != null && limit.trim() != '') {
+        limit = limit.split(':');
+        reqObject['limit'] = limit[1].trim();
+    }
+    return reqObject;
+}
+
+function parseSLQuery(requestQuery)
 {
-    var msgQuery, fromTimeUTC, toTimeUTC, where, filters, table, level, category, moduleId, source, messageType, limit;
+    reqQuery = parseFilterAndLimit(requestQuery);
+    var msgQuery, fromTimeUTC, toTimeUTC, where, filters, table, level, category, moduleId, source, messageType, limit, keywords;
     table = reqQuery['table'];
     msgQuery = getQueryJSON4Table(table);
     fromTimeUTC = reqQuery['fromTimeUTC'];
@@ -356,8 +377,14 @@ function parseSLQuery(reqQuery)
     level = reqQuery['level'];
     category = reqQuery['category'];
     setMicroTimeRange(msgQuery, fromTimeUTC, toTimeUTC);
+    keywords = reqQuery['keywords'];
     if (where != null) {
-        parseWhere(msgQuery, where);
+        if (keywords != null && keywords != '') {
+            parseSLWhere(msgQuery, where, keywords);
+        }
+        else {
+            parseWhere(msgQuery, where);
+        }
     } else {
         moduleId = reqQuery['moduleId'];
         source = reqQuery['source'];
@@ -371,7 +398,7 @@ function parseSLQuery(reqQuery)
         createSLFilter(msgQuery, level);
     }
     if (filters != null && filters != '') {
-        parseFilter(msgQuery, filters);
+        parseSLFilter(msgQuery, filters);
     }
     return msgQuery;
 };
@@ -412,7 +439,9 @@ function createSLFilter(msgQuery, level)
 {
     var filterClauseArray = [];
     filterClauseArray.push(createClause('Level', level, 5));
-    msgQuery.filter = msgQuery.filter.concat(filterClauseArray);
+    for(var i=0; i<msgQuery.filter.length; i++){
+        msgQuery.filter[i] = msgQuery.filter[i].concat(filterClauseArray);
+    }
 };
 
 function createClause(fieldName, fieldValue, operator) 
@@ -427,8 +456,9 @@ function createClause(fieldName, fieldValue, operator)
     return whereClause;
 };
 
-function parseOTQuery(reqQuery) 
+function parseOTQuery(requestQuery)
 {
+    reqQuery = parseFilterAndLimit(requestQuery);
     var objTraceQuery, fromTimeUTC, toTimeUTC, where, filters, objectType, select, objectId, limit;
     select = reqQuery['select'];
     objectType = reqQuery['objectType'];
@@ -611,7 +641,57 @@ function getTGSecs(tg, tgUnit)
     }
 };
 
-function parseWhere(query, where) 
+function parseSLWhere (query, where, keywords) {
+    var keywordsArray = keywords.split(',');
+    if (keywords != null && keywords.trim() != '') {
+        for (var i = 0; i < keywordsArray.length; i++){
+            keywordsArray[i] = keywordsArray[i].trim();
+        }
+    }
+    if (where != null && where.trim() != '') {
+        var whereORArray = where.split(' OR '),
+            whereORLength = whereORArray.length, i,
+            newWhereOR, newWhereORArray = [];
+        var keywordsStr = getKeywordsStrFromArray(keywordsArray), where = [];
+        for (i = 0; i < whereORLength; i += 1) {
+            whereORArray[i] = whereORArray[i].trim();
+            newWhereOR = whereORArray[i].substr(0, whereORArray[i].length - 1);
+            where[i] = newWhereOR.concat(" AND " + keywordsStr + " )");
+            where[i] = parseWhereANDClause(where[i]);
+        }
+        query['where'] = where;
+    } else{
+        if (keywords != null && keywords.trim() != '') {
+            var where = [];
+            query['where'] = parseKeywordsObj(keywordsArray);
+        }
+    }
+}
+
+function getKeywordsStrFromArray (keywords) {
+    var tempStr = "";
+    for (var i = 1; i < keywords.length; i++) {
+        tempStr = tempStr.concat("AND Keyword = " + keywords[i] + " ");
+    }
+    var final = ("Keyword = " + keywords[0] + " ").concat(tempStr);
+    return final;
+}
+
+function parseKeywordsObj(keywordsArray)
+{
+    var keywordObj = [], keywordArray = [], finalkeywordArray = [];
+    for(var i=0; i<keywordsArray.length; i++){
+        keywordObj[i] = {"name":"", value:"", op:""};
+        keywordObj[i].name = "Keyword";
+        keywordObj[i].value = keywordsArray[i];
+        keywordObj[i].op = 1;
+        keywordArray.push(keywordObj[i]);
+    }
+    finalkeywordArray.push(keywordArray);
+    return finalkeywordArray;
+};
+
+function parseWhere(query, where)
 {
     if (where != null && where.trim() != '') {
         var whereORArray = where.split(' OR '),
@@ -624,7 +704,21 @@ function parseWhere(query, where)
         query['where'] = whereORArray;
     }
 };
-
+function parseSLFilter (query, filters) {
+    var filtersArray, filtersLength, filterClause = [], i, filterObj;
+    if (filters != null && filters.trim() != '') {
+        filtersArray = filters.split(' AND ');
+        filtersLength = filtersArray.length;
+        for (i = 0; i < filtersLength; i += 1) {
+            filtersArray[i] = filtersArray[i].trim();
+            filterObj = getFilterObj(filtersArray[i]);
+            filterClause.push(filterObj);
+        }
+        for (var i = 0; i < query['filter'].length; i++) {
+            query['filter'][i] = query['filter'][i].concat(filterClause);
+        }
+    }
+};
 function parseFilter(query, filters)
 {
     var filtersArray, filtersLength, filterClause = [], i, filterObj;
@@ -768,7 +862,7 @@ function getQueryJSON4Table(tableName, autoSort, autoLimit)
 {
     var queryJSON;
     if(tableName == 'MessageTable') {
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Type", "Source", "ModuleId", "Messagetype", "Xmlmessage", "Level", "Category"], "filter": [{"name": "Type", "value": "1", "op": 1}], "sort_fields": ['MessageTS'], "sort": 2, "limit": 150000};
+        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Type", "Source", "ModuleId", "Messagetype", "Xmlmessage", "Level", "Category"], "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]], "sort_fields": ['MessageTS'], "sort": 2, "limit": 150000};
     } else if(tableName == 'ObjectTableQueryTemplate') {
         queryJSON = {"table": '', "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Source", "ModuleId"], "sort_fields": ['MessageTS'], "sort": 2, "filter": [], "limit": 50000};
     } else if(tableName == 'FlowSeriesTable') {
