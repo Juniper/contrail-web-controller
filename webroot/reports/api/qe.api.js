@@ -343,8 +343,29 @@ function formatQueryResultJSON(tableName, jsonData)
     return jsonData;
 };
 
-function parseSLQuery(reqQuery) 
+function parseFilterAndLimit (reqObject) {
+    var filters, filterWithLimit, filter, limit;
+    filters = reqObject['filters'];
+    if (null == filters || "" == filters) {
+        return reqObject;
+    }
+    filterWithLimit = filters.split(',');
+    filter = filterWithLimit[0];
+    limit = filterWithLimit[1];
+    if (filter != null && filter.trim() != '') {
+        filter = filter.split(':');
+        reqObject['filters'] = filter[1].trim();
+    }
+    if (limit != null && limit.trim() != '') {
+        limit = limit.split(':');
+        reqObject['limit'] = limit[1].trim();
+    }
+    return reqObject;
+}
+
+function parseSLQuery(requestQuery)
 {
+    reqQuery = parseFilterAndLimit(requestQuery);
     var msgQuery, fromTimeUTC, toTimeUTC, where, filters, table, level, category, moduleId, source, messageType, limit, keywords;
     table = reqQuery['table'];
     msgQuery = getQueryJSON4Table(table);
@@ -435,8 +456,9 @@ function createClause(fieldName, fieldValue, operator)
     return whereClause;
 };
 
-function parseOTQuery(reqQuery) 
+function parseOTQuery(requestQuery)
 {
+    reqQuery = parseFilterAndLimit(requestQuery);
     var objTraceQuery, fromTimeUTC, toTimeUTC, where, filters, objectType, select, objectId, limit;
     select = reqQuery['select'];
     objectType = reqQuery['objectType'];
@@ -628,11 +650,8 @@ function parseSLWhere (query, where, keywords) {
     }
     if (where != null && where.trim() != '') {
         var whereORArray = where.split(' OR '),
-            whereORLength = whereORArray.length,
-            i;
-        if (keywords != null && keywords.trim() != '') {
-            var newWhereOR, newWhereORArray = [];
-        }
+            whereORLength = whereORArray.length, i,
+            newWhereOR, newWhereORArray = [];
         var keywordsStr = getKeywordsStrFromArray(keywordsArray), where = [];
         for (i = 0; i < whereORLength; i += 1) {
             whereORArray[i] = whereORArray[i].trim();

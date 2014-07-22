@@ -127,33 +127,10 @@ function runSLQuery() {
         reqObject['queryId'] = queryId;
         reqObject['async'] = 'true';
         reqObject.engQueryStr = getEngQueryStr(reqObject);
-        parseSLFilterObj(reqObject);
         loadSLResults(options, reqObject);
     }
 };
 
-function parseSLFilterObj (reqObject) {
-    var filters, filterWithLimit, filter, limit;
-
-    filters = reqObject['filters'];
-    if (null == filters || "" == filters) {
-        return;
-    }
-    if (filters != null && filters.trim() != '') {
-        filterWithLimit = filters.split(',');
-    }
-    filter = filterWithLimit[0];
-    limit = filterWithLimit[1];
-    if (filter != null && filter.trim() != '') {
-        filter = filter.split(':');
-    }
-    if (limit != null && limit.trim() != '') {
-        limit = limit.split(':');
-    }
-    reqObject['filters'] = filter[1];
-    reqObject['limit'] = limit[1];
-    console.log(reqObject['filters']);
-}
 function getSLDefaultOptions() {
     return {
         elementId:'sl-results', gridHeight:480,
