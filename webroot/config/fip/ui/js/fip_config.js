@@ -378,9 +378,9 @@ function handleDomains(e) {
 function handleFipPool(e) {
     var value = JSON.parse(e.val); 
     if(value.subnets === noSubnetsMsg) {
-        $("#btnCreatefipOK").attr('disabled','disabled');        
+        //$("#btnCreatefipOK").attr('disabled','disabled');        
     } else {
-        $("#btnCreatefipOK").removeAttr('disabled');
+        //$("#btnCreatefipOK").removeAttr('disabled');
     }
 }
 
@@ -537,7 +537,7 @@ function showFIPEditWindow(mode) {
                         var poolObj = results[0].floating_ip_pool_refs[i];
                         noSubnetsMsg = 'No subnets available';
                         poolObj.subnets = poolObj.subnets ? poolObj.subnets : 'No subnets available';
-                        var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3] + ' (' + poolObj.subnets + ')';
+                        var poolName = poolObj.to[1] + ":" + poolObj.to[2] + ":" + poolObj.to[3]; //+ ' (' + poolObj.subnets + ')';
                         fipPools.push({text:poolName, value:JSON.stringify(poolObj)})
                         configObj["floating-ip-pools"].push(poolObj);
                     }
