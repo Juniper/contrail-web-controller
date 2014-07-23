@@ -252,6 +252,12 @@ function listFloatingIps (request, response, appData)
                          });
 }
 
+function processAsyncReq(req, callback) {
+    configApiServer.apiGet(req.url, req.appData, function(err, data){
+        callback(err, data);
+    });            
+}
+
 /**
  * @getFipPoolsForProjectCb
  * private function
@@ -381,7 +387,6 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
                     if ((true == vn['router_external']) &&
                         (null != vn['floating_ip_pools'])) {
                         var subnets = parseVNSubnets(results[i]);
-                        console.log('SUBNETS',subnets);
                         var fipCnt = vn['floating_ip_pools'].length;
                         for(var j = 0; j < fipCnt ; j++) {  
                             vn['floating_ip_pools'][j]['subnets'] =  subnets;                       
@@ -392,7 +397,6 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
                     continue;
                 }
             }
-            console.log("FIPs:",JSON.stringify(fipPool['floating_ip_pool_refs']));
             callback(null, fipPool);
         });
     });
