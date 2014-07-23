@@ -37,7 +37,6 @@ function VirtualNetworkConfig() {
     var idCount = 0;
     var ajaxParam;
     var dynamicID;
-    var l2l3Mode = "";
 
     //Method definitions
     this.load = load;
@@ -322,6 +321,7 @@ function initActions() {
                 if(returnString != "") returnString += "&nbsp;&nbsp;";
                 returnString += vnData.FloatingIPs[i] + " " + getAssignedProjectsForIpam(vnData.FloatingIPPools[i]) + "<br>";
             }
+            if(returnString.trim() == "") returnString = "-";
         }
         return returnString;
     });
@@ -333,9 +333,9 @@ function initActions() {
             } else {
                 returnHtml += '<div class="row-fluid">';
             }
+            returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
             returnHtml += '<div class="span3"><div class="span6">' +allSubnets[k]["CIDR"] +'</div>';
             returnHtml += '<div class="span5">' +allSubnets[k]["default_gateway"] +'</div></div>';
-            returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
             returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["DHCPEnabled"] +'</div>';        
             returnHtml += '<div class="span7">' +allSubnets[k]["AllocationPool"] +'</div>';
             returnHtml += '</div></div>';
@@ -1697,7 +1697,7 @@ function successHandlerForGridVNRow(result) {
         if (typeof parent_uuid === "object" && parent_uuid.length === 1)
             parent_uuid = parent_uuid[0];
         var reorder_policies;
-        var reorder_policiesTxt;
+        var reorder_policiesTxt = "";;
         var policies = jsonPath(vn, "$.network_policy_refs[*]");
         var reorder_policies_temp = reorderPolicies(policies)
         if (reorder_policies_temp === false) {
@@ -1791,7 +1791,7 @@ function successHandlerForGridVNRow(result) {
         
         var fips = jsonPath(vn, "$.floating_ip_pools[*].to[3]");
         if (fips === false) {
-            fips = "";
+            fips = "-";
         }
         var fipoolProjects = jsonPath(vn, "$.floating_ip_pools[*]");
         if (fipoolProjects === false) {
@@ -1843,6 +1843,12 @@ function successHandlerForGridVNRow(result) {
         var enableControles = true;
         if(($("#ddProjectSwitcher").data("contrailDropdown").value() != vn.parent_uuid) &&  Shared == "Enabled")
             enableControles = false;
+            if(reorder_policiesTxt.trim() == "") reorder_policiesTxt = "-";
+            if(fwdMode.trim() == "") fwdMode = "-";
+            if(vxlanid.trim() == "") vxlanid = "-";
+            if(DNSServer.trim() == "") DNSServer = "-";
+            if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
+            if(routeTargets.trim() == "") routeTargets = "-";
         //if(vn.fq_name[1] == selectedProject){
             vnData.push({"id":idCount++, "Network":vnName, "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
@@ -2029,7 +2035,7 @@ function showVNEditWindow(mode, rowIndex) {
     });
 
     getAjaxs[3] = $.ajax({
-        url:"/api/admin/webconfig/network/L2L3Mode",
+        url:"/api/admin/webconfig/network/L2",
         type:"GET"
     });
     
@@ -2039,8 +2045,8 @@ function showVNEditWindow(mode, rowIndex) {
             clearValuesFromDomElements();
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
-            l2l3Mode = results[3][0].L2L3Mode;
-            if(l2l3Mode == "l2"){
+            var l2Mode = results[3][0].L2;
+            if(l2Mode == "Enable"){
                 $("#ddFwdMode").data("contrailDropdown").value("l2");
                 $("#divFwdMode").removeClass("hide");
             } else {
@@ -2138,9 +2144,7 @@ function showVNEditWindow(mode, rowIndex) {
                 var gateways = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.default_gateway");
                 //Need to do
                 var alocPools = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.allocation_pools");
-                var AlocPool="";
-                if(typeof alocPools[0] != null && typeof alocPools[0] != undefined && typeof alocPools[0] != "")
-                    AlocPool = formatAlcPoolObj(alocPools[0]); 
+
                 var DHCPEnabled = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.enable_dhcp");;
                 if (ipams && ipams.length > 0) {
                     var existing = [];
@@ -2148,7 +2152,9 @@ function showVNEditWindow(mode, rowIndex) {
                         var ipblock = ipBlocks[i];
                         var ipam = ipams[i];
                         var gateway = gateways[i];
-
+                        var AlocPool="";
+                        if(typeof alocPools[i] != null && typeof alocPools[i] != undefined && typeof alocPools[i] != "")
+                            AlocPool = formatAlcPoolObj(alocPools[i]); 
                         existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled,"AlocPool":AlocPool});
                     }
                     for(var k=0; k<existing.length; k++) {
