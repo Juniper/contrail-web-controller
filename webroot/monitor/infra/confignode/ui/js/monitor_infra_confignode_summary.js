@@ -53,6 +53,9 @@ monitorInfraConfigSummaryClass = (function() {
                     {
                         field:"hostName",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -65,7 +68,7 @@ monitorInfraConfigSummaryClass = (function() {
                         searchFn:function(d) {
                             return d['name'];
                         },
-                        minWidth:90,
+                        minWidth:175,
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
@@ -88,11 +91,6 @@ monitorInfraConfigSummaryClass = (function() {
             			}
                     },
                     {
-                        field:"version",
-                        name:"Version",
-                        minWidth:90
-                    },
-                    {
                         field:"status",
                         name:"Status",
                         formatter:function(r,c,v,cd,dc) {
@@ -108,6 +106,11 @@ monitorInfraConfigSummaryClass = (function() {
             					return getNodeStatusContentForSummayPages(dc,'text');
             				}
             			}
+                    },
+                    {
+                        field:"version",
+                        name:"Version",
+                        minWidth:90
                     },
                     {
                         field:"cpu",

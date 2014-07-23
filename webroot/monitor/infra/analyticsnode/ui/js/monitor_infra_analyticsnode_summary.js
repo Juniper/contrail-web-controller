@@ -54,6 +54,9 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         field:"name",
                         id:"name",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -69,7 +72,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110,
+                        minWidth:175,
                         sortable:true
                     },
                     {
@@ -87,13 +90,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
             					return dc.ip;
             				}
             			}
-                    },
-                    {
-                        field:"version",
-                        id:"version",
-                        name:"Version",
-                        sortable:true,
-                        minWidth:110
                     },
                     {
                         field:"status",
@@ -115,6 +111,20 @@ monitorInfraAnalyticsSummaryClass = (function() {
             			}
                     },
                     {
+                        field:"genCount",
+                        id:"genCount",
+                        sortable:true,
+                        name:"Generators",
+                        minWidth:85
+                    },
+                    {
+                        field:"version",
+                        id:"version",
+                        name:"Version",
+                        sortable:true,
+                        minWidth:110
+                    },
+                    {
                         field:"cpu",
                         id:"analyticsCpu",
                         name:"CPU (%)",
@@ -127,11 +137,11 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         },
                         minWidth:120,
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return dc.cpu
-            				}
-            			}
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return dc.cpu
+                            }
+                        }
                     },
                     {
                         field:"memory",
@@ -140,13 +150,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         name:"Memory",
                         minWidth:150
                     },
-                    {
-                        field:"genCount",
-                        id:"genCount",
-                        sortable:true,
-                        name:"Generators",
-                        minWidth:85
-                    }
                 ],
             }
         });

@@ -60,7 +60,6 @@ monitorInfraControlDetailsClass = (function() {
                         var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
                         return ip;
                     })()},
-                    {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     {lbl:INDENT_RIGHT+'Control Node', value:(function(){
@@ -175,6 +174,7 @@ monitorInfraControlDetailsClass = (function() {
                     })()},
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
+                    {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Last Log', value: (function(){
                      var lmsg;
                      lmsg = getLastLogTimestamp(ctrlNodeData,"control");
