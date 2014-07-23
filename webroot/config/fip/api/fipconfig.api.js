@@ -336,6 +336,12 @@ function getFloatingIpPoolsByProject (request, appData, callback)
     });
 }
 
+function processAsyncReq(req, callback) {
+    configApiServer.apiGet(req.url, req.appData, function(err, data){
+        callback(err, data);
+    });            
+}
+
 /**
  * @getFloatingIpPoolsByVNLists
  * private function
