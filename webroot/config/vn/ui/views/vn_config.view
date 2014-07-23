@@ -17,6 +17,9 @@ textarea {
             <div class="row-fluid">
 
                 <div class="row-fluid bgCol">
+                    <div class="span5">
+                        <label>IPAM</label>
+                    </div>
                     <div class="span3">
                         <div class="span6">
                             <label>CIDR</label>
@@ -24,9 +27,6 @@ textarea {
                         <div class="span6">
                             <label>Gateway</label>
                         </div>
-                    </div>
-                    <div class="span5">
-                        <label>IPAM</label>
                     </div>
                     <div class="span4">
                         <div class="span5">
