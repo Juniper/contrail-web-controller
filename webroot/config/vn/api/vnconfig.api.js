@@ -809,6 +809,12 @@ function updateRouterExternalFlag(configData, requestData) {
                 }
             }*/
         }
+        if(requestData["virtual-network"].hasOwnProperty("is_shared")) {
+           configData["virtual-network"]["is_shared"] = 
+                requestData["virtual-network"]["is_shared"];
+        } else {
+            configData["virtual-network"]["is_shared"] = false;
+        }
     }
 }
 
