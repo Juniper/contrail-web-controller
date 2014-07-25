@@ -257,7 +257,7 @@ function listFloatingIps (request, response, appData)
  * private function
  * 1. Callback for getFipPoolsForProject
  */
-function getFipPoolsForProjectCb (error, projectData, callback, appData) 
+function getFipPoolsForProjectCb (error, projectData, appData, callback) 
 {
     var fipPool = {};
     var fipPoolReqArry = [];
@@ -269,15 +269,15 @@ function getFipPoolsForProjectCb (error, projectData, callback, appData)
     if ('floating_ip_pool_refs' in projectData['project']) {
         fipPool['floating_ip_pool_refs'] =
                projectData['project']['floating_ip_pool_refs'];
-        var poolLength = fipPool['floating_ip_pool_refs'].length;       
+        var poolLength = fipPool['floating_ip_pool_refs'].length;   
         for(var poolCnt = 0; poolCnt <  poolLength; poolCnt++) {
-            var fipPoolReq = {};
-            fipPoolReq.url = '/floating-ip-pool/' + fipPool['floating_ip_pool_refs'][poolCnt].uuid;
-            fipPoolReq.appData = appData;
-            fipPoolReqArry.push(fipPoolReq);
+            var fipPoolReqUrl = '/floating-ip-pool/' + fipPool['floating_ip_pool_refs'][poolCnt].uuid;
+            commonUtils.createReqObj(fipPoolReqArry, fipPoolReqUrl, global.HTTP_REQUEST_GET,
+                null, null, null, appData);            
         }
         if(fipPoolReqArry.length > 0) {
-            async.map(fipPoolReqArry, processAsyncReq, function(err, data){
+            async.map(fipPoolReqArry, commonUtils.getAPIServerResponse(configApiServer.apiGet, true)
+                , function(err, data){
                 var nwReqArry = [];
                 if (error) {
                      commonUtils.handleJSONResponse(error, response, null);
@@ -285,10 +285,15 @@ function getFipPoolsForProjectCb (error, projectData, callback, appData)
                 }
                 if(data && data.length > 0) {
                     for(var poolCnt = 0; poolCnt <  data.length; poolCnt++) {
-                        var nwReq = {};
-                        nwReq.url =  '/' + data[poolCnt]['floating-ip-pool']['parent_type'] + '/' + data[poolCnt]['floating-ip-pool']['parent_uuid'];    
-                        nwReq.appData =  appData;
-                        nwReqArry.push(nwReq);                        
+                        try {
+                            var nwReqUrl =  '/' + data[poolCnt]['floating-ip-pool']['parent_type'] 
+                                + '/' + data[poolCnt]['floating-ip-pool']['parent_uuid'];    
+                            commonUtils.createReqObj(nwReqArry, nwReqUrl, global.HTTP_REQUEST_GET,
+                                null, null, null, appData);            
+                              
+                        } catch (e) {
+                            logUtils.logger.error('getFipPoolsForProjectCb: JSON parse error :' + e);
+                        }
                     }
                     if(nwReqArry.length > 0) { 
                         getFIPPoolSubnets(nwReqArry, appData, fipPool, function(subnetErr, finalFipPool) {
@@ -312,7 +317,7 @@ function getFipPoolsForProjectCb (error, projectData, callback, appData)
 }
 
 /**
- * @getFloatingIpPoolsByVNLists
+ * @getFloatingIpPoolsByProject
  * private function
  * 1. Gets list of floating ip pools  from  Project's fip
  *    pool  refs
@@ -332,16 +337,10 @@ function getFloatingIpPoolsByProject (request, appData, callback)
     }
     configApiServer.apiGet(projectURL, appData,
                          function(error, data) {
-                         getFipPoolsForProjectCb(error, data, callback);
+                         getFipPoolsForProjectCb(error, data, appData, callback);
     });
 }
-
-function processAsyncReq(req, callback) {
-    configApiServer.apiGet(req.url, req.appData, function(err, data){
-        callback(err, data);
-    });            
-}
-
+    
 /**
  * @getFloatingIpPoolsByVNLists
  * private function
@@ -387,7 +386,6 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
                     if ((true == vn['router_external']) &&
                         (null != vn['floating_ip_pools'])) {
                         var subnets = parseVNSubnets(results[i]);
-                        console.log('SUBNETS',subnets);
                         var fipCnt = vn['floating_ip_pools'].length;
                         for(var j = 0; j < fipCnt ; j++) {  
                             vn['floating_ip_pools'][j]['subnets'] =  subnets;                       
@@ -398,7 +396,6 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
                     continue;
                 }
             }
-            console.log("FIPs:",JSON.stringify(fipPool['floating_ip_pool_refs']));
             callback(null, fipPool);
         });
     });
@@ -675,7 +672,8 @@ function updateFloatingIp (request, response, appData)
  */
 function getFIPPoolSubnets (nwReqArry, appData, fipData, callback) 
 {
-    async.map(nwReqArry, processAsyncReq, function(error, data) {
+    async.map(nwReqArry, commonUtils.getAPIServerResponse(configApiServer.apiGet, true)
+        , function(error, data) {
         var subnetMap = [];
         if(error) {
             callback(error, fipData);
@@ -752,4 +750,3 @@ exports.createFloatingIp    = createFloatingIp
 exports.deleteFloatingIp    = deleteFloatingIp
 exports.updateFloatingIp    = updateFloatingIp
 exports.listFloatingIpsAsync = listFloatingIpsAsync;
-
