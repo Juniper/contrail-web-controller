@@ -815,6 +815,12 @@ function updateRouterExternalFlag(configData, requestData) {
         } else {
             configData["virtual-network"]["is_shared"] = false;
         }
+        if(requestData["virtual-network"]["id_perms"].hasOwnProperty("enable")) {
+           configData["virtual-network"]["id_perms"]["enable"] = 
+                requestData["virtual-network"]["id_perms"]["enable"];
+        } else {
+            configData["virtual-network"]["id_perms"]["enable"] = false;
+        }
     }
 }
 
