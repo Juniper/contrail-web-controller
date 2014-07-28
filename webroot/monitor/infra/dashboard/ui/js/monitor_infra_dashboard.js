@@ -188,7 +188,7 @@ function addTabs() {
         viewModel.data.subscribe(function(newValue) {
             updateView(newValue);
         })
-        this.updateView = function(data) {
+        var updateView = function(data) {
             if(!isScatterChartInitialized('#analyticNode-bubble')) {
                 $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
                 var chartsData = {
