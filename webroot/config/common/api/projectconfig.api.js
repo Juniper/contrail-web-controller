@@ -22,6 +22,8 @@ var util             = require('util');
 var url              = require('url');
 var authApi          = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
 var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+var configUtils      = require(process.mainModule.exports["corePath"] + 
+                               '/src/serverroot/common/configServer.utils');
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -34,112 +36,6 @@ if (!module.parent)
 }
 
 /**
- * @listProjectsCb
- * private function
- * 1. Munges data from Keystone to api server equivalent output
- */
-function listProjectsCb (error, apiProjects, projectLists, response)
-{
-
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    authApi.formatTenantList (projectLists, apiProjects, 
-                              function(projects) {
-        commonUtils.handleJSONResponse(error, response, projects);
-    });
-}
-
-/**
- * @formatIdentityMgrProjects
- * private function
- * 1. Formats the project list got from Identity Manager equivalent to API
- *    Server project list
- */
-function formatIdentityMgrProjects (error, projectLists, appData, callback)
-{
-    var projects   = {'projects':[]};
-    var projectURL = '/projects';
- 
-    if (error) {
-        callback(error, projects);
-        return;
-    }
-
-    if (projectLists && projectLists.hasOwnProperty("tenants")) {
-        var projects = {};
-        projects["projects"] = [];
-        var tenantLen = projectLists['tenants'].length;
-        for(var i=0; i<tenantLen; i++) {
-            var tenant = projectLists['tenants'][i];
-            projects["projects"].push({
-                "uuid"    : convertKeystoneUuidToAPIServerUUID(tenant["id"]),
-                "fq_name" : [
-                    "default-domain",
-                    tenant["name"]
-                ]
-            });
-        }
-        callback(null, projects);
-    } else {
-        callback(error, projects);
-    }
-}
-
-/** 
- * @getProjectsFromApiServer
- * Private function
- * 1. Gets all the projects from Api Server
- */
-function getProjectsFromApiServer (request, appData, callback)
-{
-    var reqURL = null;
-    var projectList = {"projects": []};
-
-    var domain = request.param('domain');
-    if (null != domain) {
-        reqURL = '/domain/' + domain;
-    } else {
-        reqURL = '/projects';
-    }
-    configApiServer.apiGet(reqURL, appData, function(err, data) {
-        if ((null != err) || (null == data) || ((null != domain) &&
-            ((null == data['domain']) || (null == data['domain']['projects'])))) {
-            callback(err, projectList);
-            return;
-        }
-        if (null == domain) {
-            callback(err, data);
-            return;
-        }
-        var list = data['domain']['projects'];
-        var projCnt = list.length;
-        for (var i = 0; i < projCnt; i++) {
-            projectList['projects'][i] = {};
-            projectList['projects'][i]['uuid'] = list[i]['uuid'];
-            projectList['projects'][i]['fq_name'] = list[i]['to'];
-        }
-        callback(null, projectList);
-    });
-}
-
-/** 
- * @getProjectsFromIdentityManager
- * Private function
- * 1. Gets all the projects from Identity Manager
- */
-function getProjectsFromIdentityManager (request, appData, callback)
-{
-    authApi.getTenantList(request, function(error, data) {
-        formatIdentityMgrProjects(error, data, appData, function(error, data) {
-            callback(error, data);
-        });
-    });
-}
-
-/**
  * @listProjects
  * public function
  * 1. URL /api/tenants/config/projects
@@ -149,19 +45,9 @@ function getProjectsFromIdentityManager (request, appData, callback)
  */
 function listProjects (request, response, appData)
 {
-    var isProjectListFromApiServer = config.getDomainProjectsFromApiServer;
-    if (null == isProjectListFromApiServer) {
-        isProjectListFromApiServer = false;
-    }
-    if (true == isProjectListFromApiServer) {
-        getProjectsFromApiServer(request, appData, function(error, data) {
-            commonUtils.handleJSONResponse(error, response, data);
-        });
-    } else {
-        getProjectsFromIdentityManager(request, appData, function(error, data) {
-            commonUtils.handleJSONResponse(error, response, data);
-        });
-    }
+    authApi.getProjectList(request, appData, function(err, projList) {
+        commonUtils.handleJSONResponse(err, response, projList);
+    });
 }
 
 /**
@@ -188,12 +74,40 @@ function listDomainsCb (error, domainList, response)
  */
 function listDomains (request, response, appData)
 {
+    authApi.getDomainList(request, appData, function(error, domList) {
+        commonUtils.handleJSONResponse(error, response, domList);
+    });
+    var domains = {'domains': []};
     var domainsURL = '/domains';
+    var isDomainListFromApiServer = config.getDomainsFromApiServer;
+    if (null == isDomainListFromApiServer) {
+        isDomainListFromApiServer = true;
+    }
+    if (('v2.0' == request.session.authApiVersion) ||
+        (null == request.session.authApiVersion)) {
+        isDomainListFromApiServer = true;
+    }
+    if (true == isDomainListFromApiServer) {
+        configUtils.getDomainsFromApiServer(appData, function(error, data) {
+            commonUtils.handleJSONResponse(error, response, data);
+        });
+    } else {
+        getDomainsFromIdentityManager(request, appData, function(error, data) {
+            if (null != error) {
+                commonUtils.handleJSONResponse(error, response, domains);
+                return;
+            }
+            commonUtils.handleJSONResponse(error, response, data);
+        });
+    }
+}
 
-    configApiServer.apiGet(domainsURL, appData,
-                         function(error, data) {
-                         listDomainsCb(error, data, response)
-                         });
+function getDomainsFromIdentityManager (request, appData, callback)
+{
+    /* /v3/users/<userid>/domains is not working, so get the domain list from
+     * project list
+     */
+    configUtils.getTenantListAndSyncDomain(request, appData, callback);
 }
 
 /**
@@ -285,22 +199,6 @@ function isEmpty(obj) {
         if (hasOwnProperty.call(obj, key)) return false;
     }
     return true;
-}
-/**
-* @convertKeystoneUuidToAPIServerUUID
-* Keystone UUID doesnt contain dashes '-'
-* API server UUID contains dashes in the 8-4-4-4-12 format
-* This function takes keystone UUID and converts to API Server UUID format.
-*/
-function convertKeystoneUuidToAPIServerUUID(keystone_uuid) {
-    var api_uuid_format = "";
-    api_uuid_format =
-        keystone_uuid.substr(0, 8) + '-' +
-        keystone_uuid.substr(8, 4) + '-' +
-        keystone_uuid.substr(12, 4) + '-' + 
-        keystone_uuid.substr(16, 4) + '-' + 
-        keystone_uuid.substr(20, 12);
-    return api_uuid_format;
 }
 
 exports.listDomains  = listDomains;
