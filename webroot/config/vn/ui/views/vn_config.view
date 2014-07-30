@@ -1,14 +1,6 @@
 <!--
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
-<style>
-textarea {
-    resize: none;
-}
-.text-left {
-    text-align: left!important;
-}
-</style>
 <script type="text/x-handlebars-template" id="gridVNDetailTemplate">
     <div>
         <div class="row-fluid">
