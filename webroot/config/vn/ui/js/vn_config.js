@@ -1045,7 +1045,7 @@ function createIPAMEntry(ipamBlock, id,element) {
     if (null !== ipamBlock && typeof ipamBlock !== "undefined") {
         $(inputTxtIPBlock).val(ipamBlock.IPBlock);
         $(inputTxtGateway).val(ipamBlock.Gateway);
-        inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
+        inputcboxDhcp.checked = ipamBlock.DHCPEnabled[0];
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
@@ -2067,7 +2067,7 @@ function showVNEditWindow(mode, rowIndex) {
                         nps[nps.length] = {text:networkPolicies[i]["fq_name"][2],value:networkPolicies[i]["fq_name"].join(":")};
                     } else {
                          //var localText = networkPolicies[i]["fq_name"][2]+'('+networkPolicies[i]["fq_name"][0]+':'+networkPolicies[i]["fq_name"][0];
-                        nps[nps.length] = {text:networkPolicies[i]["fq_name"][2]+" ("+networkPolicies[i]["fq_name"][0]+":"+networkPolicies[i]["fq_name"][0]+") " ,value:networkPolicies[i]["fq_name"].join(":")};
+                        nps[nps.length] = {text:networkPolicies[i]["fq_name"][2]+" ("+networkPolicies[i]["fq_name"][0]+":"+networkPolicies[i]["fq_name"][1]+") " ,value:networkPolicies[i]["fq_name"].join(":")};
                         //nps[nps.length] = {text:localText,value:networkPolicies[i]["fq_name"].join(":")};
                         //nps[nps.length] = {text:networkPolicies[i]["fq_name"].join(":"),value:networkPolicies[i]["fq_name"].join(":")};
 
