@@ -119,209 +119,94 @@ function MonitorNetworkMockData() {
             'parseInstanceDetails' : {
                 input : {
                     'completeDetails' : {
-                        "name":"597cd5ec-3d29-486a-8203-14d3209994b7",
-                        "value":{
-                           "UveVirtualMachineAgent":{
-                              "udp_sport_bitmap":[
-                                 "1",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "469770241",
-                                 "12288",
-                                 "33620480",
-                                 "512"
-                              ],
-                              "tcp_sport_bitmap":[
-                                 "1",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "1048577",
-                                 "0",
-                                 "4",
-                                 "2"
-                              ],
-                              "if_bmap_list":[
-                                 {
-                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
-                                    "port_bucket_bmap":{
-                                       "udp_sport_bitmap":[
-                                          "1",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "469770241",
-                                          "12288",
-                                          "33620480",
-                                          "512"
-                                       ],
-                                       "tcp_dport_bitmap":[
-                                          "1",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "1048577",
-                                          "0",
-                                          "4",
-                                          "2"
-                                       ],
-                                       "tcp_sport_bitmap":[
-                                          "1",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "1048577",
-                                          "0",
-                                          "4",
-                                          "2"
-                                       ],
-                                       "udp_dport_bitmap":[
-                                          "1",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "0",
-                                          "0"
-                                       ]
-                                    }
-                                 }
-                              ],
-                              "udp_dport_bitmap":[
-                                 "1",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "0"
-                              ],
-                              "if_stats_list":[
-                                 {
-                                    "out_bytes":2054,
-                                    "in_bandwidth_usage":0,
-                                    "in_bytes":4789,
-                                    "out_bandwidth_usage":0,
-                                    "out_pkts":19,
-                                    "in_pkts":58,
-                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
-                                 }
-                              ],
-                              "vrouter":"nodea8",
-                              "vm_stats":{
-                                 "virt_memory":2880420,
-                                 "cpu_one_min_avg":0.0129792,
-                                 "vm_memory_quota":524288,
-                                 "vcpu_one_min_avg":[
-                                    "0"
-                                 ],
-                                 "peak_virt_memory":3517640,
-                                 "rss":397920
-                              },
-                              "tcp_dport_bitmap":[
-                                 "1",
-                                 "0",
-                                 "0",
-                                 "0",
-                                 "1048577",
-                                 "0",
-                                 "4",
-                                 "2"
-                              ],
-                              "interface_list":[
-                                 {
-                                    "vm_name":"vn1-inst",
-                                    "name":"default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
-                                    "floating_ips":[
-
-                                    ],
-                                    "label":16,
-                                    "mac_address":"02:2a:db:31:c0:1c",
-                                    "active":true,
-                                    "virtual_network":"default-domain:demo:vn1",
-                                    "l2_active":true,
-                                    "ip_address":"10.10.10.253",
-                                    "gateway":"10.10.10.254"
-                                 }
-                              ]
-                           }
-                        }
-                     },
-                     withFip:{
-                         "name":"f8161542-fb3e-4b1a-858d-822503c625ab",
-                         "value":{
-                            "UveVirtualMachineAgent":{
-                               "udp_sport_bitmap":[
-                                  "1",
-                                  "0",
-                                  "0",
-                                  "0",
-                                  "2155880448",
-                                  "81928",
-                                  "32832",
-                                  "320"
-                               ],
-                               "tcp_sport_bitmap":[
-                                  "1",
-                                  "0",
-                                  "0",
-                                  "0",
-                                  "268959744",
-                                  "0",
-                                  "0",
-                                  "16"
-                               ],
-                               "if_bmap_list":[
+                        data:{
+                            "VirtualMachineStats": {
+                                "if_stats": [
                                   {
-                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab",
-                                     "port_bucket_bmap":{
-                                        "udp_sport_bitmap":[
-                                           "1",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "2155880448",
-                                           "81928",
-                                           "32832",
-                                           "320"
-                                        ],
-                                        "tcp_dport_bitmap":[
-                                           "1",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "268959744",
-                                           "0",
-                                           "0",
-                                           "16"
-                                        ],
-                                        "tcp_sport_bitmap":[
-                                           "1",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "268959744",
-                                           "0",
-                                           "0",
-                                           "16"
-                                        ],
-                                        "udp_dport_bitmap":[
-                                           "1",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "0",
-                                           "0"
-                                        ]
-                                     }
+                                    "StatTable.VirtualMachineStats.if_stats": [
+                                      {
+                                        "COUNT(if_stats)": 120,
+                                        "SUM(if_stats.out_bw_usage)": 95361,
+                                        "SUM(if_stats.out_pkts)": 3714,
+                                        "SUM(if_stats.in_bytes)": 357588,
+                                        "if_stats.name": "default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                        "SUM(if_stats.out_bytes)": 357588,
+                                        "SUM(if_stats.in_bw_usage)": 95361,
+                                        "SUM(if_stats.in_pkts)": 3714
+                                      }
+                                    ]
                                   }
-                               ],
-                               "udp_dport_bitmap":[
+                                ]
+                              },
+                              "UveVirtualMachineAgent": {
+                                "udp_sport_bitmap": [
+                                  "1",
+                                  "0",
+                                  "0",
+                                  "0",
+                                  "1183808",
+                                  "2147502216",
+                                  "574685281",
+                                  "8358"
+                                ],
+                                "tcp_sport_bitmap": [
+                                  "1",
+                                  "0",
+                                  "0",
+                                  "0",
+                                  "0",
+                                  "0",
+                                  "2097152",
+                                  "256"
+                                ],
+                                "if_bmap_list": [
+                                  {
+                                    "name": "default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                    "port_bucket_bmap": {
+                                      "udp_sport_bitmap": [
+                                        "1",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "1183808",
+                                        "2147502216",
+                                        "574685281",
+                                        "8358"
+                                      ],
+                                      "tcp_dport_bitmap": [
+                                        "1",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "256"
+                                      ],
+                                      "tcp_sport_bitmap": [
+                                        "1",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "2097152",
+                                        "256"
+                                      ],
+                                      "udp_dport_bitmap": [
+                                        "1",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0",
+                                        "0"
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "udp_dport_bitmap": [
                                   "1",
                                   "0",
                                   "0",
@@ -330,145 +215,544 @@ function MonitorNetworkMockData() {
                                   "0",
                                   "0",
                                   "0"
-                               ],
-                               "if_stats_list":[
-                                  {
-                                     "out_bytes":16540,
-                                     "in_bandwidth_usage":0,
-                                     "in_bytes":3660,
-                                     "out_bandwidth_usage":0,
-                                     "out_pkts":205,
-                                     "in_pkts":42,
-                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab"
-                                  }
-                               ],
-                               "vrouter":"nodeg2",
-                               "tcp_dport_bitmap":[
+                                ],
+                                "vrouter": "nodea8",
+                                "tcp_dport_bitmap": [
                                   "1",
                                   "0",
                                   "0",
                                   "0",
-                                  "268959744",
                                   "0",
                                   "0",
-                                  "16"
-                               ],
-                               "interface_list":[
+                                  "0",
+                                  "256"
+                                ],
+                                "interface_list": [
                                   {
-                                     "vm_name":"inst1-f8161542-fb3e-4b1a-858d-822503c625ab",
-                                     "name":"default-domain:admin:a7c26480-fa14-400b-ad80-9cbbb3677eab",
-                                     "floating_ips":[
-                                        {
-                                           "virtual_network":"default-domain:admin:vn2",
-                                           "ip_address":"2.2.2.253"
+                                    "vm_name": "vn2-inst",
+                                    "name": "default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                    "floating_ips": [],
+                                    "label": 18,
+                                    "mac_address": "02:00:a5:fc:27:cd",
+                                    "active": true,
+                                    "virtual_network": "default-domain:admin:vn2",
+                                    "l2_active": true,
+                                    "ip_address": "10.10.11.2",
+                                    "gateway": "10.10.11.1",
+                                    "uuid": "00a5fc27-cd99-47eb-920e-a64238bf21c0"
+                                  }
+                                ]
+                              }
+                            },
+                            rowData:{  
+                                "name":"4c04421f-04fa-4e52-b8a8-51f1c3900464",
+                                "value":{  
+                                   "VirtualMachineStats":{  
+                                      "if_stats":[  
+                                         {  
+                                            "StatTable.VirtualMachineStats.if_stats":[  
+                                               {  
+                                                  "COUNT(if_stats)":120,
+                                                  "SUM(if_stats.out_bw_usage)":95356,
+                                                  "SUM(if_stats.out_pkts)":3716,
+                                                  "SUM(if_stats.in_bytes)":357672,
+                                                  "if_stats.name":"default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                                  "SUM(if_stats.out_bytes)":357672,
+                                                  "SUM(if_stats.in_bw_usage)":95356,
+                                                  "SUM(if_stats.in_pkts)":3716
+                                               }
+                                            ]
+                                         }
+                                      ]
+                                   },
+                                   "UveVirtualMachineAgent":{  
+                                      "interface_list":[  
+                                         {  
+                                            "vm_name":"vn2-inst",
+                                            "name":"default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                            "floating_ips":[  
+
+                                            ],
+                                            "label":18,
+                                            "mac_address":"02:00:a5:fc:27:cd",
+                                            "active":true,
+                                            "virtual_network":"default-domain:admin:vn2",
+                                            "l2_active":true,
+                                            "ip_address":"10.10.11.2",
+                                            "gateway":"10.10.11.1",
+                                            "uuid":"00a5fc27-cd99-47eb-920e-a64238bf21c0"
+                                         }
+                                      ],
+                                      "vrouter":"nodea8"
+                                   }
+                                },
+                                "rawData":{  
+                                   "VirtualMachineStats":{  
+                                      "if_stats":[  
+                                         {  
+                                            "StatTable.VirtualMachineStats.if_stats":[  
+                                               {  
+                                                  "COUNT(if_stats)":120,
+                                                  "SUM(if_stats.out_bw_usage)":95356,
+                                                  "SUM(if_stats.out_pkts)":3716,
+                                                  "SUM(if_stats.in_bytes)":357672,
+                                                  "if_stats.name":"default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                                  "SUM(if_stats.out_bytes)":357672,
+                                                  "SUM(if_stats.in_bw_usage)":95356,
+                                                  "SUM(if_stats.in_pkts)":3716
+                                               }
+                                            ]
+                                         }
+                                      ]
+                                   },
+                                   "UveVirtualMachineAgent":{  
+                                      "interface_list":[  
+                                         {  
+                                            "vm_name":"vn2-inst",
+                                            "name":"default-domain:admin:00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                                            "floating_ips":[  
+
+                                            ],
+                                            "label":18,
+                                            "mac_address":"02:00:a5:fc:27:cd",
+                                            "active":true,
+                                            "virtual_network":"default-domain:admin:vn2",
+                                            "l2_active":true,
+                                            "ip_address":"10.10.11.2",
+                                            "gateway":"10.10.11.1",
+                                            "uuid":"00a5fc27-cd99-47eb-920e-a64238bf21c0"
+                                         }
+                                      ],
+                                      "vrouter":"nodea8"
+                                   }
+                                },
+                                "inBytes":357672,
+                                "outBytes":357672,
+                                "url":"/api/tenant/networking/virtual-machine/summary?fqNameRegExp=4c04421f-04fa-4e52-b8a8-51f1c3900464?flat",
+                                "vmName":"vn2-inst",
+                                "vRouter":"nodea8",
+                                "intfCnt":1,
+                                "vn":[  
+                                   "vn2 (admin)"
+                                ],
+                                "ip":[  
+                                   "10.10.11.2"
+                                ],
+                                "floatingIP":[  
+
+                                ],
+                                "id":"id_0"
+                             }
+                     },
+                     withFip:{
+                         data:{  
+                             "VirtualMachineStats":{  
+                                 "if_stats":[  
+                                    {  
+                                       "StatTable.VirtualMachineStats.if_stats":[  
+                                          {  
+                                             "COUNT(if_stats)":120,
+                                             "SUM(if_stats.out_bw_usage)":94107,
+                                             "SUM(if_stats.out_pkts)":3600,
+                                             "SUM(if_stats.in_bytes)":352800,
+                                             "if_stats.name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                             "SUM(if_stats.out_bytes)":352800,
+                                             "SUM(if_stats.in_bw_usage)":94107,
+                                             "SUM(if_stats.in_pkts)":3600
+                                          }
+                                       ]
+                                    }
+                                 ],
+                                 "fip_stats":[  
+                                    {  
+                                       "StatTable.VirtualMachineStats.fip_stats":[  
+                                          {  
+                                             "SUM(fip_stats.in_bytes)":0,
+                                             "fip_stats.ip_address":"10.10.10.3",
+                                             "fip_stats.iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                             "fip_stats.vn":"default-domain:admin:vn1",
+                                             "COUNT(fip_stats)":120,
+                                             "SUM(fip_stats.out_pkts)":0,
+                                             "SUM(fip_stats.out_bytes)":0,
+                                             "SUM(fip_stats.in_pkts)":0
+                                          }
+                                       ]
+                                    }
+                                 ]
+                              },
+                              "UveVirtualMachineAgent":{  
+                                 "udp_sport_bitmap":[  
+                                    "1",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "1228997633",
+                                    "25707344",
+                                    "546408448",
+                                    "2056"
+                                 ],
+                                 "tcp_sport_bitmap":[  
+                                    "1",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "131072",
+                                    "8192",
+                                    "0",
+                                    "0"
+                                 ],
+                                 "vrouter":"nodea8",
+                                 "if_bmap_list":[  
+                                    {  
+                                       "name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                       "port_bucket_bmap":{  
+                                          "udp_sport_bitmap":[  
+                                             "1",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "1228997633",
+                                             "25707344",
+                                             "546408448",
+                                             "2056"
+                                          ],
+                                          "tcp_dport_bitmap":[  
+                                             "1",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "8192",
+                                             "0",
+                                             "0"
+                                          ],
+                                          "tcp_sport_bitmap":[  
+                                             "1",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "131072",
+                                             "8192",
+                                             "0",
+                                             "0"
+                                          ],
+                                          "udp_dport_bitmap":[  
+                                             "1",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "0",
+                                             "0"
+                                          ]
+                                       }
+                                    }
+                                 ],
+                                 "udp_dport_bitmap":[  
+                                    "1",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "0"
+                                 ],
+                                 "fip_stats_list":[  
+                                    {  
+                                       "in_bytes":0,
+                                       "iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                       "out_bytes":0,
+                                       "out_pkts":0,
+                                       "virtual_network":"default-domain:admin:vn1",
+                                       "in_pkts":0,
+                                       "ip_address":"10.10.10.3"
+                                    }
+                                 ],
+                                 "tcp_dport_bitmap":[  
+                                    "1",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "0",
+                                    "8192",
+                                    "0",
+                                    "0"
+                                 ],
+                                 "interface_list":[  
+                                    {  
+                                       "vm_name":"vn1-inst",
+                                       "name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                       "floating_ips":[  
+                                          {  
+                                             "virtual_network":"default-domain:admin:vn1",
+                                             "ip_address":"10.10.10.3"
+                                          }
+                                       ],
+                                       "label":16,
+                                       "mac_address":"02:31:26:30:80:4e",
+                                       "active":true,
+                                       "virtual_network":"default-domain:admin:vn1",
+                                       "l2_active":true,
+                                       "ip_address":"10.10.10.2",
+                                       "gateway":"10.10.10.1",
+                                       "uuid":"31263080-4e8e-4bca-a2d6-a7a324a6c031"
+                                    }
+                                 ]
+                              }
+                           },
+                           rowData:{  
+                               "name":"ed67134b-6e61-4df6-abc8-eee2c58bcbc8",
+                               "value":{  
+                                  "VirtualMachineStats":{  
+                                     "if_stats":[  
+                                        {  
+                                           "StatTable.VirtualMachineStats.if_stats":[  
+                                              {  
+                                                 "COUNT(if_stats)":120,
+                                                 "SUM(if_stats.out_bw_usage)":94107,
+                                                 "SUM(if_stats.out_pkts)":3600,
+                                                 "SUM(if_stats.in_bytes)":352800,
+                                                 "if_stats.name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                                 "SUM(if_stats.out_bytes)":352800,
+                                                 "SUM(if_stats.in_bw_usage)":94107,
+                                                 "SUM(if_stats.in_pkts)":3600
+                                              }
+                                           ]
                                         }
                                      ],
-                                     "label":36,
-                                     "mac_address":"02:a7:c2:64:80:fa",
-                                     "active":true,
-                                     "virtual_network":"default-domain:admin:vn1",
-                                     "ip_address":"192.168.1.223",
-                                     "gateway":"192.168.1.254"
+                                     "fip_stats":[  
+                                        {  
+                                           "StatTable.VirtualMachineStats.fip_stats":[  
+                                              {  
+                                                 "SUM(fip_stats.in_bytes)":0,
+                                                 "fip_stats.ip_address":"10.10.10.3",
+                                                 "fip_stats.iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                                 "fip_stats.vn":"default-domain:admin:vn1",
+                                                 "COUNT(fip_stats)":120,
+                                                 "SUM(fip_stats.out_pkts)":0,
+                                                 "SUM(fip_stats.out_bytes)":0,
+                                                 "SUM(fip_stats.in_pkts)":0
+                                              }
+                                           ]
+                                        }
+                                     ]
+                                  },
+                                  "UveVirtualMachineAgent":{  
+                                     "interface_list":[  
+                                        {  
+                                           "vm_name":"vn1-inst",
+                                           "name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                           "floating_ips":[  
+                                              {  
+                                                 "virtual_network":"default-domain:admin:vn1",
+                                                 "ip_address":"10.10.10.3"
+                                              }
+                                           ],
+                                           "label":16,
+                                           "mac_address":"02:31:26:30:80:4e",
+                                           "active":true,
+                                           "virtual_network":"default-domain:admin:vn1",
+                                           "l2_active":true,
+                                           "ip_address":"10.10.10.2",
+                                           "gateway":"10.10.10.1",
+                                           "uuid":"31263080-4e8e-4bca-a2d6-a7a324a6c031"
+                                        }
+                                     ],
+                                     "vrouter":"nodea8",
+                                     "fip_stats_list":[  
+                                        {  
+                                           "in_bytes":0,
+                                           "iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                           "out_bytes":0,
+                                           "out_pkts":0,
+                                           "virtual_network":"default-domain:admin:vn1",
+                                           "in_pkts":0,
+                                           "ip_address":"10.10.10.3"
+                                        }
+                                     ]
                                   }
-                               ]
+                               },
+                               "rawData":{  
+                                  "VirtualMachineStats":{  
+                                     "if_stats":[  
+                                        {  
+                                           "StatTable.VirtualMachineStats.if_stats":[  
+                                              {  
+                                                 "COUNT(if_stats)":120,
+                                                 "SUM(if_stats.out_bw_usage)":94107,
+                                                 "SUM(if_stats.out_pkts)":3600,
+                                                 "SUM(if_stats.in_bytes)":352800,
+                                                 "if_stats.name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                                 "SUM(if_stats.out_bytes)":352800,
+                                                 "SUM(if_stats.in_bw_usage)":94107,
+                                                 "SUM(if_stats.in_pkts)":3600
+                                              }
+                                           ]
+                                        }
+                                     ],
+                                     "fip_stats":[  
+                                        {  
+                                           "StatTable.VirtualMachineStats.fip_stats":[  
+                                              {  
+                                                 "SUM(fip_stats.in_bytes)":0,
+                                                 "fip_stats.ip_address":"10.10.10.3",
+                                                 "fip_stats.iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                                 "fip_stats.vn":"default-domain:admin:vn1",
+                                                 "COUNT(fip_stats)":120,
+                                                 "SUM(fip_stats.out_pkts)":0,
+                                                 "SUM(fip_stats.out_bytes)":0,
+                                                 "SUM(fip_stats.in_pkts)":0
+                                              }
+                                           ]
+                                        }
+                                     ]
+                                  },
+                                  "UveVirtualMachineAgent":{  
+                                     "interface_list":[  
+                                        {  
+                                           "vm_name":"vn1-inst",
+                                           "name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                           "floating_ips":[  
+                                              {  
+                                                 "virtual_network":"default-domain:admin:vn1",
+                                                 "ip_address":"10.10.10.3"
+                                              }
+                                           ],
+                                           "label":16,
+                                           "mac_address":"02:31:26:30:80:4e",
+                                           "active":true,
+                                           "virtual_network":"default-domain:admin:vn1",
+                                           "l2_active":true,
+                                           "ip_address":"10.10.10.2",
+                                           "gateway":"10.10.10.1",
+                                           "uuid":"31263080-4e8e-4bca-a2d6-a7a324a6c031"
+                                        }
+                                     ],
+                                     "vrouter":"nodea8",
+                                     "fip_stats_list":[  
+                                        {  
+                                           "in_bytes":0,
+                                           "iface_name":"default-domain:admin:31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                           "out_bytes":0,
+                                           "out_pkts":0,
+                                           "virtual_network":"default-domain:admin:vn1",
+                                           "in_pkts":0,
+                                           "ip_address":"10.10.10.3"
+                                        }
+                                     ]
+                                  }
+                               },
+                               "inBytes":352800,
+                               "outBytes":352800,
+                               "url":"/api/tenant/networking/virtual-machine/summary?fqNameRegExp=ed67134b-6e61-4df6-abc8-eee2c58bcbc8?flat",
+                               "vmName":"vn1-inst",
+                               "vRouter":"nodea8",
+                               "intfCnt":1,
+                               "vn":[  
+                                  "vn1 (admin)"
+                               ],
+                               "ip":[  
+                                  "10.10.10.2"
+                               ],
+                               "floatingIP":[  
+                                  "10.10.10.3<br/> (0 B/0 B)"
+                               ],
+                               "id":"id_1"
                             }
-                         }
-                      }
+                     }
                 },
                 output :{
                     'completeDetails' : 
                         [
                          {
-                            "lbl":"UUID",
-                            "value":"597cd5ec-3d29-486a-8203-14d3209994b7"
+                           "lbl": "UUID",
+                           "value": "4c04421f-04fa-4e52-b8a8-51f1c3900464"
                          },
                          {
-                            "lbl":"CPU",
-                            "value":"0.01"
+                           "lbl": "CPU",
+                           "value": "-"
                          },
                          {
-                            "lbl":"Memory (Used/Total)",
-                            "value":"388.59 MB / 512 MB"
+                           "lbl": "Memory (Used/Total)",
+                           "value": "- / -"
                          },
                          {
-                            "lbl":"Throughput (In/Out)",
-                            "value":"0 B/0 B"
+                           "lbl": "Throughput (In/Out)",
+                           "value": "93.13 KB/93.13 KB"
                          },
                          {
-                            "lbl":"Interfaces",
-                            "value":[
-                               "Interface UUID",
-                               "IP Address /<br/> Mac Address",
-                               "Label",
-                               "Network",
-                               "Traffic (In/Out)",
-                               "Throughput (In/Out)",
-                               "Gateway",
-                               "Status"
-                            ],
-                            "span":[
-                               235,
-                               105,
-                               35,
-                               190,
-                               110,
-                               110,
-                               95,
-                               55
-                            ],
-                            "config":{
-                               "labels":true,
-                               "minHeight":"40px"
-                            }
+                           "lbl": "Interfaces",
+                           "value": [
+                             "Interface UUID",
+                             "IP Address /<br/> Mac Address",
+                             "Label",
+                             "Network",
+                             "Traffic (In/Out)",
+                             "Throughput (In/Out)",
+                             "Gateway",
+                             "Status"
+                           ],
+                           "span": [
+                             235,
+                             105,
+                             35,
+                             190,
+                             110,
+                             110,
+                             95,
+                             55
+                           ],
+                           "config": {
+                             "labels": true,
+                             "minHeight": "40px"
+                           }
                          },
                          {
-                            "lbl":"",
-                            "value":[
-                               "2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
-                               "10.10.10.253 /<br/> 02:2a:db:31:c0:1c",
-                               16,
-                               "default-domain:demo:vn1",
-                               "4.68 KB/2.01 KB",
-                               "0 B/0 B",
-                               "10.10.10.254",
-                               "Active"
-                            ],
-                            "span":[
-                               235,
-                               105,
-                               35,
-                               190,
-                               110,
-                               110,
-                               95,
-                               55
-                            ]
+                           "lbl": "",
+                           "value": [
+                             "00a5fc27-cd99-47eb-920e-a64238bf21c0",
+                             "10.10.11.2 /<br/> 02:00:a5:fc:27:cd",
+                             18,
+                             "default-domain:admin:vn2",
+                             "349.21 KB/349.21 KB",
+                             "93.13 KB/93.13 KB",
+                             "10.10.11.1",
+                             "Active"
+                           ],
+                           "span": [
+                             235,
+                             105,
+                             35,
+                             190,
+                             110,
+                             110,
+                             95,
+                             55
+                           ]
                          }
-                      ],
-                  withFip:[
-                           {
-                               "lbl":"Floating IP",
-                               "value":"2.2.2.253 (default-domain:admin:vn2)"
-                            },
-                            {
+                       ],
+                  withFip:[  
+                           {  
                                "lbl":"UUID",
-                               "value":"f8161542-fb3e-4b1a-858d-822503c625ab"
+                               "value":"ed67134b-6e61-4df6-abc8-eee2c58bcbc8"
                             },
-                            {
+                            {  
                                "lbl":"CPU",
                                "value":"-"
                             },
-                            {
+                            {  
                                "lbl":"Memory (Used/Total)",
                                "value":"- / -"
                             },
-                            {
+                            {  
                                "lbl":"Throughput (In/Out)",
-                               "value":"0 B/0 B"
+                               "value":"91.9 KB/91.9 KB"
                             },
-                            {
+                            {  
                                "lbl":"Interfaces",
-                               "value":[
+                               "value":[  
                                   "Interface UUID",
                                   "IP Address /<br/> Mac Address",
                                   "Label",
@@ -478,7 +762,7 @@ function MonitorNetworkMockData() {
                                   "Gateway",
                                   "Status"
                                ],
-                               "span":[
+                               "span":[  
                                   235,
                                   105,
                                   35,
@@ -488,24 +772,24 @@ function MonitorNetworkMockData() {
                                   95,
                                   55
                                ],
-                               "config":{
+                               "config":{  
                                   "labels":true,
                                   "minHeight":"40px"
                                }
                             },
-                            {
+                            {  
                                "lbl":"",
-                               "value":[
-                                  "a7c26480-fa14-400b-ad80-9cbbb3677eab",
-                                  "192.168.1.223 /<br/> 02:a7:c2:64:80:fa",
-                                  36,
+                               "value":[  
+                                  "31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                  "10.10.10.2 /<br/> 02:31:26:30:80:4e",
+                                  16,
                                   "default-domain:admin:vn1",
-                                  "3.57 KB/16.15 KB",
-                                  "0 B/0 B",
-                                  "192.168.1.254",
+                                  "344.53 KB/344.53 KB",
+                                  "91.9 KB/91.9 KB",
+                                  "10.10.10.1",
                                   "Active"
                                ],
-                               "span":[
+                               "span":[  
                                   235,
                                   105,
                                   35,
@@ -514,6 +798,39 @@ function MonitorNetworkMockData() {
                                   110,
                                   95,
                                   55
+                               ]
+                            },
+                            {  
+                               "lbl":"Floating IPs",
+                               "value":[  
+                                  "IP Address",
+                                  "Floating IP Network",
+                                  "Interface UUID",
+                                  "Traffic (In/Out)"
+                               ],
+                               "span":[  
+                                  95,
+                                  250,
+                                  300,
+                                  110
+                               ],
+                               "config":{  
+                                  "labels":true
+                               }
+                            },
+                            {  
+                               "lbl":"",
+                               "value":[  
+                                  "10.10.10.3",
+                                  "default-domain:admin:vn1",
+                                  "31263080-4e8e-4bca-a2d6-a7a324a6c031",
+                                  "0 B/0 B"
+                               ],
+                               "span":[  
+                                  95,
+                                  250,
+                                  300,
+                                  110
                                ]
                             }
                          ]
@@ -1834,24 +2151,61 @@ function MonitorNetworkMockData() {
                               {
                                  "name":"597cd5ec-3d29-486a-8203-14d3209994b7",
                                  "value":{
+                                     "VirtualMachineStats": {
+                                         "if_stats": [
+                                         {
+                                             "StatTable.VirtualMachineStats.if_stats": [
+                                             {
+                                                 "COUNT(if_stats)": 17,
+                                                 "SUM(if_stats.out_bw_usage)": 0,
+                                                 "SUM(if_stats.out_pkts)": 19,
+                                                 "SUM(if_stats.in_bytes)": 4789,
+                                                 "if_stats.name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                                 "SUM(if_stats.out_bytes)": 2054,
+                                                 "SUM(if_stats.in_bw_usage)": 0,
+                                                 "SUM(if_stats.in_pkts)": 58
+                                             }
+                                             ]
+                                         }
+                                         ],
+                                         "fip_stats": [
+                                         {
+                                             "StatTable.VirtualMachineStats.fip_stats": [
+                                             {
+                                                 "SUM(fip_stats.in_bytes)": 0,
+                                                 "fip_stats.ip_address": "10.10.10.3",
+                                                 "fip_stats.iface_name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                                 "fip_stats.vn": "default-domain:demo:vn1",
+                                                 "COUNT(fip_stats)": 1,
+                                                 "SUM(fip_stats.out_pkts)": 0,
+                                                 "SUM(fip_stats.out_bytes)": 0,
+                                                 "SUM(fip_stats.in_pkts)": 0
+                                             }
+                                             ]
+                                         }
+                                         ]
+                                     },
                                     "UveVirtualMachineAgent":{
-                                       "if_stats_list":[
-                                          {
-                                             "out_bytes":2054,
-                                             "in_bandwidth_usage":0,
-                                             "in_bytes":4789,
-                                             "out_bandwidth_usage":0,
-                                             "out_pkts":19,
-                                             "in_pkts":58,
-                                             "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
-                                          }
+                                        "fip_stats_list": [
+                                         {
+                                             "in_bytes": 0,
+                                             "iface_name": "default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                             "out_bytes": 0,
+                                             "out_pkts": 0,
+                                             "virtual_network": "default-domain:demo:vn1",
+                                             "in_pkts": 0,
+                                             "ip_address": "10.10.10.3"
+                                         }
                                        ],
                                        "interface_list":[
                                           {
                                              "vm_name":"vn1-inst",
                                              "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
                                              "floating_ips":[
-
+                                                             {
+                                                                 virtual_network: "default-domain:demo:vn1",
+                                                                 ip_address: "10.10.10.3"
+                                                             }
                                              ],
                                              "label":16,
                                              "mac_address":"02:2a:db:31:c0:1c",
@@ -1866,41 +2220,6 @@ function MonitorNetworkMockData() {
                                     }
                                  }
                               },
-                              {
-                                 "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2",
-                                 "value":{
-                                    "UveVirtualMachineAgent":{
-                                       "if_stats_list":[
-                                          {
-                                             "out_bytes":2012,
-                                             "in_bandwidth_usage":0,
-                                             "in_bytes":4747,
-                                             "out_bandwidth_usage":0,
-                                             "out_pkts":18,
-                                             "in_pkts":57,
-                                             "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525"
-                                          }
-                                       ],
-                                       "interface_list":[
-                                          {
-                                             "vm_name":"vn2-inst",
-                                             "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525",
-                                             "floating_ips":[
-
-                                             ],
-                                             "label":18,
-                                             "mac_address":"02:09:5b:f9:d0:7a",
-                                             "active":true,
-                                             "virtual_network":"default-domain:demo:vn2",
-                                             "l2_active":true,
-                                             "ip_address":"10.10.11.253",
-                                             "gateway":"10.10.11.254"
-                                          }
-                                       ],
-                                       "vrouter":"nodea8"
-                                    }
-                                 }
-                              }
                            ]
                         }
               },
@@ -1910,24 +2229,61 @@ function MonitorNetworkMockData() {
                        {
                           "name":"597cd5ec-3d29-486a-8203-14d3209994b7",
                           "value":{
+                              "VirtualMachineStats": {
+                                  "if_stats": [
+                                  {
+                                      "StatTable.VirtualMachineStats.if_stats": [
+                                      {
+                                          "COUNT(if_stats)": 17,
+                                          "SUM(if_stats.out_bw_usage)": 0,
+                                          "SUM(if_stats.out_pkts)": 19,
+                                          "SUM(if_stats.in_bytes)": 4789,
+                                          "if_stats.name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                          "SUM(if_stats.out_bytes)": 2054,
+                                          "SUM(if_stats.in_bw_usage)": 0,
+                                          "SUM(if_stats.in_pkts)": 58
+                                      }
+                                      ]
+                                  }
+                                  ],
+                                  "fip_stats": [
+                                  {
+                                      "StatTable.VirtualMachineStats.fip_stats": [
+                                      {
+                                          "SUM(fip_stats.in_bytes)": 0,
+                                          "fip_stats.ip_address": "10.10.10.3",
+                                          "fip_stats.iface_name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                          "fip_stats.vn": "default-domain:demo:vn1",
+                                          "COUNT(fip_stats)": 1,
+                                          "SUM(fip_stats.out_pkts)": 0,
+                                          "SUM(fip_stats.out_bytes)": 0,
+                                          "SUM(fip_stats.in_pkts)": 0
+                                      }
+                                      ]
+                                  }
+                                  ]
+                              },
                              "UveVirtualMachineAgent":{
-                                "if_stats_list":[
-                                   {
-                                      "out_bytes":2054,
-                                      "in_bandwidth_usage":0,
-                                      "in_bytes":4789,
-                                      "out_bandwidth_usage":0,
-                                      "out_pkts":19,
-                                      "in_pkts":58,
-                                      "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
-                                   }
+                                 "fip_stats_list": [
+                                    {
+                                        "in_bytes": 0,
+                                        "iface_name": "default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                        "out_bytes": 0,
+                                        "out_pkts": 0,
+                                        "virtual_network": "default-domain:demo:vn1",
+                                        "in_pkts": 0,
+                                        "ip_address": "10.10.10.3"
+                                    }
                                 ],
                                 "interface_list":[
                                    {
                                       "vm_name":"vn1-inst",
                                       "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
                                       "floating_ips":[
-
+                                                      {
+                                                          virtual_network: "default-domain:demo:vn1",
+                                                          ip_address: "10.10.10.3"
+                                                      }
                                       ],
                                       "label":16,
                                       "mac_address":"02:2a:db:31:c0:1c",
@@ -1942,24 +2298,61 @@ function MonitorNetworkMockData() {
                              }
                           },
                           "rawData":{
+                              "VirtualMachineStats": {
+                                  "if_stats": [
+                                  {
+                                      "StatTable.VirtualMachineStats.if_stats": [
+                                      {
+                                          "COUNT(if_stats)": 17,
+                                          "SUM(if_stats.out_bw_usage)": 0,
+                                          "SUM(if_stats.out_pkts)": 19,
+                                          "SUM(if_stats.in_bytes)": 4789,
+                                          "if_stats.name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                          "SUM(if_stats.out_bytes)": 2054,
+                                          "SUM(if_stats.in_bw_usage)": 0,
+                                          "SUM(if_stats.in_pkts)": 58
+                                      }
+                                      ]
+                                  }
+                                  ],
+                                  "fip_stats": [
+                                  {
+                                      "StatTable.VirtualMachineStats.fip_stats": [
+                                      {
+                                          "SUM(fip_stats.in_bytes)": 0,
+                                          "fip_stats.ip_address": "10.10.10.3",
+                                          "fip_stats.iface_name": "default-domain:demo:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                          "fip_stats.vn": "default-domain:demo:vn1",
+                                          "COUNT(fip_stats)": 1,
+                                          "SUM(fip_stats.out_pkts)": 0,
+                                          "SUM(fip_stats.out_bytes)": 0,
+                                          "SUM(fip_stats.in_pkts)": 0
+                                      }
+                                      ]
+                                  }
+                                  ]
+                              },
                              "UveVirtualMachineAgent":{
-                                "if_stats_list":[
-                                   {
-                                      "out_bytes":2054,
-                                      "in_bandwidth_usage":0,
-                                      "in_bytes":4789,
-                                      "out_bandwidth_usage":0,
-                                      "out_pkts":19,
-                                      "in_pkts":58,
-                                      "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc"
-                                   }
+                                 "fip_stats_list": [
+                                    {
+                                        "in_bytes": 0,
+                                        "iface_name": "default-domain:admin:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
+                                        "out_bytes": 0,
+                                        "out_pkts": 0,
+                                        "virtual_network": "default-domain:demo:vn1",
+                                        "in_pkts": 0,
+                                        "ip_address": "10.10.10.3"
+                                    }
                                 ],
                                 "interface_list":[
                                    {
                                       "vm_name":"vn1-inst",
                                       "name":"597cd5ec-3d29-486a-8203-14d3209994b7:2adb31c0-1cfc-4a80-ae28-4b038047fbbc",
                                       "floating_ips":[
-
+                                                      {
+                                                          virtual_network: "default-domain:demo:vn1",
+                                                          ip_address: "10.10.10.3"
+                                                      }
                                       ],
                                       "label":16,
                                       "mac_address":"02:2a:db:31:c0:1c",
@@ -1975,7 +2368,7 @@ function MonitorNetworkMockData() {
                           },
                           "inBytes":4789,
                           "outBytes":2054,
-                          "url":"/api/tenant/networking/virtual-machine/summary?fqNameRegExp=597cd5ec-3d29-486a-8203-14d3209994b7*",
+                          "url":"/api/tenant/networking/virtual-machine/summary?fqNameRegExp=597cd5ec-3d29-486a-8203-14d3209994b7?flat",
                           "vmName":"vn1-inst",
                           "vRouter":"nodea8",
                           "intfCnt":1,
@@ -1986,91 +2379,9 @@ function MonitorNetworkMockData() {
                              "10.10.10.253"
                           ],
                           "floatingIP":[
-
+                             "10.10.10.3<br/> (0 B/0 B)"
                           ]
                        },
-                       {
-                          "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2",
-                          "value":{
-                             "UveVirtualMachineAgent":{
-                                "if_stats_list":[
-                                   {
-                                      "out_bytes":2012,
-                                      "in_bandwidth_usage":0,
-                                      "in_bytes":4747,
-                                      "out_bandwidth_usage":0,
-                                      "out_pkts":18,
-                                      "in_pkts":57,
-                                      "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525"
-                                   }
-                                ],
-                                "interface_list":[
-                                   {
-                                      "vm_name":"vn2-inst",
-                                      "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525",
-                                      "floating_ips":[
-
-                                      ],
-                                      "label":18,
-                                      "mac_address":"02:09:5b:f9:d0:7a",
-                                      "active":true,
-                                      "virtual_network":"default-domain:demo:vn2",
-                                      "l2_active":true,
-                                      "ip_address":"10.10.11.253",
-                                      "gateway":"10.10.11.254"
-                                   }
-                                ],
-                                "vrouter":"nodea8"
-                             }
-                          },
-                          "rawData":{
-                             "UveVirtualMachineAgent":{
-                                "if_stats_list":[
-                                   {
-                                      "out_bytes":2012,
-                                      "in_bandwidth_usage":0,
-                                      "in_bytes":4747,
-                                      "out_bandwidth_usage":0,
-                                      "out_pkts":18,
-                                      "in_pkts":57,
-                                      "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525"
-                                   }
-                                ],
-                                "interface_list":[
-                                   {
-                                      "vm_name":"vn2-inst",
-                                      "name":"f3abbba9-5937-455c-b240-eedc4d9ab2f2:095bf9d0-7a97-45f5-9364-1b1e290ac525",
-                                      "floating_ips":[
-
-                                      ],
-                                      "label":18,
-                                      "mac_address":"02:09:5b:f9:d0:7a",
-                                      "active":true,
-                                      "virtual_network":"default-domain:demo:vn2",
-                                      "l2_active":true,
-                                      "ip_address":"10.10.11.253",
-                                      "gateway":"10.10.11.254"
-                                   }
-                                ],
-                                "vrouter":"nodea8"
-                             }
-                          },
-                          "inBytes":4747,
-                          "outBytes":2012,
-                          "url":"/api/tenant/networking/virtual-machine/summary?fqNameRegExp=f3abbba9-5937-455c-b240-eedc4d9ab2f2*",
-                          "vmName":"vn2-inst",
-                          "vRouter":"nodea8",
-                          "intfCnt":1,
-                          "vn":[
-                             "vn2 (demo)"
-                          ],
-                          "ip":[
-                             "10.10.11.253"
-                          ],
-                          "floatingIP":[
-
-                          ]
-                       }
                     ]
               }
           },
