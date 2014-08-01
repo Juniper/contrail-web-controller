@@ -13,6 +13,8 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     jsonPath = require('JSONPath').eval,
     assert = require('assert'),
     request = require('request'),
+    appErrors = require(process.mainModule.exports["corePath"] +
+                        '/src/serverroot/errors/app.errors'),
     async = require('async');
 
 function getModuleType (modName)

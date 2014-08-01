@@ -1,0 +1,44 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<jobLists>
+  <!-- Define module name here which is being referenced in the generated 
+       file
+   -->
+  <require>
+      <define>parseJobsReq</define>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseJobsRequire'</path>
+  </require>
+  <require>
+      <define>jobsProcess</define>
+      <path>../../../../common/api/jobsProcess.api</path>
+  </require>
+  <item>
+    <jobName>getComputeNodeInterface</jobName>
+    <requireJob>getNodesTree</requireJob>
+    <callback>processComputeNodeInterfaceRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getComputeNodeAcl</jobName>
+    <requireJob>getNodesTree</requireJob>
+    <callback>processComputeNodeAclRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getVRoutersList</jobName>
+    <callback>processvRouterListRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getVRoutersSummary</jobName>
+    <callback>processvRoutersSummaryRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getVRoutersGenerators</jobName>
+    <callback>processvRoutersGenRequestByJob</callback>
+  </item>
+  <item>
+    <jobName>getComputeNodeAclFlows</jobName>
+    <callback>processcRouterAclFlowsRequestByJob</callback>
+  </item>
+</jobLists>
+
