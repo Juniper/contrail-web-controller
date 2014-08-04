@@ -11,7 +11,7 @@ var infraMonitorAlertUtils = {
         if(processPath != null)
             res = getValueByJsonPath(data['value'],processPath,[]);
         else
-            res = ifNull(jsonPath(data,'$..process_state_list')[0],[]);
+            res = ifNull(jsonPath(data,'$..NodeStatus.process_info')[0],[]);
         var alerts=[];
         if(obj['isUveMissing'] == true)
             return alerts;
@@ -263,7 +263,7 @@ var infraMonitorUtils = {
             if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false && obj['isPartialUveMissing'] == false) {
                 obj['uveCfgIPMisMatch'] = (obj['uveIP'].indexOf(obj['configIP']) == -1 && obj['configIP'] != '-') ? true : false;
             }
-            obj['processAlerts']= infraMonitorAlertUtils.getProcessAlerts(d,obj,'VrouterStatsAgent;process_state_list');
+            obj['processAlerts']= infraMonitorAlertUtils.getProcessAlerts(d,obj,'NodeStatus;process_info');
             obj['isGeneratorRetrieved'] = false;
             obj['nodeAlerts'] = infraMonitorAlertUtils.processvRouterAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
@@ -859,7 +859,7 @@ var infraMonitorUtils = {
 
 function getCores(data) {
     var fileList=[],result=[];
-    var fileArrList=ifNull(jsonPath(data,'$..process_state_list[*].core_file_list'),[]);
+    var fileArrList=ifNull(jsonPath(data,'$..NodeStatus.process_info[*].core_file_list'),[]);
     for(var i=0;i<fileArrList.length;i++){
         var files=fileArrList[i];
        for(var j=0;j<files.length;j++)
@@ -1224,7 +1224,7 @@ function getProcessUpTime(d) {
 }
 
 /**
- * Claculates node status based on process_state_list & generators
+ * Claculates node status based on process_info & generators
  * ToDo: use getOverallNodeStatusFromGenerators 
  */
 function getOverallNodeStatus(d,nodeType,processPath){
@@ -1243,10 +1243,10 @@ function getOverallNodeStatus(d,nodeType,processPath){
     if(processPath != null)
         procStateList = getValueByJsonPath(d,processPath);
     else
-        procStateList = jsonPath(d,"$..process_state_list")[0];
+        procStateList = jsonPath(d,"$..NodeStatus.process_info")[0];
     if(procStateList != null && procStateList != undefined && procStateList != "") {
         status = getOverallNodeStatusFromProcessStateList(procStateList);
-        //Check if any generator is down. This may happen if the process_state_list is not updated due to some reason
+        //Check if any generator is down. This may happen if the process_info is not updated due to some reason
         if(status.search("Up") != -1){
             generatorDownTime = getMaxGeneratorDownTime(d);
             if(generatorDownTime != -1){
