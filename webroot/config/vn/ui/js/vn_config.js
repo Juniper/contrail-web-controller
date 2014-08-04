@@ -845,6 +845,7 @@ function createDNSServerEntry(DNSNameServer, len) {
 
     if (null !== DNSNameServer && typeof DNSNameServer !== "undefined") {
         $(inputTxtDNSServerName).val(DNSNameServer);
+        $(inputTxtDNSServerName).addClass("textBackground");
     }
     return rootDiv;
 }
@@ -945,7 +946,7 @@ function createIPAMEntry(ipamBlock, id,element) {
 
     var inputTxtAlocPool = document.createElement("textarea");
     inputTxtAlocPool.type = "text";
-    inputTxtAlocPool.className = "span12";
+    inputTxtAlocPool.className = "span12 textareaNoresize";
     inputTxtAlocPool.col = "span12";
     inputTxtAlocPool.setAttribute("placeholder", "<start ip> - <end-ip><enter> ...");
     inputTxtAlocPool.setAttribute("title", "xxx.xxx.xxx.xxx - xxx.xxx.xxx.xxx<enter> xxx.xxx.xxx.xxx - xxx.xxx.xxx.xxx<enter>...");
@@ -1050,7 +1051,11 @@ function createIPAMEntry(ipamBlock, id,element) {
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
         $(selectIpams).data("contrailDropdown").enable(false);
+        $(inputcboxDhcp).attr("disabled", "disabled"); 
         $(inputTxtIPBlock).attr("disabled", "disabled"); 
+        $(inputTxtIPBlock).addClass("textBackground");
+        $(inputTxtGateway).attr("disabled", "disabled");  
+        $(inputTxtGateway).addClass("textBackground");
         $(inputTxtAlocPool).attr("disabled", "disabled");
     }    
     return rootDiv;
