@@ -65,7 +65,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
                 
                 overallStatus = getOverallNodeStatusForDetails(parsedData);
-                procStateList = getValueByJsonPath(aNodeData,"ModuleCpuState;process_state_list",[]);
+                procStateList = getValueByJsonPath(aNodeData,"NodeStatus;process_info",[]);
                 analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
                 aNodeDashboardInfo = [
                     {lbl:'Hostname', value:obj['name']},
