@@ -57,7 +57,7 @@ monitorInfraComputeDetailsClass = (function() {
                 var vRouterProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
                 overallStatus = getOverallNodeStatusForDetails(parsedData);
-                procStateList = getValueByJsonPath(computeNodeData,"VrouterStatsAgent;process_state_list");
+                procStateList = getValueByJsonPath(computeNodeData,"NodeStatus;process_info");
                 vRouterProcessStatusList = getStatusesForAllvRouterProcesses(procStateList);
                 computeNodeDashboardInfo = [
                     {lbl:'Hostname', value:obj['name']},
