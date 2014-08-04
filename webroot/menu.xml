@@ -2,7 +2,7 @@
  Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
 -->
 <!--
-Access tag details 
+Access tag details
 If the access tag is not there then every one can access the menu/menu items
 If access tag is there then only the roles and orchestration models mentioned in the tags are allowed
 If any role/orchModel tag is with negation(!) value then every one has access to menu/menu item except the one mentioned with negation
@@ -404,7 +404,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Project Quotas</searchStrings>
-                        </item>                        
+                        </item>
                    </items>
                 </item>
                 <item>
@@ -451,13 +451,13 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>DNS</label>
                     <access>
-                       <roles>
-                           <role>admin</role>
-                           <role>user</role>
-                       </roles>
-                       <orchModels>
-                           <model>openstack</model>
-                       </orchModels>
+                        <roles>
+                            <role>admin</role>
+                            <role>user</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
                     </access>
                     <iconClass>icon-globe</iconClass>
                     <items>
@@ -473,7 +473,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure DNS Servers</searchStrings>
-                       </item>
+                        </item>
                         <item>
                             <label>Records</label>
                             <hash>config_dns_dnsrecords</hash>
@@ -668,69 +668,27 @@ and need to add the iconClass tag wherever we need to show some icons
             </item>
           </items>
         </item>
-        <!-- 
-                    <item>
-                        <label>Statistics</label>
-                        <items>
-                                <item>
-                                    <hash>query_stat_cpuinfo</hash>
-                                    <label>CPU Information</label>
+                <!-- <item>
+                    <label>Statistics</label>
+                    <iconClass>icon-sign-blank</iconClass>
+                    <items>
+                        <item>
+                            <hash>query_stat_query</hash>
+                            <label>Query</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
                                     <view>stat_queries.view</view>
                                     <view>queries.view</view>
                                     <js>stat_queries.js</js>
-                                    <class>statCPUInfoObj</class>
+                                    <class>statQueryObj</class>
                                 </resource>
                             </resources>
-                                    <searchStrings>CPU Information Statistics</searchStrings>
-                                </item>
-                                <item>
-                                    <hash>query_stat_qeperf</hash>
-                                    <label>QE Performance</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statQEPerformanceObj</class>
-                                </resource>
-                            </resources>
-                                    <searchStrings>QE Performance Statistics</searchStrings>
-                                </item>
-                                <item>
-                                    <hash>query_stat_uvevnagent</hash>
-                                    <label>VN Agent</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statVNAgentObj</class>
-                                </resource>
-                            </resources>
-                                    <searchStrings>VN Agent Statistics</searchStrings>
-                                </item>
-                                <item>
-                                    <hash>query_stat_smsg</hash>
-                                    <label>Sandesh Messages</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statSandeshMsgObj</class>
-                                </resource>
-                            </resources>
-                                    <searchStrings>Sandesh Message Statistics</searchStrings>
-                                </item>
-                                <item>
-                                    <hash>query_stat_queue</hash>
-                                    <label>Stats Query Queue</label>
+                            <searchStrings>Query Statistics</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_stat_queue</hash>
+                            <label>Query Queue</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
@@ -740,10 +698,10 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>statQueryQueueObj</class>
                                 </resource>
                             </resources>
-                                    <searchStrings>Statistic Query Queue</searchStrings>
-                                </item>
-                        </items>
-                    </item>-->
+                            <searchStrings>Statistic Query Queue</searchStrings>
+                        </item>
+                    </items>
+                </item> -->
       </items>
     </item>
   </items>
