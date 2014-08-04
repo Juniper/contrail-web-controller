@@ -1805,7 +1805,7 @@ function successHandlerForGridVNRow(result) {
 
         var routeTargets = jsonPath(vn, "$.route_target_list.route_target[*]");
         if (routeTargets === false) {
-            routeTargets = "";
+            routeTargets = "-";
         }
         var sh = "Enabled";
         if(String(vn["is_shared"]) != "true") 
@@ -1853,7 +1853,6 @@ function successHandlerForGridVNRow(result) {
             if(vxlanid.trim() == "") vxlanid = "-";
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
-            if(routeTargets.trim() == "") routeTargets = "-";
         //if(vn.fq_name[1] == selectedProject){
             vnData.push({"id":idCount++, "Network":vnName, "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
