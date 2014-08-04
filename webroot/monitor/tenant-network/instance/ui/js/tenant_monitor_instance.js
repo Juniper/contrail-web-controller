@@ -72,34 +72,22 @@ function instSummaryRenderer() {
                 objectType:'flow'
             }];
         $.ajax({
-            url:'/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['fqName'] + '*'
+            url:'/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['fqName'] + '?flat'
         }).done(function(result) {
             $("#uve-information").html(syntaxHighlight(result))
             instDeferredObj.done(function(response) {
                 var statData = [{ lbl : 'Network',field:'network'},
                                 { lbl : 'vRouter',field:'vRouter'}];
-                var instanceData = {};
-                if(result != null)
-                    result['value'] = ifNull(result['value'],[]);
-                    if(result['value'].length > 0)
-                        instanceData = result['value'][0]['value'];
-                var vRouter = getValueByJsonPath(instanceData,'UveVirtualMachineAgent;vrouter','-');
-                intfList = getValueByJsonPath(instanceData,'UveVirtualMachineAgent;interface_list',[]);
-                intfStatList = getValueByJsonPath(instanceData,'UveVirtualMachineAgent;if_stats_list',[]);
-                instViewModel.vRouter(vRouter);
-                instViewModel.network(obj['srcVN'])
-                var inBytes = 0 ,outBytes = 0 ,totalInBytes = 0 ,totalOutBytes = 0;
-                $.each(getValueByJsonPath(instanceData,'UveVirtualMachineAgent;if_stats_list',[]), function (idx, value) {
-                    if($.isNumeric(value['in_bytes'])) 
-                        totalInBytes += value['in_bytes'];
-                    if($.isNumeric(value['out_bytes'])) 
-                        totalOutBytes += value['out_bytes'];
-                });
+                var data = ifNull(tenantNetworkMonitorUtils.instanceParseFn([{name:"",value:result}])[0],{});
+                instViewModel.vRouter(data['vRouter']);
+                instViewModel.network(obj['srcVN']);
+                intfList = getValueByJsonPath(result,'UveVirtualMachineAgent;interface_list',[]);
+                intfStatList = getValueByJsonPath(result,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
                 var selItem = getSelInstanceFromDropDown();
-                var selIntfName = '';
+                var selIntfName = '',inBytes = 0,outBytes = 0;
                 var stats = instSummaryView.getStatsOfInterface(selItem['ip']);
                 inBytes = ifNull(stats['inBytes'],'-'),outBytes = ifNull(stats['outBytes'],'-');
-                instViewModel.totalTrafficBytes(formatBytes(totalInBytes)+"/"+formatBytes(totalOutBytes));
+                instViewModel.totalTrafficBytes(formatBytes(data['inBytes'])+"/"+formatBytes(data['outBytes']));
                 instViewModel.interfaceTrafficBytes(formatBytes(inBytes)+"/"+formatBytes(outBytes));
                 var dataSource = $('.summary-stats').data('dataSource');
                 var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
@@ -200,8 +188,8 @@ function instSummaryRenderer() {
                 selIntfName = intfList[i]['name'];
         }
         $.each(intfStatList,function (idx, value) {
-            if(value['name'] == selIntfName) 
-                result['inBytes'] = ifNull(value['in_bytes'],'-'),result['outBytes'] = ifNull(value['out_bytes'],'-');
+            if(value['if_stats.name'] == selIntfName) 
+                result['inBytes'] = ifNull(value['SUM(if_stats.in_bytes)'],'-'),result['outBytes'] = ifNull(value['SUM(if_stats.out_bytes)'],'-');
         });
         return result;
     }
