@@ -535,12 +535,10 @@ function initActions() {
                                 = parseInt(cidr.split("/")[1]);
                         else
                             vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"]["ip_prefix_len"] = 32;
+                        vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["enable_dhcp"] = enable_dhcp;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dns_nameservers"] = [];
-
-
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dhcp_option_list"] = {};
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dhcp_option_list"]["dhcp_option"] = dnsServer;
-
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["allocation_pools"] = allocation_pools;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["addr_from_start"] = addFromStart;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["default_gateway"] = gateway;
@@ -968,11 +966,11 @@ function createIPAMEntry(ipamBlock, id,element) {
     inputcboxDhcp.className = "ace-input";
     inputcboxDhcp.setAttribute("id",element+"_"+id+"_chkDHCP");
     inputcboxDhcp.setAttribute("onchange", "setHeaderDHCP(this)");
-    if($("#chk_headerDHCP")[0].checked === true){
+//    if($("#chk_headerDHCP")[0].checked === true){
         inputcboxDhcp.checked = true;    
-    } else {
-        inputcboxDhcp.checked = false;
-    }
+//    } else {
+//        inputcboxDhcp.checked = false;
+//    }
     var spanInputcboxDhcp = document.createElement("span");
     spanInputcboxDhcp.className = "ace-lbl";
     spanInputcboxDhcp.innerHTML = "&nbsp;";
@@ -1046,7 +1044,7 @@ function createIPAMEntry(ipamBlock, id,element) {
     if (null !== ipamBlock && typeof ipamBlock !== "undefined") {
         $(inputTxtIPBlock).val(ipamBlock.IPBlock);
         $(inputTxtGateway).val(ipamBlock.Gateway);
-        inputcboxDhcp.checked = ipamBlock.DHCPEnabled[0];
+        inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
@@ -1689,10 +1687,17 @@ function successHandlerForGridVNRow(result) {
         configObj["virtual-networks"].push(networks[i]);
         var vn = networks[i];
         var vnName = jsonPath(vn, "$.fq_name[2]");
-
-        if (typeof vnName === "object" && vnName.length === 1)
-            vnName = vnName[0];
-        else
+        var sh = "Enabled";
+        if(String(vn["is_shared"]) != "true") 
+            sh = "Disabled";
+        var Shared = sh;
+        if (typeof vnName === "object" && vnName.length === 1){
+            if(($("#ddProjectSwitcher").data("contrailDropdown").value() != vn.parent_uuid) &&  Shared == "Enabled") {
+                vnName = vnName[0]+" ("+vn["fq_name"][0] +":"+ vn["fq_name"][1] +")";
+            } else {
+                vnName = vnName[0];
+            }
+        } else
             vnName = "";
 
         var uuid = jsonPath(vn, "$.uuid");
@@ -1807,10 +1812,6 @@ function successHandlerForGridVNRow(result) {
         if (routeTargets === false) {
             routeTargets = "-";
         }
-        var sh = "Enabled";
-        if(String(vn["is_shared"]) != "true") 
-            sh = "Disabled";
-        var Shared = sh;
         var ext = "Enabled";
         if(String(vn["router_external"])== "false")
             ext = "Disabled";
@@ -1827,10 +1828,12 @@ function successHandlerForGridVNRow(result) {
         var fwdMode = jsonPath(vn, "$.virtual_network_properties.forwarding_mode");
         if (fwdMode !== false && typeof fwdMode !== "undefined" && fwdMode.length > 0) {
             fwdMode = fwdMode[0];
-            if(fwdMode === "l2_l3" || fwdMode === null) {
+            if(fwdMode === "l2_l3") {
                 fwdMode = "L2 and L3";
             } else if(fwdMode === "l2") {
                 fwdMode = "L2 Only";
+            } else {
+                fwdMode = "";
             }
         } else {
             fwdMode = "";
@@ -1850,7 +1853,7 @@ function successHandlerForGridVNRow(result) {
             enableControles = false;
             if(reorder_policiesTxt.trim() == "") reorder_policiesTxt = "-";
             if(fwdMode.trim() == "") fwdMode = "-";
-            if(vxlanid.trim() == "") vxlanid = "-";
+            if(String(vxlanid).trim() == "") vxlanid = "-";
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         //if(vn.fq_name[1] == selectedProject){
@@ -2039,7 +2042,7 @@ function showVNEditWindow(mode, rowIndex) {
     });
 
     getAjaxs[3] = $.ajax({
-        url:"/api/admin/webconfig/network/L2",
+        url:"/api/admin/webconfig/network/L2_Only",
         type:"GET"
     });
     
@@ -2049,12 +2052,14 @@ function showVNEditWindow(mode, rowIndex) {
             clearValuesFromDomElements();
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
-            var l2Mode = results[3][0].L2;
-            if(l2Mode == "Enable"){
-                $("#ddFwdMode").data("contrailDropdown").value("l2");
+            var l2Mode = results[3][0].L2_Only;
+            if(l2Mode == false){
+                $("#ddFwdMode").data("contrailDropdown").enable(true);
+                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
                 $("#divFwdMode").removeClass("hide");
             } else {
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+                $("#ddFwdMode").data("contrailDropdown").value("l2");
+                $("#ddFwdMode").data("contrailDropdown").enable(false);
                 $("#divFwdMode").addClass("hide");
             }
             var nps = [];
@@ -2123,6 +2128,7 @@ function showVNEditWindow(mode, rowIndex) {
             }
             if (mode === "add") {
                 windowCreateVN.find('h6.modal-header-title').text('Create Network');
+                $("#chk_headerDHCP")[0].checked = true;
                 $(txtVNName).focus();
             } else if (mode === "edit") {
                 var selectedRow = $("#gridVN").data("contrailGrid")._dataView.getItem(rowIndex);
@@ -2159,7 +2165,7 @@ function showVNEditWindow(mode, rowIndex) {
                         var AlocPool="";
                         if(typeof alocPools[i] != null && typeof alocPools[i] != undefined && typeof alocPools[i] != "")
                             AlocPool = formatAlcPoolObj(alocPools[i]); 
-                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled,"AlocPool":AlocPool});
+                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool});
                     }
                     for(var k=0; k<existing.length; k++) {
                         dynamicID++;
@@ -2254,10 +2260,15 @@ function showVNEditWindow(mode, rowIndex) {
                         typeof vnProps["forwarding_mode"] && 
                         "" !== vnProps["forwarding_mode"].trim()) {
                         $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
-                        if(vnProps["forwarding_mode"] == "l2"){
+                        if(vnProps["forwarding_mode"] == "l2_l3" && l2Mode == true){
                             $("#divFwdMode").removeClass("hide");
+                            $("#ddFwdMode").data("contrailDropdown").enable(true);
+                        } else if(l2Mode == false){
+                            $("#divFwdMode").removeClass("hide");
+                            $("#ddFwdMode").data("contrailDropdown").enable(true);
                         } else {
                             $("#divFwdMode").addClass("hide");
+                            $("#ddFwdMode").data("contrailDropdown").enable(false);
                         }
                     }
                 }
@@ -2328,7 +2339,9 @@ function toggleDHCP(){
     var checkedval = $("#chk_headerDHCP")[0].checked;
     for(var i=0; i<$("#ipamTuples").children().length; i++) {
         var id = getID(String($("#ipamTuples").children()[i].id));
-        $("#ipamTuples_"+id+"_chkDHCP")[0].checked = checkedval;        
+        if($("#ipamTuples_"+id+"_chkDHCP")[0].disabled == false){
+            $("#ipamTuples_"+id+"_chkDHCP")[0].checked = checkedval;
+        }
     }
 }
 function setHeaderDHCP(me){
@@ -2337,12 +2350,14 @@ function setHeaderDHCP(me){
         for(var i=0; i<$("#ipamTuples").children().length; i++) {
             var id = getID(String($("#ipamTuples").children()[i].id));
             if($("#ipamTuples_"+id+"_chkDHCP")[0].checked == false){
-                setflag = false;
+                setFlag = false;
                 break;
             }
         }
         if(setFlag == true){
             $("#chk_headerDHCP")[0].checked = true;
+        } else {
+            $("#chk_headerDHCP")[0].checked = false;
         }
     } else {
         $("#chk_headerDHCP")[0].checked = false;
