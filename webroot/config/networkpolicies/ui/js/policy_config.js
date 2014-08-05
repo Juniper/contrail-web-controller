@@ -3,7 +3,7 @@
  */
 
 networkpolicyConfigObj = new networkPolicyConfigObj();
-var iconNetwork ='icon-sitemap', iconPolicy ='icon-list-alt', iconSubnet ='icon-dribbble';
+var iconNetwork ='image-network', iconPolicy ='image-policy', iconSubnet ='image-subnet';
 function networkPolicyConfigObj() {
     //Variable definitions
     //Dropdowns
@@ -403,7 +403,7 @@ function initActions() {
                 rule["src_addresses"][0]["virtual_network"] = null;
                 rule["src_addresses"][0]["network_policy"] = null;
                 rule["src_addresses"][0]["subnet"] = null;
-                var srcGrpName = getSelectedGroupName($($(ruleTuple[2]).find('i')));
+                var srcGrpName = getSelectedGroupName($($($(ruleTuple[2]).find('a'))).find('i'));
                 if(srcGrpName === 'CIDR') { 
                     srcVN = srcVN.split('/');
                     var srcVNPostObj;
@@ -437,7 +437,7 @@ function initActions() {
                 rule["dst_addresses"][0]["virtual_network"] = null;
                 rule["dst_addresses"][0]["subnet"] = null;
                 rule["dst_addresses"][0]["network_policy"] = null;
-                var destGrpName = getSelectedGroupName($($(ruleTuple[5]).find('i')));
+                var destGrpName = getSelectedGroupName($($($(ruleTuple[5]).find('a'))).find('i'));
                 if(destGrpName === "CIDR") {
                     destVN = destVN.split('/');
                     var destVNPostObj;
@@ -610,7 +610,7 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         if(srcDropdown) {
             var selSrcTxt = srcDropdown.value();
             verifySrcDestSelectedItem(selSrcTxt, srcDropdown, 
-                $($(e.parentNode.parentNode.children[2]).find('i')), undefined, false);
+                $($($(e.parentNode.parentNode.children[2]).find('a')).find('i')), undefined, false);
         }    
         //Disabling 'any' on Dest VN.
         //Disabling 'local' on Dest vn.
@@ -618,7 +618,7 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         if(destDropdown) {
             var selDestTxt = destDropdown.value();   
             verifySrcDestSelectedItem(selDestTxt, destDropdown,
-                $($(e.parentNode.parentNode.children[5]).find('i')), undefined, false);
+                $($($(e.parentNode.parentNode.children[5]).find('a')).find('i')), undefined, false);
         }    
 
         var tupleDiv = e.parentNode.parentNode.parentNode.children; 
@@ -699,7 +699,7 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         if(srcDropdown) {
             var selSrcTxt = srcDropdown.value();
             verifySrcDestSelectedItem(selSrcTxt, srcDropdown,
-                $($(e.parentNode.parentNode.children[2]).find('i')), undefined, true);
+                $($($(e.parentNode.parentNode.children[2]).find('a')).find('i')), undefined, true);
         }   
         
         //Enabling 'any' on Dest VN.
@@ -708,7 +708,7 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         if(destDropdown) {
             var selDestTxt = destDropdown.value();   
             verifySrcDestSelectedItem(selDestTxt, destDropdown,
-                $($(e.parentNode.parentNode.children[5]).find('i')), undefined, true);
+                $($($(e.parentNode.parentNode.children[5]).find('a')).find('i')), undefined, true);
         }        
 
         var tupleDiv = e.parentNode.parentNode.parentNode.children; 
@@ -875,7 +875,7 @@ function verifySrcDestSelectedItem(selTxt, dropDown, e, grpType, enbleOpt) {
     if(!isItemExists(selTxt, dsSrcDest)) {
         addNewItemMainDataSource(selTxt, dsSrcDest, e, grpType);
         dropDown.setData(dsSrcDest);
-        if(enbleOpt) {
+        if(enbleOpt != undefined) {
             dropDown.enableOptionList(enbleOpt,["any","local"]);
         }         
         dropDown.value(selTxt);        
@@ -1372,6 +1372,7 @@ function loadSelect2CloseActions() {
         setSelectedGroupIcon("Networks");        
     }
     $('.select2-results').removeAttr('style');
+    $('.res-icon').remove();
 }
 
 function loadSelect2OpenActions() {
@@ -1381,10 +1382,8 @@ function loadSelect2OpenActions() {
         $(subEleArry[2]).addClass('hide');
     }
     $('.select2-results').attr('style','max-height:400px;');
-    $(".select2-search").removeClass(iconSubnet);
-    $(".select2-search").removeClass(iconPolicy);            
-    $(".select2-search").removeClass(iconNetwork);
-    $(".select2-search").addClass(iconNetwork);    
+    $('.res-icon').remove();
+    $(".select2-search").prepend('<i class="'+ iconNetwork +' res-icon"> </i>')
 }
 
 function addNewTermDataSource(grpName, term, data) {
@@ -1394,7 +1393,7 @@ function addNewTermDataSource(grpName, term, data) {
             data[i].children.push(newItem);
             break;            
         }
-    }
+    }   
 }
 
 function setFocusSelectedItem(grpName, term, data) {
@@ -1483,9 +1482,7 @@ function select2Query(query) {
             $('.select2-result-sub').addClass('hide');
             $(this).parent().find('.select2-result-sub').removeClass('hide');
             
-            $(".select2-search").removeClass(iconSubnet);
-            $(".select2-search").removeClass(iconPolicy);            
-            $(".select2-search").removeClass(iconNetwork);            
+            $(".res-icon").remove();            
             setSelectedGroupIcon(this.textContent.trim());
         });
     }
@@ -1519,7 +1516,7 @@ function retainExpandedGroup() {
 
 function getSelectedGroupName(selector) {
     var grpName = 'Networks';
-    var element = selector ? selector : $(".select2-search");
+    var element = selector ? selector : $(".res-icon");
      if(element.hasClass(iconNetwork)) {
          grpName = 'Networks'
      } else if(element.hasClass(iconPolicy)) {
@@ -1531,17 +1528,20 @@ function getSelectedGroupName(selector) {
 }
 
 function setSelectedGroupIcon(grpName) {
+    var currentIcon = iconNetwork;
     switch(grpName) {
         case 'Networks' :
-            $(".select2-search").addClass(iconNetwork); 
+            currentIcon = iconNetwork;
             break;   
         case 'Policies' :
-            $(".select2-search").addClass(iconPolicy); 
+            currentIcon = iconPolicy;
             break;  
         case 'CIDR' :
-            $(".select2-search").addClass(iconSubnet); 
+            currentIcon = iconSubnet;
             break;                      
     }
+    $(".res-icon").remove(); 
+    $(".select2-search").prepend('<i class="'+ currentIcon +' res-icon"> </i>');
 }
 
 function select2Format(state) {
