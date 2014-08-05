@@ -2054,7 +2054,7 @@ function getNetworkTreeTopology (req, res, appData)
 
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
-    reqUrl = '/analytics/service-chain/*' + fqName + '*';
+    reqUrl = '/analytics/service-chain/*';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
     reqUrl = '/virtual-networks';
