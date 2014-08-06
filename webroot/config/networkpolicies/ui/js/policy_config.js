@@ -429,7 +429,11 @@ function initActions() {
                     }
                 } else if(srcGrpName === "Policies") {
                     srcVN = getFQNofPolicy(selectedDomain, selectedProject, srcVN);
-                    rule["src_addresses"][0]["network_policy"] = srcVN;          
+                    if(srcVN.indexOf(':') !== -1) {
+                        rule["src_addresses"][0]["network_policy"] = srcVN;          
+                    } else {
+                        rule["src_addresses"][0]["network_policy"] = [selectedDomain, selectedProject, srcVN].join(":"); 
+                    }    
                 }
                 rule["dst_addresses"] = [];
                 rule["dst_addresses"][0] = {};
@@ -462,8 +466,12 @@ function initActions() {
                         }
                     }
                 } else if(destGrpName === "Policies") {
-                    destVN = getFQNofPolicy(selectedDomain, selectedProject, destVN);                
-                    rule["dst_addresses"][0]["network_policy"] = destVN;
+                    destVN = getFQNofPolicy(selectedDomain, selectedProject, destVN);   
+                    if(destVN.indexOf(":") !== -1) {                   
+                        rule["dst_addresses"][0]["network_policy"] = destVN;
+                    } else {
+                        rule["dst_addresses"][0]["network_policy"] = [selectedDomain, selectedProject, destVN].join(":");
+                    }    
                 }
 
                 var startPortsArray = getStartPort(srcPorts);
@@ -1040,7 +1048,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     });
     $(selectDirection).data("contrailDropdown").setData([{"text":"<>","value":"<>"},{"text":">","value":">"}]);
 
-    var mainDS = [], dupDS = [];
+    var mainDS = [];
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var allVns = [{text:'Enter or Select a Network', value:"dummy", disabled : true },{"text":"ANY (All Networks in Current Project)","value":"any", "parent": "Networks"},{"text":"LOCAL (All Networks to which this policy is associated)","value":"local", "parent": "Networks"}];
@@ -1049,25 +1057,26 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         var virtualNetwork = vn["fq_name"];
         var domain = virtualNetwork[0];
         var project = virtualNetwork[1];
-        allVns[i+3] = {};
-        allVns[i+3].parent  = "Networks";
         if(domain === selectedDomain && project === selectedProject) {
             if(vn["fq_name"][2].toLowerCase() === "any" || vn["fq_name"][2].toLowerCase() === "local"){
                 var fqNameTxt = vn["fq_name"][2] +' (' + domain + ':' + project +')';
                 var fqNameValue = domain + ":" + project + ":" + vn["fq_name"][2];
-                allVns[i+3].text  =  fqNameTxt;
-                allVns[i+3].value  = fqNameValue;
+                allVns.push({text : fqNameTxt, value : fqNameValue, parent : "Networks" });
             } else {
-                allVns[i+3].text  = vn["fq_name"][2];
-                allVns[i+3].value  = vn["fq_name"][2];
+                allVns.push({text : vn["fq_name"][2], value : vn["fq_name"][2], parent : "Networks" });                
             }
         }
-        else {
+    }
+    //add other project networks at the end
+    for(var i = 0; i < vns.length; i++) { 
+        var vn = vns[i];
+        var virtualNetwork = vn["fq_name"];
+        var project = virtualNetwork[1];    
+        if(project !== selectedProject) {    
             var fqNameTxt = vn["fq_name"][2] +' (' + domain + ':' + project +')';
             var fqNameValue = domain + ":" + project + ":" + vn["fq_name"][2];
-            allVns[i+3].text  = fqNameTxt;
-            allVns[i+3].value  = fqNameValue;
-        }
+            allVns.push({text : fqNameTxt, value : fqNameValue, parent : "Networks"});            
+        }    
     }
     //prepare policies sub array
     var allPolicies = [{text:'Enter or Select a Policy', value:"dummy", disabled : true }];
@@ -1076,18 +1085,20 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         var fqn =  policy["fq_name"];
         var domain = fqn[0];
         var project = fqn[1];
-        allPolicies[i + 1] = {};
-        allPolicies[i + 1].parent = "Policies";
         if(domain === selectedDomain && project === selectedProject) {
-            allPolicies[i + 1].text  = policy["fq_name"][2];
-            allPolicies[i + 1].value  = policy["fq_name"][2];
+            allPolicies.push({text : policy["fq_name"][2], value : policy["fq_name"][2], parent : "Policies"});
         }
-        else {
+    }
+    //add other project policies at the end    
+    for(var i = 0; i < policies.length; i++) {
+        var policy = policies[i];
+        var fqn =  policy["fq_name"];
+        var project = fqn[1];
+        if(project !== selectedProject) {         
             var fqNameTxt = policy["fq_name"][2] +' (' + domain + ':' + project +')';
             var fqNameValue = domain + ":" + project + ":" + policy["fq_name"][2];
-            allPolicies[i + 1].text  = fqNameTxt;
-            allPolicies[i + 1].value  = fqNameValue;
-        }               
+            allPolicies.push({text : fqNameTxt, value : fqNameValue, parent : 'Policies'});           
+        }    
     }
   
     mainDS.push({text : 'CIDR', id : 'subnet',  children : [{text:'Enter a CIDR', value:"dummy", disabled : true }]},
