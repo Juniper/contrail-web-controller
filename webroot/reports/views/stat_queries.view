@@ -4,21 +4,9 @@
     <div id="sqq-container" class="row-fluid hide">
         <div id="sqq-results" class="row-fluid"></div>
     </div>
-    <div id="acpu-container" class="row-fluid">
-        <div id="acpu-query" class="row-fluid"></div>
-        <div id="acpu-results"></div>
-    </div>
-    <div id="qeperf-container" class="row-fluid">
-        <div id="qeperf-query" class="row-fluid"></div>
-        <div id="qeperf-results" class="row-fluid"></div>
-    </div>
-    <div id="vna-container" class="row-fluid">
-        <div id="vna-query" class="row-fluid"></div>
-        <div id="vna-results" class="row-fluid"></div>
-    </div>
-    <div id="smsg-container" class="row-fluid">
-        <div id="smsg-query" class="row-fluid"></div>
-        <div id="smsg-results" class="row-fluid"></div>
+    <div id="stat-container" class="row-fluid">
+        <div id="stat-query" class="row-fluid"></div>
+        <div id="stat-results"></div>
     </div>
 </script>
 
@@ -97,6 +85,17 @@
                 <form id="{{queryPrefix}}-query-form" onsubmit="return false;" class="">
                     <div id="{{queryPrefix}}-query-container" class="row-fluid">
                         <div class="row-fluid margin-0-0-5">
+                            <div class="span8">
+                                <label>Stat Table</label>
+                                <div>
+                                    <select id="stat-table" class="span12"
+                                            name="table"
+                                            data-bind="options: fromTables, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid margin-0-0-5">
                             <div class="span4">
                                 <label>Time Range</label>
                                 <div>
@@ -144,21 +143,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        {{#IfCompare queryPrefix 'acpu' operator="=="}}
-                            <div class="row-fluid margin-0-0-5">
-                                <div class="span8">
-                                    <label>From</label>
-                                    <div>
-                                        <select id="acpu-table" class="span12"
-                                                name="table"
-                                                data-bind="options: fromTables, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                        {{/IfCompare}}
-
                         <div class="row-fluid margin-0-0-5">
                             <div class="span8">
                                 <label>Where</label>
