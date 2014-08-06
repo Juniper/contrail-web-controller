@@ -15,7 +15,7 @@
 			<div class="chart-load-status">
 				<p> Loading Flow Series Charts ... </p>
 			</div>
-        	<div id="ts-chart"></div>
+        	<div id="ts-chart" class="height-300"></div>
             <div class="">
             	<div id="fs-flow-classes" class="row-fluid hide margin-15-0-0"></div>
            	</div>

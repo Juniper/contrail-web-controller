@@ -339,6 +339,7 @@ function addFSFilter() {
 };
 
 function runFSQuery() {
+	toggleToGrid();
     var serverCurrentTime = getCurrentTime4MemCPUCharts();
     $.ajax({
         url: '/api/service/networking/web-server-info'
@@ -389,13 +390,13 @@ function runFSQueryCB(serverCurrentTime) {
 };
 
 function viewFSQueryResults(dataItem, params) {
-    var serverCurrentTime;
+	var serverCurrentTime = getCurrentTime4MemCPUCharts();
     $.ajax({
-        url: '/api/admin/current-time'
+        url: '/api/service/networking/web-server-info'
     }).done(function (resultJSON) {
-        serverCurrentTime = resultJSON['currentTime'];
-    }).always(function() {
-        viewFSQueryResultsCB(dataItem, params, serverCurrentTime)
+        serverCurrentTime = resultJSON['serverUTCTime'];
+	}).always(function() {
+        viewFSQueryResultsCB(dataItem, params, serverCurrentTime);
     });
 }
 
