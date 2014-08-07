@@ -67,26 +67,31 @@ monitorInfraControlRoutesClass = (function() {
                         (selPeerSrc == "All" || selPeerSrc == obj['source']) &&
                         (selProtocol == "All" || selProtocol == obj['protocol'])){
                      var src = obj['source'];
-                     src = ifNullOrEmptyObject(src, "-").split(":").pop();
-                     origVn = ifNullOrEmptyObject(origVn, "-") ;
+                     var protocol = ifNullOrEmptyObject(obj['protocol'],noDataStr);
+                     var nextHop = ifNullOrEmptyObject(obj['next_hop'],noDataStr);
+                     var label = ifNullOrEmptyObject(obj['label'],noDataStr);
+                     var prefix = ifNullOrEmptyObject(currRoute['prefix'],noDataStr);
+                     src = ifNullOrEmptyObject(src, noDataStr).split(":").pop();
+                     origVn = ifNullOrEmptyObject(origVn, noDataStr) ;
+                     
                         if(idx == 0) {
                            routesArr.push({
-                              prefix:currRoute['Prefix'],
-                              dispPrefix:currRoute['prefix'],
+                              prefix:prefix,
+                              dispPrefix:prefix,
                               table:rtTable,
                               instance:routeInstances[i],
                               addrFamily:addfamily,
                               sg:ifEmpty(sg,'-'),
                               raw_json:rawJson,
                               originVn:origVn,
-                              protocol:obj['protocol'],
+                              protocol:protocol,
                               source:src,
-                              next_hop:obj['next_hop'],
-                              label:obj['label']
+                              next_hop:nextHop,
+                              label:label
                            });
                         } else {
                            routesArr.push({
-                              prefix:currRoute['Prefix'],
+                              prefix:prefix,
                               dispPrefix:'',
                               table:rtTable,
                               instance:routeInstances[i],
@@ -94,10 +99,10 @@ monitorInfraControlRoutesClass = (function() {
                               sg:ifEmpty(sg,'-'),
                               raw_json:rawJson,
                               originVn:origVn,
-                              protocol:obj['protocol'],
+                              protocol:protocol,
                               source:src,
-                              next_hop:obj['next_hop'],
-                              label:obj['label']
+                              next_hop:nextHop,
+                              label:label
                            });
                         }
                         isRtTableDisplayed = true;
