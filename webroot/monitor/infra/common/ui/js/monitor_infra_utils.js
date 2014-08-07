@@ -286,7 +286,7 @@ var infraMonitorUtils = {
                 obj['errorIntfCnt'] = getValueByJsonPath(dValue,'VrouterAgent;down_interface_count',0);
             }
             if(obj['errorIntfCnt'] > 0){
-                obj['errorIntfCntText'] = ", <span class='text-error'>" + obj['errorIntfCnt'] + " Down</span>";
+                obj['errorIntfCntText'] = "</br> <span class='text-error'>" + obj['errorIntfCnt'] + " Down</span>";
             } else {
                 obj['errorIntfCntText'] = "";
             } 
@@ -351,7 +351,7 @@ var infraMonitorUtils = {
             	obj['downBgpPeerCnt'] = obj['totalBgpPeerCnt'] - obj['upBgpPeerCnt'];
             } 
             if(obj['downXMPPPeerCnt'] > 0){
-                obj['downXMPPPeerCntText'] = ", <span class='text-error'>" + obj['downXMPPPeerCnt'] + " Down</span>";
+                obj['downXMPPPeerCntText'] = "</br> <span class='text-error'>" + obj['downXMPPPeerCnt'] + " Down</span>";
             } else {
                 obj['downXMPPPeerCntText'] = "";
             }
@@ -368,7 +368,7 @@ var infraMonitorUtils = {
                 }
             }
             if(obj['downBgpPeerCnt'] > 0){
-                obj['downBgpPeerCntText'] = ", <span class='text-error'>" + obj['downBgpPeerCnt'] + " Down</span>";
+                obj['downBgpPeerCntText'] = "</br> <span class='text-error'>" + obj['downBgpPeerCnt'] + " Down</span>";
             } else {
                 obj['downBgpPeerCntText'] = "";
             }

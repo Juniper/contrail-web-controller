@@ -36,6 +36,7 @@ function addTabs() {
         * Takes vRouters data(array) as input and creates/updates chart
         */
         var updateView = function(data) {
+            data = data.reverse();//reversing to get the reds on top
             var chartObj = {};
             var chartsData = {
                 title: 'vRouters',
@@ -141,6 +142,7 @@ function addTabs() {
         })
 
         var updateView = function(data) {
+            data = data.reverse();//reversing to get the reds on top
             if(!isScatterChartInitialized('#ctrlNode-bubble')) {
                 $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
                 var chartsData = {
@@ -188,7 +190,8 @@ function addTabs() {
         viewModel.data.subscribe(function(newValue) {
             updateView(newValue);
         })
-        var updateView = function(data) {
+        this.updateView = function(data) {
+            data = data.reverse();//reversing to get the reds on top
             if(!isScatterChartInitialized('#analyticNode-bubble')) {
                 $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
                 var chartsData = {
@@ -237,6 +240,7 @@ function addTabs() {
         })
 
         var updateView = function(data) {
+            data = data.reverse();//reversing to get the reds on top
             if(!isScatterChartInitialized('#configNode-bubble')) {
                 $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
                 var chartsData = {

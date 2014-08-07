@@ -85,7 +85,6 @@ monitorInfraAnalyticsDetailsClass = (function() {
                         }
                         return ips;
                     })()},
-                    {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     /*{lbl:INDENT_RIGHT+'Analytics Node Manager', value:(function(){
@@ -122,6 +121,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
                         }catch(e){ return noDataStr;}
                         return ret;
                     })()},
+                    {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
                     {lbl:'Last Log', value: (function(){
                         var lmsg;
                         lmsg = getLastLogTimestamp(aNodeData,"analytics");

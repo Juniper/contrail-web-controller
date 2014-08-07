@@ -57,6 +57,9 @@ monitorInfraControlSummaryClass = (function() {
                     {
                         field:"name",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -66,7 +69,7 @@ monitorInfraControlSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110,
+                        minWidth:175,
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
@@ -89,11 +92,6 @@ monitorInfraControlSummaryClass = (function() {
             			}
                     },
                     {
-                        field:"version",
-                        name:"Version",
-                        minWidth:150
-                    },
-                    {
                         field:"status",
                         name:"Status",
                         sortable:true,
@@ -104,6 +102,27 @@ monitorInfraControlSummaryClass = (function() {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
                         minWidth:150
+                    },
+                    {
+                        field:"establishedPeerCount",
+                        name:"BGP Peers",
+                        minWidth:100,
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
+                        }
+                    },
+                    {
+                        field:"activevRouterCount",
+                        name:"vRouters",
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
+                        },
+                        minWidth:100
+                    },
+                    {
+                        field:"version",
+                        name:"Version",
+                        minWidth:110
                     },
                     {
                         field:"cpu",
@@ -117,33 +136,17 @@ monitorInfraControlSummaryClass = (function() {
                         },
                         minWidth:150,
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return dc['cpu'];
-            				}
-            			}
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return dc['cpu'];
+                            }
+                        }
                     },
                     {
                         field:"memory",
                         name:"Memory",
                         minWidth:110
                     },
-                    {
-                        field:"establishedPeerCount",
-                        name:"BGP Peers",
-                        minWidth:140,
-                        formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
-                        }
-                    },
-                    {
-                        field:"activevRouterCount",
-                        name:"vRouters",
-                        formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
-                        },
-                        minWidth:140
-                    }
                 ],
             }
         });
