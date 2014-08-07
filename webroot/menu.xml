@@ -556,6 +556,24 @@ and need to add the iconClass tag wherever we need to show some icons
             </item>
           </items>
         </item>
+        <item>
+          <label>Analytics DB</label>
+          <iconClass>icon-table</iconClass>
+          <items>
+              <item>
+                  <hash>setting_analyticsdb_usage</hash>
+                  <label>Usage</label>
+                  <resources>
+                      <resource>
+                          <rootDir>/setting/analytics_db</rootDir>
+                          <view>usage.view</view>
+                          <js>usage.js</js>
+                          <class>dbUsageObj</class>
+                      </resource>
+                  </resources>
+              </item>
+          </items>
+        </item>
       </items>
     </item>
     <item>
