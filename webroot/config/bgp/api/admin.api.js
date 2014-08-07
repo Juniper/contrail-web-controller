@@ -1255,7 +1255,8 @@ function getWebConfigValueByName (req, res, appData)
         variable = req.param('variable'),
         configObj = {}, value;
     if(type != null && variable != null) {
-        value = ((config[type]) && (config[type][variable])) ? config[type][variable] : null;
+        value = ((null != config[type]) && (null != config[type][variable])) ? 
+            config[type][variable] : null;
         configObj[variable] = value;
     }
     commonUtils.handleJSONResponse(null, res, configObj);

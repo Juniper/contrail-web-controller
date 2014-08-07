@@ -31,7 +31,7 @@
                             <label>Host Routes</label> 
                         </div>
                         <div class="span3">
-                            <label>DNS Server</label> 
+                            <label>DNS Servers</label> 
                         </div>-->
                     </div>
                 </div>
@@ -251,7 +251,7 @@
                                                     <div class="rule-item-header span5">
                                                         <div class="row-fluid">
                                                             <div class="span11">
-                                                                <h6>DNS Server</h6>
+                                                                <h6>DNS Servers</h6>
                                                             </div>
                                                             <div class="span1 pull-left">
                                                                 <div title="Add DNS Server below" class="margin-5 padding-10-0">
