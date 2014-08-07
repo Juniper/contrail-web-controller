@@ -51,7 +51,7 @@ monitorInfraControlDetailsClass = (function() {
                     overallStatus = getOverallNodeStatusForDetails(parsedData);
                 }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
                 try{
-                  procStateList = jsonPath(ctrlNodeData,"$..process_state_list")[0];
+                  procStateList = jsonPath(ctrlNodeData,"$..NodeStatus.process_info")[0];
                   controlProcessStatusList = getStatusesForAllControlProcesses(procStateList);
                 }catch(e){}
                 ctrlNodeDashboardInfo = [
