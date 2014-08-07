@@ -69,7 +69,7 @@ function getConfigNodesSummary (req, res, appData)
 
     var reqUrl = '/analytics/uves/config-node';
     var postData = {};
-    postData['cfilt'] = ['ModuleCpuState'];
+    postData['cfilt'] = ['ModuleCpuState','NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
     if (null != addGen) {

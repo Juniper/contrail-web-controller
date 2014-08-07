@@ -65,7 +65,7 @@ monitorInfraConfigDetailsClass = (function() {
                 var configProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
                 overallStatus = getOverallNodeStatusForDetails(parsedData);
-                procStateList = getValueByJsonPath(confNodeData,"configNode;ModuleCpuState;process_state_list",[]);
+                procStateList = getValueByJsonPath(confNodeData,"configNode;NodeStatus;process_info",[]);
                 if(!(procStateList instanceof Array)){
                     procStateList = [procStateList];
                 }

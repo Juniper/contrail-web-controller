@@ -32,7 +32,7 @@ function getAnalyticsNodeSummary (req, res, appData)
     var collPostData = {};
     collPostData['cfilt'] = ['ModuleCpuState', 'CollectorState:self_ip_list',
         'CollectorState:build_info', 'CollectorState:tx_socket_stats',
-        'CollectorState:rx_socket_stats'];
+        'CollectorState:rx_socket_stats','NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              collPostData, opApiServer, null, appData);
 

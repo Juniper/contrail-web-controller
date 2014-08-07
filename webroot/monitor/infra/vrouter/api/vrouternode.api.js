@@ -369,7 +369,7 @@ function getvRouterDetailConfigUVEData (configData, uuidList, nodeList, addGen,
         'VrouterAgent:total_interface_count',
         'VrouterAgent:down_interface_count', 'VrouterAgent:connected_networks',
         'VrouterAgent:control_ip', 'VrouterAgent:build_info',
-        'VrouterStatsAgent:cpu_share', 'VrouterStatsAgent:process_state_list'];
+        'VrouterStatsAgent:cpu_share', 'NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
     if (null != addGen) {
