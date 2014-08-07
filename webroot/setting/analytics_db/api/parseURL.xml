@@ -1,0 +1,25 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>analyticsdb</define>
+        <path>./analyticsdb.api</path>
+    </require>
+    <item>
+        <url>/api/query/analytics/db/usage</url>
+        <method>get</method>
+        <feature>setting</feature>
+        <callback>analyticsdb.getDBUsage</callback>
+    </item>
+    <item>
+        <url>/api/analytics/db/purge</url>
+        <method>get</method>
+        <feature>setting</feature>
+        <callback>analyticsdb.purgeDB</callback>
+    </item>
+</urlLists>
