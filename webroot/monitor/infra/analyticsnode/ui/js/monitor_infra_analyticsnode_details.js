@@ -97,10 +97,10 @@ monitorInfraAnalyticsDetailsClass = (function() {
                         return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-qe'],noDataStr);
+                        return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
                     })()},
                     {lbl:INDENT_RIGHT+'OpServer', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-opserver'],noDataStr);
+                        return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
                     })()},
                    /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
                         return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
@@ -177,12 +177,12 @@ function getStatusesForAllAnalyticsProcesses(processStateList){
     if(processStateList != null){
         for(var i=0; i < processStateList.length; i++){
             var currProc = processStateList[i];
-            if (currProc.process_name == "contrail-qe"){
-                ret['contrail-qe'] = getProcessUpTime(currProc);
+            if (currProc.process_name == "contrail-query-engine"){
+                ret['contrail-query-engine'] = getProcessUpTime(currProc);
             }  else if (currProc.process_name == "contrail-analytics-nodemgr"){
                 ret['contrail-analytics-nodemgr'] = getProcessUpTime(currProc);
-            }  else if (currProc.process_name == "contrail-opserver"){
-                ret['contrail-opserver'] = getProcessUpTime(currProc);
+            }  else if (currProc.process_name == "contrail-analytics-api"){
+                ret['contrail-analytics-api'] = getProcessUpTime(currProc);
             } else if (currProc.process_name == "contrail-collector"){
                 ret['contrail-collector'] = getProcessUpTime(currProc);
             } 
