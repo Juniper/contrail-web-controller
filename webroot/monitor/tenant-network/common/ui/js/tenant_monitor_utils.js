@@ -118,7 +118,7 @@ function ObjectListView() {
                 minWidth:100
             },{
                 field:'inBytes',
-                name:'Traffic (In/Out)',
+                name:'Traffic (In/Out) <br/> (Last 1 hr)',
                 formatter:function(r,c,v,cd,dc){
                     return formatBytes(dc['inBytes']) + ' / ' + formatBytes(dc['outBytes']);
                 },
@@ -212,7 +212,7 @@ function ObjectListView() {
             obj['isAsyncLoad'] = true;
         } else if(objectType == 'instance') { 
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
-                              'UveVirtualMachineAgent:fip_stats_list','VirtualMachineStats'];
+                              'UveVirtualMachineAgent:fip_stats_list'];
             if(ifNull(obj['fqName'],'') == '') {
                 var instDS = new SingleDataSource('instDS');
                 var result = instDS.getDataSourceObj('instDS');
@@ -220,7 +220,6 @@ function ObjectListView() {
                 obj['deferredObj'] = result['deferredObj'];
                 obj['error'] = result['error'];
                 obj['idField'] = 'name';
-                //result['dataSource'].unbind("change");
                 obj['isAsyncLoad'] = true;
             } else if($.inArray(context,['project','network']) > -1) {
                 var contextType = context == 'project' ? 'project' : 'vn';
@@ -230,6 +229,9 @@ function ObjectListView() {
                                 data:{data:[{"type":"virtual-machine","cfilt":instCfilts.join(',')}]}
                             }
                 instanceDS = new ContrailDataView();
+                instanceDS.onRowsChanged.subscribe(function(e,args){
+                    getStatsForVM(obj['dataSource'],ifNull(args['rows'],[]));
+                })
                 //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
                 var instDeferredObj = $.Deferred();
                 //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
@@ -780,8 +782,8 @@ var tenantNetworkMonitorUtils = {
             var currObj = obj['value'];
             var intfStats = getValueByJsonPath(currObj,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
             obj['rawData'] = $.extend(true,{},currObj);
-            obj['inBytes'] = 0;
-            obj['outBytes'] = 0;
+            obj['inBytes'] = '-';
+            obj['outBytes'] = '-';
             // If we append * wildcard stats info are not there in response,so we changed it to flat
             obj['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['name'] + '?flat';
             obj['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
@@ -798,6 +800,10 @@ var tenantNetworkMonitorUtils = {
             obj['ip'] = ifNull(jsonPath(currObj, '$..interface_list[*].ip_address'), []);
             var floatingIPs = ifNull(jsonPath(currObj, '$..fip_stats_list')[0], []);
               obj['floatingIP'] = [];
+            if(intfStats.length > 0) {
+                obj['inBytes'] = 0;
+                obj['outBytes'] = 0;
+            }
             $.each(floatingIPs, function(idx, fipObj){
                 obj['floatingIP'].push(contrail.format('{0}<br/> ({1}/{2})', fipObj['ip_address'],formatBytes(ifNull(fipObj['in_bytes'],'-')),
                         formatBytes(ifNull(fipObj['out_bytes'],'-'))));
@@ -960,7 +966,7 @@ var tenantNetworkMonitorUtils = {
         if(interfaces.length > 0) {
           //Here the Ip Address/Mac Address wraps to next line so to avoid the background color in second line 
           //the height property set to 40px
-            interfaceDetails.push({lbl:'Interfaces',value:['Interface UUID','IP Address /<br/> Mac Address','Label','Network','Traffic (In/Out)','Throughput (In/Out)','Gateway','Status'],
+            interfaceDetails.push({lbl:'Interfaces',value:['Interface UUID','IP Address /<br/> Mac Address','Label','Network','Traffic (In/Out) <br/>(Last 1 hr)','Throughput (In/Out)','Gateway','Status'],
                                     span:spanWidths,config:{labels:true,minHeight:'40px'}});
         }
         $.each(interfaces,function(idx,obj) {
@@ -1727,4 +1733,50 @@ function connectedNetworkRenderer() {
       $(container).html(summaryTemplate(obj));
       $(container).initTemplates(data);
   }
+}
+/*
+ * This function gets the VM stats for the new VM's added to datasource and updates it 
+ * and the deferredObj is resolved when all the VM stats are fetched
+ */
+function getStatsForVM(dataSource,arguments,deferredObj) {
+    var updateRows = ifNull(arguments['rows'],[]);
+    if(isStatsPopulated(dataSource,updateRows)) {
+        var kfilt = $.map(updateRows,function(item){
+            return dataSource.getItemByIdx(item)['name'];
+        });
+        $.ajax({
+            url:'/api/tenant/get-data',
+            type:'POST',
+            data:{data:[{'type':'virtual-machine','kfilt':kfilt.join(',') ,'cfilt':'VirtualMachineStats'}]}
+        }).done(function(response){
+            var data = tenantNetworkMonitorUtils.instanceParseFn(response[0]);
+            var dataMap = {};
+            for(var i=0; i<data.length; i++){
+                var key = data[i]['name'];
+                dataMap[key] = data[i];
+            }
+            var dataItems = dataSource.getItems();
+            for(var i=0; i<dataItems.length; i++){
+                var obj = dataItems[i];
+                for(var j=0; j<kfilt.length; j++) {
+                    if(kfilt[j] == obj['name']) {
+                        obj['inBytes'] = ifNull(dataMap[kfilt[j]]['inBytes'],'-');
+                        obj['outBytes'] = ifNull(dataMap[kfilt[j]]['outBytes'],'-');
+                    }
+                }
+            }
+            dataSource.updateData(dataItems);
+        });
+    } 
+}
+/* Function is to check whether stats column in the rows are updated,
+ * by comparing with the default value of stats "-" to avoid 
+ * change event trigger for same data multiple times.
+ */
+function isStatsPopulated(dataSource,updateRows){
+    var dataItem = dataSource.getItemByIdx(updateRows[0]);
+    if(dataItem['inBytes'] == '-') 
+        return true;
+    else
+        return false;
 }
