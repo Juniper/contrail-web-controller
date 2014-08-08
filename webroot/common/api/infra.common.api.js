@@ -126,7 +126,7 @@ function getProcStateMappedModule(moduleName)
 {
     switch (moduleName) {
     case 'VRouterAgent':
-        return 'contrail-vrouter';
+        return 'contrail-vrouter-agent';
     case 'ControlNode':
         return 'contrail-control';
     default:

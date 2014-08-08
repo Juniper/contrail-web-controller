@@ -68,7 +68,7 @@ monitorInfraComputeDetailsClass = (function() {
                     {lbl:'Overall Node Status', value:overallStatus},
                     {lbl:'Processes', value:" "},
                     {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
-                        return ifNull(vRouterProcessStatusList['contrail-vrouter'],noDataStr);
+                        return ifNull(vRouterProcessStatusList['contrail-vrouter-agent'],noDataStr);
                     })()},
                     /*{lbl:INDENT_RIGHT+'vRouter Node Manager', value:(function(){
                         try{
@@ -261,8 +261,8 @@ function getStatusesForAllvRouterProcesses(processStateList){
                 ret['contrail-vrouter-nodemgr'] = getProcessUpTime(currProc);
             } else if (currProc.process_name == "openstack-nova-compute"){
                 ret['openstack-nova-compute'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "contrail-vrouter"){
-                ret['contrail-vrouter'] = getProcessUpTime(currProc);
+            } else if (currProc.process_name == "contrail-vrouter-agent"){
+                ret['contrail-vrouter-agent'] = getProcessUpTime(currProc);
             }
         }
     }

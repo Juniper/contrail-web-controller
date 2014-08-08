@@ -90,7 +90,7 @@ function InfraMockData() {
                                           "last_exit_time" : null,
                                           "last_start_time" : "1391061692459593",
                                           "last_stop_time" : null,
-                                          "process_name" : "contrail-vrouter",
+                                          "process_name" : "contrail-vrouter-agent",
                                           "process_state" : "PROCESS_STATE_RUNNING",
                                           "start_count" : 1,
                                           "stop_count" : 0
@@ -206,7 +206,7 @@ function InfraMockData() {
                                           "last_exit_time" : null,
                                           "last_start_time" : "1395208421747763",
                                           "last_stop_time" : "1395208417363453",
-                                          "process_name" : "contrail-vrouter",
+                                          "process_name" : "contrail-vrouter-agent",
                                           "process_state" : "PROCESS_STATE_RUNNING",
                                           "start_count" : 2,
                                           "stop_count" : 1
@@ -322,7 +322,7 @@ function InfraMockData() {
                                       "last_exit_time" : null,
                                       "last_start_time" : "1395137363474175",
                                       "last_stop_time" : null,
-                                      "process_name" : "contrail-vrouter",
+                                      "process_name" : "contrail-vrouter-agent",
                                       "process_state" : "PROCESS_STATE_RUNNING",
                                       "start_count" : 1,
                                       "stop_count" : 0
@@ -438,7 +438,7 @@ function InfraMockData() {
                                       "last_exit_time" : null,
                                       "last_start_time" : "1395137426055669",
                                       "last_stop_time" : null,
-                                      "process_name" : "contrail-vrouter",
+                                      "process_name" : "contrail-vrouter-agent",
                                       "process_state" : "PROCESS_STATE_RUNNING",
                                       "start_count" : 1,
                                       "stop_count" : 0
@@ -1247,7 +1247,7 @@ function InfraMockData() {
                                       "last_exit_time" : null,
                                       "last_start_time" : "1392031418563789",
                                       "last_stop_time" : null,
-                                      "process_name" : "contrail-qe",
+                                      "process_name" : "contrail-query-engine",
                                       "process_state" : "PROCESS_STATE_RUNNING",
                                       "start_count" : 1,
                                       "stop_count" : 0
@@ -1287,7 +1287,7 @@ function InfraMockData() {
                                       "last_exit_time" : null,
                                       "last_start_time" : "1392031420569403",
                                       "last_stop_time" : null,
-                                      "process_name" : "contrail-opserver",
+                                      "process_name" : "contrail-analytics-api",
                                       "process_state" : "PROCESS_STATE_RUNNING",
                                       "start_count" : 1,
                                       "stop_count" : 0
@@ -1420,7 +1420,7 @@ function InfraMockData() {
             			      "isUveMissing": false,
             			      "configIP": "10.204.217.11",
             			      "processDetails": {
-            			        "contrail-vrouter": {
+            			        "contrail-vrouter-agent": {
             			          "state": "PROCESS_STATE_RUNNING",
             			          "since": "1393912630664005"
             			        }

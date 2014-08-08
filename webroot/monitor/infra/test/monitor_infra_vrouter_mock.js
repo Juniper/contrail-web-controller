@@ -11,7 +11,7 @@ function InfraComputeMockData() {
                     "last_exit_time" : null,
                     "last_start_time" : "1391578930317483",
                     "last_stop_time" : null,
-                    "process_name" : "contrail-vrouter",
+                    "process_name" : "contrail-vrouter-agent",
                     "process_state" : "PROCESS_STATE_RUNNING",
                     "start_count" : 1,
                     "stop_count" : 0
@@ -39,7 +39,7 @@ function InfraComputeMockData() {
             },
             "output" : {
                 "PROCESS_STATE_LIST" : {
-                    "contrail-vrouter" : "Up since 4d 9h 28m",
+                    "contrail-vrouter-agent" : "Up since 4d 9h 28m",
                     "contrail-vrouter-nodemgr" : "Up since 4d 9h 28m",
                     "openstack-nova-compute" : "Up since 4d 9h 28m"
                 }

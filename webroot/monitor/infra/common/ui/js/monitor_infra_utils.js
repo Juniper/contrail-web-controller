@@ -216,7 +216,7 @@ var infraMonitorUtils = {
             obj['histCpuArr'] = parseUveHistoricalValues(dValue,'','VrouterStatsAgent;cpu_share;0;history-10');
             
             obj['status'] = getOverallNodeStatus(d,'compute');
-            var processes = ['contrail-vrouter','contrail-vrouter-nodemgr','supervisor-vrouter'];
+            var processes = ['contrail-vrouter-agent','contrail-vrouter-nodemgr','supervisor-vrouter'];
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
