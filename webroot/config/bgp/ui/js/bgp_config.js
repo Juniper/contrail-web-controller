@@ -506,6 +506,7 @@ function fetchData() {
             //$("#btneditgasn").val("Global ASN - " + ggasn);
             $('#btneditgasn').removeClass('disabled-link');
             $("#btneditgasn").attr("title", "Global ASN - " + ggasn);
+            $("#btneditgasn").text("Global ASN - " + ggasn);
         }).fail(function (msg) {
             if(msg && msg.statusText !== "abort") {
             showInfoWindow("Error in getting Global ASN.", "Error");
@@ -685,7 +686,7 @@ function initComponents() {
             customControls: [
                 '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>',
-                '<a id="btneditgasn" class="disabled-link" onclick="openGasnWindow();return false;" title="Edit Global ASN"><i class="icon-globe"></i></a>'
+                '<button id="btneditgasn" class="btn btn-primary btn-mini" onclick="openGasnWindow();return false;" title="Edit Global ASN"></button>'
             ]
         },
         columnHeader : {
@@ -1025,6 +1026,7 @@ function getGasnJSON() {
 
 function gasnSuccess(res) {
     $("#btneditgasn").attr("title", "Global ASN - " + ggasn);
+    $("#btneditgasn").text("Global ASN - " + ggasn);
     fetchData();
 }
 
