@@ -35,8 +35,8 @@ function dnsRecordsDynamicConfig(){
                     //icon : 'icon-list',
                     //iconCssClass : 'blue'              
                 },
-                customControls: ['<a id="btnNextRecords" title="Next"><i class="icon-arrow-right"></i></a>',
-                    '<a id="btnPrevRecords" class="disabled-link"  title="Previous"><i class="icon-arrow-left"></i></a>',
+                customControls: ['<button id="btnNextRecords" class="btn btn-primary btn-mini" title="Next">Next >></button>',
+                    '<button id="btnPrevRecords" class="btn btn-primary btn-mini"  title="Previous"><< Prev</button>',
                     'DNS Server: <div style="display:inline;" id="lblServer"/>']
             }, 
             columnHeader : {
@@ -95,7 +95,8 @@ function dnsRecordsDynamicConfig(){
                         text: 'Error in getting Active DNS Records.'
                     }
                 }            
-            }                  
+            },
+            footer : false,            
         });
         gridDynamicDNSRec = $("#gridDynamicDNSRec").data('contrailGrid');
         gridDynamicDNSRec.showGridMessage('loading');
