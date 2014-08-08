@@ -200,7 +200,7 @@ function instSummaryRenderer() {
  */
 function getAllInstances(deferredObj,dataSource,dsObj) {
     var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
-                      'UveVirtualMachineAgent:fip_stats_list','VirtualMachineStats'];
+                      'UveVirtualMachineAgent:fip_stats_list'];
     var obj = {};
     obj['transportCfg'] = { 
             url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,
@@ -211,3 +211,4 @@ function getAllInstances(deferredObj,dataSource,dsObj) {
     getOutputByPagination(dataSource,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,loadedDeferredObj:deferredObj},dsObj);
     obj['dataSource'] = dataSource;
 }
+

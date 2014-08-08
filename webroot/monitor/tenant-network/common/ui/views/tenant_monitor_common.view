@@ -52,6 +52,7 @@
             {{#setLoopIndex @index}}{{/setLoopIndex}}
             {{#IfCompare config null operator='!='}}
                 {{#IfCompare config.labels true operator='==='}}
+                    <br/>
                     <div class="row-fluid" style="background:#f9f9f9">
                 {{/IfCompare}}
             {{/IfCompare}}
