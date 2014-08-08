@@ -35,8 +35,8 @@ function dnsRecordsDynamicConfig(){
                     //icon : 'icon-list',
                     //iconCssClass : 'blue'              
                 },
-                customControls: ['<a id="btnNextRecords" title="Next"><i class="icon-arrow-right"></i></a>',
-                    '<a id="btnPrevRecords" class="disabled-link"  title="Previous"><i class="icon-arrow-left"></i></a>',
+                customControls: ['<button id="btnNextRecords" class="btn btn-primary btn-mini" title="Next">Next >></button>',
+                    '<button id="btnPrevRecords" class="btn btn-primary btn-mini" disabled="disabled"  title="Previous"><< Prev</button>',
                     'DNS Server: <div style="display:inline;" id="lblServer"/>']
             }, 
             columnHeader : {
@@ -95,7 +95,8 @@ function dnsRecordsDynamicConfig(){
                         text: 'Error in getting Active DNS Records.'
                     }
                 }            
-            }                  
+            },
+            footer : false
         });
         gridDynamicDNSRec = $("#gridDynamicDNSRec").data('contrailGrid');
         gridDynamicDNSRec.showGridMessage('loading');
@@ -106,14 +107,14 @@ function dnsRecordsDynamicConfig(){
     }
     
     function onPrevAction(){
-        if($(this).hasClass('disabled-link')) {return};
-        $("#btnNextRecords").removeClass('disabled-link');
+        if($(this).hasClass('disabled')) {return};
+        $("#btnNextRecords").removeAttr('disabled');
         if(prevNextCache.length > 0){
             if(prevNextCache.length == 2){
                 prevNextCache.pop();
                 prevNextCache.pop();            
                 fetchData();
-                $("#btnPrevRecords").addClass('disabled-link');
+                $("#btnPrevRecords").attr('disabled', 'disabled');
             } 
             else if(prevNextCache.length > 2){
                 prevNextCache.pop();
@@ -124,8 +125,8 @@ function dnsRecordsDynamicConfig(){
     }
      
     function onNextAction(){
-        if($(this).hasClass('disabled-link')) {return};
-        $("#btnPrevRecords").removeClass('disabled-link'); 
+        if($(this).hasClass('disabled')) {return};
+        $("#btnPrevRecords").removeAttr('disabled');
         if(prevNextCache.length > 0){
             fetchData(prevNextCache[prevNextCache.length - 1]);
         }
@@ -151,7 +152,7 @@ function dnsRecordsDynamicConfig(){
         if(e && e.length > 0 && e[0] && e[0].VirtualDnsRecordsResponse && e[0].VirtualDnsRecordsResponse.records && e[0].VirtualDnsRecordsResponse.records.list){
             var nextRecSetKey = e[0].VirtualDnsRecordsResponse.getnext_record_set;
             if(nextRecSetKey != null && $.isEmptyObject(nextRecSetKey)){
-               $("#btnNextRecords").addClass('disabled-link');
+               $("#btnNextRecords").attr('disabled', 'disabled');
             } 
             prevNextCache.push(nextRecSetKey);
             var res = e[0].VirtualDnsRecordsResponse.records.list.VirtualDnsRecordTraceData;
@@ -169,7 +170,7 @@ function dnsRecordsDynamicConfig(){
             }      
         }
         else {
-            $("#btnNextRecords").addClass('disabled-link');    
+            $("#btnNextRecords").attr('disabled', 'disabled');
         }
         if(ds.length > 0){
             gridDynamicDNSRec._dataView.setData(ds);
