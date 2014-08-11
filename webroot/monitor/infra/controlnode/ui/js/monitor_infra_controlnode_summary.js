@@ -33,7 +33,29 @@ monitorInfraControlSummaryClass = (function() {
                     autoHeight : true,
                     forceFitColumns:true,
                     enableAsyncPostRender: true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#gridDetailTemplate").html(),
+                        onExpand: function (e,dc) {
+                            var detailTemplate = contrail.getTemplate4Id('infra-summary-details-template');
+                            var rowData = e.data;
+                            var grid = $(e['target']).closest('div.contrail-grid');
+                            var dataItem = dc;
+                            var data = getControlNodeDetailsLblValuePairs(dc);
+                            data = {d:data};
+                            //Issue a call for fetching the details
+                            if(data != null) {
+                                e.detailRow.find('.row-fluid.advancedDetails').html('<div><pre style="background-color:white">' + syntaxHighlight(dc.raw_json) + '</pre></div>');
+                                //DataItem consists of row data,passing it as a parameter to the parsefunction
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                                $(grid).data('contrailGrid').adjustDetailRowHeight(dataItem['id']);
+                            } else {
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                            }
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    },
                 },
                 dataSource: {
                     dataView: controlNodesDataSource,
