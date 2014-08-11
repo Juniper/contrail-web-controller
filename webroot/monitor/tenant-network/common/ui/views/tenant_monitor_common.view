@@ -7,45 +7,6 @@
     </div>
 </script>
 
-<script type="text/x-handlebars-template" id="gridDetailTemplate">
-    <div>
-        <div class="inline row-fluid position-relative pull-right margin-0-5">
-            <div class="dropdown-toggle pull-right" data-toggle="dropdown">
-                <i class="icon-cog icon-only bigger-110"></i>
-            </div>
-            <ul class="pull-right dropdown-menu dropdown-caret dropdown-closer">
-                <li>
-                    <a onclick="toggleDivs('advancedDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}','basicDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}');">
-                        Basic
-                    </a>
-                </li>
-                <li>
-                    <a onclick="toggleDivs('basicDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}','advancedDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}');">
-                        Advanced
-                    </a>
-                </li>
-            </ul>
-        </div>
-        <div class="row-fluid basicDetails" id="basicDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}">
-            {{#if url}} 
-                <i class="icon-spinner icon-spin blue bigger-125"></i>
-            {{/if}}
-        </div>
-        {{!-- var rawdata = ifNull(data['rawData'],data);--}}
-        <div class="row-fluid advancedDetails" style="display:none;" id="advancedDetails_{{#makeItValidDOMId name}}{{/makeItValidDOMId}}">
-            {{#if url}}
-                <i class="icon-spinner icon-spin blue bigger-125"></i>
-            {{else}}
-                {{#if raw_json}}
-                    <div><pre style="background-color:white">{{#syntaxHighlight raw_json}}{{/syntaxHighlight}}</pre></div>
-                {{else}}
-                    <div><pre style="background-color:white">{{#syntaxHighlight rawdata}}{{/syntaxHighlight}}</pre></div>
-                {{/if}}
-            {{/if}}
-        </div>
-    </div>
-</script>
-
 <script type="text/x-handlebars-template" id="detailTemplate">
     {{#each this}}
         {{#IfCompare value 'object' operator='typeof'}}

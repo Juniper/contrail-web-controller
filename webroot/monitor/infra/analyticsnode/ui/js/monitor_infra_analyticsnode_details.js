@@ -60,82 +60,9 @@ monitorInfraAnalyticsDetailsClass = (function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'OpServer', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
-                var procStateList, overallStatus = noDataStr;
-                var analyticsProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
                 
-                overallStatus = getOverallNodeStatusForDetails(parsedData);
-                procStateList = getValueByJsonPath(aNodeData,"NodeStatus;process_info",[]);
-                analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
-                aNodeDashboardInfo = [
-                    {lbl:'Hostname', value:obj['name']},
-                    {lbl:'IP Address', value:(function(){
-                        var ips = '';
-                        iplist = getValueByJsonPath(aNodeData,"CollectorState;self_ip_list",[]);
-                        if(iplist != null && iplist.length>0){
-                            for (var i=0; i< iplist.length;i++){
-                                if(i+1 == iplist.length) {
-                                    ips = ips + iplist[i];
-                                } else {
-                                    ips = ips + iplist[i] + ', ';
-                                }
-                            }
-                        } else {
-                            ips = noDataStr;
-                        }
-                        return ips;
-                    })()},
-                    {lbl:'Overall Node Status', value:overallStatus},
-                    {lbl:'Processes', value:" "},
-                    /*{lbl:INDENT_RIGHT+'Analytics Node Manager', value:(function(){
-                        try{
-                            return ifNull(analyticsProcessStatusList['contrail-analytics-nodemgr'],noDataStr);
-                        }catch(e){return noDataStr;}
-                    })()},*/
-                    {lbl:INDENT_RIGHT+'Collector', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
-                    })()},
-                    {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
-                    })()},
-                    {lbl:INDENT_RIGHT+'OpServer', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
-                    })()},
-                   /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
-                        return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
-                    })()},*/
-                    {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
-                    {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
-                    {lbl:'Messages', value:(function(){
-                        var msgs = getAnalyticsMessagesCountAndSize(aNodeData,['Collector']);
-                        return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
-                    })()},
-                    {lbl:'Generators', value:(function(){
-                        var ret='';
-                        var genno;
-                        try{
-                            if(aNodeData.CollectorState["generator_infos"]!=null){
-                                genno = aNodeData.CollectorState["generator_infos"].length;
-                            };
-                            ret = ret + ifNull(genno,noDataStr);
-                        }catch(e){ return noDataStr;}
-                        return ret;
-                    })()},
-                    {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Last Log', value: (function(){
-                        var lmsg;
-                        lmsg = getLastLogTimestamp(aNodeData,"analytics");
-                        if(lmsg != null){
-                            try{
-                                return new Date(parseInt(lmsg)/1000).toLocaleString();  
-                            }catch(e){return noDataStr;}
-                        } else return noDataStr;
-                        })()}
-                    //'vRouters ' + aNodeData['establishedPeerCount'] + ', ' +
-                    //'Collectors ' + aNodeData['activevRouterCount'] + ', ' +
-                    //'Analytics Nodes ' + aNodeData['activevRouterCount'] + ', ' +
-                    //'Config Nodes ' + aNodeData['activevRouterCount']},
-                ]
+                aNodeDashboardInfo = getAnalyticsNodeLblValuePairs(parsedData);
                 /*Selenium Testing*/
                 aNodeDetailsData = aNodeDashboardInfo;
                 /*End of Selenium Testing*/             
@@ -172,21 +99,3 @@ monitorInfraAnalyticsDetailsClass = (function() {
     return {populateDetailsTab:populateDetailsTab};
 })();
 
-function getStatusesForAllAnalyticsProcesses(processStateList){
-    var ret = [];
-    if(processStateList != null){
-        for(var i=0; i < processStateList.length; i++){
-            var currProc = processStateList[i];
-            if (currProc.process_name == "contrail-query-engine"){
-                ret['contrail-query-engine'] = getProcessUpTime(currProc);
-            }  else if (currProc.process_name == "contrail-analytics-nodemgr"){
-                ret['contrail-analytics-nodemgr'] = getProcessUpTime(currProc);
-            }  else if (currProc.process_name == "contrail-analytics-api"){
-                ret['contrail-analytics-api'] = getProcessUpTime(currProc);
-            } else if (currProc.process_name == "contrail-collector"){
-                ret['contrail-collector'] = getProcessUpTime(currProc);
-            } 
-        }
-    }
-    return ret;
-}
