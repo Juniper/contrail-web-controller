@@ -654,6 +654,8 @@ function toggleApplyServiceDiv(e, nonAnalyzerInsts, val) {
         $(msApplyServices).contrailMultiselect({
             dataTextField : 'text',
             dataValueField : 'value', 
+            placeholder: "Select a service to apply...",
+            width:'852px'
         });
 
         if (nonAnalyzerInsts && nonAnalyzerInsts.length > 0) {
@@ -764,7 +766,8 @@ function toggleMirrorServiceDiv(e, serviceInsts, val) {
             dataTextField : 'text',
             dataValueField : 'value',         
             placeholder: "Select a service to mirror...",
-            dropdownCssClass: 'select2-medium-width'
+            dropdownCssClass: 'select2-medium-width',
+            width:'852px'
         });
         if (serviceInsts && serviceInsts.length > 0) {
             serviceInsts = serviceInsts.split(",");
