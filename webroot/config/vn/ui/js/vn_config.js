@@ -2042,7 +2042,7 @@ function showVNEditWindow(mode, rowIndex) {
     });
 
     getAjaxs[3] = $.ajax({
-        url:"/api/admin/webconfig/network/L2_Only",
+        url:"/api/admin/webconfig/network/L2_enable",
         type:"GET"
     });
     
@@ -2052,15 +2052,15 @@ function showVNEditWindow(mode, rowIndex) {
             clearValuesFromDomElements();
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
-            var l2Mode = results[3][0].L2_Only;
+            var l2Mode = results[3][0].L2_enable;
             if(l2Mode == false){
-                $("#ddFwdMode").data("contrailDropdown").enable(true);
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#divFwdMode").removeClass("hide");
-            } else {
-                $("#ddFwdMode").data("contrailDropdown").value("l2");
                 $("#ddFwdMode").data("contrailDropdown").enable(false);
+                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
                 $("#divFwdMode").addClass("hide");
+            } else {
+                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+                $("#ddFwdMode").data("contrailDropdown").enable(true);
+                $("#divFwdMode").removeClass("hide");
             }
             var nps = [];
             configObj["network-policys"] = [];
@@ -2260,16 +2260,6 @@ function showVNEditWindow(mode, rowIndex) {
                         typeof vnProps["forwarding_mode"] && 
                         "" !== vnProps["forwarding_mode"].trim()) {
                         $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
-                        if(vnProps["forwarding_mode"] == "l2_l3" && l2Mode == true){
-                            $("#divFwdMode").removeClass("hide");
-                            $("#ddFwdMode").data("contrailDropdown").enable(true);
-                        } else if(l2Mode == false){
-                            $("#divFwdMode").removeClass("hide");
-                            $("#ddFwdMode").data("contrailDropdown").enable(true);
-                        } else {
-                            $("#divFwdMode").addClass("hide");
-                            $("#ddFwdMode").data("contrailDropdown").enable(false);
-                        }
                     }
                 }
             }
