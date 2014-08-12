@@ -29,7 +29,29 @@ monitorInfraConfigSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#gridDetailTemplate").html(),
+                        onExpand: function (e,dc) {
+                            var detailTemplate = contrail.getTemplate4Id('infra-summary-details-template');
+                            var rowData = e.data;
+                            var grid = $(e['target']).closest('div.contrail-grid');
+                            var dataItem = dc;
+                            var data = getConfigNodeLblValuePairs(dc);
+                            data = {d:data};
+                            //Issue a call for fetching the details
+                            if(data != null) {
+                                e.detailRow.find('.row-fluid.advancedDetails').html('<div><pre style="background-color:white">' + syntaxHighlight(dc.raw_json) + '</pre></div>');
+                                //DataItem consists of row data,passing it as a parameter to the parsefunction
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                                $(grid).data('contrailGrid').adjustDetailRowHeight(dataItem['id']);
+                            } else {
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                            }
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: configNodesDataSource,
@@ -53,6 +75,9 @@ monitorInfraConfigSummaryClass = (function() {
                     {
                         field:"hostName",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -65,7 +90,7 @@ monitorInfraConfigSummaryClass = (function() {
                         searchFn:function(d) {
                             return d['name'];
                         },
-                        minWidth:90,
+                        minWidth:175,
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
@@ -88,11 +113,6 @@ monitorInfraConfigSummaryClass = (function() {
             			}
                     },
                     {
-                        field:"version",
-                        name:"Version",
-                        minWidth:90
-                    },
-                    {
                         field:"status",
                         name:"Status",
                         formatter:function(r,c,v,cd,dc) {
@@ -108,6 +128,11 @@ monitorInfraConfigSummaryClass = (function() {
             					return getNodeStatusContentForSummayPages(dc,'text');
             				}
             			}
+                    },
+                    {
+                        field:"version",
+                        name:"Version",
+                        minWidth:90
                     },
                     {
                         field:"cpu",

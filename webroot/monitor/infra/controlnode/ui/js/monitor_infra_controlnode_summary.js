@@ -33,7 +33,29 @@ monitorInfraControlSummaryClass = (function() {
                     autoHeight : true,
                     forceFitColumns:true,
                     enableAsyncPostRender: true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#gridDetailTemplate").html(),
+                        onExpand: function (e,dc) {
+                            var detailTemplate = contrail.getTemplate4Id('infra-summary-details-template');
+                            var rowData = e.data;
+                            var grid = $(e['target']).closest('div.contrail-grid');
+                            var dataItem = dc;
+                            var data = getControlNodeDetailsLblValuePairs(dc);
+                            data = {d:data};
+                            //Issue a call for fetching the details
+                            if(data != null) {
+                                e.detailRow.find('.row-fluid.advancedDetails').html('<div><pre style="background-color:white">' + syntaxHighlight(dc.raw_json) + '</pre></div>');
+                                //DataItem consists of row data,passing it as a parameter to the parsefunction
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                                $(grid).data('contrailGrid').adjustDetailRowHeight(dataItem['id']);
+                            } else {
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                            }
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    },
                 },
                 dataSource: {
                     dataView: controlNodesDataSource,
@@ -57,6 +79,9 @@ monitorInfraControlSummaryClass = (function() {
                     {
                         field:"name",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -66,7 +91,7 @@ monitorInfraControlSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110,
+                        minWidth:175,
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
@@ -89,11 +114,6 @@ monitorInfraControlSummaryClass = (function() {
             			}
                     },
                     {
-                        field:"version",
-                        name:"Version",
-                        minWidth:150
-                    },
-                    {
                         field:"status",
                         name:"Status",
                         sortable:true,
@@ -104,6 +124,27 @@ monitorInfraControlSummaryClass = (function() {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
                         minWidth:150
+                    },
+                    {
+                        field:"establishedPeerCount",
+                        name:"BGP Peers",
+                        minWidth:100,
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
+                        }
+                    },
+                    {
+                        field:"activevRouterCount",
+                        name:"vRouters",
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
+                        },
+                        minWidth:100
+                    },
+                    {
+                        field:"version",
+                        name:"Version",
+                        minWidth:110
                     },
                     {
                         field:"cpu",
@@ -117,33 +158,17 @@ monitorInfraControlSummaryClass = (function() {
                         },
                         minWidth:150,
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return dc['cpu'];
-            				}
-            			}
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return dc['cpu'];
+                            }
+                        }
                     },
                     {
                         field:"memory",
                         name:"Memory",
                         minWidth:110
                     },
-                    {
-                        field:"establishedPeerCount",
-                        name:"BGP Peers",
-                        minWidth:140,
-                        formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total {1}",ifNull(dc['totalBgpPeerCnt'],0),dc['downBgpPeerCntText']);
-                        }
-                    },
-                    {
-                        field:"activevRouterCount",
-                        name:"vRouters",
-                        formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total {1}",dc['totalXMPPPeerCnt'],dc['downXMPPPeerCntText']);
-                        },
-                        minWidth:140
-                    }
                 ],
             }
         });

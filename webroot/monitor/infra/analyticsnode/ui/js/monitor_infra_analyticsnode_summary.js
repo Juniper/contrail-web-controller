@@ -29,7 +29,29 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender: true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#gridDetailTemplate").html(),
+                        onExpand: function (e,dc) {
+                            var detailTemplate = contrail.getTemplate4Id('infra-summary-details-template');
+                            var rowData = e.data;
+                            var grid = $(e['target']).closest('div.contrail-grid');
+                            var dataItem = dc;
+                            var data = getAnalyticsNodeLblValuePairs(dc);
+                            data = {d:data};
+                            //Issue a call for fetching the details
+                            if(data != null) {
+                                e.detailRow.find('.row-fluid.advancedDetails').html('<div><pre style="background-color:white">' + syntaxHighlight(dc.raw_json) + '</pre></div>');
+                                //DataItem consists of row data,passing it as a parameter to the parsefunction
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                                $(grid).data('contrailGrid').adjustDetailRowHeight(dataItem['id']);
+                            } else {
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                            }
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: analyticsNodesDataSource,
@@ -54,6 +76,9 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         field:"name",
                         id:"name",
                         name:"Host name",
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -69,7 +94,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
-                        minWidth:110,
+                        minWidth:175,
                         sortable:true
                     },
                     {
@@ -87,13 +112,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
             					return dc.ip;
             				}
             			}
-                    },
-                    {
-                        field:"version",
-                        id:"version",
-                        name:"Version",
-                        sortable:true,
-                        minWidth:110
                     },
                     {
                         field:"status",
@@ -115,6 +133,20 @@ monitorInfraAnalyticsSummaryClass = (function() {
             			}
                     },
                     {
+                        field:"genCount",
+                        id:"genCount",
+                        sortable:true,
+                        name:"Generators",
+                        minWidth:85
+                    },
+                    {
+                        field:"version",
+                        id:"version",
+                        name:"Version",
+                        sortable:true,
+                        minWidth:110
+                    },
+                    {
                         field:"cpu",
                         id:"analyticsCpu",
                         name:"CPU (%)",
@@ -127,11 +159,11 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         },
                         minWidth:120,
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return dc.cpu
-            				}
-            			}
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return dc.cpu
+                            }
+                        }
                     },
                     {
                         field:"memory",
@@ -140,13 +172,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         name:"Memory",
                         minWidth:150
                     },
-                    {
-                        field:"genCount",
-                        id:"genCount",
-                        sortable:true,
-                        name:"Generators",
-                        minWidth:85
-                    }
                 ],
             }
         });

@@ -199,7 +199,29 @@ monitorInfraComputeSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#gridDetailTemplate").html(),
+                        onExpand: function (e,dc) {
+                            var detailTemplate = contrail.getTemplate4Id('infra-summary-details-template');
+                            var rowData = e.data;
+                            var grid = $(e['target']).closest('div.contrail-grid');
+                            var dataItem = dc;
+                            var data = getvRouterDetailsLblValuePairs(dc);
+                            data = {d:data};
+                            //Issue a call for fetching the details
+                            if(data != null) {
+                                e.detailRow.find('.row-fluid.advancedDetails').html('<div><pre style="background-color:white">' + syntaxHighlight(dc.raw_json) + '</pre></div>');
+                                //DataItem consists of row data,passing it as a parameter to the parsefunction
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                                $(grid).data('contrailGrid').adjustDetailRowHeight(dataItem['id']);
+                            } else {
+                                e.detailRow.find('.row-fluid.basicDetails').html(detailTemplate(data));
+                            }
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: vRoutersDataSource,
@@ -223,7 +245,10 @@ monitorInfraComputeSummaryClass = (function() {
                     {
                         field:"name",
                         name:"Host name",
-                        minWidth:110,
+                        minWidth:175,
+                        sortable : {
+                            sortBy: 'formattedValue'
+                        },
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
@@ -255,11 +280,6 @@ monitorInfraComputeSummaryClass = (function() {
             			},
                     },
                     {
-                        field:"version",
-                        name:"Version",
-                        minWidth:110
-                    },
-                    {
                         field:"status",
                         name:"Status",
                         formatter: function(r,c,v,cd,dc) {
@@ -277,6 +297,29 @@ monitorInfraComputeSummaryClass = (function() {
             			},                    
             		},
                     {
+                        field:"vnCnt",
+                        name:"Networks",
+                        minWidth:70
+                    },
+                    {
+                        field:"instCnt",
+                        name:"Instances",
+                        minWidth:70
+                    },
+                    {
+                        field:"intfCnt",
+                        name:"Interfaces",
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0} Total{1}",dc['intfCnt'],dc['errorIntfCntText']);
+                        },
+                        minWidth:70
+                    },
+                    {
+                        field:"version",
+                        name:"Version",
+                        minWidth:110
+                    },
+                    {
                         field:"cpu",
                         name:"CPU (%)",
                         minWidth:150,
@@ -288,35 +331,17 @@ monitorInfraComputeSummaryClass = (function() {
                             return d['cpu'];
                         },
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return dc.cpu;
-            				}
-            			},
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return dc.cpu;
+                            }
+                        },
                     },
                     {
                         field:"memory",
                         name:"Memory",
                         minWidth:110
-                    },
-                    {
-                        field:"vnCnt",
-                        name:"Networks",
-                        minWidth:100
-                    },
-                    {
-                        field:"instCnt",
-                        name:"Instances",
-                        minWidth:100
-                    },
-                    {
-                        field:"intfCnt",
-                        name:"Interfaces",
-                        formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total{1}",dc['intfCnt'],dc['errorIntfCntText']);
-                        },
-                        minWidth:150
-                    },
+                    }
                 ],
             }
         });

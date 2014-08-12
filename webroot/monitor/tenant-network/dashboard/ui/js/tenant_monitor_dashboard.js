@@ -21,18 +21,15 @@ function domainSummaryRenderer() {
         var result = networkDS.getDataSourceObj();
         var dashboardData,callUpdateDashboard = false;
         cfg['loadedDeferredObj'] = result['deferredObj'];
-        //Info: Create a renderDeferredObj (which will be resolved on getting first set of results) and pass it to initTemplates, 
         if(result['lastUpdated'] != null) {
             dashboardData = getProjectData(result['dataSource'].getItems(),globalObj['dataSources']['projectDS']);
             domainSummaryView.renderNetworkMonitoringDashboard(renderDeferredObj,cfg,dashboardData);
         } else {
             domainSummaryView.renderNetworkMonitoringDashboard(renderDeferredObj,cfg,dashboardData);
         }
-        //result['dataSource'].unbind("change");
         $(networkDS).on("change",function(){
             var dashboardData = getProjectData(result['dataSource'].getItems(),globalObj['dataSources']['projectDS']);
             if(callUpdateDashboard == false) {
-                //Info: Need to resolve renderDeferredObj
                 renderDeferredObj.resolve(dashboardData);
                 callUpdateDashboard = true;
             } else {
@@ -64,19 +61,11 @@ function domainSummaryRenderer() {
             domainStatsViewModel.outBytes(formatBytes(dashboardData['aggData']['outBytes']));
             data['charts']['d'] = [
                 {deferredObj:renderDeferredObj,title:'Projects',parseFn:function() {
-                    return {
-                        d:[{key:'Projects',values:dashboardData['projectsData']}],xLbl:'Interfaces',yLbl:'Networks',forceX:[0,5],forceY:[0,10],
-                        link:{hashParams:{q:{view:'list',type:'project',fqName:fqName,context:'domain',source:'uve'}},
-                        conf:{p:'mon_net_projects',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.projectTooltipFn},hideLoadingIcon:false
-                    }}},
-                {deferredObj:renderDeferredObj,title:'Networks',forceX:[0,5],forceY:[0,10],parseFn:function() {
-                    return {
-                        d:[{key:'Networks',values:dashboardData['networksData']}],xLbl:'Interfaces',yLbl:'Connected Networks',forceX:[0,5],forceY:[0,10],
-                        link:{hashParams:{q:{view:'list',type:'network',fqName:fqName,source:'uve',context:'domain'}},
-                        conf:{p:'mon_net_networks',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.networkTooltipFn},hideLoadingIcon:false
-                        }}}
+                    return getChartSettings(dashboardData['projectsData'],'project',cfg);
+                    }},
+                {deferredObj:renderDeferredObj,title:'Networks',parseFn:function() {
+                    return getChartSettings(dashboardData['networksData'],'network',cfg);
+                    }}
                  ];
         } else {
             renderDeferredObj.done(function(data) {
@@ -86,19 +75,11 @@ function domainSummaryRenderer() {
             });
             data['charts']['d'] = [
                 {deferredObj:renderDeferredObj,title:'Projects',parseFn:function(response) {
-                    return {
-                        d:[{key:'Projects',values:response['projectsData']}],xLbl:'Interfaces',yLbl:'Networks',forceX:[0,5],forceY:[0,10],
-                        link:{hashParams:{q:{view:'list',type:'project',fqName:fqName,context:'domain',source:'uve'}},
-                        conf:{p:'mon_net_projects',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.projectTooltipFn},hideLoadingIcon:false,loadedDeferredObj:cfg['loadedDeferredObj']
-                    }}},
-                {deferredObj:renderDeferredObj,title:'Networks',forceX:[0,5],forceY:[0,10],parseFn:function(response) {
-                    return {
-                        d:[{key:'Networks',values:response['networksData']}],xLbl:'Interfaces',yLbl:'Connected Networks',forceX:[0,5],forceY:[0,10],
-                        link:{hashParams:{q:{view:'list',type:'network',fqName:fqName,source:'uve',context:'domain'}},
-                        conf:{p:'mon_net_networks',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.networkTooltipFn},hideLoadingIcon:false,loadedDeferredObj:cfg['loadedDeferredObj']
-                   }}}
+                    return getChartSettings(response['projectsData'],'project',cfg);
+                    }},
+                {deferredObj:renderDeferredObj,title:'Networks',parseFn:function(response) {
+                    return getChartSettings(response['networksData'],'network',cfg);
+                    }}
                 ];
         }
         var summaryTemplate = contrail.getTemplate4Id(template);
@@ -121,20 +102,26 @@ function domainSummaryRenderer() {
         domainStatsViewModel.inBytes(formatBytes(dashboardData['aggData']['inBytes']));
         domainStatsViewModel.outBytes(formatBytes(dashboardData['aggData']['outBytes']));
         var container = cfg['container'];
-        var projectChart = $(container).find('div.stack-chart').first().data('chart');
-        var networkChart = $(container).find('div.stack-chart').last().data('chart');
-        var container = cfg['container'];
-        dashboardData['projectsData'] = updateCharts.setUpdateParams(dashboardData['projectsData']);
-        dashboardData['networksData'] = updateCharts.setUpdateParams(dashboardData['networksData']);
-        var projObj = {},nwObj = {};
-        projObj['selector'] = $(container).find('div.stack-chart > svg').first()[0];
-        projObj['data'] = [{key:'Projects',values:dashboardData['projectsData']}];
-        projObj['type'] = 'bubblechart';
-        nwObj['selector'] = $(container).find('div.stack-chart > svg').last()[0];
-        nwObj['data'] = [{key:'Networks',values:dashboardData['networksData']}];
-        nwObj['type'] = 'bubblechart';
-        updateCharts.updateView(projObj);
-        updateCharts.updateView(nwObj);
+        $($(container).find('div.stack-chart').first()).initScatterChart(getChartSettings(dashboardData['projectsData'],'project',cfg));
+        $($(container).find('div.stack-chart').last()).initScatterChart(getChartSettings(dashboardData['networksData'],'network',cfg))
+    }
+    
+    function getChartSettings(data,type,cfg){
+        var key,p,yLbl,tooltipFn;
+        if (type == 'network') {
+            key = 'Networks';
+            p = 'mon_net_networks';
+            yLbl = 'Connected Networks';
+            tooltipFn = tenantNetworkMonitor.networkTooltipFn; 
+        } else if(type == 'project') {
+            key = 'Projects';
+            p = 'mon_net_projects';
+            yLbl = 'Networks';
+            tooltipFn = tenantNetworkMonitor.projectTooltipFn; 
+        }
+        return {d:[{key:key,values:data}],hideLoadingIcon:false,loadedDeferredObj:cfg['loadedDeferredObj'],
+        link:{hashParams:{q:{view:'list',type:type,fqName:cfg['fqName'],source:'uve',context:'domain'}},
+        conf:{p:p,merge:false}},chartOptions:{tooltipFn:tooltipFn,xLbl:'Interfaces',yLbl:yLbl,forceX:[0,5],forceY:[0,10]}};
     }
  }
 

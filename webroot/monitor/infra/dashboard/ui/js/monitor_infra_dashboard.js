@@ -36,33 +36,30 @@ function addTabs() {
         * Takes vRouters data(array) as input and creates/updates chart
         */
         var updateView = function(data) {
+            data = data.reverse();//reversing to get the reds on top
             var chartObj = {};
             var chartsData = {
                 title: 'vRouters',
-                d: splitNodesToSeriesByColor(data, {
-                    Red: d3Colors['red'],
-                    Orange: d3Colors['orange'],
-                    Blue: d3Colors['blue'],
-                    Green: d3Colors['green']
-                }),
+                d: splitNodesToSeriesByColor(data, chartsLegend),
                 chartOptions: {
                     tooltipFn: bgpMonitor.vRouterTooltipFn,
                     clickFn: bgpMonitor.onvRouterDrillDown,
                     xPositive: true,
-                    addDomainBuffer: true
+                    addDomainBuffer: true,
+                    deferredObj:$.Deferred(),
+                    showSettings:false,
+                    //For Axis params if the data type is not provided default one is Integer and currently 
+                    //only two data types integer and float are supported
+                    yAxisParams:[{lbl:'Memory (MB)',key:'virtMemory',formatFn:function(data){
+                                                                                return prettifyBytes({bytes:ifNull(data,0)*1024,stripUnit:true,prefix:'MB'})
+                                                                          }
+                    },{lbl:'Virtual Networks',key:'vnCnt'}],
+                    xAxisParams:[{lbl:'CPU (%)',key:'cpu',type:'float'},{lbl:'Instances',key:'instCnt'}]
                 }
             };
-            var chartObj = {};
-            if(!isScatterChartInitialized('#vrouter-bubble')) {
-                $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
-                $('#vrouter-bubble').initScatterChart(chartsData);
-            } else {
-                data = updateCharts.setUpdateParams(data);
-                chartObj['selector'] = $('#content-container').find('#vrouter-bubble > svg').first()[0];
-                chartObj['data'] = chartsData['d'];
-                chartObj['type'] = 'infrabubblechart';
-                updateCharts.updateView(chartObj);
-            }
+            
+            $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
+            $('#vrouter-bubble').initScatterChart(chartsData);
             self.updatevRouterInfoBoxes();
         }
 
@@ -141,26 +138,19 @@ function addTabs() {
         })
 
         var updateView = function(data) {
-            if(!isScatterChartInitialized('#ctrlNode-bubble')) {
-                $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
-                var chartsData = {
-                    title: 'Control Nodes',
-                    chartOptions: {
-                        tooltipFn: bgpMonitor.controlNodetooltipFn,
-                        clickFn: bgpMonitor.onControlNodeDrillDown,
-                        xPositive: true,
-                        addDomainBuffer: true
-                    },
-                    d: splitNodesToSeriesByColor(data,{
-                        Red: d3Colors['red'],
-                        Orange: d3Colors['orange'],
-                        Blue: d3Colors['blue'],
-                        Green: d3Colors['green']
-                    })
-                };
-                $('#ctrlNode-bubble').initScatterChart(chartsData); 
-            } else { 
-            }
+            data = data.reverse();//reversing to get the reds on top
+            var chartsData = {
+                title: 'Control Nodes',
+                chartOptions: {
+                    tooltipFn: bgpMonitor.controlNodetooltipFn,
+                    clickFn: bgpMonitor.onControlNodeDrillDown,
+                    xPositive: true,
+                    addDomainBuffer: true
+                },
+                d: splitNodesToSeriesByColor(data,chartsLegend)
+            };
+            $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
+            $('#ctrlNode-bubble').initScatterChart(chartsData);
         }
 
         infraDashboardView.addInfoBox({
@@ -189,26 +179,19 @@ function addTabs() {
             updateView(newValue);
         })
         this.updateView = function(data) {
-            if(!isScatterChartInitialized('#analyticNode-bubble')) {
-                $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
-                var chartsData = {
-                    title: 'Analytic Nodes',
-                    chartOptions: {
-                        tooltipFn: bgpMonitor.analyticNodeTooltipFn,
-                        clickFn: bgpMonitor.onAnalyticNodeDrillDown,
-                        xPositive: true,
-                        addDomainBuffer: true
-                    },
-                    d: splitNodesToSeriesByColor(data, {
-                        Red: d3Colors['red'],
-                        Orange: d3Colors['orange'],
-                        Blue: d3Colors['blue'],
-                        Green: d3Colors['green']
-                    })
-                };
-                $('#analyticNode-bubble').initScatterChart(chartsData);
-            } else {
-            }
+            data = data.reverse();//reversing to get the reds on top
+            var chartsData = {
+                title: 'Analytic Nodes',
+                chartOptions: {
+                    tooltipFn: bgpMonitor.analyticNodeTooltipFn,
+                    clickFn: bgpMonitor.onAnalyticNodeDrillDown,
+                    xPositive: true,
+                    addDomainBuffer: true
+                },
+                d: splitNodesToSeriesByColor(data, chartsLegend)
+            };
+            $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
+            $('#analyticNode-bubble').initScatterChart(chartsData);
         }
         infraDashboardView.addInfoBox({
                     title:'Analytics Nodes',
@@ -237,26 +220,19 @@ function addTabs() {
         })
 
         var updateView = function(data) {
-            if(!isScatterChartInitialized('#configNode-bubble')) {
-                $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
-                var chartsData = {
-                    title: 'Config Nodes',
-                    chartOptions: {
-                        tooltipFn: bgpMonitor.configNodeTooltipFn,
-                        clickFn: bgpMonitor.onConfigNodeDrillDown,
-                        xPositive: true,
-                        addDomainBuffer: true
-                    },
-                    d: splitNodesToSeriesByColor(data, {
-                        Red: d3Colors['red'],
-                        Orange: d3Colors['orange'],
-                        Blue: d3Colors['blue'],
-                        Green: d3Colors['green']
-                    })
-                };
-                $('#configNode-bubble').initScatterChart(chartsData);
-            } else {
-            }
+            data = data.reverse();//reversing to get the reds on top
+            var chartsData = {
+                title: 'Config Nodes',
+                chartOptions: {
+                    tooltipFn: bgpMonitor.configNodeTooltipFn,
+                    clickFn: bgpMonitor.onConfigNodeDrillDown,
+                    xPositive: true,
+                    addDomainBuffer: true
+                },
+                d: splitNodesToSeriesByColor(data, chartsLegend)
+            };
+            $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
+            $('#configNode-bubble').initScatterChart(chartsData);
         }
 
         infraDashboardView.addInfoBox({

@@ -126,7 +126,7 @@ function getProcStateMappedModule(moduleName)
 {
     switch (moduleName) {
     case 'VRouterAgent':
-        return 'contrail-vrouter';
+        return 'contrail-vrouter-agent';
     case 'ControlNode':
         return 'contrail-control';
     default:
@@ -136,7 +136,7 @@ function getProcStateMappedModule(moduleName)
 
 function getNodeStatusByUVE (moduleName, uveData)
 {
-    var procStateList = jsonPath(uveData, "$..process_state_list");
+    var procStateList = jsonPath(uveData, "$..NodeStatus.process_info");
     if (procStateList.length == 0) {
         /* Why? */
         return 'Down';
@@ -308,7 +308,7 @@ function getvRouterSummaryConfigUVEData (configData, uuidList, nodeList, addGen,
         'VrouterAgent:total_interface_count',
         'VrouterAgent:down_interface_count', 'VrouterAgent:connected_networks',
         'VrouterAgent:control_ip', 'VrouterAgent:build_info',
-        'VrouterStatsAgent:cpu_share', 'VrouterStatsAgent:process_state_list'];
+        'VrouterStatsAgent:cpu_share', 'NodeStatus'];
     var postData = {};
     if (null != nodeList) {
         var nodeCnt = nodeList.length;

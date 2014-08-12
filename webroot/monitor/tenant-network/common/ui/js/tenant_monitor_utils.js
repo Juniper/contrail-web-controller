@@ -1226,11 +1226,10 @@ function portSummaryRenderer() {
                     portData = tenantNetworkMonitorUtils.parsePortDistribution(portData,$.extend({startTime:portDistributionParams['startTime'],endTime:portDistributionParams['endTime'],
                         bandwidthField:'bytes',flowCntField:'flowCnt',portField:'port',startPort:startPort,endPort:endPort},{portType:obj['portType']}));
 
-                    var retObj = {d:[{key:'Source Port',values:portData}],
-                        forceX:[startPort,endPort],xLblFormat:d3.format(''),yDataType:'bytes',fqName:obj['fqName'],
-                        yLbl:'Bandwidth',link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn},title:'Port Distribution',xLbl:'Port'
-                        }
+                    var retObj = {d:[{key:'Source Port',values:portData}],fqName:obj['fqName'],
+                        link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
+                        chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn,forceX:[startPort,endPort],xLblFormat:d3.format(''),
+                            yDataType:'bytes',yLbl:'Bandwidth',xLbl:'Port'},title:'Port Distribution'};
                     return retObj;
                     }
                 }];

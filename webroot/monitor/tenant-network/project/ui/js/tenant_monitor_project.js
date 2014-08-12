@@ -50,11 +50,10 @@ function projSummaryRenderer() {
                 var retObj = {d:[{key:'Source Port',values:tenantNetworkMonitorUtils.parsePortDistribution(ifNull(response['sport'],[]),{startTime:response['startTime'],
                     endTime:response['endTime'],bandwidthField:'outBytes',flowCntField:'outFlowCount',portField:'sport'})},
                        {key:'Destination Port',values:tenantNetworkMonitorUtils.parsePortDistribution(ifNull(response['dport'],[]),{startTime:response['startTime'],
-                           endTime:response['endTime'],bandwidthField:'inBytes',flowCntField:'inFlowCount',portField:'dport'})}],
-                    forceX:[0,1000],xLblFormat:d3.format(''),yDataType:'bytes',fqName:obj['fqName'],
-                    yLbl:'Bandwidth',link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
-                    chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn},title:'Port Distribution',xLbl:'Port'
-                    }
+                           endTime:response['endTime'],bandwidthField:'inBytes',flowCntField:'inFlowCount',portField:'dport'})}],fqName:obj['fqName'],
+                    link:{hashParams:{q:{view:'list',type:'project',fqName:obj['fqName'],context:'domain'}}},
+                    chartOptions:{tooltipFn:tenantNetworkMonitor.portTooltipFn,forceX:[0,1000],xLblFormat:d3.format(''),yDataType:'bytes',xLbl:'Port',yLbl:'Bandwidth'},
+                    title:'Port Distribution'}
                 return retObj;
                 }
             }];
