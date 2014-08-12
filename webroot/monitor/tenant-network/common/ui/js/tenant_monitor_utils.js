@@ -230,7 +230,7 @@ function ObjectListView() {
                             }
                 instanceDS = new ContrailDataView();
                 instanceDS.onRowsChanged.subscribe(function(e,args){
-                    getStatsForVM(obj['dataSource'],ifNull(args['rows'],[]));
+                    getStatsForVM(obj['dataSource'],ifNull(args,[]));
                 })
                 //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
                 var instDeferredObj = $.Deferred();
