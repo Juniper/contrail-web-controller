@@ -221,6 +221,9 @@ function ObjectListView() {
                 obj['error'] = result['error'];
                 obj['idField'] = 'name';
                 obj['isAsyncLoad'] = true;
+                obj['dataSource'].onRowsChanged.subscribe(function(e,args){
+                    getStatsForVM(obj['dataSource'],ifNull(args,[]));
+                })
             } else if($.inArray(context,['project','network']) > -1) {
                 var contextType = context == 'project' ? 'project' : 'vn';
                 obj['transportCfg'] = { 
