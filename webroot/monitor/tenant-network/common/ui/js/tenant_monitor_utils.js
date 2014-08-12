@@ -221,6 +221,9 @@ function ObjectListView() {
                 obj['error'] = result['error'];
                 obj['idField'] = 'name';
                 obj['isAsyncLoad'] = true;
+                obj['dataSource'].onRowsChanged.subscribe(function(e,args){
+                    getStatsForVM(obj['dataSource'],ifNull(args,[]));
+                })
             } else if($.inArray(context,['project','network']) > -1) {
                 var contextType = context == 'project' ? 'project' : 'vn';
                 obj['transportCfg'] = { 
@@ -931,6 +934,7 @@ var tenantNetworkMonitorUtils = {
         var spanWidths = ['span2','span1','span2','span2','span2','span1','span1'];
         var throughputIn = 0;
         var throughputOut = 0;
+        var allSamples = 0;
         spanWidths = [235,105,35,190,110,110,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
         var spanWidthsForFip = [95,250,300,110];
@@ -982,8 +986,12 @@ var tenantNetworkMonitorUtils = {
             var intfOutBytes = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bytes)','-');
             var intfInBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)','-');
             var intfOutBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)','-');
+            var samplesCount = getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)','-');
             throughputIn += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)',0);
             throughputOut += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)',0);
+            allSamples += getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)',0);
+            intfInBw = ($.isNumeric(intfInBw) && $.isNumeric(samplesCount) && samplesCount != 0)? intfInBw/samplesCount : '-';
+            intfOutBw = ($.isNumeric(intfOutBw) && $.isNumeric(samplesCount) && samplesCount != 0)? intfOutBw/samplesCount : '-';
             var uuid = ifNull(obj['uuid'],'-');
             if(obj['active'] != null && obj['active'] == true)
                 intfStatus = 'Active';
@@ -994,6 +1002,8 @@ var tenantNetworkMonitorUtils = {
                            formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
         });
+        throughputIn = ($.isNumeric(throughputIn) && $.isNumeric(allSamples) && allSamples != 0)? throughputIn/allSamples : '-';
+        throughputOut = ($.isNumeric(throughputOut) && $.isNumeric(allSamples) && allSamples != 0) ? throughputOut/allSamples : '-';
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
         retArr = $.merge($.merge(retArr,interfaceDetails),fipDetails);
         return retArr;
