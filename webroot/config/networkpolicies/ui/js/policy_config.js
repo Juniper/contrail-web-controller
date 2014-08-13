@@ -1992,6 +1992,12 @@ function validate() {
             var mirrorServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked
             var applyServices = [];
             var mirrorTo = [];
+            var srcGrpName = getSelectedGroupName($($($(ruleTuple[2]).find('a'))).find('i'));
+            var destGrpName = getSelectedGroupName($($($(ruleTuple[5]).find('a'))).find('i'));
+            if(srcGrpName === 'CIDR' && destGrpName === 'CIDR') {
+                showInfoWindow("Both Source and Destination cannot be CIDRs.", "Invalid Rule");
+                return false;
+            }
 
             if(applyServicesEnabled == true) {
                 var id = $($(ruleTuple[7]).find("input"))[0].id;
@@ -2009,6 +2015,7 @@ function validate() {
                 //only transparent mode services can be chained
                 var allTypes = [];
                 var asArray = [];
+                var allInterface = [];
                 if(applyServices && applyServices.length > 0) {
                     var srcDropDown = $($(ruleTuple).find('div[id*="selectSrcNetwork_"]')[1]).data('contrailDropdown')
                     var srcVN = srcDropDown.value();
@@ -2054,12 +2061,28 @@ function validate() {
                                             smode = "transparent";
                                         allTypes[allTypes.length] = smode;
                                         asArray[asArray.length] = as.join(":");
+                                        allInterface.push({"mode":smode,"inst":as[2]});
                                         break;
                                     }
                                 }
                             }
                         }
                     }
+                    var inNetworkCount = 0;
+                    for(var temp = 0;temp < allInterface.length;temp++){
+                        if(allInterface[temp].mode == "in-network-nat")
+                            inNetworkCount++;
+                        if(inNetworkCount >= 2){
+                            showInfoWindow("Cannot have more than one 'in-network-nat' services." , "Invalid Rule");
+                            return false;
+                        }
+                    }
+
+                    if(allInterface.length > 1 && allInterface[allInterface.length-1].mode != "in-network-nat"){
+                        showInfoWindow("Last instance should be of 'in-network-nat' service mode while applying services.", "Invalid Rule");
+                        return false;
+                    }
+
                     //Get Unique values.
                     var uniqueTypes = $.grep(allTypes, function(v, k){
                         return $.inArray(v ,allTypes) === k;
