@@ -680,7 +680,7 @@ function MonitorNetworkMockData() {
                          },
                          {
                            "lbl": "Throughput (In/Out)",
-                           "value": "93.13 KB/93.13 KB"
+                           "value": "794 B/794 B"
                          },
                          {
                            "lbl": "Interfaces",
@@ -689,7 +689,7 @@ function MonitorNetworkMockData() {
                              "IP Address /<br/> Mac Address",
                              "Label",
                              "Network",
-                             "Traffic (In/Out)",
+                             "Traffic (In/Out) <br/>(Last 1 hr)",
                              "Throughput (In/Out)",
                              "Gateway",
                              "Status"
@@ -717,7 +717,7 @@ function MonitorNetworkMockData() {
                              18,
                              "default-domain:admin:vn2",
                              "349.21 KB/349.21 KB",
-                             "93.13 KB/93.13 KB",
+                             "794 B/794 B",
                              "10.10.11.1",
                              "Active"
                            ],
@@ -748,7 +748,7 @@ function MonitorNetworkMockData() {
                             },
                             {  
                                "lbl":"Throughput (In/Out)",
-                               "value":"91.9 KB/91.9 KB"
+                               "value":"784 B/784 B"
                             },
                             {  
                                "lbl":"Interfaces",
@@ -757,7 +757,7 @@ function MonitorNetworkMockData() {
                                   "IP Address /<br/> Mac Address",
                                   "Label",
                                   "Network",
-                                  "Traffic (In/Out)",
+                                  "Traffic (In/Out) <br/>(Last 1 hr)",
                                   "Throughput (In/Out)",
                                   "Gateway",
                                   "Status"
@@ -785,7 +785,7 @@ function MonitorNetworkMockData() {
                                   16,
                                   "default-domain:admin:vn1",
                                   "344.53 KB/344.53 KB",
-                                  "91.9 KB/91.9 KB",
+                                  "784 B/784 B",
                                   "10.10.10.1",
                                   "Active"
                                ],
