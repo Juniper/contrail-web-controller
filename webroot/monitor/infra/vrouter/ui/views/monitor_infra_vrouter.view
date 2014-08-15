@@ -74,21 +74,21 @@
                                 <div class="widget-main padding-4">
                                     <div class="row-fluid">
                                         <div id="vrouter-sparklines" class="span4 vrouter-chart-link sparklines-box">
-                                            <p class="sparkline-title">vRouter</p>
+                                            <p class="sparkline-title">vRouter Agent</p>
                                             <div class="row-fluid">
-                                               <span class="span3"><small>CPU</small></span> <span id="cpu_share_sparkline" class="span8 pull-right"></span>
+                                               <span class="span6"><small>CPU Utilization</small></span> <span id="cpu_share_sparkline" class="span6 pull-right"></span>
                                              </div>
                                              <div class="row-fluid">
-                                               <span class="span3"><small>Memory</small></span> <span id="virt_mem_sparkline" class="span8 pull-right"></span>
+                                               <span class="span6"><small>Memory</small></span> <span id="virt_mem_sparkline" class="span6 pull-right"></span>
                                              </div>
                                         </div>
                                         <div id="system-sparklines" class="span4 system-chart-link sparklines-box">
                                             <p class="sparkline-title">System</p>
                                             <div class="row-fluid">
-                                               <span class="span3"><small>CPU</small></span> <span id="one_min_avg_cpuload_sparkline" class="span8 pull-right"></span>
+                                               <span class="span6"><small>Avg. Load / CPU</small></span> <span id="one_min_avg_cpuload_sparkline" class="span6 pull-right"></span>
                                              </div>
                                              <div class="row-fluid">
-                                               <span class="span3"><small>Memory</small></span> <span id="used_sys_mem_sparkline" class="span8 pull-right"></span>
+                                               <span class="span6"><small>Memory</small></span> <span id="used_sys_mem_sparkline" class="span6 pull-right"></span>
                                              </div>
                                         </div>
                                     </div>
@@ -100,7 +100,7 @@
 	            		
 	            			<h4 class="smaller">
                                 <i id="vrouter-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
-                                vRouter CPU/Memory Utilization
+                                vRouter Agent CPU/Memory Utilization
 	            			</h4>
                             <div class="widget-toolbar pull-right">
                                 <a  data-action="collapse">
