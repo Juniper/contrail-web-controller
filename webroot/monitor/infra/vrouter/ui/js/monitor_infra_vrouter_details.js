@@ -51,7 +51,7 @@ monitorInfraComputeDetailsClass = (function() {
                     }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
                     $('#system-chart').initMemCPULineChart($.extend({url:function() {
                         return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
-                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
+                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg. Load / CPU'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var vRouterProcessStatusList = [];
