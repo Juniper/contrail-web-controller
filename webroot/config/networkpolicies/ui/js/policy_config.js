@@ -535,7 +535,7 @@ function initActions() {
                 }
             }
         }
-
+        policyConfig["network-policy"]["display_name"] = policyConfig["network-policy"]["fq_name"][policyConfig["network-policy"]["fq_name"].length-1];
         //console.log(policyConfig);
         if (txtPolicyName[0].disabled == true)
             mode = "edit";

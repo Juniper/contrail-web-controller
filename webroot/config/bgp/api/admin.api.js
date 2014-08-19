@@ -168,6 +168,12 @@ function parseConfigControlNodeData (configControlNodeData)
                 resultJSON[i]["name"] = global.RESP_DATA_NOT_AVAILABLE;
             } 
             try {
+                resultJSON[i]["display_name"] =
+                    commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].display_name);
+            } catch(e) {
+                resultJSON[i]["display_name"] = global.RESP_DATA_NOT_AVAILABLE;
+            } 
+            try {
                 resultJSON[i]["uuid"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].uuid);
             } catch(e) {

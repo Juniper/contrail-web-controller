@@ -334,7 +334,7 @@ function initActions() {
                 mode = "edit";
             else
                 mode = "add";
-
+            ipam["network-ipam"]["display_name"] = ipam["network-ipam"]["fq_name"][ipam["network-ipam"]["fq_name"].length-1];
             if (mode === "add") {
                 doAjaxCall("/api/tenants/config/ipams", "POST", JSON.stringify(ipam),
                     "createIPAMSuccessCb", "createIPAMFailureCb");
