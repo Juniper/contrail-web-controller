@@ -353,7 +353,7 @@ function initActions() {
 		    url='/api/tenants/config/virtual-DNS/'+ gblSelRow["uuid"];
 		    type="PUT";
 	    }
-	
+        dnsServerCfg["virtual-DNS"]["display_name"] = dnsServerCfg["virtual-DNS"]["fq_name"][dnsServerCfg["virtual-DNS"]["fq_name"].length-1];
         doAjaxCall(url, type, JSON.stringify(dnsServerCfg),
             "createDNSServerSuccessCb", "createDNSServerFailureCb");
     });

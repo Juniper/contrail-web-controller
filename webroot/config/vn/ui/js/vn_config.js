@@ -643,7 +643,7 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["forwarding_mode"] = fwdMode;
         }
-
+        vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
         if (txtVNName[0].disabled == true)
             mode = "edit";
         else

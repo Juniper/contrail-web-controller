@@ -430,7 +430,7 @@ function initActions() {
                     }
                 }
             }
-
+            serviceInstance["service-instance"]["display_name"] = serviceInstance["service-instance"]["fq_name"][serviceInstance["service-instance"]["fq_name"].length-1];
             if(txtsvcInstanceName.attr("disabled") === "disabled"){
                 doAjaxCall("/api/tenants/config/service-instances/" + $('#btnCreatesvcInstencesOK').data('uuid'), "PUT", JSON.stringify(serviceInstance), "createSInstanceSuccessCb", "createSInstanceFailureCb");
             } else {

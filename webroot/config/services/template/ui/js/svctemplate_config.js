@@ -321,6 +321,7 @@ function initActions() {
                         {"service_interface_type":interfaceType,
                             "shared_ip":interfaceIp,"static_route_enable":interfaceRout});
             }
+            serviceTemplate["service-template"]["display_name"] = serviceTemplate["service-template"]["fq_name"][serviceTemplate["service-template"]["fq_name"].length-1];
             doAjaxCall("/api/tenants/config/service-templates", "POST", JSON.stringify(serviceTemplate),
                 "createStempSuccessCb", "createStempFailureCb");
             windowCreateStemp.modal('hide');
