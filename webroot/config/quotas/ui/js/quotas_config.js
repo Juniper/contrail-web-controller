@@ -13,6 +13,7 @@
         {key : "floating_ip", name : "Floating IPs"},
         {key : "floating_ip_pool", name :"Floating IP Pools"},
         {key : "access_control_list", name : "Policies"},                
+        {key : "logical_router", name : "Routers"},                
         {key : "network_ipam", name :"Network IPAMs"},      
         {key : "service_instance", name :"Service Instances"},
         {key : "security_group", name :"Security Groups"},
