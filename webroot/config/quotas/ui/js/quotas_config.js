@@ -12,7 +12,8 @@
         {key : "virtual_machine_interface", name :"Ports"},        
         {key : "floating_ip", name : "Floating IPs"},
         {key : "floating_ip_pool", name :"Floating IP Pools"},
-        {key : "access_control_list", name : "Policies"},                
+        //{key : "access_control_list", name : "Policies"},
+        {key : "network_policy", name : "Policies"},
         {key : "logical_router", name : "Routers"},                
         {key : "network_ipam", name :"Network IPAMs"},      
         {key : "service_instance", name :"Service Instances"},
@@ -287,11 +288,19 @@
             var quotaKey = quotaList[quotaCnt].key;
             var comboDS = [{ text : 'Unlimited', value : -1 }];
             var selectedValue;
-            if(data[quotaKey] !== null) {
-                selectedValue = data[quotaKey];
-            } else {
-               selectedValue = '';
-            }
+            if(quotaKey == "network_policy") {
+                if(data["access_control_list"] !== null) {
+                    selectedValue = data["access_control_list"];
+                } else {
+                    selectedValue = '';
+                }
+             } else {
+                if(data[quotaKey] !== null) {
+                    selectedValue = data[quotaKey];
+                } else {
+                    selectedValue = '';
+                }             
+             }
             var comboInstance =  $('#' + quotaKey).data('contrailCombobox');
             comboInstance.setData(comboDS);
             comboInstance.value(selectedValue);
@@ -305,7 +314,11 @@
             for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
                 var quotaName = quotaList[quotaCnt].name; 
                 var quotaKey = quotaList[quotaCnt].key;
-                dsQuota.push({id :quotaCnt, name : quotaName, value : data[quotaKey], used : usedInfo[quotaKey]});
+                if(quotaKey == "network_policy") {
+                    dsQuota.push({id :quotaCnt, name : quotaName, value : data["access_control_list"], used : usedInfo[quotaKey]});
+                } else {
+                    dsQuota.push({id :quotaCnt, name : quotaName, value : data[quotaKey], used : usedInfo[quotaKey]});
+                }
             }       
             $("#gridQuotas").data("contrailGrid")._dataView.setData(dsQuota);    
          } else {
@@ -347,8 +360,13 @@
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").getSelectedData()[0];
         var updateQuota = data["project"]["quota"];
         for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
-            var quotaKey = quotaList[quotaCnt].key;   
-            var comboInstanceValue = $('#' + quotaKey).data('contrailCombobox').value();            
+            var quotaKey = quotaList[quotaCnt].key;
+            var comboInstanceValue = $('#' + quotaKey).data('contrailCombobox').value();
+            //Remove the below condition once separate policy is created in schema.
+            if(quotaKey == "network_policy"){
+                quotaKey = "access_control_list";
+                //updateQuota["access_control_list"] = parseInt(comboInstanceValue);
+            }
             updateQuota[quotaKey] = parseInt(comboInstanceValue);
         }
         doAjaxCall("/api/tenants/config/update-quotas/" + selectedProject.value,
