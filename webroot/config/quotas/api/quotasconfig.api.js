@@ -146,7 +146,8 @@ function getProjectQuotaUsedInfo(request, response, appData)
         {key : 'service-instances', value : 'service_instance'},
         {key : 'virtual-networks', value : 'virtual_network'},
         {key : 'virtual-machine-interfaces', value : 'virtual_machine_interface'},
-        {key : 'access-control-lists', value : 'access_control_list'}                
+        {key : 'access-control-lists', value : 'access_control_list'},
+        {key : 'logical-routers', value : 'logical_router'}
     ];
     var callObj = [];
     for(var featureCnt = 0; featureCnt < resources.length; featureCnt ++) {
