@@ -1719,6 +1719,7 @@ function successHandlerForGridPolicyRow(result) {
             continue;
         }
         var policyName = jsonPath(policy, "$.fq_name[2]");
+        var NetworkPolicyDisplayName = policy["display_name"];
         configObj["network-policys"].push(policies[i]);
 
         if (typeof policyName === "object" && policyName.length === 1)
@@ -1757,7 +1758,7 @@ function successHandlerForGridPolicyRow(result) {
         else
             ruleDescriptions = ["-"];
 
-        policyData.push({"id":idCount++, "NetworkPolicy":policyName, "PolicyRules":ruleDescriptions, "AssociatedNetworks":networks, "PolicyUUID":uuid});
+        policyData.push({"id":idCount++, "NetworkPolicy":policyName,"NetworkPolicyDisplayName":NetworkPolicyDisplayName, "PolicyRules":ruleDescriptions, "AssociatedNetworks":networks, "PolicyUUID":uuid});
     }
 
     if(result.more == true || result.more == "true"){

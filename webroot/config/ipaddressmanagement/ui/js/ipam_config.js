@@ -639,6 +639,7 @@ function successHandlerForGridIPAMRow(result) {
         if (!dnsServer.length)   dnsServer = "-";
 
         ipamData.push({"id":idCount++, "ipam_name":ipam.fq_name[2],
+            "displayName":ipam.display_name,
             "uuid":ipam.uuid, "ip_blocks": ip_blocks_obj,
             "dns":dnsServer, "ntp":ntpServer,
             "domain_Name":domainName});

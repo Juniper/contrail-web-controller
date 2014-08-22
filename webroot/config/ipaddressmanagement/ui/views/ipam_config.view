@@ -10,6 +10,10 @@
                 <div class="span10"> {{ipam_name}}</div>
             </div>
             <div class="row-fluid">
+                <div class="span2"><label>Display Name</label></div>
+                <div class="span10"> {{displayName}}</div>
+            </div>
+            <div class="row-fluid">
                 <div class="span2"><label>DNS Server</label></div>
                 <div class="span10"> {{dns}}</div>
             </div>
@@ -48,7 +52,7 @@
                     <label class="control-label" class="span3">Name</label>
                     <div class="controls">
                         <div class="row-fluid">
-                            <input type="text" id="txtIPAMName" class="span10" />
+                            <input type="text" id="txtIPAMName"  placeholder="IPAM Name" class="span10" />
                         </div>
                     </div>
                 </div>

@@ -21,7 +21,7 @@ function VirtualNetworkConfig() {
         btnCnfRemoveMainPopupCancel;
 
     //Textboxes
-    var txtVNName, txtVxLanId;
+    var txtVNName, txtVxLanId, txtDisName;
 
     //Multiselects
     var msNetworkPolicies;
@@ -238,6 +238,7 @@ function initComponents() {
     btnCnfRemoveMainPopupCancel = $("#btnCnfRemoveMainPopupCancel");
 
     txtVNName = $("#txtVNName");
+    txtDisName = $("#txtDisName");
     txtVxLanId = $("#txtVxLanId");
     vnAjaxcount = 0;
     
@@ -386,6 +387,8 @@ function initActions() {
         vnConfig["virtual-network"]["fq_name"][0] = selectedDomain;
         vnConfig["virtual-network"]["fq_name"][1] = selectedProject;
         vnConfig["virtual-network"]["fq_name"][2] = txtVNName.val();
+
+        vnConfig["virtual-network"]["display_name"] = $("#txtDisName").val();
 
         vnConfig["virtual-network"]["id_perms"] = {};
         vnConfig["virtual-network"]["id_perms"]["enable"] = $("#ddAdminState").data("contrailDropdown").value();
@@ -643,7 +646,7 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["forwarding_mode"] = fwdMode;
         }
-        vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
+        //vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
         if (txtVNName[0].disabled == true)
             mode = "edit";
         else
@@ -651,6 +654,7 @@ function initActions() {
 
         console.log(JSON.stringify(vnConfig))
         if (mode === "add") {
+            vnConfig["virtual-network"]["fq_name"][2] = $("#txtDisName").val();
             doAjaxCall("/api/tenants/config/virtual-networks", "POST", JSON.stringify(vnConfig),
                 "createVNSuccessCb", "createVNFailureCb");
         }
@@ -1058,6 +1062,7 @@ function createIPAMEntry(ipamBlock, id,element) {
     }    
     return rootDiv;
 }
+function setDisplayName(){}
 function textAreaAdjust(o) {
     o.style.height = "1px";
     o.style.height = (o.scrollHeight)+"px";
@@ -1687,6 +1692,7 @@ function successHandlerForGridVNRow(result) {
         configObj["virtual-networks"].push(networks[i]);
         var vn = networks[i];
         var vnName = jsonPath(vn, "$.fq_name[2]");
+        var displayName = vn["display_name"];
         var sh = "Enabled";
         if(String(vn["is_shared"]) != "true") 
             sh = "Disabled";
@@ -1857,7 +1863,7 @@ function successHandlerForGridVNRow(result) {
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         //if(vn.fq_name[1] == selectedProject){
-            vnData.push({"id":idCount++, "Network":vnName, "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
+            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
     }
     if(result.more == true || result.more == "true"){
@@ -1974,6 +1980,7 @@ function clearValuesFromDomElements() {
     txtVNName.val("");
     txtVxLanId.val("");
     txtVNName[0].disabled = false;
+    txtDisName.val("");
     $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
     $("#ddFwdMode").data("contrailDropdown").enable(false);
     $("#divFwdMode").removeClass("hide");
@@ -2138,7 +2145,8 @@ function showVNEditWindow(mode, rowIndex) {
                 }
                 txtVNName.val(selectedRow.Network);
                 txtVNName[0].disabled = true;
-                windowCreateVN.find('h6.modal-header-title').text('Edit Network ' + selectedRow.Network);
+                txtDisName.val(selectedRow.displayName);
+                windowCreateVN.find('h6.modal-header-title').text('Edit Network ' + selectedRow.displayName);
                 var rowId = selectedRow["id"];
                 var selectedVN = configObj["virtual-networks"][rowId];
 
@@ -2298,9 +2306,14 @@ function getAssignedProjectsForIpam(fips) {
 }
 
 function validate() {
-    var vnName = txtVNName.val().trim();
+    /*var vnName = txtVNName.val().trim();
     if (typeof vnName === "undefined" || vnName === "") {
         showInfoWindow("Enter a valid network name", "Input required");
+        return false;
+    }*/
+    var vnDisName = txtDisName.val().trim();
+    if (typeof vnDisName === "undefined" || vnDisName === "") {
+        showInfoWindow("Enter a valid display network name", "Input required");
         return false;
     }
     if(validateRTEntry() === false || 
@@ -2478,6 +2491,12 @@ function destroy() {
     if(isSet(txtVNName)) {
         txtVNName.remove();
         txtVNName = $();
+    }
+
+    txtDisName = $("#txtDisName");    
+    if(isSet(txtDisName)) {
+        txtDisName.remove();
+        txtDisName = $();
     }
 
     txtVxLanId = $("#txtVxLanId");

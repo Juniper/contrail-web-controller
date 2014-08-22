@@ -597,6 +597,7 @@ function successHandlerForDNSServerRow(result) {
 
         DNSServerData.push({"Id":idCount++, "uuid":dnsServer.uuid,
             "dnsserver_name":dnsServer.name,
+            "display_name":dnsServer.display_name,
             "domain_name":domainName,
             "dns_ttl":dns_ttl,
             "record_resolution_order":rec_res_ord,

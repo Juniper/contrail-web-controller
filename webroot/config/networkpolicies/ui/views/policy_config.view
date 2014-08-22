@@ -6,6 +6,16 @@
     <div>
         <div class="row-fluid">
             <div class="row-fluid">
+                <div class="span2"><label>Display Name</label></div>
+                <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span11">
+                                {{NetworkPolicyDisplayName}}
+                            </div>
+                        </div>
+                </div>
+            </div><br>
+            <div class="row-fluid">
                 <div class="span2"><label>Associated Networks</label></div>
                 <div class="span10">
                     {{#if AssociatedNetworks.length}}
@@ -49,7 +59,7 @@
                 <form>
                     <div class="row-fluid margin-0-0-10">
                         <div class="span6">
-                            <label class="control-label">Policy Name</label>
+                            <label class="control-label">Name</label>
                             <input type="text" id="txtPolicyName" placeholder="Policy Name" class="span10"/>
                             <div id="typeLegends" class="row-fluid hide">
                                 <span id="subnetLegend" style="right:210px;position:absolute;"><i class="icon-sitemap" style="cursor:default"></i> CIDR</span>

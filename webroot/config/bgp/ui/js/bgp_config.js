@@ -257,7 +257,6 @@ function getBGPJson() {
     var bgp_params = [];
     var name,display_name, asn, rid, addr, port, vendor, ctrlTypeFamily = [], peers = [], type, holdTime, bgpTypeFamily = [];
     name = $("#txtname").val().trim();
-    display_name = $("#txtname").val().trim();
     asn = parseInt($("#txtasn").val().trim());
     rid = $("#txtrid").val().trim();
     addr = $("#txtaddr").val().trim();
@@ -560,6 +559,7 @@ function fetchData() {
                         }
                         addr_families = addr_families.toString();
                         //tbd bgp peers
+                        details.push({ "name":"Display Name", "value":d.display_name });
                         if (d.bgp_refs) {
                             peers = d.bgp_refs.toString();
                             details.push({ "name":"Peers", "value":peers });

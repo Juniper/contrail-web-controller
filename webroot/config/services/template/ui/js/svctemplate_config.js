@@ -629,6 +629,7 @@ function successHandlerForGridsTempRow(result) {
 
         svcTemplateData.push({"id":idCount++, "uuid":svcTemplate.uuid,
             "templateName":svcTemplate.name,
+            "templateDN":svcTemplate.display_name,
             "Service_Mode":ucfirst(svcTemplate.service_template_properties.service_mode),
             "service_Type":ucfirst(svcTemplate.service_template_properties.service_type),
             "service_Scaling":svcScalingStr,
