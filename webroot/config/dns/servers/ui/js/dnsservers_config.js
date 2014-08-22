@@ -11,7 +11,7 @@ function dnsServersConfig() {
     var txtDNSServerName, txtDomainName, txtTimeLive;
 
     //Dropdowns
-    var ddDomain, ddProject, ddLoadBal;
+    var ddDomain, ddProject, ddLoadBal, ddType;
 
     //combo Box
     var cmbDNSForward;
@@ -212,7 +212,11 @@ function initComponents() {
     $("#ddProjectSwitcher").data('contrailDropdown').hide();
     ddLoadBal = $("#ddLoadBal").contrailDropdown({
         dataTextField:"text",
-        dataValueField:"value",
+        dataValueField:"value"
+    });
+    ddType = $("#ddType").contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value"
     });
     msIPams = $("#msIPams").contrailMultiselect({
         dataTextField:"text",
@@ -233,7 +237,17 @@ function initComponents() {
     $("#ddLoadBal").data("contrailDropdown").setData(loadBalVal);
     $("#ddLoadBal").data("contrailDropdown").value(loadBalVal[0].value);
     $("#ddLoadBal").data("contrailDropdown").text(loadBalVal[0].text);
-    
+
+    var typeVal = [
+        {text:"Dashed IP Tenant", value:"dashed-ip-tenant-name"},
+        {text:"Dashed IP", value:"dashed-ip"},
+        {text:"VM Name", value:"vm-name"},
+        {text:"VM Name Tenant", value:"vm-name-tenant-name"}
+    ];
+    $("#ddType").data("contrailDropdown").setData(typeVal);
+    $("#ddType").data("contrailDropdown").value(typeVal[0].value);
+    $("#ddType").data("contrailDropdown").text(typeVal[0].text);
+
     windowCreateDNSServer = $("#windowCreateDNSServer");
     windowCreateDNSServer.modal({backdrop:'static', keyboard: false, show:false});
 
@@ -308,6 +322,7 @@ function initActions() {
         var ttlVal = 86400;
         var forwarderTxt = $("#cmbDNSForward").data("contrailCombobox").text();
         var recordResTxt = $("#ddLoadBal").data("contrailDropdown").value();
+        var recordTypeTxt = $("#ddType").data("contrailDropdown").value();
         var assocIpamsTxt = $("#msIPams").data("contrailMultiselect").text();
         var selIPAMs = $("#msIPams").data('contrailMultiselect').getSelectedData();
         var assocIpams = null;
@@ -331,6 +346,7 @@ function initActions() {
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["default_ttl_seconds"] = ttlVal;
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["domain_name"] = domainTxt;
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["record_order"] = recordResTxt;
+        dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["record_type"] = recordTypeTxt;
         if (forwarderTxt.length) {
             dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["next_virtual_DNS"] = forwarderTxt;
         }
@@ -558,6 +574,7 @@ function successHandlerForDNSServerRow(result) {
         var dnsData = null;
         var dns_ttl = 0;
         var rec_res_ord = "-";
+        var record_type = "-"
         var forwarder = "-";
         var ipamTxt = "-";
 
@@ -575,6 +592,10 @@ function successHandlerForDNSServerRow(result) {
             if ('record_order' in dnsData &&
                 dnsData['record_order'] != null) {
                 rec_res_ord = dnsData['record_order'];
+            }
+            if ('record_type' in dnsData &&
+                dnsData['record_type'] != null) {
+                record_type = dnsData['record_type'];
             }
             if ('next_virtual_DNS' in dnsData &&
                 dnsData['next_virtual_DNS'] != null) {
@@ -600,6 +621,7 @@ function successHandlerForDNSServerRow(result) {
             "domain_name":domainName,
             "dns_ttl":dns_ttl,
             "record_resolution_order":rec_res_ord,
+            "record_type": record_type,
             "forward":forwarder,
             "Associated_IPAM":ipamTxt,
         });
@@ -636,6 +658,10 @@ function clearPopup() {
     d = ddLoadBalTemp.getAllData()[0];
     ddLoadBalTemp.value(d.value);
     ddLoadBalTemp.text(d.text);
+    var ddTypeTemp  = $("#ddType").data("contrailDropdown");
+    d = ddTypeTemp.getAllData()[0];
+    ddTypeTemp.value(d.value);
+    ddTypeTemp.text(d.text);
     mode = "create";
     virtualDNSs = [];
 }
@@ -721,7 +747,9 @@ function populateDNSServerEditWindow(){
     
     ddLoadBal = $("#ddLoadBal").data("contrailDropdown");
     ddLoadBal.value(selectedRow.record_resolution_order);
-    
+    ddType = $("#ddType").data("contrailDropdown");
+    ddType.value(selectedRow.record_type);
+
     cmbDNSForward = $("#cmbDNSForward").data("contrailCombobox");
     if(selectedRow.forward != "-")	
     	cmbDNSForward.text(selectedRow.forward);
@@ -796,6 +824,12 @@ function destroy() {
     if(isSet(ddLoadBal)) {
        ddLoadBal.destroy();
        ddLoadBal = $();
+    }
+
+    var ddType = $("#ddLoadBal").data("contrailDropdown");
+    if(isSet(ddType)) {
+       ddType.destroy();
+       ddType = $();
     }
 
     msIPams = $("#msIPams").data("contrailMultiselect");
