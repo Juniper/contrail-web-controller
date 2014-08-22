@@ -79,31 +79,30 @@ monitorInfraComputeRoutesClass = (function() {
         return paths;
     
     }
+   
     this.parseL2RoutesData = function(response){
-
-        var ucastPaths = jsonPath(response,'$..PathSandeshData');
         var paths = [];
-        var uPaths = [];
-        ucastPaths = $.each(ucastPaths,function(idx,obj) {
-            if(obj instanceof Array) {
-                uPaths.push(obj);
-            } else {
-                uPaths.push([obj]);
+        var l2Data = jsonPath(response,'$..RouteL2SandeshData')[0];
+        if(l2Data != null){
+            if(!(l2Data instanceof Array)){
+                l2Data = [l2Data];
             }
-        });
-        var macs = jsonPath(response,'$..mac');
-        var srcVRFs = jsonPath(response,'$..src_vrf');
-
-        $.each(uPaths,function(idx,obj) {
-            $.each(obj,function(i,currPath) {
-                var rawJson = currPath;
-                if(i == 0)
-                    paths.push({mac:macs[idx],path:currPath,src_vrf:srcVRFs[idx],raw_json:rawJson});
-                else
-                    paths.push({mac:'',path:currPath,src_vrf:srcVRFs[idx],raw_json:rawJson});
-
+            $.each(l2Data, function(i,obj){
+                var mac = getValueByJsonPath(obj,'mac',noDataStr);
+                var srcVRF = getValueByJsonPath(obj,'src_vrf',noDataStr);
+                var pathSandeshData = getValueByJsonPath(obj,'path_list;list;PathSandeshData',[]);
+                if(!(pathSandeshData instanceof Array)){
+                    pathSandeshData = [pathSandeshData];
+                }
+                $.each(pathSandeshData,function(j,currPath){
+                    var rawJson = currPath;
+                    if(j == 0)
+                        paths.push({mac:mac,path:currPath,src_vrf:srcVRF,raw_json:rawJson});
+                    else 
+                        paths.push({mac:'',path:currPath,src_vrf:srcVRF,raw_json:rawJson});
+                });
             });
-        });
+        }
         return paths;
     
     }
