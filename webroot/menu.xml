@@ -28,7 +28,7 @@ and need to add the iconClass tag wherever we need to show some icons
           <iconClass>icon-desktop</iconClass>
           <access>
             <roles>
-              <role>admin</role>
+              <role>superAdmin</role>
             </roles>
             <orchModels>
               <model>openstack</model>
@@ -267,7 +267,7 @@ and need to add the iconClass tag wherever we need to show some icons
           <label>Infrastructure</label>
           <access>
             <roles>
-              <role>admin</role>
+              <role>superAdmin</role>
             </roles>
             <orchModels>
               <model>openstack</model>
@@ -331,8 +331,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <label>Networking</label>
                     <access>
                        <roles>
-                           <role>admin</role>
-                           <role>user</role>
+                           <role>member</role>
                        </roles>
                        <orchModels>
                            <model>openstack</model>
@@ -411,8 +410,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <label>Services</label>
                     <access>
                        <roles>
-                           <role>admin</role>
-                           <role>user</role>
+                           <role>member</role>
                        </roles>
                        <orchModels>
                            <model>openstack</model>
@@ -452,8 +450,7 @@ and need to add the iconClass tag wherever we need to show some icons
                     <label>DNS</label>
                     <access>
                         <roles>
-                            <role>admin</role>
-                            <role>user</role>
+                            <role>member</role>
                         </roles>
                         <orchModels>
                             <model>openstack</model>
@@ -518,7 +515,7 @@ and need to add the iconClass tag wherever we need to show some icons
       <iconClass>icon-cog</iconClass>
       <access>
         <roles>
-          <role>admin</role>
+          <role>superAdmin</role>
         </roles>
         <orchModels>
           <model>openstack</model>
@@ -582,7 +579,7 @@ and need to add the iconClass tag wherever we need to show some icons
       <iconClass>icon-search</iconClass>
       <access>
         <roles>
-          <role>admin</role>
+          <role>superAdmin</role>
         </roles>
         <orchModels>
           <model>openstack</model>
