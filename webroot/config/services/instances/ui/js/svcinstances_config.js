@@ -984,6 +984,7 @@ function successHandlerForGridsvcInstanceRow(result) {
         }
         svcInstancesData.push({"Id":idCount++, "uuid":svcInstance.uuid,
             "Service_Instance":svcInstance.name,
+            "Service_Instance_DN":svcInstance.display_name,
             "Service_Template":svc_tmpl_name,
             "Service_Template_Name":svc_tmpl_name_text,
             "Number_of_instances":svcScalingStr,

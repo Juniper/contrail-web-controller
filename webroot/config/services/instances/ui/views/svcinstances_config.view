@@ -10,6 +10,10 @@
                 <span class="span10"> {{Service_Instance}}</span>
             </span>
             <div class="row-fluid">
+                <span class="span2"><label>Display Name</label></span>
+                <span class="span10">{{ Service_Instance_DN }}</span>
+            </div>
+            <div class="row-fluid">
                 <span class="span2"><label>Template</label></span>
                 <span class="span10">{{ Service_Template }}</span>
             </div>
@@ -73,7 +77,7 @@
         <div class="modal-body">
             <form class="form-horizontal">
                 <div class="control-group">
-                    <label class="control-label" class="span3">Instance Name</label>
+                    <label class="control-label" class="span3">Name</label>
                     <div class="controls">
                         <div class="row-fluid">
                             <input type="text" id="txtsvcInstanceName" class="span10"/>
