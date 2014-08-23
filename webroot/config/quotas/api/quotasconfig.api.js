@@ -147,6 +147,7 @@ function getProjectQuotaUsedInfo(request, response, appData)
         {key : 'virtual-networks', value : 'virtual_network'},
         {key : 'virtual-machine-interfaces', value : 'virtual_machine_interface'},
         {key : 'access-control-lists', value : 'access_control_list'},
+        {key : 'network-policys', value : 'network_policy'},
         {key : 'logical-routers', value : 'logical_router'}
     ];
     var callObj = [];
@@ -161,7 +162,8 @@ function getProjectQuotaUsedInfo(request, response, appData)
             commonUtils.handleJSONResponse(err, response, null);
             return;
         }
-        var callVNObj = [];         
+        var callVNObj = [];
+        var callSGObj = [];
         for(var dataCnt = 0; dataCnt < data.length ; dataCnt++) {
             for(var resCnt = 0; resCnt <  resources.length; resCnt++) {
                 var resource = resources[resCnt];
@@ -178,6 +180,12 @@ function getProjectQuotaUsedInfo(request, response, appData)
                                    vnReqObj.appData = appData; 
                                    callVNObj.push(vnReqObj);
                                }
+                               if(resource.key === 'security-groups') {
+                                   var sgReqObj = {};
+                                   sgReqObj.url =  '/security-group/' + resData[resDataCnt].uuid;
+                                   sgReqObj.appData = appData; 
+                                   callSGObj.push(sgReqObj);
+                               }
                             }   
                         }
                     }
@@ -185,13 +193,29 @@ function getProjectQuotaUsedInfo(request, response, appData)
                 }
             }
         }
-        if(callVNObj.length > 0) {
-            getSubNetsUsedInfo(callVNObj, usedResCnt, response, function() {
+        if(callVNObj.length <= 0) {
+            userResCnt['subnet'] = 0;
+            if(callSGObj.length <= 0) { 
+                usedResCnt['security_group_rule'] = 0;
                 commonUtils.handleJSONResponse(err, response, usedResCnt); 
-            });
+            } else {
+                getSecurityGroupRule(callSGObj, usedResCnt, response, function(error, data) {
+                    commonUtils.handleJSONResponse(error, response, usedResCnt); 
+                });			
+            }
         } else {
-             usedResCnt['subnet'] = 0;
-             commonUtils.handleJSONResponse(err, response, usedResCnt);
+            if(callSGObj.length <= 0) { 
+                usedResCnt['security_group_rule'] = 0;
+                getSubNetsUsedInfo(callVNObj, usedResCnt, response, function(error, data) {
+                    commonUtils.handleJSONResponse(error, response, usedResCnt);
+                });
+            } else {
+                getSubNetsUsedInfo(callVNObj, usedResCnt, response, function(error, data) {
+                    getSecurityGroupRule(callSGObj, usedResCnt, response, function(error, data) {
+                        commonUtils.handleJSONResponse(error, response, usedResCnt); 
+                    });	
+                });	
+            }
         }
     });  
 }
@@ -211,11 +235,29 @@ function getSubNetsUsedInfo(callVNObj, usedResCnt, response, callback)
                 for(var ipamCnt = 0; ipamCnt < ipams.length; ipamCnt++) {
                     var attr = ipams[ipamCnt]['attr'];
                     var subnetsCnt =  attr['ipam_subnets'] ? attr['ipam_subnets'].length : 0;   
-                    resCntPerProj = resCntPerProj + 1;        
+                    resCntPerProj = resCntPerProj + subnetsCnt;        
                 }  
             }            
         }
         usedResCnt['subnet'] = resCntPerProj;
+        callback();       
+    });
+}
+
+function getSecurityGroupRule(sgReqObj, usedResCnt, response, callback) 
+{
+    //prepare used info count for subnets
+    async.map(sgReqObj, processAsyncReq, function(err, resData) {
+        if (err) {
+            commonUtils.handleJSONResponse(err, response, null);
+            return;
+        }
+        var subGrpCnt = 0;
+        for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
+            var sg = resData[resDataCnt]['security-group']['security_group_entries'];
+            subGrpCnt += sg['policy_rule'] ? sg['policy_rule'].length : 0;
+        }
+        usedResCnt['security_group_rule'] = subGrpCnt;
         callback();            
     });
 }
