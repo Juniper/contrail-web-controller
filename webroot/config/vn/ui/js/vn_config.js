@@ -371,7 +371,12 @@ function initActions() {
         }     
         if (validate() !== true)
             return;
-
+        if (txtVNName[0].disabled == true){
+            mode = "edit";
+        } else {
+            txtVNName.val($("#txtDisName").val());
+            mode = "add";
+        }
         var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
         if(!isValidDomainAndProject(selectedDomain, selectedProject)) {
@@ -647,14 +652,10 @@ function initActions() {
                 ["forwarding_mode"] = fwdMode;
         }
         //vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
-        if (txtVNName[0].disabled == true)
-            mode = "edit";
-        else
-            mode = "add";
+
 
         console.log(JSON.stringify(vnConfig))
         if (mode === "add") {
-            vnConfig["virtual-network"]["fq_name"][2] = $("#txtDisName").val();
             doAjaxCall("/api/tenants/config/virtual-networks", "POST", JSON.stringify(vnConfig),
                 "createVNSuccessCb", "createVNFailureCb");
         }
