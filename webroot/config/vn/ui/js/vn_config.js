@@ -108,7 +108,14 @@ function initComponents() {
                 field: "Network",
                 name: "Network",
                 minWidth : 120,
-                sortable: true
+                sortable: true,
+                formatter: function(r, c, v, cd, dc) {
+                    if(dc.displayName !== dc.Network) {
+                        return dc.Network + '*';
+                    } else {
+                        return dc.Network;
+                    }
+                }
             },
             {
                 id: "IPBlocks",
