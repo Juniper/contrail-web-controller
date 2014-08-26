@@ -629,6 +629,7 @@ var infraMonitorUtils = {
         cboMsgToTime = $('#console-to-time').data('contrailDateTimePicker');
         toTimeEle = $('#console-to-time');
         fromTimeEle = $('#console-from-time');
+        keywords = $('#console-keywords');
 
         cboTimeRange.value('custom');
         cboMsgLevel.value('5');
@@ -822,6 +823,9 @@ var infraMonitorUtils = {
             } else {
             	filterObj['toTimeUTC'] = "now";
             	filterObj['fromTimeUTC'] = "now-"+ cboTimeRange.value();//adjustDate(new Date(filterObj['toTimeUTC']), {sec:-1 * cboTimeRange.value()}).getTime();
+            }
+            if(keywords.val() != null && keywords.val() != ''){
+                filterObj['keywords'] = keywords.val();
             }
             loadSLResults({elementId:'gridConsole', btnId:'btnDisplayLogs', timeOut:60000,
                 pageSize:20, //gridHeight:500,
