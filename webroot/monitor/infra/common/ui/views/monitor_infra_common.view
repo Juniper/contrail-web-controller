@@ -137,6 +137,12 @@
                                 </div>
                             </div>
                             <div class='span2'>
+                                <label>Keywords</label>
+                                <div>
+                                    <input id='console-keywords' class="span12" type="text" placeholder="Enter keyword(s)"></input>
+                                </div>
+                            </div>
+                            <div class='span2'>
                                 <label>Auto Refresh</label>
                                 <div>
                                     <input type='checkbox' class='ace-input' id='msgAutoRefresh' tabindex=0/><span for='msgAutoRefresh' class='ace-lbl'>&nbsp;</span >
