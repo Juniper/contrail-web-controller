@@ -65,12 +65,26 @@
                     </div>
                 </div>
                 <div class="control-group hide" id="dnsTenantBlock">
-                    <label class="control-label" class="span3">Tenant DNS Server IP</label>
+                    <label class="control-label" class="span3">Tenant DNS Server IPs</label>
                     <div class="controls">
-                        <div class="row-fluid">
-                            <input type="text" id="txtdnsTenant"  class="span10" />
+                        <div class="row-fluid margin-0-0-10">
+                            <div class="rule-item-header span10">
+                                <div class="row-fluid">
+                                    <div class="span11">
+                                        <h6>DNS Server IPs</h6>
+                                    </div>
+                                    <div class="span1 pull-left">
+                                        <div title="Add DNS Server IP below" class="margin-5 padding-10-0">
+                                            <i id="btnCommonAddDNSServerIP" class="pull-left icon-plus" onclick="appendDNSServerIPEntry(this, true);"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div class="row-fluid">
+                            <div id="DNSServerIPTuples" class="row-fluid"></div>
+                        </div>
+                    </div>                   
                 </div>
                 <div class="control-group hide" id="dnsvirtualBlock" >
                         <label class="control-label" class="span3">Virtual DNS</label>
