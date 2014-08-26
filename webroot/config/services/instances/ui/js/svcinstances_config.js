@@ -11,7 +11,7 @@ function ServicesInstances() {
     var txtsvcInstanceName, txtMaximumInstances,txt_ln_dis;
 
     //Dropdowns
-    var ddDomain, ddProject, ddsvcTemplate;
+    var ddDomain, ddProject, ddsvcTemplate,ddZone,ddZoneHost;
 
     //Grids
     var gridsvcInstances;
@@ -38,6 +38,7 @@ function ServicesInstances() {
     var templateImages;
     var dynamicID;
     var networks = [];
+    var allZoneList = [];
 
     //timer level
     var TimerLevel,TimerArray;
@@ -263,6 +264,15 @@ function initComponents() {
         dataValueField:"value",
         change:svcTemplateChange
     });
+    ddZone = $("#ddZone").contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        change:zoneChange
+    });
+    ddZoneHost = $("#ddZoneHost").contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value"
+    });
 
     gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
     gridsvcInstances.showGridMessage('loading');
@@ -388,6 +398,20 @@ function initActions() {
 
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"] = {};
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"]["max_instances"] = maxInstances;
+            
+            var avaiZone;
+            if($("#ddZoneHost").data("contrailDropdown").value() == "ANY") {
+                if($("#ddZone").data("contrailDropdown").value() == "ANY") {
+                    avaiZone = "";
+                } else {
+                    avaiZone = $("#ddZone").data("contrailDropdown").value();
+                }
+            } else {
+                avaiZone = $("#ddZone").data("contrailDropdown").value()+":"+$("#ddZoneHost").data("contrailDropdown").value();
+            }
+			if(avaiZone != ""){
+                serviceInstance["service-instance"]["service_instance_properties"]["availability_zone"] = avaiZone;
+            }
 
             serviceInstance["service-instance"]["service_instance_properties"]["interface_list"] = [];
             var allInterfaceDiv = "#interface";
@@ -556,7 +580,7 @@ function successHandlerForGridStatusUpdate(result) {
     var reload = false;
     var svcDS = $("#gridsvcInstances").data("contrailGrid")._dataView.getItems();
     for(var i=0; i < svcDS.length ;i++){
-        if(svcDS[i].uuid == svcInstancesConfig[i].ConfigData["service-instance"].uuid){
+        if("ConfigData" in svcInstancesConfig[i] && svcDS[i].uuid == svcInstancesConfig[i].ConfigData["service-instance"].uuid){
             var vmStatusData  = svcInstancesConfig[i]["vmStatus"];
             var vmStatus  = svcInstancesConfig[i]["vmStatus"];
             var VMDetails = svcInstancesConfig[i]["VMDetails"];
@@ -566,7 +590,7 @@ function successHandlerForGridStatusUpdate(result) {
             updateStatus(svcDS[i],vmStatusData,vmStatus,VMDetails);            
         } else {
             for(var j=0;j<svcInstancesConfig.length;j++){
-                if(svcDS[i].uuid === svcInstancesConfig[j].ConfigData["service-instance"].uuid){
+                if("ConfigData" in svcInstancesConfig[i] && svcDS[i].uuid === svcInstancesConfig[j].ConfigData["service-instance"].uuid){
                     var vmStatus  = svcInstancesConfig[j]["vmStatus"];
                     var vmStatusData  = svcInstancesConfig[j]["vmStatus"];
                     var VMDetails = svcInstancesConfig[j]["VMDetails"];
@@ -826,6 +850,7 @@ function successHandlerForGridsvcInstanceRow(result) {
         var svc_flavor = "-";
         var svc_ordered_interfaces = false;
         var svc_image = "-";
+        var availability_zone = "";
 
         var svc_tmpl_name_text = svcInstance.service_template_refs[0].to[1];
         svc_tmpl_name =  svc_tmpl_name_text + " (" + ucfirst(getServiceMode(svc_tmpl_name_text)) + ")";
@@ -851,6 +876,10 @@ function successHandlerForGridsvcInstanceRow(result) {
         }
         var statRoutes = [];
         all_network = [];
+        availability_zone = svcInstance['service_instance_properties']['availability_zone'];
+        if(availability_zone == "" || availability_zone == null){
+            availability_zone = "ANY:ANY";
+        }
         if("ordered_interfaces" in templateDetail["service_template_properties"] 
            && (templateDetail["service_template_properties"]["ordered_interfaces"] != null 
            && templateDetail["service_template_properties"]["ordered_interfaces"] != undefined 
@@ -992,6 +1021,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             "flavor":svc_flavor,
             "order":svc_ordered_interfaces,
             "All_Network":all_network,
+            "availability_zone":availability_zone,
 //            "vmStatus":vmStatus,
             "vmStatus":"update",
             "vmStatusData":"update",
@@ -1318,12 +1348,17 @@ var interfacesLen = $("#instanceDiv").children().length;
  
     return intfDiv;
 }
-
+function zoneChange(who){
+    var ddZoneText = $("#ddZone").data("contrailDropdown").text();
+    setHostForZone(ddZoneText);
+}
 function svcTemplateChange(who,editData) {
     
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
     var tmplSvcScaling = templateProps["service_template_properties"]["service_scaling"];
+    var availZone = templateProps["service_template_properties"]["availability_zone_enable"];
     $("#maxInstances").addClass("hide");
+    $("#avilZone").addClass("hide");
     $(txtMaximumInstances).val("1");
 
     closeAllStaticRout();
@@ -1332,7 +1367,9 @@ function svcTemplateChange(who,editData) {
         tmplSvcScaling === "True" || tmplSvcScaling === "true") {
         $("#maxInstances").removeClass("hide");
     }
-
+    if(availZone == true || availZone == "True" || availZone === "true") {
+        $("#avilZone").removeClass("hide");        
+    }
     var svcTmplIntf = [];
     svcTmplIntf = templateProps["service_template_properties"]["interface_type"];
     $("#instanceDiv").empty();
@@ -1474,12 +1511,52 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             selectedDomainName ,
         type:"GET"
     });
+    getAjaxs[3] = $.ajax({
+        url:"/api/tenants/config/getAvailabilityZone/",
+        type:"GET"
+    });
 
+    if(globalObj['webServerInfo']['role'] == "admin"){
+        getAjaxs[4] = $.ajax({
+            url:"/api/tenants/config/getHostList/",
+            type:"GET"
+        });
+    }
     $.when.apply($, getAjaxs).then(
         function () {
             var results = arguments;
+            //globalObj['webServerInfo']['role'] = "user";
+            var hostList = [];
+            var availabilityZone = [];
+            if(globalObj['webServerInfo']['role'] == "admin"){
+                hostList = results[4][0].host;
+                $("#host").removeClass("hide");
+                $("ddZone").removeClass("span5");
+                $("ddZone").addClass("span12");
+            } else {
+                $("#host").addClass("hide");
+                $("ddZone").addClass("span5");
+                $("ddZone").removeClass("span12");
+            }
+            availabilityZone = results[3][0].availabilityZoneInfo;
+            var ddzoneList = [];
+            allZoneList = [];
+            ddzoneList.push({"text":"ANY",value:"ANY"});
+            for(var tempi = 0 ; tempi < availabilityZone.length; tempi++){
+                if(availabilityZone[tempi].zoneState.available == true || availabilityZone[tempi].zoneState.available == "true" || availabilityZone[tempi].zoneState.available == "True"){
+                    ddzoneList.push({"text":availabilityZone[tempi].zoneName , "value":availabilityZone[tempi].zoneName});
+                    for(var tempj = 0; tempj < hostList.length;tempj++){
+                        if(hostList[tempj].zone == availabilityZone[tempi].zoneName){
+                            allZoneList.push({"zone":hostList[tempj].zone,"host_name":hostList[tempj].host_name});
+                        }
+                    }
+                }
+            }
 
-            var svcTemplates = [];
+            $("#ddZone").data("contrailDropdown").setData(ddzoneList);
+            $("#ddZone").data("contrailDropdown").value(ddzoneList[0].text);
+            setHostForZone(ddzoneList[0].text);
+			var svcTemplates = [];
             var svcTemplateObjs = jsonPath(results[0][0], "$..service-template");
             var svcTemplatesLen = 0;
             if(svcTemplateObjs != "false" && svcTemplateObjs != false)
@@ -1563,6 +1640,8 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 windowCreateSvcInstances.find('.modal-header-title').text("Create Service Instance");
                 $("#txtMaximumInstances").removeAttr("disabled","disabled");
                 $("#txtsvcInstanceName").removeAttr("disabled","disabled");
+                $("#ddZoneHost").removeAttr("disabled","disabled");
+                $("#ddZone").removeAttr("disabled","disabled");
                 $("#ddsvcTemplate").data("contrailDropdown").enable();
             }
         },
@@ -1573,6 +1652,24 @@ function svcInstancesCreateWindow(mode,rowIndex) {
     );
 }
 
+function setHostForZone(zoneName,defautValue){
+    var hostValue = [];
+    //if(zoneName == "ANY"){
+        hostValue.push({text:"ANY", value:"ANY"});
+    //} else {
+        for(var i = 0; i<allZoneList.length;i++){
+            if(allZoneList[i].zone == zoneName){
+                hostValue.push({text:allZoneList[i].host_name, value:allZoneList[i].host_name});
+            }
+        }
+    //}
+    $("#ddZoneHost").data("contrailDropdown").setData(hostValue);
+    if(defautValue != "" && defautValue != null){
+        $("#ddZoneHost").data("contrailDropdown").value(defautValue);
+    } else {
+        $("#ddZoneHost").data("contrailDropdown").value(hostValue[0].text);
+    }
+}
 function createSInstanceSuccessCb() {
     fetchDataForGridsvcInstances();
 }
@@ -1594,8 +1691,13 @@ function editWindow(rowIndex){
             break;
         }
     }
+    var zoneHost = (selectedRow.availability_zone).split(":");
+    $("#ddZone").data("contrailDropdown").value(zoneHost[0]);
+    setHostForZone(zoneHost[0],zoneHost[1]);
     $("#ddsvcTemplate").data("contrailDropdown").enable(false);
     $("#txtsvcInstanceName").attr("disabled","disabled");
+    $("#ddZoneHost").attr("disabled","disabled");
+    $("#ddZone").attr("disabled","disabled");
     $("#txtMaximumInstances").attr("disabled","disabled");
 }
 function ucfirst(str) {
