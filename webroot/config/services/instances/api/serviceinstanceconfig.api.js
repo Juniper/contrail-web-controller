@@ -1298,6 +1298,44 @@ function getDefaultAnalyzerPolicyName(analyzerName) {
     return policyName;
 };
 
+/**
+ * @getOSHostList
+ * private function
+ * 1.gets the list of Host list with details and sends back response to client.
+ */
+function getHostList(request, response, appdata)
+{
+    computeApi.getOSHostList(request, function(err, data) {
+        var filteredOSHostList = [];
+        var allOSHostList = data["hosts"];
+        console.log(data);
+        console.log(data["hosts"]);
+        console.log(data["hosts"].length);
+        for (i = 0; i < data["hosts"].length; i++) {
+            if(data["hosts"][i].service == "compute"){
+                filteredOSHostList.push(data["hosts"][i]);
+            }
+        }
+        var returnArr = {};
+        returnArr["host"] = filteredOSHostList;
+        commonUtils.handleJSONResponse(err, response, returnArr);
+    });
+}
+
+/**
+ * @getAvailabilityZoneList
+ * private function
+ * 1.gets the list of Availability Zone List with details and sends back response to client.
+ */
+
+function getAvailabilityZone(request, response, appdata)
+{
+    computeApi.getAvailabilityZoneList(request, function(err, data) {
+        console.log(data);
+        commonUtils.handleJSONResponse(err, response, data);
+    });
+}
+
 exports.listServiceInstances = listServiceInstances;
 exports.listAllServiceInstances = listAllServiceInstances;
 exports.listAllServiceInstancesDetails = listAllServiceInstancesDetails;
@@ -1310,5 +1348,7 @@ exports.configurePacketCapture4Interface = configurePacketCapture4Interface;
 exports.configurePacketCapture4Flow = configurePacketCapture4Flow;
 exports.updateServiceInstance = updateServiceInstance;
 exports.getServiceInstances = getServiceInstances;
+exports.getHostList = getHostList;
+exports.getAvailabilityZone = getAvailabilityZone;
 exports.getServiceInstanceStatusByProject = getServiceInstanceStatusByProject;
 
