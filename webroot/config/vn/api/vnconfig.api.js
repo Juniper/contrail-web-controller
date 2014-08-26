@@ -821,6 +821,9 @@ function updateRouterExternalFlag(configData, requestData) {
         } else {
             configData["virtual-network"]["id_perms"]["enable"] = false;
         }
+        if(requestData["virtual-network"].hasOwnProperty("display_name")) {
+           configData["virtual-network"]["display_name"] = requestData["virtual-network"]["display_name"];
+        }
     }
 }
 
