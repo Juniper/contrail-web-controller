@@ -194,7 +194,7 @@ function getProjectQuotaUsedInfo(request, response, appData)
             }
         }
         if(callVNObj.length <= 0) {
-            userResCnt['subnet'] = 0;
+            usedResCnt['subnet'] = 0;
             if(callSGObj.length <= 0) { 
                 usedResCnt['security_group_rule'] = 0;
                 commonUtils.handleJSONResponse(err, response, usedResCnt); 
