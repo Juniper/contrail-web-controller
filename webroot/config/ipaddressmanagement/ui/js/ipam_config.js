@@ -261,9 +261,12 @@ function initActions() {
 
     btnCreateEditipamOK.click(function (a) {
         var verify = validate();
-        if(verify === false)
+        if(verify === false) {
             return;
-
+        }
+        if(validateDNSServerIP() === false) {
+            return;
+        }
         var selectedDomaindd = $("#ddDomainSwitcher").data("contrailDropdown");
         var selectedDomain = selectedDomaindd.text();
         var selectedProjectdd = $("#ddProjectSwitcher").data("contrailDropdown");
