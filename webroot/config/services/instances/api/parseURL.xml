@@ -95,5 +95,17 @@
         <feature>siconfig</feature>
         <callback>siconfigapi.listAllServiceInstancesDetails</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/getHostList</url>
+        <method>get</method>
+        <feature>siconfig</feature>
+        <callback>siconfigapi.getHostList</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/getAvailabilityZone</url>
+        <method>get</method>
+        <feature>siconfig</feature>
+        <callback>siconfigapi.getAvailabilityZone</callback>
+    </item>
 </urlLists>
 
