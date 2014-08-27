@@ -2078,8 +2078,7 @@ function validate() {
                             return false;
                         }
                     }
-
-                    if(allInterface.length > 1 && allInterface[allInterface.length-1].mode != "in-network-nat"){
+                    if(inNetworkCount >= 1 &&  allInterface[allInterface.length-1].mode != "in-network-nat"){
                         showInfoWindow("Last instance should be of 'in-network-nat' service mode while applying services.", "Invalid Rule");
                         return false;
                     }
