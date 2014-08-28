@@ -1164,7 +1164,7 @@ function getFipPoolToEntry (fipPoolRef, fipPool, projName, fipPostData)
                 }
                 fipPoolRefObj = {
                     to: fip[i]['to'],
-                    attr: {},
+                    attr: null,
                     uuid: fipUUID
                 }
                 fipPoolRef.push(fipPoolRefObj);
@@ -1580,7 +1580,7 @@ function updateFipPoolUpdateProjects (error, results,
             fipPoolRefObj =
             {
                           to: fipPool['floating-ip-pool']['fq_name'],
-                          attr: {},
+                          attr: null,
                           uuid: fipPool['floating-ip-pool']['uuid']
             };
             fipPoolRef.push(fipPoolRefObj);
