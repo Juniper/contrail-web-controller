@@ -492,7 +492,8 @@ function setIPwithID(id){
                 break;
             }
             case "Right":{
-                if ($("#ddserMode").data("contrailDropdown").value() == "transparent"){
+                if ($("#ddserMode").data("contrailDropdown").value() == "transparent" ||
+                    $("#ddserMode").data("contrailDropdown").value() == "in-network"){
                     $("#allInterface_"+id+"_cmbSharedIp")[0].checked = true;
                 } else {
                     $("#allInterface_"+id+"_cmbSharedIp")[0].checked = false;
