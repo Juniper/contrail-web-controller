@@ -558,22 +558,10 @@ var infraMonitorUtils = {
                 dataValueField:'value',
                 change:selectTimeRange
             });
-            $("#console-from-time").contrailDateTimePicker({
-               // format:"MMM dd, yyyy hh:mm:ss tt",
-                format: 'M d, Y h:i:s A',
-//                min:new Date(2013, 2, 1),
-//                value:new Date(),
-//                timeFormat:"hh:mm:ss tt",
-//                interval:10
-            });
-            $("#console-to-time").contrailDateTimePicker({
-               // format:"MMM dd, yyyy hh:mm:ss tt",
-                format:"MMM dd, yyyy hh:mm:ss tt",
-//                min:new Date(2013, 2, 1),
-//                value: new Date(),
-//                timeFormat:"hh:mm:ss tt",
-//                interval:10
-            });
+            var defaultToTime = new Date();
+            var defaultFromTime = new Date(defaultToTime.getTime() - 300000);
+            createNewDTPicker('console', 'console-from-time', showFromTime, onSelectFromDate, defaultFromTime);
+            createNewDTPicker('console', 'console-to-time', showToTime, onSelectToDate, defaultToTime);
             $('#msgType').contrailCombobox({
                 dataSource:[],
                 placeholder:'Any'
