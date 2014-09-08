@@ -6,6 +6,8 @@ var infraMonitorDashboardView = (function() {
     var self = this;
     this.load = function (obj) {
         var hashParams = ifNull(obj['hashParams'],{});
+        //Disable callbacks for DS
+        manageCrossFilters.removeAllCallBacks('vRoutersCF');
         addTabs();
         //Trigger select on tab based on hash
         infraDashboardView.selectTabByHash();
@@ -27,30 +29,77 @@ function addTabs() {
             self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
             self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
         }
-
+        var vRouterCF = 'vRoutersCF';
         var viewModel = new ViewModel();
         viewModel.data.subscribe(function(newValue) {
-            updateView(newValue);
+            $.each(newValue,function(idx,obj){
+                    if(obj['xField'] != null)
+                        obj['x'] = obj[obj['xField']];
+                    if(obj['yField'] != null)
+                        obj['y'] = obj[obj['yField']];
+                });
+            manageCrossFilters.updateCrossFilter(vRouterCF,newValue);
+            //Add crossfilter dimensions for charts ie x and y
+            manageCrossFilters.addDimension(vRouterCF,'x');
+            manageCrossFilters.addDimension(vRouterCF,'y');
+            var source = 'datasource';
+            if(newValue[0] != null && newValue[0]['isGeneratorRetrieved'] == true){
+                source = 'generator';
+            }
+            manageCrossFilters.fireCallBacks(vRouterCF,{source:source});
         })
+        
         /**
         * Takes vRouters data(array) as input and creates/updates chart
         */
-        var updateView = function(data) {
-            var chartObj = {};
-            var chartsData = {title:'vRouters',d:[{key:'vRouters',values:data}],chartOptions:{tooltipFn:bgpMonitor.vRouterTooltipFn,clickFn:bgpMonitor.onvRouterDrillDown,xPositive:true,addDomainBuffer:true}};
-            var chartObj = {};
-            if(!isScatterChartInitialized('#vrouter-bubble')) {
-                $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
-                $('#vrouter-bubble').initScatterChart(chartsData);
-            } else {
-                data = updateCharts.setUpdateParams(data);
-                chartObj['selector'] = $('#content-container').find('#vrouter-bubble > svg').first()[0];
-                chartObj['data'] = [{key:'vRouters',values:data}];
-                chartObj['type'] = 'infrabubblechart';
-                updateCharts.updateView(chartObj);
+        var updateView = function(result) {
+            var filteredNodes = result['data'];
+            var source = result['cfg']['source'];
+            if (source == 'generator'){
+                return;
             }
+            data = filteredNodes.reverse();//reversing to get the reds on top
+            var chartObj = {};
+            var chartsData = {
+                title: 'vRouters',
+                // d: splitNodesToSeriesByColor(data, chartsLegend),
+                d: [{
+                    key: 'Virtual Routers',
+                    values: data
+                }],
+                chartOptions: {
+                    // dataSplitFn: function(data) {
+                    //                     return splitNodesToSeriesByColor(data, chartsLegend);
+                    //              },
+                    tooltipFn: bgpMonitor.vRouterTooltipFn,
+                    bucketTooltipFn: bgpMonitor.vRouterBucketTooltipFn,
+                    clickFn: bgpMonitor.onvRouterDrillDown,
+                    xPositive: true,
+                    addDomainBuffer: true,
+                    isBucketize: (getCookie(DO_BUCKETIZE_COOKIE) == 'yes')? true : false,
+                    bucketOptions:{
+                        maxBucketizeLevel: defaultMaxBucketizeLevel,
+                        bucketSizeParam: defaultBucketSizeParam,
+                        bucketsPerAxis: defaultBucketsPerAxis
+                    },
+                    crossFilter: vRouterCF,
+                    deferredObj: $.Deferred(),
+                    showSettings: false,
+                    showLegend: false
+                    // yAxisParams: axisParams['vRouter']['yAxisParams'],
+                    // xAxisParams: axisParams['vRouter']['xAxisParams'],
+                }
+            };
+            
+            $('#vrouterStats-header').initWidgetHeader({title:'vRouters',link:{hashParams:{p:'mon_infra_vrouter',q:{node:'vRouters'}}}});
+            //filterAndUpdateScatterChart('vrouter-bubble',chartsData);
+            $('#vrouter-bubble').initScatterChart(chartsData);
             self.updatevRouterInfoBoxes();
         }
+        
+      //register to listen to callbacks for updates on the crossfilter and update the 
+        //components which are listening to changes on it. 
+        manageCrossFilters.addCallBack(vRouterCF,'updateView',updateView);
 
         this.updatevRouterInfoBoxes = function(){
             var data = viewModel.data();
@@ -129,12 +178,33 @@ function addTabs() {
         })
 
         var updateView = function(data) {
-            if(!isScatterChartInitialized('#ctrlNode-bubble')) {
-                $('#ctrlNodeStats-header').initWidgetHeader({title:'Control Nodes',link:{hashParams:{p:'mon_infra_control',q:{node:'Control Nodes'}}}});
-                var chartsData = {title:'Control Nodes',chartOptions:{tooltipFn:bgpMonitor.controlNodetooltipFn,clickFn:bgpMonitor.onControlNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Control Nodes',values:data}]};
-                $('#ctrlNode-bubble').initScatterChart(chartsData); 
-            } else { 
-            }
+            data = data.reverse();//reversing to get the reds on top
+            var chartsData = {
+                title: 'Control Nodes',
+                chartOptions: {
+                    tooltipFn: bgpMonitor.controlNodetooltipFn,
+                    clickFn: bgpMonitor.onControlNodeDrillDown,
+                    xPositive: true,
+                    addDomainBuffer: true
+                },
+                // d: splitNodesToSeriesByColor(data,chartsLegend)
+                d: [{
+                    key: 'Control Nodes',
+                    values: data
+                }],
+            };
+            $('#ctrlNodeStats-header').initWidgetHeader({
+                title: 'Control Nodes',
+                link: {
+                    hashParams: {
+                        p: 'mon_infra_control',
+                        q: {
+                            node: 'Control Nodes'
+                        }
+                    }
+                }
+            });
+            $('#ctrlNode-bubble').initScatterChart(chartsData); 
         }
 
         infraDashboardView.addInfoBox({
@@ -164,8 +234,30 @@ function addTabs() {
         })
         var updateView = function(data) {
             if(!isScatterChartInitialized('#analyticNode-bubble')) {
-                $('#analyticNodeStats-header').initWidgetHeader({title:'Analytics Nodes',link:{hashParams:{p:'mon_infra_analytics',q:{node:'Analytics Nodes'}}}});
-                var chartsData = {title:'Analytic Nodes',chartOptions:{tooltipFn:bgpMonitor.analyticNodeTooltipFn,clickFn:bgpMonitor.onAnalyticNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Analytics Nodes',values:data}]};
+                $('#analyticNodeStats-header').initWidgetHeader({
+                    title: 'Analytics Nodes',
+                    link: {
+                        hashParams: {
+                            p: 'mon_infra_analytics',
+                            q: {
+                                node: 'Analytics Nodes'
+                            }
+                        }
+                    }
+                });
+                var chartsData = {
+                    title: 'Analytic Nodes',
+                    chartOptions: {
+                        tooltipFn: bgpMonitor.analyticNodeTooltipFn,
+                        clickFn: bgpMonitor.onAnalyticNodeDrillDown,
+                        xPositive: true,
+                        addDomainBuffer: true
+                    },
+                    d: [{
+                        key: 'Analytics Nodes',
+                        values: data
+                    }]
+                };
                 $('#analyticNode-bubble').initScatterChart(chartsData);
             } else {
             }
@@ -198,8 +290,30 @@ function addTabs() {
 
         var updateView = function(data) {
             if(!isScatterChartInitialized('#configNode-bubble')) {
-                $('#configNodeStats-header').initWidgetHeader({title:'Config Nodes',link:{hashParams:{p:'mon_infra_config',q:{node:'Config Nodes'}}}});
-                var chartsData = {title:'Config Nodes',chartOptions:{tooltipFn:bgpMonitor.configNodeTooltipFn,clickFn:bgpMonitor.onConfigNodeDrillDown,xPositive:true,addDomainBuffer:true},d:[{key:'Config Nodes',values:data}]};
+                $('#configNodeStats-header').initWidgetHeader({
+                    title: 'Config Nodes',
+                    link: {
+                        hashParams: {
+                            p: 'mon_infra_config',
+                            q: {
+                                node: 'Config Nodes'
+                            }
+                        }
+                    }
+                });
+                var chartsData = {
+                    title: 'Config Nodes',
+                    chartOptions: {
+                        tooltipFn: bgpMonitor.configNodeTooltipFn,
+                        clickFn: bgpMonitor.onConfigNodeDrillDown,
+                        xPositive: true,
+                        addDomainBuffer: true
+                    },
+                    d: [{
+                        key: 'Config Nodes',
+                        values: data
+                    }]
+                };
                 $('#configNode-bubble').initScatterChart(chartsData);
             } else {
             }

@@ -10,8 +10,7 @@ monitorInfraComputeSummaryClass = (function() {
     var vRouterDataWithStatusInfo = [];
     var filteredNodeNames = [];
     var vRouterCF;
-    updateCrossFilters = true;
-    var dimensions = [],filterDimension;
+    var dimensions = [];
     var self = this;
     var vRoutersResult = null;
     var vRoutersDataSource = null;
@@ -35,51 +34,45 @@ monitorInfraComputeSummaryClass = (function() {
     this.getCFDimensions = function() {
         return dimensions;
     }
-    
-    function updateView() {
+    function updateGrid(result) {
+        var selectedData = result['data'];
         //Update the grid
-        var selectedData = filterDimension.top(Infinity);
-        var selectedDataWithStatus = [];
         filteredNodeNames = [];
         $.each(selectedData,function(idx,obj){
+          //vRouters that match the filter criteria
           filteredNodeNames.push(obj['name']);
         });
         computeNodesGrid = $('#divcomputesgrid').data('contrailGrid');
         computeNodesGrid._dataView.setFilterArgs({
             filteredNodeNames:filteredNodeNames
         });
-        //Don't update crossfilters as updateView is triggered on change of crossfilter selection
-        updateCrossFilters = false;
         computeNodesGrid._dataView.setFilter(function(item,args) {
             if($.inArray(item['name'],args['filteredNodeNames']) > -1)
                 return true;
             return false;
         });
-        //update the charts
-        updateChartsForSummary(selectedData,"compute");
         
         //update the header
-        var infoElem = $('#vrouter-header h4');
-        var innerText = infoElem.text().split('(')[0].trim();
         var totalCnt = vRoutersDataSource.getItems().length;
         var filteredCnt = filteredNodeNames.length;
-        //totalCnt = ifNull(options['totalCntFn'](), totalCnt);
-        if (totalCnt == filteredCnt)
-            innerText += ' (' + totalCnt + ')';
-        else
-            innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
-        infoElem.text(innerText);
+        updatevRouterLabel('#vrouter-header',filteredCnt,totalCnt);
     }
     
-    function updateCrossFilter(vRouterData){
+    function updateCrossFilter(result){
+        var vRouterData = result['data'];
+        var source = result['cfg']['source'];
+        //Do not update crossfilters if the update request also came from crossfilter or because of a generator update
+        if(source == 'crossfilter' || source == 'generator'){
+            return;
+        }
         $('.chart > svg').remove();
-       //Start updating the crossfilter
-       vRouterCF = crossfilter(vRouterData);
-       var intfDimension = vRouterCF.dimension(function(d) { return d.intfCnt;});
-       var instDimension = vRouterCF.dimension(function(d) { return d.instCnt;});
-       var vnDimension = vRouterCF.dimension(function(d) { return d.vnCnt;});
+        
+       var vRouterCF = manageCrossFilters.getCrossFilter('vRoutersCF');
+       var intfDimension = manageCrossFilters.getDimension('vRoutersCF','intfCnt');
+       var instDimension = manageCrossFilters.getDimension('vRoutersCF','instCnt');
+       var vnDimension = manageCrossFilters.getDimension('vRoutersCF','vnCnt');
+       
        dimensions.push(intfDimension,instDimension,vnDimension);
-       filterDimension = vRouterCF.dimension(function(d) { return d.intfCnt;});
        //Set crossfilter bucket count based on number of max VNs/interfaces/instances on a vRouter
        var vnCnt = 24;
        var intfCnt = 24;
@@ -105,7 +98,7 @@ monitorInfraComputeSummaryClass = (function() {
            barChart()
                .dimension(vnDimension)
                .group(vnDimension.group(Math.floor))
-               .toolTip(true)
+               .toolTip(false)
              .x(d3.scale.linear()
                .domain([0, vnCnt+(vnCnt/24)])
                .rangeRound([0, 10 * 26])) //Width
@@ -138,12 +131,8 @@ monitorInfraComputeSummaryClass = (function() {
         
          chart = d3.selectAll(".chart")
              .data(charts)
-             .each(function(currChart) { currChart.on("brush", function() {
-                 logMessage('bgpMonitor',filterDimension.top(10));
-                 updateView();
-                 renderAll(chart);
-             }).on("brushend", function() { 
-                 updateView();
+             .each(function(currChart) { currChart.on("brushend", function(d) { 
+                 manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
                  renderAll(chart);
              }); 
          });
@@ -153,36 +142,41 @@ monitorInfraComputeSummaryClass = (function() {
          $('.reset').bind('click',function() {
              var idx = $(this).closest('.chart').index();
              charts[idx].filter(null);
+             manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
              renderAll(chart);
-             updateView();
          });
          //End update to crossfilter
     }//updateCrossFilter
     
+    function updatevRouterSummaryCharts(result){
+        var filteredNodes = result['data'];
+        var source = result['cfg']['source'];
+        //if the callback is because of an update to generator then dont update the charts
+        if(source == 'generator'){
+            return;
+        }
+        updateChartsForSummary(filteredNodes,'compute');
+    }
+        
     this.populateComputeNodes = function () {
         infraMonitorUtils.clearTimers();
         var compNodesTemplate = contrail.getTemplate4Id("computenodes-template");
         $(pageContainer).html(compNodesTemplate({}));
         //Initialize widget header
-        $('#vrouter-header').initWidgetHeader({title:'vRouters',widgetBoxId:'recent'});
+        $('#vrouter-header').initWidgetHeader({title:'Virtual Routers',widgetBoxId:'recent'});
         //Create the managedDS
         var vRouterDS = new SingleDataSource('computeNodeDS');
+        
         vRoutersResult = vRouterDS.getDataSourceObj();
         vRoutersDataSource = vRoutersResult['dataSource'];
         vRouterDeferredObj = vRoutersResult['deferredObj'];//gives the deferred object from managed datasource
        
         $(vRouterDS).on('change',function() {
+            //TODO dono why its required will need to take a look later by removing it
             var filteredNodes = [];
-            var rowItems = vRoutersDataSource.getItems();
-            for(var i=0;i<rowItems.length;i++) {
-                filteredNodes.push(rowItems[i]);
-            }
-            updateChartsForSummary(filteredNodes,'compute');
-            if(updateCrossFilters == true) 
-                updateCrossFilter(filteredNodes);
-            else
-                updateCrossFilters = true;
-            
+            $.each(vRoutersDataSource.getItems(),function(i,item){
+                filteredNodes.push(item);
+            });
             setTimeout(function () {
                 var cgrid = $('#divcomputesgrid').data('contrailGrid');
                 if(cgrid != null) {
@@ -193,11 +187,32 @@ monitorInfraComputeSummaryClass = (function() {
                     }
                 }
             }, 500);
-            
-            //ToDo: Need to see issue with sparkLine update
-            //updateCpuSparkLines(computeNodesGrid,localDS.data());
+            $.each(filteredNodes,function(idx,obj){
+                    if(obj['xField'] != null)
+                        obj['x'] = obj[obj['xField']];
+                    if(obj['yField'] != null)
+                        obj['y'] = obj[obj['yField']];
+                });
+            manageCrossFilters.updateCrossFilter('vRoutersCF',filteredNodes);
+            //Add current crossfilters dimensions again as they will be lost on crossfilter reset
+            manageCrossFilters.addDimension('vRoutersCF','intfCnt');
+            manageCrossFilters.addDimension('vRoutersCF','instCnt');
+            manageCrossFilters.addDimension('vRoutersCF','vnCnt');
+            //Add crossfilter dimensions for charts ie x and y
+            manageCrossFilters.addDimension('vRoutersCF','x');
+            manageCrossFilters.addDimension('vRoutersCF','y');
+            var source = 'datasource';
+            if(filteredNodes[0] != null && filteredNodes[0]['isGeneratorRetrieved'] == true){
+                source = 'generator';
+            }
+            manageCrossFilters.fireCallBacks('vRoutersCF',{source:source});
         });
         var emptyDataSource = new ContrailDataView();
+        //register to listen to callbacks for updates on the crossfilter and update the 
+        //components which are listening to changes on it. 
+        manageCrossFilters.addCallBack('vRoutersCF','updatevRouterSummaryCharts',updatevRouterSummaryCharts);
+        manageCrossFilters.addCallBack('vRoutersCF','updateCrossFilter',updateCrossFilter);
+        manageCrossFilters.addCallBack('vRoutersCF','updateGrid',updateGrid);
         $('#divcomputesgrid').contrailGrid({
             header : {
                 title : {
@@ -368,18 +383,6 @@ monitorInfraComputeSummaryClass = (function() {
         } else {
             computeNodesGrid.showGridMessage('loading');
         }
-       /* $(vRouterDS).on('change',function() {
-            var infoElem = $('#vrouter-header h4');
-            var innerText = infoElem.text().split('(')[0].trim();
-            var totalCnt = vRoutersDataSource.getItems().length;
-            var filteredCnt = vRoutersDataSource.getLength();
-            //totalCnt = ifNull(options['totalCntFn'](), totalCnt);
-            if (totalCnt == filteredCnt)
-                innerText += ' (' + totalCnt + ')';
-            else
-                innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
-            infoElem.text(innerText);
-        });*/
     }
     return {populateComputeNodes:populateComputeNodes};
 })();

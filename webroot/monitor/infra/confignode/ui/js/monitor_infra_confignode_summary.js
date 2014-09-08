@@ -156,15 +156,12 @@ monitorInfraConfigSummaryClass = (function() {
 
         $(configNodeDS).on("change",function(){
             updateChartsForSummary(configNodesDataSource.getItems(),"config");
-            //Revisit if required with opensourcing changes
-            //updateCpuSparkLines(confNodesGrid,configNodesDataSource.getItems());
         });
         if(configNodesResult['lastUpdated'] != null && (configNodesResult['error'] == null || configNodesResult['error']['errTxt'] == 'abort')){
          triggerDatasourceEvents(configNodeDS);
         } else {
             confNodesGrid.showGridMessage('loading');
         }
-        //applyGridDefHandlers(confNodesGrid, {noMsg:'No Config Nodes to display'});
     };
     return {populateConfigNodes:populateConfigNodes};
 })();
