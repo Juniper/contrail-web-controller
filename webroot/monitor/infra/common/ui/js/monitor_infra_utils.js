@@ -1,7 +1,75 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ *
  */
 var consoleTimer = [];
+//For Axis params if the data type is not provided default one is Integer and currently 
+//only two data types integer and float are supported
+var axisParams = {
+                    'vRouter':{
+                        yAxisParams:[{
+                                        lbl:'Memory (MB)',
+                                        key:'virtMemory',
+                                        isBucketSizeParam:false,
+                                        defaultParam:true,
+                                        aggregratorFn:function(){},
+                                        formatFn:function(data){
+                                            return prettifyBytes({bytes:ifNull(data,0)*(1024 * 1024),stripUnit:true,prefix:'MB'})
+                                        }
+                                      },
+                                      {
+                                          lbl:'Virtual Networks',
+                                          key:'vnCnt',
+                                          isBucketSizeParam:false,
+                                          aggregratorFn:function(){}
+                                      }],
+                       xAxisParams:[{
+                                       lbl:'CPU (%)',
+                                       key:'cpu',
+                                       type:'float',
+                                       defaultParam:true,
+                                       isBucketSizeParam:false,
+                                       aggregratorFn:function(){}
+                                    },
+                                    {
+                                        lbl:'Instances',
+                                        key:'instCnt',
+                                        isBucketSizeParam:false,
+                                        aggregratorFn:function(){}
+                                    }
+                                    ]
+                    },
+                    'analyticsNode':{
+                        yAxisParams:[{
+                            
+                                    }],
+                        xAxisParams:[{
+                                    
+                                    }]
+                    },
+                    'controlNode':{
+                        yAxisParams:[{
+                            
+                        }],
+                        xAxisParams:[{
+                        
+                        }]
+                    },
+                    'configNode':{
+                        yAxisParams:[{
+                            
+                        }],
+                        xAxisParams:[{
+                        
+                        }]
+                    }
+                 }
+var chartsLegend = { 
+        Working: d3Colors['green'],
+        Idle: d3Colors['blue'],
+        Warning: d3Colors['orange'],
+        Error: d3Colors['red']
+   };
 var infraMonitorAlertUtils = {
     /**
     * Process-specific alerts
@@ -270,10 +338,11 @@ var infraMonitorUtils = {
             var obj = {};
             var d = result[i];
             var dValue = result[i]['value'];
-            obj['x'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
-            obj['y'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;res','--'))/1024; //Convert to MB
-            obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
+            obj['cpu'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
+            obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(2)) : '-';
             obj['ip'] = getValueByJsonPath(dValue,'VrouterAgent;control_ip','-');
+            obj['xField'] = 'cpu';
+            obj['yField'] = 'resMemory';
             obj['uveIP'] = obj['ip'];
             obj['summaryIps'] = getVrouterIpAddresses(dValue,"summary");
             var iplist = getValueByJsonPath(dValue,'VrouterAgent;self_ip_list',[]);
@@ -296,6 +365,10 @@ var infraMonitorUtils = {
             obj['status'] = getOverallNodeStatus(d,'compute');
             var processes = ['contrail-vrouter-agent','contrail-vrouter-nodemgr','supervisor-vrouter'];
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
+            //Used for plotting in scatterChart
+            obj['resMemory'] = getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;res','-');
+            obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(parseFloat(obj['resMemory']/1024).toFixed(2)) : '-';
+            obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024;
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
             obj['shape'] = 'circle';
@@ -361,6 +434,7 @@ var infraMonitorUtils = {
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..cpu_info.cpu_share')[0]);
+            //Info:Need to specify the processname explictly for which we need res memory
             obj['y'] = parseInt(jsonPath(d,'$..meminfo.res')[0])/1024; //Convert to MB
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$..cpu_share[*].history-10');
@@ -1899,47 +1973,107 @@ function formatMemory(memory) {
 }
 
 function updateChartsForSummary(dsData, nodeType) {
-    var title,key,chartId,isChartInitialized = false,tooltipFn;
+    var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter;
     var nodeData = dsData;
-    var data = [];
-    if(nodeData != null){
-        data = updateCharts.setUpdateParams($.extend(true,[],nodeData));
-    }
+    var showLegend;
+    var data = [],updateHeaderCount = false;
+    data = dsData;
     if(nodeType == 'compute'){
 		title = 'vRouters';
 		key = 'vRouters';
 		chartId = 'vrouters-bubble';
         tooltipFn = bgpMonitor.vRouterTooltipFn;
+        bucketTooltipFn = bgpMonitor.vRouterBucketTooltipFn;
+        isBucketize = false;
         clickFn = bgpMonitor.onvRouterDrillDown;
+        crossFilter = 'vRoutersCF';
+        updateHeaderCount = true;
 	} else if(nodeType =="control"){
 		title = 'Control Nodes';
 		key = 'controlNode';
 		chartId = 'controlNodes-bubble';
         tooltipFn = bgpMonitor.controlNodetooltipFn;
+        isBucketize = false;
         clickFn = bgpMonitor.onControlNodeDrillDown;
 	} else if(nodeType == "analytics"){
 		title = 'Analytic Nodes';
 		key = 'analyticsNode';
 		chartId = 'analyticNodes-bubble';
         tooltipFn = bgpMonitor.analyticNodeTooltipFn;
+        isBucketize = false;
         clickFn = bgpMonitor.onAnalyticNodeDrillDown;
 	} else if(nodeType == "config"){
 		title = 'Config Nodes';
 		key = 'configNode';
 		chartId = 'configNodes-bubble';
         tooltipFn = bgpMonitor.configNodeTooltipFn;
+        isBucketize = false;
         clickFn = bgpMonitor.onConfigNodeDrillDown;
 	}
-    var chartsData = [{title:title,d:[{key:key,values:data}],chartOptions:{tooltipFn:tooltipFn,clickFn:clickFn,xPositive:true,addDomainBuffer:true},link:{hashParams:{p:'mon_bgp',q:{node:'vRouters'}}},widgetBoxId:'recent'}];
-    var chartObj = {},nwObj = {};
-    if(!isScatterChartInitialized('#' + chartId)) {
-        $('#' + chartId).initScatterChart(chartsData[0]);
-    }  else {
-        chartObj['selector'] = $('#content-container').find('#' + chartId + ' > svg').first()[0];
-        chartObj['data'] = [{key:key,values:data}];
-        chartObj['type'] = 'infrabubblechart';
-        updateCharts.updateView(chartObj);
+
+    //Check if chart is already initialized and has chartOptions like currLevel
+    var currChartOptions = {};
+    if($('#' + chartId) != null) { 
+        var origData = $('#' + chartId).data('origData'); 
+        if(origData != null) {
+            currChartOptions = origData['chartOptions'];
+        }
     }
+
+    var chartsData = {
+        title: title,
+        d: splitNodesToSeriesByColor(data, chartsLegend),
+        chartOptions: $.extend(true,{
+            tooltipFn: tooltipFn,
+            bucketTooltipFn: (isBucketize)? bucketTooltipFn : '',
+            clickFn: clickFn,
+            xPositive: true,
+            addDomainBuffer: true,
+            isBucketize: isBucketize,
+            bucketOptions:{
+                maxBucketizeLevel: defaultMaxBucketizeLevel,
+                bucketSizeParam: defaultBucketSizeParam,
+                bucketsPerAxis: defaultBucketsPerAxis,
+                currLevel : 1
+            },
+            crossFilter:crossFilter,
+            deferredObj:$.Deferred(),
+            showSettings: false,
+            showLegend:false,
+            //This parameter(updateHeaderCount) updates the selected nodes count in widget header
+            //(eg:vRouter summary page)
+            updateHeaderCount:updateHeaderCount,
+        },currChartOptions),
+        link: {
+            hashParams: {
+                p: 'mon_bgp',
+                q: {
+                    node: 'vRouters'
+                }
+            }
+        },
+        widgetBoxId: 'recent'
+    };
+    var chartObj = {},nwObj = {};
+    $('#' + chartId).initScatterChart(chartsData);
+}
+
+function splitNodesToSeriesByColor(data,colors) {
+    var splitSeriesData = [];
+    var nodeCrossFilter = crossfilter(data);
+    var colorDimension = nodeCrossFilter.dimension(function(d) {return d.color});
+    var colorGroup = colorDimension.group();
+    $.each(colors,function(key,value) {
+        colorDimension.filterAll();
+        colorDimension.filter(value);
+        splitSeriesData.push({
+            // key: '',        //Don't show labels for color legend
+            key: key,        //Don't show labels for color legend
+            color: value,
+            values: colorDimension.top(Infinity)
+        });
+    });
+    return splitSeriesData;
 }
 
 //Handlebar functions for monitor infra 
@@ -1961,7 +2095,6 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
             }
         defferedObj.done(function(){
             dsObj['getFromCache'] = false;
-            manageDataSource.refreshDataSource('computeNodeDS');
         });
     } else {
         obj['transportCfg'] = {
@@ -2101,8 +2234,21 @@ function getNodeTooltipContents(currObj) {
     var tooltipContents = [
         {lbl:'Host Name', value: currObj['name']},
         {lbl:'Version', value:currObj['version']},
-        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu'] + '%' : currObj['cpu']},
-        {lbl:'Memory', value:currObj['memory']}
+        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
+        {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
+    ];
+    return tooltipContents;
+}
+
+//Default tooltip render function for buckets
+function getNodeTooltipContentsForBucket(currObj) {
+    var nodes = currObj['children'];
+    //var avgCpu = d3.mean(nodes,function(d){return d.x});
+    //var avgMem = d3.mean(nodes,function(d){return d.y});
+    var tooltipContents = [
+        {lbl:'', value: 'No. of Nodes: ' + nodes.length},
+        {lbl:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
+        {lbl:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
     ];
     return tooltipContents;
 }
@@ -2122,6 +2268,9 @@ var bgpMonitor = {
     },
     vRouterTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
+    },
+    vRouterBucketTooltipFn: function(currObj) {
+        return getNodeTooltipContentsForBucket(currObj);
     },
     controlNodetooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
@@ -2455,3 +2604,19 @@ var bgpMonitor = {
         }
     },
 }
+
+/** Function to update the header with the current shown number of nodes and the total number of nodes. Used in vRouter summary chart*/
+function updatevRouterLabel(selector,filteredCnt,totalCnt){
+    var infoElem = $(selector).find('h4');
+//    var infoElem = $('#'+ headerid);
+    var innerText = infoElem.text().split('(')[0].trim();
+    if (totalCnt == filteredCnt)
+        innerText += ' (' + totalCnt + ')';
+    else
+        innerText += ' (' + filteredCnt + ' of ' + totalCnt + ')';
+    infoElem.text(innerText);
+}
+
+
+
+

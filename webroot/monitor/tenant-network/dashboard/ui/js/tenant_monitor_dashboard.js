@@ -75,19 +75,35 @@ function domainSummaryRenderer() {
             data['charts']['d'] = [
                 {deferredObj:renderDeferredObj,title:'Projects',parseFn:function() {
                     return {
-                        d:[{key:'Projects',values:dashboardData['projectsData']}],xLbl:'Interfaces',yLbl:'Networks',forceX:[0,5],forceY:[0,10],
+                        d:[{key:'Projects',values:dashboardData['projectsData']}],
                         link:{hashParams:{q:{view:'list',type:'project',fqName:fqName,context:'domain',source:'uve'}},
                         conf:{p:'mon_net_projects',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.projectTooltipFn},hideLoadingIcon:false
+                        chartOptions:{
+                            tooltipFn:tenantNetworkMonitor.projectTooltipFn,
+                            xLbl:'Interfaces',
+                            yLbl:'Networks',
+                            forceX:[0,5],
+                            forceY:[0,10]
+                        },
+                        hideLoadingIcon:false
                     }}},
-                {deferredObj:renderDeferredObj,title:'Networks',forceX:[0,5],forceY:[0,10],parseFn:function() {
+                {deferredObj:renderDeferredObj,title:'Networks',parseFn:function() {
                     return {
-                        d:[{key:'Networks',values:dashboardData['networksData']}],xLbl:'Interfaces',yLbl:'Connected Networks',forceX:[0,5],forceY:[0,10],
+                        d:[{key:'Networks',values:dashboardData['networksData']}],
                         link:{hashParams:{q:{view:'list',type:'network',fqName:fqName,source:'uve',context:'domain'}},
                         conf:{p:'mon_net_networks',merge:false}},
-                        chartOptions:{tooltipFn:tenantNetworkMonitor.networkTooltipFn},hideLoadingIcon:false
-                        }}}
-                 ];
+                        chartOptions:{
+                            tooltipFn:tenantNetworkMonitor.networkTooltipFn,
+                            xLbl:'Interfaces',
+                            yLbl:'Connected Networks',
+                            forceX:[0,5],
+                            forceY:[0,10],
+                        },
+                        hideLoadingIcon:false
+                        }
+                    }
+                 }
+           ];
         } else {
             renderDeferredObj.done(function(data) {
                 var aggData = data['aggData'];
