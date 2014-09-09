@@ -149,6 +149,9 @@ function getProjectsFromIdentityManager (request, appData, callback)
  */
 function listProjects (request, response, appData)
 {
+    if ('none' == config.orchestration.Manager) {
+        config.getDomainProjectsFromApiServer = true;
+    }
     var isProjectListFromApiServer = config.getDomainProjectsFromApiServer;
     if (null == isProjectListFromApiServer) {
         isProjectListFromApiServer = false;
