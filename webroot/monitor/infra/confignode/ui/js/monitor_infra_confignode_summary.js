@@ -29,7 +29,18 @@ monitorInfraConfigSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#confignode-template").html(),
+                        onExpand: function (e,dc) {
+                            $('#config_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px;zoom:90%');
+                            confNodeView.populateConfigNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#config-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
+                            $('#config-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: configNodesDataSource,

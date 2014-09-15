@@ -31,21 +31,21 @@
 
 <script type="text/x-handlebars-template" id="controlnode-template">
     <div class="contrail">
-        <div id="control_tabstrip">
+        <div id="control_tabstrip_{{name}}">
             <ul>
-                <li><a href="#mon-infra-ctrl-details-tab">Details</a></li>
-                <li><a href="#mon-infra-ctrl-peers-tab">Peers</a></li>
-                <li><a href="#mon-infra-ctrl-routes-tab">Routes</a></li>
-                <li><a href="#mon-infra-ctrl-console-tab">Console</a></li>
+                <li><a href="#mon-infra-ctrl-details-tab_{{name}}">Details</a></li>
+                <li><a href="#mon-infra-ctrl-peers-tab_{{name}}">Peers</a></li>
+                <li><a href="#mon-infra-ctrl-routes-tab_{{name}}">Routes</a></li>
+                <li><a href="#mon-infra-ctrl-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-ctrl-details-tab">
-                <div id='controlnode-dashboard' class='span5'></div>
-				<div id='control-detail-charts' class="span7">
+            <div class="row-fluid" id="mon-infra-ctrl-details-tab_{{name}}">
+                <div id='controlnode-dashboard_{{name}}' class='span5'></div>
+				<div id='control-detail-charts_{{name}}' class="span7">
 	                <div class="row-fluid">
                         <div class="widget-box transparent" id="control-sparklines-box">
                             <div class="widget-header">
                                 <h4 class="smaller">
-                                    <i id="control-sparklines-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="control-sparklines_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     CPU and Memory Utilization
                                 </h4>
                                 <div class="widget-toolbar pull-right">
@@ -57,7 +57,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-4">
                                     <div class="row-fluid">
-                                        <div id="control-sparklines" class="span4 control-chart-link sparklines-box">
+                                        <div id="control-sparklines_{{name}}" class="span4 control-chart-link sparklines-box">
                                             <p class="sparkline-title">Control Node</p>
                                             <div class="row-fluid">
                                                <span class="span6"><small>CPU Utilization</small></span>
@@ -72,10 +72,10 @@
                                 </div><!-- /widget-main -->
                             </div><!--/widget-body -->
                         </div><!--/widget-box-->
-		            	<div class="widget-box transparent" id="control-chart-box">
+		            	<div class="widget-box transparent" id="control-chart_{{name}}-box">
 		            		<div class="widget-header">
 		            			<h4 class="smaller">
-                                    <i id="control-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="control-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     Control Node CPU/Memory Utilization
 		            			</h4>
 		            			<div class="widget-toolbar">
@@ -86,44 +86,44 @@
 		            		</div>
 		            		<div class="widget-body">
 		            			<div class="widget-main padding-4">
-		            				<div id='control-chart' class='row-fluid'></div>
+		            				<div id='control-chart_{{name}}' class='row-fluid'></div>
 	            				</div><!-- /widget-main -->
     	            		</div><!--/widget-body -->
     	            	</div><!--/widget-box-->
     	            </div><!--/row-->
 				</div><!--/vrouter-detail-charts-->
 				<div class="footer-links">
-                                        <a id="linkLogs" class="pull-right hide">Logs</a>
-					<a id="linkIntrospect" class="pull-right">Introspect</a>
-					<a id="linkStatus" class="pull-right">Status</a>
+                    <a id="linkLogs_{{name}}" class="pull-right hide">Logs</a>
+                    <a id="linkStatus_{{name}}">Status</a>
+                    <a id="linkIntrospect_{{name}}">Introspect</a>
 				</div>
             </div>
             
-            <div id="mon-infra-ctrl-peers-tab">
-                <div id='gridPeers'></div>
+            <div id="mon-infra-ctrl-peers-tab_{{name}}">
+                <div id='gridPeers_{{name}}'></div>
             </div>
-            <div id="mon-infra-ctrl-routes-tab">
-                <div id='contCtrlRoutes' class='row-fluid'>
+            <div id="mon-infra-ctrl-routes-tab_{{name}}">
+                <div id='contCtrlRoutes_{{name}}' class='row-fluid'>
                     <div class='row-fluid'>
                         <div class='row-fluid'>
-                            <div id='formRoutes' class='row-fluid'>
+                            <div id='formRoutes_{{name}}' class='row-fluid'>
                                 <div class='row-fluid margin-0-0-10'>
 									<div class='span6'>
 										<label for='comboRoutingInstance'>Routing Instance</label>
 										<div>
-			                                <div class='span12' id='comboRoutingInstance' tabindex=0></div>
+			                                <div class='span12' id='comboRoutingInstance_{{name}}' tabindex=0></div>
 										</div>
 									</div>
 									<div class='span2'>
 										<label for='comboRoutingTable'>Address Family</label>
 		                                <div>
-										    <input class='span12' id='comboRoutingTable' tabindex=0></input>
+										    <input class='span12' id='comboRoutingTable_{{name}}' tabindex=0></input>
 		                                </div>
                                     </div>
                                     <div class='span2'>
 									<label for='comboRouteLimit'>Limit</label>
 	                                <div>
-	                                	<input class='span12' id='comboRouteLimit' tabindex=0></input>
+	                                	<input class='span12' id='comboRouteLimit_{{name}}' tabindex=0></input>
 	                                </div>
                                 </div>
                                  </div>
@@ -131,39 +131,39 @@
                                     <div class='span2'>
                                 		<label for='comboPeerSource'>Peer Source</label>
 										<div>
-		                                    <input class='span12' id='comboPeerSource' tabindex=0></input>
+		                                    <input class='span12' id='comboPeerSource_{{name}}' tabindex=0></input>
 		                                </div>
                                     </div>
                                     <div class='span2'>
                                     	<label for='txtPrefixSearch'>Prefix</label>
 		                                <div>
-										    <input class='span12' data-role='autocomplete' data-bind='value:prefix' id='txtPrefixSearch' tabindex=0></input>
+										    <input class='span12' data-role='autocomplete' data-bind='value:prefix' id='txtPrefixSearch_{{name}}' tabindex=0></input>
 		                                </div>
 	                                </div>
 	                                <div class='span2'>
 	                                	<label for='txtPrefixSearch'>Protocol</label>
 		                                <div>
-		                                  <input class='span12'id='comboProtocol' placeholder='All' tabindex=0></input>
+		                                  <input class='span12'id='comboProtocol_{{name}}' placeholder='All' tabindex=0></input>
 		                                </div>
 		                            </div>
                                 </div>
                                 <div class='row-fluid margin-0-0-10'>
                                 	
 	                                <div class='span3'>
-	                                    <button id='btnDisplayRoutes' class='btn btn-mini btn-primary' tabindex=0>Display Routes</button>
-	                                    <button id='btnRouteReset' class='btn btn-mini' tabindex=0>Reset</button>
+	                                    <button id='btnDisplayRoutes_{{name}}' class='btn btn-mini btn-primary' tabindex=0>Display Routes</button>
+	                                    <button id='btnRouteReset_{{name}}' class='btn btn-mini' tabindex=0>Reset</button>
 	                                </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class='row-fluid'>
-                         <div id='gridRoutes'></div>
+                         <div id='gridRoutes_{{name}}'></div>
                     </div>
                 </div>
             </div>
-            <div id="mon-infra-ctrl-console-tab">
-	            <div id='ctrlNodeMessagesTab'></div>
+            <div id="mon-infra-ctrl-console-tab_{{name}}">
+	            <div id='ctrlNodeMessagesTab_{{name}}'></div>
 	        </div>
         </div>
     </div>

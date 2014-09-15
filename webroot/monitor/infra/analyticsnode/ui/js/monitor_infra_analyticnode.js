@@ -72,23 +72,31 @@ analyticsNodeView = function () {
     this.populateAnalyticsNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in analytics node details page
-        if (!isInitialized('#analytics_tabstrip')) {
-            var aNodeTemplate = Handlebars.compile($("#analyticsnode-template").html());
-            $(pageContainer).html(aNodeTemplate(aNodeInfo));
-            //Set the height of all tabstrip containers to viewheight - tabstrip
-            var tabContHeight = layoutHandler.getViewHeight() - 42;
-          //  $('#analytics_tabstrip > div').height(tabContHeight);
-
-            $("#analytics_tabstrip").contrailTabs({
+        if (!isInitialized('#analytics_tabstrip' + '_' + obj.name)) {
+            if(obj.detailView === undefined) {
+                var aNodeTemplate = Handlebars.compile($("#analyticsnode-template").html());
+                $(pageContainer).html(aNodeTemplate(aNodeInfo));
+                //Set the height of all tabstrip containers to viewheight - tabstrip
+                var tabContHeight = layoutHandler.getViewHeight() - 42;
+              //  $('#analytics_tabstrip > div').height(tabContHeight);
+            } else if(obj.detailView === true) {
+               aNodeInfo = obj; 
+            }
+            $("#analytics_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
+                    aNodeInfo.name = e.target.id.split('_')[2];
+                    var newIP = getIPforHostName(aNodeInfo.name, 'analyticsNodeDS');
+                    if(newIP != null) {
+                        aNodeInfo.ip = newIP;
+                    }
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Generators') {
                         monitorInfraAnalyticsGeneratorsClass.populateGeneratorsTab(aNodeInfo);
-                        $('#gridGenerators').data('contrailGrid').refreshView();
+                        $('#gridGenerators' + '_' + obj.name).data('contrailGrid').refreshView();
                     } else if (selTab == 'QE Queries') {
                         monitorInfraAnalyticsQEQueriesClass.populateQEQueriesTab(aNodeInfo);
-                        $('#gridQEQueries').data('contrailGrid').refreshView();
+                        $('#gridQEQueries' + '_' + obj.name).data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
                         infraMonitorUtils.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
                     } else if (selTab == 'Details') {
@@ -102,7 +110,7 @@ analyticsNodeView = function () {
             tabIdx = 0;
             monitorInfraAnalyticsDetailsClass.populateDetailsTab(aNodeInfo);
         }
-        selectTab(aNodeTabStrip,tabIdx);
+        selectTab(aNodeTabStrip + '_' + obj.name, tabIdx);
     }
 }
 

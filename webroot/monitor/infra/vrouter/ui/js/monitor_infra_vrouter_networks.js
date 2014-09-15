@@ -37,9 +37,11 @@ monitorInfraComputeNetworksClass = (function() {
     }
     
     this.populateVNTab = function (obj) {
-        layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
-        if (!isGridInitialized('#gridComputeVN')) {
-            $("#gridComputeVN").contrailGrid({
+        if(obj.detailView === undefined) {
+            layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
+        }    
+        if (!isGridInitialized('#gridComputeVN' + '_' + obj.name)) {
+            $("#gridComputeVN" + '_' + obj.name).contrailGrid({
                 header : {
                     title : {
                         text : 'Networks'
@@ -60,7 +62,7 @@ monitorInfraComputeNetworksClass = (function() {
                                  events: {
                                      onClick: function(e,dc){
                                          var tabIdx = $.inArray("acl", computeNodeTabs);
-                                         selectTab(computeNodeTabStrip,tabIdx);
+                                         selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
                                      }
                                   }
                              },
@@ -73,8 +75,8 @@ monitorInfraComputeNetworksClass = (function() {
                                      onClick: function(e,dc){
                                          var tabIdx = $.inArray("routes", computeNodeTabs);
                                          var data = {tab:"routes",filters:[{routeName:dc['vrf_name']}]};
-                                         $('#' + computeNodeTabStrip).data('tabFilter',data);
-                                         selectTab(computeNodeTabStrip,tabIdx);
+                                         $('#' + computeNodeTabStrip + '_' + obj.name).data('tabFilter',data);
+                                         selectTab(computeNodeTabStrip + '_' + obj.name,tabIdx);
                                      }
                                   }
                              }
@@ -93,7 +95,7 @@ monitorInfraComputeNetworksClass = (function() {
                                  iconClass: 'icon-cog',
                                  onClick: function(rowIndex){
                                      var rowData = vnGrid._dataView.getItem(rowIndex);
-                                     layoutHandler.setURLHashParams({},{p:'config_net_vn',merge:false});
+                                     layoutHandler.setURLHashObj({p:'config_net_vn',merge:false});
                                  }
                              },
                              {
@@ -139,7 +141,7 @@ monitorInfraComputeNetworksClass = (function() {
                     }
                 }
             });
-            vnGrid = $('#gridComputeVN').data('contrailGrid');
+            vnGrid = $('#gridComputeVN' + '_' + obj.name).data('contrailGrid');
             vnGrid.showGridMessage('loading');
         } else {
             reloadGrid(vnGrid);

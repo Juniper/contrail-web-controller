@@ -205,7 +205,20 @@ monitorInfraComputeSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#computenode-template").html(),
+                        onExpand: function (e,dc) {
+                            //scaling down the content
+                            $('#compute_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px;zoom:90%');
+                            cmpNodeView.populateComputeNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#divcomputesgrid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
+                            $('#divcomputesgrid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
+                        },
+                        detailView : true,
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: emptyDataSource,

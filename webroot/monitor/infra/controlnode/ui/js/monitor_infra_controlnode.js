@@ -80,24 +80,32 @@ controlNodeView = function () {
     this.populateControlNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in control node details page
-        if (!isInitialized('#control_tabstrip')) {
-            var ctrlNodeTemplate = Handlebars.compile($("#controlnode-template").html());
-            $(pageContainer).html(ctrlNodeTemplate(ctrlNodeInfo));
-
-            //Set the height of all tabstrip containers to viewheight - tabstrip
-            var tabContHeight = layoutHandler.getViewHeight() - 42;
-            //$('#control_tabstrip > div').height(tabContHeight);
-
-            $("#control_tabstrip").contrailTabs({
+        if (!isInitialized('#control_tabstrip' + '_' + obj.name)) {
+            if(obj.detailView === undefined) {
+                var ctrlNodeTemplate = Handlebars.compile($("#controlnode-template").html());
+                $(pageContainer).html(ctrlNodeTemplate(ctrlNodeInfo));
+            
+                //Set the height of all tabstrip containers to viewheight - tabstrip
+                var tabContHeight = layoutHandler.getViewHeight() - 42;
+                //$('#control_tabstrip > div').height(tabContHeight);
+            } else if(obj.detailView === true) {
+                ctrlNodeInfo = obj;
+            }
+            $("#control_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
+                    ctrlNodeInfo.name = e.target.id.split('_')[2];
+                    var newIP = getIPforHostName(ctrlNodeInfo.name, 'controlNodeDS');
+                    if(newIP != null) {
+                        ctrlNodeInfo.ip = newIP;
+                    }
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Peers') {
                         monitorInfraControlPeersClass.populatePeersTab(ctrlNodeInfo);
-                        $('#gridPeers').data('contrailGrid').refreshView();
+                        $('#gridPeers' + '_' + obj.name).data('contrailGrid').refreshView();
                     } else if (selTab == 'Routes') {
                         monitorInfraControlRoutesClass.populateRoutesTab(ctrlNodeInfo);
-                        $('#gridRoutes').data('contrailGrid').refreshView();
+                        $('#gridRoutes' + '_' + obj.name).data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
                         infraMonitorUtils.populateMessagesTab('control', {source:ctrlNodeInfo['name']}, ctrlNodeInfo);
                     } else if (selTab == 'Details') {
@@ -112,7 +120,7 @@ controlNodeView = function () {
             monitorInfraControlDetailsClass.populateDetailsTab(ctrlNodeInfo);
         }
         //If any tab is stored in URL,select it else select the first tab
-        selectTab(ctrlNodeTabStrip,tabIdx);
+        selectTab(ctrlNodeTabStrip + '_' + obj.name, tabIdx);
     }
 }
 

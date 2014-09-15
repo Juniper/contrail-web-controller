@@ -109,17 +109,19 @@ monitorInfraControlPeersClass = (function() {
     }
     
     this.populatePeersTab = function(obj) {
-        layoutHandler.setURLHashParams({tab:'peers',node: obj['name']},{triggerHashChange:false});
+        if(obj.detailView === undefined) {
+            layoutHandler.setURLHashParams({tab:'peers',node: obj['name']},{triggerHashChange:false});
+        }    
         hostname = obj['name']
         var transportCfg = {
                 url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], obj['name'], 40)
             };
             var peersDS;
         //Intialize the grid only for the first time
-        if (!isGridInitialized('#gridPeers')) {
+        if (!isGridInitialized('#gridPeers' + '_' + obj.name)) {
          peersDS = new ContrailDataView();
             getOutputByPagination(peersDS,{transportCfg:transportCfg,parseFn:self.processPeerInfo});
-            $("#gridPeers").contrailGrid({
+            $("#gridPeers" + '_' + obj.name).contrailGrid({
                 header : {
                     title : {
                         text : 'Peers'
@@ -184,9 +186,9 @@ monitorInfraControlPeersClass = (function() {
                options : {
                   //checkboxSelectable: true,
                   forceFitColumns: true,
-                  detail:{
-                     template: $("#gridsTemplateJSONDetails").html()
-                  }
+                 detail:{
+                    template: $("#gridsTemplateJSONDetails").html()
+                 }
                },
                dataSource : {
                   dataView : peersDS
@@ -206,7 +208,7 @@ monitorInfraControlPeersClass = (function() {
                }
             }
          });
-            peersGrid = $("#gridPeers").data("contrailGrid");
+            peersGrid = $("#gridPeers" + '_' + obj.name).data("contrailGrid");
             peersGrid.showGridMessage('loading');
         } else {
             reloadGrid(peersGrid);

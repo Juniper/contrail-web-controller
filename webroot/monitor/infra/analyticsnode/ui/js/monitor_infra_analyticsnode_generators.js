@@ -44,16 +44,18 @@ monitorInfraAnalyticsGeneratorsClass = (function() {
         return ret;
     }
     this.populateGeneratorsTab = function(obj) {
-        layoutHandler.setURLHashParams({tab:'generators',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+        if(obj.detailView === undefined) {
+            layoutHandler.setURLHashParams({tab:'generators',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+        }    
         var transportCfg = {
             url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], obj['name'], 50),
         };
         var generatorDS; 
         //Intialize the grid only for the first time
-        if (!isGridInitialized('#gridGenerators')) {
+        if (!isGridInitialized('#gridGenerators' + '_' + obj.name)) {
             generatorDS = new ContrailDataView();
             getOutputByPagination(generatorDS,{transportCfg:transportCfg,parseFn:self.parseGenInfo});
-            $("#gridGenerators").contrailGrid({
+            $("#gridGenerators" + '_' + obj.name).contrailGrid({
                 header : {
                     title : {
                         text : 'Generators'
@@ -111,7 +113,7 @@ monitorInfraAnalyticsGeneratorsClass = (function() {
                     }
                 }
             });
-            generatorsGrid = $("#gridGenerators").data("contrailGrid");
+            generatorsGrid = $("#gridGenerators" + '_' + obj.name).data("contrailGrid");
             generatorsGrid.showGridMessage('loading');
         } else {
             //reloadGrid(generatorsGrid);

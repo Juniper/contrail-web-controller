@@ -10,14 +10,16 @@ monitorInfraAnalyticsDetailsClass = (function() {
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+        if(obj.detailView === undefined) {
+            layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+        }    
         //showProgressMask('#analyticsnode-dashboard', true);
         //Destroy chart if it exists
-        startWidgetLoading('analytics-sparklines');
-        toggleWidgetsVisibility(['collector-chart-box'], ['queryengine-chart-box', 'opServer-chart-box']);
+        startWidgetLoading('analytics-sparklines' + '_' + obj.name);
+        toggleWidgetsVisibility(['collector-chart' + '_' + obj.name + '-box'], ['queryengine-chart' + '_' + obj.name + '-box', 'opServer-chart' + '_' + obj.name + '-box']);
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
-        $('#analyticsnode-dashboard').html(dashboardTemplate({title:'Analytics Node',colCount:2, showSettings:true, widgetBoxId:'dashboard'}));
-        startWidgetLoading('dashboard');
+        $('#analyticsnode-dashboard' + '_' + obj.name ).html(dashboardTemplate({title:'Analytics Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
+        startWidgetLoading('dashboard' + '_' + obj.name);
 
         $.ajax({
             url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
@@ -37,28 +39,28 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     var slConfig;
                     startTime = endTime - 600000;
                     slConfig = {startTime: startTime, endTime: endTime};
-                    $('#collector-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                    $('#collector-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
                         {name: 'collector_cpu_share', color: 'blue-sparkline'},
                         {name: 'collector_mem_virt', color: 'green-sparkline'}
                     ]}, slConfig);
-                    $('#queryengine-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                    $('#queryengine-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
                         {name: 'queryengine_cpu_share', color: 'blue-sparkline'},
                         {name: 'queryengine_mem_virt', color: 'green-sparkline'}
                     ]}, slConfig);
-                    $('#opServer-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
+                    $('#opServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
                         {name: 'opserver_cpu_share', color: 'blue-sparkline'},
                         {name: 'opserver_mem_virt', color: 'green-sparkline'}
                     ]}, slConfig);
-                    endWidgetLoading('analytics-sparklines');
-                    $('#collector-chart').initMemCPULineChart($.extend({url:function() {
+                    endWidgetLoading('analytics-sparklines' + '_' + obj.name);
+                    $('#collector-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-collector', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['queryengine-chart' + '_' + obj.name + '-box', 'opServer-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    $('#queryengine-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-query-engine', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['collector-chart' + '_' + obj.name + '-box', 'opServer-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    $('#opServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-analytics-api', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['collector-chart' + '_' + obj.name + '-box', 'queryengine-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var analyticsProcessStatusList = [];
@@ -150,30 +152,30 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     aNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#analyticsnode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#analyticsnode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:aNodeDashboardInfo, nodeData:aNodeData, showSettings:true, ip:nodeIp}));
+                $('#analyticsnode-dashboard' + '_' + obj.name +' .widget-body').html(dashboardBodyTemplate({colCount:2, d:aNodeDashboardInfo, nodeData:aNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
                 var ipDeferredObj = $.Deferred();
                 getReachableIp(iplist,"8089",ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
                     if(nodeIp != null && nodeIp != noDataStr) {
-                        $('#linkIntrospect').unbind('click');
-                        $('#linkIntrospect').click(function(){
+                        $('#linkIntrospect' + '_' + obj.name).unbind('click');
+                        $('#linkIntrospect' + '_' + obj.name).click(function(){
                             window.open('/proxy?proxyURL=http://'+nodeIp+':8089&indexPage', '_blank');
                         });
-                        $('#linkStatus').unbind('click');
-                        $('#linkStatus').on('click', function(){
-                            showStatus(nodeIp);
+                        $('#linkStatus' + '_' + obj.name).unbind('click');
+                        $('#linkStatus' + '_' + obj.name).on('click', function(){
+                            showStatus({ip : nodeIp, name : obj.name});
                         });
-                        $('#linkLogs').unbind('click');
-                        $('#linkLogs').on('click', function(){
+                        $('#linkLogs' + '_' + obj.name).unbind('click');
+                        $('#linkLogs' + '_' + obj.name).on('click', function(){
                             showLogs(nodeIp);
                         }); 
                     }
                 });
-                endWidgetLoading('dashboard');
-                initWidget4Id('#collector-chart-box');
-                initWidget4Id('#queryengine-chart-box');
-                initWidget4Id('#opServer-chart-box');
-            }).fail(displayAjaxError.bind(null, $('#analyticsnode-dashboard')));
+                endWidgetLoading('dashboard' + '_' + obj.name);
+                initWidget4Id('#collector-chart' + '_' + obj.name + '-box');
+                initWidget4Id('#queryengine-chart' + '_' + obj.name + '-box');
+                initWidget4Id('#opServer-chart' + '_' + obj.name + '-box');
+            }).fail(displayAjaxError.bind(null, $('#analyticsnode-dashboard' + '_' + obj.name)));
     }
     return {populateDetailsTab:populateDetailsTab};
 })();

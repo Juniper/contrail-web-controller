@@ -29,7 +29,18 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender: true,
                     forceFitColumns:true,
-                    lazyLoading:true
+                    lazyLoading:true,
+                    detail:{
+                        template: $("#analyticsnode-template").html(),
+                        onExpand: function (e,dc) {
+                            $('#analytics_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px;zoom:90%');
+                            aNodeView.populateAnalyticsNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#analytics-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
+                            $('#analytics-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');                           
+                        },
+                        onCollapse:function (e,dc) {
+                        }
+                    }
                 },
                 dataSource: {
                     dataView: analyticsNodesDataSource,

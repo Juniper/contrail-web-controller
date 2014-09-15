@@ -29,18 +29,18 @@
 
 <script type="text/x-handlebars-template" id="confignode-template">
     <div class="contrail">
-        <div id="config_tabstrip">
+        <div id="config_tabstrip_{{name}}">
             <ul>
-                <li><a href="#mon-infra-config-details-tab">Details</a></li>
-                <li><a href="#mon-infra-config-console-tab">Console</a></li>
+                <li><a href="#mon-infra-config-details-tab_{{name}}">Details</a></li>
+                <li><a href="#mon-infra-config-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-config-details-tab">
-                <div id='confignode-dashboard' class='span5'></div>
-                <div id='config-detail-charts' class="span7">
+            <div class="row-fluid" id="mon-infra-config-details-tab_{{name}}">
+                <div id='confignode-dashboard_{{name}}' class='span5'></div>
+                <div id='config-detail-charts{{name}}' class="span7">
                     <div class="widget-box transparent" id="config-sparklines-box">
                         <div class="widget-header">
                             <h4 class="smaller">
-                                <i id="config-sparklines-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                <i id="config-sparklines_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                 CPU and Memory Utilization
                             </h4>
                             <div class="widget-toolbar pull-right">
@@ -52,7 +52,7 @@
                         <div class="widget-body">
                             <div class="widget-main padding-4">
                                 <div class="row-fluid">
-                                    <div id="apiServer-sparklines" class="span4 apiServer-chart-link sparklines-box">
+                                    <div id="apiServer-sparklines_{{name}}" class="span4 apiServer-chart-link sparklines-box">
                                         <p class="sparkline-title">API Server</p>
                                         <div class="row-fluid">
                                            <span class="span6"><small>CPU Utilization</small></span>
@@ -63,7 +63,7 @@
                                            <span id="api_server_mem_virt_sparkline" class="span6 pull-right"></span>
                                        </div>
                                     </div>
-                                    <div id="serviceMonitor-sparklines" class="span4 serviceMonitor-chart-link sparklines-box">
+                                    <div id="serviceMonitor-sparklines_{{name}}" class="span4 serviceMonitor-chart-link sparklines-box">
                                         <p class="sparkline-title">Service Monitor</p>
                                         <div class="row-fluid">
                                            <span class="span6"><small>CPU Utilization</small></span> <span id="service_monitor_cpu_share_sparkline" class="span6 pull-right"></span>
@@ -73,7 +73,7 @@
                                            <span id="service_monitor_mem_virt_sparkline" class="span6 pull-right"></span>
                                        </div>
                                     </div>
-                                    <div id="schema-sparklines" class="span4 schema-chart-link sparklines-box">
+                                    <div id="schema-sparklines_{{name}}" class="span4 schema-chart-link sparklines-box">
                                         <p class="sparkline-title">Schema Transformer</p>
                                         <div class="row-fluid">
                                            <span class="span6"><small>CPU Utilization</small></span>
@@ -89,10 +89,10 @@
                         </div><!--/widget-body -->
                     </div><!--/widget-box-->
 	                <div class="row-fluid">
-		            	<div class="widget-box transparent" id="apiServer-chart-box">
+		            	<div class="widget-box transparent" id="apiServer-chart_{{name}}-box">
 		            		<div class="widget-header">
 		            			<h4 class="smaller">
-                                    <i id="apiServer-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="apiServer-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
 		            				API Server CPU/Memory Utilization
 		            			</h4>
 		            			<div class="widget-toolbar">
@@ -103,14 +103,14 @@
 		            		</div>
 		            		<div class="widget-body">
 		            			<div class="widget-main padding-4">
-		            				<div id='apiServer-chart' class='row-fluid'></div>
+		            				<div id='apiServer-chart_{{name}}' class='row-fluid'></div>
 	            				</div><!-- /widget-main -->
 		            		</div><!--/widget-body -->
 		            	</div><!--/widget-box-->
-		            	<div class="widget-box transparent hide" id="serviceMonitor-chart-box">
+		            	<div class="widget-box transparent hide" id="serviceMonitor-chart_{{name}}-box">
 	            		<div class="widget-header">
 	            			<h4 class="smaller">
-                                <i id="serviceMonitor-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                <i id="serviceMonitor-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
 	            				Service Monitor CPU/Memory Utilization
 	            			</h4>
 	            			<div class="widget-toolbar">
@@ -121,14 +121,14 @@
 	            		</div>
 	            		<div class="widget-body">
 	            			<div class="widget-main padding-4">
-	            				<div id='serviceMonitor-chart' class='row-fluid'></div>
+	            				<div id='serviceMonitor-chart_{{name}}' class='row-fluid'></div>
             				</div><!-- /widget-main -->
 	            		</div><!--/widget-body -->
 	            	</div><!--/widget-box-->
-	            	<div class="widget-box transparent hide" id="schema-chart-box">
+	            	<div class="widget-box transparent hide" id="schema-chart_{{name}}-box">
             		<div class="widget-header">
             			<h4 class="smaller">
-                            <i id="schema-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                            <i id="schema-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
             				Schema CPU/Memory Utilization
             			</h4>
             			<div class="widget-toolbar">
@@ -139,7 +139,7 @@
             		</div>
             		<div class="widget-body">
             			<div class="widget-main padding-4">
-            				<div id='schema-chart' class='row-fluid'></div>
+            				<div id='schema-chart_{{name}}' class='row-fluid'></div>
         				</div><!-- /widget-main -->
             		</div><!--/widget-body -->
             	</div><!--/widget-box-->
@@ -147,13 +147,13 @@
 		            </div><!--/row-->
 				</div><!--/config-detail-charts-->
 				<div class="footer-links">
-                                        <a id="linkLogs" class="pull-right hide">Logs</a>
-					<a id="linkIntrospect" class="pull-right">Introspect</a>
-					<a id="linkStatus" class="pull-right">Status</a>
+                    <a id="linkLogs_{{name}}" class="pull-right hide">Logs</a>
+                    <a id="linkStatus_{{name}}">Status</a>
+                    <a id="linkIntrospect_{{name}}">Introspect</a>
 				</div>
             </div>
-            <div id="mon-infra-config-console-tab">
-                <div id='configNodeMessagesTab'></div>
+            <div id="mon-infra-config-console-tab_{{name}}">
+                <div id='configNodeMessagesTab_{{name}}'></div>
             </div>
         </div>
     </div>

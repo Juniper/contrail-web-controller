@@ -8,20 +8,23 @@
 monitorInfraComputeDetailsClass = (function() {
     this.populateDetailsTab = function (obj) {
         var nodeIp; 
-        layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
+        if(obj.detailView === undefined) {
+            layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
+        }    
         //showProgressMask('#computenode-dashboard', true);
-        startWidgetLoading('vrouter-sparklines');
-        toggleWidgetsVisibility(['vrouter-chart-box'], ['system-chart-box']);
+        startWidgetLoading('vrouter-sparklines' + '_' + obj.name);
+        toggleWidgetsVisibility(['vrouter-chart' + '_' + obj.name + '-box'], ['system-chart' + '_' + obj.name + '-box']);
 
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
-        $('#computenode-dashboard').html(dashboardTemplate({title:'vRouter',colCount:2,showSettings:true, widgetBoxId:'dashboard'}));
-        startWidgetLoading('dashboard');   
+        computenodeDashboard =  $('#computenode-dashboard' + '_' + obj['name']);
+        computenodeDashboard.html(dashboardTemplate({title:'vRouter',colCount:2,showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
+        startWidgetLoading('dashboard'+ '_' + obj.name);   
 
         $.ajax({
             url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
         }).done(function (result) {
                     computeNodeData = result;
-                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
+                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result,detailView:true}])[0];
                     var noDataStr = '--',
                     cpu = "N/A",
                     memory = "N/A",
@@ -30,7 +33,7 @@ monitorInfraComputeDetailsClass = (function() {
                 // var chartWidths3 = $('#vrouter-detail-charts').width();
                 //var cwd1 = (parseInt(chartWidths3));
                 //var cwd = cwd1/3;
-                var parentWidth = parseInt($('#computenode-dashboard').width());
+                var parentWidth = parseInt(computenodeDashboard.width());
                 var chartWdth = parentWidth/2;
                 var endTime, startTime;
                 $.ajax({
@@ -43,15 +46,15 @@ monitorInfraComputeDetailsClass = (function() {
                     var slConfig;
                     startTime = endTime - 600000;
                     slConfig = {startTime: startTime, endTime: endTime};
-                    $('#vrouter-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'cpu_share', color: 'blue-sparkline'}, {name: 'virt_mem', color: 'green-sparkline'}]}, slConfig);
-                    $('#system-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'one_min_avg_cpuload', color: 'blue-sparkline'}, {name: 'used_sys_mem', color: 'green-sparkline'}]}, slConfig);
-                    endWidgetLoading('vrouter-sparklines');
-                    $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
+                    $('#vrouter-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'cpu_share', color: 'blue-sparkline'}, {name: 'virt_mem', color: 'green-sparkline'}]}, slConfig);
+                    $('#system-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'one_min_avg_cpuload', color: 'blue-sparkline'}, {name: 'used_sys_mem', color: 'green-sparkline'}]}, slConfig);
+                    endWidgetLoading('vrouter-sparklines' + '_' + obj.name);
+                    $('#vrouter-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
-                    $('#system-chart').initMemCPULineChart($.extend({url:function() {
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['system-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
+                    $('#system-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg. Load / CPU'}}),110);
+                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var vRouterProcessStatusList = [];
@@ -204,7 +207,7 @@ monitorInfraComputeDetailsClass = (function() {
                     computeNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#computenode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#computenode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:computeNodeDashboardInfo, nodeData:computeNodeData, showSettings:true, ip:nodeIp}));
+                $('#computenode-dashboard' + '_' + obj.name + ' .widget-body').html(dashboardBodyTemplate({colCount:2, d:computeNodeDashboardInfo, nodeData:computeNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
                 /*Selenium Testing*/
                 cmptNodeDetailsData = computeNodeDashboardInfo;
                 /*End of Selenium Testing*/
@@ -214,26 +217,26 @@ monitorInfraComputeDetailsClass = (function() {
                 getReachableIp(ipList,introspectPort,ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
                     if(nodeIp != null && nodeIp != noDataStr) {  
-                        $('#linkIntrospect').unbind('click');
-                        $('#linkIntrospect').click(function(){
+                        $('#linkIntrospect' + '_' + obj.name).unbind('click');
+                        $('#linkIntrospect' + '_' + obj.name).click(function(){
                             window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +'&indexPage', '_blank');
                         });
-                        $('#linkStatus').unbind('click');
-                        $('#linkStatus').on('click', function(){
-                            showStatus(nodeIp);
+                        $('#linkStatus' + '_' + obj.name).unbind('click');
+                        $('#linkStatus' + '_' + obj.name).on('click', function(){
+                            showStatus({ip : nodeIp, name : obj.name});
                         });
-                        $('#linkLogs').unbind('click');
-                        $('#linkLogs').on('click', function(){
+                        $('#linkLogs' + '_' + obj.name).unbind('click');
+                        $('#linkLogs' + '_' + obj.name).on('click', function(){
                             showLogs(nodeIp);
                         });
                     }
                 });
-                initWidget4Id('#dashboard-box');
-                initWidget4Id('#vrouter-chart-box');
-                initWidget4Id('#system-chart-box');
+                initWidget4Id('#dashboard' + '_' + obj.name + '-box');
+                initWidget4Id('#vrouter-chart' + '_' + obj.name + '-box');
+                initWidget4Id('system-chart' + '_' + obj.name + '-box');
 
-                endWidgetLoading('dashboard');
-            }).fail(displayAjaxError.bind(null, $('#computenode-dashboard')));
+                endWidgetLoading('dashboard'+ '_' + obj.name);
+            }).fail(displayAjaxError.bind(null, computenodeDashboard));
     };
     return {populateDetailsTab:populateDetailsTab};
 })();

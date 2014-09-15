@@ -81,15 +81,23 @@ configNodeView = function () {
     this.populateConfigNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in config node details page
-        if (!isInitialized('#config_tabstrip')) {
-            var confNodeTemplate = Handlebars.compile($("#confignode-template").html());
-            $(pageContainer).html(confNodeTemplate(confNodeInfo));
-            //Set the height of all tabstrip containers to viewheight - tabstrip
-            var tabContHeight = layoutHandler.getViewHeight() - 42;
-          //  $('#config_tabstrip > div').height(tabContHeight);
-
-            $("#config_tabstrip").contrailTabs({
+        if (!isInitialized('#config_tabstrip' + '_' + obj.name)) {
+            if(obj.detailView === undefined) {
+                var confNodeTemplate = Handlebars.compile($("#confignode-template").html());
+                $(pageContainer).html(confNodeTemplate(confNodeInfo));
+                //Set the height of all tabstrip containers to viewheight - tabstrip
+                var tabContHeight = layoutHandler.getViewHeight() - 42;
+              //  $('#config_tabstrip > div').height(tabContHeight);
+            } else if(obj.detailView === true) {
+                confNodeInfo = obj;
+            }
+            $("#config_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
+                    confNodeInfo.name = e.target.id.split('_')[2];
+                    var newIP = getIPforHostName(confNodeInfo.name, 'configNodeDS');
+                    if(newIP != null) {
+                        confNodeInfo.ip = newIP;
+                    }                
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Console') {
@@ -106,7 +114,7 @@ configNodeView = function () {
             monitorInfraConfigDetailsClass.populateDetailsTab(confNodeInfo);
         }
         //If any tab is stored in URL,select it else select the first tab
-        selectTab(configNodeTabStrip,tabIdx);
+        selectTab(configNodeTabStrip + '_' + obj.name, tabIdx);
     }
 }
 
