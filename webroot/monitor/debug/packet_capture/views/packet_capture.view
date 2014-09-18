@@ -19,7 +19,7 @@
 				<div class="span11">
 					<label>Policy Rules: </label>
 					{{#each PolicyRules}}
-						{{this}}
+						{{{formatString2HTML this}}}
 					{{else}}
 						<span">No Associated Networks</span>
 					{{/each}}
