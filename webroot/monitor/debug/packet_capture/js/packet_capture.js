@@ -668,6 +668,7 @@ function handleProjects(e) {
 function fetchDataForGridAnalyzer() {
     var selectedProjectUUID = $(ddProjectSwitcher).data('contrailDropdown').value();
     var url = "/api/tenants/config/service-instances/" + selectedProjectUUID + "?template=analyzer-template";
+    gridAnalyzer._dataView.setData([]);
     gridAnalyzer.showGridMessage('loading');
     doAjaxCall(url, "GET", null, "successHandlerForGridAnalyzer", "failureHandlerForGridAnalyzer", null, null);
 };
