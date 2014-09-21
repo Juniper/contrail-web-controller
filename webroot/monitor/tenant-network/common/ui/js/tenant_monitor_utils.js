@@ -271,16 +271,16 @@ function ObjectListView() {
         var projectDataSource = globalObj['dataSources']['projectDS']['dataSource'];
         //projectDataSource.setData(projData);
         for(var i = 0;i < projData.length; i++){
-            var datum = projectDataSource.getItemById(projData[i]['id']);
+            var datum = projectDataSource.getItemById(projData[i]['cgrid']);
             if(datum == undefined) {
-               projectDataSource.addItem(projData[i]);
+               projectDataSource.addData([projData[i]]);
             } else {
                datum['inBytes'] = projData[i]['inBytes'];
                datum['inThroughput'] = projData[i]['inThroughput'];
                datum['outBytes'] = projData[i]['outBytes'];
                datum['outThroughput'] = projData[i]['outThroughput'];
                datum['vnCnt'] = projData[i]['vnCnt'];
-               projectDataSource.updateItem(projData[i]['id'],datum);
+               projectDataSource.updateItem(projData[i]['cgrid'],datum);
             }
          }
         /*
