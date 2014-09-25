@@ -229,3 +229,16 @@
         </div>
     </div>
 </script>
+
+<script type="text/x-handlebars-template" id="chart-control-template">
+    <ul class="chart-control-nav nav">
+   		<li class="dropdown padding-5 pull-right">
+   			<a href="#" \role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="chart-control-icon icon-cog"></i></a>
+       		<ul id="{{elementId}}" class="chart-control-menu dropdown-menu dropdown-caret pull-right" role="menu">
+				 {{#each options}}
+  					<li role="presentation"><a id="{{../elementId}}-{{id}}" role="menuitem" tabindex="-1" data-value="{{value}}">{{text}}</a></li>
+  				{{/each}}
+			</ul>
+    	</li>
+   	</ul>
+</script>

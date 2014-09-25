@@ -229,7 +229,7 @@ function initFSQueryView(queryPrefix) {
         defaultToTime = new Date(),
         defaultFromTime = new Date(defaultToTime.getTime() - 600000);
     $('#' + queryPrefix + '-query').html($('#' + queryPrefix + "-query-template").html());
-    
+
     validateDate('fs');
 
     $("#fs-query-form").validate({
@@ -339,7 +339,7 @@ function addFSFilter() {
 };
 
 function runFSQuery() {
-	toggleToGrid();
+	toggleToGrid('fs');
     var serverCurrentTime = getCurrentTime4MemCPUCharts();
     $.ajax({
         url: '/api/service/networking/web-server-info'
@@ -419,9 +419,9 @@ function viewFSQueryResultsCB(dataItem, params, serverCurrentTime) {
         reqQueryObj = reRunQueryObj;
         reqQueryObj = setUTCTimeObj(queryPrefix, reqQueryObj, options, timeObj);
     }
-    
+
     reqQueryObj.queryId = queryId;
-    
+
     if(typeof(ko.dataFor(document.getElementById(queryPrefix + '-query'))) !== "undefined"){
         ko.cleanNode(document.getElementById(queryPrefix + '-query'));
         ko.cleanNode(document.getElementById(queryPrefix + '-chart'));
@@ -434,7 +434,7 @@ function viewFSQueryResultsCB(dataItem, params, serverCurrentTime) {
     ko.applyBindings(queries[queryPrefix].chartViewModel, document.getElementById(queryPrefix + '-chart'));
     initWidget4Id('#' + queryPrefix + '-query-widget');
 
-    if (tg != '' && tgUnit != '') {
+    if (tg != '' && tgUnit != '' && selectArray.indexOf("T=" + getTGmicrosecs(tg, tgUnit) / 1000) != -1) {
         options = getFSDefaultOptions(true);
         selectArray.push('time-granularity');
         labelStepUnit = getLabelStepUnit(tg, tgUnit);
@@ -529,6 +529,7 @@ function loadSelectedFSChart(element) {
         navigatorValues = queries.fs.chartViewModel.navigatorValues(),
         plotFields = queries.fs.chartViewModel.plotFields(),
         options = queries.fs.chartViewModel.options(),
+        availableColorIndices = getAvailableColorIndices('fs'),
         index, plotData = [], selectedFlow, flowClassId;
     index = findIndexInSelectedFlows(selectedFlows, val);
     if (element.checked) {
@@ -537,7 +538,7 @@ function loadSelectedFSChart(element) {
             showMessagePopup('Alert', 'You can select maximum 5 flows.');
             return;
         } else if (index == -1) {
-            selectedFlows.push({flowClassId:val, sumBytes:null, sumPackets:null});
+            selectedFlows.push({flowClassId:val, sumBytes:null, sumPackets:null, r:$(element).data('id'), colorIndex: availableColorIndices[0]});
         }
     } else {
         if (selectedFlows.length == 1) {
@@ -548,7 +549,7 @@ function loadSelectedFSChart(element) {
         if (index != -1) {
             selectedFlow = selectedFlows[index];
             flowClassId = selectedFlow['flowClassId'];
-            assignColors2FlowClass({"flowClassId":flowClassId, "sumBytes":null, "sumPackets":null});
+            assignColors2FlowClass({"flowClassId":flowClassId, "sumBytes":null, "sumPackets":null, r:$(element).data('id'), colorIndex: availableColorIndices[0]});
             selectedFlows.splice(index, 1);
         }
     }
@@ -722,7 +723,7 @@ function viewFRQueryResults(dataItem, params) {
         reqQueryObj = setUTCTimeObj(queryPrefix, reqQueryObj, options, timeObj);
     }
     reqQueryObj.queryId = queryId;
-    
+
     if(typeof(ko.dataFor(document.getElementById(queryPrefix + '-query'))) !== "undefined"){
         ko.cleanNode(document.getElementById(queryPrefix + '-query'));
     }

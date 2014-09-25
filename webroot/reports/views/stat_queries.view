@@ -7,6 +7,28 @@
     <div id="stat-container" class="row-fluid">
         <div id="stat-query" class="row-fluid"></div>
         <div id="stat-results"></div>
+        <div id="stat-chart" class="row-fluid hide">
+            <div class="chart-load-status">
+                <p> Loading Stats Charts ... </p>
+            </div>
+			<div class="row-fluid flow-class-chart">
+				<div class="colmask rightmenu">
+				    <div class="colleft">
+				        <div class="col1wrap">
+				            <div class="col1">
+				                <div id="ts-chart" class="height-300"></div>
+				            </div>
+				        </div>
+				        <div class="col2">
+				            <div class="chart-control"></div>
+				        </div>
+				    </div>
+				</div>
+			</div>
+            <div class="">
+                <div id="stat-flow-classes" class="row-fluid hide margin-15-0-0"></div>
+            </div>
+        </div>
     </div>
 </script>
 
@@ -22,15 +44,11 @@
                     <a class="pull-right selectAllLink " data-bind="text: defaultSelectAllText" onclick="selectAll('{{queryPrefix}}',this)"></a>
                 </div>
                 {{#each fields}}
-                    {{#IfCompare @index 0 operator="%3"}}
-                        {{#IfCompare @index 0 operator="!="}}
-                            </div>
-                            <div class="row-fluid">
-                        {{else}}
-                            <div class="row-fluid">
-                        {{/IfCompare}}
+                    {{#IfCompare @index 0 operator="=="}}
+                        <div class="row-fluid">
                     {{else}}
-                        {{#IfCompare @index 0 operator="=="}}
+                        {{#IfCompare @index 0 operator="%3"}}
+                            </div>
                             <div class="row-fluid">
                         {{/IfCompare}}
                     {{/IfCompare}}
@@ -52,10 +70,8 @@
                             </div>
                         {{/IfCompare}}
                     {{/IfCompare}}
-                    {{#IfCompare @index array.length operator="lessByOne"}}
-                        </div>
-                    {{/IfCompare}}
                 {{/each}}
+                </div>
             </form>
         </div>
         <div class="modal-footer">
@@ -167,7 +183,7 @@
                     </div>
                         <div class="row-fluid margin-15-0-0">
                             <a id="{{queryPrefix}}-query-submit" class="btn btn-mini btn-primary"
-                               onclick="runStatQuery('{{queryPrefix}}');"><span>Run Query</span></a>
+                               onclick="preRunStatQuery('{{queryPrefix}}');"><span>Run Query</span></a>
                             <a class="btn btn-mini margin-0-5" data-bind="click: reset">Reset</a>
                         </div>
                     </div>

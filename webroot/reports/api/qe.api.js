@@ -18,6 +18,9 @@ var qeapi = module.exports,
     underscore = require('underscore'),
     redisReadStream = require('redis-rstream'),
     opServer;
+var statPlotFields = [],
+    statGroupFields = [],
+    statXaxis = [];
 
 var redis = require("redis"),
     redisServerPort = (config.redis_server_port) ? config.redis_server_port : global.DFLT_REDIS_SERVER_PORT,
@@ -226,6 +229,8 @@ function processQueryResults(res, queryResults, options)
     saveQueryResult2Redis(resultJSON, total, queryId, pageSize, getSortStatus4Query(queryJSON), queryJSON);
     if (table == 'FlowSeriesTable') {
         saveData4Chart2Redis(queryId, resultJSON, getPlotFields(queryJSON['select_fields']));
+    } else if(table.indexOf('StatTable.') != -1){
+        saveStatsData4Chart2Redis(queryId, resultJSON, statPlotFields);
     }
 };
 
@@ -264,7 +269,7 @@ function getSortStatus4Query(queryJSON) {
 };
 
 
-function getPlotFields(selectFields) 
+function getPlotFields(selectFields)
 {
     var plotFields = [],
         statFields = [
@@ -281,7 +286,73 @@ function getPlotFields(selectFields)
     return plotFields;
 };
 
-function saveData4Chart2Redis(queryId, dataJSON, plotFields) 
+function saveStatsData4Chart2Redis(queryId, dataJSON, plotFields)
+{
+    var resultData = {},
+        result, resultObj, StatsClassId, flowClassRecord, uniqueStatsClassArray = [], secTime, uniqueFlowClassArray = [],
+        flowClassArray = [];
+    var key = createKey4StatChart(statGroupFields);
+    if (plotFields.length != 0) {
+        for (i = 0; i < dataJSON.length; i++) {
+            if(dataJSON[i]['T'] !== undefined){
+                secTime = Math.floor(dataJSON[i]['T'] / 1000);
+            }else if(dataJSON[i]['T='] !== undefined){
+                secTime = Math.floor(dataJSON[i]['T='] / 1000);
+            }
+            var resultStatGroupFields = [], resultStatGroupFieldsKey;
+
+            for(var x=0; x<statPlotFields.length; x++){
+                if( statGroupFields[x] in dataJSON[i]){
+                    resultStatGroupFields.push(dataJSON[i][statGroupFields[x]]);
+                }
+            }
+            result = {'date':new Date(secTime)};
+            //CLASS(T=) is used as the stat_class_id and is used to store data in redis.
+            resultStatGroupFieldsKey = dataJSON[i]['CLASS(T=)'];
+            if (uniqueFlowClassArray.indexOf(resultStatGroupFieldsKey) == -1) {
+                uniqueFlowClassArray.push(resultStatGroupFieldsKey);
+                statFlowClassRecord =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
+
+                flowClassArray.push(statFlowClassRecord);
+            }
+
+            if (resultData[resultStatGroupFieldsKey] == null) {
+                resultData[resultStatGroupFieldsKey] = {};
+                dataJSON[i]['date'] = new Date(secTime);
+                dataJSON[i] =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
+                resultData[resultStatGroupFieldsKey][secTime] = dataJSON[i];
+            } else {
+                dataJSON[i]['date'] = new Date(secTime);
+                dataJSON[i] =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
+                resultData[resultStatGroupFieldsKey][secTime] = dataJSON[i];
+            }
+
+//            for (k = 0; k < plotFields.length; k++) {
+//                result[plotFields[k]] = dataJSON[i][plotFields[k]];
+//            }
+        }
+    }
+
+    redisClient.set(queryId + ':flowclasses', JSON.stringify(flowClassArray));
+    redisClient.set(queryId + ':chartdata', JSON.stringify(resultData));
+};
+
+function createKey4StatChart(statGroupFields){
+    var key = statGroupFields[0]+"-";
+    for(var i=1; i<statGroupFields.length-1; i++){
+        key = key.concat(statGroupFields[i]+"-");
+    }
+    key = key.concat(statGroupFields[statGroupFields.length-1]);
+    return key;
+};
+
+function getStatClassRecord(key, resultStatGroupFields, row)
+{
+    row['stat_flow_class_id'] = key;
+    return row;
+};
+
+function saveData4Chart2Redis(queryId, dataJSON, plotFields)
 {
     var resultData = {},
         result, i, j, k, flowClassId, flowClassRecord, uniqueFlowClassArray = [], secTime,
@@ -311,7 +382,7 @@ function saveData4Chart2Redis(queryId, dataJSON, plotFields)
     redisClient.set(queryId + ':chartdata', JSON.stringify(resultData));
 };
 
-function getFlowClassRecord(row) 
+function getFlowClassRecord(row)
 {
     var flowClassFields = global.FLOW_CLASS_FIELDS,
         fieldValue, flowClass = {flow_class_id:row['flow_class_id']};
@@ -569,6 +640,9 @@ function parseStatsQuery(reqQuery)
     tg = reqQuery['tgValue'];
     tgUnit = reqQuery['tgUnits'];
     setMicroTimeRange(statQuery, fromTimeUTC, toTimeUTC);
+    statPlotFields = reqQuery['plotFields'];
+    statGroupFields = reqQuery['groupFields'];
+    statXaxis = reqQuery['Xaxis'];
     if (select != "") {
         parseSelect(statQuery, select, tg, tgUnit);
     }
@@ -608,7 +682,8 @@ function parseFRQuery(reqQuery)
 function parseSelect(query, select, tg, tgUnit) 
 {
     var selectArray = splitString2Array(select, ','),
-        tgIndex = selectArray.indexOf('time-granularity');
+        tgIndex = selectArray.indexOf('time-granularity'),
+        classTEqualToIndex = selectArray.indexOf('T=');
     if (tgIndex > -1) {
         selectArray[tgIndex] = 'T=' + getTGSecs(tg, tgUnit);
     } else if(selectArray.indexOf('T=') != -1) {
@@ -616,6 +691,10 @@ function parseSelect(query, select, tg, tgUnit)
         selectArray[tgIndex] = 'T=' + getTGSecs(tg, tgUnit);
     }
     query['select_fields'] = query['select_fields'].concat(selectArray);
+    // CLASS(T=) should be added to the select fields only if user has selected T=
+    if(classTEqualToIndex > -1){
+        query['select_fields'] = query['select_fields'].concat('CLASS(T=)');
+    }
 };
 
 function splitString2Array(strValue, delimiter) 
