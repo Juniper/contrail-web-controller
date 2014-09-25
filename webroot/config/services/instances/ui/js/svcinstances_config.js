@@ -323,7 +323,7 @@ function refreshSvcInstances(reload) {
 function initActions() {
     btnCreatesvcInstances.click(function (a) {
         if(!$(this).hasClass('disabled-link')) {     
-            svcInstancesCreateWindow("add");
+            //svcInstancesCreateWindow("add");
         }    
     });
 
@@ -1486,6 +1486,12 @@ function svcInstancesCreateWindow(mode,rowIndex) {
     if($("#btnCreatesvcInstances").hasClass('disabled-link')) {
            return;
     }
+    doAjaxCall("/api/service/networking/user-roles/", "GET", "", "fetchUserRoleSuccessCb", "fetchUserRoleFailureCb",false, {"mode":mode,"rowIndex":rowIndex});
+}
+function fetchUserRoleSuccessCb(result, cbParam){
+    var mode = cbParam.mode;
+    var rowIndex = cbParam.rowIndex;
+
     var selectedDomainName = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").value();
     var selectedProjectName = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1495,7 +1501,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         gridsvcInstances.showGridMessage('errorGettingData');
         return;
     }
-
+    var projectRole = result[selectedProjectName];
     var getAjaxs = [];
 
     getAjaxs[0] = $.ajax({
@@ -1516,7 +1522,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         type:"GET"
     });
 
-    if(globalObj['webServerInfo']['role'] == "admin"){
+    if(globalObj['webServerInfo']['role'] == "admin" && projectRole == "admin"){
         getAjaxs[4] = $.ajax({
             url:"/api/tenants/config/getHostList/",
             type:"GET"
@@ -1528,7 +1534,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             //globalObj['webServerInfo']['role'] = "user";
             var hostList = [];
             var availabilityZone = [];
-            if(globalObj['webServerInfo']['role'] == "admin"){
+            if(globalObj['webServerInfo']['role'] == "admin" && projectRole == "admin"){
                 hostList = results[4][0].host;
                 $("#host").removeClass("hide");
                 $("ddZone").removeClass("span5");
