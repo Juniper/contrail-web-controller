@@ -37,6 +37,7 @@ function VirtualNetworkConfig() {
     var idCount = 0;
     var ajaxParam;
     var dynamicID;
+    var fetchFirstIP;
 
     //Method definitions
     this.load = load;
@@ -66,6 +67,7 @@ function VirtualNetworkConfig() {
     this.setHeaderDHCP = setHeaderDHCP;
     this.getAllDNSServer = getAllDNSServer;
     this.dynamicID = dynamicID;
+    this.fetchFirstIP = fetchFirstIP;
     this.destroy = destroy;
 }
 
@@ -190,6 +192,15 @@ function initComponents() {
                     }
                 },
                 forceFitColumns: true,
+                /*actionCell: [
+                    {
+                        title: 'Edit',
+                        iconClass: 'icon-edit',
+                        onClick: function(rowIndex){
+                            showVNEditWindow('edit',rowIndex);
+                        }
+                    }
+                ],*/
                 actionCell: function(dc){
                     if(dc.enableControles == true){
                         return [{
@@ -457,7 +468,9 @@ function initActions() {
                 var enableDHCP = $("#ipamTuples_"+id+"_chkDHCP")[0].checked;
                 var currentGateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
                 var allocation_pools = [];
-                var addrFromStart = false;
+                var add_startFrom = $("#ipamTuples_"+id+"_startFirst").val().trim();
+                var addrFromStart = fetchFirstIP;
+                if(add_startFrom != "") addrFromStart =  add_startFrom;
                 if( typeof  allocPoolVal !== null && allocPoolVal !== "") {
                     var tempAllocPools = allocPoolVal.split("\n");                    
                     for(var inc = 0; inc < tempAllocPools.length ; inc++){
@@ -467,7 +480,6 @@ function initActions() {
                          else if(ips.length == 1)
                             allocation_pools[inc] = {"start":ips[0].trim(),"end":ips[0].trim()};
                     }
-                    addrFromStart = true;
                 }
                 if(ipamList.lastIndexOf(currentIpam) === -1) {
                     mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:currentHostRout,dNSServert:DNSServer});
@@ -488,7 +500,7 @@ function initActions() {
                 var ipam = mgmtOptions[i].IPAM;
                 var gateway = mgmtOptions[i].Gateway;
                 var enable_dhcp = mgmtOptions[i].EnableDHCP;
-                var addFromStart = mgmtOptions[i].addrStart;
+                var addFromStart = JSON.parse(mgmtOptions[i].addrStart);
                 var hostRouteTemp = mgmtOptions[i].hostRoute;
                 var allocation_pools = mgmtOptions[i].AllocPool;
                 var dnsServer = mgmtOptions[i].dNSServert;
@@ -1002,6 +1014,13 @@ function createIPAMEntry(ipamBlock, id,element) {
     divIPGateway.className = "span2";
     divIPGateway.appendChild(inputTxtGateway);    
 
+    var inputTxtAddFromStart = document.createElement("input");
+    inputTxtAddFromStart.setAttribute("id",element+"_"+id+"_startFirst");
+    inputTxtAddFromStart.type = "hidden";
+    $(inputTxtAddFromStart).val("");
+    divIPGateway.appendChild(inputTxtAddFromStart);
+
+
     var iBtnAddRule = document.createElement("i");
     iBtnAddRule.className = "icon-plus";
     iBtnAddRule.setAttribute("onclick", "appendIPAMEntry(this,false,'"+element+"');");
@@ -1058,6 +1077,7 @@ function createIPAMEntry(ipamBlock, id,element) {
         $(inputTxtGateway).val(ipamBlock.Gateway);
         inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
+        $(inputTxtAddFromStart).val(ipamBlock.addr_from_start);
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
         $(selectIpams).data("contrailDropdown").enable(false);
@@ -1574,7 +1594,11 @@ function autoPopulateGW(me) {
     if(ip.indexOf("/") !== -1 && !isNaN(ip.split("/")[1])) {
         try {
             var ip_arrs = ip_range(ip, []);
-            var default_gw = ip_arrs[ip_arrs.length - 1];
+            var default_gw;
+            if(fetchFirstIP === true)
+                default_gw = ip_arrs[0];
+            else 
+                default_gw = ip_arrs[ip_arrs.length - 1];
             $("#ipamTuples_"+id+"_txtGateway").val(default_gw);
         } catch (e) {
             $("#ipamTuples_"+id+"_txtGateway").val("");
@@ -1787,6 +1811,7 @@ function successHandlerForGridVNRow(result) {
             var ipam = jsonPath(ipamRefs[j], "$..subnet.ipam[*]");
             var cidr = vn["network_ipam_refs"][j]["subnet"]["ipam_subnet"];
             var default_gateway = vn["network_ipam_refs"][j]["subnet"]["default_gateway"];
+            var addr_from_start = vn["network_ipam_refs"][j]["subnet"]["addr_from_start"];
             //Need to do
             var alocPools = vn["network_ipam_refs"][j]["subnet"]["allocation_pools"];
             
@@ -1806,7 +1831,7 @@ function successHandlerForGridVNRow(result) {
             } else {
                 ipam = ipam[2] + " (" + ipam[0] + ":" + ipam[1] +")";
             }
-            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer})
+            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer,"addr_from_start":addr_from_start})
         }
         var gateways = jsonPath(vn, "$.network_ipam_refs[*].subnet.default_gateway");
         if (gateways === false) {
@@ -2060,7 +2085,11 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/admin/webconfig/network/L2_enable",
         type:"GET"
     });
-    
+    getAjaxs[4] = $.ajax({
+        url:"/api/admin/webconfig/network/address_from_start",
+        type:"GET"
+    });
+
     $.when.apply($, getAjaxs).then(
         function () {
             //all success
@@ -2068,6 +2097,10 @@ function showVNEditWindow(mode, rowIndex) {
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
             var l2Mode = results[3][0].L2_enable;
+            fetchFirstIP = results[4][0].address_from_start;
+            if(fetchFirstIP == null || fetchFirstIP == "null" || fetchFirstIP == "") {
+                fetchFirstIP = false;
+            }
             if(l2Mode == false){
                 $("#ddFwdMode").data("contrailDropdown").enable(false);
                 $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
@@ -2170,7 +2203,7 @@ function showVNEditWindow(mode, rowIndex) {
                 var gateways = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.default_gateway");
                 //Need to do
                 var alocPools = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.allocation_pools");
-
+                var addr_from_start_value = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.addr_from_start");
                 var DHCPEnabled = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.enable_dhcp");;
                 if (ipams && ipams.length > 0) {
                     var existing = [];
@@ -2181,7 +2214,7 @@ function showVNEditWindow(mode, rowIndex) {
                         var AlocPool="";
                         if(typeof alocPools[i] != null && typeof alocPools[i] != undefined && typeof alocPools[i] != "")
                             AlocPool = formatAlcPoolObj(alocPools[i]); 
-                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool});
+                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool,"addr_from_start":addr_from_start_value[i]});
                     }
                     for(var k=0; k<existing.length; k++) {
                         dynamicID++;
