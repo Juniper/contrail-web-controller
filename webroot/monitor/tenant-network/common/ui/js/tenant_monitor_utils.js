@@ -1858,7 +1858,7 @@ function getProjectData(vnData,project){
     });
     $.each(projData,function(key,obj) {
         var cfgIdx = $.inArray(key,projNamesArr);
-        $.extend(obj,{type:'project',id:key,name:key,uuid:projList[cfgIdx]['uuid'],size:obj['throughput']+1,x:obj['intfCnt'],y:obj['vnCnt']});
+        $.extend(obj,{type:'project',cgrid:key,name:key,uuid:projList[cfgIdx]['uuid'],size:obj['throughput']+1,x:obj['intfCnt'],y:obj['vnCnt']});
         projArr.push(obj);
     });
     return {projectsData:projArr,networksData:vnArr,aggData:{inBytes:inBytes,outBytes:outBytes}};
