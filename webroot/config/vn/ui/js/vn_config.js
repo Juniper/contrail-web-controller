@@ -190,6 +190,15 @@ function initComponents() {
                     }
                 },
                 forceFitColumns: true,
+                /*actionCell: [
+                    {
+                        title: 'Edit',
+                        iconClass: 'icon-edit',
+                        onClick: function(rowIndex){
+                            showVNEditWindow('edit',rowIndex);
+                        }
+                    }
+                ],*/
                 actionCell: function(dc){
                     if(dc.enableControles == true){
                         return [{
@@ -450,7 +459,6 @@ function initActions() {
             var ipamList = [];            
             for (var i = 0; i < ipamTuples.length; i++) {
                 var id = getID(String($("#ipamTuples").children()[i].id));
-
                 var cidr = $("#ipamTuples_"+id+"_txtCIDR").val().trim();
                 var currentIpam = $("#ipamTuples_"+id+"_ddSelIpam").data("contrailDropdown").value().trim();
                 var allocPoolVal = $("#ipamTuples_"+id+"_txtAllocPool").val().trim();
@@ -458,6 +466,8 @@ function initActions() {
                 var currentGateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
                 var allocation_pools = [];
                 var addrFromStart = false;
+                var finalHR = [];
+                var finalSubnet = [];
                 if( typeof  allocPoolVal !== null && allocPoolVal !== "") {
                     var tempAllocPools = allocPoolVal.split("\n");                    
                     for(var inc = 0; inc < tempAllocPools.length ; inc++){
@@ -467,14 +477,30 @@ function initActions() {
                          else if(ips.length == 1)
                             allocation_pools[inc] = {"start":ips[0].trim(),"end":ips[0].trim()};
                     }
-                    addrFromStart = true;
+                }
+                if(isIPv6(cidr)){
+                    finalHR = [];
+                    finalDNSServer = DNSServer;
+                } else if(isIPv4(cidr)){
+                    finalHR = [];
+                    for(hrInc = 0;hrInc < currentHostRout.length; hrInc++){
+                        if(isIPv4(currentHostRout[hrInc].next_hop)){
+                            finalHR.push(currentHostRout[hrInc]);
+                        }
+                    }
+                    finalDNSServer = [];
+                    for(dnsInc = 0;dnsInc < DNSServer.length; dnsInc++){
+                        if(isIPv4(DNSServer[dnsInc].dhcp_option_value)){
+                            finalDNSServer.push(DNSServer[dnsInc]);
+                        }
+                    }
                 }
                 if(ipamList.lastIndexOf(currentIpam) === -1) {
-                    mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:currentHostRout,dNSServert:DNSServer});
+                    mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:finalHR,dNSServert:finalDNSServer});
                     ipamList.splice(i, 0, currentIpam);
                 } else {
                     var lastPos = ipamList.lastIndexOf(currentIpam);
-                    mgmtOptions.splice(lastPos+1, 0, {IPAM: "", CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP , AllocPool:allocation_pools,addrStart : addrFromStart ,hostRoute:currentHostRout,dNSServert:DNSServer});
+                    mgmtOptions.splice(lastPos+1, 0, {IPAM: "", CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP , AllocPool:allocation_pools,addrStart : addrFromStart ,hostRoute:finalHR,dNSServert:finalDNSServer});
                     ipamList.splice(lastPos+1, 0, currentIpam);
                 }
             }
@@ -806,8 +832,8 @@ function validateDNSServer(){
             if (typeof DNSServer === "undefined" || DNSServer === "") {
                 showInfoWindow("Enter DNS Server", "Input required");
                 return false;
-            } else if(!validip(DNSServer.trim())){
-                showInfoWindow("Enter a valid IP address in xxx.xxx.xxx.xxx/xx format", "Invalid input in DNS Server");
+            } else if(!isValidIP(DNSServer.trim())){
+                showInfoWindow("Enter a valid IP address", "Invalid input in DNS Server");
                 return false;
             }
         }
@@ -1067,6 +1093,7 @@ function createIPAMEntry(ipamBlock, id,element) {
         $(inputTxtGateway).attr("disabled", "disabled");  
         $(inputTxtGateway).addClass("textBackground");
         $(inputTxtAlocPool).attr("disabled", "disabled");
+
     }    
     return rootDiv;
 }
@@ -1138,8 +1165,8 @@ function validateIPAMEntry() {
             var gateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
             var allocPool = $("#ipamTuples_"+id+"_txtAllocPool").val().trim();
 
-            if ("" === ipblock.trim() || !validip(ipblock.trim())) {
-                showInfoWindow("Enter a valid CIDR in xxx.xxx.xxx.xxx/xx format", "Invalid input in CIDR");
+            if ("" === ipblock.trim() || !isValidIP(ipblock.trim())) {
+                showInfoWindow("Enter a valid CIDR", "Invalid input in CIDR");
                 return false;
             }
             if(ipblock.split("/").length != 2) {
@@ -1147,12 +1174,13 @@ function validateIPAMEntry() {
                 return false;
             }
             var subnetMask = parseInt(ipblock.split("/")[1]); 
-            if(subnetMask > 30) {
-                showInfoWindow("Subnet mask can not be greater than 30", "Invalid input in Address Management");
-                return false;
-            }
+            //Only for ipv4
+            //if(isIPv4(ipblock) && subnetMask > 30) {
+            //    showInfoWindow("Subnet mask can not be greater than 30", "Invalid input in Address Management");
+            //    return false;
+            //}
 
-            if (validip(gateway.trim())) {
+            if (isValidIP(gateway.trim())) {
                 if(gateway.split("/").length >= 2) {
                     showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
                     return false;
@@ -1172,13 +1200,18 @@ function validateIPAMEntry() {
                         showInfoWindow("Enter a valid Allocation Pool range in xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt; xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx... format", "Invalid input in Allocation Pool");
                         return false;
                     }
-                    if (!validip(ips[0].trim()) || !validip(ips[1].trim())) {
-                        showInfoWindow("Enter a valid Allocation Pool address in xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt; xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt;... format. <br>eg : 192.168.1.20-192.168.1.40<br>192.168.1.50-192.168.1.70", "Invalid input in Allocation Pool");
+                    if (!isValidIP(ips[0].trim()) || !isValidIP(ips[1].trim())) {
+                        showInfoWindow("Enter a valid Allocation Pool address xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt; xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt;... format. <br>eg : 192.168.1.20-192.168.1.40<br>192.168.1.50-192.168.1.70", "Invalid input in Allocation Pool");
+                        return false;
+                    }
+                    if(!isIPBoundToRange(ipblock,ips[0].trim()) || !isIPBoundToRange(ipblock,ips[1].trim())){
+                        showInfoWindow("Enter a valid Allocation Pool address in the CIDR range", "Invalid input in Allocation Pool");
                         return false;
                     }
                 }
             }
         }
+        
     }
     return true;
 }
@@ -1573,9 +1606,11 @@ function autoPopulateGW(me) {
     var id = getID($(me)[0].id);
     if(ip.indexOf("/") !== -1 && !isNaN(ip.split("/")[1])) {
         try {
-            var ip_arrs = ip_range(ip, []);
-            var default_gw = ip_arrs[ip_arrs.length - 1];
-            $("#ipamTuples_"+id+"_txtGateway").val(default_gw);
+            var default_gateway = genarateGateway(ip,"end");
+            if(default_gateway != false){
+                $("#ipamTuples_"+id+"_txtGateway").val(default_gateway);
+            }
+
         } catch (e) {
             $("#ipamTuples_"+id+"_txtGateway").val("");
         }
@@ -2060,7 +2095,7 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/admin/webconfig/network/L2_enable",
         type:"GET"
     });
-    
+   
     $.when.apply($, getAjaxs).then(
         function () {
             //all success
