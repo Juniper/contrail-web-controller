@@ -683,40 +683,40 @@ and need to add the iconClass tag wherever we need to show some icons
             </item>
           </items>
         </item>
-                <!-- <item>
-                    <label>Statistics</label>
-                    <iconClass>icon-sign-blank</iconClass>
-                    <items>
-                        <item>
-                            <hash>query_stat_query</hash>
-                            <label>Query</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statQueryObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Query Statistics</searchStrings>
-                        </item>
-                        <item>
-                            <hash>query_stat_queue</hash>
-                            <label>Query Queue</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/reports</rootDir>
-                                    <view>stat_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>stat_queries.js</js>
-                                    <class>statQueryQueueObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Statistic Query Queue</searchStrings>
-                        </item>
-                    </items>
-                </item> -->
+        <item>
+            <label>Statistics</label>
+            <iconClass>icon-tasks</iconClass>
+            <items>
+                <item>
+                    <hash>query_stat_query</hash>
+                    <label>Query</label>
+                    <resources>
+                        <resource>
+                            <rootDir>/reports</rootDir>
+                            <view>stat_queries.view</view>
+                            <view>queries.view</view>
+                            <js>stat_queries.js</js>
+                            <class>statQueryObj</class>
+                        </resource>
+                    </resources>
+                    <searchStrings>Query Statistics</searchStrings>
+                </item>
+                <item>
+                    <hash>query_stat_queue</hash>
+                    <label>Query Queue</label>
+                    <resources>
+                        <resource>
+                            <rootDir>/reports</rootDir>
+                            <view>stat_queries.view</view>
+                            <view>queries.view</view>
+                            <js>stat_queries.js</js>
+                            <class>statQueryQueueObj</class>
+                        </resource>
+                    </resources>
+                    <searchStrings>Statistic Query Queue</searchStrings>
+                </item>
+            </items>
+        </item>
       </items>
     </item>
   </items>
