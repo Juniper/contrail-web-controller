@@ -151,6 +151,13 @@ function parseVNSubnets (error, vnConfig, callback)
                     nwIpamRefsClone[k]['subnet']['dns_nameservers'] =
                     ipamSubnets[j]['dns_nameservers'];
 
+                if(null == ipamSubnets[j]['addr_from_start'] ||
+                    typeof ipamSubnets[j]['addr_from_start'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['addr_from_start'] = "";
+                else
+                    nwIpamRefsClone[k]['subnet']['addr_from_start'] =
+                    ipamSubnets[j]['addr_from_start'];
+
                 if(null == ipamSubnets[j]['allocation_pools'] ||
                     typeof ipamSubnets[j]['allocation_pools'] === "undefined")
                     nwIpamRefsClone[k]['subnet']['allocation_pools'] = "";
