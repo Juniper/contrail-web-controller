@@ -268,5 +268,11 @@
         <feature>monitoring</feature>
         <callback>nwMonApi.getInstanceDetails</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/stats</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getStats</callback>
+    </item>
 </urlLists>
 
