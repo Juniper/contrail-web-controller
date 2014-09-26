@@ -1057,11 +1057,11 @@ var tenantNetworkMonitorUtils = {
             var intfInBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)','-');
             var intfOutBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)','-');
             var samplesCount = getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)','-');
-            throughputIn += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)',0);
-            throughputOut += getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)',0);
             allSamples += getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)',0);
             intfInBw = ($.isNumeric(intfInBw) && $.isNumeric(samplesCount) && samplesCount != 0)? intfInBw/samplesCount : '-';
             intfOutBw = ($.isNumeric(intfOutBw) && $.isNumeric(samplesCount) && samplesCount != 0)? intfOutBw/samplesCount : '-';
+            throughputIn += $.isNumeric(intfInBw) ? intfInBw : 0;
+            throughputOut += $.isNumeric(intfOutBw) ? intfOutBw : 0;
             var uuid = ifNull(obj['uuid'],'-');
             if(obj['active'] != null && obj['active'] == true)
                 intfStatus = 'Active';
@@ -1072,8 +1072,6 @@ var tenantNetworkMonitorUtils = {
                            formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
         });
-        throughputIn = ($.isNumeric(throughputIn) && $.isNumeric(allSamples) && allSamples != 0)? throughputIn/allSamples : '-';
-        throughputOut = ($.isNumeric(throughputOut) && $.isNumeric(allSamples) && allSamples != 0) ? throughputOut/allSamples : '-';
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
         retArr = $.merge($.merge(retArr,interfaceDetails),fipDetails);
         return retArr;
