@@ -346,7 +346,7 @@ function initActions() {
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["default_ttl_seconds"] = ttlVal;
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["domain_name"] = domainTxt;
         dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["record_order"] = recordResTxt;
-        dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["record_type"] = recordTypeTxt;
+        dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["floating_ip_record"] = recordTypeTxt;
         if (forwarderTxt.length) {
             dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["next_virtual_DNS"] = forwarderTxt;
         }
@@ -574,7 +574,7 @@ function successHandlerForDNSServerRow(result) {
         var dnsData = null;
         var dns_ttl = 0;
         var rec_res_ord = "-";
-        var record_type = "-"
+        var floating_ip_record = "-"
         var forwarder = "-";
         var ipamTxt = "-";
 
@@ -593,9 +593,9 @@ function successHandlerForDNSServerRow(result) {
                 dnsData['record_order'] != null) {
                 rec_res_ord = dnsData['record_order'];
             }
-            if ('record_type' in dnsData &&
-                dnsData['record_type'] != null) {
-                record_type = dnsData['record_type'];
+            if ('floating_ip_record' in dnsData &&
+                dnsData['floating_ip_record'] != null) {
+                floating_ip_record = dnsData['floating_ip_record'];
             }
             if ('next_virtual_DNS' in dnsData &&
                 dnsData['next_virtual_DNS'] != null) {
@@ -622,7 +622,7 @@ function successHandlerForDNSServerRow(result) {
             "domain_name":domainName,
             "dns_ttl":dns_ttl,
             "record_resolution_order":rec_res_ord,
-            "record_type": record_type,
+            "floating_ip_record": floating_ip_record,
             "forward":forwarder,
             "Associated_IPAM":ipamTxt,
         });
@@ -749,7 +749,7 @@ function populateDNSServerEditWindow(){
     ddLoadBal = $("#ddLoadBal").data("contrailDropdown");
     ddLoadBal.value(selectedRow.record_resolution_order);
     ddType = $("#ddType").data("contrailDropdown");
-    ddType.value(selectedRow.record_type);
+    ddType.value(selectedRow.floating_ip_record);
 
     cmbDNSForward = $("#cmbDNSForward").data("contrailCombobox");
     if(selectedRow.forward != "-")	
