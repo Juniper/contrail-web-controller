@@ -167,7 +167,7 @@ function clearBgpWindow() {
     $("#chkexternal").click();
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
-    $('#multifamily').data('contrailMultiselect').value(['inet-vpn','route-target']);
+    $('#multifamily').data('contrailMultiselect').value(['inet-vpn','inet6-vpn','route-target','e-vpn']);
 }
 
 function closeBgpWindow() {
@@ -788,9 +788,11 @@ function initComponents() {
     });
     var msFamily = $('#multifamily').data('contrailMultiselect');
     msFamily.setData([{text : 'inet-vpn', value : 'inet-vpn', locked : true},
-        {text : 'route-target', value : 'route-target'}
+        {text : 'inet6-vpn', value : 'inet6-vpn'},
+        {text : 'route-target', value : 'route-target'},
+        {text : 'e-vpn', value : 'e-vpn'}
     ]);
-    msFamily.value(['inet-vpn', 'route-target']);
+    msFamily.value(['inet-vpn', 'inet6-vpn', 'route-target', 'e-vpn']);
     $('#txtfamily').contrailMultiselect({
         dataTextField:"text",
         dataValueField:"value"         
@@ -798,10 +800,11 @@ function initComponents() {
     var cnFamily = $("#txtfamily").data('contrailMultiselect');
     cnFamily.setData([{text : 'route-target', value : 'route-target', locked : true},
         {text : 'inet-vpn', value : 'inet-vpn', locked : true},
+        {text : 'inet6-vpn', value : 'inet6-vpn', locked : true},
         {text : 'e-vpn', value : 'e-vpn', locked : true},
         {text : 'erm-vpn', value : 'erm-vpn', locked : true}
     ]);
-    cnFamily.value(['route-target','inet-vpn', 'e-vpn', 'erm-vpn']);
+    cnFamily.value(['route-target', 'inet-vpn', 'inet6-vpn', 'e-vpn', 'erm-vpn']);
     cnFamily.enable(false);
     bgpwindow = $("#bgpwindow");
     bgpwindow.on("hide", clearBgpWindow);
