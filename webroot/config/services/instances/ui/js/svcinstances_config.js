@@ -860,7 +860,8 @@ function successHandlerForGridsvcInstanceRow(result) {
         if ('service_instance_properties' in svcInstance &&
             'scale_out' in svcInstance['service_instance_properties']) {
             var svcScaling = svcInstance['service_instance_properties']['scale_out'];
-            svcScalingStr = svcScaling.max_instances + " Instances";
+            if(svcScaling !== null && svcScaling != "")
+                svcScalingStr = svcScaling.max_instances + " Instances";
         }
         network = "";
         ServiceProperties = svcInstance['service_instance_properties'];
