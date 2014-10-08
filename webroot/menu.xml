@@ -529,9 +529,9 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_pd_virtualRouters</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/pd/ui</rootDir>
-                                    <js>virtualRouters_config.js</js>
-                                    <view>virtualRouters_config.view</view>
+                                    <rootDir>/config/physicaldevices/virtualrouters/ui</rootDir>
+                                    <js>virtualrouters_config.js</js>
+                                    <view>virtualrouters_config.view</view>
                                     <class>virtualRoutersConfigObj</class>
                                 </resource>
                             </resources>
@@ -542,7 +542,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_pd_physicalRouters</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/pd/ui</rootDir>
+                                    <rootDir>/config/physicaldevices/virtualrouters/ui</rootDir>
                                     <js>physicalRouters_config.js</js>
                                     <view>physicalRouters_config.view</view>
                                     <class>physicalRoutersConfigObj</class>
