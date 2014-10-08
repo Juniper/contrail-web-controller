@@ -584,6 +584,45 @@ function getvRouterL2Routes (req, res)
     });
 }
 
+function getvRouterUCast6Routes (req, res) {
+    var ip = req.param('ip');
+    var uc6index = req.param('vrfindex');
+    var index = 0;
+    var dataObjArr = [];
+    var vRouterRestAPI = commonUtils.getRestAPIServer(ip,
+                                                      global.SANDESH_COMPUTE_NODE_PORT);
+console.log("inside ipv6: " + uc6index + ' ' + ip );
+    if (null != uc6index) {
+        commonUtils.createReqObj(dataObjArr, '/Snh_Inet6UcRouteReq?vrf_index=' +
+                                 uc6index);
+        sendvRouterRoutes(req, res, dataObjArr, vRouterRestAPI);
+        return;
+    }
+    /* First get the uc6index from VRF */
+    getVrfIndexList(ip, function(results) {
+        if (null == results) {
+            commonUtils.handleJSONResponse(null, res, []);
+            return;
+        }
+        var vrfListLen = results.length;
+        for (var i = 0; i < vrfListLen; i++) {
+            commonUtils.createReqObj(dataObjArr,
+                                     '/Snh_Inet6UcRouteReq?vrf_index=' +
+                                     results[i]['uc6index']);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerRespByRestApi(vRouterRestAPI,
+                                                     true),
+                  function(err, data) {
+            if (data) {
+                commonUtils.handleJSONResponse(null, res, data);
+            } else {
+                commonUtils.handleJSONResponse(null, res, []);
+            }
+        });
+    });
+}
+
 function sendvRouterRoutes (req, res, dataObjArr, vRouterRestAPI)
 {
     async.map(dataObjArr,
@@ -676,4 +715,5 @@ exports.getvRouterUCastRoutes = getvRouterUCastRoutes;
 exports.getvRouterMCastRoutes = getvRouterMCastRoutes;
 exports.getvRouterVrfList = getvRouterVrfList;
 exports.getvRouterL2Routes = getvRouterL2Routes;
+exports.getvRouterUCast6Routes = getvRouterUCast6Routes;
 
