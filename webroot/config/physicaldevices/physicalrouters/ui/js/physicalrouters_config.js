@@ -50,14 +50,15 @@ function physicalRoutersConfig() {
                     name : 'IP Address'                    
                 },
                 {
-                    id : 'uuid',
-                    field : 'uuid',
-                    name : 'UUID'                    
-                },
-                {
                     id : 'interfaces',
                     field : 'interfaces',
-                    name : 'Interfaces'                    
+                    name : 'Interfaces',
+                    cssClass :'cell-hyperlink-blue',
+                    events : {
+                        onClick : function(e, dc) {
+                            layoutHandler.setURLHashParams({uuid : dc.uuid} ,{p : 'config_pd_physicalInterfaces' ,merge : false ,triggerHashChange : true});
+                        }
+                    }                     
                 }]                
             },
             body : {
@@ -303,7 +304,7 @@ function physicalRoutersConfig() {
                 gridDS.push({
                     uuid : rowData.uuid,
                     name : rowData.name,
-                    ip_address : rowData.physical_router_ip_address,
+                    ip_address : rowData.physical_router_ip_address ? rowData.physical_router_ip_address : '-',
                     interfaces : interfaces.length
                 });
             }

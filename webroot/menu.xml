@@ -555,9 +555,9 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_pd_physicalInterfaces</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <js>physicalInterfaces_config.js</js>
-                                    <view>physicalInterfaces_config.view</view>
+                                    <rootDir>/config/physicaldevices/physicalinterfaces/ui</rootDir>
+                                    <js>physicalinterfaces_config.js</js>
+                                    <view>physicalinterfaces_config.view</view>
                                     <class>physicalInterfacesConfigObj</class>
                                 </resource>
                             </resources>
