@@ -1,0 +1,128 @@
+<script type="text/x-handlebars-template" id="gridPhysicalInterfacesDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Name</label></div>
+                <div class="span10"> {{name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Parent</label></div>
+                <div class="span10">{{parent}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Logical Interfaces</label></div>
+                <div class="span10">{{lInterfaces}}</div>
+            </div>            
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="physicalinterfaces-config-template">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="gridPhysicalInterfaces"/>
+        </div>
+    </div>
+    
+    <div id="addPhysicalInterfaceWindow" class="modal hide " tabindex="-1">	
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+	    <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">	
+	            <div class="control-group">
+                    <label  class="control-label ">Type</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="ddType" class="span11"/>
+                        </div>
+                    </div>
+                </div>              
+                <div class="control-group">
+	                <label class="control-label" >Interface Name</label>
+	    	        <div class="controls">	
+	    	            <div class="row-fluid">
+	    	                <input type="text" id="txtPhysicalInterfaceName" class="span11"/>	
+	    	            </div>
+	    	        </div>
+	            </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Parent</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="ddParent" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Vlan</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtVlan" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Server</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtServer" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Virtual Network</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="ddVN" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Mac Address</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtMacAddress" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">IP address</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtIPAddress" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Image</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtImage" class="span11"/>
+                        </div>
+                    </div>
+                </div>                
+            </form>
+        </div>
+        <div class="modal-footer">
+	         <button  id="btnAddPhysicalInterfaceCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>	
+             <button  id="btnAddPhysicalInterfaceOk" class="btn btn-primary btn-mini">Save</button>
+        </div>  
+    </div>
+    
+    <div id="confirmMainDelete" class="modal modal-420 hide" tabindex="-1" role="dialog">
+         <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+              <h6 class="modal-header-title"></h6>
+         </div>
+        <div class="modal-body">
+             <div class="row-fluid text-center">
+                  <h6>Confirm Virtual Router(s) delete</h6>
+             </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfDelMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfDelMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>

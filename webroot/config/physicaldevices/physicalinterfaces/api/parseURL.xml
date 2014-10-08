@@ -1,0 +1,55 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>physicalinterfacesconfigapi</define>
+        <path>./physicalinterfacesconfig.api</path>
+    </require>
+    <!-- API / Feature definition for quotas configuration -->
+    <!-- 1. fetch physical routers - /api/tenants/config/physical-routers,
+                                                 getPhysicalRouters
+         2. fetch physical interfaces - /api/tenants/config/physical-interfaces/:pRouterId,
+                                                 getPhysicalInterfaces
+         3. create physical interfaces - /api/tenants/config/physical-interfaces/:pRouterId,
+                                                 createPhysicalInterfaces
+         4. update physical interfaces - /api/tenants/config/physical-interface/:pRouterId/:pInterfaceI,
+                                                 updatePhysicalInterfaces
+         5. delete physical interfaces - /api/tenants/config/physical-interface/:pRouterId/:pInterfaceId,
+                                                 deletePhysicalInterfaces
+    --> 
+    <item>
+        <url>/api/tenants/config/physical-router-details</url>
+        <method>get</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.getPhysicalRouters</callback>
+    </item>    
+    <item>
+        <url>/api/tenants/config/physical-interfaces/:pRouterId</url>
+        <method>get</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.getPhysicalInterfaces</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/physical-interfaces/:pRouterId</url>
+        <method>post</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.createPhysicalInterfaces</callback>
+    </item>   
+    <item>    
+        <url>/api/tenants/config/physical-interface/:pRouterId/:pInterfaceId</url>
+        <method>put</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.updatePhysicalInterfaces</callback>
+    </item>    
+    <item>    
+        <url>/api/tenants/config/physical-interface/:pRouterId/:pInterfaceId</url>
+        <method>delete</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.deletePhysicalInterfaces</callback>
+    </item>     
+</urlLists>
