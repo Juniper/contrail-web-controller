@@ -107,6 +107,36 @@ monitorInfraComputeRoutesClass = (function() {
     
     }
     
+    this.parseIPv6RoutesData = function(response){
+
+        var ucastPaths = jsonPath(response,'$..PathSandeshData');
+        var paths = [];
+        var uPaths = [];
+        ucastPaths = $.each(ucastPaths,function(idx,obj) {
+            if(obj instanceof Array) {
+                uPaths.push(obj);
+            } else {
+                uPaths.push([obj]);
+            }
+        });
+        var srcIPs = jsonPath(response,'$..src_ip');
+        var srcPrefixLens = jsonPath(response,'$..src_plen');
+        var srcVRFs = jsonPath(response,'$..src_vrf');
+
+        $.each(uPaths,function(idx,obj) {
+            $.each(obj,function(i,currPath) {
+                var rawJson = currPath;
+                if(i == 0)
+                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+                else
+                    paths.push({dispPrefix:'',path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+
+            });
+        });
+        return paths;
+    
+    }
+    
     this.populateRoutesTab = function(obj){
 
         layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
@@ -138,7 +168,8 @@ monitorInfraComputeRoutesClass = (function() {
                             var ucIndex = ifNull(obj.ucindex,'');
                             var mcIndex = ifNull(obj.mcindex,'');
                             var l2Index = ifNull(obj.l2index,'');
-                            var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index;
+                            var uc6Index = ifNull(obj.uc6index,'');
+                            var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
                             ret.push({name:obj.name,value:value}) 
                          });
                          //Intialize the grid
@@ -156,87 +187,71 @@ monitorInfraComputeRoutesClass = (function() {
            // cboVRF.list.width(300);
             $('input[name="routeType"]').change(onRouteTypeChange);
         }
+        function destroyAndHide(currentTypeDivId){
+            $(currentTypeDivId).data("contrailGrid").destroy();
+            //removeAllAttributesOfElement(currentTypeDivId);
+            //$(currentTypeDivId).removeAttributes();
+            $(currentTypeDivId).removeAttr('style');
+            $(currentTypeDivId).removeAttr('data-role');
+            $(currentTypeDivId).hide();
+        }
+        function resetAllTypes(){
+            $("#gridvRouterUnicastRoutes").html('');
+            $("#gridvRouterMulticastRoutes").html('');
+            $("#gridvRouterL2Routes").html('');
+            $("#gridvRouterIpv6Routes").html('');
+        }
         function onRouteTypeChange() {
+            resetAllTypes();
             if($('#rdboxUnicast').is(':checked') == true) {
                 if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
-                    $("#gridvRouterMulticastRoutes").data("contrailGrid").destroy();
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    $("#gridvRouterL2Routes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterMulticastRoutes");
-                    //$("#gridvRouterMulticastRoutes").removeAttributes();
-                    $("#gridvRouterMulticastRoutes").removeAttr('style');
-                    $("#gridvRouterMulticastRoutes").removeAttr('data-role');
-                    $("#gridvRouterMulticastRoutes").hide();
+                    destroyAndHide("#gridvRouterMulticastRoutes");
                 }
                 if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
-                    $("#gridvRouterL2Routes").data("contrailGrid").destroy();
-                    $("#gridvRouterL2Routes").html('');
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterUnicastRoutes");
-                    //$("#gridvRouterUnicastRoutes").removeAttributes();
-                    $("#gridvRouterL2Routes").removeAttr('style');
-                    $("#gridvRouterL2Routes").removeAttr('data-role');
-                    $("#gridvRouterL2Routes").hide();
+                    destroyAndHide("#gridvRouterL2Routes");
                 }
-                //removeAllAttributesOfElement("#gridvRouterUnicastRoutes");
-                //$("#gridvRouterUnicastRoutes").removeAttributes();
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
+                }
                 initUnicastRoutesGrid();
                 $("#gridvRouterUnicastRoutes").show();
             }
             else if($('#rdboxMulticast').is(':checked') == true) {
                 if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
-                    $("#gridvRouterUnicastRoutes").data("contrailGrid").destroy();
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    $("#gridvRouterL2Routes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterUnicastRoutes");
-                    //$("#gridvRouterUnicastRoutes").removeAttributes();
-                    $("#gridvRouterUnicastRoutes").removeAttr('style');
-                    $("#gridvRouterUnicastRoutes").removeAttr('data-role');
-                    $("#gridvRouterUnicastRoutes").hide();
+                    destroyAndHide("#gridvRouterUnicastRoutes");
                 }
                 if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
-                    $("#gridvRouterL2Routes").data("contrailGrid").destroy();
-                    $("#gridvRouterL2Routes").html('');
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterUnicastRoutes");
-                    //$("#gridvRouterUnicastRoutes").removeAttributes();
-                    $("#gridvRouterL2Routes").removeAttr('style');
-                    $("#gridvRouterL2Routes").removeAttr('data-role');
-                    $("#gridvRouterL2Routes").hide();
+                    destroyAndHide("#gridvRouterL2Routes");
                 }
-                //removeAllAttributesOfElement("#gridvRouterMulticastRoutes");
-                //$("#gridvRouterMulticastRoutes").removeAttributes();
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
+                }
                 initMulticastRoutesGrid();
                 $("#gridvRouterMulticastRoutes").show();
-            } else {
+            } else if($('#rdboxL2').is(':checked') == true) {
                 if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
-                    $("#gridvRouterMulticastRoutes").data("contrailGrid").destroy();
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    $("#gridvRouterL2Routes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterMulticastRoutes");
-                    //$("#gridvRouterMulticastRoutes").removeAttributes();
-                    $("#gridvRouterMulticastRoutes").removeAttr('style');
-                    $("#gridvRouterMulticastRoutes").removeAttr('data-role');
-                    $("#gridvRouterMulticastRoutes").hide();
+                    destroyAndHide("#gridvRouterMulticastRoutes");
                 }
                 if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
-                    $("#gridvRouterUnicastRoutes").data("contrailGrid").destroy();
-                    $("#gridvRouterUnicastRoutes").html('');
-                    $("#gridvRouterMulticastRoutes").html('');
-                    $("#gridvRouterL2Routes").html('');
-                    //removeAllAttributesOfElement("#gridvRouterUnicastRoutes");
-                    //$("#gridvRouterUnicastRoutes").removeAttributes();
-                    $("#gridvRouterUnicastRoutes").removeAttr('style');
-                    $("#gridvRouterUnicastRoutes").removeAttr('data-role');
-                    $("#gridvRouterUnicastRoutes").hide();
+                    destroyAndHide("#gridvRouterUnicastRoutes");
+                }
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
                 }
                 initL2RoutesGrid();
                 $("#gridvRouterL2Routes").show();
+            } else {
+                if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterMulticastRoutes");
+                }
+                if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterUnicastRoutes");
+                }
+                if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterL2Routes");
+                }
+                initIPv6Grid();
+                $("#gridvRouterIpv6Routes").show();
             }
         }
 
@@ -529,10 +544,100 @@ monitorInfraComputeRoutesClass = (function() {
                 reloadGrid(routesGrid);
             }
         }
+        
+        function initIPv6Grid(initialSelection) {
+            if (!isGridInitialized($('#gridvRouterIpv6Routes'))) {
+                /*cboVRF.select(function(dataItem) {
+                    return dataItem.text === selectedRoute;
+                });*/
+                //cboVRF.select(1);
+
+                $("#gridvRouterIpv6Routes").contrailGrid({
+                    header : {
+                        title : {
+                            text : 'Routes'
+                        }
+                    },
+                    columnHeader : {
+                        columns:[
+                             {
+                                 field:"dispPrefix",
+                                 id:"Prefix",
+                                 name:"Prefix",
+                                 minWidth:50
+                             },
+                             {
+                                 field:"next_hop",
+                                 id:"next_hop",
+                                 name:"Next hop Type",
+                                 formatter:function(r,c,v,cd,dc){
+                                     return bgpMonitor.getNextHopType(dc);
+                                 },
+                                 minWidth:50
+                             },
+                             {
+                                 field:"label",
+                                 id:"label",
+                                 name:"Next hop details",
+                                 minWidth:200,
+                                 formatter:function(r,c,v,cd,dc){
+                                     return bgpMonitor.getNextHopDetails(dc);
+                                 }
+                             }
+                         ],
+                    },
+                    body : {
+                        options : {
+                            //checkboxSelectable: true,
+                            forceFitColumns: true,
+                            detail:{
+                                template: $("#gridsTemplateJSONDetails").html()
+                            },
+                            sortable: false
+                        },
+                        dataSource : {
+                            remote: {
+                                ajaxConfig: {
+                                    url: function(){
+                                        var selectedVrf = cboVRF.value();
+                                        if(initialSelection != null){
+                                            selectedVrf = initialSelection['value'];
+                                        }
+                                        var ucIndex = getIndexForType(selectedVrf,'ucast6');
+                                        return contrail.format(monitorInfraUrls['VROUTER_UCAST6_ROUTES'] , getIPOrHostName(obj), ucIndex)
+                                    }(),
+                                    type: 'GET'
+                                },
+                                dataParser: self.parseIPv6RoutesData
+                            }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading IPV6 Routes..',
+                            },
+                            empty: {
+                                text: 'No IPV6 Routes to display'
+                            }, 
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Data.'
+                            }
+                        }
+                    }
+                });
+                routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
+                routesGrid.showGridMessage('loading');
+            } else {
+                routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
+                reloadGrid(routesGrid);
+            }
+        }
     
     }
     return {populateRoutesTab:populateRoutesTab,
         parseUnicastRoutesData:parseUnicastRoutesData,
         parseMulticastRoutesData:parseMulticastRoutesData,
-        parseL2RoutesData:parseL2RoutesData};
+        parseL2RoutesData:parseL2RoutesData,
+        parseIPv6RoutesData:parseIPv6RoutesData};
 })();

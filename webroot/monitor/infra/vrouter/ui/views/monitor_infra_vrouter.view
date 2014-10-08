@@ -186,15 +186,17 @@
 						<div class="span4">
                         	<label for='comboVRF'>Show Routes</label>
 							<div>
-		                        <input type='radio' name='routeType' id='rdboxUnicast' checked='checked' class="ace-input" value='ucast' tabindex=0/><span class="ace-lbl">Unicast&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        		<input type='radio' name='routeType' id='rdboxMulticast' class="ace-input" class="ace-input" value='mcast' tabindex=0/><span class="ace-lbl">Multicast&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                        		<input type='radio' name='routeType' id='rdboxL2' class="ace-input" class="ace-input" value='l2' tabindex=0/><span class="ace-lbl">L2&nbsp;&nbsp;&nbsp;&nbsp;</span>
+		                        <input type='radio' name='routeType' id='rdboxUnicast' checked='checked' class="ace-input" style="position:relative" value='ucast' tabindex=0/></input><span class="ace-lbl">Unicast</span>
+                        		<input type='radio' name='routeType' id='rdboxMulticast' class="ace-input" style="position:relative" value='mcast' tabindex=0/><span class="ace-lbl">Multicast</span>
+                        		<input type='radio' name='routeType' id='rdboxL2' class="ace-input" style="position:relative" value='l2' tabindex=0/><span class="ace-lbl">L2</span>
+                        		<input type='radio' name='routeType' id='rdboxIpv6' class="ace-input" style="position:relative" value='ucast6' tabindex=0/><span class="ace-lbl">Unicast 6</span>
                     		</div>
 						</div>
 					</div>
                     <div id='gridvRouterUnicastRoutes'></div>
                     <div id='gridvRouterMulticastRoutes'></div>
                     <div id='gridvRouterL2Routes' ></div>
+                    <div id='gridvRouterIpv6Routes' ></div>
                 </div>
             </div>
             <div id="mon-infra-compute-console-tab">
