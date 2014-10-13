@@ -320,6 +320,19 @@ and need to add the iconClass tag wherever we need to show some icons
               </resources>
               <searchStrings>Configure Link Local Services</searchStrings>
             </item>
+                        <item>
+                            <label>Virtual Routers</label>
+                            <hash>config_pd_virtualRouters</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/virtualrouters/ui</rootDir>
+                                    <js>virtualrouters_config.js</js>
+                                    <view>virtualrouters_config.view</view>
+                                    <class>virtualRoutersConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Virtual Routers</searchStrings>
+                        </item>              
             <!--
                         <item>
                             <label>Services</label>
@@ -327,6 +340,73 @@ and need to add the iconClass tag wherever we need to show some icons
                         -->
                     </items>
                 </item>
+                <item>
+                    <label>Physical Devices</label>
+                    <access>
+                        <roles>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
+                    </access>
+                    <iconClass>icon-globe</iconClass>
+                    <items>
+                  
+                        <item>
+                            <label>Physical Routers</label>
+                            <hash>config_pd_physicalRouters</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/physicalrouters/ui</rootDir>
+                                    <js>physicalrouters_config.js</js>
+                                    <view>physicalrouters_config.view</view>
+                                    <class>physicalRoutersConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Physical Routers</searchStrings>
+                        </item>
+                        <item>
+                            <label>Physical Interfaces</label>
+                            <hash>config_pd_physicalInterfaces</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/physicalinterfaces/ui</rootDir>
+                                    <js>physicalinterfaces_config.js</js>
+                                    <view>physicalinterfaces_config.view</view>
+                                    <class>physicalInterfacesConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Physical Interfaces</searchStrings>
+                        </item>   
+                        <item>
+                            <label>Service Appliances</label>
+                            <hash>config_pd_serviceAppliances</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/ui</rootDir>
+                                    <js>serviceAppliances_config.js</js>
+                                    <view>serviceAppliances_config.view</view>
+                                    <class>serviceAppliancesConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Service Appliances</searchStrings>
+                        </item>     
+                        <item>
+                            <label>Baremetal Servers</label>
+                            <hash>config_pd_baremetalServers</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/ui</rootDir>
+                                    <js>baremetalServers_config.js</js>
+                                    <view>baremetalServers_config.view</view>
+                                    <class>baremetalServersConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Baremetal Servers</searchStrings>
+                        </item>                         
+                    </items>
+                </item>                  
                 <item>
                     <label>Networking</label>
                     <access>
@@ -512,85 +592,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-                <item>
-                    <label>Physical Devices</label>
-                    <access>
-                        <roles>
-                            <role>member</role>
-                        </roles>
-                        <orchModels>
-                            <model>openstack</model>
-                        </orchModels>
-                    </access>
-                    <iconClass>icon-globe</iconClass>
-                    <items>
-                        <item>
-                            <label>Virtual Routers</label>
-                            <hash>config_pd_virtualRouters</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/virtualrouters/ui</rootDir>
-                                    <js>virtualrouters_config.js</js>
-                                    <view>virtualrouters_config.view</view>
-                                    <class>virtualRoutersConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Virtual Routers</searchStrings>
-                        </item>                    
-                        <item>
-                            <label>Physical Routers</label>
-                            <hash>config_pd_physicalRouters</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/physicalrouters/ui</rootDir>
-                                    <js>physicalrouters_config.js</js>
-                                    <view>physicalrouters_config.view</view>
-                                    <class>physicalRoutersConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Physical Routers</searchStrings>
-                        </item>
-                        <item>
-                            <label>Physical Interfaces</label>
-                            <hash>config_pd_physicalInterfaces</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/physicalinterfaces/ui</rootDir>
-                                    <js>physicalinterfaces_config.js</js>
-                                    <view>physicalinterfaces_config.view</view>
-                                    <class>physicalInterfacesConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Physical Interfaces</searchStrings>
-                        </item>   
-                        <item>
-                            <label>Service Appliances</label>
-                            <hash>config_pd_serviceAppliances</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <js>serviceAppliances_config.js</js>
-                                    <view>serviceAppliances_config.view</view>
-                                    <class>serviceAppliancesConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Service Appliances</searchStrings>
-                        </item>     
-                        <item>
-                            <label>Baremetal Servers</label>
-                            <hash>config_pd_baremetalServers</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <js>baremetalServers_config.js</js>
-                                    <view>baremetalServers_config.view</view>
-                                    <class>baremetalServersConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Baremetal Servers</searchStrings>
-                        </item>                         
-                    </items>
-                </item>                
+              
                         <!--
                         <item>
                             <label>IPAM</label>
