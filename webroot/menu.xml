@@ -404,6 +404,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Project Quotas</searchStrings>
                         </item>
+                        <item>
+                            <label>Security Groups</label>
+                            <hash>config_net_sg</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/securitygroup/ui</rootDir>
+                                    <js>sg_config.js</js>
+                                    <view>sg_config.view</view>
+                                    <class>sgConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Security Groups</searchStrings>
+                        </item>
                    </items>
                 </item>
                 <item>

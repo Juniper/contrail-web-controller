@@ -28,6 +28,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     vnConfig = require('../../vn/api/vnconfig.api'),
     fipConfig = require('../../fip/api/fipconfig.api'),
     polConfig = require('../../networkpolicies/api/policyconfig.api'),
+    sgConfig = require('../../securitygroup/api/securitygroupconfig.api'),
     ipamConfig = require('../../ipaddressmanagement/api/ipamconfig.api'),
     vdnsConfig = require('../../dns/api/virtualdnsconfig.api'),
     svcTempl = require('../../services/template/api/servicetemplateconfig.api'),
@@ -1315,6 +1316,7 @@ function createReqArrByType (dataObjArr, type, obj)
     case 'virtual-network':
     case 'floating-ip':
     case 'network-policy':
+    case 'security-group':
     case 'network-ipam':
     case 'virtual-DNS':
     case 'virtual-DNS-record':
@@ -1329,6 +1331,7 @@ var configCBList =
 {
     'virtual-network': vnConfig.readVirtualNetworks,
     'network-policy': polConfig.readPolicys,
+    'security-group': sgConfig.readSecurityGroup,
     'network-ipam': ipamConfig.readIpams,
     'virtual-DNS': vdnsConfig.readVirtualDNSs,
     'virtual-DNS-record': vdnsConfig.readVirtualDNSRecords,
