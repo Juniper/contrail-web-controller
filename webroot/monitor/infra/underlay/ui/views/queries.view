@@ -1,0 +1,244 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<script type="text/x-handlebars-template" id="new-or-clause-template">
+	<div class="row-fluid or-text">OR </div>
+	<div class="or-clause-item open row-fluid">
+		<div class="or-clause-item-condensed row-fluid">
+			<div class="or-clause-item-action pull-left margin-0-5">
+				<i class="or-clause-icon-caret icon-caret-down" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
+	   		</div>
+			<p class="or-clause-item-term span10 margin-0-5" onclick="toggleORClause('{{queryPrefix}}',this);"></p>
+			<div class="{{queryPrefix}}-or-clause-item-action- or-clause-item-action pull-right margin-0-5">
+				<i class="icon-remove" onclick="deleteWhereORTerm(this);"></i>
+			</div>
+	    </div>
+		<div class="or-clause-item-edit">
+			<form onsubmit="return false;">
+        	   	<div>
+            	   	<div class="{{queryPrefix}}-where-clause and-clauses"></div>
+	               	<div class="row-fluid and-clause-item">
+						<div class="span1 and-text">&nbsp;</div>
+						<div class="span3 new-and-text">
+							<a class="add-clause" onclick="appendWhere('{{queryPrefix}}',this);"><i class="icon-plus"></i> &nbsp;AND</a>
+						</div>
+					</div>
+	        	</div>
+    	    </form>
+    	</div>
+	</div>
+</script>
+
+<script type="text/x-handlebars-template" id="or-clause-template">
+    <div id="{{queryPrefix}}-or-clause-items" class="row-fluid">
+        {{#each whereClauseView}}
+			{{setLoopIndex @index}}
+			<div class="row-fluid or-text">OR</div>
+			<div class="or-clause-item row-fluid">
+				<div id="{{../queryPrefix}}-or-clause-item-{{@index}}" class="or-clause-item-condensed row-fluid">
+					<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-left margin-0-5">
+						<i class="or-clause-icon-caret icon-caret-right" onclick="toggleORClause('{{queryPrefix}}',this);"></i>
+	   				</div>
+				    <p class="or-clause-item-term span10 margin-0-5" style="display:block;" onclick="toggleORClause('{{queryPrefix}}',this);">{{this.text}}</p>
+					<div class="{{queryPrefix}}-or-clause-item-action-{{@index}} or-clause-item-action pull-right margin-0-5">
+						<i class="icon-remove" onclick="deleteWhereORTerm(this);"></i>
+					</div>
+	    	    </div>
+				<div class="or-clause-item-edit">
+        			<form onsubmit="return false;">
+           	 			<div class="{{../queryPrefix}}-where-clause and-clauses">
+                       		{{#each this.whereClauseEdit}}
+                           	<div id='{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}' class="and-clause-item row-fluid">
+								<div class="span1 and-text">AND</div>
+                           		<select class="span4" name="field[]"
+                                   	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                   	onchange="updateWhereOptions('{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}', '{{../../queryPrefix}}', '', '', true);">
+                           		</select>
+                           		<select class="span2" name="operator[]" 
+                                   	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                           		</select>
+                           		<div class="span4"><input type="text" class="span12" name="value[]" value="" data-bind="value: '{{this.value}}'"/></div>
+                           		<div class="span1"><i class="icon-remove" onclick="deleteAppendedWhere('{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}');"></i></div>
+                           	</div>
+                       		{{/each}}
+						</div>
+               			<div class="row-fluid and-clause-item">
+							<div class="span1 and-text">&nbsp;</div>
+							<div class="span3 new-and-text">
+								<a class="add-clause" onclick="appendWhere('{{../queryPrefix}}',this);"><i class="icon-plus"></i> &nbsp;AND</a>
+							</div>
+						</div>
+        			</form>
+    			</div>
+			</div>
+        {{/each}}
+		<div id="{{queryPrefix}}-or-clause-item-new-term" class="or-clause-item row-fluid margin-5-0">
+			<div class="span10">
+				<div class="or-clause-item-condensed row-fluid">
+            		<a class="add-clause new-and-text" onclick="selectNewORClause('{{queryPrefix}}');"><i class="icon-plus"></i> &nbsp;OR</a>
+	        	</div>
+				
+			</div>
+    	</div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="append-and-clause-template">
+	<div id="append-where-clause-{{andIndex}}" class="row-fluid and-clause-item">
+    	<div class="span1 and-text">AND</div>
+		<select class="{{queryPrefix}}-new-and-clause-field span4" name="field[]" 
+			data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+      	</select>
+        <select class="span2" name="operator[]" data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+      	</select>
+       	<div class="span4">
+       		<input type="text" class="span12" name="value[]" value=""/>
+      	</div>
+        <div class="{{queryPrefix}}-delete-new-and-clause span1">
+			<i class="icon-remove"></i>
+		</div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="edit-filter-clause-template">
+    <div>
+        <form id="{{queryPrefix}}-filter-popup-form" onsubmit="return false;">
+            <div id="{{queryPrefix}}-filter-accordion">
+		  		<h3>Filter By</h3>
+                <div id="{{queryPrefix}}-filter-clause" class="and-clauses">
+                	{{#each filterClauseSubmit}}
+                    	<div id='{{../queryPrefix}}-filter-clause{{@index}}' class="row-fluid and-clause-item">
+                        	<div class="span1 and-text">AND</div>
+                            <select class="span4 margin-0-0-0-5" name="field[]"
+                            	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                onchange="loadFilterOptions('{{../queryPrefix}}-filter-clause{{@index}}', '{{../queryPrefix}}', -1);">
+                        	</select>
+                            <select class="span2" name="operator[]"
+                            	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                          	</select>
+                            <div class="span4">
+                            	<input type="text" class="span12" name="value[]" value=""
+                                	data-bind="value: '{{this.value}}'"/>
+                          	</div>
+							<div class="{{queryPrefix}}-delete-new-and-clause span1">
+                            	<i class="icon-remove" onclick="deleteAppendedWhere('{{../queryPrefix}}-filter-clause{{@index}}');"></i>
+                            </div>
+                        </div>
+	               	{{/each}}
+                    <div id="{{queryPrefix}}-first-filter-clause" class="row-fluid and-clause-item">
+                    	<div class="span1 and-text">AND</div>
+						<select class="span4 margin-0-0-0-5" name="field[]"
+                        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                            onchange="loadFilterOptions('{{queryPrefix}}-first-filter-clause', '{{queryPrefix}}', -1);">
+                   		</select>
+                        <select class="span2" name="operator[]"
+                        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                       	</select>
+                        <div class="span4">
+                        	<input type="text" class="span12" name="value[]" value=""/>
+                     	</div>
+                        <div class="{{queryPrefix}}-delete-new-and-clause span1">
+                        	<i class="icon-remove" onclick="deleteAppendedWhere('{{queryPrefix}}-first-filter-clause');"></i>
+                     	</div>
+                    </div>
+                	<div id="{{queryPrefix}}-add-filter-clause" class="row-fluid and-clause-item">
+						<div class="span1 and-text">&nbsp;</div>
+						<div class="span3 new-and-text margin-0-0-0-5">
+							<a class="add-clause" onclick="appendFilter('{{queryPrefix}}');"><i class="icon-plus"></i> &nbsp;AND</a>
+						</div>
+					</div>
+            	</div>
+				{{#IfCompare fields.length 0 operator="!=" }}
+					<h3>Sort By</h3>
+					<div class="row-fluid">
+                		{{#each fields}}
+                    		{{#IfCompare @index 0 operator="%3"}}
+                    			{{#IfCompare @index 0 operator="!="}}
+                					</div>
+                					<div class="row-fluid">
+                    			{{else}}
+                    				<div class="row-fluid">
+                        		{{/IfCompare}}
+                        	{{else}}
+                        		{{#IfCompare @index 0 operator="=="}}
+                        			<div class="row-fluid">
+                            	{{/IfCompare}}
+                      		{{/IfCompare}}
+                        	{{#IfCompare this.name 'T' operator="=="}}
+                            	<div class="span4">
+                                	<input type="radio" name="{{this.name}}" value="{{this.name}}" data-bind=""
+                                       class="ace-input"/> <span class="ace-lbl"> {{this.name}}</span>
+                            	</div>
+                        	{{else}}
+                            	{{#IfCompare this.name 'T=' operator="=="}}
+                            		<div class="span4">
+                                		<input type="radio" name="{{this.name}}" value="{{this.name}}" data-bind=""
+                                       		class="ace-input"/> <span class="ace-lbl"> {{this.name}}</span>
+                            		</div>
+                            	{{else}}
+                            		<div class="span4">
+                                		<input type="radio" name="sortBy" value="{{this.name}}" data-bind=""
+                                       		class="ace-input"/> <span class="ace-lbl">{{this.name}}</span>
+                            		</div>
+                            	{{/IfCompare}}
+                      		{{/IfCompare}}
+                       		{{#IfCompare @index array.length operator="lessByOne"}}
+                        		</div>
+                        	{{/IfCompare}}
+                    	{{/each}}
+                    	</div>
+                    	<div class="row-fluid margin-10-0">
+                        	<div class="span4">
+                            	<label>Sort Order</label>
+                            	<div>
+                                	<select name="sortOrder" data-bind="options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                	</select>
+                            	</div>
+                        	</div>
+						</div>
+					</div>
+            	{{/IfCompare}}
+			    <h3 >Limit By</h3>
+				<div class="row-fluid ">             
+	       			<div class="span4">
+                		<div>
+                    		<input class="span12" type="text" name="limit" value="" data-bind="value: limit"/>
+                  		</div>
+                	</div>
+				</div>
+			</div>
+        </form>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="append-filter-clause-template">
+    <div id="{{queryPrefix}}-appended-filter-clause" class="row-fluid and-clause-item">
+        <div class="span1 and-text">AND</div>
+		<select id="{{queryPrefix}}-new-filter-clause-field" class="span4 margin-0-0-0-5" name="field[]"
+                data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+        </select>
+        <select class="span2" name="operator[]"
+                data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+        </select>
+        <div class="span4">
+            <input type="text" class="span12" name="value[]" value=""/>
+        </div>
+        <div id="{{queryPrefix}}-delete-new-filter-clause" class="span1">
+            <i class="icon-remove"></i>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="chart-control-template">
+    <ul class="chart-control-nav nav">
+   		<li class="dropdown padding-5 pull-right">
+   			<a href="#" \role="button" class="dropdown-toggle" data-toggle="dropdown"><i class="chart-control-icon icon-cog"></i></a>
+       		<ul id="{{elementId}}" class="chart-control-menu dropdown-menu dropdown-caret pull-right" role="menu">
+				 {{#each options}}
+  					<li role="presentation"><a id="{{../elementId}}-{{id}}" role="menuitem" tabindex="-1" data-value="{{value}}">{{text}}</a></li>
+  				{{/each}}
+			</ul>
+    	</li>
+   	</ul>
+</script>
