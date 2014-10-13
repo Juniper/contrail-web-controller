@@ -118,8 +118,8 @@ function virtualRoutersConfig() {
 
         var msType =  $('#msType').data('contrailMultiselect');
         var msTypeDS = [{ text : 'Embedded', value : 'embedded'},
-            { text : 'TOR Agent', value : 'tor_agent'},
-            { text : 'TOR Service Node ', value : 'tsn'},
+            { text : 'TOR Agent', value : 'tor-agent'},
+            { text : 'TOR Service Node ', value : 'tor-service-node'},
             { text : 'Hypervisor', value : 'hypervisor'}]
         msType.setData(msTypeDS);
         
@@ -238,7 +238,7 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["parent_type"] = "global-system-config";
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
-        postObject["virtual-router"]["type"] = type;
+        postObject["virtual-router"]["virtual_router_type"] = type[0];
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
@@ -265,7 +265,7 @@ function virtualRoutersConfig() {
                     uuid : rowData.uuid,
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
-                    type : '-'
+                    type : rowData.virtual_router_type ? rowData.virtual_router_type : 'Hypervisor'
                 });
             }
         

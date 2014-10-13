@@ -127,10 +127,11 @@ function physicalInterfacesConfig() {
         $('#ddType').contrailDropdown({
             dataTextField:'text',
             dataValueField:'value',
+            change:onTypeSelChange
         });
         
         var ddType = $('#ddType').data('contrailDropdown');
-        ddType.setData([{text : 'Physical Interface', value : 'physical'},{text : 'Logical Interface', value : 'logical'}]);
+        ddType.setData([{text : 'Physical', value : 'physical'},{text : 'Logical', value : 'logical'}]);
         ddType.value('physical')
         
         $('#ddParent').contrailDropdown({
@@ -138,7 +139,7 @@ function physicalInterfacesConfig() {
             dataValueField:'value',
         });        
 
-        $('#ddVN').contrailDropdown({
+        $('#ddVMI').contrailDropdown({
             dataTextField:'text',
             dataValueField:'value',
         });            
@@ -155,6 +156,15 @@ function physicalInterfacesConfig() {
     function onPhysicalRouterSelChange(e) {
          currentUUID = e.added.value;
          fetchData();
+    }
+    
+    function onTypeSelChange(e) {
+       var inf = e.added.value;
+       if(inf === "logical") {
+           $('#vmSection').removeClass('hide').addClass('show');
+       } else {
+            $('#vmSection').removeClass('show').addClass('hide');         
+       }
     }
     
     function initActions() {
@@ -209,7 +219,7 @@ function physicalInterfacesConfig() {
             for(var i = 0;i < selected_rows.length;i++){
                 var sel_row_data = selected_rows[i];
                 deleteAjaxs[i] = $.ajax({
-                    url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['uuid'],
+                    url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
                     type:'DELETE'
                 });
             }
@@ -245,10 +255,11 @@ function physicalInterfacesConfig() {
         
     function createUpdatePhysicalInterface() {
         var methodType = 'POST';
-        var url = '/api/tenants/config/physical-interfaces/' + currentUUID;
+        var infType = $('#ddType').data('contrailDropdown').text();
+        var url = '/api/tenants/config/physical-interfaces/' + currentUUID + '/' + infType;
         if(mode === 'edit') {
             methodType = 'PUT';
-            url = '/api/tenants/config/physical-interface/' + currentUUID + '/' + gblSelRow.uuid
+            url = '/api/tenants/config/physical-interface/' + currentUUID + '/' + gblSelRow.type + '/' + gblSelRow.uuid
         }
         var type = $("#ddType").data('contrailDropdown').value();
         var name = $("#txtPhysicalInterfaceName").val();
@@ -258,11 +269,19 @@ function physicalInterfacesConfig() {
         
         gridPhysicalInterfaces._dataView.setData([]);
         gridPhysicalInterfaces.showGridMessage('loading');    
-
-        postObject["physical-interface"] = {};
-        postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), name];
-        postObject["physical-interface"]["parent_type"] = "physical-router";
-        postObject["physical-interface"]["name"] = name;
+        if(infType === 'Physical') {
+            postObject["physical-interface"] = {};
+            postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), name];
+            postObject["physical-interface"]["parent_type"] = "physical-router";
+            postObject["physical-interface"]["name"] = name;
+        } else {
+            var parent = $('#ddParent').data('contrailDropdown');
+            postObject["logical-interface"] = {};
+            postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), parent.text() , name];
+            postObject["logical-interface"]["parent_type"] = "physical-interface";
+            postObject["logical-interface"]["parent_uuid"] = parent.value();
+            postObject["logical-interface"]["name"] = name;             
+        }
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalInterfaces', 'failureHandlerForPhysicalInterfaces', null, null);
     }
     
@@ -271,7 +290,8 @@ function physicalInterfacesConfig() {
         $('#txtPhysicalInterfaceName').removeAttr('disabled');
         $('#txtPhysicalInterfaceName').val('');     
         var ddPhysicalRouters = $('#ddPhysicalRouters').data('contrailDropdown');        
-        $('#ddParent').data('contrailDropdown').value(ddPhysicalRouters.text());
+        $('#ddParent').data('contrailDropdown').value(ddPhysicalRouters.value());
+         $('#vmSection').removeClass('show').addClass('hide'); 
     }
     
     function fetchPhysicalRouters() {
@@ -315,38 +335,54 @@ function physicalInterfacesConfig() {
     }
     
     window.successHandlerForPhysicalInterfaces =  function(result) {
+        var gridDS = [];
         if(result && result.length > 0) {
-            var gridDS = [];
             var pInterfaces = result;
             for(var i = 0; i < pInterfaces.length;i++) {
                 var pInterface = pInterfaces[i]['physical-interface'];
-                var lInterfaces = pInterfaces[i]['physical-interface'] ? pInterfaces[i]['physical-interface']['logical_interfaces'] : null;
-                var lInterfaceNames = '';
-                if(lInterfaces != null && lInterfaces.length > 0) {
-                    for(var j = 0; j < lInterfaces.length; j++) {
-                        var lInterfaceName = lInterfaces[j].to[3];
-                        if(lInterfaceNames === ''){
-                            lInterfaceNames = lInterfaceName;
-                        } else {
-                            lInterfaceNames+= ',' + lInterfaceName;
-                        }
-                    } 
-                }
                 gridDS.push({
                     uuid : pInterface.uuid,
                     name : pInterface.name,
-                    type : '-',
-                    parent : pInterface.parent_type,
+                    type : "Physical",
+                    parent : pInterface.fq_name[1],
                     vlan : '-',
-                    server : '-',
-                    lInterfaces :lInterfaceNames                       
+                    server : '-'
                 });
+                var lInterfaces = pInterfaces[i]['physical-interface'] ? pInterfaces[i]['physical-interface']['logical_interfaces'] : null;
+                var lInterfaceNames = '';
+                var infDS = [];
+                if(lInterfaces != null && lInterfaces.length > 0) {
+                    for(var j = 0; j < lInterfaces.length; j++) {
+                        var lInterface = lInterfaces[j]['logical-interface'];
+                        var lInterfaceName = lInterface.fq_name[3];
+                        if(lInterfaceNames === ''){
+                            lInterfaceNames = lInterfaceName;
+                        } else {
+                            lInterfaceNames += ',' + lInterfaceName;
+                        }
+                        infDS.push({
+                            uuid : lInterface.uuid,
+                            name : lInterface.name,
+                            type : "Logical",
+                            parent : lInterface.fq_name[2],
+                            vlan : '-',
+                            server : '-',
+                        });                        
+                    }
+                    var currPhysicalInfRow = getCurrentPhysicalInfRow(gridDS, pInterface.uuid);
+                    if(currPhysicalInfRow != '') {
+                        currPhysicalInfRow['lInterfaces'] = lInterfaceNames;
+                    }                    
+                    gridDS = gridDS.concat(infDS);
+                }
             }
             var ddParentDS = [];
             var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
-            ddParentDS.push({text : pRouterDD.text(), value : pRouterDD.text()});
+            ddParentDS.push({text : pRouterDD.text(), value : pRouterDD.value()});
             for(var i = 0; i < gridDS.length; i++) {
-                ddParentDS.push({text : gridDS[i].name, value : gridDS[i].name});
+                if(gridDS[i].type === 'Physical') {
+                    ddParentDS.push({text : gridDS[i].name, value : gridDS[i].uuid});
+                }
             }
             
             //set parent drop down data here
@@ -358,6 +394,15 @@ function physicalInterfacesConfig() {
             gridPhysicalInterfaces.showGridMessage("empty");
         }
         gridPhysicalInterfaces._dataView.setData(gridDS);
+    }
+    
+    function getCurrentPhysicalInfRow(dataSrc,id) {
+        for(var i = 0; i < dataSrc.length; i++) {
+            if(dataSrc[i].uuid === id) {
+                return dataSrc[i];
+            }
+        }
+        return '';         
     }
     
     window.failureHandlerForPhysicalInterfaces =  function(error) {

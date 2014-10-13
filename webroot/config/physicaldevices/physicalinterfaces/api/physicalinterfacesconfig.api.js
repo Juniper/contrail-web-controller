@@ -87,8 +87,50 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
                     if (error) {
                        commonUtils.handleJSONResponse(error, response, null);
                        return;
-                    }            
-                     commonUtils.handleJSONResponse(error, response, results);
+                    }
+                    if(results.length > 0) {
+                        var lInfDataObjArr = [];
+                        for(var i = 0; i < results.length; i++) {
+                            var pInterface = results[i]['physical-interface'];
+                            console.log("LI-Details:",JSON.stringify(pInterface));
+                            if(pInterface['logical_interfaces'] &&  pInterface['logical_interfaces'].length > 0) {
+                                var lInterfaces = pInterface['logical_interfaces']
+                                for(var j = 0; j <  lInterfaces.length; j++) {
+                                    var lInfReqUrl = null;
+                                    var lInterface = lInterfaces[j];
+                                    lInfReqUrl = '/logical-interface/' + lInterface['uuid'];
+                                    commonUtils.createReqObj(lInfDataObjArr, lInfReqUrl, global.HTTP_REQUEST_GET,
+                                        null, null, null, appData);
+                                }
+
+                            }
+                        }
+                        async.map(lInfDataObjArr,
+                            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+                                function(err,lInfDetails){
+                                    if (error) {
+                                       commonUtils.handleJSONResponse(error, response, null);
+                                       return;
+                                    }
+                                    //map logical interfaces to corresponding physical interface
+                                    if(lInfDetails.length > 0) {
+                                        for(var i = 0; i < results.length; i++) {
+                                            var pInterface = results[i]['physical-interface'];
+                                            pInterface['logical_interfaces'] = [];
+                                            for(var j = 0; j < lInfDetails.length; j++) {
+                                                var lInterface = lInfDetails[j]['logical-interface'];
+                                                if(pInterface['uuid'] === lInterface['parent_uuid']) {
+                                                    pInterface['logical_interfaces'].push(lInfDetails[j]);            
+                                                }
+                                            }                                             
+                                        } 
+                                    }
+                                    commonUtils.handleJSONResponse(error, response, results);
+                                }
+                        )                        
+                    } else {
+                        commonUtils.handleJSONResponse(error, response, null);
+                    }
                 }
         )
     } else {
@@ -99,13 +141,14 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
 /**
  * @createPhysicalInterfaces
  * public function
- * 1. URL /api/tenants/config/physical-interfaces/:pRouterId
+ * 1. URL /api/tenants/config/physical-interfaces/:pRouterId/:infType
  * 2. creats  a physical interface in config api server
  */
 function createPhysicalInterfaces (request, response, appData)
 {
      var postData     =  request.body;
-     configApiServer.apiPost('/physical-interfaces', postData, appData,
+     var url = getInterfaceUrl(request, 'create');
+     configApiServer.apiPost(url, postData, appData,
          function(error, data) {
             getPhysicalInterfaces(request, response, appData);
          });             
@@ -114,14 +157,15 @@ function createPhysicalInterfaces (request, response, appData)
 /**
  * @updatePhysicalInterfaces
  * public function
- * 1. URL /api/tenants/config/physical-interface/:pRouterId/:pInterfaceId
+ * 1. URL /api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId
  * 2. updates a physical interface in config api server
  */
 function updatePhysicalInterfaces (request, response, appData)
 {
-     var pInterfaceId = validateQueryParam(request,'pInterfaceId'); 
+     var pInterfaceId = validateQueryParam(request,'pInterfaceId');
+     var url = getInterfaceUrl(request);     
      var postData     =  request.body;
-     configApiServer.apiPut('/physical-interface/' + pInterfaceId, postData, appData,
+     configApiServer.apiPut(url + pInterfaceId, postData, appData,
          function(error, data) {
             getPhysicalInterfaces(request, response, appData);
          });             
@@ -130,14 +174,15 @@ function updatePhysicalInterfaces (request, response, appData)
 /**
  * @deletePhysicalInterfaces
  * public function
- * 1. URL /api/tenants/config/physical-interface/:pRouterId/:pInterfaceId
+ * 1. URL /api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId
  * 2. deletes a physical interface in config api server
  */
 function deletePhysicalInterfaces (request, response, appData)
 {
      var pInterfaceId = validateQueryParam(request,'pInterfaceId'); 
+     var url = getInterfaceUrl(request);
      var postData     =  request.body;
-     configApiServer.apiDelete('/physical-interface/' + pInterfaceId, appData,
+     configApiServer.apiDelete(url + pInterfaceId, appData,
          function(error, data) {
             getPhysicalInterfaces(request, response, appData);
          });             
@@ -154,9 +199,20 @@ function validateQueryParam (request, key)
     return paramValue;
 }
 
+function getInterfaceUrl(request, operation) {
+     var infUrl = '';
+     var infType = validateQueryParam(request, 'infType');
+     if(infType === 'Physical') {
+          infUrl =  operation === 'create' ? '/physical-interfaces' : '/physical-interface/';   
+     } else if(infType === 'Logical') {
+          infUrl =  operation === 'create' ? '/logical-interfaces' : '/logical-interface/';        
+     }
+     return infUrl;
+}
+
  /* List all public function here */
 exports.getPhysicalRouters = getPhysicalRouters; 
 exports.getPhysicalInterfaces = getPhysicalInterfaces;
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
-exports.deletePhysicalInterfaces = deletePhysicalInterfaces;  
+exports.deletePhysicalInterfaces = deletePhysicalInterfaces; 

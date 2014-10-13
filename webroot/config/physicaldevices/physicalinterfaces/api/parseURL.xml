@@ -35,19 +35,19 @@
         <callback>physicalinterfacesconfigapi.getPhysicalInterfaces</callback>
     </item>
     <item>
-        <url>/api/tenants/config/physical-interfaces/:pRouterId</url>
+        <url>/api/tenants/config/physical-interfaces/:pRouterId/:infType</url>
         <method>post</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.createPhysicalInterfaces</callback>
     </item>   
     <item>    
-        <url>/api/tenants/config/physical-interface/:pRouterId/:pInterfaceId</url>
+        <url>/api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId</url>
         <method>put</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.updatePhysicalInterfaces</callback>
     </item>    
     <item>    
-        <url>/api/tenants/config/physical-interface/:pRouterId/:pInterfaceId</url>
+        <url>/api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId</url>
         <method>delete</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deletePhysicalInterfaces</callback>
