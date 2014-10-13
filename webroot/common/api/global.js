@@ -13,5 +13,21 @@ global.STR_GET_COLLECTOR_CPU_FLOW_SERIES = 'getCollectorCPULoadFlowSeries';
 global.STR_GET_QE_CPU_FLOW_SERIES = 'getQECPULoadFlowSeries';
 global.STR_GET_OPS_CPU_FLOW_SERIES = 'getOpServerCPULoadFlowSeries';
 global.FlOW_SERIES_STAT_TYPE = 'oracleStats'
+
+global.QUERY_JSON = {
+    'StatTable.UFlowData.flow': {"table": 'StatTable.UFlowData.flow', "start_time": "",
+        "end_time": "", "select_fields": ["name", "flow.flowtype", "flow.dip",
+        "flow.sip", "flow.protocol", "flow.dport", "flow.sport"], "sort_fields": []}
+}
+
+global.NODE_TYPE_PROUTER = 'physical-router';
+global.NODE_TYPE_VROUTER = 'virtual-router';
+global.NODE_TYPE_NONE = '-';
+
+global.NODE_CHASSIS_TYPE_TOR = 'tor';
+global.NODE_CHASSIS_TYPE_SPINE = 'spine';
+global.NODE_CHASSIS_TYPE_CORE = 'coreswitch';
+global.NODE_CHASSIS_TYPE_NONE = '-';
+
 module.exports = global;
 
