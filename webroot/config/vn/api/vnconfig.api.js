@@ -679,7 +679,10 @@ function updateFloatingIpList (vnId, vnPutData, appData, response, callback)
         var fipNewPoolVN = getNewFipPoolLists(vnPutData, configData);
         var fipDelPoolVN = getDelFipPoolLists(vnPutData, configData);
         try {
-            var len = fipDelPoolVN['virtual-network']['floating_ip_pools'].length;
+            var len = 0;
+            if('floating_ip_pools' in fipDelPoolVN['virtual-network']) {
+                len = fipDelPoolVN['virtual-network']['floating_ip_pools'].length;
+            }
             for (var i = 0; i < len; i++) {
                 fipDelList[i] = {};
                 fipDelList[i]['virtualNetworkId'] = vnId;
