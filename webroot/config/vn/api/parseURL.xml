@@ -140,5 +140,11 @@
         <feature>vnconfig</feature>
         <callback>vnconfigapi.getSharedVirtualNetworks</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/external-virtual-networks</url>
+        <method>get</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getExternalVirtualNetworks</callback>
+    </item>
 </urlLists>
 
