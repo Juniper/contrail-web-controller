@@ -82,6 +82,10 @@ function createVirtualRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiPost('/virtual-routers', postData, appData,
          function(error, data) {
+            if(error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }         
             getVirtualRouters(request, response, appData);
          });             
 }
@@ -98,6 +102,10 @@ function updateVirtualRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiPut('/virtual-router/' + vRouterID, postData, appData,
          function(error, data) {
+            if(error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }         
             getVirtualRouters(request, response, appData);
          });             
 } 
@@ -114,6 +122,10 @@ function deleteVirtualRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiDelete('/virtual-router/' + vRouterID, appData,
          function(error, data) {
+            if(error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
             getVirtualRouters(request, response, appData);
          });             
 } 
