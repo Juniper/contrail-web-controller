@@ -301,6 +301,12 @@ function virtualRoutersConfig() {
             showInfoWindow("Enter a valid IP address in xxx.xxx.xxx.xxx format","Input required");
             return false;
         }
+        
+        var typeValues = $('#msType').data('contrailMultiselect').value();
+        if(typeValues != null && typeValues != '' && typeValues.length > 1) {
+            showInfoWindow("Select a single Virtual Router Type","Input required");
+            return false;        
+        }
         return true;         
     }
     
