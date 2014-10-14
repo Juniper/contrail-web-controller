@@ -1852,7 +1852,7 @@ Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
 
 function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
-    if(dsObj['lastUpdated'] == null){
+    if(!dsObj['clean']){
         obj['transportCfg'] = { 
                 url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'],
                 type:'GET'
