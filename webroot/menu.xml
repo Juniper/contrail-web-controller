@@ -367,7 +367,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure Physical Routers</searchStrings>
                         </item>
                         <item>
-                            <label>Physical Interfaces</label>
+                            <label>Interfaces</label>
                             <hash>config_pd_physicalInterfaces</hash>
                             <resources>
                                 <resource>
@@ -377,7 +377,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>physicalInterfacesConfigObj</class>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Physical Interfaces</searchStrings>
+                            <searchStrings>Configure Interfaces</searchStrings>
                         </item>   
                         <item>
                             <label>Service Appliances</label>

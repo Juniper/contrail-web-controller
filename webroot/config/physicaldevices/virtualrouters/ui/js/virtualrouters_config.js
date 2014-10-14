@@ -52,7 +52,10 @@ function virtualRoutersConfig() {
                 {
                     id : 'type',
                     field : 'type',
-                    name : 'Type'                    
+                    name : 'Type',
+                    formatter: function(r, c, v, cd, dc) {
+                        return formatVirtualRouterType(dc.type);
+                     }                    
                 }]                
             },
             body : {
@@ -119,13 +122,9 @@ function virtualRoutersConfig() {
         var msType =  $('#msType').data('contrailMultiselect');
         var msTypeDS = [{ text : 'Embedded', value : 'embedded'},
             { text : 'TOR Agent', value : 'tor-agent'},
-            { text : 'TOR Service Node ', value : 'tor-service-node'},
-            { text : 'Hypervisor', value : 'hypervisor'}]
+            { text : 'TOR Service Node', value : 'tor-service-node'},
+        ];
         msType.setData(msTypeDS);
-        
-        //initializing delete record window
-        //deleteRecordWindowObj.modal({backdrop:'static',keyboard:false,show:false});
-        //deleteRecordWindowObj.find(".modal-header-title").text('Confirm');
                
         $('#confirmMainDelete').modal({backdrop:'static',keyboard:false,show:false});
         $('#confirmMainDelete').find(".modal-header-title").text('Confirm');	        
@@ -203,6 +202,7 @@ function virtualRoutersConfig() {
     }    
     
     window.virtualRouterEditWindow = function(index) {
+        $('#addVirtualRouterWindow').find(".modal-header-title").text('Edit Virtual Router');
         gblSelRow = gridVirtualRouters._dataView.getItem(index);
         populateCreateEditWindow('edit');
     }
@@ -214,6 +214,7 @@ function virtualRoutersConfig() {
             $('#txtVirtualRouterName').val(gblSelRow.name);
             $('#txtVirtualRouterName').attr('disabled','disabled');
             $('#txtIPAddress').val(gblSelRow.ip_address);
+            $('#msType').data('contrailMultiselect').value(gblSelRow.actualType);              
         }
         $('#addVirtualRouterWindow').modal('show');       
     }
@@ -238,7 +239,7 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["parent_type"] = "global-system-config";
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
-        postObject["virtual-router"]["virtual_router_type"] = type[0];
+        postObject["virtual-router"]["virtual_router_type"] = type;
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
@@ -261,11 +262,21 @@ function virtualRoutersConfig() {
             var gridDS = [];
             for(var i = 0; i < result.length;i++) {
                 var rowData = result[i]['virtual-router'];
+                var pRouters = [];
+                var pRouterBackRefs = rowData['physical_router_back_refs'];
+                if(pRouterBackRefs != null && pRouterBackRefs.length > 0) {
+                    var pRouterBackRefsLen = pRouterBackRefs.length;                
+                    for(var j = 0; j < pRouterBackRefsLen; j++) {
+                        pRouters.push(pRouterBackRefs[j].to[1]);
+                    }
+                }
                 gridDS.push({
                     uuid : rowData.uuid,
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
-                    type : rowData.virtual_router_type ? rowData.virtual_router_type : 'Hypervisor'
+                    actualType : rowData.virtual_router_type != null ? rowData.virtual_router_type : '',
+                    type : rowData.virtual_router_type != null ? rowData.virtual_router_type : ['embedded'],
+                    physical_routers : pRouters.length > 0 ? pRouters : '-'
                 });
             }
         

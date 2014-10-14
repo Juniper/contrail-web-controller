@@ -51,5 +51,11 @@
         <method>delete</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deletePhysicalInterfaces</callback>
-    </item>     
+    </item>  
+    <item>
+        <url>/api/tenants/config/virtual-machine-interface-details/:id</url>
+        <method>get</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.getVirtualMachineInterfaceDetails</callback>
+    </item>    
 </urlLists>
