@@ -1,0 +1,42 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<urlLists>
+    <!-- Define module name here which is being referenced in the generated 
+         file
+     -->
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>underlayApi</define>
+        <path>./underlay_overlay.api</path>
+    </require>
+    <item>
+        <url>/api/tenant/networking/underlay-topology</url>
+        <method>get</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getUnderlayTopology</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/underlay-path</url>
+        <method>post</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getUnderlayPath</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/underlay-stats</url>
+        <method>post</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getUnderlayStats</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/trace-flow</url>
+        <method>post</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getTraceFlow</callback>
+    </item>
+</urlLists>
+
