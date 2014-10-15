@@ -417,6 +417,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Security Groups</searchStrings>
                         </item>
+                        <item>
+                            <label>Routers</label>
+                            <hash>config_net_routers</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/logicalrouters/ui</rootDir>
+                                    <js>router_config.js</js>
+                                    <view>router_config.view</view>
+                                    <class>routerConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Routers</searchStrings>
+                        </item>
                    </items>
                 </item>
                 <item>

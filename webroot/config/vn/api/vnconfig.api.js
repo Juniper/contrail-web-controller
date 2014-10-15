@@ -383,6 +383,40 @@ function getSharedVirtualNetworks (req, res, appData)
     });
 }
 
+/**
+ * @getExternalVirtualNetworks
+ * public function
+ * 1. URL /api/tenants/config/external-virtual-networks
+ * 2. Gets list of external virtual networks from config api server
+ *
+ */
+function getExternalVirtualNetworks (req, res, appData)
+{
+console.log("aa");
+    var resultJSON = [];
+    var vnObjArr = [];
+    var vnURL = '/virtual-networks?detail=true&field=router';
+    configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
+        if ((null != err) || (null == vnDetails) || 
+            (null == vnDetails['virtual-networks'])) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        var vns = vnDetails['virtual-networks'];
+        var vnCnt = vns.length;
+        for (var i = 0; i < vnCnt; i++) {
+            if ((null != vns[i]['virtual-network']) &&
+                (null != vns[i]['virtual-network']['router_external']) &&
+                (true == vns[i]['virtual-network']['router_external'])) {
+                vnObjArr.push({'data':vns[i], 'appData': appData});
+            }
+        }
+        async.map(vnObjArr, parseSharedVN, function (err, data) {
+            commonUtils.handleJSONResponse(null, res, data);
+        });
+    });
+}
+
 function readVirtualNetworkAsync (vnObj, callback)
 {
     var vnID = vnObj['uuid'];
@@ -2115,3 +2149,4 @@ exports.updateVNNetPolicies          = updateVNNetPolicies;
 exports.listVirtualMachineInterfaces = listVirtualMachineInterfaces;
 exports.updateVNRouteTargets         = updateVNRouteTargets;
 exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
+exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
