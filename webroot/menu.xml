@@ -368,7 +368,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                         <item>
                             <label>Interfaces</label>
-                            <hash>config_pd_physicalInterfaces</hash>
+                            <hash>config_pd_interfaces</hash>
                             <resources>
                                 <resource>
                                     <rootDir>/config/physicaldevices/physicalinterfaces/ui</rootDir>
@@ -379,7 +379,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Interfaces</searchStrings>
                         </item>   
-                        <item>
+<!--                         <item>
                             <label>Service Appliances</label>
                             <hash>config_pd_serviceAppliances</hash>
                             <resources>
@@ -404,7 +404,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Baremetal Servers</searchStrings>
-                        </item>                         
+                        </item>  -->                        
                     </items>
                 </item>                  
                 <item>
