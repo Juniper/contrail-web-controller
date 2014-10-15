@@ -56,7 +56,7 @@ function physicalRoutersConfig() {
                     cssClass :'cell-hyperlink-blue',
                     events : {
                         onClick : function(e, dc) {
-                            layoutHandler.setURLHashParams({uuid : dc.uuid} ,{p : 'config_pd_physicalInterfaces' ,merge : false ,triggerHashChange : true});
+                            layoutHandler.setURLHashParams({uuid : dc.uuid} ,{p : 'config_pd_interfaces' ,merge : false ,triggerHashChange : true});
                         }
                     }                     
                 }]                

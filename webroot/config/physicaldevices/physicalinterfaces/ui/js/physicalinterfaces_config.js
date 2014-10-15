@@ -108,15 +108,15 @@ function physicalInterfacesConfig() {
                 },
                 statusMessages: {
                     loading: {
-                        text: 'Loading Physical Interfaces..'
+                        text: 'Loading Interfaces..'
                     },
                     empty: {
-                        text: 'No Physical Interfaces.'
+                        text: 'No Interfaces.'
                     }, 
                     errorGettingData: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Physical Interfaces.'
+                        text: 'Error in getting Interfaces.'
                     }
                 }
             }
@@ -492,6 +492,12 @@ function physicalInterfacesConfig() {
     
     window.successHandlerForPhysicalInterfaces =  function(result) {
         var gridDS = [];
+        var mainDS = [];
+        var pRouterDS = [];
+        var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
+        var ddParent = $('#ddParent').data('contrailDropdown');
+        var pInterfaceDS = [{text : 'Enter or Select a Interface', value : 'dummy', disabled : true}];
+        pRouterDS.push({text : pRouterDD.text(), value : pRouterDD.value(), parent : 'physical_router',disabled : true});
         if(result && result.length > 0) {
             var pInterfaces = result;
             for(var i = 0; i < pInterfaces.length;i++) {
@@ -539,17 +545,12 @@ function physicalInterfacesConfig() {
                     gridDS = gridDS.concat(infDS);
                 }
             }
-            var mainDS = [];
-            var pInterfaceDS = [{text : 'Enter or Select a Interface', value : 'dummy', disabled : true}];
-            var pRouterDS = [];
-            var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
-            pRouterDS.push({text : pRouterDD.text(), value : pRouterDD.value(), parent : 'physical_router',disabled : true});
+            
             for(var i = 0; i < gridDS.length; i++) {
                 if(gridDS[i].type === 'Physical') {
                     pInterfaceDS.push({text : gridDS[i].name, value : gridDS[i].uuid, parent : 'physical_interface'});
                 }
             }
-            
             mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS},
                 {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
             dsSrcDest = mainDS;
@@ -557,10 +558,14 @@ function physicalInterfacesConfig() {
                 createUpdatePhysicalInterface();
             } else {    
                 //set parent drop down data here
-                var ddParent = $('#ddParent').data('contrailDropdown');
                 ddParent.setData(mainDS);
             }
         } else {
+            mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS},
+                {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
+            dsSrcDest = mainDS;
+            ddParent.setData(mainDS);    
+            ddParent.value(mainDS[0].children[0].value);
             gridPhysicalInterfaces.showGridMessage("empty");
         }
         gridPhysicalInterfaces._dataView.setData(gridDS); 

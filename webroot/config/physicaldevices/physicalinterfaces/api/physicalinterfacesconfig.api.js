@@ -93,7 +93,7 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
        
         }
         async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                 function(error, results) {
                     if (error) {
                        commonUtils.handleJSONResponse(error, response, null);
@@ -115,77 +115,79 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
 
                             }
                         }
-                        async.map(lInfDataObjArr,
-                            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-                                function(err,lInfDetails){
-                                    if (error) {
-                                       commonUtils.handleJSONResponse(error, response, null);
-                                       return;
-                                    }
-                                    if(lInfDetails.length > 0) {
-                                        var vmiList = []; 
-                                        for(var j = 0; j < lInfDetails.length; j++) {
-                                            var lInterface = lInfDetails[j]['logical-interface'];
-                                            if('virtual_machine_interface_refs' in lInterface) {
-                                                vmiList.push({li_uuid : lInterface.uuid, uuid : lInterface['virtual_machine_interface_refs'][0].uuid});
-                                            }
+                        if(lInfDataObjArr.length > 0) {
+                            async.map(lInfDataObjArr,
+                                commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                                    function(err,lInfDetails){
+                                        if (error) {
+                                           commonUtils.handleJSONResponse(error, response, null);
+                                           return;
                                         }
-                                        if(vmiList.length > 0) {
-                                            processVirtualMachineInterfaceDetails(response, appData, vmiList, function(vmiData) {
-                                                if(vmiData != null && vmiData.length > 0) {
-                                                    var vmiListLen = vmiList.length;
-                                                    for(var i = 0; i < vmiListLen; i++) {
-                                                        vmiList[i]['vmi_details'] = vmiData[i];
-                                                    }
-                                                    for(var j = 0; j < lInfDetails.length; j++) {
-                                                        var lInterface = lInfDetails[j]['logical-interface'];
-                                                        for(var k = 0; k < vmiList.length; k++) {
-                                                            if(vmiList[k].li_uuid === lInterface.uuid) {
-                                                                lInterface['vmi_details'] = vmiList[k]['vmi_details']; 
-                                                            } 
-                                                        }    
-                                                    }
-                                                    console.log("VMI DATA :", JSON.stringify(lInfDetails));
-                                                    //map logical interfaces to corresponding physical interface
-                                                    if(lInfDetails.length > 0) {
-                                                        for(var i = 0; i < results.length; i++) {
-                                                            var pInterface = results[i]['physical-interface'];
-                                                            if(pInterface != null) {
-                                                                pInterface['logical_interfaces'] = [];
-                                                                for(var j = 0; j < lInfDetails.length; j++) {
-                                                                    var lInterface = lInfDetails[j]['logical-interface'];
-                                                                    if(pInterface['uuid'] === lInterface['parent_uuid']) {
-                                                                        pInterface['logical_interfaces'].push(lInfDetails[j]);            
-                                                                    }
-                                                                } 
-                                                            }                                            
-                                                        } 
-                                                    }                                                
+                                        if(lInfDetails.length > 0) {
+                                            var vmiList = []; 
+                                            for(var j = 0; j < lInfDetails.length; j++) {
+                                                var lInterface = lInfDetails[j]['logical-interface'];
+                                                if('virtual_machine_interface_refs' in lInterface) {
+                                                    vmiList.push({li_uuid : lInterface.uuid, uuid : lInterface['virtual_machine_interface_refs'][0].uuid});
                                                 }
-                                                //console.log("Final Result:", JSON.stringify(results));
-                                                commonUtils.handleJSONResponse(error, response, results);                                                
-                                            });
-                                        } else {
-                                            //map logical interfaces to corresponding physical interface
-                                            if(lInfDetails.length > 0) {
-                                                for(var i = 0; i < results.length; i++) {
-                                                    var pInterface = results[i]['physical-interface'];
-                                                    if(pInterface != null) {
-                                                        pInterface['logical_interfaces'] = [];
+                                            }
+                                            if(vmiList.length > 0) {
+                                                processVirtualMachineInterfaceDetails(response, appData, vmiList, function(vmiData) {
+                                                    if(vmiData != null && vmiData.length > 0) {
+                                                        var vmiListLen = vmiList.length;
+                                                        for(var i = 0; i < vmiListLen; i++) {
+                                                            vmiList[i]['vmi_details'] = vmiData[i];
+                                                        }
                                                         for(var j = 0; j < lInfDetails.length; j++) {
                                                             var lInterface = lInfDetails[j]['logical-interface'];
-                                                            if(pInterface['uuid'] === lInterface['parent_uuid']) {
-                                                                pInterface['logical_interfaces'].push(lInfDetails[j]);            
-                                                            }
-                                                        } 
-                                                    }                                            
-                                                } 
+                                                            for(var k = 0; k < vmiList.length; k++) {
+                                                                if(vmiList[k].li_uuid === lInterface.uuid) {
+                                                                    lInterface['vmi_details'] = vmiList[k]['vmi_details']; 
+                                                                } 
+                                                            }    
+                                                        }
+                                                        //map logical interfaces to corresponding physical interface
+                                                        if(lInfDetails.length > 0) {
+                                                            for(var i = 0; i < results.length; i++) {
+                                                                var pInterface = results[i]['physical-interface'];
+                                                                if(pInterface != null) {
+                                                                    pInterface['logical_interfaces'] = [];
+                                                                    for(var j = 0; j < lInfDetails.length; j++) {
+                                                                        var lInterface = lInfDetails[j]['logical-interface'];
+                                                                        if(pInterface['uuid'] === lInterface['parent_uuid']) {
+                                                                            pInterface['logical_interfaces'].push(lInfDetails[j]);            
+                                                                        }
+                                                                    } 
+                                                                }                                            
+                                                            } 
+                                                        }                                                
+                                                    }
+                                                    commonUtils.handleJSONResponse(error, response, results);                                                
+                                                });
+                                            } else {
+                                                //map logical interfaces to corresponding physical interface
+                                                if(lInfDetails.length > 0) {
+                                                    for(var i = 0; i < results.length; i++) {
+                                                        var pInterface = results[i]['physical-interface'];
+                                                        if(pInterface != null) {
+                                                            pInterface['logical_interfaces'] = [];
+                                                            for(var j = 0; j < lInfDetails.length; j++) {
+                                                                var lInterface = lInfDetails[j]['logical-interface'];
+                                                                if(pInterface['uuid'] === lInterface['parent_uuid']) {
+                                                                    pInterface['logical_interfaces'].push(lInfDetails[j]);            
+                                                                }
+                                                            } 
+                                                        }                                            
+                                                    } 
+                                                }
+                                                commonUtils.handleJSONResponse(error, response, results);                                            
                                             }
-                                            commonUtils.handleJSONResponse(error, response, results);                                            
                                         }
                                     }
-                                }
-                        )                        
+                            )
+                        } else {
+                            commonUtils.handleJSONResponse(error, response, results);    
+                        }                        
                     } else {
                         commonUtils.handleJSONResponse(error, response, null);
                     }
