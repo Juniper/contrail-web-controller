@@ -19,6 +19,12 @@
                                                  getProjectphysicalrouterUsedInfo                                                 
     --> 
     <item>
+        <url>/api/tenants/config/physical-routers-list</url>
+        <method>get</method>
+        <feature>physicalroutersconfig</feature>
+        <callback>physicalroutersapi.getPhysicalRoutersList</callback>
+    </item> 
+    <item>
         <url>/api/tenants/config/physical-routers</url>
         <method>get</method>
         <feature>physicalroutersconfig</feature>

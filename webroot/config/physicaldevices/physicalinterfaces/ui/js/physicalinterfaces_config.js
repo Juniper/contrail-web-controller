@@ -388,7 +388,7 @@ function physicalInterfacesConfig() {
         if(queryParams != undefined && queryParams.length > 1 && queryParams[1].indexOf('=') != -1) {
             currentUUID = queryParams[1].split('=')[1];  
         }     
-        doAjaxCall('/api/tenants/config/physical-router-details','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null);
+        doAjaxCall('/api/tenants/config/physical-routers-list','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null);
     }
     window.successHandlerForPhysicalRouters =  function(result) {
         var pRoutersDS = [];    

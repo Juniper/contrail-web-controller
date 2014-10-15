@@ -31,25 +31,6 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var async = require('async'); 
 
 /**
- * @getPhysicalRouters
- * public function
- * 1. URL /api/tenants/config/physical-routers
- * 2. Gets physical routers from config api server
- */
-function getPhysicalRouters (request, response, appData)
-{
-    configApiServer.apiGet('/physical-routers', appData,
-        function(error, data) {
-            if (error) {
-               commonUtils.handleJSONResponse(error, response, null);
-               return;
-            }            
-            commonUtils.handleJSONResponse(error, response, data);
-        }
-    );             
-}
-
-/**
  * @getPhysicalInterfaces
  * public function
  * 1. URL /api/tenants/config/physical-interfaces/:pRouterId
@@ -368,7 +349,6 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
 }
 
  /* List all public function here */
-exports.getPhysicalRouters = getPhysicalRouters; 
 exports.getPhysicalInterfaces = getPhysicalInterfaces;
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
