@@ -47,9 +47,28 @@ function getPhysicalRoutersCb(error, physicalRoutersData, response)
 }
 
 /**
- * @listPolicys
+ * @getPhysicalRoutersList
  * public function
  * 1. URL /api/tenants/config/physical-routers
+ * 2. Gets physical routers from config api server
+ */
+function getPhysicalRoutersList (request, response, appData)
+{
+    configApiServer.apiGet('/physical-routers', appData,
+        function(error, data) {
+            if (error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
+            }            
+            commonUtils.handleJSONResponse(error, response, data);
+        }
+    );             
+}
+
+/**
+ * @getPhysicalRouters
+ * public function
+ * 1. URL /api/tenants/config/physical-routers-details
  * 2. Gets list of physical-routers from config api server
  * 3. Calls getPhysicalRoutersCb that process data from config
  *    api server and sends back the http response.
@@ -75,21 +94,61 @@ function getPhysicalRoutersDetails(error, data, response, appData)
     pRoutersLength = data['physical-routers'].length;
     for(i = 0; i < pRoutersLength; i++) {
         reqUrl = '/physical-router/' +  data['physical-routers'][i]['uuid'];
-        console.log(i +' : ' + reqUrl);
-       commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                                 null, null, null, appData);        
     }
     async.map(dataObjArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-            function(error, results) {
-                if (error) {
-                   commonUtils.handleJSONResponse(error, response, null);
-                   return;
-                }            
-                 commonUtils.handleJSONResponse(error, response, results);
+        function(error, results) {
+            if (error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
             }
-    )
+            getPhysicalInterfaceDetails(error, results, response, appData);
+        }
+    );
 }
+
+function getPhysicalInterfaceDetails(error, pRouters, response, appData){
+    var pInterfacesLength = 0;
+    var result = [];
+    var dataObjArr        = [];
+    
+    for(var k = 0; k < pRouters.length; k++){
+        var prouter = pRouters[k];
+        if(prouter['physical-router'] != null && prouter['physical-router']['physical_interfaces'] != null && prouter['physical-router']['physical_interfaces'].length > 0){
+            pInterfacesLength = prouter['physical-router']['physical_interfaces'].length;
+            for(i = 0; i < pInterfacesLength; i++) {
+                var pInterface = prouter['physical-router']['physical_interfaces'][i];   
+                reqUrl = '/physical-interface/' + pInterface['uuid'];
+                commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                                        null, null, null, appData);        
+            }
+        }
+    }
+    async.map(dataObjArr,
+        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+        function(error, pInterfaces) {
+            if (error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
+            }
+            if(pInterfaces.length > 0){
+                
+                for(var j=0 ;j < pRouters.length; j++){
+                    pRouters[j]['physical-router']['physical_interfaces'] = [];
+                    for(var l=0 ; l < pInterfaces.length; l++){
+                        if(pRouters[j]['physical-router']['uuid'] == pInterfaces[l]['physical-interface']['parent_uuid']){
+                            pRouters[j]['physical-router']['physical_interfaces'].push(pInterfaces[l]['physical-interface']);
+                        }
+                    }
+                }
+                commonUtils.handleJSONResponse(error, response, pRouters);
+            }
+        }
+    );
+}
+
 
 /**
  * @setPRouterRead
@@ -180,7 +239,8 @@ function validatePhysicalRouterId (request)
 
  /* List all public function here */
  
- exports.getPhysicalRouters    = getPhysicalRouters;
+ exports.getPhysicalRoutersList= getPhysicalRoutersList;
+ exports.getPhysicalRouters    = getPhysicalRouters; 
  exports.createPhysicalRouters = createPhysicalRouters;
  exports.updatePhysicalRouters = updatePhysicalRouters;
  exports.deletePhysicalRouters = deletePhysicalRouters;

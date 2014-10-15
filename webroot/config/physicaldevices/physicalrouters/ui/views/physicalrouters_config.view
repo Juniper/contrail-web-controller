@@ -9,10 +9,10 @@
                 <div class="span2"><label>IP Address</label></div>
                 <div class="span10">{{ip_address}}</div>
             </div>
-            <div class="row-fluid">
+            <!-- <div class="row-fluid">
                 <div class="span2"><label>UUID</label></div>
                 <div class="span10">{{uuid}}</div>
-            </div>
+            </div> -->
             <div class="row-fluid">
                 <div class="span2"><label>Interfaces</label></div>
                 <div class="span10">{{interfaces}}</div>
@@ -20,6 +20,18 @@
             <div class="row-fluid">
                 <div class="span2"><label>UserName</label></div>
                 <div class="span10">{{username}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>BGP Router</label></div>
+                <div class="span10">{{bgp_routers}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Virtual Networks</label></div>
+                <div class="span10">{{virtual_networks}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Virtual Router</label></div>
+                <div class="span10">{{virtual_router}}</div>
             </div>
         </div>
     </div>
@@ -31,7 +43,7 @@
         </div>
     </div>
     
-    <div id="addPhysicalRouterWindow" class="modal hide " tabindex="-1"> 
+    <div id="addPhysicalRouterWindow" class="modal modal-700 hide " tabindex="-1"> 
         <div class="modal-header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
         <h6 class="modal-header-title"></h6>
@@ -39,7 +51,7 @@
         <div class="modal-body">
             <form class="form-horizontal">  
                 <div class="control-group">
-                    <label class="control-label" >Physical Router Name</label>
+                    <label class="control-label" >Name</label>
                     <div class="controls">  
                         <div class="row-fluid">
                             <input type="text" id="txtPhysicalRouterName" class="span11"/>   
@@ -54,30 +66,86 @@
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label  class="control-label ">Username</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="text" id="txtUsername" class="span11"/>
-                        </div>
+                <div class="widget-box transparent collapsed">
+                    <div class="widget-header">
+                        <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWindo.w',this,true);">
+                            <i class="icon-caret-right grey"></i>
+                            <span>Credentials</span>
+                        </h4>
                     </div>
-                </div>  
-                <div class="control-group">
-                    <label  class="control-label ">Password</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="password" id="txtPassword" class="span11"/>
+                    <div class="widget-body">
+                        <div class="row-fluid widget-main">
+                            <div class="row-fluid margin-0-0-10">
+                                <div class="control-group">
+                                  <label class="control-label">Username</label>  
+                                  <div class="controls">                       
+                                      <div class="row-fluid">
+                                           <div class="pull-left">
+                                               <input type="text" id="txtUsername" name="txtUsername" title="Username" 
+                                               class="span12 pull-left"/>
+                                           </div>
+                                           <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                               Password
+                                           </label>
+                                           <div class ="pull-left">
+                                               <input title="Password"
+                                                   id="txtPassword" class="span12" type="password" name="txtPassword"
+                                                   value="">
+                                               </input> 
+                                           </div>                                
+                                      </div>  
+                                  </div>
+                            </div>
+                        </div>
+                      </div> 
+                  </div>
+                </div>
+                <div class="widget-box transparent collapsed">
+                    <div class="widget-header">
+                        <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWindo.w',this,true);">
+                            <i class="icon-caret-right grey"></i>
+                            <span>Virtual Router</span>
+                        </h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="row-fluid widget-main">
+                            <div class="row-fluid margin-0-0-10">
+                                <div class="control-group">
+                                    <label  class="control-label ">Virtual Router</label>
+                                    <div class="controls">
+                                        <div class="row-fluid">
+                                            <input type="text" id="ddVirtualRouters" class="span11"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label  class="control-label ">BGP Router</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="password" id="ddBgpRouter" class="span11"/>
+                <div class="row-fluid">
+                        <div class="widget-box transparent collapsed">
+                            <div class="widget-header">
+                                <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWin.dow',this,true);">
+                                    <i class="icon-caret-right grey"></i>
+                                    <span>BGP Router</span>
+                                </h4>
+                            </div>
+                            <div class="widget-body">
+                                <div class="row-fluid widget-main">
+                                    <div class="row-fluid margin-0-0-10">
+                                        <div class="control-group">
+                                            <label  class="control-label ">BGP Router</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <input type="text" id="ddBgpRouter" class="span11"/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
+                </div> 
                 <div class="control-group">
                     <label  class="control-label ">Virtual Networks</label>
                     <div class="controls">
@@ -85,15 +153,8 @@
                             <input type="text" id="msVN" class="span11"/>
                         </div>
                     </div>
-                </div> 
-                <div class="control-group">
-                    <label  class="control-label ">Virtual Routers</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="text" id="msVRouters" class="span11"/>
-                        </div>
-                    </div>
                 </div>  
+                
             </form>
         </div>
         <div class="modal-footer">

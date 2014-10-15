@@ -15,6 +15,12 @@
                                                  getVirtualRouters
     --> 
     <item>
+        <url>/api/tenants/config/virtual-routers-list</url>
+        <method>get</method>
+        <feature>virtualroutersconfig</feature>
+        <callback>virtualroutersconfigapi.getVirtualRoutersList</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/virtual-routers</url>
         <method>get</method>
         <feature>virtualroutersconfig</feature>
