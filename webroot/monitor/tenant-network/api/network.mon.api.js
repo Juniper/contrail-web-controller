@@ -2515,7 +2515,7 @@ function getVNConfigList(configURL,appData,callback)
 {
     configApiServer.apiGet(configURL, appData, function(err, configVNData) {
         if (err || (null == configVNData)) {
-            callback(err, vnList);
+            callback(err, null);
             return;
         }
         if ((null != configVNData) && 
@@ -2656,13 +2656,15 @@ function getInstanceDetailsForAdmin(req,appData,callback) {
         if (null == type) {
             err = new
                 appErrors.RESTServerError('type is required');
-            callback(err,null);
+            callback(err,resultJSON);
+            return;
         }
         return getInstanceDetailsByFqn(req, appData, callback);
     }
     opApiServer.apiGet(url, appData, function(err, data) {
         if (err || (null == data)) {
-            callback(err,null);
+            callback(err,resultJSON);
+            return;
         }
         data.sort(infraCmn.sortUVEList);
         processInstanceReqByLastUUID(lastUUID, count, false, data, 
