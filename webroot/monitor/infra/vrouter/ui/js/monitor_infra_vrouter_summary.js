@@ -182,11 +182,17 @@ monitorInfraComputeSummaryClass = (function() {
                 updateCrossFilter(filteredNodes);
             else
                 updateCrossFilters = true;
-
+            
+            setTimeout(function () {
+                var cgrid = $('#divcomputesgrid').data('contrailGrid');
+                if(cgrid != null)
+                    cgrid._dataView.setData(filteredNodes);
+            }, 500);
+            
             //ToDo: Need to see issue with sparkLine update
             //updateCpuSparkLines(computeNodesGrid,localDS.data());
         });
-
+        var emptyDataSource = new ContrailDataView();
         $('#divcomputesgrid').contrailGrid({
             header : {
                 title : {
@@ -202,7 +208,7 @@ monitorInfraComputeSummaryClass = (function() {
                     lazyLoading:true
                 },
                 dataSource: {
-                    dataView: vRoutersDataSource,
+                    dataView: emptyDataSource,
                 },
                  statusMessages: {
                      loading: {
