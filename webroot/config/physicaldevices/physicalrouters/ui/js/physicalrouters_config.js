@@ -51,9 +51,9 @@ function physicalRoutersConfig() {
                     }  
                 },
                 {
-                    id : 'ip_address',
-                    field : 'ip_address',
-                    name : 'IP Address'                    
+                    id : 'mgmt_ip_address',
+                    field : 'mgmt_ip_address',
+                    name : 'Management IP Address'                    
                 },
                 {
                     id : 'interfaces',
@@ -232,16 +232,27 @@ function physicalRoutersConfig() {
         fetchVNs();
         fetchVirtualRouters();
         if(mode === 'edit') {
+            $('#addPhysicalRouterWindow').find(".modal-header-title").text('Edit Physical Router');
             $('#txtPhysicalRouterName').val(gblSelRow.name);
+            if(gblSelRow.vendor != '-')
+                $('#txtVendor').val(gblSelRow.vendor);
             $('#txtPhysicalRouterName').attr('disabled','disabled');
-            $('#txtIPAddress').val(gblSelRow.username);
-            $('#txtUsername').val(gblSelRow.ip_address);
-            $('#txtPassword').val(gblSelRow.password);
+            if(gblSelRow.mgmt_ip_address != '-')
+                $('#txtMgmtIPAddress').val(gblSelRow.mgmt_ip_address);
+            if(gblSelRow.data_ip_address != '-')
+                $('#txtDataIPAddress').val(gblSelRow.data_ip_address);
+            if(gblSelRow.username != '-')
+                $('#txtUsername').val(gblSelRow.username);
+            if(gblSelRow.password != '-')
+                $('#txtPassword').val(gblSelRow.password);
             if(gblSelRow.bgp_routers != '-')
                 $('#ddBgpRouter').data('contrailDropdown').text(gblSelRow.bgp_routers);
             $('#msVN').val((gblSelRow.virtual_networks == '-') ? '' : gblSelRow.virtual_networks);
             if(gblSelRow.virtual_router != '-')
                 $('#ddVirtualRouters').data('contrailDropdown').text(gblSelRow.virtual_router);
+        } else {
+            $('#ddBgpRouter').data('contrailDropdown').value('None');
+            $('#ddVirtualRouters').data('contrailDropdown').value('None');
         }
         $('#addPhysicalRouterWindow').modal('show');       
     }
@@ -254,7 +265,9 @@ function physicalRoutersConfig() {
             url = '/api/tenants/config/physical-router/' + gblSelRow.uuid
         }
         var name = $("#txtPhysicalRouterName").val();
-        var ipAddress = $("#txtIPAddress").val();
+        var vendor = $("#txtVendor").val();
+        var mgmtIpAddress = $("#txtMgmtIPAddress").val();
+        var dataIpAddress = $("#txtDataIPAddress").val();
         var username = $("#txtUsername").val();
         var password = $("#txtPassword").val();
         var bgpRouter = $("#ddBgpRouter").data('contrailDropdown').text();
@@ -274,30 +287,45 @@ function physicalRoutersConfig() {
         postObject["physical-router"]["fq_name"] = ["default-global-system-config", name];
         postObject["physical-router"]["parent_type"] = "global-system-config";
         postObject["physical-router"]["name"] = name;
-        postObject["physical-router"]["physical_router_management_ip"] = ipAddress;
+        postObject["physical-router"]['physical_router_vendor_name'] = vendor;
+        postObject["physical-router"]["physical_router_management_ip"] = mgmtIpAddress;
+        postObject["physical-router"]["physical_router_dataplane_ip"] = dataIpAddress;
         postObject["physical-router"]['physical_router_user_credentials'] = {};
         postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
         postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
-        if(bgpRouter != null && bgpRouter != ''){
+        if(bgpRouter != 'None'){
             var bgpRouterRefs = [{"to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpRouter]}];
             postObject["physical-router"]["bgp_router_refs"] = bgpRouterRefs;
+        } else {
+            postObject["physical-router"]["bgp_router_refs"] = [];
         }
-        var vnRefs = [];
-        for(var i = 0 ;i < vn.length ; i++){
-            vnRefs.push({"to":vn[i]});
+        if(vn.length > 0){
+            var vnRefs = [];
+            for(var i = 0 ;i < vn.length ; i++){
+                vnRefs.push({"to":vn[i]});
+            }
+            postObject["physical-router"]["virtual_network_refs"] = vnRefs;
+        } else {
+            postObject["physical-router"]["virtual_network_refs"] = [];
         }
-        postObject["physical-router"]["virtual_network_refs"] = vnRefs;
-        if(vRouters != null && vRouters != ''){
+        if(vRouters != 'None'){
             var virtualRouterRefs = [{"to":["default-global-system-config",vRouters]}];
             postObject["physical-router"]["virtual_router_refs"] = virtualRouterRefs;
+        } else {
+            postObject["physical-router"]["virtual_router_refs"] = [];
         }
-        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null);
+        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForCreateEditRouters', null, null);
     }
+    window.failureHandlerForCreateEditRouters =  function(error) {
+        gridPhysicalRouters.showGridMessage("errorCreateEdit");
+   }
     
     function clearCreateEditWindow() {
         $('#txtPhysicalRouterName').removeAttr('disabled');
         $("#txtPhysicalRouterName").val('');
-        $("#txtIPAddress").val('');
+        $("#txtVendor").val('');
+        $("#txtMgmtIPAddress").val('');
+        $("#txtDataIPAddress").val('');
         $("#txtUsername").val('');
         $("#txtPassword").val('');
         $("#ddBgpRouter").data('contrailDropdown').value('');
@@ -349,7 +377,7 @@ function physicalRoutersConfig() {
                         vnsString = d.to[2];
                 });
                 
-                var credentials = rowData['physical-router-user-credentials'];
+                var credentials = rowData['physical_router_user_credentials'];
                 var username = '-',password = '-';
                 if(credentials != null){
                     username = credentials['username'];
@@ -358,12 +386,14 @@ function physicalRoutersConfig() {
                 gridDS.push({
                     uuid : rowData.uuid,
                     name : rowData.name,
-                    ip_address : rowData.physical_router_ip_address ? rowData.physical_router_ip_address : '-',
-                    username : username,
+                    vendor : rowData['physical_router_vendor_name'] ? rowData['physical_router_vendor_name'] : '-',
+                    mgmt_ip_address : rowData['physical_router_management_ip'] ? rowData['physical_router_management_ip'] : '-',
+                    data_ip_address : rowData['physical_router_dataplane_ip'] ? rowData['physical_router_dataplane_ip'] : '-',
+                    username : (username == '')? '-' : username,
                     password : password,
                     interfaces : interfaces.length,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
-                    virtual_networks : vnsString,        
+                    virtual_networks : (vnsString == '')? '-' : vnsString,        
                     virtual_router : (virtualRouterString == '')? '-' : virtualRouterString
                 });
             }
@@ -379,16 +409,11 @@ function physicalRoutersConfig() {
     }
     
     function fetchVirtualRouters() {
-        //reading uuid from query string
-//        var queryParams = window.location.href.split("&");
-//        if(queryParams != undefined && queryParams.length > 1 && queryParams[1].indexOf('=') != -1) {
-//            currentUUID = queryParams[1].split('=')[1];  
-//        }     
         doAjaxCall('/api/tenants/config/virtual-routers-list','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
     window.successHandlerForVirtualRouters =  function(result) {
-        var vRoutersDS = [];    
+        var vRoutersDS = [{text : "None", value : "None"}];    
         if(result && result['virtual-routers'].length > 0) {
             var virtualRouters = result['virtual-routers'];
             for(var i = 0; i < virtualRouters.length;i++) {
@@ -413,7 +438,7 @@ function physicalRoutersConfig() {
     }
     
     window.successHandlerForBGPRouters =  function(result) {
-        var bgpDS = [{text : "", value : ""}];    
+        var bgpDS = [{text : "None", value : "None"}];    
         if(result && result.length > 0) {
             for(var i = 0; i < result.length;i++) {
                 var bgpRouter = result[i];
@@ -464,9 +489,14 @@ function physicalRoutersConfig() {
             showInfoWindow("Enter a Physical Router Name","Input required");
             return false;
         }
-        var ipAddress = $('#txtIPAddress').val().trim();
-        if(!validateIPAddress(ipAddress)){
-            showInfoWindow("Enter a valid IP address in xxx.xxx.xxx.xxx format","Input required");
+        var mgmtIpAddress = $('#txtMgmtIPAddress').val().trim();
+        if(!validateIPAddress(mgmtIpAddress)){
+            showInfoWindow("Enter a valid Management IP address in xxx.xxx.xxx.xxx format","Input required");
+            return false;
+        }
+        var dataIpAddress = $('#txtDataIPAddress').val().trim();
+        if(!validateIPAddress(dataIpAddress)){
+            showInfoWindow("Enter a valid Dataplane IP address in xxx.xxx.xxx.xxx format","Input required");
             return false;
         }
         return true;         
