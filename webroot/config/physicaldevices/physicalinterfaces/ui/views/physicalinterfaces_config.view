@@ -49,7 +49,7 @@
                                 <div class="widget-header">
                                     <h4 class="smaller" onclick="collapseElement(this,'#infWidget')">
                                         <i class="grey icon-caret-right" ></i>
-                                        <span>Logical Interface Options</span>
+                                        <span>Logical Interface Properties</span>
                                     </h4>
                                 </div>
                                 <div id="infWidget"  class="widget-body collapsed">

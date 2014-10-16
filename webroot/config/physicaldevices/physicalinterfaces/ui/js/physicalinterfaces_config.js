@@ -195,7 +195,7 @@ function physicalInterfacesConfig() {
     
     function onVNSelChange(e) {
         var id = e.added.value;
-        fetchVirtualMachineDetails(id)
+        fetchVirtualNetworkInternals(id)
     }
     
     function initActions() {
@@ -379,6 +379,7 @@ function physicalInterfacesConfig() {
         doubleCreation = false;
         $('#ddParent').data('contrailDropdown').enable(false);
         $('#ddType').data('contrailDropdown').enable(true);
+        $('#ddVN').data('contrailDropdown').value('');
         $('#ddVMI').data('contrailDropdown').value('');
     }
     
@@ -433,8 +434,9 @@ function physicalInterfacesConfig() {
              vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
          }
          var ddVN = $('#ddVN').data('contrailDropdown');         
-         ddVN.setData(vnDataSrc); 
-         fetchVirtualNetworkInternals(ddVN.value());
+         ddVN.setData(vnDataSrc);
+         ddVN.value('');          
+         //fetchVirtualNetworkInternals(ddVN.value());
     }
     
     window.failureHandlerForVN = function(error) {
