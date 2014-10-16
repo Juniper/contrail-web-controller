@@ -6,8 +6,16 @@
                 <div class="span10"> {{name}}</div>
             </div>
             <div class="row-fluid">
-                <div class="span2"><label>IP Address</label></div>
-                <div class="span10">{{ip_address}}</div>
+                <div class="span2"><label>Vendor</label></div>
+                <div class="span10"> {{vendor}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Management IP Address</label></div>
+                <div class="span10">{{mgmt_ip_address}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Dataplane IP Address</label></div>
+                <div class="span10">{{data_ip_address}}</div>
             </div>
             <!-- <div class="row-fluid">
                 <div class="span2"><label>UUID</label></div>
@@ -18,7 +26,7 @@
                 <div class="span10">{{interfaces}}</div>
             </div>
             <div class="row-fluid">
-                <div class="span2"><label>UserName</label></div>
+                <div class="span2"><label>Username</label></div>
                 <div class="span10">{{username}}</div>
             </div>
             <div class="row-fluid">
@@ -59,10 +67,26 @@
                     </div>
                 </div>
                 <div class="control-group">
+                    <label  class="control-label ">Vendor</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtVendor" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
                     <label  class="control-label ">Management IP</label>
                     <div class="controls">
                         <div class="row-fluid">
-                            <input type="text" id="txtIPAddress" class="span11"/>
+                            <input type="text" id="txtMgmtIPAddress" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label  class="control-label ">Dataplane IP</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtDataIPAddress" class="span11"/>
                         </div>
                     </div>
                 </div>
