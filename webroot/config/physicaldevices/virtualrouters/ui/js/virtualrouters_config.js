@@ -132,6 +132,7 @@ function virtualRoutersConfig() {
     
     function initActions() {
         $('#btnCreateVirtualRouter').click(function() {
+            $('#addVirtualRouterWindow').find(".modal-header-title").text('Add Virtual Router');
             populateCreateEditWindow('create');
         });    
         
