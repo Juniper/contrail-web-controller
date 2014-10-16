@@ -3,12 +3,12 @@
 .hidden {
 	visibility: hidden
 }
- 
+
 body > svg {
 	position: absolute;
 	top: -80px;
 	left: -160px;
-	height:70%; !important 
+	height:70%; !important
 	width:50%; !important
 }
 </style>
@@ -99,8 +99,8 @@ body > svg {
 <script type="text/x-handlebars-template" id="tracePath-template">
 	<div>
 		{{#each this}}
-		    <div class="control-group" style="display:inline-block">  
-		        <label class="control-label" class="span3">{{this.label}}</label> 
+		    <div class="control-group" style="display:inline-block">
+		        <label class="control-label" class="span3">{{this.label}}</label>
 		        <div class="controls">
 		            <div class="row-fluid">
 		                <input type="text" id="{{this.key}}"  class="span8" />
@@ -109,10 +109,10 @@ body > svg {
 		    </div>
 		{{/each}}
 		<div class="control-group" style="display:inline-block">
-		    <label class="control-label" class="span3"></label> 
+		    <label class="control-label" class="span3"></label>
 		    <div class="controls">
 		        <div class="row-fluid">
-		            <a id="tracepath-btn" class="btn btn-mini btn-primary"><span>Trace Path</span></a>
+		            <a id="tracepath-btn" class="btn btn-mini btn-primary"><span>Trace Flow</span></a>
 		        </div>
 		    </div>
 		</div>
@@ -143,7 +143,7 @@ body > svg {
                                     <span class="key span4"> InBytes </span>
                                     <span class="key span4"> OutBytes </span>
                                 </label>
-                            </li>   
+                            </li>
                             {{#each this.if_stats}}
                                 <li>
                                     <label class="inline row-fluid">
@@ -151,7 +151,7 @@ body > svg {
                                         <span class="value span4"> {{this.ifEntry.fmtdInBytes}} </span>
                                         <span class="value span4"> {{this.ifEntry.fmtdOutBytes}} </span>
                                     </label>
-                                </li>                            
+                                </li>
                             {{/each}}
                         </ul>
                     </div>

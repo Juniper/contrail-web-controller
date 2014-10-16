@@ -273,6 +273,7 @@ var underlayView = function (model) {
     });
     this.initZoomControls();
     this.contextMenuConfig = {};
+    this.tooltipConfig = {};
     var _this = this;
     $("#underlay_tabstrip").contrailTabs({
         activate:function (e, ui) {
@@ -466,6 +467,87 @@ underlayView.prototype.initZoomControls = function() {
         $zoomOut: $("#zoomcontrols").find(".zoom-out"),
         $reset: $("#zoomcontrols").find(".zoom-reset"),
         disablePan: true
+    });
+}
+
+underlayView.prototype.initTooltipConfig = function() {
+    var _this = this;
+    this.tooltipConfig = {
+        PhysicalRouter: {
+            title: function(element, graph) {
+                return 'Physical Router';
+            },
+            content: function(element, graph) {
+                var viewElement = graph.getCell(element.attr('model-id'));
+                var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
+
+                var ifLength = 0;
+                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('nodeDetails') &&
+                    viewElement.attributes.nodeDetails.hasOwnProperty('more_attr') &&
+                    viewElement.attributes.nodeDetails.more_attr.hasOwnProperty('ifTable') &&
+                    viewElement.attributes.nodeDetails.more_attr.ifTable.length) {
+                    ifLength = viewElement.attributes.nodeDetails.more_attr.ifTable.length;
+                }
+                return tooltipContent([
+                    {
+                        lbl:'Name',
+                        value: viewElement.attributes.nodeDetails['name']
+                    },
+                    {
+                        lbl:'Interfaces',
+                        value: ifLength
+                    }
+                ]);
+            }
+        },
+        link: {
+            title: function(element, graph) {
+                var viewElement = graph.getCell(element.attr('model-id'));
+                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
+                    viewElement.attributes.linkDetails.hasOwnProperty('endpoints') &&
+                    viewElement.attributes.linkDetails.endpoints) {
+                    return "Local: " + viewElement.attributes.linkDetails.endpoints[0] + "  " +
+                            "Remote: " + viewElement.attributes.linkDetails.endpoints[1];
+                }
+            },
+            content: function(element, graph) {
+                var viewElement = graph.getCell(element.attr('model-id'));
+                var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
+                var local_interfaces = [];
+                var remote_interfaces = [];
+                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
+                    viewElement.attributes.linkDetails.hasOwnProperty('more_attributes') &&
+                    viewElement.attributes.linkDetails.more_attributes) {
+                    local_interfaces.push(viewElement.attributes.linkDetails.more_attributes.local_interface_name);
+                    remote_interfaces.push(viewElement.attributes.linkDetails.more_attributes.remote_interface_name);
+                }
+
+                return tooltipContent([
+                    {
+                        lbl: 'Local Interfaces',
+                        value: local_interfaces.join(' ')
+                    },
+                    {
+                        lbl: 'Remote Interfaces',
+                        value: remote_interfaces.join(' ')
+                    }
+                ]);
+            }
+        }
+    };
+    $.each(this.tooltipConfig, function(keyConfig, valueConfig){
+        $('g.' + keyConfig).popover({
+            trigger: 'hover',
+            html: true,
+            delay: { show: 200, hide: 10 },
+            title: function(){
+                return valueConfig.title($(this), _this.getGraph());
+            },
+            content: function(){
+                return valueConfig.content($(this), _this.getGraph());
+            },
+            container: $('body')
+        });
     });
 }
 
@@ -1002,10 +1084,10 @@ underlayView.prototype.hideVRouters = function() {
 
 underlayView.prototype.renderUnderlayViz = function() {
     var elements = this.getModel().getConnectedElements();
-    this.initContextMenuConfig();
+    //this.initContextMenuConfig();
     this.graph.addCells(elements);
     this.initGraphEvents();
-
+    this.initTooltipConfig();
 }
 
 underlayView.prototype.renderFlowRecords = function() {
