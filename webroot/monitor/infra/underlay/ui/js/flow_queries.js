@@ -634,7 +634,7 @@ function formatTime4Tip(dataItem) {
 
 //Flow Record Query - Begin
 frQuery['queryViewModel'] = new QueryViewModel('fr', function() {
-                                this.defaultTRValue("1800");
+                                this.defaultTRValue("600");
                                 this.isCustomTRVisible(false);
                                 this.defaultDirectionValue("1");
                                 queries.fr.selectViewModel.reset();
