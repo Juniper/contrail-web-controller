@@ -613,6 +613,40 @@ function getIfStatsDataByvRouter (nodeName, ifName, vrouterData)
     return null;
 }
 
+/* Function: getIfStatsDataByvRouter
+   Get the ifStats data from vRouter phy_if_stats_list using vRouter hostname
+   for a specific interface
+ */
+function getIfStatsDataByvRouter (nodeName, ifName, vrouterData)
+{
+    if ((null == vrouterData) || (null == vrouterData['value']) ||
+        (!vrouterData['value'].length)) {
+        return null;
+    }
+    var len = vrouterData['value'].length;
+    for (var i = 0; i < len; i++) {
+        if (vrouterData['value'][i]['name'] == nodeName) {
+            break;
+        }
+    }
+    if (i == len) {
+        return null;
+    }
+    try {
+        var statsData =
+            vrouterData['value'][i]['value']['VrouterStatsAgent']['phy_if_stats_list'];
+        var statsLen = statsData.length;
+    } catch(e) {
+        statsLen = 0;
+    }
+    for (var j = 0; j < statsLen; j++) {
+        if (ifName == statsData[j]['name']) {
+            return statsData[j];
+        }
+    }
+    return null;
+}
+
 /* Function: fillNodeIfStats
    Get the ifStats for nodes node1 and node2 using prouter and uve data
  */
@@ -802,7 +836,7 @@ function getUnderlayStats (req, res, appData)
    Get the node hostname from pRouter and vRouter UVE using node ip
    First is checked in pRouter UVE, if not found, then check for vRouter UVE.
  */
-function getNodeNameByPVData (hop, prouterData, vrouterData)
+function getNodeNameByPVData (hop, macPrTable, prouterData, vrouterData)
 {
     var nodeObj = {};
     nodeObj['nodeName'] = null;
@@ -810,15 +844,39 @@ function getNodeNameByPVData (hop, prouterData, vrouterData)
     var prCnt = prouterData['value'].length;
     for (var i = 0; i < prCnt; i++) {
         try {
-            if (hop ==
-                prouterData['value'][i]['value']['PRouterFlowEntry']
-                           ['flow_export_source_ip']) {
-                return {'nodeName': prouterData['value']['name'],
+            var prData = prouterData['value'][i]['value'];
+            if (hop == prData['PRouterFlowEntry']['flow_export_source_ip']) {
+                return {'nodeName': prouterData['value'][i]['name'],
                         'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
             }
         } catch(e) {
             logutils.logger.error("We did not prouter flow_export_source_ip " +
                                   " while searching IP:" + hop);
+        }
+        try {
+            var arpTable =
+                prouterData['value'][i]['value']['PRouterEntry']['arpTable'];
+            var arpCnt = arpTable.length;
+        } catch(e) {
+            arpCnt = 0;
+        }
+        for (var j = 0; j < arpCnt; j++) {
+            if (arpTable[j]['ip'] == hop) {
+                if (macPrTable[arpTable[j]['mac']] != null) {
+                    return {'nodeName': macPrTable[arpTable[j]['mac']],
+                             'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
+                }
+                break;
+            }
+        }
+        if (j != arpCnt) {
+            break;
+        }
+    }
+    if ((prCnt > 0) && (arpCnt > 0) && (i != prCnt) && (j != arpCnt)) {
+        if (macPrTable[arpTable[j]['mac']] != null) {
+            return {'nodeName': macPrTable[arpTable[j]['mac']],
+                    'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
         }
     }
     var vrCnt = vrouterData['value'].length;
@@ -838,6 +896,26 @@ function getNodeNameByPVData (hop, prouterData, vrouterData)
         }
     }
     return nodeObj;
+}
+
+function getMacToProuterMapTable (prouterData)
+{
+    var macPrTable = {};
+    var prCnt = prouterData['value'].length;
+    for (var i = 0; i < prCnt; i++) {
+        try {
+            var prData = prouterData['value'][i]['value'];
+            var ifTable = prData['PRouterEntry']['ifTable'];
+            var ifCnt = ifTable.length;
+        } catch(e) {
+            ifCnt = 0;
+        }
+        for (var idx = 0; idx < ifCnt; idx++) {
+            macPrTable[ifTable[idx]['ifPhysAddress']] =
+                prouterData['value'][i]['name'];
+        }
+    }
+    return macPrTable;
 }
 
 /* Function: getTraceFlow
@@ -878,19 +956,24 @@ function getTraceFlow (req, res, appData)
     }
     var urlLists = [];
     urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + url;
-    var vRouterRestAPI =
-        commonUtils.getRestAPIServer(nodeIP, global.SANDESH_COMPUTE_NODE_PORT);
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
-                                                              true),
+                                                              false),
               function(err, results) {
         if ((null != err) || (null == results)) {
             commonUtils.handleJSONResponse(err, res, null);
             return;
         }
+        var errResp = jsonPath(results[0], "$..error_response[0]");
+        if ((null != errResp) && (errResp.length > 0)) {
+            var err = appErrors.RESTServerError(errResp[0]['_']);
+            commonUtils.handleJSONResponse(err, res, errResp[0]['_']);
+            return;
+        }
         var hopList = jsonPath(results, "$..hop[0]");
         url = '/analytics/uves/prouter';
         var prPostData = {};
-        prPostData['cfilt'] = ['PRouterFlowEntry:flow_export_source_ip']
+        prPostData['cfilt'] = ['PRouterFlowEntry:flow_export_source_ip',
+            'PRouterEntry:ifTable', 'PRouterEntry:arpTable'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  prPostData, null, null, null);
         url = '/analytics/uves/vrouter';
@@ -903,8 +986,10 @@ function getTraceFlow (req, res, appData)
                   function(err, results) {
             var hopCnt = hopList.length;
             topoData['nodes'] = [];
+            var macPrTable = getMacToProuterMapTable(results[0]);
             for (var i = 0; i < hopCnt; i++) {
-                var nodeObj = getNodeNameByPVData(hopList[i]['_'], results[0], results[1]);
+                var nodeObj = getNodeNameByPVData(hopList[i]['_'], macPrTable,
+                                                  results[0], results[1]);
                 var nodeName = nodeObj['nodeName'];
                 var nodeType = nodeObj['nodeType'];
                 if (null != nodeName) {
@@ -916,13 +1001,15 @@ function getTraceFlow (req, res, appData)
                                            ctrlGlobal.NODE_TYPE_NONE});
                 }
             }
-            /* TODO: Once all the IPs are populated in prouter UVE, then we need
-             * to build the link here
-             */
+            topoData['links'] = [];
+            var nodeCnt = topoData['nodes'].length;
+            for (var i = 0; i < nodeCnt - 1; i++) {
+                topoData['links'].push({'endpoints': [topoData['nodes'][i]['name'],
+                                          topoData['nodes'][i + 1]['name']]});
+            }
             commonUtils.handleJSONResponse(null, res, topoData);
         });
     });
-
 }
 
 exports.getUnderlayPath = getUnderlayPath;
