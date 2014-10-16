@@ -400,7 +400,8 @@ function physicalRoutersConfig() {
             vRoutersDS.push({text : 'No Virtual Router found', value: 'Message'});
         }
         var vRouterDD = $('#ddVirtualRouters').data('contrailDropdown');            
-        vRouterDD.setData(vRoutersDS); 
+        vRouterDD.setData(vRoutersDS);
+        vRouterDD.value('');         
     }
     
     window.failureHandlerForVirtualRouters = function(error) {

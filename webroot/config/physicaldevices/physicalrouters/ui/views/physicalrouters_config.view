@@ -68,12 +68,12 @@
                 </div>
                 <div class="widget-box transparent collapsed">
                     <div class="widget-header">
-                        <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWindo.w',this,true);">
+                        <h4 class="smaller" onclick="collapseElement(this,'#credWidget');">
                             <i class="icon-caret-right grey"></i>
                             <span>Credentials</span>
                         </h4>
                     </div>
-                    <div class="widget-body">
+                    <div id="credWidget" class="widget-body collapsed">
                         <div class="row-fluid widget-main">
                             <div class="row-fluid margin-0-0-10">
                                 <div class="control-group">
@@ -102,12 +102,12 @@
                 </div>
                 <div class="widget-box transparent collapsed">
                     <div class="widget-header">
-                        <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWindo.w',this,true);">
+                        <h4 class="smaller" onclick="collapseElement(this,'#vrWidget');">
                             <i class="icon-caret-right grey"></i>
                             <span>Virtual Router</span>
                         </h4>
                     </div>
-                    <div class="widget-body">
+                    <div id="vrWidget" class="widget-body collapsed">
                         <div class="row-fluid widget-main">
                             <div class="row-fluid margin-0-0-10">
                                 <div class="control-group">
@@ -125,12 +125,12 @@
                 <div class="row-fluid">
                         <div class="widget-box transparent collapsed">
                             <div class="widget-header">
-                                <h4 class="smaller" onclick="scrollUp('#addPhysicalRouterWin.dow',this,true);">
+                                <h4 class="smaller" onclick="collapseElement(this,'#bgpWidget');">
                                     <i class="icon-caret-right grey"></i>
                                     <span>BGP Router</span>
                                 </h4>
                             </div>
-                            <div class="widget-body">
+                            <div id="bgpWidget" class="widget-body collapsed">
                                 <div class="row-fluid widget-main">
                                     <div class="row-fluid margin-0-0-10">
                                         <div class="control-group">
@@ -141,20 +141,19 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="control-group">
+                                            <label  class="control-label ">Virtual Networks</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <input type="text" id="msVN" class="span11"/>
+                                                </div>
+                                            </div>
+                                        </div>                                          
                                     </div>
                                 </div>
                             </div>
                         </div>
                 </div> 
-                <div class="control-group">
-                    <label  class="control-label ">Virtual Networks</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="text" id="msVN" class="span11"/>
-                        </div>
-                    </div>
-                </div>  
-                
             </form>
         </div>
         <div class="modal-footer">
