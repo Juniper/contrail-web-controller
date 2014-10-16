@@ -512,7 +512,7 @@
             <div class="widget-main">
                 <form id="fr-query-form" onsubmit="return false;">
                     <div id="fr-query-container" class="row-fluid">
-                        <div class="row-fluid margin-0-0-5">
+                        <div class="row-fluid margin-0-0-5" style="display:none;">
                             <div class="span4">
                                 <label>Time Range</label>
                                 <div>
@@ -542,6 +542,16 @@
                                 <label>Where</label>
                                 <div id="fr-where-underlay">
                                     <div id="fr-or-clauses" class="or-clauses"></div>
+                                </div>
+                            </div>
+                            <div class="span3">
+                                <label>Time Range</label>
+                                <div>
+                                    <select id="fr-time-range" name="timeRange" class="span12"
+                                            value=""
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            onchange="selectTimeRange(this, 'fr');">
+                                    </select>
                                 </div>
                             </div>
                         </div>

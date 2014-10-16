@@ -1015,6 +1015,15 @@ underlayView.prototype.renderFlowRecords = function() {
     ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
     openWhereWithUnderlay('fr');
     initWidgetBoxes();
+    queries['fr'].queryViewModel.timeRange([
+                                            {"name":"Last 5 Mins", "value":300},
+                                            {"name":"Last 10 Mins", "value":600},
+                                            {"name":"Last 20 Mins", "value":1200},
+                                            {"name":"Last 30 Mins", "value":1800},
+                                            {"name":"Last 1 Hr", "value":3600},
+                                 ]);
+    queries['fr'].queryViewModel.defaultTRValue(600);
+    queries['fr'].queryViewModel.isCustomTRVisible(false);
 }
 
 underlayView.prototype.renderTracePath = function(options) {
