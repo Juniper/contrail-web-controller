@@ -35,9 +35,9 @@ function underlayRenderer() {
     }
 
     this.destroy = function() {
-        this.view.destroy();
-        this.model.destroy();
-        this.controller.destroy();
+        this.getModel().destroy();
+        this.getView().destroy();
+        this.getController().destroy();
     }
 }
 
@@ -53,15 +53,6 @@ var underlayModel = function(data) {
         nodes: {},
         links: {}
     };
-
-    this.highlightedNodes  = [];
-    this.highlightedLinks  = [];
-    this.highlightedConnectedElements = [];
-    this.highlightedElementMap = {
-        nodes: {},
-        links: {}
-    };
-
     if(data) {
         this.setNodes(data.nodes);
         this.setLinks(data.links);
@@ -104,20 +95,24 @@ underlayModel.prototype.getVrouters = function() {
     return this.vrouters;
 }
 
-underlayModel.prototype.getHighlightedNodes = function() {
-    return this.highlightedNodes;
-}
+underlayModel.prototype.clearOtherNodes = function(nodeType) {
+    var nodes = this.getNodes();
+    var links = this.getLinks();
+    var elements = this.getConnectedElements();
+    var elementMap = this.getElementMap();
 
-underlayModel.prototype.getHighlightedLinks = function() {
-    return this.highlightedLinks;
-}
+    for(var i=0; i<nodes.length; i++) {
+        if(nodes[i].chassis_type === nodeType) {
+            $.each(links, function(linkKey, linkValue) {
+                if(linkValue.endpoints.indexOf(nodes[i].name) !== -1) {
+                    links.splice(linkKey, 1);
+                }
+            });
 
-underlayModel.prototype.getHighlightedConnectedElements = function() {
-    return this.highlightedConnectedElements;
-}
+            nodes.splice(i,1);
 
-underlayModel.prototype.getHighlightedElementMap = function() {
-    return this.highlightedElementMap;
+        }
+    }
 }
 
 underlayModel.prototype.setTors = function(tors) {
@@ -189,32 +184,6 @@ underlayModel.prototype.setLinks = function(links) {
     } else {
         this.links = [];
     }
-}
-
-underlayModel.prototype.setHighlightedNodes = function(nodes) {
-    if(null !== nodes && typeof nodes !== "undefined" &&
-        nodes.length > 0) {
-        this.highlightedNodes = nodes;
-    } else {
-        this.highlightedNodes = [];
-    }
-}
-
-underlayModel.prototype.setHighlightedLinks = function(links) {
-    if(null !== links && typeof links !== "undefined" &&
-        links.length > 0) {
-        this.highlightedLinks = links;
-    } else {
-        this.highlightedLinks = [];
-    }
-}
-
-underlayModel.prototype.setHighlightedElementMap = function(hgElMap) {
-    this.highlightedElementMap = hgElMap;
-}
-
-underlayModel.prototype.setHighlightedConnectedElements = function(hgConElements) {
-    this.highlightedConnectedElements = hgConElements;
 }
 
 underlayModel.prototype.getData = function(cfg) {
@@ -298,6 +267,8 @@ var underlayView = function (model) {
     this.paper  = new joint.dia.Paper({
         el: $("#paper"),
         model: this.graph,
+        height: $("#topology_paper").innerHeight(),
+        width:  $("#topology_paper").innerWidth(),
         linkView: joint.shapes.contrail.LinkView
     });
     this.initZoomControls();
@@ -306,17 +277,11 @@ var underlayView = function (model) {
     $("#underlay_tabstrip").contrailTabs({
         activate:function (e, ui) {
             var selTab = $(ui.newTab.context).text();
-            if (selTab == 'Search Flow') {
+            if (selTab == 'Search Flows') {
                 _this.renderFlowRecords();
-            } else if (selTab == 'Trace Flow') {
+            } else if (selTab == 'Trace Flows') {
                 _this.renderTracePath();
-            } else if (selTab == 'Device Details') {
-                var tabContent = {
-                    host_name:'-',
-                    description:'-',
-                    intfCnt:'-'
-                };
-                _this.populateDetailsTab(tabContent,'node');
+            } else if (selTab == 'Details') {
             }
         }
     });
@@ -391,22 +356,30 @@ underlayView.prototype.createNode = function(node, i, cnt) {
         var yPos = 0, xPos = 0;
         switch(chassis_type) {
             case "tor":
-                xPos = (i+1)*175;
-                yPos = 225;
+                xPos = (i+1)*275;
+                yPos = 220;
                 break;
             case "spine":
-                xPos = (i+1)*175;
-                yPos = 125;
+                xPos = (i+1)*275;
+                yPos = 120;
                 break;
             case "coreswitch": 
                 //tbd - make it 'core' here and in backend
-                xPos = (i+1)*250;
-                yPos = 25;
+                xPos = (i+1)*425;
+                yPos = 20;
                 break;
             case "-":
                 chassis_type = "vrouter"
-                xPos = (i+1)*100;
-                yPos = 325;
+                xPos = (i+1)*150;
+                yPos = 320;
+                break;
+            case "virtual-network":
+                xPos = (i+1)*150;
+                yPos = 420;
+                break;
+            case "virtual-machine":
+                xPos = (i+1)*150;
+                yPos = 420;
                 break;
         }
         imageName = getImageName(node);
@@ -491,7 +464,8 @@ underlayView.prototype.initZoomControls = function() {
     $("#topology_paper").panzoom({
         $zoomIn: $("#zoomcontrols").find(".zoom-in"),
         $zoomOut: $("#zoomcontrols").find(".zoom-out"),
-        $reset: $("#zoomcontrols").find(".zoom-reset")
+        $reset: $("#zoomcontrols").find(".zoom-reset"),
+        disablePan: true
     });
 }
 
@@ -540,6 +514,17 @@ underlayView.prototype.initContextMenuConfig = function() {
     });   
 }
 
+underlayView.prototype.clearHighlightedConnectedElements = function() {
+    var g = this.getGraph();
+    $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
+    $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
+    $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
+    $("g.link").find('path.connection-wrap')
+        .css("opacity", "")
+        .css("fill", "")
+        .css("stroke", "");
+}
+
 underlayView.prototype.initGraphEvents = function() {
     var paper = this.getPaper();
     var graph = this.getGraph();
@@ -547,190 +532,21 @@ underlayView.prototype.initGraphEvents = function() {
     var _this      = this;
 
     paper.on('blank:pointerclick', function (evt, x, y) {
-        setTimeout(function(){
-            var g = _this.getGraph();
-            var hgConElements = _this.getModel().getHighlightedConnectedElements();
-            for(var i=0; i<hgConElements.length; i++) {
-                var el = $("g.link[model-id='" + hgConElements[i].id + "']");
-                el.empty();
-                el.remove();
-                el = $();
-            }
-            if(hgConElements.length > 0) {
-                _this.getModel().setHighlightedConnectedElements([]);
-                _this.getModel().setHighlightedElementMap({nodes:[], links:[]});
-            }
-            $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
-            $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-            $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-
-            _this.hideVRouters();
-        },1000);
+        evt.stopImmediatePropagation();
+        _this.resetTopology();
     });
 
     paper.on("cell:pointerdblclick", function (cellView, evt, x, y) {
-        setTimeout(function() {
+        evt.stopImmediatePropagation();
         var dblClickedElement = cellView.model,
             elementType       = dblClickedElement['attributes']['type'];
         
         switch(elementType) {
             case 'contrail.PhysicalRouter':
-                //loadFeature({p:PROUTER_DBL_CLICK,q:{fqName:dblClickedElement['attributes']['nodeDetails']['name']}});
                 var chassis_type    = dblClickedElement['attributes']['nodeDetails']['chassis_type'];
-                var clickedNodeName = dblClickedElement['attributes']['nodeDetails']['name'];
-                var elMap           = _this.getModel().getElementMap();
-                var vrouters = [];
-                var linkToVrouters = [];
                 if(chassis_type === "tor") {
-                    var links = _this.getModel().getLinks();
-                    var nodes = _this.getModel().getNodes();
-                    var srcPoint = jsonPath(links, "$[?(@.endpoints[0]=='" + clickedNodeName + "')]");
-                    var dstPoint = jsonPath(links, "$[?(@.endpoints[1]=='" + clickedNodeName + "')]");
-                    if(false !== srcPoint && srcPoint.length > 0) {
-                        for(var i=0; i<srcPoint.length; i++) {
-                            var sp = srcPoint[i].endpoints;
-                            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[0]]);
-                                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[0]]);
-                                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[1]]);
-                                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[1]]);
-                                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
-                                }
-                            }
-                        }
-                    }
-                    if(false !== dstPoint && dstPoint.length > 0) {
-                        for(var i=0; i<dstPoint.length; i++) {
-                            var sp = dstPoint[i].endpoints;
-                            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[0]]);
-                                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[0]]);
-                                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[1]]);
-                                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
-                                }
-                            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
-                                var otherEndNode = 
-                                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                                if(false !== otherEndNode && otherEndNode.length == 1 && 
-                                    otherEndNode[0].node_type == "virtual-router") {
-                                    vrouters.push(elMap.nodes[sp[1]]);
-                                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
-                                }
-                            }
-                        }
-                    }
-
-                    if(vrouters.length > 0) {
-                        if($('g.element[model-id="' + vrouters[0] + '"]').hasClassSVG('hidden')) {
-                            $('div.font-element').removeClass('elementHighlighted').addClass('dimHighlighted');
-                            $('g.element').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
-                            $('g.link').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
-                            _this.hideVRouters();
-                        } else {
-                            $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
-                            $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-                            $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-                            _this.hideVRouters();
-                            return;
-                        }
-                    }
-
-                    for(var i=0; i<vrouters.length; i++) {
-                        var vrouter_model_id = vrouters[i];
-                        if($('g.element[model-id="' + vrouter_model_id + '"]').hasClassSVG('hidden')){                                
-                                $('div[font-element-model-id="'+ dblClickedElement.id  + '"]')
-                                    .removeClass('dimHighlighted')
-                                    .addClass('elementHighlighted');
-                                $('g.element[model-id="' + dblClickedElement.id + '"]')
-                                    .removeClassSVG('dimHighlighted')
-                                    .addClassSVG('elementHighlighted');
-                            $('g.element[model-id="' + vrouter_model_id + '"]')
-                                .removeClassSVG('hidden')
-                                .removeClassSVG('dimHighlighted')
-                                .addClassSVG('elementHighlighted');
-                        } else {
-                            $('g.element[model-id="' + vrouter_model_id + '"]')
-                                .addClassSVG('hidden')
-                                .removeClassSVG('dimHighlighted')
-                                .removeClassSVG('elementHighlighted');
-                        }
-
-                        if($('div.font-element[font-element-model-id="' + vrouter_model_id + '"]').hasClass('hidden')) {
-                            $('div.font-element[font-element-model-id="' + vrouter_model_id + '"]')
-                                .removeClass('hidden')
-                                .removeClass('dimHighlighted')
-                                .addClass('elementHighlighted');
-                        } else{
-                            $('div.font-element[font-element-model-id="' + vrouter_model_id + '"]')
-                                .addClass('hidden')
-                                .removeClass('dimHighlighted')
-                                .removeClass('elementHighlighted');
-                        }
-                    }
-
-                    for(var i=0; i<linkToVrouters.length; i++) {
-                        var link_model_id = linkToVrouters[i];
-                        if($('g.link[model-id="' + link_model_id + '"]').hasClassSVG('hidden')) {
-                            $('g.link[model-id="' + link_model_id + '"]')
-                                .removeClassSVG('hidden')
-                                .removeClassSVG('dimHighlighted')
-                                .addClassSVG('elementHighlighted');
-                        }
-                        else {
-                            $('g.link[model-id="' + link_model_id + '"]')
-                                .addClassSVG('hidden')
-                                .removeClassSVG('dimHighlighted')
-                                .removeClassSVG('elementHighlighted');
-                        }
-                        graph.getCell(link_model_id).attr({
-                            '.connection': { stroke: '#498AB9'},
-                            '.marker-source': { stroke: '#498AB9', fill: '#498AB9'},
-                            '.marker-target': { stroke: '#498AB9', fill: '#498AB9'}
-                        });
-                    }
+                    _this.resetTopology();
+                    _this.showVRouter(dblClickedElement);
                 }
                 $('g.PhysicalRouter').popover('hide');
                 break;
@@ -738,11 +554,93 @@ underlayView.prototype.initGraphEvents = function() {
             case 'contrail.VirtualRouter': 
                 $.ajax({
                     dataType: "json",
-                    url: url,
-                    type: cfg.type,
-                    data: cfg.data,
+                    url: "/api/tenant/get-data",
+                    type: "POST",
+                    data: {
+                        "data":
+                            [
+                                {
+                                    "kfilt" : dblClickedElement['attributes']['nodeDetails']['name'],
+                                    "cfilt" : "VrouterAgent:virtual_machine_list",
+                                    "type"  : "vrouter"
+                                }
+                            ]
+                    },
                     success: function (response) {
-                        
+                        if(null !== response && typeof response !== undefined && response.length > 0 &&
+                            response[0].hasOwnProperty('value') && response[0].value.length > 0) {
+
+                            $('div.font-element')
+                                .removeClass('elementHighlighted')
+                                .removeClass('dimHighlighted');
+                            $('g.element')
+                                .removeClass('elementHighlighted')
+                                .removeClassSVG('dimHighlighted');
+                            $('g.link')
+                                .removeClassSVG('elementHighlighted')
+                                .removeClassSVG('dimHighlighted');
+
+                            var vms        = response[0].value[0].value['VrouterAgent'].virtual_machine_list;
+                            if(vms.length <= 0)
+                                return;
+                            _this.getPaper().setDimensions($("#topology_paper").innerWidth(),
+                                $("#topology_paper").innerHeight() + 200);
+                            $('.viewport')
+                                .height($("#topology_paper").innerWidth())
+                                .width($("#topology_paper").innerHeight() + 200);
+
+                            $("#topology_paper").panzoom("zoom", true, .8);
+                            var vrouterName= response[0].value[0].name;
+                            var elementMap = _this.getModel().getElementMap();
+                            var nodes      = _this.getModel().getNodes();
+                            var links      = _this.getModel().getLinks();
+                            var elements   = _this.getModel().getConnectedElements();
+
+                            var newElements = [];
+                            var vrouterToVMlinks = [];
+                            for (var i = 0; i < vms.length; i++) {
+                                var node = {
+                                    "name"          : vms[i],
+                                    "chassis_type"  : "virtual-machine",
+                                    "node_type"     : "virtual-machine"
+                                };
+                                var newElement = _this.createNode(node, i, vms.length);
+                                var nodeName = node['name'];
+                                newElements.push(newElement);
+                                elements.push(newElement);
+                                elementMap.nodes[nodeName] = newElement.id;
+                                nodes.push(node);
+                                vrouterToVMlinks.push({
+                                    "endpoints": [vrouterName, nodeName]
+                                });
+                                
+                            }
+                            if(newElements.length > 0) {
+                                _this.getGraph().addCells(newElements);
+                            }
+                            newElements = [];
+                            for (var i = 0; i < vrouterToVMlinks.length; i++) {
+                                var link = {
+                                    "connectionStroke" : "#637939",
+                                    "linkType" : 'logical',
+                                    "endpoints" : vrouterToVMlinks[i].endpoints
+                                };
+                                var newElement = _this.createLink(link, elements, elementMap, 0);
+                                newElements.push(newElement);
+                                elements.push(newElement);
+                                elementMap.links[newElement.attributes.linkDetails.endpoints[0] + '<->' + newElement.attributes.linkDetails.endpoints[1]] = newElement.id;
+                                elementMap.links[newElement.attributes.linkDetails.endpoints[1] + '<->' + newElement.attributes.linkDetails.endpoints[0]] = newElement.id;
+                                links.push(link);
+                                
+                            }
+                            if(newElements.length > 0) {
+                                _this.getGraph().addCells(newElements);
+                            }
+                            _this.getModel().setNodes(nodes);
+                            _this.getModel().setLinks(links);
+                            _this.getModel().setConnectedElements(elements);
+                            _this.getModel().setElementMap(elementMap);
+                        }
                     }
                 });
                 break;
@@ -752,32 +650,34 @@ underlayView.prototype.initGraphEvents = function() {
                     sourceElement = graph.getCell(dblClickedElement['attributes']['source']['id']);                    
                 break;
         }
-        },1000);
     });
 
     paper.on('cell:pointerclick', function (cellView, evt, x, y) {
-        setTimeout(function(){
+        evt.stopImmediatePropagation();
         var clickedElement = cellView.model,
-            elementType    = clickedElement['attributes']['type'];                
+            elementType    = clickedElement['attributes']['type'],
+            data           = {};                
 
         switch(elementType) {
             case 'contrail.PhysicalRouter':
-                var content = {
+                data = {
                     host_name : ifNull(clickedElement['attributes']['nodeDetails']['name'],'-'),
                     description: ifNull(clickedElement['attributes']['nodeDetails']['more_attr']['lldpLocSysDesc'],'-'),
                     intfCnt   : ifNull(clickedElement['attributes']['nodeDetails']['more_attr']['ifTable'],[]).length,
                 };
-                _this.populateDetailsTab(content,'node');
+                data['type'] = 'node';
+                _this.populateDetailsTab(data);
                 break;
             case 'link':
                 var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
                     sourceElement = graph.getCell(clickedElement['attributes']['source']['id']);
-
-                alert(elementType + " between " + sourceElement['attributes']['nodeDetails']['name'] + 
-                    " and " + targetElement['attributes']['nodeDetails']['name'] + " clicked.");
+                var endpoints = [sourceElement['attributes']['nodeDetails']['name'],
+                                 targetElement['attributes']['nodeDetails']['name']];
+                data['endpoints'] = endpoints;
+                data['type'] = 'link';
+                _this.populateDetailsTab(data);
                 break;                    
         }
-        },1000);
     });
 
     $(selectorId + " text").on('mousedown touchstart', function (e) {
@@ -808,6 +708,36 @@ underlayView.prototype.initGraphEvents = function() {
     });
 }
 
+underlayView.prototype.resetTopology = function() {
+    this.clearHighlightedConnectedElements();
+    $("#topology_paper").panzoom("reset");
+    this.hideVRouters();
+    var delElements = [];
+    var elements = this.getModel().getConnectedElements();
+    var elementMap = this.getModel().getElementMap();
+    for(var i=0; i<elements.length; i++) {
+        var element = elements[i];
+        if(element.attributes && element.attributes.hasOwnProperty('nodeDetails') &&
+            (element.attributes.nodeDetails.chassis_type == 'virtual-network' ||
+            element.attributes.nodeDetails.chassis_type == 'virtual-machine')) {
+            delElements.push(element);
+            $('div.font-element[font-element-model-id="' + element.id + '"]').remove();
+            $('svg').find('g.element[model-id="' + element.id + '"]').remove();
+            delete elementMap.nodes[element.attributes.nodeDetails.name];
+            $.each(elementMap.links, function(linkKey, linkValue) {
+                if(linkKey.indexOf(element.attributes.nodeDetails.name) !== -1) {
+                    $('svg').find('g.link[model-id="' + linkValue + '"]').remove();
+                    delete elementMap.links[linkKey];
+                }
+            });
+            elements.splice(i,1);
+        }
+    }
+
+    this.getModel().clearOtherNodes('virtual-machine');
+    this.getModel().clearOtherNodes('virtual-network');
+}
+
 underlayView.prototype.renderTopology = function(response) {
     this.createElements();
     this.renderUnderlayViz();
@@ -822,16 +752,14 @@ underlayView.prototype.renderTopology = function(response) {
             data     : data,
             view     : this,
             callback : function(response) {
-                this.view.getModel().setHighlightedNodes(response['nodes']);
-                this.view.getModel().setHighlightedLinks(response['links']);
-                this.view.highlightPath();
+                this.view.highlightPath(response);
             }
         };
         this.getModel().getData(cfg);
     }
 }
 
-underlayView.prototype.highlightPath = function() {
+underlayView.prototype.highlightPath = function(response) {
     var _this = null;
     if(null !== this && typeof this !== "undefined" && this.hasOwnProperty('view') &&
         this.view instanceof underlayView) {
@@ -839,18 +767,16 @@ underlayView.prototype.highlightPath = function() {
     } else {
         _this = this;
     }
-    setTimeout(function() {
+    _this.resetTopology();
     highlightedElements = {
         nodes: [],
         links: []
     };
     var elementMap = _this.getModel().getElementMap();
-    var hgElementMap = _this.getModel().getHighlightedElementMap();
-    var hgConElements = _this.getModel().getHighlightedConnectedElements();
     var conElements = _this.getModel().getConnectedElements();
     var graph      = _this.getGraph();
-    var nodes      = _this.getModel().getHighlightedNodes();
-    var links      = _this.getModel().getHighlightedLinks();
+    var nodes      = response.nodes;
+    var links      = response.links;
     
     for(var i=0; i<nodes.length; i++) {
         highlightedElements.nodes.push(nodes[i]);
@@ -863,60 +789,166 @@ underlayView.prototype.highlightPath = function() {
     highlightedElements.nodes = $.unique(highlightedElements.nodes);
     for(var i=0; i<highlightedElements.nodes.length; i++) {
         var node = elementMap.nodes[highlightedElements.nodes[i].name];
-        if($('g[model-id="' + node + '"]').hasClassSVG('hidden'))
-            $('g[model-id="' + node + '"]').removeClassSVG('hidden');
+        if($('g.element[model-id="' + node + '"]').hasClassSVG('hidden'))
+            $('g.element[model-id="' + node + '"]').removeClassSVG('hidden');
 
         if($('div[font-element-model-id="' + node + '"]').hasClass('hidden'))
             $('div[font-element-model-id="' + node + '"]').removeClass('hidden');
     }
     highlightedElements.links = $.unique(highlightedElements.links);
     var linkEl = [];
-    for(var i=0; i<highlightedElements.links.length; i++) {
-        var link = {};
-        link.endpoints = highlightedElements.links[i].split("<->");
-        linkEl[linkEl.length] = _this.createLink(link, conElements, elementMap, 1);
-        $('g[model-id="' + linkEl[linkEl.length-1].id + '"]').removeClassSVG('dimHighlighted');
-        $('div[font-element-model-id="' + linkEl[linkEl.length-1].id + '"]').removeClass('dimHighlighted');
-        linkEl[linkEl.length-1].attr({
+    $.each(highlightedElements.links, function(linkKey, linkValue) {
+        var nodeElement = graph.getCell(elementMap.links[linkValue]);
+        $("g.link[model-id='" + nodeElement.id + "']").removeClassSVG('hidden');
+        $("g.link[model-id='" + nodeElement.id + "']")
+            .find('path.connection-wrap')
+                .css("opacity", ".2")
+                .css("fill", "#498AB9")
+                .css("stroke", "#498AB9");                
+    });
+};
+
+underlayView.prototype.showVRouter = function(dblClickedElement) {
+    var elMap  = this.getModel().getElementMap();
+    var clickedNodeName = dblClickedElement['attributes']['nodeDetails']['name'];
+    var vrouters = [];
+    var linkToVrouters = [];
+    var links = this.getModel().getLinks();
+    var nodes = this.getModel().getNodes();
+    var graph = this.getGraph();
+    var srcPoint = jsonPath(links, "$[?(@.endpoints[0]=='" + clickedNodeName + "')]");
+    var dstPoint = jsonPath(links, "$[?(@.endpoints[1]=='" + clickedNodeName + "')]");
+    if(false !== srcPoint && srcPoint.length > 0) {
+        for(var i=0; i<srcPoint.length; i++) {
+            var sp = srcPoint[i].endpoints;
+            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[0]]);
+                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
+                }
+            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[0]]);
+                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
+                }
+            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[1]]);
+                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
+                }
+            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[1]]);
+                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
+                }
+            }
+        }
+    }
+    if(false !== dstPoint && dstPoint.length > 0) {
+        for(var i=0; i<dstPoint.length; i++) {
+            var sp = dstPoint[i].endpoints;
+            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[0]]);
+                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
+                }
+            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[0]]);
+                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
+                }
+            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[1]]);
+                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
+                }
+            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
+                var otherEndNode = 
+                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
+                if(false !== otherEndNode && otherEndNode.length == 1 && 
+                    otherEndNode[0].node_type == "virtual-router") {
+                    vrouters.push(elMap.nodes[sp[1]]);
+                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
+                }
+            }
+        }
+    }
+
+    if(vrouters.length > 0) {
+        if($('g.element[model-id="' + vrouters[0] + '"]').hasClassSVG('hidden')) {
+            $('div.font-element').removeClass('elementHighlighted').addClass('dimHighlighted');
+            $('g.element').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
+            $('g.link').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
+            this.hideVRouters();
+        } else {
+            $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
+            $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
+            $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
+            this.hideVRouters();
+            return;
+        }
+    }
+
+    for(var i=0; i<vrouters.length; i++) {
+        var vrouter_model_id = vrouters[i];
+        if($('g.element[model-id="' + vrouter_model_id + '"]').hasClassSVG('hidden')){                                
+            $('div[font-element-model-id="'+ dblClickedElement.id  + '"]')
+                .removeClass('dimHighlighted')
+                .addClass('elementHighlighted');
+            $('g.element[model-id="' + dblClickedElement.id + '"]')
+                .removeClassSVG('dimHighlighted')
+                .addClassSVG('elementHighlighted');
+            $('g.element[model-id="' + vrouter_model_id + '"]')
+                .removeClassSVG('hidden')
+                .removeClassSVG('dimHighlighted')
+                .addClassSVG('elementHighlighted');
+        }
+
+        if($('div.font-element[font-element-model-id="' + vrouter_model_id + '"]').hasClass('hidden')) {
+            $('div.font-element[font-element-model-id="' + vrouter_model_id + '"]')
+                .removeClass('hidden')
+                .removeClass('dimHighlighted')
+                .addClass('elementHighlighted');
+        }
+    }
+
+    for(var i=0; i<linkToVrouters.length; i++) {
+        var link_model_id = linkToVrouters[i];
+        if($('g.link[model-id="' + link_model_id + '"]').hasClassSVG('hidden')) {
+            $('g.link[model-id="' + link_model_id + '"]')
+                .removeClassSVG('hidden')
+                .removeClassSVG('dimHighlighted')
+                .addClassSVG('elementHighlighted');
+        }
+        graph.getCell(link_model_id).attr({
             '.connection': { stroke: '#498AB9'},
             '.marker-source': { stroke: '#498AB9', fill: '#498AB9'},
             '.marker-target': { stroke: '#498AB9', fill: '#498AB9'}
         });
-        hgConElements.push(linkEl[linkEl.length-1]);
-        hgElementMap.links[linkEl[linkEl.length-1].attributes.linkDetails.endpoints[0] + 
-            '<->' + linkEl[linkEl.length-1].attributes.linkDetails.endpoints[1]] = 
-            linkEl[linkEl.length-1].id;
-        hgElementMap.links[linkEl[linkEl.length-1].attributes.linkDetails.endpoints[1] + 
-            '<->' + linkEl[linkEl.length-1].attributes.linkDetails.endpoints[0]] = 
-            linkEl[linkEl.length-1].id;
     }
-    if(linkEl.length > 0) {
-        _this.getGraph().addCells(hgConElements);
-        var allAttributes = jsonPath(conElements, "$.*.attributes");
-        var newX = 0, newY = 0;
-        for(var i=0; i<hgConElements.length; i++) {
-            var layer0Link = null;
-            for(var j=0; j<allAttributes.length; j++) {
-                var attr = allAttributes[j];
-                if(attr.hasOwnProperty('linkDetails') &&
-                    attr['linkDetails'].hasOwnProperty('endpoints')) {
-                    if((attr['linkDetails']['endpoints'][0] === hgConElements[i].attributes.linkDetails.endpoints[0] &&
-                        attr['linkDetails']['endpoints'][1] === hgConElements[i].attributes.linkDetails.endpoints[1]) ||
-                        (attr['linkDetails']['endpoints'][0] === hgConElements[i].attributes.linkDetails.endpoints[1] &&
-                        attr['linkDetails']['endpoints'][1] === hgConElements[i].attributes.linkDetails.endpoints[0])) {
-                        layer0Link = attr;
-                        break;
-                    }
-                }
-            }
-            newX = $("g.link[model-id='" + layer0Link.id + "']").position().left - 5;
-            newy = $("g.link[model-id='" + layer0Link.id + "']").position().top;
-            $("g.link[model-id='" + hgConElements[i].id + "']").find('path').attr("transform", "translate(" + 8 + "," + 0 + ")")
-        }
 
-    }
-    },1000);
-};
+}
 
 underlayView.prototype.hideVRouters = function() {
     var elements = this.getModel().getConnectedElements();
@@ -1111,9 +1143,7 @@ underlayView.prototype.runTracePath = function(context, obj, response) {
             data     : data,
             view     : this, 
             callback : function(response) {
-                this.view.getModel().setHighlightedNodes(response['nodes']);
-                this.view.getModel().setHighlightedLinks(response['links']);
-                this.view.highlightPath();
+                this.view.highlightPath(response);
             }
         };
         this.getModel().getData(ajaxCfg);
@@ -1124,42 +1154,58 @@ underlayView.prototype.getPostDataFromHashParams = function() {
     var hashParams = layoutHandler.getURLHashObj();
     var data = {"data" : {}};
     if(null !== hashParams && null !== hashParams.q && typeof hashParams.q !== "undefined") {
-        data.data["minsSince"] = 300;
+        var hasPostData = false;
         if(hashParams.q.hasOwnProperty('srcIP') && "" !== hashParams.q['srcIP']) {
             data.data["srcIP"] = hashParams.q['srcIP'];
+            hasPostData = true;
         } 
         if(hashParams.q.hasOwnProperty('sport') && "" !== hashParams.q['sport']) {
             data.data["sport"] = hashParams.q['sport'];
+            hasPostData = true;
         }
         if(hashParams.q.hasOwnProperty('destIP') && "" !== hashParams.q['destIP']) {
             data.data["destIP"] = hashParams.q['destIP'];
+            hasPostData = true;
         }
         if(hashParams.q.hasOwnProperty('dport') && "" !== hashParams.q['dport']) {
             data.data["dport"] = hashParams.q['dport'];
+            hasPostData = true;
         }
         if(hashParams.q.hasOwnProperty('protocol') && "" !== hashParams.q['protocol']) {
             data.data["protocol"] = hashParams.q['protocol'];
+            hasPostData = true;
         }
         if(hashParams.q.hasOwnProperty('srcVN') && "" !== hashParams.q['srcVN']) {
             data.data["srcVN"] = hashParams.q['srcVN'];
+            hasPostData = true;
         }
         if(hashParams.q.hasOwnProperty('destVN') && "" !== hashParams.q['destVN']) {
             data.data["destVN"] = hashParams.q['destVN'];
+            hasPostData = true;
+        }
+        if(hasPostData === true) {
+            data.data["minsSince"] = 300;
         }
      }
      return data;
 }
 
-underlayView.prototype.populateDetailsTab = function(data,type) {
+underlayView.prototype.populateDetailsTab = function(data) {
+    var type = data['type'],details,content;
+    $("#detailsLink").show();
+    $("#underlay_tabstrip").tabs({active:2});
     if(type == 'node') {
-        var content = {
+        content = {
             host_name : ifNull(data['host_name'],'-'),
             description: ifNull(data['description'],'-'),
             intfCnt   : ifNull(data['intfCnt'],0)
         };
-        var details = Handlebars.compile($("#device-summary-template").html())(content);
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
+        $("#node0-loading").show();
+        $("#node1-loading").show();
         $.ajax({
             url:'/api/tenant/networking/underlay-stats',
             type:'POST',
@@ -1169,13 +1215,24 @@ underlayView.prototype.populateDetailsTab = function(data,type) {
                   }
                 }
         }).success(function(response){
-            
-        }).always(function(response){
-            
+            $.each(response,function(idx,obj){
+               $.each(ifNull(obj['if_stats'],[]),function(ifIdx,ifObj){
+                   if(obj['node_type'] == 'physical-router') {
+                       ifObj['ifEntry']['fmtdInBytes'] = formatBytes(ifNull(ifObj['ifEntry']['ifInOctets'],'-'));
+                       ifObj['ifEntry']['fmtdOutBytes'] = formatBytes(ifNull(ifObj['ifEntry']['ifOutOctets'],'-'));
+                   } else if(obj['node_type'] == 'virtual-router') {
+                       ifObj['ifEntry']['fmtdInBytes'] = formatBytes(ifNull(ifObj['ifEntry']['in_bytes'],'-'));
+                       ifObj['ifEntry']['fmtdOutBytes'] = formatBytes(ifNull(ifObj['ifEntry']['out_bytes'],'-'));
+                   }
+               }); 
+            });
+            details = Handlebars.compile($("#link-summary-template").html())(response);
+            $("#detailsTab").html(details);
+        }).always(function(err){
+            $("#node0-loading").hide();
+            $("#node1-loading").hide();
         });
     }
-    $("#underlay_tabstrip").tabs({active:2});
-    $("#device-summary").html(details);
 }
 
 underlayView.prototype.destroy = function() {
@@ -1209,6 +1266,7 @@ underlayController.prototype.getModelData = function(cfg) {
         type     : "GET",
         data     : data,
         callback : function (response) {
+            _this.getView().resetTopology();
             _this.getModel().setNodes(response['nodes']);
             _this.getModel().setLinks(response['links']);
             _this.getModel().categorizeNodes(response['nodes']);

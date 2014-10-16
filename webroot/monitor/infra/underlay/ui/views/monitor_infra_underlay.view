@@ -1,7 +1,7 @@
 <style>
 
 .hidden {
-	visibility: hidden	
+	visibility: hidden
 }
  
 body > svg {
@@ -13,7 +13,7 @@ body > svg {
 }
 </style>
 <script type="text/x-handlebars-template" id="device-summary-template">
-	<div class="span12">
+	<div class="span4">
 	    <div class="widget-box transparent">
 	        <div class="widget-body">
 	            <div class="widget-main" id="system-info-stat">
@@ -48,9 +48,9 @@ body > svg {
 		   position: relative;
 		}
 	</style>
-	<div class="topology-visualization span11 underlay row-fluid" id="underlay_topology">
-		<div id="topology_paper" class="span10 row-fluid" style="height: 380px; overflow:hidden">
-	    	<div class="span12 paper" id="paper"></div>
+	<div class="topology-visualization span11 underlay row-fluid" id="underlay_topology" style="overflow:scroll">
+		<div id="topology_paper" class="span10 row-fluid" style="height: 380px;">
+	    	<div class="span11 paper" id="paper"></div>
 	    </div>
 	    <div id="zoomcontrols" class="span2 row-fluid">
 	    	<div class="span7">
@@ -80,9 +80,11 @@ body > svg {
 	<hr/>
 	<div id="underlay_tabstrip" class="span11 row-fluid">
 		<ul>
-            <li><a href="#flows-tab">Search Flow</a></li>
-            <li><a href="#traceFlow">Trace Flow</a></li>
-            <li><a href="#device-summary">Device Details</a></li>
+            <li><a href="#flows-tab">Search Flows</a></li>
+            <li><a href="#traceFlow">Trace Flows</a></li>
+            <li id="detailsLink" style="display:none;">
+            	<a href="#detailsTab">Details</a>
+            </li>
         </ul>
         <div class="row-fluid" id="flows-tab">
             <div id="fr-container">
@@ -91,8 +93,7 @@ body > svg {
             </div>
         </div>
         <div class="row-fluid" id="traceFlow"></div>
-        <div id="device-summary" class="span4 row-fluid">
-        </div>
+        <div id="detailsTab" class="row-fluid"></div>
 	</div>
 </script>
 <script type="text/x-handlebars-template" id="tracePath-template">
@@ -116,4 +117,46 @@ body > svg {
 		    </div>
 		</div>
 	</div>
+</script>
+
+<script type="text/x-handlebars-template" id="link-summary-template">
+	{{#each this}}
+        <div class="span6">
+            <div class="widget-box transparent">
+                <div class="widget-header">
+                    <h4 class="smaller">
+                        <i id="node{{@index}}-loading"class="icon-spinner icon-spin blue bigger-125" style="display: none;"></i> 
+                        <span>{{this.node_name}}</span>
+                    </h4>
+                    <div class="widget-toolbar pull-right">
+                        <a data-action="collapse" style="display: inline-block;">
+                             <i class="icon-chevron-up"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <ul class="item-list">
+                            <li>
+                                <label class="inline row-fluid">
+                                    <span class="key span4"> Interface Name </span>
+                                    <span class="key span4"> InBytes </span>
+                                    <span class="key span4"> OutBytes </span>
+                                </label>
+                            </li>   
+                            {{#each this.if_stats}}
+                                <li>
+                                    <label class="inline row-fluid">
+                                        <span class="value span4"> {{this.if_name}} </span>
+                                        <span class="value span4"> {{this.ifEntry.fmtdInBytes}} </span>
+                                        <span class="value span4"> {{this.ifEntry.fmtdOutBytes}} </span>
+                                    </label>
+                                </li>                            
+                            {{/each}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{/each}}
 </script>

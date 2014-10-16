@@ -499,6 +499,25 @@ function setNetworkValues(url, viewModelKeys, viewModel) {
             for (var i = 0; i < viewModelKeys.length; i++) {
                 viewModel[viewModelKeys[i]] = validValueObservable;
             }
+            //Initializing the combobox in first where clause with the network names 
+            var element = 'append-where-clause-1';
+            if($("#"+element).find("input[name='value[]']").length > 0){
+                var comboBoxElement = $("#"+element).find("input[name='value[]']"),
+                    fieldName = $('#' + element).find("select[name='field[]']").val();
+                comboBoxElement.contrailCombobox({
+                    placeholder:(placeHolders[fieldName] != null ? placeHolders[fieldName][0] : 'Select'),
+                    dataTextField:"name",
+                    dataValueField:"value",
+                    dataSource:{
+                        type: 'local',
+                        data:validValueObservable()
+                    }, 
+                    change: function(e, ui){
+                        validateOrClause(element);
+                        setORClauseTerm('fr',$('#' + element).parents('.or-clause-item'));
+                    }
+                });
+            }
         }
     });
 };
@@ -639,8 +658,6 @@ frQuery['whereViewModel'] = new WhereViewModel('fr', function(){
 function loadFlowRecords() {
     $(contentContainer).html('');
     $(contentContainer).html(qeTemplate);
-
-    setFRValidValues();
     initFRQueryView('fr');
     ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
 
@@ -653,32 +670,6 @@ function openWhereWithUnderlay(queryPrefix) {
     whereClauseView = query.whereViewModel.whereClauseView(),
 //  whereClauseEdit = query.whereViewModel.whereClauseSubmit(),
     selectedORClauseIndex = parseInt(query.whereViewModel.selectedORClauseIndex());
-    
-    /*$.contrailBootstrapModal({
-        id: queryPrefix + '-where-popup-container',
-        className: 'modal-700',
-        title: 'Where',
-        body: '<div id="' + queryPrefix + '-pane-container"><div id="' + queryPrefix + '-or-clauses" class="or-clauses"></div></div>',
-        footer: [
-                 {
-                     id: 'cancelBtn',
-                     title: 'Cancel',
-                     onclick: 'close'
-                 },
-                {
-                     className: 'btn-primary',
-                     title: 'Apply',
-                     onclick: function(){
-                         addWhere(queryPrefix);
-                         $('#' + queryPrefix + '-where-popup-container').modal('hide');
-                     }
-                 }
-        ],
-        onEnter: function(){
-             addWhere(queryPrefix);
-             $('#' + queryPrefix + '-where-popup-container').modal('hide');
-         }
-    });*/
     
     query.orClauseTemplate = contrail.getTemplate4Id(((queryPrefix == 'fs' || queryPrefix == 'fr') ? 'flow-' : '') + 'or-clause-template');
     query.newORClauseTemplate = contrail.getTemplate4Id('new-or-clause-template');
@@ -709,23 +700,6 @@ function initFRQueryView(queryPrefix,page) {
         query.selectViewModel.checkedFields(["setup_time","teardown_time","agg-bytes","agg-packets"]);
     }
     validateDate('fr');
-    //Underlay changes
-    /*$("#fr-query-form").validate({
-        errorClass: 'jqInvalid',
-        rules: {
-            select: "required",
-            checkValidDate: true
-        },
-        messages: {
-            select: {
-                required: '<i class="icon-warning-sign"></i> Select Required'
-            }
-        },
-        errorPlacement: function(label, element) {
-            label.insertAfter(element.parent());
-        }
-    });*/
-
     query.fromTime = createNewDTPicker(queryPrefix, queryPrefix + '-from-time', showFromTime, onSelectFromDate, defaultFromTime);
     query.toTime = createNewDTPicker(queryPrefix, queryPrefix + '-to-time', showToTime, onSelectToDate, defaultToTime);
     //Underlay changes
@@ -750,6 +724,7 @@ function runFRQuery() {
         options = getFRDefaultOptions(),
         select = "setup_time, teardown_time, agg-bytes, agg-packets",
         columnDisplay, selectArray, queryId;
+        reqQueryObj.where = addWhereForUnderLay('fr');
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	collapseWidget('#fr-query-widget');
     	reqQueryObj.select = select;
@@ -764,6 +739,61 @@ function runFRQuery() {
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResults(options, reqQueryObj, columnDisplay);
     //}
+};
+function addWhereForUnderLay(queryPrefix) {
+    var query = queries[queryPrefix];
+    query.whereViewModel.whereClauseView([]);
+    query.whereViewModel.whereClauseSubmit([]);
+    
+    var whereClauseArray =  query.whereViewModel.whereClauseView(),
+        whereClauseSubmitArray = query.whereViewModel.whereClauseSubmit();
+    
+    $('#' + queryPrefix + '-or-clauses').find('.or-clause-item').each(function(){
+        if($(this).attr('id') != 'fs-or-clause-item-new-term'){
+            var fieldArray = [], opArray = [], valArray = [], val2Array = [],
+                whereClauseViewStr = "", i, length, whereForm, splitFlowFieldArray = [],
+                whereClauseSubmit = [];
+        
+            whereForm = $(this);
+            whereForm.find("select[name='field[]']").each(function () {
+                fieldArray.push($(this).val());
+            });
+            whereForm.find("select[name='operator[]']").each(function () {
+                opArray.push($(this).val());
+            });
+            whereForm.find("input[name='value[]']").each(function () {
+                valArray.push($(this).data('contrailCombobox').value());
+            });
+            if (queryPrefix == 'fs' || queryPrefix == 'fr') {
+                whereForm.find("input[name='value2[]']").each(function () {
+                    val2Array.push($(this).val());
+                });
+            }
+            length = fieldArray.length;
+            for (i = 0; i < length; i += 1) {
+                if (queryPrefix == 'fs' || queryPrefix == 'fr') {
+                    splitFlowFieldArray = fieldArray[i].split('_');
+                    whereClauseViewStr += (valArray[i] != '') ? (((i != 0 && whereClauseViewStr != '') ? " AND " : "") + splitFlowFieldArray[0] + " " + opArray[i] + " " + valArray[i]) : "";
+                    whereClauseViewStr += (val2Array[i] != '') ? (((whereClauseViewStr != '') ? " AND " : "") + splitFlowFieldArray[1] + " " + opArray[i] + " " + val2Array[i]) : "";
+                    whereClauseSubmit.push({field:fieldArray[i], operator:opArray[i], value:valArray[i], value2:val2Array[i] });
+                } else {
+                    whereClauseViewStr += (valArray[i] != '') ? (((i != 0 && whereClauseViewStr != '') ? " AND " : "") + fieldArray[i] + " " + opArray[i] + " " + valArray[i]) : "";
+                    whereClauseSubmit.push({field:fieldArray[i], operator:opArray[i], value:valArray[i]});
+                }
+            }
+            if (whereClauseViewStr != "") {
+                whereClauseArray.push({text: "(" + whereClauseViewStr + ")", whereClauseEdit: whereClauseSubmit});
+                whereClauseSubmitArray.push(whereClauseSubmit);
+            }
+        }
+    });
+    var whereClause = query.whereViewModel.whereClauseView(),
+        whereClauseStr = "", whereClauseLength;
+    whereClauseLength = whereClause.length;
+    for (var i = 0; i < whereClauseLength; i += 1) {
+        whereClauseStr += (i != 0 ? " OR " : "") + whereClause[i].text;
+    }
+    return whereClauseStr;
 };
 
 function viewFRQueryResults(dataItem, params) {
