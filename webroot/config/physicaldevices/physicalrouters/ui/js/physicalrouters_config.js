@@ -22,6 +22,9 @@ function physicalRoutersConfig() {
         initComponents();
         initActions();
         fetchData();
+        fetchBGPRouters();
+        fetchVNs();
+        fetchVirtualRouters();
     }
     
     function initComponents() {
@@ -227,10 +230,6 @@ function physicalRoutersConfig() {
     function populateCreateEditWindow(m) {
         mode = m;
         clearCreateEditWindow();
-        
-        fetchBGPRouters();
-        fetchVNs();
-        fetchVirtualRouters();
         if(mode === 'edit') {
             $('#addPhysicalRouterWindow').find(".modal-header-title").text('Edit Physical Router');
             $('#txtPhysicalRouterName').val(gblSelRow.name);
@@ -247,7 +246,16 @@ function physicalRoutersConfig() {
                 $('#txtPassword').val(gblSelRow.password);
             if(gblSelRow.bgp_routers != '-')
                 $('#ddBgpRouter').data('contrailDropdown').text(gblSelRow.bgp_routers);
-            $('#msVN').val((gblSelRow.virtual_networks == '-') ? '' : gblSelRow.virtual_networks);
+            var msVNData = $('#msVN').data('contrailMultiselect').getAllData();
+            var valueArr = [];
+            for(var i = 0; i < msVNData.length ; i++){
+                for(var j = 0; j < gblSelRow.virtual_networks.length ; j++){
+                    if(msVNData[i].text == gblSelRow.virtual_networks[j]){
+                        valueArr.push(msVNData[i].value);
+                    }
+                }
+            }
+            $('#msVN').data('contrailMultiselect').value(valueArr);
             if(gblSelRow.virtual_router != '-')
                 $('#ddVirtualRouters').data('contrailDropdown').text(gblSelRow.virtual_router);
         } else {
@@ -271,15 +279,10 @@ function physicalRoutersConfig() {
         var username = $("#txtUsername").val();
         var password = $("#txtPassword").val();
         var bgpRouter = $("#ddBgpRouter").data('contrailDropdown').text();
-        var vns = $("#msVN").data('contrailMultiselect').value();
+        
         var vRouters = $("#ddVirtualRouters").data('contrailDropdown').text();
         var postObject = {};
-        var vn = [];
-        for(var i= 0;i < vns.length; i++){
-            var v = vns[i];
-            var parts = v.split('|');
-            vn.push(parts);
-        }
+        
         gridPhysicalRouters._dataView.setData([]);
         gridPhysicalRouters.showGridMessage('loading');    
 
@@ -299,15 +302,24 @@ function physicalRoutersConfig() {
         } else {
             postObject["physical-router"]["bgp_router_refs"] = [];
         }
-        if(vn.length > 0){
+        
+//        var vn = [];
+        var vns = $("#msVN").data('contrailMultiselect').getSelectedData();
+//        for(var i= 0;i < vns.length; i++){
+//            var v = vns[i];
+//            var parts = v.split('*');
+//            vn.push(parts);
+//        }
+        if(vns.length > 0){
             var vnRefs = [];
-            for(var i = 0 ;i < vn.length ; i++){
-                vnRefs.push({"to":vn[i]});
+            for(var i = 0 ;i < vns.length ; i++){
+                vnRefs.push({"to":vns[i].data});
             }
             postObject["physical-router"]["virtual_network_refs"] = vnRefs;
         } else {
             postObject["physical-router"]["virtual_network_refs"] = [];
         }
+        
         if(vRouters != 'None'){
             var virtualRouterRefs = [{"to":["default-global-system-config",vRouters]}];
             postObject["physical-router"]["virtual_router_refs"] = virtualRouterRefs;
@@ -328,9 +340,9 @@ function physicalRoutersConfig() {
         $("#txtDataIPAddress").val('');
         $("#txtUsername").val('');
         $("#txtPassword").val('');
-        $("#ddBgpRouter").data('contrailDropdown').value('');
+        $("#ddBgpRouter").data('contrailDropdown').value('None');
         $("#msVN").data('contrailMultiselect').value(''); 
-        $("#ddVirtualRouters").data('contrailDropdown').value('');
+        $("#ddVirtualRouters").data('contrailDropdown').value('None');
     }
         
     function fetchData() {
@@ -369,12 +381,13 @@ function physicalRoutersConfig() {
                         bgpRoutersString = d.to[4];
                 });
                 var vns = ifNull(rowData['virtual_network_refs'],[]);
-                var vnsString = '';
+                var vnsString = [];
                 $.each(vns, function(i,d){
-                    if(i != 0)
-                        vnsString =  vnsString + ', ' + d.to[2]
-                    else 
-                        vnsString = d.to[2];
+//                    if(i != 0)
+//                        vnsString =  vnsString + ', ' + d.to[2]
+//                    else 
+//                        vnsString = d.to[2];
+                    vnsString.push(d.to[2]);
                 });
                 
                 var credentials = rowData['physical_router_user_credentials'];
@@ -393,7 +406,7 @@ function physicalRoutersConfig() {
                     password : password,
                     interfaces : interfaces.length,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
-                    virtual_networks : (vnsString == '')? '-' : vnsString,        
+                    virtual_networks : vnsString,        
                     virtual_router : (virtualRouterString == '')? '-' : virtualRouterString
                 });
             }
@@ -426,7 +439,6 @@ function physicalRoutersConfig() {
         }
         var vRouterDD = $('#ddVirtualRouters').data('contrailDropdown');            
         vRouterDD.setData(vRoutersDS);
-        vRouterDD.value('');         
     }
     
     window.failureHandlerForVirtualRouters = function(error) {
@@ -468,8 +480,9 @@ function physicalRoutersConfig() {
             for(var i = 0; i < vns.length;i++) {
                 var vn = vns[i];
                 var fqname = vn.fq_name;
-                var val = fqname[0] + '|' + fqname[1] + '|' +fqname[2];
-                vnDS.push({text : fqname[2], value : val});
+                var data = fqname;
+                var val = vn.uuid;
+                vnDS.push({text : fqname[2], value : val, data : data});
             } 
         
         } else {
