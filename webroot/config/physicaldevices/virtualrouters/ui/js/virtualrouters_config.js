@@ -240,7 +240,9 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["parent_type"] = "global-system-config";
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
-        postObject["virtual-router"]["virtual_router_type"] = type;
+        if(type.length > 0) {
+            postObject["virtual-router"]["virtual_router_type"] = type;
+        }
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
