@@ -189,6 +189,10 @@ function createPhysicalRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiPost('/physical-routers', postData, appData,
          function(error, data) {
+             if(error){
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
             getPhysicalRouters(request, response, appData);
          });             
 }
@@ -205,6 +209,10 @@ function updatePhysicalRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
          function(error, data) {
+             if(error){
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
             getPhysicalRouters(request, response, appData);
          });             
 } 
@@ -221,6 +229,10 @@ function deletePhysicalRouters (request, response, appData)
      var postData     =  request.body;
      configApiServer.apiDelete('/physical-router/' + pRouterID, appData,
          function(error, data) {
+             if(error){
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
             getPhysicalRouters(request, response, appData);
          });             
 } 
