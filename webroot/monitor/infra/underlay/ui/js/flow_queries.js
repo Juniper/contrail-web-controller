@@ -488,6 +488,19 @@ function setFSValidValues() {
     //TODO: Create a cache and get the values from that cache
 };
 
+function setVrouterValues(viewModelKey, viewModel) {
+    var computeDS = new SingleDataSource('computeNodeDS');
+    var result = computeDS.getDataSourceObj();
+    $(computeDS).on('change',function(){
+        var items = result['dataSource'].getItems(),data = [];
+        for(var i = 0; i < items.length; i++){
+            data.push({name:items[i]['name'],value:items[i]['name']});
+        }
+        var validValueObservable = ko.observableArray(data);
+        viewModel[viewModelKey] = validValueObservable;
+    });
+}
+
 function setNetworkValues(url, viewModelKeys, viewModel) {
     $.ajax({
         url:url,
@@ -499,7 +512,7 @@ function setNetworkValues(url, viewModelKeys, viewModel) {
             for (var i = 0; i < viewModelKeys.length; i++) {
                 viewModel[viewModelKeys[i]] = validValueObservable;
             }
-            //Initializing the combobox in first where clause with the network names 
+            /*Initializing the combobox in first where clause with the network names 
             var element = 'append-where-clause-1';
             if($("#"+element).find("input[name='value[]']").length > 0){
                 var comboBoxElement = $("#"+element).find("input[name='value[]']"),
@@ -517,7 +530,7 @@ function setNetworkValues(url, viewModelKeys, viewModel) {
                         setORClauseTerm('fr',$('#' + element).parents('.or-clause-item'));
                     }
                 });
-            }
+            }*/
         }
     });
 };
@@ -665,7 +678,7 @@ function loadFlowRecords() {
     currTab = 'query_flow_records';
 };
 
-function openWhereWithUnderlay(queryPrefix) {
+/*function openWhereWithUnderlay(queryPrefix) {
     var query = queries[queryPrefix],
     whereClauseView = query.whereViewModel.whereClauseView(),
 //  whereClauseEdit = query.whereViewModel.whereClauseSubmit(),
@@ -686,27 +699,19 @@ function openWhereWithUnderlay(queryPrefix) {
         });
     });
     selectNewORClause(queryPrefix);
-}
+}*/
 
-function initFRQueryView(queryPrefix,page) {
+function initFRQueryView(queryPrefix) {
     var query = queries[queryPrefix],
         defaultToTime = new Date(),
         defaultFromTime = new Date(defaultToTime.getTime() - 600000);
-    if(page == null)
-        $('#' + queryPrefix + '-query').html($("#" + queryPrefix +"-query-template").html());
-    else {
-        //Underlay changes
-        $('#' + queryPrefix + '-query').html($("#" + queryPrefix +"-"+page+"-query-template").html());
-        query.selectViewModel.checkedFields(["setup_time","teardown_time","agg-bytes","agg-packets"]);
-    }
+    $('#' + queryPrefix + '-query').html($("#" + queryPrefix +"-underlay-query-template").html());
+    query.selectViewModel.checkedFields(["setup_time","teardown_time","agg-bytes","agg-packets"]);
     validateDate('fr');
     query.fromTime = createNewDTPicker(queryPrefix, queryPrefix + '-from-time', showFromTime, onSelectFromDate, defaultFromTime);
     query.toTime = createNewDTPicker(queryPrefix, queryPrefix + '-to-time', showToTime, onSelectToDate, defaultToTime);
-    //Underlay changes
-    if(page == null) {
-        query.selectTemplate = $('#' + queryPrefix + '-select-popup-template').html();
-        query.filterTemplate = $('#' + queryPrefix + '-filter-popup-template').html();
-    }
+    query.selectTemplate = $('#' + queryPrefix + '-select-popup-template').html();
+    query.filterTemplate = $('#' + queryPrefix + '-filter-popup-template').html();
 };
 
 function openFRSelect() {
@@ -726,8 +731,11 @@ function runFRQuery() {
         columnDisplay, selectArray, queryId;
         reqQueryObj.where = addWhereForUnderLay('fr');
     //if ($("#" + queryPrefix + "-query-form").valid()) {
-    	collapseWidget('#fr-query-widget');
-    	reqQueryObj.select = select;
+    	//collapseWidget('#fr-query-widget');
+    	$("#"+queryPrefix+"-results").data('endTime',new Date().getTime());
+    	var startTime = (new Date().getTime() - parseInt(reqQueryObj['timeRange']));
+    	$("#"+queryPrefix+"-results").data('startTime',startTime);
+        reqQueryObj.select = select;
         queryId = randomUUID();
         reqQueryObj = setUTCTimeObj('fr', reqQueryObj);
         reqQueryObj.table = 'FlowRecordTable';
@@ -737,7 +745,7 @@ function runFRQuery() {
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
-        loadFlowResults(options, reqQueryObj, columnDisplay);
+        loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}
 };
 function addWhereForUnderLay(queryPrefix) {
@@ -825,7 +833,154 @@ function viewFRQueryResults(dataItem, params) {
     populateFRQueryForm(queryJSON, timeObj.reRunTimeRange);
     queryColumnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
     collapseWidget('#' + queryPrefix + '-query-widget');
-    loadFlowResults(options, reqQueryObj, queryColumnDisplay);
+    loadFlowResultsForUnderlay(options, reqQueryObj, queryColumnDisplay);
+};
+
+function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridDisplay) {
+    var grid = $('#' + options.elementId).data('contrailGrid'),
+        url = "/api/admin/reports/query",
+        btnId = options.btnId;
+    
+    var gridConfig = {
+        header: {
+            title:{
+                text: 'Flows',
+                cssClass: 'blue',
+                icon: 'icon-tasks',
+                iconCssClass: 'blue'
+            },
+            defaultControls: {
+                searchable: false
+            }
+        },
+        columnHeader : {
+            columns : columnDisplay
+        },
+        body : {
+            options: {
+                sortable: true,
+                forceFitColumns: true,
+            },
+            dataSource : {
+                remote: {
+                    ajaxConfig: {
+                        url: url,
+                        timeout: options.timeOut,
+                        type: "POST",
+                        data: reqQueryObj
+                    },
+                    serverSidePagination: true,
+                    exportFunction: exportServersideQueryResults
+                },
+                events : {
+                    onRequestStartCB : function() {
+                        onQueryRequestStart(btnId);
+                    },
+                    onRequestErrorCB : function() {
+                        enableButton(btnId);
+                    },
+                    onRequestSuccessCB : function(response) {
+                        var status = response['status'];
+                        if (status == 'queued') {
+                            options.showChartToggle = false;
+                        }
+                        enableButton(btnId);
+                        return onQueryResult(options.elementId,"No flows found for the given duration.",status, 'fqq');
+                        
+                    },
+                    onDataBoundCB : function() {
+                        if (options.refreshChart != null && options.refreshChart) {
+                            if (options.showChartToggle) {
+                                queries.fs.chartViewModel.isFCLoaded(false);
+                                queries.fs.chartViewModel.options(options);
+                                populateData4FSChart(options, columnDisplay, fcGridDisplay);
+                                
+                                var grid = $("#fs-flow-classes").data("contrailGrid");
+                                if(grid != null){
+                                    grid.refreshView();
+                                }
+                            }
+                            options.refreshChart = false;
+                        }
+                    }
+                }
+            },
+            statusMessages: {
+                queued: {
+                    type: 'status',
+                    iconClasses: '',
+                    text: 'Your query has been queued.'
+                }
+            }
+        },
+        footer : {
+            pager : {
+                options : {
+                    pageSize : 50
+                }
+            }
+        }
+    };
+    
+    if(options.queryPrefix == 'fs'){
+        if (grid) {
+            $('#ts-chart').empty();
+        }
+        
+        gridConfig.header.customControls = ['<a title="View Results as Grid" id="fs-results-link" class="margin-0-5 selected" onclick=toggleToGrid("fs");><i class="icon-table"></i></a> \
+                              <a title="View Results as Chart" id="fs-chart-link" class="margin-0-5 disabled-link" onclick=toggleToChart("fs");><i class="icon-bar-chart"></i></a>'];
+    }
+    else if(options.queryPrefix == 'fr'){
+        gridConfig.header.customControls = ['<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'],
+        gridConfig.body.options = {
+            checkboxSelectable: {
+                enableRowCheckbox: true,
+                onNothingChecked: function(e){
+                    $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                    $("#mapflow").attr('disabled','disabled');
+                },
+                onSomethingChecked: function(e){
+                    $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
+                    $("#mapflow").removeAttr('disabled');
+                    $(e['currentTarget']).removeAttr('disabled')
+                }
+            },
+            actionCell: [
+                {
+                    title: 'Start Packet Capture',
+                    iconClass: 'icon-edit',
+                    onClick: function(rowIndex){
+                        startPacketCapture4Flow(options.elementId, rowIndex, 'parseAnalyzerRuleParams4FlowRecord');
+                    }
+                }
+            ]
+        };
+        $("#mapflow").live('click',function(e){
+            var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
+            var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
+            var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
+            var dataItem = ifNull(checkedRows[0],{});
+            dataItem['startTime'] = startTime;
+            dataItem['endTime'] = endTime;
+            showUnderlayPaths(dataItem);
+        });
+    }
+    
+    $("#" + options.elementId).contrailGrid(gridConfig);
+    $("#" + options.elementId).find('input.headerRowCheckbox').parent('span').remove();
+    $('#fs-results').find('a[data-action="collapse"]').on('click', function(){
+        if($(this).find('i.collapse-icon').hasClass('icon-chevron-up')){
+            if($('#fs-results-link').hasClass('selected')){
+                toggleToGrid('fs');
+            }
+            else if($('#fs-chart-link').hasClass('selected')){
+                toggleToChart('fs');
+            }
+        }
+        else if($(this).find('i.collapse-icon').hasClass('icon-chevron-down')){
+            $('#fs-chart').hide();
+        }
+    });
 };
 
 function getFRDefaultOptions() {
@@ -851,7 +1006,15 @@ function populateDirection(queryPrefix, direction) {
 };
 
 function setFRValidValues() {
+    var flowWhereFields = [
+                       {"name":"VRouter, VMI IP","value":"vrouter"},
+                       {"name":"Source VN, Source IP", "value":"sourcevn_sourceip"},
+                       {"name":"Dest. VN, Dest. IP", "value":"destvn_destip"},
+                       {"name":"Protocol, Source Port", "value":"protocol_sport"},
+                       {"name":"Protocol, Dest. Port", "value":"protocol_dport"}
+                   ];
     queries.fr.whereViewModel.selectFields(flowWhereFields);
+    setVrouterValues('vrouter',queries.fr.whereViewModel);
     setNetworkValues('/api/admin/networks', ['sourcevn_sourceip', 'destvn_destip'], queries.fr.whereViewModel);
     setProtocolValues(['protocol_sport', 'protocol_dport'], queries.fr.whereViewModel);
 };

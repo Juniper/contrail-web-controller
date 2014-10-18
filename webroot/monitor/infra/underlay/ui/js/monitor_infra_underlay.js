@@ -502,17 +502,11 @@ underlayView.prototype.initTooltipConfig = function() {
         },
         link: {
             title: function(element, graph) {
-                var viewElement = graph.getCell(element.attr('model-id'));
-                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
-                    viewElement.attributes.linkDetails.hasOwnProperty('endpoints') &&
-                    viewElement.attributes.linkDetails.endpoints) {
-                    return "Local: " + viewElement.attributes.linkDetails.endpoints[0] + "  " +
-                            "Remote: " + viewElement.attributes.linkDetails.endpoints[1];
-                }
+                return "Link";
             },
             content: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
-                var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
+                var tooltipContent = contrail.getTemplate4Id('two-column-content-template');
                 var local_interfaces = [];
                 var remote_interfaces = [];
                 if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
@@ -524,12 +518,12 @@ underlayView.prototype.initTooltipConfig = function() {
 
                 return tooltipContent([
                     {
-                        lbl: 'Local Interfaces',
-                        value: local_interfaces.join(' ')
+                        lbl: viewElement.attributes.linkDetails.endpoints[0],
+                        value: local_interfaces
                     },
                     {
-                        lbl: 'Remote Interfaces',
-                        value: remote_interfaces.join(' ')
+                        lbl: viewElement.attributes.linkDetails.endpoints[1],
+                        value: remote_interfaces
                     }
                 ]);
             }
@@ -642,6 +636,7 @@ underlayView.prototype.initGraphEvents = function() {
                 break;
 
             case 'contrail.VirtualRouter':
+                var model_id          = $(dblClickedElement).attr('id');
                 $.ajax({
                     dataType: "json",
                     url: "/api/tenant/get-data",
@@ -663,6 +658,31 @@ underlayView.prototype.initGraphEvents = function() {
                             if(vms.length <= 0)
                                 return;
                             _this.clearHighlightedConnectedElements();
+                            //Faint all
+                            $('div.font-element')
+                                .removeClass('elementHighlighted')
+                                .addClass('dimHighlighted');
+                            +
+                            $('g.element')
+                                .removeClassSVG('elementHighlighted')
+                                .addClassSVG('dimHighlighted');
+                            $('g.link')
+                                .removeClassSVG('elementHighlighted')
+                                .addClassSVG('dimHighlighted');
+                            
+                            //Highlight selected vrouter
+                            $('div.font-element[font-element-model-id="' + model_id + '"]')
+                                .addClass('elementHighlighted')
+                                .removeClass('dimHighlighted')
+                                .css('stroke', "#498AB9")
+                                .css('fill', "#498AB9");
+                            
+                            $('g.element[model-id="' + model_id + '"]')
+                                .addClassSVG('elementHighlighted')
+                                .removeClassSVG('dimHighlighted')
+                                .css('stroke', "#498AB9")
+                                .css('fill', "#498AB9");
+
                             _this.getPaper().setDimensions($("#topology_paper").innerWidth(),
                                 $("#topology_paper").innerHeight() + 200);
                             $('.viewport')
@@ -1094,9 +1114,9 @@ underlayView.prototype.renderFlowRecords = function() {
     if($("#fr-results").data('contrailGrid') == null) {
         $("#flows-tab").html($("#qe-template").html());
         setFRValidValues();
-        initFRQueryView('fr','underlay');
+        initFRQueryView('fr');
         ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
-        openWhereWithUnderlay('fr');
+        //openWhereWithUnderlay('fr');
         initWidgetBoxes();
         queries['fr'].queryViewModel.timeRange([
                                                 {"name":"Last 5 Mins", "value":300},
@@ -1105,7 +1125,7 @@ underlayView.prototype.renderFlowRecords = function() {
                                                 {"name":"Last 30 Mins", "value":1800},
                                                 {"name":"Last 1 Hr", "value":3600},
                                      ]);
-        queries['fr'].queryViewModel.defaultTRValue(600);
+        queries['fr'].queryViewModel.defaultTRValue("600");
         queries['fr'].queryViewModel.isCustomTRVisible(false);
     }
 }
@@ -1226,8 +1246,44 @@ underlayView.prototype.renderTracePath = function(options) {
 
     };
     var _this = this;
-
     var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())(obj);
+    var protocolData =[
+                         {
+                             text:'TCP',
+                             value:6
+                         },
+                         {
+                             text:'UDP',
+                             value:17
+                         },
+                         {
+                             text:'ICMP',
+                             value:1
+                         }
+                      ];
+    $("#traceFlow").html(tracePathTemplate);
+    var computeNodeDS = new SingleDataSource('computeNodeDS');
+    var result = computeNodeDS.getDataSourceObj();
+    $("#vRouter").contrailCombobox({
+        dataTextField:"text",
+        dataValueField:"value",
+    });
+    $("#protocol").contrailCombobox({
+        dataTextField:"text",
+        dataValueField:"value",
+    })
+    $("#protocol").data('contrailCombobox').setData(protocolData);
+    $(computeNodeDS).on('change',function(){
+        var items = result['dataSource'].getItems(),data = [];
+        for(var i = 0; i < items.length; i++) {
+            data.push({
+                text:items[i]['name'],
+                value:items[i]['name']
+            });
+        }
+        $("#vRouter").data('contrailCombobox').setData(data);
+    });
+    /*var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())(obj);
     $("#traceFlow").html(tracePathTemplate);
     $("#tracepath-btn").bind('click', function(ctx) {
         _this.runTracePath(ctx, obj, response);
@@ -1238,7 +1294,7 @@ underlayView.prototype.renderTracePath = function(options) {
             dataValueField:"value",
         });
         $("#"+obj[i]['key']).data('contrailCombobox').setData(response[obj[i]['key']]);
-    }
+    }*/
 }
 
 underlayView.prototype.runTracePath = function(context, obj, response) {

@@ -141,7 +141,11 @@ function createNodeObj (node, nodeType, prouterEntry)
             "ifTable": ((null != prouterEntry) && 
                         (null != prouterEntry['value']) && 
                         (null != prouterEntry['value']['PRouterEntry'])) ?
-                prouterEntry['value']['PRouterEntry']['ifTable'] : '-'
+                prouterEntry['value']['PRouterEntry']['ifTable'] : '-',
+            "ifXTable": ((null != prouterEntry) &&
+                         (null != prouterEntry['value']) &&
+                         (null != prouterEntry['value']['PRouterEntry'])) ?
+                prouterEntry['value']['PRouterEntry']['ifXTable'] : '-'
         }
     });
     return nodeObj;
@@ -304,7 +308,7 @@ function buildPhysicalTopology (prouter, appData, callback)
     var tempLinkObjs = {};
     var postData = {};
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:lldpTable:lldpLocalSystemData'];
+        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
     var url = '/analytics/uves/prouter';
     if (null != prouter) {
         postData['kfilt'] = [];
@@ -312,10 +316,12 @@ function buildPhysicalTopology (prouter, appData, callback)
     }
 
     opApiServer.apiPost(url, postData, appData, function(err, pRouterData) {
+                        /*
         if ((null != err) || (null == pRouterData)) {
             callback(err, null);
             return;
         }
+        */
         if (null != prouter) {
             getPhysicalTopologyByPRouter(prouter, appData, pRouterData, callback);
         } else {
@@ -326,6 +332,7 @@ function buildPhysicalTopology (prouter, appData, callback)
 
 function getCompletePhysicalTopology (appData, pRouterData, callback)
 {
+    console.log("getting pRouterData as:", JSON.stringify(pRouterData));
     var data = pRouterData['value'];
     var prouterCnt = data.length;
     var topoData = {};
