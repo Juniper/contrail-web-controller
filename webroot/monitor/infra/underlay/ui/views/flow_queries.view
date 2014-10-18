@@ -540,7 +540,6 @@
                         <div class="row-fluid margin-15-0-0">
                             <a id="fr-query-submit" class="btn btn-mini btn-primary"
                                onclick="runFRQuery();"><span>Run Query</span></a>
-                            <a class="btn btn-mini margin-0-5" data-bind="click: reset">Reset</a>                               
                         </div>
                     </div>
                 </form>

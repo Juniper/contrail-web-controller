@@ -784,6 +784,8 @@ underlayView.prototype.initGraphEvents = function() {
                                  targetElement['attributes']['nodeDetails']['name']];
                 data['endpoints'] = endpoints;
                 data['type'] = 'link';
+                data['sourceElement'] = sourceElement;
+                data['targetElement'] = targetElement;
                 _this.populateDetailsTab(data);
                 break;
         }
@@ -1115,7 +1117,6 @@ underlayView.prototype.renderFlowRecords = function() {
         $("#flows-tab").html($("#qe-template").html());
         setFRValidValues();
         initFRQueryView('fr');
-        ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
         //openWhereWithUnderlay('fr');
         initWidgetBoxes();
         queries['fr'].queryViewModel.timeRange([
@@ -1127,6 +1128,7 @@ underlayView.prototype.renderFlowRecords = function() {
                                      ]);
         queries['fr'].queryViewModel.defaultTRValue("600");
         queries['fr'].queryViewModel.isCustomTRVisible(false);
+        ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
     }
 }
 
@@ -1371,6 +1373,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
         $("#detailsTab").html(details);
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
+        
         $("#node0-loading").show();
         $("#node1-loading").show();
         $.ajax({

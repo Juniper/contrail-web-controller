@@ -332,7 +332,6 @@ function buildPhysicalTopology (prouter, appData, callback)
 
 function getCompletePhysicalTopology (appData, pRouterData, callback)
 {
-    console.log("getting pRouterData as:", JSON.stringify(pRouterData));
     var data = pRouterData['value'];
     var prouterCnt = data.length;
     var topoData = {};
