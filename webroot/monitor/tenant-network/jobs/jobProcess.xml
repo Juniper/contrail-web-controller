@@ -159,5 +159,9 @@
     <jobName>getOpServerCPULoadFlowSeries</jobName>
     <callback>processCPULoadFlowSeriesRequestByJob</callback>
   </item>
+  <item>
+    <jobName>vnStatsPerVRouter</jobName>
+    <callback>processVNStatsPerVRouter</callback>
+  </item>
 </jobLists>
 

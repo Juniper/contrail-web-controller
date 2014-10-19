@@ -1029,9 +1029,16 @@ function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
 {
     var appData = jobData.taskData.appData;
     var vnName = appData['srcVN'];
-    var whereClause = [
-        {'name':vnName}
-    ];
+    var vrouter = appData['vrouter'];
+    if (null != vnName) {
+        var whereClause = [
+            {'name':vnName}
+        ];
+    } else if (null != vrouter) {
+        var whereClause = [
+            {'vn_stats.vrouter': vrouter}
+        ];
+    }
     var minsSince = appData.minsSince;
     var timeObj;
     var timeGran;
@@ -1048,7 +1055,10 @@ function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
     }
     var strTimeGran = 'T=' + timeGran;
     var selectArr = ['SUM(vn_stats.out_bytes)', 'SUM(vn_stats.out_tpkts)','SUM(vn_stats.in_bytes)',
-                       'SUM(vn_stats.in_tpkts)', strTimeGran, 'name'];
+                       'SUM(vn_stats.in_tpkts)', strTimeGran];
+    if (null != vnName) {
+        selectArr.push('name');
+    }
     var queryJSON = formatQueryString('StatTable_UveVirtualNetworkAgent_vn_stats', whereClause,
             selectArr, timeObj, true, null);
     //Removing the flow_count select field from query as not required for the OracleStats 

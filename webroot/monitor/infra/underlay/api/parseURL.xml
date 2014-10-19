@@ -38,5 +38,11 @@
         <feature>underlay</feature>
         <callback>underlayApi.getTraceFlow</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/underlay/prouter-link-stats</url>
+        <method>post</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getpRouterLinkStats</callback>
+    </item>
 </urlLists>
 

@@ -269,6 +269,12 @@
         <callback>nwMonApi.getInstanceDetails</callback>
     </item>
     <item>
+        <url>/api/tenant/networking/vrouter/stats</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getvnStatsPerVrouter</callback>
+    </item>
+    <item>
         <url>/api/tenant/networking/stats</url>
         <method>post</method>
         <feature>monitoring</feature>

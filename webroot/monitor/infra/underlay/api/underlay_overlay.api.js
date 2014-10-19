@@ -14,6 +14,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
   util = require('util'),
   ctrlGlobal = require('../../../../common/api/global'),
   jsonPath = require('JSONPath').eval,
+  nwMonUtils = require('../../../../common/api/nwMon.utils'),
   opApiServer = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/common/opServer.api'),
   queries = require(process.mainModule.exports["corePath"] +
@@ -164,7 +165,7 @@ function getPRouterEntryByName (prouterName, prouterData)
 
 function buildPhysicalTopologyByPRouter (prouter, pRouterData)
 {
-   data = pRouterData['value'];
+    data = pRouterData['value'];
     var topoData = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
@@ -173,7 +174,6 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
     var prouterCnt = data.length;
     for (var i = 0; i < prouterCnt; i++) {
         if ((null != data[i]['name']) &&
-            (null == tempNodeObjs[data[i]['name']]) &&
             (prouter == data[i]['name'])) {
             break;
         }
@@ -193,6 +193,7 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
         return topoData;
     }
     linkCnt = pRouterLinkTable.length;
+    var index = 0;
     for (var j = 0; j < linkCnt; j++) {
         if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
             nodeObj =
@@ -212,9 +213,16 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
             (null == tempLinkObjs[linkName2])) {
             topoData['links'].push({"endpoints": [data[i]['name'],
                                    pRouterLinkTable[j]['remote_system_name']],
-                                   "more_attributes": pRouterLinkTable[j]});
-            tempLinkObjs[linkName1] = linkName1;
-            tempLinkObjs[linkName2] = linkName2;
+                                   "more_attributes": [pRouterLinkTable[j]]});
+            tempLinkObjs[linkName1] = index;
+            tempLinkObjs[linkName2] = index;
+            index++;
+        } else {
+            if (null != tempLinkObjs[linkName1]) {
+                topoData['links'][tempLinkObjs[linkName1]]['more_attributes'].push(pRouterLinkTable[j]);
+            } else if (null != tempLinkObjs[linkName2]) {
+                topoData['links'][tempLinkObjs[linkName2]]['more_attributes'].push(pRouterLinkTable[j]);
+            }
         }
     }
     topoData['nodes'] = buildNodeChassisType(topoData['nodes'], pRouterData);
@@ -245,6 +253,8 @@ function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
     }
 
     postData['kfilt'] = [];
+    postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
+        'PRouterEntry:lldpTable:lldpLocalSystemData'];
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
         'PRouterEntry:lldpTable:lldpLocalSystemData'];
 
@@ -309,6 +319,8 @@ function buildPhysicalTopology (prouter, appData, callback)
     var postData = {};
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
         'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
+    postData['cfilt'] = ['PRouterLinkEntry',
+        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
     var url = '/analytics/uves/prouter';
     if (null != prouter) {
         postData['kfilt'] = [];
@@ -316,12 +328,10 @@ function buildPhysicalTopology (prouter, appData, callback)
     }
 
     opApiServer.apiPost(url, postData, appData, function(err, pRouterData) {
-                        /*
         if ((null != err) || (null == pRouterData)) {
             callback(err, null);
             return;
         }
-        */
         if (null != prouter) {
             getPhysicalTopologyByPRouter(prouter, appData, pRouterData, callback);
         } else {
@@ -332,6 +342,7 @@ function buildPhysicalTopology (prouter, appData, callback)
 
 function getCompletePhysicalTopology (appData, pRouterData, callback)
 {
+    var index = 0;
     var data = pRouterData['value'];
     var prouterCnt = data.length;
     var topoData = {};
@@ -341,6 +352,7 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
     var tempLinkObjs = {};
 
     for (var i = 0; i < prouterCnt; i++) {
+        tempLinkObjs = {};
         if ((null != data[i]['name']) && 
             (null == tempNodeObjs[data[i]['name']])) {
             nodeObj = createNodeObj(data[i]['name'],
@@ -377,9 +389,27 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
                 (null == tempLinkObjs[linkName2])) {
                 topoData['links'].push({"endpoints": [data[i]['name'],
                                        pRouterLinkTable[j]['remote_system_name']],
-                                       "more_attributes": pRouterLinkTable[j]});
-                tempLinkObjs[linkName1] = linkName1;
-                tempLinkObjs[linkName2] = linkName2;
+                                       "more_attributes": [pRouterLinkTable[j]]});
+                tempLinkObjs[linkName1] = index;
+                tempLinkObjs[linkName2] = index;
+                index++;
+            } else {
+                /* It is expected that remote links should be populated for all
+                 * nodes, ex: If p1 is remote entry for p2, then p2 is remote
+                 * entry for p1, so check only for the current node, what are
+                 * the remote nodes, so update in the current index only
+                 */
+                var idx1 = tempLinkObjs[linkName1];
+                var idx2 = tempLinkObjs[linkName2];
+                if ((null != idx1) &&
+                    (pRouterLinkTable[j]['remote_system_name'] ==
+                     topoData['links'][idx1]['endpoints'][1])) {
+                    topoData['links'][idx1]['more_attributes'].push(pRouterLinkTable[j]);
+                } else if ((null != idx2) &&
+                           (pRouterLinkTable[j]['remote_system_name'] ==
+                            topoData['links'][idx2]['endpoints'][0])) {
+                    topoData['links'][idx2]['more_attributes'].push(pRouterLinkTable[j]);
+                }
             }
         }
     }
@@ -482,7 +512,7 @@ function getUnderlayPath (req, res, appData)
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vmPostData, null, null, null);
-        async.map(dataObjArr,
+        aSync.map(dataObjArr,
                   commonUtils.getServerResponseByRestApi(opApiServer, true),
                   function(err, results) {
             if ((null != err) || (null == results) || (null == results[0]) ||
@@ -924,55 +954,21 @@ function getMacToProuterMapTable (prouterData)
     return macPrTable;
 }
 
-/* Function: getTraceFlow
- *  Build the path thorugh which the trace route response came
- */
-function getTraceFlow (req, res, appData)
+function getTraceFlowByReqURL (urlLists, callback)
 {
-    /* Dummy data, once backend implementation is done,
-       then we will remove this dummy data
-     */
     var topoData = {};
-    var data = req.body;
-    var introData = data['data'];
-    var nodeIP = introData['nodeIP'];
-    var srcIP = introData['srcIP'];
-    var destIP = introData['destIP'];
-    var srcPort = introData['srcPort'];
-    var destPort = introData['destPort'];
-    var protocol = introData['protocol'];
-    var vrfName = introData['vrfName'];
-    var maxHops = introData['maxHops'];
-    var maxAttempts = introData['maxAttempts'];
-    var interval = introData['interval'];
     var dataObjArr = [];
-    var url = '/Snh_TraceRouteReq?source_ip=' + srcIP + '&source_port=' +
-        srcPort + '&dest_ip=' + destIP + '&dest_port=' + destPort +
-        '&protocol=' + protocol + '&vrf_name=' + vrfName + '&max_hops=';
-    if (null != maxHops) {
-        url += maxHops;
-    }
-    url += '&max_attempts=';
-    if (null != maxAttempts) {
-        url += maxAttempts;
-    }
-    url += '&interval=';
-    if (null != interval) {
-        url += interval;
-    }
-    var urlLists = [];
-    urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + url;
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
                                                               false),
               function(err, results) {
         if ((null != err) || (null == results)) {
-            commonUtils.handleJSONResponse(err, res, null);
+            callback(err, null);
             return;
         }
         var errResp = jsonPath(results[0], "$..error_response[0]");
         if ((null != errResp) && (errResp.length > 0)) {
             var err = appErrors.RESTServerError(errResp[0]['_']);
-            commonUtils.handleJSONResponse(err, res, errResp[0]['_']);
+            callback(err, errResp[0]['_']);
             return;
         }
         var hopList = jsonPath(results, "$..hop[0]");
@@ -1013,8 +1009,244 @@ function getTraceFlow (req, res, appData)
                 topoData['links'].push({'endpoints': [topoData['nodes'][i]['name'],
                                           topoData['nodes'][i + 1]['name']]});
             }
-            commonUtils.handleJSONResponse(null, res, topoData);
+            callback(null, topoData);
         });
+    });
+
+}
+
+/* Function: getTraceFlow
+ *  Build the path thorugh which the trace route response came
+ */
+function getTraceFlow (req, res, appData)
+{
+    /* Dummy data, once backend implementation is done,
+       then we will remove this dummy data
+     */
+    var data = req.body;
+    var introData = data['data'];
+    var nodeIP = introData['nodeIP'];
+    var srcIP = introData['srcIP'];
+    var destIP = introData['destIP'];
+    var srcPort = introData['srcPort'];
+    var destPort = introData['destPort'];
+    var protocol = introData['protocol'];
+    var vrfName = introData['vrfName'];
+    var vrfId = introData['vrfId'];
+    var maxHops = introData['maxHops'];
+    var maxAttempts = introData['maxAttempts'];
+    var interval = introData['interval'];
+    var url = '/Snh_TraceRouteReq?source_ip=' + srcIP + '&source_port=' +
+        srcPort + '&dest_ip=' + destIP + '&dest_port=' + destPort +
+        '&protocol=' + protocol;
+    var urlExtd = '&max_hops=';
+    if (null != maxHops) {
+        urlExtd += maxHops;
+    }
+    urlExtd += '&max_attempts=';
+    if (null != maxAttempts) {
+        urlExtd += maxAttempts;
+    }
+    urlExtd += '&interval=';
+    if (null != interval) {
+        urlExtd += interval;
+    }
+    var urlLists = [];
+    var vrfUrl = '/Snh_VrfListReq?name=';
+    urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + vrfUrl;
+    if (null == vrfName) {
+        async.map(urlLists, 
+                  commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                        false),
+                  function(err, results) {
+            try {
+                var vrfList = jsonPath(results, "$..VrfSandeshData")[0];
+                var vrfListLen = vrfList.length;
+            } catch(e) {
+                vrfListLen = 0;
+            }
+            for (var i = 0; i < vrfListLen; i++) {
+                try {
+                    if (vrfList[i]['l2index'][0]['_'] == vrfId) {
+                        vrfName = vrfList[i]['name'][0]['_'];
+                        url += '&vrf_name=' + vrfName + urlExtd;
+                        break;
+                    }
+                } catch(e) {
+                }
+            }
+            if (i == vrfListLen) {
+                var errStr = "VRF index does not exist."
+                var err = appErrors.RESTServerError(errStr)
+                commonUtils.handleJSONResponse(err, res, errStr);
+                return;
+            }
+            urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
+                + url;
+            getTraceFlowByReqURL(urlLists, function(err, results) {
+                commonUtils.handleJSONResponse(err, res, results);
+            });
+        });
+    } else {
+        url += '&vrf_name=' + vrfName;
+        urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
+            + url + urlExtd;
+        getTraceFlowByReqURL(urlLists, function(err, results) {
+            commonUtils.handleJSONResponse(err, res, results);
+        });
+    }
+}
+
+function getIfStatsBypRouterLink (dataObj, callback)
+{
+    var prouter1 = dataObj['prouter1'];
+    var prouter2 = dataObj['prouter2'];
+    var prouter1_ifidx = dataObj['prouter1_ifidx'];
+    var prouter2_ifidx = dataObj['prouter2_ifidx'];
+    var dataObjArr = [];
+    var resultJSON = {};
+    var timeGran;
+    var timeObj = {};
+    if (dataObj['more_attr']['minsSince']!= null) {
+        timeObj = queries.createTimeQueryJsonObj(dataObj['more_attr']['minsSince']);
+        timeGran = nwMonUtils.getTimeGranByTimeSlice(timeObj,
+            dataObj['more_attr']['sampleCnt']);
+    } else {
+        timeGran = dataObj['more_attr']['timeGran'];
+    }
+
+    var timeObj = queries.createTimeQueryJsonObjByAppData(dataObj['more_attr']);
+    var queryJSON1 = 
+        commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
+    queryJSON1['where'][0][0]['value'] = prouter1;
+    queryJSON1['where'][0][0]['suffix']['value'] = prouter1_ifidx;
+    var queryJSON2 = 
+        commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
+    queryJSON2['where'][0][0]['value'] = prouter2;
+    queryJSON2['where'][0][0]['suffix']['value'] = prouter2_ifidx;
+    queryJSON1['start_time'] = timeObj['start_time'];
+    queryJSON2['start_time'] = timeObj['start_time'];
+    queryJSON1['end_time'] = timeObj['end_time'];
+    queryJSON2['end_time'] = timeObj['end_time'];
+    var timeGranStr = "T=" + timeGran;
+    queryJSON1['select_fields'].push(timeGranStr);
+    queryJSON2['select_fields'].push(timeGranStr);
+    var url = '/analytics/query';
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
+                             queryJSON1, null, null, null);
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
+                             queryJSON2, null, null, null);
+    logutils.logger.debug("Executing pRouter Stats Query1:", 
+                          JSON.stringify(queryJSON1) + "at:" + new Date());
+    logutils.logger.debug("Executing pRouter Stats Query2:", 
+                          JSON.stringify(queryJSON2) + "at:" + new Date());
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(opApiServer, true),
+              function(err, results) {
+        logutils.logger.debug("pRouter Stats Query completed at:" + new Date());
+        var pr1LinkStatData = results[0]['value'];
+        var pr2LinkStatData = results[1]['value'];
+        var pr1LinkStatDataLen = pr1LinkStatData.length;
+        var pr2LinkStatDataLen = pr2LinkStatData.length;
+        var tempPR1DataObj = {};
+        var tempPR2DataObj = {};
+        var len = 2;
+        var summaryData = [];
+        var resultJSON = [];
+        for (var i = 0; i < len; i++) {
+            summaryData[i] = {}
+            resultJSON[i] = {};
+            summaryData[i]['start_time'] = timeObj['start_time'];
+            summaryData[i]['end_time'] = timeObj['end_time'];
+            summaryData[i]['timeGran_microsecs'] = timeGran * 1000;
+        }
+        summaryData[0]['name'] = dataObj['prouter1'];
+        summaryData[1]['name'] = dataObj['prouter2'];
+        summaryData[0]['if_name'] = dataObj['prouter1_ifname'];
+        summaryData[1]['if_name'] = dataObj['prouter2_ifname'];
+        summaryData[0]['if_index'] = dataObj['prouter1_ifidx'];
+        summaryData[1]['if_index'] = dataObj['prouter2_ifidx'];
+        resultJSON[0]['summary'] = summaryData[0];
+        resultJSON[1]['summary'] = summaryData[1];
+        resultJSON[0]['flow-series'] = results[0];
+        resultJSON[1]['flow-series'] = results[1];
+        callback(null, resultJSON);
+    })
+}
+
+function buildpRouterLinkAndGetStats (prObj, callback)
+{
+    var prLinkData = prObj['prLinkData'];
+    var uiData = prObj['appData'];
+    var prouterList = uiData['data']['endpoints']
+    var prouter1 = prouterList[0];
+    var prouter2 = prouterList[1];
+    var dataObjArr = [];
+    var links = prLinkData['links'];
+    var linksCnt = links.length;
+    for (var i = 0; i < linksCnt; i++) {
+        if (((prouter1 == links[i]['endpoints'][0]) &&
+            (prouter2 == links[i]['endpoints'][1])) ||
+            ((prouter1 == links[i]['endpoints'][1]) &&
+             (prouter2 == links[i]['endpoints'][0]))) {
+            break;
+        }
+    }
+    if (i == linksCnt) {
+        /* We have not got any link, strange??? */
+        callback(null, null);
+        return;
+    }
+    var endPts = links[i]['endpoints'];
+    var intfCnt = links[i]['more_attributes'].length;
+    for (var j = 0; j < intfCnt; j++) {
+        dataObjArr.push({'prouter1': endPts[0], 'prouter2':
+                        endPts[1], 'prouter1_ifidx':
+                        links[i]['more_attributes'][j]['local_interface_index'],
+                        'prouter2_ifidx':
+                        links[i]['more_attributes'][j]['remote_interface_index'],
+                        'prouter1_ifname':
+                        links[i]['more_attributes'][j]['local_interface_name'],
+                        'prouter2_ifname':
+                        links[i]['more_attributes'][j]['remote_interface_name'],
+                        'more_attr': uiData['data']});
+    }
+    async.map(dataObjArr, getIfStatsBypRouterLink,
+              function(err, results) {
+        callback(null, results);
+    });
+}
+
+function getpRouterLinkStats (req, res, appData)
+{
+    var body = req.body;
+    var prouterList = body['data']['endpoints']
+    var prouter1 = prouterList[0];
+    var prouter2 = prouterList[1];
+    var dataObjArr = [];
+
+    buildPhysicalTopology(prouter1, appData, function(err, data) {
+        if ((null != err) || (null == data) || (!data['links'].length)) {
+            buildPhysicalTopology(prouter2, appData, function(err, data) {
+                if ((null != err) || (null == data) ||
+                    (!data['nodes'].length)) {
+                    commonUtils.handleJSONResponse(null, res, null);
+                    return;
+                }
+                buildpRouterLinkAndGetStats({'prLinkData': data,
+                                            'appData': body},
+                                            function(err, results) {
+                    commonUtils.handleJSONResponse(err, res, results);
+                    return;
+                });
+            });
+        } else {
+            buildpRouterLinkAndGetStats({'prLinkData': data,
+                                        'appData': body},
+                                        function(err, results) {
+                commonUtils.handleJSONResponse(err, res, results);
+            });
+        }
     });
 }
 
@@ -1022,4 +1254,5 @@ exports.getUnderlayPath = getUnderlayPath;
 exports.getUnderlayTopology = getUnderlayTopology;
 exports.getUnderlayStats = getUnderlayStats;
 exports.getTraceFlow = getTraceFlow;
+exports.getpRouterLinkStats = getpRouterLinkStats;
 
