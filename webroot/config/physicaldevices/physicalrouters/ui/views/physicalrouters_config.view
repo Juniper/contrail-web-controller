@@ -10,17 +10,13 @@
                 <div class="span10"> {{vendor}}</div>
             </div>
             <div class="row-fluid">
-                <div class="span2"><label>Management IP Address</label></div>
+                <div class="span2"><label>Management IP</label></div>
                 <div class="span10">{{mgmt_ip_address}}</div>
             </div>
             <div class="row-fluid">
-                <div class="span2"><label>Dataplane IP Address</label></div>
+                <div class="span2"><label>Tunnel Source IP</label></div>
                 <div class="span10">{{data_ip_address}}</div>
             </div>
-            <!-- <div class="row-fluid">
-                <div class="span2"><label>UUID</label></div>
-                <div class="span10">{{uuid}}</div>
-            </div> -->
             <div class="row-fluid">
                 <div class="span2"><label>Interfaces</label></div>
                 <div class="span10">{{interfaces}}</div>
@@ -30,16 +26,16 @@
                 <div class="span10">{{username}}</div>
             </div>
             <div class="row-fluid">
+                <div class="span2"><label>Virtual Router</label></div>
+                <div class="span10">{{virtual_router}}</div>
+            </div>            
+            <div class="row-fluid">
                 <div class="span2"><label>BGP Router</label></div>
                 <div class="span10">{{bgp_routers}}</div>
             </div>
             <div class="row-fluid">
                 <div class="span2"><label>Virtual Networks</label></div>
                 <div class="span10">{{virtual_networks}}</div>
-            </div>
-            <div class="row-fluid">
-                <div class="span2"><label>Virtual Router</label></div>
-                <div class="span10">{{virtual_router}}</div>
             </div>
         </div>
     </div>
@@ -83,7 +79,7 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <label  class="control-label ">Dataplane IP</label>
+                    <label  class="control-label ">Tunnel Source IP</label>
                     <div class="controls">
                         <div class="row-fluid">
                             <input type="text" id="txtDataIPAddress" class="span11"/>
