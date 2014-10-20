@@ -290,7 +290,8 @@ function virtualRoutersConfig() {
     }
     
     window.failureHandlerForVirtualRouters =  function(error) {
-         gridVirtualRouters.showGridMessage("errorGettingData");
+         //gridVirtualRouters.showGridMessage("errorGettingData");
+         fetchData();
     }
     
     function validate() {
