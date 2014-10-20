@@ -55,13 +55,15 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
        commonUtils.handleJSONResponse(error, response, null);
        return;
     }
-    if(data && data['physical-router'] && data['physical-router']['physical_interfaces'] && data['physical-router']['physical_interfaces'].length > 0) {
-        pInterfacesLength = data['physical-router']['physical_interfaces'].length;
-        for(i = 0; i < pInterfacesLength; i++) {
-            var pInterface = data['physical-router']['physical_interfaces'][i];   
-            reqUrl = '/physical-interface/' + pInterface['uuid'];
-            commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                                    null, null, null, appData);        
+    if(data && data['physical-router'] != null) {
+        if(data['physical-router']['physical_interfaces'] && data['physical-router']['physical_interfaces'].length > 0) {
+            pInterfacesLength = data['physical-router']['physical_interfaces'].length;
+            for(i = 0; i < pInterfacesLength; i++) {
+                var pInterface = data['physical-router']['physical_interfaces'][i];   
+                reqUrl = '/physical-interface/' + pInterface['uuid'];
+                commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                                        null, null, null, appData);        
+            }
         }
         var lRootInterfaces = data['physical-router']['logical_interfaces'];
         if(lRootInterfaces != null && lRootInterfaces.length > 0) {
@@ -82,18 +84,24 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
                     }
                     if(results.length > 0) {
                         var lInfDataObjArr = [];
+                        var lInfReqUrl = null;
                         for(var i = 0; i < results.length; i++) {
                             var pInterface = results[i]['physical-interface'];
                             if(pInterface != null && pInterface['logical_interfaces'] &&  pInterface['logical_interfaces'].length > 0) {
                                 var lInterfaces = pInterface['logical_interfaces']
                                 for(var j = 0; j <  lInterfaces.length; j++) {
-                                    var lInfReqUrl = null;
                                     var lInterface = lInterfaces[j];
                                     lInfReqUrl = '/logical-interface/' + lInterface['uuid'];
                                     commonUtils.createReqObj(lInfDataObjArr, lInfReqUrl, global.HTTP_REQUEST_GET,
                                         null, null, null, appData);
                                 }
 
+                            }
+                            var lInf = results[i]['logical-interface'];
+                            if(lInf != null) {
+                                lInfReqUrl = '/logical-interface/' + lInf['uuid'];
+                                commonUtils.createReqObj(lInfDataObjArr, lInfReqUrl, global.HTTP_REQUEST_GET,
+                                    null, null, null, appData);                                
                             }
                         }
                         if(lInfDataObjArr.length > 0) {
@@ -128,22 +136,29 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
                                                             }    
                                                         }
                                                     }
+                                                    
                                                     //map logical interfaces to corresponding physical interface
                                                     if(lInfDetails.length > 0) {
                                                         for(var i = 0; i < results.length; i++) {
                                                             var pInterface = results[i]['physical-interface'];
+                                                            var lInf = results[i]['logical-interface'];                                                            
                                                             if(pInterface != null) {
                                                                 pInterface['logical_interfaces'] = [];
-                                                                for(var j = 0; j < lInfDetails.length; j++) {
-                                                                    var lInterface = lInfDetails[j]['logical-interface'];
-                                                                    if(pInterface['uuid'] === lInterface['parent_uuid']) {
-                                                                        pInterface['logical_interfaces'].push(lInfDetails[j]);            
-                                                                    }
+                                                            } 
+                                                            for(var j = 0; j < lInfDetails.length; j++) {
+                                                                var lInterface = lInfDetails[j]['logical-interface'];
+                                                                if(pInterface != null && (pInterface['uuid'] === lInterface['parent_uuid'])) {
+                                                                    pInterface['logical_interfaces'].push(lInfDetails[j]);            
                                                                 }
+                                                                if(lInf != null) {
+                                                                    if(lInf['uuid'] == lInterface['uuid']) {
+                                                                        results[i]['logical-interface'] = lInterface;
+                                                                    }      
+                                                                }                                                                    
                                                             }
                                                         }
                                                     }
-                                                    commonUtils.handleJSONResponse(error, response, results)
+                                                    commonUtils.handleJSONResponse(error, response, results);
                                                 });
                                             } else {
                                                 //map logical interfaces to corresponding physical interface
@@ -338,10 +353,10 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                          var tempInstIPData = data.slice(total, total + instIpCnt);
                          total += instIpCnt;
                          var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
-                         //if(tempVMIResourceObj[i]['owner'] == null) {
+                         if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
                              resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs, 
                                              "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
-                         //}
+                         }
                          
                      }
                      if(callback != null) {

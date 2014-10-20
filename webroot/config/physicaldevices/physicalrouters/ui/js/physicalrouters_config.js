@@ -56,8 +56,13 @@ function physicalRoutersConfig() {
                 {
                     id : 'mgmt_ip_address',
                     field : 'mgmt_ip_address',
-                    name : 'Management IP Address'                    
+                    name : 'Management IP'                    
                 },
+                {
+                    id : 'data_ip_address',
+                    field : 'data_ip_address',
+                    name : 'Tunnel Source IP'                    
+                },                
                 {
                     id : 'interfaces',
                     field : 'interfaces',
@@ -153,6 +158,7 @@ function physicalRoutersConfig() {
     
     function initActions() {
         $('#btnCreatePhysicalRouter').click(function() {
+            $('#addPhysicalRouterWindow').find(".modal-header-title").text('Add Physical Router');
             populateCreateEditWindow('create');
         });    
         
@@ -329,7 +335,8 @@ function physicalRoutersConfig() {
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForCreateEditRouters', null, null);
     }
     window.failureHandlerForCreateEditRouters =  function(error) {
-        gridPhysicalRouters.showGridMessage("errorCreateEdit");
+        //gridPhysicalRouters.showGridMessage("errorCreateEdit");
+        fetchData();
    }
     
     function clearCreateEditWindow() {
@@ -383,10 +390,6 @@ function physicalRoutersConfig() {
                 var vns = ifNull(rowData['virtual_network_refs'],[]);
                 var vnsString = [];
                 $.each(vns, function(i,d){
-//                    if(i != 0)
-//                        vnsString =  vnsString + ', ' + d.to[2]
-//                    else 
-//                        vnsString = d.to[2];
                     vnsString.push(d.to[2]);
                 });
                 
@@ -406,7 +409,7 @@ function physicalRoutersConfig() {
                     password : password,
                     interfaces : interfaces.length,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
-                    virtual_networks : vnsString,        
+                    virtual_networks : vnsString.length > 0 ? vnsString : '-',       
                     virtual_router : (virtualRouterString == '')? '-' : virtualRouterString
                 });
             }
@@ -418,7 +421,8 @@ function physicalRoutersConfig() {
     }
     
     window.failureHandlerForPhysicalRouters =  function(error) {
-         gridPhysicalRouters.showGridMessage("errorGettingData");
+         //gridPhysicalRouters.showGridMessage("errorGettingData");
+         fetchData();
     }
     
     function fetchVirtualRouters() {
@@ -502,15 +506,19 @@ function physicalRoutersConfig() {
             showInfoWindow("Enter a Physical Router Name","Input required");
             return false;
         }
-        var mgmtIpAddress = $('#txtMgmtIPAddress').val().trim();
-        if(!validateIPAddress(mgmtIpAddress)){
-            showInfoWindow("Enter a valid Management IP address in xxx.xxx.xxx.xxx format","Input required");
-            return false;
+        if($('#txtMgmtIPAddress').val() != '') {
+            var mgmtIpAddress = $('#txtMgmtIPAddress').val().trim();
+            if(!validateIPAddress(mgmtIpAddress)){
+                showInfoWindow("Enter a valid Management IP address in xxx.xxx.xxx.xxx format","Input required");
+                return false;
+            }
         }
-        var dataIpAddress = $('#txtDataIPAddress').val().trim();
-        if(!validateIPAddress(dataIpAddress)){
-            showInfoWindow("Enter a valid Dataplane IP address in xxx.xxx.xxx.xxx format","Input required");
-            return false;
+        if($('#txtDataIPAddress').val() != '') {
+            var dataIpAddress = $('#txtDataIPAddress').val().trim();
+            if(!validateIPAddress(dataIpAddress)){
+                showInfoWindow("Enter a valid Dataplane IP address in xxx.xxx.xxx.xxx format","Input required");
+                return false;
+            }
         }
         return true;         
     }
