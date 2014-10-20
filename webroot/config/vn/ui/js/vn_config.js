@@ -4,6 +4,15 @@
 
 virtualnetworkConfigObj = new VirtualNetworkConfig();
 
+//Prepend the URL with vCenter in case of vCenter orchestration mode
+function getConfigURL(url) {
+    if(isVCenter()) {
+        if(["/api/tenants/config/virtual-network/",'/api/tenants/config/virtual-networks'].indexOf(url) > -1)
+            return '/vcenter' + url;
+    }
+    return url;
+}
+
 function VirtualNetworkConfig() {
     //Variable definitions
     //Dropdowns
@@ -300,12 +309,14 @@ function deleteVN(selected_rows) {
     if (selected_rows && selected_rows.length > 0) {
         var cbParams = {};
         cbParams.selected_rows = selected_rows;
-        cbParams.url = "/api/tenants/config/virtual-network/"; 
+        // selected_rows[0]['Network'] = 'vn2';
+        cbParams.url = getConfigURL("/api/tenants/config/virtual-network/"); 
         cbParams.urlField = "NetworkUUID";
         cbParams.fetchDataFunction = "fetchDataForGridVN";
         cbParams.errorTitle = "Error";
         cbParams.errorShortMessage = "Error in deleting networks - ";
         cbParams.errorField = "Network";
+        cbParams.timeout = 120000;
         deleteObject(cbParams);
     }
 }
@@ -689,8 +700,22 @@ function initActions() {
 
         console.log(JSON.stringify(vnConfig))
         if (mode === "add") {
-            doAjaxCall("/api/tenants/config/virtual-networks", "POST", JSON.stringify(vnConfig),
-                "createVNSuccessCb", "createVNFailureCb");
+            //Info:In case of vCenter, issue a request to create a port-group
+            doAjaxCall(getConfigURL("/api/tenants/config/virtual-networks"), "POST", JSON.stringify(vnConfig),
+                "createVNSuccessCb", "createVNFailureCb",null,null,120000);
+            //Info:Check if network got created in APIServer from vCenter
+            /*function waitForVNCreation() {
+                $.ajax({
+                    url:"/api/tenants/config/virtual-networks",
+                    type:'GET'
+                }).done(function(vnList) {
+                    if(jsonPath(vnList,"$.virtual-networks[?(@.fq_name[0] =='" +  currentVN + "']").length == 0)
+                        setTimeout(waitForVNCreation,10000)
+                    //Issue the call for pushing parameters to Api Server
+                    //We shouldn't push subnet creation as subnets are create in vCenter
+
+                });
+            }();*/
         }
         else if (mode === "edit") {
             var vnUUID = jsonPath(configObj, "$.virtual-networks[?(@.fq_name[2]=='" + txtVNName.val() + "')]")[0].uuid;
@@ -1028,24 +1053,28 @@ function createIPAMEntry(ipamBlock, id,element) {
     divIPGateway.className = "span2";
     divIPGateway.appendChild(inputTxtGateway);    
 
-    var iBtnAddRule = document.createElement("i");
-    iBtnAddRule.className = "icon-plus";
-    iBtnAddRule.setAttribute("onclick", "appendIPAMEntry(this,false,'"+element+"');");
-    iBtnAddRule.setAttribute("title", "Add IPAM below");
+    //Only one subnet can be specified in case of vCenter
+    if(!isVCenter()) {
+        var iBtnAddRule = document.createElement("i");
+        iBtnAddRule.className = "icon-plus";
+        iBtnAddRule.setAttribute("onclick", "appendIPAMEntry(this,false,'"+element+"');");
+        iBtnAddRule.setAttribute("title", "Add IPAM below");
 
-    var divPullLeftMargin5Plus = document.createElement("div");
-    divPullLeftMargin5Plus.className = "pull-left margin-5";
-    divPullLeftMargin5Plus.appendChild(iBtnAddRule);
+        var divPullLeftMargin5Plus = document.createElement("div");
+        divPullLeftMargin5Plus.className = "pull-left margin-5";
+        divPullLeftMargin5Plus.appendChild(iBtnAddRule);
 
-    var iBtnDeleteRule = document.createElement("i");
-    iBtnDeleteRule.className = "icon-minus";
-    iBtnDeleteRule.setAttribute("id",element+"_"+id+"_minusButton");
-    iBtnDeleteRule.setAttribute("onclick", "deleteIPAMEntry(this);");
-    iBtnDeleteRule.setAttribute("title", "Delete IPAM");
+        var iBtnDeleteRule = document.createElement("i");
+        iBtnDeleteRule.className = "icon-minus";
+        iBtnDeleteRule.setAttribute("id",element+"_"+id+"_minusButton");
+        iBtnDeleteRule.setAttribute("onclick", "deleteIPAMEntry(this);");
+        iBtnDeleteRule.setAttribute("title", "Delete IPAM");
 
-    var divPullLeftMargin5Minus = document.createElement("div");
-    divPullLeftMargin5Minus.className = "pull-left margin-5";
-    divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
+        var divPullLeftMargin5Minus = document.createElement("div");
+        divPullLeftMargin5Minus.className = "pull-left margin-5";
+        divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
+    }
+
 
     var divRowFluidMargin5 = document.createElement("div");
     divRowFluidMargin5.className = "row-fluid margin-0-0-5";
@@ -1055,8 +1084,10 @@ function createIPAMEntry(ipamBlock, id,element) {
     divRowFluidMargin5.appendChild(divIPGateway);
     divRowFluidMargin5.appendChild(divDHCP);
     
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
+    if(!isVCenter()) {
+        divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
+        divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
+    }
 
     var rootDiv = document.createElement("div");
     rootDiv.id =  element+"_"+id;
@@ -1071,13 +1102,20 @@ function createIPAMEntry(ipamBlock, id,element) {
     });
     $(selectIpams).data("contrailDropdown").setData(validIpams);
     var ipamindex = 0;
+    var defIPAM = 'default-network-ipam';
+    if(isVCenter()) {
+        var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
+        defIPAM = selectedProject + '-ipam';
+    }
     for(var ind = 0 ;ind< validIpams.length ; ind++){
-        if((validIpams[ind].value).split(":")[2] == "default-network-ipam"){
+        if((validIpams[ind].value).split(":")[2] == defIPAM){
             ipamindex = ind;
             break;
         }
     }
     $(selectIpams).data("contrailDropdown").value(validIpams[ipamindex].value);
+    if(isVCenter())
+        $(selectIpams).data('contrailDropdown').enable(false);
 
     if (null !== ipamBlock && typeof ipamBlock !== "undefined") {
         $(inputTxtIPBlock).val(ipamBlock.IPBlock);
@@ -2182,6 +2220,11 @@ function showVNEditWindow(mode, rowIndex) {
                 windowCreateVN.find('h6.modal-header-title').text('Create Network');
                 $("#chk_headerDHCP")[0].checked = true;
                 $(txtVNName).focus();
+                //Add one subnet row
+                if(isVCenter()) {
+                    $('#btnCommonAddIpam').trigger('click');
+                    $('#btnCommonAddIpam').hide();
+                }
             } else if (mode === "edit") {
                 var selectedRow = $("#gridVN").data("contrailGrid")._dataView.getItem(rowIndex);
                 if(null === selectedRow || typeof selectedRow === "undefined" || {} === selectedRow ||

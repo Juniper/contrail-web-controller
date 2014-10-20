@@ -33,7 +33,9 @@ and need to add the iconClass tag wherever we need to show some icons
             <orchModels>
               <model>openstack</model>
               <model>cloudstack</model>
+              <model>vcenter</model>
             </orchModels>
+            <accessFn>hideInFederatedvCenter</accessFn>
           </access>
           <items>
             <item>
@@ -217,6 +219,12 @@ and need to add the iconClass tag wherever we need to show some icons
           <name>debug</name>
           <label>Debug</label>
           <iconClass>icon-puzzle-piece</iconClass>
+            <access>
+                <orchModels>
+                    <model>openstack</model>
+                    <model>cloudstack</model>
+                </orchModels>
+            </access>
           <items>
             <item>
               <label>Packet Capture</label>
@@ -272,7 +280,9 @@ and need to add the iconClass tag wherever we need to show some icons
             <orchModels>
               <model>openstack</model>
               <model>cloudstack</model>
+              <model>vcenter</model>
             </orchModels>
+            <accessFn>hideInFederatedvCenter</accessFn>
           </access>
           <iconClass>icon-desktop</iconClass>
           <items>
@@ -389,6 +399,7 @@ and need to add the iconClass tag wherever we need to show some icons
                        </roles>
                        <orchModels>
                            <model>openstack</model>
+                           <model>vcenter</model>
                        </orchModels>
                     </access>
                     <iconClass>icon-sitemap</iconClass>
@@ -534,6 +545,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </roles>
                         <orchModels>
                             <model>openstack</model>
+                            <model>vcenter</model>
                         </orchModels>
                     </access>
                     <iconClass>icon-globe</iconClass>
@@ -665,6 +677,7 @@ and need to add the iconClass tag wherever we need to show some icons
         <orchModels>
           <model>openstack</model>
           <model>cloudstack</model>
+          <model>vcenter</model>
         </orchModels>
       </access>
       <items>
