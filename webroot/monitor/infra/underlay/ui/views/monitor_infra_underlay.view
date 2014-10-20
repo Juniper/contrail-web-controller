@@ -103,62 +103,75 @@ body > svg {
 		        <label class="control-label" class="span3">{{this.label}}</label>
 		        <div class="controls">
 		            <div class="row-fluid">
-		                <input type="text" id="{{this.key}}"  class="span8" />
+		                <div id="{{this.key}}"  class="span8" />
 		            </div>
 		        </div>
 		    </div>
 		{{/each}}
-		<div class="control-group" style="display:inline-block">
-		    <label class="control-label" class="span3"></label>
-		    <div class="controls">
-		        <div class="row-fluid">
-		            <a id="tracepath-btn" class="btn btn-mini btn-primary"><span>Trace Flow</span></a>
-		        </div>
-		    </div>
-		</div>
+		<div class='contrail' id='vrouterflows'></div>
 	</div>
 </script>
 
 <script type="text/x-handlebars-template" id="link-summary-template">
-	{{#each this}}
-        <div class="span6">
+    {{#IfCompare this.link 'vrouter' operator='=='}}   
+        <div class="row-fluid">
             <div class="widget-box transparent">
                 <div class="widget-header">
                     <h4 class="smaller">
-                        <i id="node{{@index}}-loading"class="icon-spinner icon-spin blue bigger-125" style="display: none;"></i> 
-                        <span>{{this.node_name}}</span>
+                        <i id="vrouter-ifstats-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                        {{title}}
                     </h4>
-                    <div class="widget-toolbar pull-right">
-                        <a data-action="collapse" style="display: inline-block;">
-                             <i class="icon-chevron-up"></i>
-                        </a>
-                    </div>
                 </div>
                 <div class="widget-body">
                     <div class="widget-main">
-                        <ul class="item-list">
-                            <li>
-                                <label class="inline row-fluid">
-                                    <span class="key span4"> Interface Name </span>
-                                    <span class="key span4"> InBytes </span>
-                                    <span class="key span4"> OutBytes </span>
-                                </label>
-                            </li>
-                            {{#each this.if_stats}}
-                                <li>
-                                    <label class="inline row-fluid">
-                                        <span class="value span4"> {{this.if_name}} </span>
-                                        <span class="value span4"> {{this.ifEntry.fmtdInBytes}} </span>
-                                        <span class="value span4"> {{this.ifEntry.fmtdOutBytes}} </span>
-                                    </label>
-                                </li>
-                            {{/each}}
-                        </ul>
+                        <div id="vrouter-ifstats" class='ts-chart height-300'></div>
                     </div>
                 </div>
             </div>
         </div>
-    {{/each}}
+    {{/IfCompare}}
+    {{#IfCompare this.link 'prouter' operator='=='}}
+        <!-- {{#IfCompare this.linkCnt 1 operator='=='}}
+         <div class="row-fluid">
+            <div class="widget-box transparent">
+                <div class="widget-header">
+                    <h4 class="smaller">
+                        <i id="vrouter-ifstats-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                        {{title}}
+                    </h4>
+                </div>
+                <div class="widget-body">
+                    <div class="widget-main">
+                        <div id="vrouter-ifstats" class='ts-chart height-300'></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{/IfCompare}} -->
+        {{#each this.intfObjs}}
+            <!--{{#IfCompare @index 0 operator='%2'}}
+                <div class="row-fluid">
+            {{/IfCompare}}-->
+            <div class="row-fluid">
+                <div class="widget-box transparent" id="prouter-ifstats-widget-{{@index}}">
+                    <div class="widget-header">
+                        <h4 class="smaller">
+                            <i id="prouter-ifstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
+                            Traffic Statistics {{this.title}}
+                        </h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div id="prouter-ifstats-{{@index}}" class='ts-chart height-300'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--{{#IfCompare @index 0 operator='%2'}}
+                </div>
+            {{/IfCompare}} -->
+        {{/each}}
+    {{/IfCompare}}
 </script>
 <script type="text/x-handlebars-template" id="two-column-content-template">
     <div class="row-fluid chart-tooltip">

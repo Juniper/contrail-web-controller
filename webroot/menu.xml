@@ -67,6 +67,10 @@ and need to add the iconClass tag wherever we need to show some icons
                   <js>flow_queries.js</js>
                   <class>underlayRenderer</class>
                 </resource>
+                <resource>
+                  <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                  <js>monitor_infra_vrouter_flows.js</js>
+                </resource>
               </resources>
             </item>
             <item>

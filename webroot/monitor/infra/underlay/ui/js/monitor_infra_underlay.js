@@ -6,7 +6,8 @@
 
 var underlayRenderer = new underlayRenderer();
 var PROUTER_DBL_CLICK =  'config_net_vn';
-
+var PROUTER = 'physical-router';
+var VROUTER = 'virtual-router';
 
 function underlayRenderer() {
     this.load = function(obj) {
@@ -20,6 +21,9 @@ function underlayRenderer() {
         this.view  = new underlayView(this.model);
         this.controller = new underlayController(this.model, this.view);
         this.controller.getModelData();
+        //Populating the compute node datasource
+        var computeNodeDS = new SingleDataSource('computeNodeDS');
+        computeNodeDS.getDataSourceObj();
     }
 
     this.getModel = function() {
@@ -769,13 +773,21 @@ underlayView.prototype.initGraphEvents = function() {
 
         switch(elementType) {
             case 'contrail.PhysicalRouter':
+                var nodeDetails = clickedElement['attributes']['nodeDetails'];
                 data = {
-                    host_name : ifNull(clickedElement['attributes']['nodeDetails']['name'],'-'),
-                    description: ifNull(clickedElement['attributes']['nodeDetails']['more_attr']['lldpLocSysDesc'],'-'),
-                    intfCnt   : ifNull(clickedElement['attributes']['nodeDetails']['more_attr']['ifTable'],[]).length,
+                    host_name : ifNull(nodeDetails['name'],'-'),
+                    description: ifNull(nodeDetails['more_attr']['lldpLocSysDesc'],'-'),
+                    intfCnt   : ifNull(nodeDetails['more_attr']['ifTable'],[]).length,
                 };
                 data['type'] = 'node';
                 _this.populateDetailsTab(data);
+                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                break;
+            case 'contrail.VirtualRouter':
+                var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
                 break;
             case 'link':
                 var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
@@ -1137,166 +1149,206 @@ underlayView.prototype.renderTracePath = function(options) {
        {
            label:'VRouter',
            key:'vRouter'
-       },
-       {
-           label:'Protocol',
-           key:'protocol'
-       },
-       {
-           label:'Source IP',
-           key:'src_ip'
-       },
-       {
-           label:'Source Port',
-           key:'src_port'
-       },
-       {
-           label:'Destination IP',
-           key:'dst_ip'
-       },
-       {
-           label:'Destination Port',
-           key:'dst_port'
-       },
-
+       }
     ];
-    var response = {
-        vRouter:[
-                     {
-                         text:'VRouter1',
-                         value:'VRouter1'
-                     },
-                     {
-                         text:'VRouter2',
-                         value:'VRouter2'
-                     },
-                     {
-                         text:'VRouter3',
-                         value:'VRouter3'
-                     }
-                ],
-        protocol:[
-                     {
-                         text:'TCP',
-                         value:'tcp'
-                     },
-                     {
-                         text:'UDP',
-                         value:'udp'
-                     },
-                     {
-                         text:'ICMP',
-                         value:'icmp'
-                     }
-                ],
-        src_ip:[
-                     {
-                         text:'VN1(10.10.10.10)',
-                         value:'vn1'
-                     },
-                     {
-                         text:'VN2(10.10.10.11)',
-                         value:'vn2'
-                     },
-                     {
-                         text:'VN3(10.10.10.12)',
-                         value:'vn3'
-                     }
-                ],
-        src_port:[
-                     {
-                         text:100,
-                         value:100
-                     },
-                     {
-                         text:200,
-                         value:200
-                     },
-                     {
-                         text:300,
-                         value:300
-                     }
-            ],
-        dst_ip:[
-                     {
-                         text:'10.10.10.10',
-                         value:'10.10.10.10'
-                     },
-                     {
-                         text:'10.10.10.11',
-                         value:'10.10.10.11'
-                     },
-                     {
-                         text:'10.10.10.12',
-                         value:'10.10.10.12'
-                     }
-            ],
-        dst_port:[
-                     {
-                         text:1000,
-                         value:1000
-                     },
-                     {
-                         text:1100,
-                         value:1100
-                     },
-                     {
-                         text:1200,
-                         value:1200
-                     }
-            ]
-
-    };
     var _this = this;
+    var nodeType = $("#underlay_topology").data('nodeType');
+    var nodeName = $("#underlay_topology").data('nodeName');
     var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())(obj);
-    var protocolData =[
-                         {
-                             text:'TCP',
-                             value:6
-                         },
-                         {
-                             text:'UDP',
-                             value:17
-                         },
-                         {
-                             text:'ICMP',
-                             value:1
-                         }
-                      ];
+    var defaultValue = '',ip = '';
     $("#traceFlow").html(tracePathTemplate);
-    var computeNodeDS = new SingleDataSource('computeNodeDS');
-    var result = computeNodeDS.getDataSourceObj();
-    $("#vRouter").contrailCombobox({
-        dataTextField:"text",
-        dataValueField:"value",
-    });
-    $("#protocol").contrailCombobox({
-        dataTextField:"text",
-        dataValueField:"value",
-    })
-    $("#protocol").data('contrailCombobox').setData(protocolData);
-    $(computeNodeDS).on('change',function(){
-        var items = result['dataSource'].getItems(),data = [];
-        for(var i = 0; i < items.length; i++) {
-            data.push({
-                text:items[i]['name'],
-                value:items[i]['name']
-            });
-        }
-        $("#vRouter").data('contrailCombobox').setData(data);
-    });
-    /*var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())(obj);
-    $("#traceFlow").html(tracePathTemplate);
-    $("#tracepath-btn").bind('click', function(ctx) {
-        _this.runTracePath(ctx, obj, response);
-    });
-    for(var i = 0; i < obj.length; i++) {
-        $("#"+obj[i]['key']).contrailCombobox({
-            dataTextField:"text",
-            dataValueField:"value",
+    var items = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),data = [];
+    if(nodeType == VROUTER && nodeName != null) {
+        defaultValue = nodeName;
+    } else {
+        defaultValue = items[0]['name'];
+        ip = items[0]['ip'];
+    }
+    for(var i = 0; i < items.length; i++) {
+        if(items[i]['name'] == defaultValue)
+            ip = items[i]['ip'];
+        data.push({
+            text:items[i]['name'],
+            value:items[i]['ip']
         });
-        $("#"+obj[i]['key']).data('contrailCombobox').setData(response[obj[i]['key']]);
+    }
+    $("#vRouter").contrailCombobox({
+        dataTextField: "text",
+        dataValueField: "value",
+        defaultValue: defaultValue,
+        change:function(e,item){
+            var newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + item['item']['id'], 
+                        type:'Get'
+                    };
+            flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+            flowGrid.dataSource.setData([]);
+            flowGrid.showGridMessage('loading');
+            reloadGrid(flowGrid);
+        }
+    });
+    var vrouterCombobox = $("#vRouter").data('contrailCombobox');
+    vrouterCombobox.setData(data);
+    //if(!isGridInitialized('#vrouterflows')) {
+        $("#vrouterflows").contrailGrid({
+            header : {
+                title : {
+                    text : 'Flows'
+                },
+                customControls : ['<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'],
+            },
+            columnHeader : {
+                columns: [
+                               {
+                                   field:"protocol",
+                                   name:"Protocol",
+                                   minWidth:60,
+                                   formatter:function(r,c,v,cd,dc){
+                                       return formatProtocol(dc['protocol']);
+                                   }
+                               },
+                               {
+                                   field:"src_vn",
+                                   name:"Src Network",
+                                   cssClass:'cell-hyperlink-blue',
+                                   events: {
+                                       onClick: function(e,dc){
+                                           var tabIdx = $.inArray("networks", computeNodeTabs);
+                                           selectTab(computeNodeTabStrip,tabIdx);
+                                       }
+                                    },
+                                   minWidth:195
+                               },
+                               {
+                                   field:"sip",
+                                   name:"Src IP",
+                                   minWidth:70
+                               },
+                               {
+                                   field:"src_port",
+                                   name:"Src Port",
+                                   minWidth:50
+                               },
+                               {
+                                   field:"dst_vn",
+                                   name:"Dest Network",
+                                   cssClass:'cell-hyperlink-blue',
+                                   events: {
+                                       onClick: function(e,dc){
+                                           var tabIdx = $.inArray("networks", computeNodeTabs);
+                                           selectTab(computeNodeTabStrip,tabIdx);
+                                       }
+                                    },
+                                   minWidth:195
+                               },
+                               {
+                                   field:"dip",
+                                   name:"Dest IP",
+                                   minWidth:70
+                               },
+                               {
+                                   field:"dst_port",
+                                   name:"Dest Port",
+                                   minWidth:50
+                               },
+                               {
+                                   field:"stats_bytes",
+                                   name:"Bytes/Pkts",
+                                   minWidth:80,
+                                   formatter:function(r,c,v,cd,dc){
+                                       return contrail.format("{0}/{1}",dc['stats_bytes'],dc['stats_packets']);
+                                   },
+                                   searchFn:function(d){
+                                       return d['stats_bytes']+ '/ ' +d['stats_packets'];
+                                   }
+                               }
+                           ]
+            },
+            body : {
+                options : {
+                    forceFitColumns: true,
+                    sortable : false,
+                    checkboxSelectable: {
+                        enableRowCheckbox: true,
+                        onNothingChecked: function(e){
+                            $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                            $("#traceFlowBtn").attr('disabled','disabled');
+                        },
+                        onSomethingChecked: function(e){
+                            $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
+                            $("#traceFlowBtn").removeAttr('disabled');
+                            $(e['currentTarget']).removeAttr('disabled')
+                        }
+                    },
+                },
+                dataSource : {
+                    remote: {
+                        ajaxConfig: {
+                            url: function () {
+                                return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
+                            }(),
+                            type: 'GET'
+                        },
+                        dataParser: self.parseFlowsData
+                    }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Flows..',
+                    },
+                    empty: {
+                        text: 'No Flows to display'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
+                }
+            },
+            footer : false,
+            //change:onFlowChange
+        });
+        flowGrid = $('#vrouterflows').data('contrailGrid');
+        $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
+        flowGrid.showGridMessage('loading');
+    /*} else {
+        var newAjaxConfig;
+        flowGrid = $('#gridComputeFlows').data('contrailGrid');
+        if(selectedAcl != 'All'){
+            newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj), 
+                    type:'Get'
+                };
+            flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+        } 
+        reloadGrid(flowGrid);
     }*/
+    $("#traceFlowBtn").on('click',function(e){
+        var checkedRows = flowGrid.getCheckedRows();
+        var dataItem = ifNull(checkedRows[0],{});
+        var item = vrouterCombobox.getSelectedItem();
+        var postData = {
+               nodeIP: item['ip'],
+               srcIP: dataItem['sip'],
+               destIP: dataItem['dip'],
+               srcPort: dataItem['src_port'],
+               destPort: dataItem['dst_port'],
+               protocol: dataItem['protocol'],
+               vrfId: parseInt(dataItem['raw_json']['vrf'])
+        };
+        $.ajax({
+            url:'/api/tenant/networking/trace-flow',
+            type:'POST',
+            data:{
+                data: postData
+            }
+        }).success(function(response){
+            _this.highlightPath(response);
+        }).always(function(response){
+            
+        });
+    });
 }
 
 underlayView.prototype.runTracePath = function(context, obj, response) {
@@ -1373,34 +1425,133 @@ underlayView.prototype.populateDetailsTab = function(data) {
         $("#detailsTab").html(details);
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
-        
-        $("#node0-loading").show();
-        $("#node1-loading").show();
-        $.ajax({
-            url:'/api/tenant/networking/underlay-stats',
-            type:'POST',
-            data:{
-                "data": {
-                    "endpoints": endpoints
-                  }
-                }
-        }).success(function(response){
-            $.each(response,function(idx,obj){
-               $.each(ifNull(obj['if_stats'],[]),function(ifIdx,ifObj){
-                   if(obj['node_type'] == 'physical-router') {
-                       ifObj['ifEntry']['fmtdInBytes'] = formatBytes(ifNull(ifObj['ifEntry']['ifInOctets'],'-'));
-                       ifObj['ifEntry']['fmtdOutBytes'] = formatBytes(ifNull(ifObj['ifEntry']['ifOutOctets'],'-'));
-                   } else if(obj['node_type'] == 'virtual-router') {
-                       ifObj['ifEntry']['fmtdInBytes'] = formatBytes(ifNull(ifObj['ifEntry']['in_bytes'],'-'));
-                       ifObj['ifEntry']['fmtdOutBytes'] = formatBytes(ifNull(ifObj['ifEntry']['out_bytes'],'-'));
-                   }
-               });
-            });
-            details = Handlebars.compile($("#link-summary-template").html())(response);
+        var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
+        var targetType = data['targetElement']['attributes']['nodeDetails']['node_type'];
+        var url = '',link = 'vrouter';
+        var type = 'GET';
+        var ajaxData = {};
+        if(sourceType == PROUTER && targetType == PROUTER) {
+            url = '/api/tenant/networking/underlay/prouter-link-stats';
+            type = 'POST';
+            ajaxData = {
+                    "data": {
+                        "endpoints": endpoints,
+                        "sampleCnt": 150, 
+                        "minsSince":60
+                      }
+                    };
+            //url = '/interfaceStats.json';
+            link = 'prouter';
+            details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:[{}]});
             $("#detailsTab").html(details);
-        }).always(function(err){
-            $("#node0-loading").hide();
-            $("#node1-loading").hide();
+        } else if(sourceType == VROUTER || targetType == VROUTER) {
+            var vrouter = (sourceType == VROUTER) ? data['sourceElement']['attributes']['nodeDetails']['name']
+                           : data['targetElement']['attributes']['nodeDetails']['name'];
+            url = 'api/tenant/networking/vrouter/stats';
+            ajaxData = {
+                    minsSince: 60,
+                    sampleCnt: 120,
+                    useServerTime: true,
+                    vrouter:vrouter
+            };
+            //url ='/vrouterifstats.json';
+            var title = contrail.format('Traffic Statistics of {0}',vrouter);
+            details = Handlebars.compile($("#link-summary-template").html())({link:'vrouter',title:title});
+            $("#detailsTab").html(details);
+            //$("#detailsTab").find('.icon-spinner').show();
+        }
+        $.ajax({
+            url:url,
+            type:type,
+            data:ajaxData
+        }).success(function(response){
+            var chartObj = {
+                    data:[]
+            };
+            var selector = '';
+            if(link == 'vrouter') {
+                selector = 'vrouter-ifstats';
+                var flows = ifNull(response['flow-series'],[]);
+                var inBytes = [];
+                var outBytes = [];
+                for(var i = 0; i < flows.length; i++) {
+                    var flowObj = flows[i];
+                    inBytes.push({
+                        x:flowObj['time'],
+                        y:flowObj['inBytes']
+                    });
+                    outBytes.push({
+                        x:flowObj['time'],
+                        y:flowObj['outBytes']
+                    });
+                }
+                chartObj['data'][0] = {
+                                key:'InBytes',
+                                values:inBytes,
+                };
+                chartObj['data'][1] = {
+                        key:'OutBytes',
+                        values:outBytes,
+                }
+                initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
+            } else if (link == 'prouter') {
+                /*var totalData = {
+                        link: link,
+                        intfObjs: []
+                };*/
+                for(var i = 0; i < response.length; i++) {
+                    var rawFlowData = response[i];
+                    var lclData = ifNull(rawFlowData[0],{});
+                    var rmtData = ifNull(rawFlowData[1],{});
+                    var intfFlowData = [],inBytesData = [],outBytesData = [];
+                    var title = contrail.format("of link between {0} {1} and {2} {3}",lclData['summary']['name'],
+                            lclData['summary']['if_name'],rmtData['summary']['name'],rmtData['summary']['if_name']);
+                    var lclFlows = ifNull(lclData['flow-series']['value'],[]);
+                    var rmtFlows = ifNull(rmtData['flow-series']['value'],[]);
+                    var interfaceChartObj = {
+                            title:title,
+                            data:intfFlowData
+                    };
+                    for(var j = 0; j < lclFlows.length; j++) {
+                        var lclFlowObj = lclFlows[j];
+                        for(k = 0; k < rmtFlows.length; k++) {
+                            if(lclFlowObj['T='] == rmtFlows[k]['T=']){
+                                var time = lclFlowObj['T=']; 
+                                var inBytes = ifNull(lclFlowObj['SUM(ifStats.ifInUcastPkts)'],0) + 
+                                                ifNull(rmtFlows[k]['SUM(ifStats.ifInUcastPkts)'],0);
+                                var outBytes = ifNull(lclFlowObj['SUM(ifStats.ifOutUcastPkts)'],0) + 
+                                                ifNull(rmtFlows[k]['SUM(ifStats.ifOutUcastPkts)'],0);
+                                inBytesData.push(
+                                        {
+                                            x:time,
+                                            y:inBytes
+                                        }
+                                );
+                                outBytesData.push(
+                                        {
+                                            x:time,
+                                            y:outBytes
+                                        }
+                                );
+                                break;
+                            }
+                                
+                        }
+                    }
+                    intfFlowData.push({
+                        key: 'Transmit',
+                        values: inBytesData
+                    });
+                    intfFlowData.push({
+                        key: 'Receive',
+                        values: outBytesData
+                    });
+                    $("#prouter-ifstats-widget-"+i).find('.widget-header > h4').append(title);
+                    initMemoryLineChart('#prouter-ifstats-'+i,intfFlowData,{height:300});
+                }
+            } 
+        }).always(function(response){
+            $("#detailsTab").find('.icon-spinner').hide();
         });
     }
 }

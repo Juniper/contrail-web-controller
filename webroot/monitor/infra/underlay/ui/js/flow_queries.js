@@ -846,7 +846,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             title:{
                 text: 'Flows',
                 cssClass: 'blue',
-                icon: 'icon-tasks',
                 iconCssClass: 'blue'
             },
             defaultControls: {
