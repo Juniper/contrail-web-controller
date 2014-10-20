@@ -342,6 +342,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </item>
                 <item>
                     <label>Physical Devices</label>
+                    <hash>config_pd</hash>
                     <access>
                         <roles>
                             <role>member</role>
@@ -352,7 +353,6 @@ and need to add the iconClass tag wherever we need to show some icons
                     </access>
                     <iconClass>icon-globe</iconClass>
                     <items>
-                  
                         <item>
                             <label>Physical Routers</label>
                             <hash>config_pd_physicalRouters</hash>
@@ -379,32 +379,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Interfaces</searchStrings>
                         </item>   
-<!--                         <item>
-                            <label>Service Appliances</label>
-                            <hash>config_pd_serviceAppliances</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <js>serviceAppliances_config.js</js>
-                                    <view>serviceAppliances_config.view</view>
-                                    <class>serviceAppliancesConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Service Appliances</searchStrings>
-                        </item>     
-                        <item>
-                            <label>Baremetal Servers</label>
-                            <hash>config_pd_baremetalServers</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <js>baremetalServers_config.js</js>
-                                    <view>baremetalServers_config.view</view>
-                                    <class>baremetalServersConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Configure Baremetal Servers</searchStrings>
-                        </item>  -->                        
                     </items>
                 </item>                  
                 <item>
@@ -497,7 +471,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Security Groups</searchStrings>
                         </item>
-                        <!--<item>
+<!--                    <item>
                             <label>Routers</label>
                             <hash>config_net_routers</hash>
                             <resources>
@@ -509,7 +483,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Routers</searchStrings>
-                        </item>-->
+                        </item> -->
                    </items>
                 </item>
                 <item>
