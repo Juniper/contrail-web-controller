@@ -764,6 +764,8 @@ function updateVNPolicyRefs (vnConfig, response, appData)
 {
     var vnPutData = response.req.body;
     var vnId = response.req.param('id');
+    if(vnId == null)
+        vnId = appData['vnUUID'];
     var vnPutURL = '/virtual-network/' + vnId;
 
     if(null === vnConfig['virtual-network']['virtual_network_properties'] ||
@@ -819,8 +821,12 @@ function updateVNPolicyRefs (vnConfig, response, appData)
 
 function updateVirtualNetwork (request, response, appData)
 {
-    var vnId = request.param('id');
+    var vnId;
     var vnPutData = request.body;
+    if(request.param('id') != null)
+        vnId = request.param('id'); 
+    else
+        vnId = appData['vnUUID'];
 
     var reqUrl = '/virtual-network/' + vnId;
 

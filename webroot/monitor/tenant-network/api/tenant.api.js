@@ -363,6 +363,7 @@ function getVNVM (req, res)
 function getProjects (req, res, appData) 
 {
 	var url, domain = req.param('domain');
+    //Re-check to add domain filtering
 	url = "/projects?domain=" + domain;
 	configApiServer.apiGet(url, appData, function (error, projectsJSON) {
 		commonUtils.handleJSONResponse(error, res, projectsJSON);

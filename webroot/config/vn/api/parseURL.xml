@@ -10,6 +10,10 @@
         <define>vnconfigapi</define>
         <path>./vnconfig.api</path>
     </require>
+    <require>
+        <define>vCenterVNconfigapi</define>
+        <path>./vnconfig.vcenter.api</path>
+    </require>
 
     <!-- API / Feature definition for Virtual Network configuration -->
     <!-- 1. List VN's -
@@ -75,6 +79,12 @@
         <callback>vnconfigapi.createVirtualNetwork</callback>
     </item>
     <item>
+        <url>/vcenter/api/tenants/config/virtual-networks</url>
+        <method>post</method>
+        <feature>vCenterVNconfig</feature>
+        <callback>vCenterVNconfigapi.createVirtualNetwork</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/virtual-network/:id</url>
         <method>put</method>
         <feature>vnconfig</feature>
@@ -85,6 +95,12 @@
         <method>delete</method>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.deleteVirtualNetwork</callback>
+    </item>
+    <item>
+        <url>/vcenter/api/tenants/config/virtual-network/:id</url>
+        <method>delete</method>
+        <feature>vCenterVNconfig</feature>
+        <callback>vCenterVNconfigapi.deleteVirtualNetwork</callback>
     </item>
     <item>
         <url>/api/tenants/config/virtual-network/:id/ipams</url>
