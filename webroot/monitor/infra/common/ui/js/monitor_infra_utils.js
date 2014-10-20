@@ -1820,12 +1820,13 @@ Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
 
 function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
-    if(!dsObj['clean']){
+    if(dsObj['getFromCache'] == null || dsObj['getFromCache'] == true){
         obj['transportCfg'] = { 
                 url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'],
                 type:'GET'
             }
         defferedObj.done(function(){
+            dsObj['getFromCache'] = false;
             manageDataSource.refreshDataSource('computeNodeDS');
         });
     } else {
@@ -1835,6 +1836,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
                 //set the default timeout as 5 mins
                 timeout:300000
         }
+        dsObj['getFromCache'] = true;
     }
     
     getOutputByPagination(dataSource,
