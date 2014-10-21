@@ -114,14 +114,15 @@ function virtualRoutersConfig() {
         $('#addVirtualRouterWindow').find(".modal-header-title").text('Add Virtual Router');
 
         //initializing virtual router type multi select
-        $('#msType').contrailMultiselect({
+        $('#msType').contrailDropdown({
             dataTextField:'text',
             dataValueField:'value',
         }); 
 
-        var msType =  $('#msType').data('contrailMultiselect');
-        var msTypeDS = [{ text : 'Embedded', value : 'embedded'},
-            { text : 'TOR Agent', value : 'tor-agent'},
+        var msType =  $('#msType').data('contrailDropdown');
+        var msTypeDS = [{ text : 'None', value : 'none'},
+            { text : 'Embedded', value : 'embedded'},
+            //{ text : 'TOR Agent', value : 'tor-agent'},
             { text : 'TOR Service Node', value : 'tor-service-node'},
         ];
         msType.setData(msTypeDS);
@@ -215,7 +216,11 @@ function virtualRoutersConfig() {
             $('#txtVirtualRouterName').val(gblSelRow.name);
             $('#txtVirtualRouterName').attr('disabled','disabled');
             $('#txtIPAddress').val(gblSelRow.ip_address);
-            $('#msType').data('contrailMultiselect').value(gblSelRow.actualType);              
+            if(gblSelRow.actualType == '' || gblSelRow.actualType == 'empty') {
+                $('#msType').data('contrailDropdown').value('none'); 
+            } else {
+                $('#msType').data('contrailDropdown').value(gblSelRow.actualType);              
+            }    
         }
         $('#addVirtualRouterWindow').modal('show');       
     }
@@ -229,7 +234,7 @@ function virtualRoutersConfig() {
         }
         var name = $("#txtVirtualRouterName").val();
         var ipAddress = $("#txtIPAddress").val();
-        var type = $("#msType").data('contrailMultiselect').value();
+        var type = $("#msType").data('contrailDropdown').value();
         var postObject = {};
         
         gridVirtualRouters._dataView.setData([]);
@@ -240,8 +245,10 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["parent_type"] = "global-system-config";
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
-        if(type.length > 0) {
-            postObject["virtual-router"]["virtual_router_type"] = type;
+        if(type != 'none' && type != '' &&  type != 'empty') {
+            postObject["virtual-router"]["virtual_router_type"] = [type];
+        } else {
+            postObject["virtual-router"]["virtual_router_type"] = [];
         }
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
@@ -250,8 +257,8 @@ function virtualRoutersConfig() {
         $('#txtVirtualRouterName').removeAttr('disabled');
         $("#txtVirtualRouterName").val('');
         $("#txtIPAddress").val('');
-        var msType = $("#msType").data('contrailMultiselect');  
-        msType.value('');        
+        var msType = $("#msType").data('contrailDropdown');  
+        msType.value('none');        
     }
         
     function fetchData() {
@@ -278,7 +285,7 @@ function virtualRoutersConfig() {
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
                     actualType : rowData.virtual_router_type != null ? rowData.virtual_router_type : '',
-                    type : rowData.virtual_router_type != null ? rowData.virtual_router_type : ['embedded'],
+                    type : rowData.virtual_router_type != null && rowData.virtual_router_type.length > 0 ? rowData.virtual_router_type : ['embedded'],
                     physical_routers : pRouters.length > 0 ? pRouters : '-'
                 });
             }
@@ -306,11 +313,11 @@ function virtualRoutersConfig() {
             return false;
         }
         
-        var typeValues = $('#msType').data('contrailMultiselect').value();
-        if(typeValues != null && typeValues != '' && typeValues.length > 1) {
-            showInfoWindow("Select a single Virtual Router Type","Input required");
-            return false;        
-        }
+        // var typeValues = $('#msType').data('contrailDropdown').value();
+        // if(typeValues != null && typeValues != '' && typeValues.length > 1) {
+            // showInfoWindow("Select a single Virtual Router Type","Input required");
+            // return false;        
+        // }
         return true;         
     }
     
