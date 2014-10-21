@@ -20,7 +20,6 @@ function underlayRenderer() {
         $("#content-container").html('');
         $("#content-container").html(this.configTemplate);
         currTab = 'mon_infra_underlay';
-
         this.model = new underlayModel({nodes:[], links:[]});
         this.view  = new underlayView(this.model);
         this.controller = new underlayController(this.model, this.view);
@@ -28,6 +27,8 @@ function underlayRenderer() {
         //Populating the compute node datasource
         var computeNodeDS = new SingleDataSource('computeNodeDS');
         computeNodeDS.getDataSourceObj();
+        var instanceDS = new SingleDataSource('instDS');
+        instanceDS.getDataSourceObj();
     }
 
     this.getModel = function() {
@@ -517,7 +518,28 @@ underlayView.prototype.initTooltipConfig = function() {
                 return 'Virtual Machine';
             },
             content: function(element, graph) {
-                return "VM content";
+                var viewElement = graph.getCell(element.attr('model-id'));
+                var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
+                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var instanceName = "";
+                var lbl = "UUID";
+                var instanceUUID = viewElement.attributes.nodeDetails['name'];
+                for(var i=0; i<instances.length; i++) {
+                    if(instances[i].name === instanceUUID) {
+                        lbl = "Name";
+                        instanceName = instances[i].vmName;
+                        break;
+                    }
+                }
+                if("" == instanceName)
+                    instanceName = viewElement.attributes.nodeDetails['name'];
+                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('nodeDetails'))
+                    return tooltipContent([
+                    {
+                        lbl:lbl,
+                        value: instanceName
+                    }
+                ]);
             }
         },
         VirtualRouter: {
@@ -525,7 +547,26 @@ underlayView.prototype.initTooltipConfig = function() {
                 return 'Virtual Router';
             },
             content: function(element, graph) {
-                return "VR content";
+                var viewElement = graph.getCell(element.attr('model-id'));
+                var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
+                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var vms = 0;
+                for(var i=0; i<instances.length; i++) {
+                    if(instances[i].vRouter === viewElement.attributes.nodeDetails['name']) {
+                        vms++;
+                    }
+                }
+                if(viewElement.attributes && viewElement.attributes.hasOwnProperty('nodeDetails'))
+                return tooltipContent([
+                    {
+                        lbl:'Name',
+                        value: viewElement.attributes.nodeDetails['name']
+                    },
+                    {
+                        lbl: "Number of VMs",
+                        value: vms
+                    }
+                ]);
             }
         },
         link: {
@@ -790,6 +831,7 @@ underlayView.prototype.initGraphEvents = function() {
                             _this.getModel().setLinks(links);
                             _this.getModel().setConnectedElements(elements);
                             _this.getModel().setElementMap(elementMap);
+                            _this.initTooltipConfig();
                         }
                         else {
                             showInfoWindow("No Virtual Machines found for " + dblClickedElement['attributes']['nodeDetails']['name'], "Info");
