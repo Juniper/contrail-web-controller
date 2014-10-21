@@ -24,6 +24,8 @@ function underlayRenderer() {
         this.view  = new underlayView(this.model);
         this.controller = new underlayController(this.model, this.view);
         this.controller.getModelData();
+        var instanceDS = new SingleDataSource('instDS');
+        instanceDS.getDataSourceObj();
     }
 
     this.getModel = function() {
