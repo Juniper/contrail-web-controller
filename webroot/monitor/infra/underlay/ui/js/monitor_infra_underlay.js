@@ -9,6 +9,10 @@ var PROUTER_DBL_CLICK =  'config_net_vn';
 var PROUTER = 'physical-router';
 var VROUTER = 'virtual-router';
 
+var LEVEL_1_DIMENSION = {width: 0, height:0};
+var LEVEL_2_DIMENSTION = {width: 0, height:0};
+var ZOOMED_OUT = 0;
+
 function underlayRenderer() {
     this.load = function(obj) {
         this.configTemplate = Handlebars.compile($("#visualization-template").html());
@@ -266,15 +270,19 @@ underlayModel.prototype.destroy = function() {
 
 
 var underlayView = function (model) {
+    LEVEL_1_DIMENSION.width = $("#topology_paper").innerWidth();
+    LEVEL_1_DIMENSION.height = $("#topology_paper").innerHeight();
+
     this.model = model || new underlayModel();
     this.graph = new joint.dia.Graph;
     this.paper  = new joint.dia.Paper({
         el: $("#paper"),
         model: this.graph,
-        height: $("#topology_paper").innerHeight(),
-        width:  $("#topology_paper").innerWidth(),
+        height: LEVEL_1_DIMENSION.height,
+        width:  LEVEL_1_DIMENSION.width,
         linkView: joint.shapes.contrail.LinkView
     });
+
     this.initZoomControls();
     this.contextMenuConfig = {};
     this.tooltipConfig = {};
@@ -487,10 +495,10 @@ underlayView.prototype.initTooltipConfig = function() {
 
                 var ifLength = 0;
                 if(viewElement.attributes && viewElement.attributes.hasOwnProperty('nodeDetails') &&
-                    viewElement.attributes.nodeDetails.hasOwnProperty('more_attr') &&
-                    viewElement.attributes.nodeDetails.more_attr.hasOwnProperty('ifTable') &&
-                    viewElement.attributes.nodeDetails.more_attr.ifTable.length) {
-                    ifLength = viewElement.attributes.nodeDetails.more_attr.ifTable.length;
+                    viewElement.attributes.nodeDetails.hasOwnProperty('more_attributes') &&
+                    viewElement.attributes.nodeDetails.more_attributes.hasOwnProperty('ifTable') &&
+                    viewElement.attributes.nodeDetails.more_attributes.ifTable.length) {
+                    ifLength = viewElement.attributes.nodeDetails.more_attributes.ifTable.length;
                 }
                 return tooltipContent([
                     {
@@ -504,6 +512,22 @@ underlayView.prototype.initTooltipConfig = function() {
                 ]);
             }
         },
+        VirtualMachine: {
+            title: function(element, graph) {
+                return 'Virtual Machine';
+            },
+            content: function(element, graph) {
+                return "VM content";
+            }
+        },
+        VirtualRouter: {
+            title: function(element, graph) {
+                return 'Virtual Router';
+            },
+            content: function(element, graph) {
+                return "VR content";
+            }
+        },
         link: {
             title: function(element, graph) {
                 return "Link";
@@ -515,9 +539,13 @@ underlayView.prototype.initTooltipConfig = function() {
                 var remote_interfaces = [];
                 if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
                     viewElement.attributes.linkDetails.hasOwnProperty('more_attributes') &&
-                    viewElement.attributes.linkDetails.more_attributes) {
-                    local_interfaces.push(viewElement.attributes.linkDetails.more_attributes.local_interface_name);
-                    remote_interfaces.push(viewElement.attributes.linkDetails.more_attributes.remote_interface_name);
+                    viewElement.attributes.linkDetails.more_attributes && 
+                    viewElement.attributes.linkDetails.more_attributes.length > 0) {
+                    var moreAttrs = viewElement.attributes.linkDetails.more_attributes;
+                    for(var i=0; i<moreAttrs.length; i++) {
+                        local_interfaces.push(moreAttrs[i].local_interface_name + " (" + moreAttrs[i].local_interface_index + ")");
+                        remote_interfaces.push(moreAttrs[i].remote_interface_name + " (" + moreAttrs[i].remote_interface_index + ")");
+                    }
                 }
 
                 return tooltipContent([
@@ -640,7 +668,38 @@ underlayView.prototype.initGraphEvents = function() {
                 break;
 
             case 'contrail.VirtualRouter':
+                if(LEVEL_2_DIMENSTION.height == 0) {
+                    LEVEL_2_DIMENSTION.height = LEVEL_1_DIMENSION.height + 200;
+                    LEVEL_2_DIMENSTION.width = LEVEL_1_DIMENSION.width;
+                }
+
                 var model_id          = $(dblClickedElement).attr('id');
+                //Faint all
+                $('div.font-element')
+                    .removeClass('elementHighlighted')
+                    .addClass('dimHighlighted');
+                +
+                $('g.element')
+                    .removeClassSVG('elementHighlighted')
+                    .addClassSVG('dimHighlighted');
+                $('g.link')
+                    .removeClassSVG('elementHighlighted')
+                    .addClassSVG('dimHighlighted');
+
+                //Highlight selected vrouter
+                $('div.font-element[font-element-model-id="' + model_id + '"]')
+                    .addClass('elementHighlighted')
+                    .removeClass('dimHighlighted')
+                    .css('stroke', "#498AB9")
+                    .css('fill', "#498AB9");
+
+                $('g.element[model-id="' + model_id + '"]')
+                    .addClassSVG('elementHighlighted')
+                    .removeClassSVG('dimHighlighted')
+                    .css('stroke', "#498AB9")
+                    .css('fill', "#498AB9");
+                _this.hideVMs();
+
                 $.ajax({
                     dataType: "json",
                     url: "/api/tenant/get-data",
@@ -659,41 +718,19 @@ underlayView.prototype.initGraphEvents = function() {
                         if(null !== response && typeof response !== undefined && response.length > 0 &&
                             response[0].hasOwnProperty('value') && response[0].value.length > 0) {
                             var vms        = response[0].value[0].value['VrouterAgent'].virtual_machine_list;
-                            if(vms.length <= 0)
+                            if(vms.length <= 0) {
+                                showGridMessage('Error', 'No Virtual Machines found for ' + dblClickedElement['attributes']['nodeDetails']['name']);
                                 return;
-                            _this.clearHighlightedConnectedElements();
-                            //Faint all
-                            $('div.font-element')
-                                .removeClass('elementHighlighted')
-                                .addClass('dimHighlighted');
-                            +
-                            $('g.element')
-                                .removeClassSVG('elementHighlighted')
-                                .addClassSVG('dimHighlighted');
-                            $('g.link')
-                                .removeClassSVG('elementHighlighted')
-                                .addClassSVG('dimHighlighted');
-                            
-                            //Highlight selected vrouter
-                            $('div.font-element[font-element-model-id="' + model_id + '"]')
-                                .addClass('elementHighlighted')
-                                .removeClass('dimHighlighted')
-                                .css('stroke', "#498AB9")
-                                .css('fill', "#498AB9");
-                            
-                            $('g.element[model-id="' + model_id + '"]')
-                                .addClassSVG('elementHighlighted')
-                                .removeClassSVG('dimHighlighted')
-                                .css('stroke', "#498AB9")
-                                .css('fill', "#498AB9");
-
-                            _this.getPaper().setDimensions($("#topology_paper").innerWidth(),
-                                $("#topology_paper").innerHeight() + 200);
+                            }
+                            _this.getPaper().setDimensions(LEVEL_2_DIMENSTION.width,LEVEL_2_DIMENSTION.height);
                             $('.viewport')
-                                .height($("#topology_paper").innerWidth())
-                                .width($("#topology_paper").innerHeight() + 200);
+                                .height(LEVEL_2_DIMENSTION.width)
+                                .width(LEVEL_2_DIMENSTION.height);
 
-                            $("#topology_paper").panzoom("zoom", true, .8);
+                            if(ZOOMED_OUT == 0) {
+                                ZOOMED_OUT = 0.8;
+                                $("#topology_paper").panzoom("zoom", true, ZOOMED_OUT);
+                            }
                             var vrouterName= response[0].value[0].name;
                             var elementMap = _this.getModel().getElementMap();
                             var nodes      = _this.getModel().getNodes();
@@ -754,6 +791,10 @@ underlayView.prototype.initGraphEvents = function() {
                             _this.getModel().setConnectedElements(elements);
                             _this.getModel().setElementMap(elementMap);
                         }
+                        else {
+                            showInfoWindow("No Virtual Machines found for " + dblClickedElement['attributes']['nodeDetails']['name'], "Info");
+                            return false;
+                        }
                     }
                 });
                 break;
@@ -776,8 +817,8 @@ underlayView.prototype.initGraphEvents = function() {
                 var nodeDetails = clickedElement['attributes']['nodeDetails'];
                 data = {
                     host_name : ifNull(nodeDetails['name'],'-'),
-                    description: ifNull(nodeDetails['more_attr']['lldpLocSysDesc'],'-'),
-                    intfCnt   : ifNull(nodeDetails['more_attr']['ifTable'],[]).length,
+                    description: ifNull(nodeDetails['more_attributes']['lldpLocSysDesc'],'-'),
+                    intfCnt   : ifNull(nodeDetails['more_attributes']['ifTable'],[]).length,
                 };
                 data['type'] = 'node';
                 _this.populateDetailsTab(data);
@@ -831,18 +872,22 @@ underlayView.prototype.initGraphEvents = function() {
     });
 }
 
-underlayView.prototype.resetTopology = function() {
-    this.clearHighlightedConnectedElements();
-    $("#topology_paper").panzoom("reset");
-    this.hideVRouters();
-    var delElements = [];
+underlayView.prototype.hideVMs = function() {
+    this.hideNodesOfType('virtual-machine');
+}
+
+underlayView.prototype.hideVNs = function() {
+    this.hideNodesOfType('virtual-network');
+}
+
+underlayView.prototype.hideNodesOfType = function(type) {
     var elements = this.getModel().getConnectedElements();
     var elementMap = this.getModel().getElementMap();
+    var delElements = [];
     for(var i=0; i<elements.length; i++) {
         var element = elements[i];
         if(element.attributes && element.attributes.hasOwnProperty('nodeDetails') &&
-            (element.attributes.nodeDetails.chassis_type == 'virtual-network' ||
-            element.attributes.nodeDetails.chassis_type == 'virtual-machine')) {
+            element.attributes.nodeDetails.chassis_type == type) {
             delElements.push(element);
             $('div.font-element[font-element-model-id="' + element.id + '"]').remove();
             $('svg').find('g.element[model-id="' + element.id + '"]').remove();
@@ -856,9 +901,14 @@ underlayView.prototype.resetTopology = function() {
             elements.splice(i,1);
         }
     }
+    this.getModel().clearOtherNodes(type);
+}
 
-    this.getModel().clearOtherNodes('virtual-machine');
-    this.getModel().clearOtherNodes('virtual-network');
+underlayView.prototype.resetTopology = function() {
+    this.clearHighlightedConnectedElements();
+    $("#topology_paper").panzoom("reset");
+    ZOOMED_OUT = 0;
+    this.hideVRouters();
 }
 
 underlayView.prototype.renderTopology = function(response) {
@@ -1262,7 +1312,6 @@ underlayView.prototype.renderTracePath = function(options) {
                                        };
                                        return ifNull(directionMap[dc['raw_json']['direction']],'-');
                                    }
-                                    
                                },
                                {
                                    field:"stats_bytes",
@@ -1561,7 +1610,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         values: outBytesData
                     });
                     var icontag = "<i id='prouter-ifstats-loading-0' class='icon-spinner icon-spin blue bigger-125' " +
-                    		"style='display: none;'></i>";
+                            "style='display: none;'></i>";
                     $("#prouter-ifstats-widget-"+i).find('.widget-header > h4').html(icontag+title);
                     initMemoryLineChart('#prouter-ifstats-'+i,intfFlowData,{height:300});
                 }
