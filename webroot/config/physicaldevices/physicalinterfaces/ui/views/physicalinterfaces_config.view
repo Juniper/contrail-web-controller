@@ -86,7 +86,15 @@
                                                         <input type="text" id="txtVlan" name="txtVlan" title="Vlan ID" class="span10" />
                                                     </div>
                                                 </div>                       
-                                            </div>  
+                                            </div> 
+                                            <div id="l2TypePanel" class="control-group">                                            
+                                                <div class="controls">
+                                                   <input type="radio" name="l2Type" id="l2Server" checked="checked" class="ace-input" style="position:relative" value="l2Server">
+                                                   <span class="ace-lbl"> Server </span>
+                                                   <input type="radio" name="l2Type" id="l2Gateway"  class="ace-input" style="position:relative" value="l2Gateway">
+                                                   <span class="ace-lbl"> L2 Gateway </span>                                               
+                                                </div>
+                                            </div>
                                             <div class="control-group">
                                                 <label class="control-label">Virtual Network</label>
                                                 <div class="controls">
@@ -95,14 +103,31 @@
                                                     </div>
                                                 </div>                       
                                             </div>  
-                                            <div class="control-group">
+                                           <!--  <div class="control-group">
                                                 <label class="control-label">Server</label>
                                                 <div class="controls">
                                                     <div class="row-fluid">
                                                         <input type="text" id="ddVMI" name="ddVMI" title="Server" class="span10" />
                                                     </div>
                                                 </div>                       
-                                            </div>  
+                                            </div>   -->
+                                            <div id="l2ServerPanel" class="control-group">
+                                                <label id="lblServer" class="control-label">Server</label>
+                                                <div class="controls">
+                                                    <div class="row-fluid">
+                                                        <input type="text" id="ddVMI" name="ddVMI" title="Server" class="span5" />
+                                                        <input type="text" id="txtVMI" name="txtVMI"  class="span5" style="margin-left:10px;" />
+                                                    </div>
+                                                </div>                       
+                                            </div>
+                                            <div id="l3SubnetPanel" class="control-group hide">
+                                                <label id="lblServer" class="control-label">Subnet</label>
+                                                <div class="controls">
+                                                    <div class="row-fluid">
+                                                        <input type="text" id="txtSubnet" name="txtSubnet"  class="span10"/>
+                                                    </div>
+                                                </div>                       
+                                            </div>                                            
                                         </div>
                                     </div>
                                 </div>
