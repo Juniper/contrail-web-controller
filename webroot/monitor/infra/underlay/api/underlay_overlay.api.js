@@ -254,9 +254,7 @@ function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
 
     postData['kfilt'] = [];
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:lldpTable:lldpLocalSystemData'];
-    postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:lldpTable:lldpLocalSystemData'];
+        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
 
     tempNodeObjs[prouter] = prouter;
     for (var i = 0; i < linksCnt; i++) {
@@ -318,8 +316,6 @@ function buildPhysicalTopology (prouter, appData, callback)
     var tempLinkObjs = {};
     var postData = {};
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
-    postData['cfilt'] = ['PRouterLinkEntry',
         'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
     var url = '/analytics/uves/prouter';
     if (null != prouter) {
@@ -512,7 +508,7 @@ function getUnderlayPath (req, res, appData)
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vmPostData, null, null, null);
-        aSync.map(dataObjArr,
+        async.map(dataObjArr,
                   commonUtils.getServerResponseByRestApi(opApiServer, true),
                   function(err, results) {
             if ((null != err) || (null == results) || (null == results[0]) ||
