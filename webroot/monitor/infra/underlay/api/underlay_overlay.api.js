@@ -128,7 +128,7 @@ function createNodeObj (node, nodeType, prouterEntry)
     nodeObj = ({
         "name": node,
         "node_type": nodeType,
-        "more_attr": {
+        "more_attributes": {
             "lldpLocManAddr": 
                 ((null != lldpNode) && 
                  (null != lldpNode['lldpLocManAddrEntry'])) ?
@@ -1103,15 +1103,15 @@ function getIfStatsBypRouterLink (dataObj, callback)
     var resultJSON = {};
     var timeGran;
     var timeObj = {};
-    if (dataObj['more_attr']['minsSince']!= null) {
-        timeObj = queries.createTimeQueryJsonObj(dataObj['more_attr']['minsSince']);
+    if (dataObj['more_attributes']['minsSince']!= null) {
+        timeObj = queries.createTimeQueryJsonObj(dataObj['more_attributes']['minsSince']);
         timeGran = nwMonUtils.getTimeGranByTimeSlice(timeObj,
-            dataObj['more_attr']['sampleCnt']);
+            dataObj['more_attributes']['sampleCnt']);
     } else {
-        timeGran = dataObj['more_attr']['timeGran'];
+        timeGran = dataObj['more_attributes']['timeGran'];
     }
 
-    var timeObj = queries.createTimeQueryJsonObjByAppData(dataObj['more_attr']);
+    var timeObj = queries.createTimeQueryJsonObjByAppData(dataObj['more_attributes']);
     var queryJSON1 = 
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON['StatTable.PRouterEntry.ifStats']);
     queryJSON1['where'][0][0]['value'] = prouter1;
@@ -1205,7 +1205,7 @@ function buildpRouterLinkAndGetStats (prObj, callback)
                         links[i]['more_attributes'][j]['local_interface_name'],
                         'prouter2_ifname':
                         links[i]['more_attributes'][j]['remote_interface_name'],
-                        'more_attr': uiData['data']});
+                        'more_attributes': uiData['data']});
     }
     async.map(dataObjArr, getIfStatsBypRouterLink,
               function(err, results) {
