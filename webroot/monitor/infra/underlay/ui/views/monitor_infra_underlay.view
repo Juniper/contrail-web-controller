@@ -151,27 +151,34 @@ body > svg {
         </div>
         {{/IfCompare}} -->
         {{#each this.intfObjs}}
-            <!--{{#IfCompare @index 0 operator='%2'}}
-                <div class="row-fluid">
-            {{/IfCompare}}-->
             <div class="row-fluid">
-                <div class="widget-box transparent" id="prouter-ifstats-widget-{{@index}}">
+                <div class="widget-box span6 transparent" id="prouter-lclstats-widget-{{@index}}">
                     <div class="widget-header">
                         <h4 class="smaller">
-                            <i id="prouter-ifstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
+                            <i id="prouter-lclstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
                             Traffic Statistics {{this.title}}
                         </h4>
                     </div>
                     <div class="widget-body">
                         <div class="widget-main">
-                            <div id="prouter-ifstats-{{@index}}" class='ts-chart height-300'></div>
+                            <div id="prouter-lclstats-{{@index}}" class='height-300'></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="widget-box span6 transparent" id="prouter-rmtstats-widget-{{@index}}">
+                    <div class="widget-header">
+                        <h4 class="smaller">
+                            <i id="prouter-rmtstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
+                            Traffic Statistics {{this.title}}
+                        </h4>
+                    </div>
+                    <div class="widget-body">
+                        <div class="widget-main">
+                            <div id="prouter-rmtstats-{{@index}}" class='height-300'></div>
                         </div>
                     </div>
                 </div>
             </div>
-            <!--{{#IfCompare @index 0 operator='%2'}}
-                </div>
-            {{/IfCompare}} -->
         {{/each}}
     {{/IfCompare}}
 </script>
