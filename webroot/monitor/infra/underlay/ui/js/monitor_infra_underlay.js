@@ -24,11 +24,6 @@ function underlayRenderer() {
         this.view  = new underlayView(this.model);
         this.controller = new underlayController(this.model, this.view);
         this.controller.getModelData();
-        //Populating the compute node datasource
-        var computeNodeDS = new SingleDataSource('computeNodeDS');
-        computeNodeDS.getDataSourceObj();
-        var instanceDS = new SingleDataSource('instDS');
-        instanceDS.getDataSourceObj();
     }
 
     this.getModel = function() {
@@ -1431,12 +1426,12 @@ underlayView.prototype.renderTracePath = function(options) {
     $("#traceFlowBtn").on('click',function(e){
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
-        var item = vrouterDropdown.getSelectedItem();
+        var item = vrouterDropdown.getSelectedData();
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
          */
-        var ip = dataItem['raw_json']['direction'] == 'egress' ? dataItem['raw_json']['peer_vrouter'] : item['id'] ;  
+        var ip = dataItem['raw_json']['direction'] == 'egress' ? dataItem['raw_json']['peer_vrouter'] : item[0]['id'] ;  
         var postData = {
                nodeIP: ip,
                srcIP: dataItem['sip'],
