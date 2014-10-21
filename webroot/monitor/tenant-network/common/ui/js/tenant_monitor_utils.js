@@ -315,20 +315,7 @@ function ObjectListView() {
         //Get the latest project's data and merge into projectDataSource
         var projData = getProjectData(networkdataSource.getItems(),ifNull(globalObj['dataSources']['projectDS'],{}))['projectsData'];
         var projectDataSource = globalObj['dataSources']['projectDS']['dataSource'];
-        //projectDataSource.setData(projData);
-        for(var i = 0;i < projData.length; i++){
-            var datum = projectDataSource.getItemById(projData[i]['id']);
-            if(datum == undefined) {
-               projectDataSource.addItem(projData[i]);
-            } else {
-               datum['inBytes'] = projData[i]['inBytes'];
-               datum['inThroughput'] = projData[i]['inThroughput'];
-               datum['outBytes'] = projData[i]['outBytes'];
-               datum['outThroughput'] = projData[i]['outThroughput'];
-               datum['vnCnt'] = projData[i]['vnCnt'];
-               projectDataSource.updateItem(projData[i]['id'],datum);
-            }
-         }
+        projectDataSource.setData(projData);
         /*
         projectDataSource.fetch(function(){
             for(var i = 0;i < projData.length; i++){
