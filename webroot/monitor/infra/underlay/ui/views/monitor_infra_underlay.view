@@ -98,16 +98,18 @@ body > svg {
 </script>
 <script type="text/x-handlebars-template" id="tracePath-template">
 	<div>
+        <div class="row-fluid">	   
 		{{#each this}}
-		    <div class="control-group" style="display:inline-block">
-		        <label class="control-label" class="span3">{{this.label}}</label>
+		    <div class="control-group span2" style="display:inline-block">
+		        <label class="control-label">{{this.label}}</label>
 		        <div class="controls">
 		            <div class="row-fluid">
-		                <div id="{{this.key}}"  class="span8" />
+		                <div id="{{this.key}}"  class="span12" />
 		            </div>
 		        </div>
 		    </div>
 		{{/each}}
+		</div>
 		<div class='contrail' id='vrouterflows'></div>
 	</div>
 </script>

@@ -1172,23 +1172,23 @@ underlayView.prototype.renderTracePath = function(options) {
             value:items[i]['ip']
         });
     }
-    $("#vRouter").contrailCombobox({
+    $("#vRouter").contrailDropdown({
         dataTextField: "text",
         dataValueField: "value",
-        defaultValue: defaultValue,
-        change:function(e,item){
+        change:function(e){
             var newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + item['item']['id'], 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + e['val'], 
                         type:'Get'
                     };
             flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-            flowGrid.dataSource.setData([]);
+            flowGrid._dataView.setData([]);
             flowGrid.showGridMessage('loading');
             reloadGrid(flowGrid);
         }
     });
-    var vrouterCombobox = $("#vRouter").data('contrailCombobox');
-    vrouterCombobox.setData(data);
+    var vrouterDropdown = $("#vRouter").data('contrailDropdown');
+    vrouterDropdown.setData(data);
+    vrouterDropdown.text(defaultValue);
     //if(!isGridInitialized('#vrouterflows')) {
         $("#vrouterflows").contrailGrid({
             header : {
@@ -1252,11 +1252,24 @@ underlayView.prototype.renderTracePath = function(options) {
                                    minWidth:50
                                },
                                {
+                                   field:"direction",
+                                   name:"Direction",
+                                   minWidth:80,
+                                   formatter:function(r,c,v,cd,dc) {
+                                       var directionMap = {
+                                           'egress': 'ENGRESS',
+                                           'ingress': 'INGRESS'
+                                       };
+                                       return ifNull(directionMap[dc['raw_json']['direction']],'-');
+                                   }
+                                    
+                               },
+                               {
                                    field:"stats_bytes",
                                    name:"Bytes/Pkts",
                                    minWidth:80,
                                    formatter:function(r,c,v,cd,dc){
-                                       return contrail.format("{0}/{1}",dc['stats_bytes'],dc['stats_packets']);
+                                       return contrail.format("{0}/{1}",formatBytes(dc['stats_bytes'],'-'),dc['stats_packets']);
                                    },
                                    searchFn:function(d){
                                        return d['stats_bytes']+ '/ ' +d['stats_packets'];
@@ -1327,9 +1340,14 @@ underlayView.prototype.renderTracePath = function(options) {
     $("#traceFlowBtn").on('click',function(e){
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
-        var item = vrouterCombobox.getSelectedItem();
+        var item = vrouterDropdown.getSelectedItem();
+        /*
+         * For egress flows the source vm ip may not spawned in the same vrouter,
+         * so need to pick the peer_vrouter
+         */
+        var ip = dataItem['raw_json']['direction'] == 'egress' ? dataItem['raw_json']['peer_vrouter'] : item['id'] ;  
         var postData = {
-               nodeIP: item['ip'],
+               nodeIP: ip,
                srcIP: dataItem['sip'],
                destIP: dataItem['dip'],
                srcPort: dataItem['src_port'],
@@ -1495,16 +1513,12 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 }
                 initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
             } else if (link == 'prouter') {
-                /*var totalData = {
-                        link: link,
-                        intfObjs: []
-                };*/
                 for(var i = 0; i < response.length; i++) {
                     var rawFlowData = response[i];
                     var lclData = ifNull(rawFlowData[0],{});
                     var rmtData = ifNull(rawFlowData[1],{});
                     var intfFlowData = [],inBytesData = [],outBytesData = [];
-                    var title = contrail.format("of link between {0} {1} and {2} {3}",lclData['summary']['name'],
+                    var title = contrail.format("Traffic statistics of link between {0} {1} and {2} {3}",lclData['summary']['name'],
                             lclData['summary']['if_name'],rmtData['summary']['name'],rmtData['summary']['if_name']);
                     var lclFlows = ifNull(lclData['flow-series']['value'],[]);
                     var rmtFlows = ifNull(rmtData['flow-series']['value'],[]);
@@ -1546,7 +1560,9 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         key: 'Receive',
                         values: outBytesData
                     });
-                    $("#prouter-ifstats-widget-"+i).find('.widget-header > h4').append(title);
+                    var icontag = "<i id='prouter-ifstats-loading-0' class='icon-spinner icon-spin blue bigger-125' " +
+                    		"style='display: none;'></i>";
+                    $("#prouter-ifstats-widget-"+i).find('.widget-header > h4').html(icontag+title);
                     initMemoryLineChart('#prouter-ifstats-'+i,intfFlowData,{height:300});
                 }
             } 
