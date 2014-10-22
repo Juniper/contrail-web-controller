@@ -134,7 +134,53 @@
                                     <label  class="control-label ">Virtual Router</label>
                                     <div class="controls">
                                         <div class="row-fluid">
-                                            <input type="text" id="ddVirtualRouters" class="span11"/>
+                                            <input type="text" id="ddVirtualRoutersType" class="span11"/>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="vRouterTorAgentFields" class="hide">
+                                    <div class="control-group">
+                                        <div class="row-fluid margin-0-0-10">
+                                            <div class="control-group">
+                                              <label class="control-label">ToR Agent Name</label>  
+                                              <div class="controls">                       
+                                                  <div class="row-fluid">
+                                                       <div class="pull-left">
+                                                           <input type="text" id="ddTorAgentName" name="ddTorAgentName" title="ddTorAgentName" 
+                                                           class="span12 pull-left"/>
+                                                       </div>
+                                                       <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                           Management IP
+                                                       </label>
+                                                       <div class ="pull-left">
+                                                           <input title="txtTorAgentIp"
+                                                               id="txtTorAgentIp" class="span12" type="text" name="txtTorAgentIp"
+                                                               value="">
+                                                           </input> 
+                                                       </div>                                
+                                                  </div>  
+                                              </div>
+                                        </div>
+                                        <div class="row-fluid margin-0-0-10">
+                                            <div class="control-group">
+                                              <label class="control-label">TSN Name</label>  
+                                              <div class="controls">                       
+                                                  <div class="row-fluid">
+                                                       <div class="pull-left">
+                                                           <input type="text" id="ddTsnName" name="ddTsnName" title="ddTsnName" 
+                                                           class="span12 pull-left"/>
+                                                       </div>
+                                                       <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                           Management IP
+                                                       </label>
+                                                       <div class ="pull-left">
+                                                           <input title="txtTsnIp"
+                                                               id="txtTsnIp" class="span12" type="text" name="txtTsnIp"
+                                                               value="">
+                                                           </input> 
+                                                       </div>                                
+                                                  </div>  
+                                              </div>
                                         </div>
                                     </div>
                                 </div>
