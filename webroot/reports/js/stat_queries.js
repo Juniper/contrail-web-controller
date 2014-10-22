@@ -128,11 +128,15 @@ function viewStatQueryResults(dataItem, params) {
     }
     
     reqQueryObj.table = params.tableName;
-    getStatPlotFields(selectArray, reqQueryObj, options, columnDisplayArray, selectArray);
-    
-//    statQueryGridDisplay = getColumnDisplay4Grid(columnDisplayArray, selectArray);
-//    collapseWidget('#' + queryPrefix + '-query-widget');
-//    loadStatResults(options, reqQueryObj, statQueryGridDisplay, statQueryGridDisplay, statChartGridDisplay); 
+    if(queries.stat.queryViewModel.isCustomTableVisible()){
+        statQueryGridDisplay = getColumnDisplay4Grid(columnDisplayArray, selectArray);
+        collapseWidget('#' + queryPrefix + '-query-widget');
+        reqQueryObj.table = reqQueryObj.customTable;
+        delete reqQueryObj.customTable;
+        loadStatResults(options, reqQueryObj, statQueryGridDisplay, statQueryGridDisplay, statChartGridDisplay);
+    } else{
+        getStatPlotFields(selectArray, reqQueryObj, options, columnDisplayArray, selectArray);
+    }
 };
 
 function loadSelectedStatChart(element ) {
@@ -232,7 +236,15 @@ function runStatQuery(queryPrefix, serverCurrentTime) {
             options.baseUnit = labelStepUnit.baseUnit;
             options.interval = labelStepUnit.secInterval;
         }
-        getStatPlotFields(selectArray, reqQueryObj, options, columnDisplayArray, selectArray);
+        if(queries.stat.queryViewModel.isCustomTableVisible()){
+            statQueryGridDisplay = getColumnDisplay4Grid(columnDisplayArray, selectArray);
+            collapseWidget('#' + queryPrefix + '-query-widget');
+            reqQueryObj.table = reqQueryObj.customTable;
+            delete reqQueryObj.customTable;
+            loadStatResults(options, reqQueryObj, statQueryGridDisplay, statQueryGridDisplay);
+        } else{
+            getStatPlotFields(selectArray, reqQueryObj, options, columnDisplayArray, selectArray);
+        }
     }
 };
 
@@ -505,6 +517,7 @@ statQuery['defaultColumns'] = [];
 statQuery['queryViewModel'] = new QueryViewModel('stat', function(){
     this.defaultTRValue("1800");
     this.isCustomTRVisible(false);
+    this.isCustomTableVisible(false);
     this.isTGVisible(false);
     queries.stat.selectViewModel.reset();
     queries.stat.whereViewModel.reset();
@@ -544,7 +557,9 @@ function loadStatQueryObj() {
     $(contentContainer).html('');
     $(contentContainer).html(qeTemplate);
 
-    setStatQueryFromValues('/api/admin/tables', 'fromTables', queries['stat'].queryViewModel);
+    setStatQueryFromValues('/api/admin/tables', 'fromTables', queries['stat'].queryViewModel, null, function(){
+        $('#stat-table').select2('val', 'StatTable.AnalyticsCpuState.cpu_info');
+    });
     setStatValidValues('StatTable.AnalyticsCpuState.cpu_info', 'stat');
     initStatQueryView('stat');
     populateStatSelectPopupTemplate('stat');
@@ -563,7 +578,14 @@ function fromTableChangeHandler(e){
     queries.stat.selectViewModel.reset();
     queries.stat.whereViewModel.reset();
     queries.stat.filterViewModel.reset();
-    setStatValidValues(e.val, 'stat');
+    queries.stat.queryViewModel.isTGVisible(false);
+
+    if(e.val === 'Custom'){
+        queries['stat'].queryViewModel.isCustomTableVisible(true);
+    } else {
+        setStatValidValues(e.val, 'stat');
+        queries['stat'].queryViewModel.isCustomTableVisible(false);
+    }
 };
 //Stat Query - End
 

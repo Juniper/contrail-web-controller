@@ -101,13 +101,19 @@
                 <form id="{{queryPrefix}}-query-form" onsubmit="return false;" class="">
                     <div id="{{queryPrefix}}-query-container" class="row-fluid">
                         <div class="row-fluid margin-0-0-5">
-                            <div class="span8">
+                            <div class="span4">
                                 <label>Stat Table</label>
                                 <div>
                                     <select id="stat-table" class="span12"
                                             name="table"
                                             data-bind="options: fromTables, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
                                     </select>
+                                </div>
+                            </div>
+                            <div class="span4" data-bind="visible: isCustomTableVisible">
+                                <label>Custom Table</label>
+                                <div>
+                                    <input id="{{queryPrefix}}-custom-table" name="customTable" class="span12" value="" type="text" required/>
                                 </div>
                             </div>
                         </div>
@@ -141,7 +147,7 @@
                                 <div>
                                     <div class="input-append inset span12">
                                         <input id="{{queryPrefix}}-select" name="select" class="span12" type="text" value="" />
-                                        <span class="add-on"><i class="icon-pencil" onclick="openSelect('{{queryPrefix}}');"></i></span>
+                                        <span class="add-on" data-bind="visible: !isCustomTableVisible()"> <i class="icon-pencil" onclick="openSelect('{{queryPrefix}}');"></i></span>
                                     </div>
                                 </div>
                             </div>
@@ -165,7 +171,7 @@
                                 <div>
                                     <div class="input-append inset span12">
                                         <textarea id="{{queryPrefix}}-where" name="where" class="span12 where-textarea" value="" rows="1" required="required" validationMessage="Where Required"></textarea>
-                                        <span class="add-on"><i class="icon-pencil" onclick="openWhere('{{queryPrefix}}');"></i></span>
+                                        <span class="add-on" data-bind="visible: !isCustomTableVisible()"><i class="icon-pencil" onclick="openWhere('{{queryPrefix}}');"></i></span>
                                     </div>
                                 </div>
                             </div>
@@ -176,7 +182,7 @@
                             <div>
                                 <div class="input-append inset span12">
                                     <textarea id="{{queryPrefix}}-filter" name="filters" class="span12 filter-textarea" rows="1" value=""></textarea>
-                                        <span class="add-on"><i class="icon-pencil" onclick="openFilter('{{queryPrefix}}', 'modal-840');"></i></span>
+                                        <span class="add-on" data-bind="visible: !isCustomTableVisible()"><i class="icon-pencil" onclick="openFilter('{{queryPrefix}}', 'modal-840');"></i></span>
                                 </div>
                             </div>
                         </div>
