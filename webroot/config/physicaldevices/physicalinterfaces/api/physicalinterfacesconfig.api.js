@@ -331,40 +331,58 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                         ['virtual_machine_interface_mac_addresses']['mac_address'], "owner" : vmi['virtual_machine_interface_device_owner'],
                         "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs']});
                      var instIPBackRefs = vmi['instance_ip_back_refs'];
-                     var instIPBackRefsCnt = instIPBackRefs.length;
-                     for (var k = 0; k < instIPBackRefsCnt; k++) {
-                        var instIPUrl = '/instance-ip/' + instIPBackRefs[k]['uuid'];
-                        commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
-                                                 null, null, null, appData);
+                     //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
+                     if(instIPBackRefs != null && instIPBackRefs.length > 0) {
+                         for (var k = 0; k < instIPBackRefs.length ; k++) {
+                            var instIPUrl = '/instance-ip/' + instIPBackRefs[k]['uuid'];
+                            commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
+                                                     null, null, null, appData);
+                         }
                      }
                  }
-                 async.map(dataObjArr,
-                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                     function(error, data) {
-                     if ((null != error) || (null == data) || (!data.length)) {
-                         commonUtils.handleJSONResponse(error, response, null);
-                         return;
-                     }
-                     var instIPDataCnt = data.length;
-                     var tempVMIResourceObjCnt = tempVMIResourceObj.length;
-                     var total = 0;
-                     for (var i = 0; i < tempVMIResourceObjCnt; i++) {
-                         var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
-                         var tempInstIPData = data.slice(total, total + instIpCnt);
-                         total += instIpCnt;
-                         var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
-                         if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
-                             resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs, 
-                                             "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
+                 if(dataObjArr.length > 0) {
+                     async.map(dataObjArr,
+                         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                         function(error, data) {
+                         if ((null != error) || (null == data) || (!data.length)) {
+                             commonUtils.handleJSONResponse(error, response, null);
+                             return;
                          }
-                         
-                     }
+                         var instIPDataCnt = data.length;
+                         var tempVMIResourceObjCnt = tempVMIResourceObj.length;
+                         var total = 0;
+                         for (var i = 0; i < tempVMIResourceObjCnt; i++) {
+                             if(tempVMIResourceObj[i]['instance-ip'] != null && tempVMIResourceObj[i]['instance-ip'].length > 0) {
+                                 var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
+                                 var tempInstIPData = data.slice(total, total + instIpCnt);
+                                 total += instIpCnt;
+                                 var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
+                                 if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
+                                     resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs, 
+                                                     "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
+                                 }
+                             } else {
+                                 resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [], 
+                                                 "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});                             
+                             }
+                         }
+                         if(callback != null) {
+                             callback(resultJSON);
+                         } else {
+                             commonUtils.handleJSONResponse(null, response, resultJSON);
+                         }    
+                     });
+                 } else {
+                     if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
+                         resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [], 
+                                         "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
+                     } 
                      if(callback != null) {
                          callback(resultJSON);
                      } else {
                          commonUtils.handleJSONResponse(null, response, resultJSON);
-                     }    
-                 });
+                     }                      
+                 }
             }
     );       
 }
