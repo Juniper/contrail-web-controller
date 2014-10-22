@@ -144,16 +144,88 @@ function physicalRoutersConfig() {
         }); 
         
       //initializing physical router type multi select
-        $('#ddVirtualRouters').contrailDropdown({
+        $('#ddVirtualRoutersType').contrailDropdown({
             dataTextField:'text',
             dataValueField:'value',
+            change:onVrouterTypeChange,
         }); 
+        
+        var vrType =  $('#ddVirtualRoutersType').data('contrailDropdown');
+        var vrTypeDS = [{ text : 'None', value : 'none'},
+                        { text : 'Embedded', value : 'embedded'},
+                        { text : 'TOR Agent', value : 'tor-agent'}
+        ];
+        vrType.setData(vrTypeDS);
+        
+        $('#ddTorAgentName').contrailCombobox({
+            dataTextField:'text',
+            dataValueField:'value',
+            minimumResultsForSearch : 1,
+            change:onTorAgentChange
+        }); 
+        
+        $('#ddTsnName').contrailCombobox({
+            dataTextField:'text',
+            dataValueField:'value',
+            minimumResultsForSearch : 1,
+            change:onTsnChange
+        }); 
+        
         //initializing delete record window
         //deleteRecordWindowObj.modal({backdrop:'static',keyboard:false,show:false});
         //deleteRecordWindowObj.find(".modal-header-title").text('Confirm');
                
         $('#confirmMainDelete').modal({backdrop:'static',keyboard:false,show:false});
         $('#confirmMainDelete').find(".modal-header-title").text('Confirm');            
+    }
+    
+    function onVrouterTypeChange(e){
+        var inf = e.added.value;
+        if(inf === "tor-agent") {
+            $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
+        } else {
+            $('#vRouterTorAgentFields').removeClass('show').addClass('hide');           
+        }
+    }
+    
+    function onTorAgentChange(e){
+//        var inf = e.added.value;
+        var torcb = $('#ddTorAgentName').data('contrailCombobox');
+        var inf = torcb.value();
+        var allData = torcb.getAllData();
+        var isSelectedFromList = false;
+        $.each(allData,function(i,d){
+            if(d.id == inf){
+                isSelectedFromList = true;
+            }
+        });
+        if(inf != null && isSelectedFromList){
+            $('#txtTorAgentIp').val(inf);
+            $('#txtTorAgentIp').attr("disabled", "disabled");
+        } else {
+            $('#txtTorAgentIp').val('');
+            $('#txtTorAgentIp').removeAttr("disabled");
+        }
+    }
+    
+    function onTsnChange(e){
+//        var inf = e.added.value;
+        var tsncb = $('#ddTsnName').data('contrailCombobox');
+        var inf = tsncb.value();
+        var allData = tsncb.getAllData();
+        var isSelectedFromList = false;
+        $.each(allData,function(i,d){
+            if(d.id == inf){
+                isSelectedFromList = true;
+            }
+        });
+        if(inf != null && inf != '' && isSelectedFromList){
+            $('#txtTsnIp').val(inf);
+            $('#txtTsnIp').attr("disabled", "disabled");
+        } else {
+            $('#txtTsnIp').val('');
+            $('#txtTsnIp').removeAttr("disabled");
+        }
     }
     
     function initActions() {
@@ -264,9 +336,12 @@ function physicalRoutersConfig() {
             $('#msVN').data('contrailMultiselect').value(valueArr);
             if(gblSelRow.virtual_router != '-')
                 $('#ddVirtualRouters').data('contrailDropdown').text(gblSelRow.virtual_router);
+            if(!(gblSelRow.virtualRouterType === 'Embedded')) {
+                $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
+           }   
         } else {
             $('#ddBgpRouter').data('contrailDropdown').value('None');
-            $('#ddVirtualRouters').data('contrailDropdown').value('None');
+            $('#ddVirtualRoutersType').data('contrailDropdown').value('None');
         }
         $('#addPhysicalRouterWindow').modal('show');       
     }
@@ -286,7 +361,7 @@ function physicalRoutersConfig() {
         var password = $("#txtPassword").val();
         var bgpRouter = $("#ddBgpRouter").data('contrailDropdown').text();
         
-        var vRouters = $("#ddVirtualRouters").data('contrailDropdown').text();
+        var vRoutersType = $("#ddVirtualRoutersType").data('contrailDropdown').text();
         var postObject = {};
         
         gridPhysicalRouters._dataView.setData([]);
@@ -308,14 +383,8 @@ function physicalRoutersConfig() {
         } else {
             postObject["physical-router"]["bgp_router_refs"] = [];
         }
-        
-//        var vn = [];
+ 
         var vns = $("#msVN").data('contrailMultiselect').getSelectedData();
-//        for(var i= 0;i < vns.length; i++){
-//            var v = vns[i];
-//            var parts = v.split('*');
-//            vn.push(parts);
-//        }
         if(vns.length > 0){
             var vnRefs = [];
             for(var i = 0 ;i < vns.length ; i++){
@@ -326,8 +395,70 @@ function physicalRoutersConfig() {
             postObject["physical-router"]["virtual_network_refs"] = [];
         }
         
-        if(vRouters != 'None'){
-            var virtualRouterRefs = [{"to":["default-global-system-config",vRouters]}];
+        if(vRoutersType != 'None'){
+            var virtualRouterRefs = [];
+            if(vRoutersType == 'Embedded'){
+                postObject["physical-router"]['virtual_router_type'] = vRoutersType;
+                var virtualRouters = [];
+                postObject["physical-router"]["virtual-routers"] = [];
+                
+                virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", name],
+                                    "parent_type":"global-system-config",
+                                    "name": name,
+                                    "virtual_router_ip_address" : mgmtIpAddress,
+                                    "virtual_router_type" : ['embedded']}});
+                virtualRouterRefs.push({"to":["default-global-system-config",name]});
+                
+            } else {//ToR Agent case
+                var torcb = $('#ddTorAgentName').data('contrailCombobox');
+                var tor = torcb.value();
+                var allData = torcb.getAllData();
+                var isTorSelectedFromList = false;
+                $.each(allData,function(i,d){
+                    if(d.id == tor){
+                        isTorSelectedFromList = true;
+                    }
+                });
+                
+                var tsncb = $('#ddTsnName').data('contrailCombobox');
+                var tsn = tsncb.value();
+                var tsnAllData = tsncb.getAllData();
+                var isTsnSelectedFromList = false;
+                $.each(tsnAllData,function(i,d){
+                    if(d.id == tsn){
+                        isTsnSelectedFromList = true;
+                    }
+                });
+                
+                postObject["physical-router"]['virtual_router_type'] = vRoutersType;
+                var virtualRouters = [];
+                postObject["physical-router"]["virtual-routers"] = [];
+                
+                var torAgentName = $("#ddTorAgentName").data('contrailCombobox').text();
+                var torAgentIp = $("#txtTorAgentIp").val();
+                var tsnName = $("#ddTsnName").data('contrailCombobox').text();
+                var tsnIp = $("#txtTsnIp").val();
+                //TOR Agent
+                if(!isTorSelectedFromList){
+                    virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", torAgentName],
+                                        "parent_type":"global-system-config",
+                                        "name": torAgentName,
+                                        "virtual_router_ip_address" : torAgentIp,
+                                        "virtual_router_type" : ['tor-agent']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",torAgentName]});
+                //TSN
+                if(!isTsnSelectedFromList){
+                    virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", tsnName],
+                                        "parent_type":"global-system-config",
+                                        "name": tsnName,
+                                        "virtual_router_ip_address" : tsnIp,
+                                        "virtual_router_type" : ['tor-service-node']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",tsnName]});
+            }
+            
+            postObject["physical-router"]["virtual-routers"] = virtualRouters;
             postObject["physical-router"]["virtual_router_refs"] = virtualRouterRefs;
         } else {
             postObject["physical-router"]["virtual_router_refs"] = [];
@@ -349,7 +480,7 @@ function physicalRoutersConfig() {
         $("#txtPassword").val('');
         $("#ddBgpRouter").data('contrailDropdown').value('None');
         $("#msVN").data('contrailMultiselect').value(''); 
-        $("#ddVirtualRouters").data('contrailDropdown').value('None');
+        $("#ddVirtualRoutersType").data('contrailDropdown').value('None');
     }
         
     function fetchData() {
@@ -426,23 +557,39 @@ function physicalRoutersConfig() {
     }
     
     function fetchVirtualRouters() {
-        doAjaxCall('/api/tenants/config/virtual-routers-list','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
+        doAjaxCall('/api/tenants/config/virtual-routers','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
     window.successHandlerForVirtualRouters =  function(result) {
-        var vRoutersDS = [{text : "None", value : "None"}];    
-        if(result && result['virtual-routers'].length > 0) {
-            var virtualRouters = result['virtual-routers'];
-            for(var i = 0; i < virtualRouters.length;i++) {
-                var virtualRouter = virtualRouters[i];
-                vRoutersDS.push({text : virtualRouter.fq_name[1], value : virtualRouter.uuid});
+        var torAgentVrouterDS = [];
+        var tsnVrouterDS = [];
+        if(result && result.length > 0) {
+            for(var i = 0; i < result.length;i++) {
+                var virtualRouter = result[i]['virtual-router'];
+                var vRouterType = (virtualRouter['virtual_router_type'])? virtualRouter['virtual_router_type'][0] : '';
+                if(vRouterType == 'tor-agent'){
+                    //Tor agent can be assigned to only one prouter so dont include them in the list
+                    if(!virtualRouter['physical_router_back_refs'] || virtualRouter['physical_router_back_refs'].length < 1) {
+                        torAgentVrouterDS.push({text : virtualRouter.fq_name[1], value : virtualRouter.virtual_router_ip_address}); 
+                    }
+                } else if(vRouterType == 'tor-service-node'){
+                    tsnVrouterDS.push({text : virtualRouter.fq_name[1], value : virtualRouter.virtual_router_ip_address});
+                }
             } 
-        
+            if(torAgentVrouterDS.length < 1) {
+                torAgentVrouterDS.push({text : 'No ToR Agent found', value: 'Message'});
+            }
+            if(tsnVrouterDS.length < 1) {
+                tsnVrouterDS.push({text : 'No TSN Agent found', value: 'Message'});
+            }
         } else {
-            vRoutersDS.push({text : 'No Virtual Router found', value: 'Message'});
+            torAgentVrouterDS.push({text : 'No ToR Agent found', value: 'Message'});
+            tsnVrouterDS.push({text : 'No TSN found', value: 'Message'});
         }
-        var vRouterDD = $('#ddVirtualRouters').data('contrailDropdown');            
-        vRouterDD.setData(vRoutersDS);
+        var torAgentDD = $('#ddTorAgentName').data('contrailCombobox');            
+        torAgentDD.setData(torAgentVrouterDS);
+        var tsnAgentDD = $('#ddTsnName').data('contrailCombobox');            
+        tsnAgentDD.setData(tsnVrouterDS);
     }
     
     window.failureHandlerForVirtualRouters = function(error) {
