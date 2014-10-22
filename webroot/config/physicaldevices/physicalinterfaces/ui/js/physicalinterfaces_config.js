@@ -410,6 +410,16 @@ function physicalInterfacesConfig() {
         }
         return '';
     }
+    
+    function getCurrentVMIId(name) {
+        var data = $('#ddVMI').data('contrailCombobox').getAllData();
+        for(var i = 0; i < data.length; i++) {
+            if(data[i].text.indexOf(name) !== -1) {
+                return data[i].id;
+            }    
+        }
+        return '';
+    }
         
     function createUpdatePhysicalInterface() {
         var methodType = 'POST';
@@ -435,7 +445,7 @@ function physicalInterfacesConfig() {
             var liType = $('#ddLIType').data('contrailDropdown').value();
             var parent = $('#ddParent').data('contrailDropdown');
             //var ddVMIValue = $('#ddVMI').data('contrailDropdown').value();
-            var ddVMIValue = $('#ddVMI').data('contrailCombobox').value();
+            var ddVMIValue = getCurrentVMIId($('#ddVMI').data('contrailCombobox').text());
             var vmiData = 'none';
             if(vmiDetails != null) {
                 vmiData = vmiDetails['virtual-machine-interface']['fq_name'];
@@ -683,11 +693,11 @@ function physicalInterfacesConfig() {
                     name : pInterface.name,
                     type : infType,
                     parent : pInterface.fq_name[1],
-                    vlan : liDetails.vlanTag,
-                    server : liDetails.vmiDetails,
-                    vn : liDetails.vnRefs,
-                    li_type : liDetails.liType,
-                    vmi_ip : liDetails.vmiIP
+                    vlan : liDetails.vlanTag != null ? liDetails.vlanTag : '-',
+                    server : liDetails.vmiDetails != null ? liDetails.vmiDetails : '-',
+                    vn : liDetails.vnRefs != null ? liDetails.vnRefs : '-',
+                    li_type : liDetails.liType != null ? liDetails.liType : '-' ,
+                    vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-'
                 });
                 var lInterfaces = pInterfaces[i]['physical-interface'] ? pInterfaces[i]['physical-interface']['logical_interfaces'] : null;
                 var lInterfaceNames = '';
