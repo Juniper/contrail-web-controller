@@ -6,6 +6,7 @@ physicalRoutersConfigObj = new physicalRoutersConfig();
 function physicalRoutersConfig() {
     //Variable Definitions
     var gridPhysicalRouters;
+    var globalVRoutersMap = {};
     
     //Method Definitions 
     this.load = load;
@@ -308,7 +309,9 @@ function physicalRoutersConfig() {
     function populateCreateEditWindow(m) {
         mode = m;
         clearCreateEditWindow();
+//TODO this need to be called on load of the window otherwise the data obtained will be stale        fetchVirtualRouters();
         if(mode === 'edit') {
+            
             $('#addPhysicalRouterWindow').find(".modal-header-title").text('Edit Physical Router');
             $('#txtPhysicalRouterName').val(gblSelRow.name);
             if(gblSelRow.vendor != '-')
@@ -334,24 +337,55 @@ function physicalRoutersConfig() {
                 }
             }
             $('#msVN').data('contrailMultiselect').value(valueArr);
-            if(gblSelRow.virtual_router != '-')
-                $('#ddVirtualRoutersType').data('contrailDropdown').text(gblSelRow.virtual_router);
-            if(!(gblSelRow.virtualRouterType === 'Embedded')) {
-                $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
-           }   
+            
+            if(gblSelRow.virtual_router != '-'){
+                var selectedVRouters = gblSelRow.virtual_router.split(',');
+                var vRoutersWithType = [];
+                var vrType = 'None';
+                $.each(selectedVRouters,function(i,vrname){
+                    var dtl = getVirtualRouterDetails(vrname);
+                    if(dtl.type == 'embedded'){
+                        vrType = 'Embedded';
+                        $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
+                    } else if(dtl.type == 'tor-agent'){
+                        vrType = 'TOR Agent';
+                        $('#ddTorAgentName').data('contrailCombobox').value(vrname);
+                        $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
+                        $('#txtTorAgentIp').val(dtl.ip);
+                        $('#txtTorAgentIp').attr("disabled", "disabled");
+                    } else {
+                        vrType = 'TOR Agent';
+                        $('#ddTsnName').data('contrailCombobox').value(vrname);
+                        $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
+                        $('#txtTsnIp').val(dtl.ip);
+                        $('#txtTsnIp').attr("disabled", "disabled");
+                    }
+//                    vRoutersWithType.push({name:vrname,type:type]});
+                });
+                
+                $('#ddVirtualRoutersType').data('contrailDropdown').text(vrType);
+            }
         } else {
             $('#ddBgpRouter').data('contrailDropdown').value('None');
             $('#ddVirtualRoutersType').data('contrailDropdown').value('None');
         }
         $('#addPhysicalRouterWindow').modal('show');       
     }
+    
+    function getVirtualRouterDetails(vRouterName) {
+        return (globalVRoutersMap[vRouterName.trim()])? globalVRoutersMap[vRouterName.trim()] : '';
+    }
         
     function createUpdatePhysicalRouter() {
         var methodType = 'POST';
         var url = '/api/tenants/config/physical-routers';
+        var selectedVRouters = [];
         if(mode === 'edit') {
             methodType = 'PUT';
             url = '/api/tenants/config/physical-router/' + gblSelRow.uuid
+            if(gblSelRow.virtual_router != '-'){
+                selectedVRouters = gblSelRow.virtual_router.split(',');
+            }
         }
         var name = $("#txtPhysicalRouterName").val();
         var vendor = $("#txtVendor").val();
@@ -414,22 +448,32 @@ function physicalRoutersConfig() {
                 var tor = torcb.value();
                 var allData = torcb.getAllData();
                 var isTorSelectedFromList = false;
+                var isTorAlreadyFromEdit = false;
                 $.each(allData,function(i,d){
                     if(d.id == tor){
                         isTorSelectedFromList = true;
                     }
                 });
-                
+                $.each(selectedVRouters,function(j,vrouter){
+                   if(vrouter.trim() == tor){
+                       isTorAlreadyFromEdit = true;
+                   } 
+                });
                 var tsncb = $('#ddTsnName').data('contrailCombobox');
                 var tsn = tsncb.value();
                 var tsnAllData = tsncb.getAllData();
                 var isTsnSelectedFromList = false;
+                var isTsnAlreadyFromEdit = false;
                 $.each(tsnAllData,function(i,d){
                     if(d.id == tsn){
                         isTsnSelectedFromList = true;
                     }
                 });
-                
+                $.each(selectedVRouters,function(j,vrouter){
+                    if(vrouter.trim() == tsn){
+                        isTsnAlreadyFromEdit = true;
+                    } 
+                 });
                 postObject["physical-router"]['virtual_router_type'] = vRoutersType;
                 var virtualRouters = [];
                 postObject["physical-router"]["virtual-routers"] = [];
@@ -439,7 +483,7 @@ function physicalRoutersConfig() {
                 var tsnName = $("#ddTsnName").data('contrailCombobox').text();
                 var tsnIp = $("#txtTsnIp").val();
                 //TOR Agent
-                if(!isTorSelectedFromList){
+                if(!isTorSelectedFromList && !isTorAlreadyFromEdit){
                     virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", torAgentName],
                                         "parent_type":"global-system-config",
                                         "name": torAgentName,
@@ -448,7 +492,7 @@ function physicalRoutersConfig() {
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",torAgentName]});
                 //TSN
-                if(!isTsnSelectedFromList){
+                if(!isTsnSelectedFromList && !isTsnAlreadyFromEdit){
                     virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", tsnName],
                                         "parent_type":"global-system-config",
                                         "name": tsnName,
@@ -481,6 +525,10 @@ function physicalRoutersConfig() {
         $("#ddBgpRouter").data('contrailDropdown').value('None');
         $("#msVN").data('contrailMultiselect').value(''); 
         $("#ddVirtualRoutersType").data('contrailDropdown').value('None');
+        $("#ddTorAgentName").data('contrailCombobox').value('');
+        $("#ddTsnName").data('contrailCombobox').value('');
+        $("#txtTorAgentIp").val('');
+        $("#txtTsnIp").val('');
     }
         
     function fetchData() {
@@ -563,10 +611,15 @@ function physicalRoutersConfig() {
     window.successHandlerForVirtualRouters =  function(result) {
         var torAgentVrouterDS = [];
         var tsnVrouterDS = [];
+        globalVRoutersMap = {};
         if(result && result.length > 0) {
             for(var i = 0; i < result.length;i++) {
                 var virtualRouter = result[i]['virtual-router'];
                 var vRouterType = (virtualRouter['virtual_router_type'])? virtualRouter['virtual_router_type'][0] : '';
+                var vRouterIP = (virtualRouter['virtual_router_ip_address'])? virtualRouter['virtual_router_ip_address'] : '';
+              //build a map with vrouter name and type to be used in createEditWindow
+                globalVRoutersMap[virtualRouter['name']] = {type:vRouterType,ip:vRouterIP};
+                
                 if(vRouterType == 'tor-agent'){
                     //Tor agent can be assigned to only one prouter so dont include them in the list
                     if(!virtualRouter['physical_router_back_refs'] || virtualRouter['physical_router_back_refs'].length < 1) {
