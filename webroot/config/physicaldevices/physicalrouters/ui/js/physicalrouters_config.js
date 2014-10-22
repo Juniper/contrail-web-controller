@@ -335,7 +335,7 @@ function physicalRoutersConfig() {
             }
             $('#msVN').data('contrailMultiselect').value(valueArr);
             if(gblSelRow.virtual_router != '-')
-                $('#ddVirtualRouters').data('contrailDropdown').text(gblSelRow.virtual_router);
+                $('#ddVirtualRoutersType').data('contrailDropdown').text(gblSelRow.virtual_router);
             if(!(gblSelRow.virtualRouterType === 'Embedded')) {
                 $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
            }   
