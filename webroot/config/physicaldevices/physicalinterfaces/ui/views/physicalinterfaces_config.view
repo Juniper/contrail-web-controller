@@ -57,7 +57,7 @@
                  </div>
                  <input type="text" id="ddParent" class="span4"/>
             </div>     
-            <div id ="vmSection" class="hide pull-down-30">   
+            <div id ="vmSection" class="pull-down-30">   
                 <form class="form-horizontal">
                     <div class="row-fluid">
                         <div>
@@ -116,7 +116,7 @@
                                                 <div class="controls">
                                                     <div class="row-fluid">
                                                         <input type="text" id="ddVMI" name="ddVMI" title="Server" class="span5" />
-                                                        <input type="text" id="txtVMI" name="txtVMI"  class="span5" style="margin-left:10px;" />
+                                                        <input type="text" id="txtVMI" name="txtVMI"  class="span5" placeholder="Auto Allocate or Enter an IP" style="margin-left:10px;" />
                                                     </div>
                                                 </div>                       
                                             </div>
@@ -124,7 +124,7 @@
                                                 <label id="lblServer" class="control-label">Subnet</label>
                                                 <div class="controls">
                                                     <div class="row-fluid">
-                                                        <input type="text" id="txtSubnet" name="txtSubnet"  class="span10"/>
+                                                        <input type="text" id="txtSubnet" name="txtSubnet" class="span10"/>
                                                     </div>
                                                 </div>                       
                                             </div>                                            
