@@ -138,7 +138,7 @@ function physicalInterfacesConfig() {
         
         var ddType = $('#ddType').data('contrailDropdown');
         ddType.setData([{text : 'Physical', value : 'physical'},{text : 'Logical', value : 'logical'}]);
-        ddType.value('physical')
+        ddType.value('logical')
         
          $('#ddParent').contrailDropdown({
              dataTextField:'text',
@@ -176,7 +176,8 @@ function physicalInterfacesConfig() {
         $('#ddVMI').contrailCombobox({
             dataTextField:'text',
             dataValueField:'value',
-            change : onVMISelChanges
+            change : onVMISelChanges,
+            placeholder : 'Enter or Select a Server'
         });         
         
         //initializing add record window	  	
@@ -212,7 +213,7 @@ function physicalInterfacesConfig() {
     
     function onVNSelChange(e) {
         var id = e.added.value;
-        fetchVirtualNetworkInternals(id)
+        fetchVirtualNetworkInternals(id);
     }
     
     function onVMISelChanges(e) {
@@ -250,7 +251,12 @@ function physicalInterfacesConfig() {
                 $('#addPhysicalInterfaceWindow').modal('hide');
                 var isVMICreate = !$('#txtVMI').is('[disabled]');
                 if(isVMICreate) {
-                    var postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "fixedIPs":[$('#txtVMI').val()], "macAddress":$('#ddVMI').data('contrailCombobox').value()};
+                    var postObject;
+                    if($('#txtVMI').val() != '') {                    
+                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "fixedIPs":[$('#txtVMI').val()], "macAddress":$('#ddVMI').data('contrailCombobox').value()};
+                    } else {
+                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "macAddress":$('#ddVMI').data('contrailCombobox').value()};
+                    }                    
                     doAjaxCall('/api/tenants/config/create-port', 'POST', JSON.stringify(postObject), 'successHandlerForVMICreation', 'failureHandlerForVMICreation', null, null);   
                 } else {
                     createUpdatePhysicalInterface(); 
@@ -385,7 +391,9 @@ function physicalInterfacesConfig() {
                  if(gblSelRow.li_type != '-') {
                      $('#ddLIType').data('contrailDropdown').text(gblSelRow.li_type);
                  }
-            }            
+            } else {
+                $('#vmSection').removeClass('show').addClass('hide');
+            }           
         }
         $('#addPhysicalInterfaceWindow').modal('show');       
     }
@@ -400,7 +408,7 @@ function physicalInterfacesConfig() {
         }
         var type = $("#ddType").data('contrailDropdown').value();
         var name = $("#txtPhysicalInterfaceName").val();
-        var vlan =  parseInt($("#txtVlan").val());
+        var vlan =  $("#txtVlan").val() === '' ? 0 : parseInt($("#txtVlan").val());
         var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
         var postObject = {};
         gridPhysicalInterfaces._dataView.setData([]);
@@ -426,9 +434,7 @@ function physicalInterfacesConfig() {
                 postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), name];
                 postObject["logical-interface"]["parent_type"] = "physical-router";
                 postObject["logical-interface"]["name"] = name;
-                if(!isNaN(vlan)) {
-                    postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
-                }
+                postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
                 if(vmiData != 'none') {
                     postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiData[0], vmiData[1], vmiData[2]]}];
                 } else {
@@ -450,9 +456,7 @@ function physicalInterfacesConfig() {
                     postObject["logical-interface"]["parent_type"] = "physical-interface";
                     postObject["logical-interface"]["parent_uuid"] = parent.value();
                     postObject["logical-interface"]["name"] = name;  
-                    if(!isNaN(vlan)) {
-                        postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
-                    }
+                    postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
                     if(vmiData != 'none') {
                         postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiData[0], vmiData[1], vmiData[2]]}];
                     } else {
@@ -466,13 +470,13 @@ function physicalInterfacesConfig() {
     }
     
     function clearCreateEditWindow() {
-        $('#ddType').data('contrailDropdown').value('physical');
+        $('#ddType').data('contrailDropdown').value('logical');
         $('#txtPhysicalInterfaceName').removeAttr('disabled');
         $('#txtPhysicalInterfaceName').val('');     
         $('#txtVlan').val('');
         var ddPhysicalRouters = $('#ddPhysicalRouters').data('contrailDropdown');        
         $('#ddParent').data('contrailDropdown').value(ddPhysicalRouters.value());
-        $('#vmSection').removeClass('show').addClass('hide'); 
+        $('#vmSection').removeClass('hide').addClass('show'); 
         doubleCreation = false;
         $('#ddParent').data('contrailDropdown').enable(false);
         $('#ddType').data('contrailDropdown').enable(true);
@@ -486,7 +490,8 @@ function physicalInterfacesConfig() {
         $('#l2Server').attr('checked','checked');
         $('#lblServer').text('Server');
         $('#l3SubnetPanel').removeClass('show').addClass('hide');
-        $('#l2TypePanel').removeClass('hide').addClass('show');        
+        $('#l2TypePanel').removeClass('hide').addClass('show');
+        $('#l2ServerPanel').removeClass('hide').addClass('show');        
     }
     
     function fetchPhysicalRouters() {
@@ -524,17 +529,34 @@ function physicalInterfacesConfig() {
     }
     
     function fetchVirtualNetworks() {
-        doAjaxCall('/api/tenants/config/virtual-networks','GET', null, 'successHandlerForVN', 'failureHandlerForVN', null, null);
+        doAjaxCall('/api/admin/config/get-data?type=virtual-network','GET', null, 'successHandlerForVN', 'failureHandlerForVN', null, null);
     }
     
     window.successHandlerForVN = function(result) {
          var vnDataSrc = [{text : 'None', value : 'none'}];
-         if(result != null && result['virtual-networks'] != null && result['virtual-networks'].length > 0) {
-             var vns =  result['virtual-networks'];
+         if(result != null && result['data'] != null && result['data'].length > 0) {
+             var vns =  result['data'];
              for(var i = 0; i < vns.length; i++) {
-                 var vn = vns[i];
+                 var vn = vns[i]['virtual-network'];
                  var fqn = vn.fq_name;
-                 vnDataSrc.push({ text : fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")", value : vn.uuid});
+                 var subnetStr = '';
+                 if('network_ipam_refs' in vn) {
+                     var ipamRefs = vn['network_ipam_refs'];
+                     for(var j = 0; j < ipamRefs.length; j++) {
+                         if('subnet' in ipamRefs[j]) {
+                             if(subnetStr === '') {
+                                 subnetStr = ipamRefs[j].subnet.ipam_subnet;
+                             } else {
+                                 subnetStr += ', ' + ipamRefs[j].subnet.ipam_subnet;
+                             }
+                         }
+                     }
+                 }
+                 var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
+                 if(subnetStr != '') {
+                     textVN += ' (' + subnetStr + ')';  
+                 }
+                 vnDataSrc.push({ text : textVN, value : vn.uuid});
              }
          } else {
              vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
@@ -551,7 +573,7 @@ function physicalInterfacesConfig() {
     
     
     function fetchVirtualNetworkInternals(id) {
-        if(id === 'empty') {
+        if(id === 'empty' || id === '') {
             //$('#ddVMI').data('contrailDropdown').setData([{text : 'No Server found', value : 'empty'}]); 
             $('#ddVMI').data('contrailCombobox').setData([{text : 'No Server found', value : 'empty'}]);
         } else if(id === 'none') {
@@ -587,6 +609,8 @@ function physicalInterfacesConfig() {
         } else {
             // $('#ddVMI').data('contrailDropdown').setData([{text : 'No Server found', value : 'empty'}]);
             $('#ddVMI').data('contrailCombobox').setData([{text : 'No Server found', value : 'empty'}]);
+            $('#ddVMI').data('contrailCombobox').value('empty');
+            
         }       
     }
     
@@ -729,8 +753,8 @@ function physicalInterfacesConfig() {
     
     function getLogicalInterfaceDetails(inf) {
         var vnRefs = '-';
-        var vlanTag = inf['logical_interface_vlan_tag'] ? inf['logical_interface_vlan_tag'] : '-' ;
-        var liType = inf['logical_interface_type'] ? inf['logical_interface_type'] : '-' ;
+        var vlanTag = inf['logical_interface_vlan_tag'] != null ? inf['logical_interface_vlan_tag'] : '-' ;
+        var liType = inf['logical_interface_type'] != null ? inf['logical_interface_type'] : '-' ;
         var vmiIP ;
         if(liType != '-') {
             liType = liType === 'l2' ? 'L2' : 'L3';
@@ -754,13 +778,13 @@ function physicalInterfacesConfig() {
     function validate() {
         var name = $('#txtPhysicalInterfaceName').val().trim();
         if(name  === ""){	
-            showInfoWindow("Enter a Interface Name","Input required");
+            showInfoWindow("Enter an Interface Name","Input required");
             return false;
         }
         if($('#txtVlan').val() != '') {
             var vlan = parseInt($('#txtVlan').val().trim());
-            if(isNaN(vlan) || vlan < 1 || vlan > 4094) {
-                showInfoWindow('Vlan ID should be in  "1 - 4094" range', "Input required");
+            if(isNaN(vlan) || vlan < 0 || vlan > 4094) {
+                showInfoWindow('Vlan ID should be in  "0 - 4094" range', "Input required");
                 return false;            
             }
         }
