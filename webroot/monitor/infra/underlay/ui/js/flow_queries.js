@@ -930,17 +930,22 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                               <a title="View Results as Chart" id="fs-chart-link" class="margin-0-5 disabled-link" onclick=toggleToChart("fs");><i class="icon-bar-chart"></i></a>'];
     }
     else if(options.queryPrefix == 'fr'){
-        gridConfig.header.customControls = ['<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'],
+        gridConfig.header.customControls = [
+            '<button id="reversemapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
+            '<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
+        ],
         gridConfig.body.options = {
             checkboxSelectable: {
                 enableRowCheckbox: true,
                 onNothingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
                     $("#mapflow").attr('disabled','disabled');
+                    $("#reversemapflow").attr('disabled','disabled');
                 },
                 onSomethingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
                     $("#mapflow").removeAttr('disabled');
+                    $("#reversemapflow").removeAttr('disabled');
                     $(e['currentTarget']).removeAttr('disabled')
                 }
             },
@@ -963,8 +968,25 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             dataItem['endTime'] = endTime;
             showUnderlayPaths(dataItem);
         });
+        $("#reversemapflow").live('click',function(e){
+            var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
+            var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
+            var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
+            var dataItem = ifNull(checkedRows[0],{});
+            var reverseDataItem = {};
+            reverseDataItem['startTime'] = startTime;
+            reverseDataItem['endTime'] = endTime;
+            reverseDataItem.sourceip = dataItem.destip;
+            reverseDataItem.destip = dataItem.sourceip;
+            reverseDataItem.sourcevn = dataItem.destvn;
+            reverseDataItem.destvn = dataItem.sourcevn;
+            reverseDataItem.sport = dataItem.dport;
+            reverseDataItem.dport = dataItem.sport;
+            reverseDataItem.protocol = dataItem.protocol;
+            showUnderlayPaths(reverseDataItem);
+        });
     }
-    
+
     $("#" + options.elementId).contrailGrid(gridConfig);
     $("#" + options.elementId).find('input.headerRowCheckbox').parent('span').remove();
     $('#fs-results').find('a[data-action="collapse"]').on('click', function(){
