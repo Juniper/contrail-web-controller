@@ -31,6 +31,7 @@ global.QUERY_JSON = {
 
 global.NODE_TYPE_PROUTER = 'physical-router';
 global.NODE_TYPE_VROUTER = 'virtual-router';
+global.NODE_TYPE_VIRTUAL_MACHINE = 'virtual-machine';
 global.NODE_TYPE_NONE = '-';
 
 global.NODE_CHASSIS_TYPE_TOR = 'tor';
