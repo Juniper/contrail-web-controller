@@ -187,7 +187,7 @@
                                 <div>
                                     <select id="ot-select-obj-id" class="span12"
                                     	name="objectId"
-                                        data-bind="options: objectIds, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                        data-bind="options: objectIds, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                         required="required"
                                         validationMessage="Object Id Required">
                                     </select>
