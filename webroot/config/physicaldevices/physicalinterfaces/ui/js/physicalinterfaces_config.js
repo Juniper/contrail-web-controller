@@ -254,10 +254,12 @@ function physicalInterfacesConfig() {
                 var isVMICreate = !$('#txtVMI').is('[disabled]');
                 if(isVMICreate) {
                     var postObject;
-                    if($('#txtVMI').val() != '') {                    
-                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "fixedIPs":[$('#txtVMI').val()], "macAddress":$('#ddVMI').data('contrailCombobox').value()};
+                    var mac = $('#ddVMI').data('contrailCombobox').value().trim();
+                    var ip = $('#txtVMI').val() != '' ? $('#txtVMI').val().trim() : '';
+                    if(ip != '') {                    
+                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "fixedIPs":[ip], "macAddress":mac};
                     } else {
-                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "macAddress":$('#ddVMI').data('contrailCombobox').value()};
+                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "macAddress":mac};
                     }                    
                     doAjaxCall('/api/tenants/config/create-port', 'POST', JSON.stringify(postObject), 'successHandlerForVMICreation', 'failureHandlerForVMICreation', null, null);   
                 } else {
@@ -268,12 +270,14 @@ function physicalInterfacesConfig() {
         window.successHandlerForVMICreation = function(result) {
             if(result != null) {
                 vmiDetails = result;
-                createUpdatePhysicalInterface();   
+                createUpdatePhysicalInterface();
+            } else {
+                fetchData();
             }
         }
 
         window.failureHandlerForVMICreation = function(error) {
-        
+            fetchData();
         }
         
         $('#btnDeletePhysicalInterface').click(function(){
@@ -423,11 +427,14 @@ function physicalInterfacesConfig() {
     }
     
     function getCurrentVMIId(name) {
-        var data = $('#ddVMI').data('contrailCombobox').getAllData();
-        for(var i = 0; i < data.length; i++) {
-            if(data[i].text.indexOf(name) !== -1) {
-                return data[i].id;
-            }    
+        if(name != '') {
+            name = name.trim();
+            var data = $('#ddVMI').data('contrailCombobox').getAllData();
+            for(var i = 0; i < data.length; i++) {
+                if(data[i].text.indexOf(name) !== -1) {
+                    return data[i].id;
+                }
+            }
         }
         return '';
     }
@@ -614,14 +621,17 @@ function physicalInterfacesConfig() {
             //$('#ddVMI').data('contrailDropdown').setData([{text : 'No Server found', value : 'empty'}]); 
             $('#ddVMI').data('contrailCombobox').setData([{text : 'No Server found', value : 'empty'}]);
             $('#ddVMI').data('contrailCombobox').value('empty');
+            $('#ddVMI').data('contrailCombobox').enable(false);
             $('#txtVMI').val('');
         } else if(id === 'none') {
             var vmiDataSrc = [{text : 'None', value : 'none'}];
             //$('#ddVMI').data('contrailDropdown').setData(vmiDataSrc);
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             $('#ddVMI').data('contrailCombobox').value('none');
+            $('#ddVMI').data('contrailCombobox').enable(false);
             $('#txtVMI').val('');
         }else {
+            $('#ddVMI').data('contrailCombobox').enable(true);
             doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null);
         }
     }
@@ -636,22 +646,19 @@ function physicalInterfacesConfig() {
             }
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             if(flow === 'edit' && gblSelRow.server != '-') {
-                // $('#ddVMI').data('contrailDropdown').text(gblSelRow.server);
                 var vmiMac = gblSelRow.server.split('(')[0].trim();
                 $('#ddVMI').data('contrailCombobox').text(vmiMac);
                 $('#txtVMI').val(gblSelRow.vmi_ip);
                 $('#txtVMI').attr('disabled', 'disabled');
             } else {
-                // $('#ddVMI').data('contrailDropdown').value('none');
-                $('#ddVMI').data('contrailCombobox').value('none');
+                $('#ddVMI').data('contrailCombobox').value('');
                 $('#txtVMI').val('');
                 $('#txtVMI').attr('disabled', 'disabled');
             }
         } else {
-            // $('#ddVMI').data('contrailDropdown').setData([{text : 'No Server found', value : 'empty'}]);
-            $('#ddVMI').data('contrailCombobox').setData([{text : 'No Server found', value : 'empty'}]);
-            $('#ddVMI').data('contrailCombobox').value('empty');
-            
+            $('#ddVMI').data('contrailCombobox').setData([]);
+            $('#ddVMI').data('contrailCombobox').value('');
+            $('#txtVMI').val('');
         }       
     }
     
@@ -761,7 +768,7 @@ function physicalInterfacesConfig() {
                 ddParent.setData(mainDS);
             }
         } else {
-            mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS},
+            mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS}, 
                 {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
             dsSrcDest = mainDS;
             ddParent.setData(mainDS);    
@@ -973,10 +980,12 @@ function physicalInterfacesConfig() {
     function isItemExists(txt, data) {
         var isThere = false;
         for(var i = 0; i < data.length; i++) {
-            for(var j = 0; j < data[i].children.length; j++) {
-                if(txt === data[i].children[j].text) {
-                    return true;
-                }    
+            if(data[i].children != null) {
+               for(var j = 0; j < data[i].children.length; j++) {
+                   if(txt === data[i].children[j].text) {
+                       return true;
+                   }    
+               }
             }
         }
         return isThere;    
