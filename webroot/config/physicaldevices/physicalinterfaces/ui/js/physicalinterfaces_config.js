@@ -298,7 +298,7 @@ function physicalInterfacesConfig() {
                   var physicalInfName = '';
                   if(infNameArry.length === 2) {
                       physicalInfName = infNameArry[0];
-                      verifySetSelectedItem(physicalInfName, $('#ddParent').data('contrailDropdown'));
+                      verifySetSelectedItem(setJunosPhysicalInf(physicalInfName), $('#ddParent').data('contrailDropdown'));
                   } else {
                      $('#ddParent').data('contrailDropdown').value(dsSrcDest[0].children[1].value); 
                   }
@@ -311,6 +311,15 @@ function physicalInterfacesConfig() {
                 $('#lblServer').text('L2 Gateway');
             }
         });        
+    }
+    //As Junos can have e-0/0/0.0 pattern for physical interface setting it has parent for logical interface
+    function setJunosPhysicalInf(inf) {
+        var actInf = inf;
+        var junosInf = inf + '.0';
+        if(isItemExists(junosInf, dsSrcDest)) { 
+            actInf = junosInf;       
+        }
+        return actInf;
     }
     
     window.showPhysicalInterfaceDelWindow = function(index) {
