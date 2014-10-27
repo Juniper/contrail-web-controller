@@ -1,0 +1,84 @@
+<script type="text/x-handlebars-template" id="gridVirtualRoutersDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Name</label></div>
+                <div class="span10"> {{name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>IP Address</label></div>
+                <div class="span10">{{ip_address}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Type</label></div>
+                <div class="span10">{{{formatVirtualRouterType type}}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Physical Routers</label></div>
+                <div class="span10">{{physical_routers}}</div>
+            </div>            
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="virtualrouters-config-template">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="gridVirtualRouters"/>
+        </div>
+    </div>
+    
+    <div id="addVirtualRouterWindow" class="modal hide " tabindex="-1">	
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+	    <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">	
+                <div class="control-group">
+	                <label class="control-label" >Name</label>
+	    	        <div class="controls">	
+	    	            <div class="row-fluid">
+	    	                <input type="text" id="txtVirtualRouterName" class="span11"/>	
+	    	            </div>
+	    	        </div>
+	            </div>
+	            <div class="control-group">
+                    <label  class="control-label ">IP Address</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtIPAddress" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+	            <div class="control-group">
+                    <label  class="control-label ">Type</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="msType" class="span11"/>
+                        </div>
+                    </div>
+                </div>  
+            </form>
+        </div>
+        <div class="modal-footer">
+	         <button  id="btnAddVirtualRouterCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>	
+             <button  id="btnAddVirtualRouterOk" class="btn btn-primary btn-mini">Save</button>
+        </div>  
+    </div>
+    
+    <div id="confirmMainDelete" class="modal modal-420 hide" tabindex="-1" role="dialog">
+         <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+              <h6 class="modal-header-title"></h6>
+         </div>
+        <div class="modal-body">
+             <div class="row-fluid text-center">
+                  <h6>Confirm Virtual Router(s) delete</h6>
+             </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfDelMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfDelMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>
