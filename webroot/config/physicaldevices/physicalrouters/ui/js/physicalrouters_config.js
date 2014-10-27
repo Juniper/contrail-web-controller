@@ -309,7 +309,8 @@ function physicalRoutersConfig() {
     function populateCreateEditWindow(m) {
         mode = m;
         clearCreateEditWindow();
-//TODO this need to be called on load of the window otherwise the data obtained will be stale        fetchVirtualRouters();
+        //TODO this need to be called on load of the window otherwise the data obtained will be stale        
+        fetchVirtualRouters();
         if(mode === 'edit') {
             
             $('#addPhysicalRouterWindow').find(".modal-header-title").text('Edit Physical Router');
@@ -435,12 +436,16 @@ function physicalRoutersConfig() {
                 postObject["physical-router"]['virtual_router_type'] = vRoutersType;
                 var virtualRouters = [];
                 postObject["physical-router"]["virtual-routers"] = [];
-                
-                virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", name],
-                                    "parent_type":"global-system-config",
-                                    "name": name,
-                                    "virtual_router_ip_address" : mgmtIpAddress,
-                                    "virtual_router_type" : ['embedded']}});
+                var currVr = getVirtualRouterDetails(name);
+                if(currVr != null && currVr.ip == mgmtIpAddress && currVr.type == 'embedded'){
+                    //dont add to the vrouters as it is already existing. just add a ref to this.
+                } else {
+                    virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", name],
+                                        "parent_type":"global-system-config",
+                                        "name": name,
+                                        "virtual_router_ip_address" : mgmtIpAddress,
+                                        "virtual_router_type" : ['embedded']}});
+                }
                 virtualRouterRefs.push({"to":["default-global-system-config",name]});
                 
             } else {//ToR Agent case
@@ -524,7 +529,7 @@ function physicalRoutersConfig() {
         $("#txtPassword").val('');
         $("#ddBgpRouter").data('contrailDropdown').value('None');
         $("#msVN").data('contrailMultiselect').value(''); 
-        $("#ddVirtualRoutersType").data('contrailDropdown').value('None');
+        $("#ddVirtualRoutersType").data('contrailDropdown').value('none');
         $("#ddTorAgentName").data('contrailCombobox').value('');
         $("#ddTsnName").data('contrailCombobox').value('');
         $("#txtTorAgentIp").val('');
@@ -639,10 +644,14 @@ function physicalRoutersConfig() {
             torAgentVrouterDS.push({text : 'No ToR Agent found', value: 'Message'});
             tsnVrouterDS.push({text : 'No TSN found', value: 'Message'});
         }
-        var torAgentDD = $('#ddTorAgentName').data('contrailCombobox');            
+        var torAgentDD = $('#ddTorAgentName').data('contrailCombobox');
+        var selTor = torAgentDD.value();
         torAgentDD.setData(torAgentVrouterDS);
-        var tsnAgentDD = $('#ddTsnName').data('contrailCombobox');            
+        torAgentDD.value(selTor);
+        var tsnAgentDD = $('#ddTsnName').data('contrailCombobox');      
+        var selTsn = tsnAgentDD.value();
         tsnAgentDD.setData(tsnVrouterDS);
+        tsnAgentDD.value(selTsn);
     }
     
     window.failureHandlerForVirtualRouters = function(error) {
@@ -717,6 +726,31 @@ function physicalRoutersConfig() {
             var dataIpAddress = $('#txtDataIPAddress').val().trim();
             if(!validateIPAddress(dataIpAddress)){
                 showInfoWindow("Enter a valid Dataplane IP address in xxx.xxx.xxx.xxx format","Input required");
+                return false;
+            }
+        }
+        var ddVirtualRoutersType = $('#ddVirtualRoutersType').data('contrailDropdown');
+        var ddTorAgentName = $('#ddTorAgentName').data('contrailCombobox');
+        var ddTsnName = $('#ddTsnName').data('contrailCombobox');
+        if(ddVirtualRoutersType.value() == "tor-agent") {
+            if(ddTorAgentName.text() == ddTsnName.text()){
+                showInfoWindow("ToR Agent Name and TSN Name cannot be same");
+                return false;
+            }
+        }
+        
+        if($('#txtTorAgentIp').val() != '') {
+            var dataIpAddress = $('#txtTorAgentIp').val().trim();
+            if(!validateIPAddress(dataIpAddress)){
+                showInfoWindow("Enter a valid ToR Agent IP address in xxx.xxx.xxx.xxx format","Input required");
+                return false;
+            }
+        }
+        
+        if($('#txtTsnIp').val() != '') {
+            var dataIpAddress = $('#txtTsnIp').val().trim();
+            if(!validateIPAddress(dataIpAddress)){
+                showInfoWindow("Enter a valid TSN IP address in xxx.xxx.xxx.xxx format","Input required");
                 return false;
             }
         }
