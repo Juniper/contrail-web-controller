@@ -602,11 +602,13 @@ function physicalInterfacesConfig() {
             //$('#ddVMI').data('contrailDropdown').setData([{text : 'No Server found', value : 'empty'}]); 
             $('#ddVMI').data('contrailCombobox').setData([{text : 'No Server found', value : 'empty'}]);
             $('#ddVMI').data('contrailCombobox').value('empty');
+            $('#txtVMI').val('');
         } else if(id === 'none') {
             var vmiDataSrc = [{text : 'None', value : 'none'}];
             //$('#ddVMI').data('contrailDropdown').setData(vmiDataSrc);
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             $('#ddVMI').data('contrailCombobox').value('none');
+            $('#txtVMI').val('');
         }else {
             doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null);
         }
