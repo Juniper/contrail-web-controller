@@ -1568,8 +1568,8 @@ underlayView.prototype.renderTracePath = function(options) {
                 text : 'Flows'
             },
             customControls : [
-                '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
-                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
+                '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
+                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>'
             ],
         },
         columnHeader : {
@@ -1632,14 +1632,77 @@ underlayView.prototype.renderTracePath = function(options) {
             var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
             $("#vmflows").hide();
             $("#vrouterflows").show();
-            var newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + selItem['id'], 
-                    type:'Get'
-                };
-            flowGrid._dataView.setData([]);
-            flowGrid.showGridMessage('loading');
-            flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-            reloadGrid(flowGrid);
+            if(!isGridInitialized($('#vrouterflows'))) {
+                $("#vrouterflows").contrailGrid({
+                    header : {
+                        title : {
+                            text : 'Flows'
+                        },
+                        customControls : [
+                            '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
+                            '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>'
+                        ],
+                    },
+                    columnHeader : {
+                        columns: columns
+                    },
+                    body : {
+                        options : {
+                            forceFitColumns: true,
+                            sortable : false,
+                            checkboxSelectable: {
+                                enableRowCheckbox: true,
+                                onNothingChecked: function(e){
+                                    //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                                    $("#traceFlowBtn").attr('disabled','disabled');
+                                    $("#reverseFlowBtn").attr('disabled','disabled');
+                                },
+                                onSomethingChecked: function(e){
+                                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
+                                    $("#traceFlowBtn").removeAttr('disabled');
+                                    $("#reverseFlowBtn").removeAttr('disabled');
+                                    //$(e['currentTarget']).removeAttr('disabled')
+                                    $(e['currentTarget']).attr('checked',true);
+                                }
+                            },
+                        },
+                        dataSource : {
+                            remote: {
+                                ajaxConfig: {
+                                    url: function () {
+                                        return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
+                                    }(),
+                                    type: 'GET'
+                                },
+                                dataParser: self.parseFlowsData
+                            }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Flows..',
+                            },
+                            empty: {
+                                text: 'No Flows to display'
+                            }, 
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Data.'
+                            }
+                        }
+                    },
+                    footer : false,
+                });
+            } else {
+                var newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + selItem['id'], 
+                        type:'Get'
+                    };
+                flowGrid._dataView.setData([]);
+                flowGrid.showGridMessage('loading');
+                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+                reloadGrid(flowGrid);
+            }
         } else if($('#instRadiobtn').is(':checked') == true) {
             tracePathDropdown.setData(instComboboxData);
             var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
@@ -1653,7 +1716,6 @@ underlayView.prototype.renderTracePath = function(options) {
                             text : 'Flows'
                         },
                         customControls : [
-                            '<button id="reverseFlowBtn_vmFlow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
                             '<button id="traceFlowBtn_vmFlow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
                         ],
                     },
