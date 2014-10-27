@@ -178,7 +178,7 @@ function physicalInterfacesConfig() {
             dataTextField:'text',
             dataValueField:'value',
             change : onVMISelChanges,
-            placeholder : 'Enter or Select a Server'
+            placeholder : 'Enter or Choose mac'
         });         
         
         //initializing add record window	  	
@@ -637,7 +637,7 @@ function physicalInterfacesConfig() {
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             if(flow === 'edit' && gblSelRow.server != '-') {
                 // $('#ddVMI').data('contrailDropdown').text(gblSelRow.server);
-                var vmiMac = gblSelRow.server.split('(')[0];
+                var vmiMac = gblSelRow.server.split('(')[0].trim();
                 $('#ddVMI').data('contrailCombobox').text(vmiMac);
                 $('#txtVMI').val(gblSelRow.vmi_ip);
                 $('#txtVMI').attr('disabled', 'disabled');
