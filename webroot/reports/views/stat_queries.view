@@ -106,7 +106,7 @@
                                 <div>
                                     <select id="stat-table" class="span12"
                                             name="table"
-                                            data-bind="options: fromTables, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                            data-bind="options: fromTables, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                     </select>
                                 </div>
                             </div>
@@ -123,7 +123,7 @@
                                 <div>
                                     <select id="{{queryPrefix}}-time-range" name="timeRange" class="span12"
                                             value=""
-                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="selectTimeRange(this, '{{queryPrefix}}');">
                                     </select>
                                 </div>
@@ -160,7 +160,7 @@
                                                type="text" value=""/>
                                     </div>
                                     <select id="{{queryPrefix}}-tg-units" name="tgUnits" class="span3"
-                                            data-bind="options: tgUnits, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                            data-bind="options: tgUnits, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                     </select>
                                 </div>
                             </div>
