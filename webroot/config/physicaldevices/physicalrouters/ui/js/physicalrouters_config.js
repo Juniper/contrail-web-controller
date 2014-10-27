@@ -148,7 +148,7 @@ function physicalRoutersConfig() {
         $('#ddVirtualRoutersType').contrailDropdown({
             dataTextField:'text',
             dataValueField:'value',
-            change:onVrouterTypeChange,
+            change:onVrouterTypeChange
         }); 
         
         var vrType =  $('#ddVirtualRoutersType').data('contrailDropdown');
@@ -346,6 +346,7 @@ function physicalRoutersConfig() {
                 var vRoutersWithType = [];
                 var vrType = 'None';
                 $.each(selectedVRouters,function(i,vrname){
+                    vrname = vrname.trim();
                     var dtl = getVirtualRouterDetails(vrname);
                     if(dtl.type == 'embedded'){
                         vrType = 'Embedded';
@@ -367,10 +368,15 @@ function physicalRoutersConfig() {
                 });
                 
                 $('#ddVirtualRoutersType').data('contrailDropdown').text(vrType);
+                if(vrType == 'None')
+                    $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
+            } else {
+                $('#ddVirtualRoutersType').data('contrailDropdown').text('None');
+                $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
             }
         } else {
             $('#ddBgpRouter').data('contrailDropdown').value('None');
-            $('#ddVirtualRoutersType').data('contrailDropdown').value('None');
+            $('#ddVirtualRoutersType').data('contrailDropdown').value('none');
         }
         $('#addPhysicalRouterWindow').modal('show');       
     }
@@ -432,7 +438,7 @@ function physicalRoutersConfig() {
             postObject["physical-router"]["virtual_network_refs"] = [];
         }
         
-        if(vRoutersType != 'None'){
+        if(vRoutersType != null && vRoutersType != 'None'){
             var virtualRouterRefs = [];
             if(vRoutersType == 'Embedded'){
                 postObject["physical-router"]['virtual_router_type'] = vRoutersType;
@@ -532,8 +538,9 @@ function physicalRoutersConfig() {
         $("#ddBgpRouter").data('contrailDropdown').value('None');
         $("#msVN").data('contrailMultiselect').value(''); 
         $("#ddVirtualRoutersType").data('contrailDropdown').value('none');
-        $("#ddTorAgentName").data('contrailCombobox').value('');
-        $("#ddTsnName").data('contrailCombobox').value('');
+        $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
+        $("#ddTorAgentName").data('contrailCombobox').text('');
+        $("#ddTsnName").data('contrailCombobox').text('');
         $("#txtTorAgentIp").val('');
         $("#txtTsnIp").val('');
     }
@@ -647,13 +654,13 @@ function physicalRoutersConfig() {
             tsnVrouterDS.push({text : 'No TSN found', value: 'Message'});
         }
         var torAgentDD = $('#ddTorAgentName').data('contrailCombobox');
-        var selTor = torAgentDD.value();
+        var selTor = torAgentDD.text();
         torAgentDD.setData(torAgentVrouterDS);
-        torAgentDD.value(selTor);
+        torAgentDD.text(selTor);
         var tsnAgentDD = $('#ddTsnName').data('contrailCombobox');      
-        var selTsn = tsnAgentDD.value();
+        var selTsn = tsnAgentDD.text();
         tsnAgentDD.setData(tsnVrouterDS);
-        tsnAgentDD.value(selTsn);
+        tsnAgentDD.text(selTsn);
     }
     
     window.failureHandlerForVirtualRouters = function(error) {
