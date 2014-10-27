@@ -69,6 +69,7 @@ function ServicesInstances() {
     this.getTemplateOrder = getTemplateOrder;
     this.checkServiceImage = checkServiceImage;
     this.getTemplateDetail = getTemplateDetail;
+    this.allZoneList = allZoneList;
     this.destroy = destroy;
     this.dynamicID = dynamicID;
 }
@@ -323,7 +324,7 @@ function refreshSvcInstances(reload) {
 function initActions() {
     btnCreatesvcInstances.click(function (a) {
         if(!$(this).hasClass('disabled-link')) {     
-            svcInstancesCreateWindow("add");
+            //svcInstancesCreateWindow("add");
         }    
     });
 
@@ -1483,10 +1484,20 @@ function clearPopupValues() {
 /*
  * Create Window
  */
-function svcInstancesCreateWindow(mode,rowIndex) {
+/*function svcInstancesCreateWindow(mode,rowIndex) {
     if($("#btnCreatesvcInstances").hasClass('disabled-link')) {
            return;
     }
+    doAjaxCall("/api/service/networking/user-roles/", "GET", "", "fetchUserRoleSuccessCb", "fetchUserRoleFailureCb",false, {"mode":mode,"rowIndex":rowIndex});
+}*/
+function svcInstancesCreateWindow(mode,rowIndex) {
+//    var mode = cbParam.mode;
+//    var rowIndex = cbParam.rowIndex;
+    windowCreateSvcInstances.modal('show');
+    windowCreateSvcInstances.find('.modal-header-title').text("Loading...");
+    $("#instanceDiv").empty();
+    $("#ddsvcTemplate").data("contrailDropdown").setData([]);
+
     var selectedDomainName = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").value();
     var selectedProjectName = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1496,7 +1507,6 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         gridsvcInstances.showGridMessage('errorGettingData');
         return;
     }
-
     var getAjaxs = [];
 
     getAjaxs[0] = $.ajax({
@@ -1516,48 +1526,47 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         url:"/api/tenants/config/getAvailabilityZone/",
         type:"GET"
     });
+    getAjaxs[4] = $.ajax({
+        url:"/api/service/networking/user-roles?project="+selectedProjectName,
+        type:"GET"
+    });
 
-    if(globalObj['webServerInfo']['role'].indexOf("superAdmin") > -1){
+/*    if(globalObj['webServerInfo']['role'].indexOf("superAdmin") > -1){
         getAjaxs[4] = $.ajax({
             url:"/api/tenants/config/getHostList/",
             type:"GET"
         });
-    }
+    }*/
+
     $.when.apply($, getAjaxs).then(
         function () {
             var results = arguments;
-            //globalObj['webServerInfo']['role'] = "user";
-            var hostList = [];
             var availabilityZone = [];
-            if(globalObj['webServerInfo']['role'].indexOf("superAdmin") > -1){
-                hostList = results[4][0].host;
-                $("#host").removeClass("hide");
-                $("ddZone").removeClass("span5");
-                $("ddZone").addClass("span12");
+            var projectRole = results[4][0][selectedProjectName];
+            availabilityZone = results[3][0].availabilityZoneInfo;
+            if(globalObj['webServerInfo']['role'].indexOf("superAdmin") > -1 && projectRole.indexOf("superAdmin") > -1){
+                doAjaxCall("/api/tenants/config/getHostList/", "GET", null,"successHostZone", "fetchUserRoleFailureCb",false, [availabilityZone,mode,rowIndex]);
             } else {
                 $("#host").addClass("hide");
-                $("ddZone").addClass("span5");
-                $("ddZone").removeClass("span12");
-            }
-            availabilityZone = results[3][0].availabilityZoneInfo;
-            var ddzoneList = [];
-            allZoneList = [];
-            ddzoneList.push({"text":"ANY",value:"ANY"});
-            for(var tempi = 0 ; tempi < availabilityZone.length; tempi++){
-                if(availabilityZone[tempi].zoneState.available == true || availabilityZone[tempi].zoneState.available == "true" || availabilityZone[tempi].zoneState.available == "True"){
-                    ddzoneList.push({"text":availabilityZone[tempi].zoneName , "value":availabilityZone[tempi].zoneName});
-                    for(var tempj = 0; tempj < hostList.length;tempj++){
-                        if(hostList[tempj].zone == availabilityZone[tempi].zoneName){
-                            allZoneList.push({"zone":hostList[tempj].zone,"host_name":hostList[tempj].host_name});
-                        }
-                    }
+                $("#ddZone").removeClass("span5");
+                $("#ddZone").addClass("span12");
+                var ddzoneList = [];
+                allZoneList = [];
+                ddzoneList.push({"text":"ANY",value:"ANY"});
+                for(var tempi = 0 ; tempi < availabilityZone.length; tempi++){
+                    if(availabilityZone[tempi].zoneState.available == true || availabilityZone[tempi].zoneState.available == "true" ||  availabilityZone[tempi].zoneState.available == "True"){
+                        ddzoneList.push({"text":availabilityZone[tempi].zoneName , "value":availabilityZone[tempi].zoneName});
+                        allZoneList.push({"zone":availabilityZone[tempi].zoneName,"host_name":""});
+                     }
                 }
-            }
+                $("#ddZone").data("contrailDropdown").setData(ddzoneList);
+                $("#ddZone").data("contrailDropdown").value(ddzoneList[0].text);
+                setHostForZone(ddzoneList[0].text);
+             }
 
-            $("#ddZone").data("contrailDropdown").setData(ddzoneList);
-            $("#ddZone").data("contrailDropdown").value(ddzoneList[0].text);
-            setHostForZone(ddzoneList[0].text);
-			var svcTemplates = [];
+            //$("#ddZone").data("contrailDropdown").setData(ddzoneList);
+            //$("#ddZone").data("contrailDropdown").value(ddzoneList[0].text);
+            var svcTemplates = [];
             var svcTemplateObjs = jsonPath(results[0][0], "$..service-template");
             var svcTemplatesLen = 0;
             if(svcTemplateObjs != "false" && svcTemplateObjs != false)
@@ -1603,6 +1612,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 windowCreateSvcInstances.modal('show');
                 txtsvcInstanceName.focus();
             } else {
+                windowCreateSvcInstances.modal('hide');
                 showInfoWindow("No Service Template found.", "Add Service Template");
                 return false;
             }
@@ -1653,6 +1663,41 @@ function svcInstancesCreateWindow(mode,rowIndex) {
     );
 }
 
+function successHostZone(result,arg) {
+    var availabilityZone = arg[0];
+    var mode = arg[1];
+    var rowIndex = arg[2];
+    var hostList = result.host;
+    $("#host").removeClass("hide");
+    $("#ddZone").addClass("span5");
+    $("#ddZone").removeClass("span12");
+    var ddzoneList = [];
+    allZoneList = [];
+    ddzoneList.push({"text":"ANY",value:"ANY"});
+    for(var tempi = 0 ; tempi < availabilityZone.length; tempi++){
+        if(availabilityZone[tempi].zoneState.available == true || availabilityZone[tempi].zoneState.available == "true" || availabilityZone[tempi].zoneState.available == "True"){
+            ddzoneList.push({"text":availabilityZone[tempi].zoneName , "value":availabilityZone[tempi].zoneName});
+            for(var tempj = 0; tempj < hostList.length;tempj++){
+                if(hostList[tempj].zone == availabilityZone[tempi].zoneName){
+                    allZoneList.push({"zone":hostList[tempj].zone,"host_name":hostList[tempj].host_name});
+               }
+            }
+        }
+    }
+
+    $("#ddZone").data("contrailDropdown").setData(ddzoneList);
+    $("#ddZone").data("contrailDropdown").value(ddzoneList[0].text);
+    setHostForZone(ddzoneList[0].text);
+    if(mode == "edit"){
+        var selectedRow = $("#gridsvcInstances").data("contrailGrid")._dataView.getItem(rowIndex);
+        $("#ddZone").data("contrailDropdown").value(zoneHost[0]);
+		var zoneHost = (selectedRow.availability_zone).split(":");
+        setHostForZone(zoneHost[0],zoneHost[1]);
+        $("#ddZoneHost").attr("disabled","disabled");
+    }
+}
+
+
 function setHostForZone(zoneName,defautValue){
     var hostValue = [];
     //if(zoneName == "ANY"){
@@ -1694,10 +1739,8 @@ function editWindow(rowIndex){
     }
     var zoneHost = (selectedRow.availability_zone).split(":");
     $("#ddZone").data("contrailDropdown").value(zoneHost[0]);
-    setHostForZone(zoneHost[0],zoneHost[1]);
     $("#ddsvcTemplate").data("contrailDropdown").enable(false);
     $("#txtsvcInstanceName").attr("disabled","disabled");
-    $("#ddZoneHost").attr("disabled","disabled");
     $("#ddZone").attr("disabled","disabled");
     $("#txtMaximumInstances").attr("disabled","disabled");
 }
