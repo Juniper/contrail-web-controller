@@ -931,7 +931,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
     }
     else if(options.queryPrefix == 'fr'){
         gridConfig.header.customControls = [
-            '<button id="reversemapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
             '<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
         ],
         gridConfig.body.options = {
@@ -940,12 +939,12 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                 onNothingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
                     $("#mapflow").attr('disabled','disabled');
-                    $("#reversemapflow").attr('disabled','disabled');
+                    //$("#reversemapflow").attr('disabled','disabled');
                 },
                 onSomethingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
                     $("#mapflow").removeAttr('disabled');
-                    $("#reversemapflow").removeAttr('disabled');
+                    //$("#reversemapflow").removeAttr('disabled');
                     $(e['currentTarget']).removeAttr('disabled')
                 }
             },
@@ -968,7 +967,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             dataItem['endTime'] = endTime;
             showUnderlayPaths(dataItem);
         });
-        $("#reversemapflow").live('click',function(e){
+        /*$("#reversemapflow").live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
             var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
             var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
@@ -984,7 +983,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             reverseDataItem.dport = dataItem.sport;
             reverseDataItem.protocol = dataItem.protocol;
             showUnderlayPaths(reverseDataItem);
-        });
+        });*/
     }
 
     $("#" + options.elementId).contrailGrid(gridConfig);

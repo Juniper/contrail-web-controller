@@ -396,17 +396,23 @@ underlayView.prototype.createNodes = function() {
             elements.push(newElement);
             elementMap.nodes[nodeName] = newElement.id;
         }
+
         for (var i = 0; i < vrouters.length; i++) {
             newElement = this.createNode(vrouters[i], i, vrouters.length);
             nodeName = vrouters[i]['name'];
             elements.push(newElement);
             elementMap.nodes[nodeName] = newElement.id;
-        }
-        for (var i = 0; i < vms.length; i++) {
-            newElement = this.createNode(vms[i], i, vms.length);
-            nodeName = vms[i]['name'];
-            elements.push(newElement);
-            elementMap.nodes[nodeName] = newElement.id;
+            var vms = 
+            jsonPath(globalObj.dataSources.instDS.dataSource.getItems(), "$[?(@.vRouter =='" + nodeName + "')]");
+            for (var j = 0; j < vms.length; j++) {
+                var vmObj = jsonPath(this.getModel().getVMs(), "$[?(@.name =='" + vms[j].name + "')]");
+                if(false == vmObj)
+                    continue;
+                newElement = this.createNode(vmObj[0], j, vms.length);
+                nodeName = vmObj[0]['name'];
+                elements.push(newElement);
+                elementMap.nodes[nodeName] = newElement.id;
+            }
         }
         this.getModel().setConnectedElements(elements);
         this.getModel().setElementMap(elementMap);
@@ -735,11 +741,22 @@ underlayView.prototype.initContextMenuConfig = function() {
 
 underlayView.prototype.clearHighlightedConnectedElements = function() {
     var g = this.getGraph();
-    $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
-    $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-    $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
+    $('div.font-element')
+        .removeClass('elementHighlighted')
+        .removeClass('dimHighlighted');
+    $('g.element')
+        .removeClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted');
+    $('div.font-element')
+        .css('fill', "")
+        .css('stroke', "");
+    $('g.element').find('text').css('fill', "#333");
+    $('g.element').find('rect').css('fill', "#FFF");
+    $('g.link')
+        .removeClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted');
     $("g.link").find('path.connection')
-        .css("stroke", "#637939");
+        .css("stroke", "#333");
     $("g.link").find('path.marker-source')
         .css("fill", "#333")
         .css("stroke", "#333");
@@ -786,29 +803,27 @@ underlayView.prototype.initGraphEvents = function() {
 
                 var model_id          = $(dblClickedElement).attr('id');
                 //Faint all
+                _this.clearHighlightedConnectedElements();
                 $('div.font-element')
                     .removeClass('elementHighlighted')
                     .addClass('dimHighlighted');
-                +
                 $('g.element')
                     .removeClassSVG('elementHighlighted')
                     .addClassSVG('dimHighlighted');
                 $('g.link')
                     .removeClassSVG('elementHighlighted')
-                    .addClassSVG('dimHighlighted');
+                    .addClassSVG('dimHighlighted')
+                    .css('')
 
                 //Highlight selected vrouter
                 $('div.font-element[font-element-model-id="' + model_id + '"]')
                     .addClass('elementHighlighted')
-                    .removeClass('dimHighlighted')
-                    .css('stroke', "#498AB9")
-                    .css('fill', "#498AB9");
+                    .removeClass('dimHighlighted');
 
                 $('g.element[model-id="' + model_id + '"]')
                     .addClassSVG('elementHighlighted')
-                    .removeClassSVG('dimHighlighted')
-                    .css('stroke', "#498AB9")
-                    .css('fill', "#498AB9");
+                    .removeClassSVG('dimHighlighted');
+
                 _this.getPaper().setDimensions(LEVEL_2_DIMENSION.width,LEVEL_2_DIMENSION.height);
                 $('.viewport')
                     .height(LEVEL_2_DIMENSION.width)
@@ -1062,6 +1077,7 @@ underlayView.prototype.resetTopology = function() {
     $("#topology_paper").panzoom("reset");
     ZOOMED_OUT = 0;
     this.hideVRouters();
+    this.hideVMs();
 }
 
 underlayView.prototype.renderTopology = function(response) {
@@ -1079,14 +1095,24 @@ underlayView.prototype.renderTopology = function(response) {
             data     : data,
             view     : this,
             callback : function(response) {
-                this.view.highlightPath(response);
+                this.view.highlightPath(response, data);
             }
         };
         this.getModel().getData(cfg);
     }
 }
 
-underlayView.prototype.highlightPath = function(response) {
+underlayView.prototype.highlightPath = function(response, data) {
+    if(null !== response && typeof response !== "undefined" &&
+        null !== response.nodes && typeof response.nodes !== "undefined"){
+
+    } else if(response.nodes <=0){
+        showInfoWindow("No Underlay paths found for the selected flow.", "Info");
+        return false;
+    } else if("" !== response && typeof response === "string") {
+        showInfoWindow(response, "Info");
+        return false;
+    }
     var _this = null;
     if(null !== this && typeof this !== "undefined" && this.hasOwnProperty('view') &&
         this.view instanceof underlayView) {
@@ -1104,6 +1130,7 @@ underlayView.prototype.highlightPath = function(response) {
     var graph      = _this.getGraph();
     var nodes      = response.nodes;
     var links      = response.links;
+
     for(var i=0; i<nodes.length; i++) {
         highlightedElements.nodes.push(nodes[i]);
     }
@@ -1147,6 +1174,43 @@ underlayView.prototype.highlightPath = function(response) {
                 .css("fill", "#498AB9")
                 .css("stroke", "#498AB9");
     });
+
+    var srcIP = data.data['srcIP'];
+    var destIP = data.data['destIP'];
+    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+    var srcVM = jsonPath(instances, "$[?(@.ip=='" + srcIP + "')]");
+    if(false !== srcVM) {
+        srcVM = srcVM[0].name;
+    }
+    var destVM = jsonPath(instances, "$[?(@.ip=='" + destIP + "')]");
+    if(false !== destVM) {
+        destVM = destVM[0].name;
+    }
+    for(var i=0; i<highlightedElements.nodes.length; i++) {
+        var hlNode = highlightedElements.nodes[i];
+        if(hlNode.node_type === 'virtual-machine') {
+            var model_id = elementMap.nodes[hlNode.name];
+            if(hlNode.name == srcVM) {
+                //Plot green
+                $('div.font-element[font-element-model-id="' + model_id + '"]')
+                    .css('stroke', "green")
+                    .css('fill', "green");
+
+                $('g.element[model-id="' + model_id + '"]')
+                    .css('stroke', "green")
+                    .css('fill', "green");
+            } else if(hlNode.name == destVM) {
+                //Plot red
+                $('div.font-element[font-element-model-id="' + model_id + '"]')
+                    .css('stroke', "red")
+                    .css('fill', "red");
+
+                $('g.element[model-id="' + model_id + '"]')
+                    .css('stroke', "red")
+                    .css('fill', "red");
+            }
+        }
+    }
 };
 
 underlayView.prototype.showVRouter = function(dblClickedElement, type) {
@@ -1556,7 +1620,7 @@ underlayView.prototype.renderTracePath = function(options) {
                 data: postData
             }
         }).success(function(response){
-            _this.highlightPath(response);
+            _this.highlightPath(response, {data: postData});
         }).always(function(response){
         });
     });
@@ -1586,7 +1650,7 @@ underlayView.prototype.renderTracePath = function(options) {
                 data: postData
             }
         }).success(function(response){
-            _this.highlightPath(response);
+            _this.highlightPath(response, {data: postData});
         }).always(function(response){
         });
     });
@@ -1605,7 +1669,7 @@ underlayView.prototype.runTracePath = function(context, obj, response) {
             data     : data,
             view     : this,
             callback : function(response) {
-                this.view.highlightPath(response);
+                this.view.highlightPath(response, data);
             }
         };
         this.getModel().getData(ajaxCfg);
