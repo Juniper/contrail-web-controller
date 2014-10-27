@@ -1399,206 +1399,341 @@ underlayView.prototype.renderFlowRecords = function() {
 }
 
 underlayView.prototype.renderTracePath = function(options) {
-    var obj = [
-       {
-           label:'VRouter',
-           key:'vRouter'
-       }
-    ];
     var _this = this;
     var nodeType = $("#underlay_topology").data('nodeType');
     var nodeName = $("#underlay_topology").data('nodeName');
-    var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())(obj);
+    var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())();
     var defaultValue = '',ip = '';
     $("#traceFlow").html(tracePathTemplate);
-    var items = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),data = [];
+    var computeNodes = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
     if(nodeType == VROUTER && nodeName != null) {
         defaultValue = nodeName;
     } else {
-        defaultValue = items[0]['name'];
-        ip = items[0]['ip'];
+        defaultValue = computeNodes[0]['name'];
+        ip = computeNodes[0]['ip'];
     }
-    for(var i = 0; i < items.length; i++) {
-        if(items[i]['name'] == defaultValue)
-            ip = items[i]['ip'];
-        data.push({
-            text:items[i]['name'],
-            value:items[i]['ip']
+    for(var i = 0; i < computeNodes.length; i++) {
+        if(computeNodes[i]['name'] == defaultValue)
+            ip = computeNodes[i]['ip'];
+        computeNodeCombobox.push({
+            text:computeNodes[i]['name'],
+            value:computeNodes[i]['ip']
         });
     }
-    $("#vRouter").contrailDropdown({
+    $("#tracePathDropdown").contrailDropdown({
         dataTextField: "text",
         dataValueField: "value",
-        change:function(e){
-            var newAjaxConfig = {
+        change: function(e) {
+            if($('#vrouterRadiobtn').is(':checked') == true) {
+                var newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + e['val'], 
                         type:'Get'
                     };
-            flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-            flowGrid._dataView.setData([]);
-            flowGrid.showGridMessage('loading');
-            reloadGrid(flowGrid);
+                flowGrid._dataView.setData([]);
+                flowGrid.showGridMessage('loading');
+                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+                reloadGrid(flowGrid);
+            } else if($('#instRadiobtn').is(':checked') == true) {
+                vmFlowsGrid._dataView.setData([]);
+                vmFlowsGrid.showGridMessage('loading');
+                var uuid = e['val'];
+                var url = getInstFlowsUrl(uuid);
+                vmFlowsGrid.setRemoteAjaxConfig({url:url,type:'Get'});
+                vmFlowsGrid.showGridMessage('loading');
+                reloadGrid(vmFlowsGrid);
+            }
         }
     });
-    var vrouterDropdown = $("#vRouter").data('contrailDropdown');
-    vrouterDropdown.setData(data);
-    vrouterDropdown.text(defaultValue);
-    //if(!isGridInitialized('#vrouterflows')) {
-        $("#vrouterflows").contrailGrid({
-            header : {
-                title : {
-                    text : 'Flows'
-                },
-                customControls : [
-                    '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
-                    '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
-                ],
-            },
-            columnHeader : {
-                columns: [
-                               {
-                                   field:"protocol",
-                                   name:"Protocol",
-                                   minWidth:60,
-                                   formatter:function(r,c,v,cd,dc){
-                                       return formatProtocol(dc['protocol']);
-                                   }
-                               },
-                               {
-                                   field:"src_vn",
-                                   name:"Src Network",
-                                   cssClass:'cell-hyperlink-blue',
-                                   events: {
-                                       onClick: function(e,dc){
-                                           var tabIdx = $.inArray("networks", computeNodeTabs);
-                                           selectTab(computeNodeTabStrip,tabIdx);
-                                       }
-                                    },
-                                   minWidth:195
-                               },
-                               {
-                                   field:"sip",
-                                   name:"Src IP",
-                                   minWidth:70
-                               },
-                               {
-                                   field:"src_port",
-                                   name:"Src Port",
-                                   minWidth:50
-                               },
-                               {
-                                   field:"dst_vn",
-                                   name:"Dest Network",
-                                   cssClass:'cell-hyperlink-blue',
-                                   events: {
-                                       onClick: function(e,dc){
-                                           var tabIdx = $.inArray("networks", computeNodeTabs);
-                                           selectTab(computeNodeTabStrip,tabIdx);
-                                       }
-                                    },
-                                   minWidth:195
-                               },
-                               {
-                                   field:"dip",
-                                   name:"Dest IP",
-                                   minWidth:70
-                               },
-                               {
-                                   field:"dst_port",
-                                   name:"Dest Port",
-                                   minWidth:50
-                               },
-                               {
-                                   field:"direction",
-                                   name:"Direction",
-                                   minWidth:80,
-                                   formatter:function(r,c,v,cd,dc) {
-                                       var directionMap = {
-                                           'egress': 'ENGRESS',
-                                           'ingress': 'INGRESS'
-                                       };
-                                       return ifNull(directionMap[dc['raw_json']['direction']],'-');
-                                   }
-                               },
-                               {
-                                   field:"stats_bytes",
-                                   name:"Bytes/Pkts",
-                                   minWidth:80,
-                                   formatter:function(r,c,v,cd,dc){
-                                       return contrail.format("{0}/{1}",formatBytes(dc['stats_bytes'],'-'),dc['stats_packets']);
-                                   },
-                                   searchFn:function(d){
-                                       return d['stats_bytes']+ '/ ' +d['stats_packets'];
-                                   }
-                               }
-                           ]
-            },
-            body : {
-                options : {
-                    forceFitColumns: true,
-                    sortable : false,
-                    checkboxSelectable: {
-                        enableRowCheckbox: true,
-                        onNothingChecked: function(e){
-                            $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
-                            $("#traceFlowBtn").attr('disabled','disabled');
-                            $("#reverseFlowBtn").attr('disabled','disabled');
+    var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
+    tracePathDropdown.setData(computeNodeCombobox);
+    tracePathDropdown.text(defaultValue);
+    $("#vrouterRadiobtn").prop('checked',true);
+    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems(),instComboboxData = [];
+    var instMap = {};
+    for(var i = 0; i < instances.length; i++) {
+        var instObj = instances[i];
+        instComboboxData.push({
+            text: instObj['vmName']+' ('+instObj['name']+')',
+            value: instances[i]['name'],
+        });
+        instMap[instances[i]['name']] = instances[i];
+    }
+    var columns = [
+                   {
+                       field:"protocol",
+                       name:"Protocol",
+                       minWidth:60,
+                       formatter:function(r,c,v,cd,dc){
+                           return formatProtocol(dc['protocol']);
+                       }
+                   },
+                   {
+                     //same grid we are using for the instance flows and vrouter flows
+                       // As the properties in the data are different we need to refer both
+                       field:"src_vn",
+                       name:"Src Network",
+                       cssClass:'cell-hyperlink-blue',
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['src_vn'] != null ? dc['src_vn'] : dc['sourcevn'];
+                       },
+                       events: {
+                           onClick: function(e,dc){
+                               var tabIdx = $.inArray("networks", computeNodeTabs);
+                               selectTab(computeNodeTabStrip,tabIdx);
+                           }
                         },
-                        onSomethingChecked: function(e){
-                            $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
-                            $("#traceFlowBtn").removeAttr('disabled');
-                            $("#reverseFlowBtn").removeAttr('disabled');
-                            $(e['currentTarget']).removeAttr('disabled')
-                        }
+                       minWidth:195
+                   },
+                   {
+                       field:"sip",
+                       name:"Src IP",
+                       minWidth:70,
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['sip'] != null ? dc['sip'] : dc['sourceip'];
+                       }
+                   },
+                   {
+                       field:"src_port",
+                       name:"Src Port",
+                       minWidth:50,
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['src_port'] != null ? dc['src_port'] : dc['sport'];
+                       }
+                   },
+                   {
+                       field:"dst_vn",
+                       name:"Dest Network",
+                       cssClass:'cell-hyperlink-blue',
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['dst_vn'] != null ? dc['dst_vn'] : dc['destvn'];
+                       },
+                       events: {
+                           onClick: function(e,dc){
+                               var tabIdx = $.inArray("networks", computeNodeTabs);
+                               selectTab(computeNodeTabStrip,tabIdx);
+                           }
+                        },
+                       minWidth:195
+                   },
+                   {
+                       field:"dip",
+                       name:"Dest IP",
+                       minWidth:70,
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['dip'] != null ? dc['dip'] : dc['destip'];
+                       },
+                   },
+                   {
+                       field:"dst_port",
+                       name:"Dest Port",
+                       minWidth:50,
+                       formatter:function(r,c,v,cd,dc) {
+                           return dc['dst_port'] != null ? dc['dst_port'] : dc['dport'];
+                       },
+                   },
+                   {
+                       field:"direction",
+                       name:"Direction",
+                       minWidth:80,
+                       formatter:function(r,c,v,cd,dc) {
+                           var directionMap = {
+                               'egress': 'EGRESS',
+                               'ingress': 'INGRESS',
+                                      1 : 'INGRESS',
+                                      0 : 'EGRESS'
+                           };
+                           var dir = dc['raw_json'] != null ? dc['raw_json']['direction'] : dc['direction_ing']; 
+                           return ifNull(directionMap[dir],'-');
+                       }
+                   },
+                   {
+                       field:"stats_bytes",
+                       name:"Bytes/Pkts",
+                       minWidth:80,
+                       formatter:function(r,c,v,cd,dc){
+                           var bytes = dc['stats_bytes'] != null ? dc['stats_bytes'] : dc['agg-bytes'];
+                           var pkts = dc['stats_packets'] != null ? dc['stats_packets'] : dc['agg-packets'];
+                           return contrail.format("{0}/{1}",formatBytes(bytes,'-'),pkts);
+                       },
+                       searchFn:function(d){
+                           var bytes = dc['stats_bytes'] != null ? dc['stats_bytes'] : dc['agg-bytes'];
+                           var pkts = dc['stats_packets'] != null ? dc['stats_packets'] : dc['agg-packets'];
+                           return bytes+ '/ ' +pkts;
+                       }
+                   }
+               ];
+    $("#vrouterflows").contrailGrid({
+        header : {
+            title : {
+                text : 'Flows'
+            },
+            customControls : [
+                '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
+                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
+            ],
+        },
+        columnHeader : {
+            columns: columns
+        },
+        body : {
+            options : {
+                forceFitColumns: true,
+                sortable : false,
+                checkboxSelectable: {
+                    enableRowCheckbox: true,
+                    onNothingChecked: function(e){
+                        //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                        $("#traceFlowBtn").attr('disabled','disabled');
+                        $("#reverseFlowBtn").attr('disabled','disabled');
                     },
-                },
-                dataSource : {
-                    remote: {
-                        ajaxConfig: {
-                            url: function () {
-                                return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
-                            }(),
-                            type: 'GET'
-                        },
-                        dataParser: self.parseFlowsData
+                    onSomethingChecked: function(e){
+                        $("div.slick-cell-checkboxsel > input").attr('checked',false);
+                        $("#traceFlowBtn").removeAttr('disabled');
+                        $("#reverseFlowBtn").removeAttr('disabled');
+                        //$(e['currentTarget']).removeAttr('disabled')
+                        $(e['currentTarget']).attr('checked',true);
                     }
                 },
-                statusMessages: {
-                    loading: {
-                        text: 'Loading Flows..',
+            },
+            dataSource : {
+                remote: {
+                    ajaxConfig: {
+                        url: function () {
+                            return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
+                        }(),
+                        type: 'GET'
                     },
-                    empty: {
-                        text: 'No Flows to display'
-                    }, 
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
-                    }
+                    dataParser: self.parseFlowsData
                 }
             },
-            footer : false,
-            //change:onFlowChange
-        });
-        flowGrid = $('#vrouterflows').data('contrailGrid');
-        $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
-        flowGrid.showGridMessage('loading');
-    /*} else {
-        var newAjaxConfig;
-        flowGrid = $('#gridComputeFlows').data('contrailGrid');
-        if(selectedAcl != 'All'){
-            newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj), 
+            statusMessages: {
+                loading: {
+                    text: 'Loading Flows..',
+                },
+                empty: {
+                    text: 'No Flows to display'
+                }, 
+                errorGettingData: {
+                    type: 'error',
+                    iconClasses: 'icon-warning',
+                    text: 'Error in getting Data.'
+                }
+            }
+        },
+        footer : false,
+    });
+    flowGrid = $('#vrouterflows').data('contrailGrid');
+    $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
+    flowGrid.showGridMessage('loading');
+    var vmFlowsGrid;
+    $('input[name="flowtype"]').change(function(){
+        if($('#vrouterRadiobtn').is(':checked') == true) {
+            tracePathDropdown.setData(computeNodeCombobox);
+            var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+            $("#vmflows").hide();
+            $("#vrouterflows").show();
+            var newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + selItem['id'], 
                     type:'Get'
                 };
+            flowGrid._dataView.setData([]);
+            flowGrid.showGridMessage('loading');
             flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-        } 
-        reloadGrid(flowGrid);
-    }*/
+            reloadGrid(flowGrid);
+        } else if($('#instRadiobtn').is(':checked') == true) {
+            tracePathDropdown.setData(instComboboxData);
+            var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+            var instUUID = instComboboxData[0]['value'];
+            $("#vrouterflows").hide();
+            $("#vmflows").show();
+            if(!isGridInitialized($('#vmflows'))) {
+                $("#vmflows").contrailGrid({
+                    header : {
+                        title : {
+                            text : 'Flows'
+                        },
+                        customControls : [
+                            '<button id="reverseFlowBtn_vmFlow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Reverse Flow">Map Reverse Flow</button>',
+                            '<button id="traceFlowBtn_vmFlow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
+                        ],
+                    },
+                    columnHeader : {
+                        columns: columns
+                    },
+                    body : {
+                        options : {
+                            forceFitColumns: true,
+                            sortable : false,
+                            checkboxSelectable: {
+                                enableRowCheckbox: true,
+                                onNothingChecked: function(e){
+                                    //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                                    $("#reverseFlowBtn_vmFlow").attr('disabled','disabled');
+                                    $("#traceFlowBtn_vmFlow").attr('disabled','disabled');
+                                },
+                                onSomethingChecked: function(e){
+                                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
+                                    $("#reverseFlowBtn_vmFlow").removeAttr('disabled');
+                                    $("#traceFlowBtn_vmFlow").removeAttr('disabled');
+                                    //$(e['currentTarget']).removeAttr('disabled')
+                                    $(e['currentTarget']).attr('checked',true);
+                                }
+                            },
+                        },
+                        dataSource : {
+                            remote: {
+                                ajaxConfig: {
+                                    url: function () {
+                                        return getInstFlowsUrl(instUUID);
+                                    }(),
+                                    type: 'GET'
+                                },
+                                dataParser: function(response){
+                                    return (response['data'] != null) ? response['data'] : [];
+                                }
+                            }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Flows..',
+                            },
+                            empty: {
+                                text: 'No Flows to display'
+                            }, 
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Data.'
+                            }
+                        }
+                    },
+                    footer : false,
+                });
+                vmFlowsGrid = $("#vmflows").data('contrailGrid');
+                $("#traceFlowBtn_vmFlow").on('click',function(){
+                    var instCheckedRows = vmFlowsGrid.getCheckedRows();
+                    var instDataItem = ifNull(instCheckedRows[0],{});
+                    showUnderlayPaths(instDataItem);
+                });
+                $("#reverseFlowBtn_vmFlow").on('click',function(){
+                    var instCheckedRows = vmFlowsGrid.getCheckedRows();
+                    var instDataItem = ifNull(instCheckedRows[0],{});
+                    showUnderlayPaths(instDataItem);
+                });
+            } else {
+                var url = getInstFlowsUrl(selItem['id']);
+                vmFlowsGrid._dataView.setData([]);
+                vmFlowsGrid.showGridMessage('loading');
+                vmFlowsGrid.setRemoteAjaxConfig({url:url,type:'Get'});
+                reloadGrid(vmFlowsGrid);
+            }
+            $("#vmflows").find('input.headerRowCheckbox').parent('span').remove();
+        }
+    });
     $("#traceFlowBtn").on('click',function(e){
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
-        var item = vrouterDropdown.getSelectedData();
+        var item = tracePathDropdown.getSelectedData();
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
@@ -1624,7 +1759,6 @@ underlayView.prototype.renderTracePath = function(options) {
         }).always(function(response){
         });
     });
-
     $("#reverseFlowBtn").on('click',function(e){
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
@@ -1654,6 +1788,30 @@ underlayView.prototype.renderTracePath = function(options) {
         }).always(function(response){
         });
     });
+    function getInstFlowsUrl(uuid){
+        var ajaxData = {
+                pageSize: 50,
+                page: 1,
+                timeRange: 1800,
+                select: 'setup_time, teardown_time, agg-bytes, agg-packets',
+                fromTimeUTC: 'now-3600s',
+                toTimeUTC: 'now',
+                queryId: randomUUID(),
+                async: true,
+                table:'FlowRecordTable'
+        };
+        var vmData = instMap[uuid];
+        var intfData = ifNull(vmData['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+        var where = '';
+        for(var i = 0; i < intfData.length; i++) {
+            where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
+            if(i+1 > intfData.length)
+                where+= 'OR';
+        }
+        ajaxData['where'] = where;
+        ajaxData['url'] = '/api/admin/reports/query?'+$.param(ajaxData);
+        return ajaxData['url'];
+    }
 }
 
 underlayView.prototype.runTracePath = function(context, obj, response) {
@@ -1745,7 +1903,6 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         "minsSince":60
                       }
                     };
-            //url = '/interfaceStats.json';
             link = 'prouter';
             details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:[{}]});
             $("#detailsTab").html(details);

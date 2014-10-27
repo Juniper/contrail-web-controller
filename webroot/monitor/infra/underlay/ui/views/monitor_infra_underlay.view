@@ -97,21 +97,23 @@ body > svg {
 	</div>
 </script>
 <script type="text/x-handlebars-template" id="tracePath-template">
-	<div>
-        <div class="row-fluid">	   
-		{{#each this}}
-		    <div class="control-group span2" style="display:inline-block">
-		        <label class="control-label">{{this.label}}</label>
-		        <div class="controls">
-		            <div class="row-fluid">
-		                <div id="{{this.key}}"  class="span12" />
-		            </div>
-		        </div>
-		    </div>
-		{{/each}}
-		</div>
-		<div class='contrail' id='vrouterflows'></div>
-	</div>
+	<div class='row-fluid'>
+        <div class='row-fluid margin-0-0-10'>
+            <div class="span4">
+                <div>    
+                    <div id='tracePathDropdown' class='span12' tabindex=0></div>
+                </div>
+            </div>
+            <div class="span4">
+                <div>
+                    <input type='radio' name='flowtype' id='vrouterRadiobtn' checked='checked' tabindex=0/><span class="ace-lbl" style="padding-left:5px;">VRouter&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input type='radio' name='flowtype' id='instRadiobtn'  tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Instances&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                </div>
+            </div>
+        </div>
+        <div id='vrouterflows'></div>
+        <div id='vmflows'></div>
+    </div>
 </script>
 
 <script type="text/x-handlebars-template" id="link-summary-template">
