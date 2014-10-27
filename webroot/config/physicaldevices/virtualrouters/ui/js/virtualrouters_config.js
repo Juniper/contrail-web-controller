@@ -144,7 +144,9 @@ function virtualRoutersConfig() {
             }
         });
         $('#btnDeleteVirtualRouter').click(function(){
-             $('#confirmMainDelete').modal('show');
+             if(!$(this).hasClass('disabled-link')) {
+                 $('#confirmMainDelete').modal('show');
+             }
         });
         $('#btnCnfDelMainPopupOK').click(function(args){
             var selected_rows = gridVirtualRouters.getCheckedRows();

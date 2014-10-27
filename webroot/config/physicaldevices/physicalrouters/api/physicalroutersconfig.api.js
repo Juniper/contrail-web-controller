@@ -91,23 +91,31 @@ function getPhysicalRoutersDetails(error, data, response, appData)
        commonUtils.handleJSONResponse(error, response, null);
        return;
     }
-    pRoutersLength = data['physical-routers'].length;
-    for(i = 0; i < pRoutersLength; i++) {
-        reqUrl = '/physical-router/' +  data['physical-routers'][i]['uuid'];
-        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                                null, null, null, appData);        
-    }
-    
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function(error, results) {
-            if (error) {
-               commonUtils.handleJSONResponse(error, response, null);
-               return;
-            }
-            getPhysicalInterfaceDetails(error, results, response, appData);
+    if(data['physical-routers'] != null) {
+        //console.log("Physical-Router:", data['physical-routers']);
+        pRoutersLength = data['physical-routers'].length;
+        for(i = 0; i < pRoutersLength; i++) {
+            reqUrl = '/physical-router/' +  data['physical-routers'][i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                                    null, null, null, appData);        
         }
-    );
+        if(dataObjArr.length > 0) {
+            async.map(dataObjArr,
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                function(error, results) {
+                    if (error) {
+                       commonUtils.handleJSONResponse(error, response, null);
+                       return;
+                    }
+                    getPhysicalInterfaceDetails(error, results, response, appData);
+                }
+            );
+        } else {
+            commonUtils.handleJSONResponse(error, response, []);
+        }
+    } else {
+        commonUtils.handleJSONResponse(error, response, []);
+    }
 }
 
 function getPhysicalInterfaceDetails(error, pRouters, response, appData){
@@ -127,27 +135,31 @@ function getPhysicalInterfaceDetails(error, pRouters, response, appData){
             }
         }
     }
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function(error, pInterfaces) {
-            if (error) {
-               commonUtils.handleJSONResponse(error, response, null);
-               return;
-            }
-            if(pInterfaces.length > 0){
-                
-                for(var j=0 ;j < pRouters.length; j++){
-                    pRouters[j]['physical-router']['physical_interfaces'] = [];
-                    for(var l=0 ; l < pInterfaces.length; l++){
-                        if(pRouters[j]['physical-router']['uuid'] == pInterfaces[l]['physical-interface']['parent_uuid']){
-                            pRouters[j]['physical-router']['physical_interfaces'].push(pInterfaces[l]['physical-interface']);
+    if(dataObjArr.length > 0) {
+        async.map(dataObjArr,
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            function(error, pInterfaces) {
+                if (error) {
+                   commonUtils.handleJSONResponse(error, response, null);
+                   return;
+                }
+                if(pInterfaces.length > 0){
+                    
+                    for(var j=0 ;j < pRouters.length; j++){
+                        pRouters[j]['physical-router']['physical_interfaces'] = [];
+                        for(var l=0 ; l < pInterfaces.length; l++){
+                            if(pRouters[j]['physical-router']['uuid'] == pInterfaces[l]['physical-interface']['parent_uuid']){
+                                pRouters[j]['physical-router']['physical_interfaces'].push(pInterfaces[l]['physical-interface']);
+                            }
                         }
                     }
+                    commonUtils.handleJSONResponse(error, response, pRouters);
                 }
-                commonUtils.handleJSONResponse(error, response, pRouters);
             }
-        }
-    );
+        );
+    } else {
+        commonUtils.handleJSONResponse(error, response, pRouters);
+    }
 }
 
 

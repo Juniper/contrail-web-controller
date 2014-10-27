@@ -277,7 +277,9 @@ function physicalInterfacesConfig() {
         }
         
         $('#btnDeletePhysicalInterface').click(function(){
-             $('#confirmMainDelete').modal('show');
+             if(!$(this).hasClass('disabled-link')) {
+                 $('#confirmMainDelete').modal('show');
+             }
         });
         $('#btnCnfDelMainPopupOK').click(function(args){
             var selected_rows = gridPhysicalInterfaces.getCheckedRows();
@@ -537,26 +539,27 @@ function physicalInterfacesConfig() {
         doAjaxCall('/api/tenants/config/physical-routers-list','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null);
     }
     window.successHandlerForPhysicalRouters =  function(result) {
-        var pRoutersDS = [];    
-        if(result && result['physical-routers'].length > 0) {
+        var pRoutersDS = [];
+        var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
+        if(result != null && result['physical-routers'].length > 0) {
             var physicalRouters = result['physical-routers'];
             for(var i = 0; i < physicalRouters.length;i++) {
                 var physicalRouter = physicalRouters[i];
                 pRoutersDS.push({text : physicalRouter.fq_name[1], value : physicalRouter.uuid});
             } 
-        
+            pRouterDD.setData(pRoutersDS);
+            if(currentUUID) {
+                pRouterDD.value(currentUUID);
+            } else {
+                pRouterDD.value(pRoutersDS[0].value)
+                currentUUID = pRouterDD.value();
+            }
+            fetchData();            
         } else {
             pRoutersDS.push({text : 'No Physical Router found', value: 'Message'});
+            pRouterDD.setData(pRoutersDS);
+            gridPhysicalInterfaces.showGridMessage('empty');
         }
-        var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');            
-        pRouterDD.setData(pRoutersDS); 
-        if(currentUUID) {
-            pRouterDD.value(currentUUID);
-        } else {
-            pRouterDD.value(pRoutersDS[0].value)
-            currentUUID = pRouterDD.value();
-        }
-        fetchData();         
     }
     window.failureHandlerForPhysicalRouters = function(error) {
         gridPhysicalInterfaces.showGridMessage('errorGettingData');

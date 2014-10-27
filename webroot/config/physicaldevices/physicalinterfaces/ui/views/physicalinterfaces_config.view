@@ -150,7 +150,7 @@
          </div>
         <div class="modal-body">
              <div class="row-fluid text-center">
-                  <h6>Confirm Virtual Router(s) delete</h6>
+                  <h6>Confirm Interface(s) delete</h6>
              </div>
         </div>
         <div class="modal-footer">
