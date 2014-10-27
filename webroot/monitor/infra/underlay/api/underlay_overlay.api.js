@@ -572,9 +572,9 @@ function getUnderlayPath (req, res, appData)
     var body = req.body;
     var data = body['data'];
     var tempFlowIpObjs = {};
-    var flowIpsCnt = 0;
     var srcIP = data['srcIP'];
     var destIP = data['destIP'];
+    var nodeName = null;
 
     var queryJSON = queries.buildUnderlayQuery(data);
 
@@ -585,7 +585,7 @@ function getUnderlayPath (req, res, appData)
             return;
         }
         var flowPostData = {};
-        flowPostData['cfilt'] = ['PRouterFlowEntry:flow_export_source_ip'];
+        flowPostData['cfilt'] = ['PRouterEntry:ipMib'];
         var url = '/analytics/uves/prouter';
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  flowPostData, null, null, null);
@@ -598,32 +598,21 @@ function getUnderlayPath (req, res, appData)
         async.map(dataObjArr,
                   commonUtils.getServerResponseByRestApi(opApiServer, true),
                   function(err, results) {
-            if ((null != err) || (null == results) || (null == results[0]) ||
-                (null == results[0]['value']) || (!results[0]['value'].length)) {
-                ipNotFound = true;
-                flowIpsCnt = 0;
-            } else {
-                flowIps = results[0];
-                flowIpsCnt = flowIps['value'].length;
-            }
+            var ipPrTable = getIPToProuterMapTable(results[0]);
+
             var srcVrouter = getvRouterByIntfIP(srcIP, results[1]);
             var destVrouter = getvRouterByIntfIP(destIP, results[1]);
-            for (var i = 0; i < flowIpsCnt; i++) {
-                try {
-                    tempFlowIpObjs[flowIps['value'][i]['value']['PRouterFlowEntry']['flow_export_source_ip']]
-                        = flowIps['value'][i]['name'];
-                } catch(e) {
-                    logutils.logger.error("flowIPs parse error:" + e);
-                }
-            }
             result = result['value'];
             var nodeCnt = result.length;
             for (var i = 0; i < nodeCnt; i++) {
-                endPt1 = (null != tempFlowIpObjs[result[i]['u_prouter']]) ?
-                    tempFlowIpObjs[result[i]['u_prouter']] :
-                    result[i]['u_prouter'];
-
-                topoData['nodes'].push({"name": endPt1,
+                var endPt1 = getNodeNameByPVData(result[i]['u_prouter'],
+                                                  ipPrTable, results[1]);
+                if (null == endPt1) {
+                    nodeName = result[i]['u_prouter'];
+                } else {
+                    nodeName = endPt1['nodeName'];
+                }
+                topoData['nodes'].push({"name": nodeName,
                                        "node_type":
                                        ctrlGlobal.NODE_TYPE_PROUTER});
             }
@@ -965,50 +954,24 @@ function getUnderlayStats (req, res, appData)
    Get the node hostname from pRouter and vRouter UVE using node ip
    First is checked in pRouter UVE, if not found, then check for vRouter UVE.
  */
-function getNodeNameByPVData (hop, macPrTable, prouterData, vrouterData)
+function getNodeNameByPVData (hop, ipPrTable, vrouterData)
 {
     var nodeObj = {};
+    var vrCnt = 0;
     nodeObj['nodeName'] = null;
     nodeObj['nodeType'] = null;
-    var prCnt = prouterData['value'].length;
-    for (var i = 0; i < prCnt; i++) {
-        try {
-            var prData = prouterData['value'][i]['value'];
-            if (hop == prData['PRouterFlowEntry']['flow_export_source_ip']) {
-                return {'nodeName': prouterData['value'][i]['name'],
-                        'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
-            }
-        } catch(e) {
-            logutils.logger.error("We did not prouter flow_export_source_ip " +
-                                  " while searching IP:" + hop);
-        }
-        try {
-            var arpTable =
-                prouterData['value'][i]['value']['PRouterEntry']['arpTable'];
-            var arpCnt = arpTable.length;
-        } catch(e) {
-            arpCnt = 0;
-        }
-        for (var j = 0; j < arpCnt; j++) {
-            if (arpTable[j]['ip'] == hop) {
-                if (macPrTable[arpTable[j]['mac']] != null) {
-                    return {'nodeName': macPrTable[arpTable[j]['mac']],
-                             'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
-                }
-                break;
-            }
-        }
-        if (j != arpCnt) {
-            break;
-        }
-    }
-    if ((prCnt > 0) && (arpCnt > 0) && (i != prCnt) && (j != arpCnt)) {
-        if (macPrTable[arpTable[j]['mac']] != null) {
-            return {'nodeName': macPrTable[arpTable[j]['mac']],
+
+    for (key in ipPrTable) {
+        if (hop == key) {
+            return {'nodeName': ipPrTable[key],
                     'nodeType': ctrlGlobal.NODE_TYPE_PROUTER};
         }
     }
-    var vrCnt = vrouterData['value'].length;
+    try {
+        vrCnt = vrouterData['value'].length;
+    } catch(e) {
+        vrCnt = 0;
+    }
     for (var i = 0; i < vrCnt; i++) {
         try {
             var ipList =
@@ -1027,24 +990,24 @@ function getNodeNameByPVData (hop, macPrTable, prouterData, vrouterData)
     return nodeObj;
 }
 
-function getMacToProuterMapTable (prouterData)
+function getIPToProuterMapTable (prouterData)
 {
-    var macPrTable = {};
+    var ipPrTable = {};
     var prCnt = prouterData['value'].length;
     for (var i = 0; i < prCnt; i++) {
         try {
             var prData = prouterData['value'][i]['value'];
-            var ifTable = prData['PRouterEntry']['ifTable'];
-            var ifCnt = ifTable.length;
+            var ipTable = prData['PRouterEntry']['ipMib'];
+            var ipCnt = ipTable.length;
         } catch(e) {
-            ifCnt = 0;
+            ipCnt = 0;
         }
-        for (var idx = 0; idx < ifCnt; idx++) {
-            macPrTable[ifTable[idx]['ifPhysAddress']] =
+        for (var idx = 0; idx < ipCnt; idx++) {
+            ipPrTable[ipTable[idx]['ipAdEntIfIndex']] =
                 prouterData['value'][i]['name'];
         }
     }
-    return macPrTable;
+    return ipPrTable;
 }
 
 function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
@@ -1067,8 +1030,7 @@ function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
         var hopList = jsonPath(results, "$..hop[0]");
         url = '/analytics/uves/prouter';
         var prPostData = {};
-        prPostData['cfilt'] = ['PRouterFlowEntry:flow_export_source_ip',
-            'PRouterEntry:ifTable', 'PRouterEntry:arpTable'];
+        prPostData['cfilt'] = ['PRouterEntry:ipMib'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  prPostData, null, null, null);
         url = '/analytics/uves/vrouter';
@@ -1087,10 +1049,10 @@ function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
                   function(err, results) {
             var hopCnt = hopList.length;
             topoData['nodes'] = [];
-            var macPrTable = getMacToProuterMapTable(results[0]);
+            var ipPrTable = getIPToProuterMapTable(results[0]);
             for (var i = 0; i < hopCnt; i++) {
-                var nodeObj = getNodeNameByPVData(hopList[i]['_'], macPrTable,
-                                                  results[0], results[1]);
+                var nodeObj = getNodeNameByPVData(hopList[i]['_'], ipPrTable,
+                                                  results[1]);
                 var nodeName = nodeObj['nodeName'];
                 var nodeType = nodeObj['nodeType'];
                 if (null != nodeName) {
