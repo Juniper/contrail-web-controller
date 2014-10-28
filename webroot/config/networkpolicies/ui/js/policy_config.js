@@ -548,6 +548,7 @@ function initActions() {
         }
         else if (mode === "edit") {
             var policyUUID = jsonPath(configObj, "$.network-policys[?(@.fq_name[2]=='" + txtPolicyName.val() + "')]")[0].uuid;
+            policyConfig["network-policy"]["uuid"] = policyUUID;
             doAjaxCall("/api/tenants/config/policy/" + policyUUID, "PUT", JSON.stringify(policyConfig),
                 "createPolicySuccessCb", "createPolicyFailureCb");
         }
