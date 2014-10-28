@@ -25,7 +25,6 @@ function physicalRoutersConfig() {
         fetchData();
         fetchBGPRouters();
         fetchVNs();
-        fetchVirtualRouters();
     }
     
     function initComponents() {
@@ -343,7 +342,6 @@ function physicalRoutersConfig() {
             
             if(gblSelRow.virtual_router != '-'){
                 var selectedVRouters = gblSelRow.virtual_router.split(',');
-                var vRoutersWithType = [];
                 var vrType = 'None';
                 $.each(selectedVRouters,function(i,vrname){
                     vrname = vrname.trim();
@@ -364,9 +362,7 @@ function physicalRoutersConfig() {
                         $('#txtTsnIp').val(dtl.ip);
                         $('#txtTsnIp').attr("disabled", "disabled");
                     }
-//                    vRoutersWithType.push({name:vrname,type:type]});
                 });
-                
                 $('#ddVirtualRoutersType').data('contrailDropdown').text(vrType);
                 if(vrType == 'None')
                     $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
@@ -389,12 +385,15 @@ function physicalRoutersConfig() {
         var methodType = 'POST';
         var url = '/api/tenants/config/physical-routers';
         var selectedVRouters = [];
+        var postObject = {};
+        postObject["physical-router"] = {};
         if(mode === 'edit') {
             methodType = 'PUT';
             url = '/api/tenants/config/physical-router/' + gblSelRow.uuid
             if(gblSelRow.virtual_router != '-'){
                 selectedVRouters = gblSelRow.virtual_router.split(',');
             }
+            postObject["physical-router"]["uuid"] = gblSelRow.uuid;
         }
         var name = $("#txtPhysicalRouterName").val();
         var vendor = $("#txtVendor").val();
@@ -403,14 +402,11 @@ function physicalRoutersConfig() {
         var username = $("#txtUsername").val();
         var password = $("#txtPassword").val();
         var bgpRouter = $("#ddBgpRouter").data('contrailDropdown').text();
-        
         var vRoutersType = $("#ddVirtualRoutersType").data('contrailDropdown').text();
-        var postObject = {};
         
         gridPhysicalRouters._dataView.setData([]);
-        gridPhysicalRouters.showGridMessage('loading');    
-
-        postObject["physical-router"] = {};
+        gridPhysicalRouters.showGridMessage('loading');  
+        
         postObject["physical-router"]["fq_name"] = ["default-global-system-config", name];
         postObject["physical-router"]["parent_type"] = "global-system-config";
         postObject["physical-router"]["name"] = name;
@@ -611,6 +607,7 @@ function physicalRoutersConfig() {
             gridPhysicalRouters.showGridMessage("empty");
         }
         gridPhysicalRouters._dataView.setData(gridDS);
+        fetchVirtualRouters();
     }
     
     window.failureHandlerForPhysicalRouters =  function(error) {

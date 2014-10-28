@@ -92,7 +92,6 @@ function getPhysicalRoutersDetails(error, data, response, appData)
        return;
     }
     if(data['physical-routers'] != null) {
-        //console.log("Physical-Router:", data['physical-routers']);
         pRoutersLength = data['physical-routers'].length;
         for(i = 0; i < pRoutersLength; i++) {
             reqUrl = '/physical-router/' +  data['physical-routers'][i]['uuid'];
@@ -200,36 +199,27 @@ function setPRouterRead(error, fipConfig, response, appData)
 function createPhysicalRouters (request, response, appData)
 {
      var postData     =  request.body;
-     console.log('postData : ' + JSON.stringify(postData));
-     console.log('type' + postData['physical-router']['virtual_router_type']);
-     console.log('virtualrouters' + JSON.stringify(postData['physical-router']['virtual-routers']));
      //Read the virtual router type to be created
      //if embedded use the details to create a virtual router. If it fails dont create physical router as well.
      if(postData['physical-router']['virtual_router_type'] != null){
          if(postData['physical-router']['virtual_router_type'] == 'Embedded'){
              var vrouterPostData = postData['physical-router']['virtual-routers'][0];
-             console.log("vrouter post data :"+ JSON.stringify(vrouterPostData));
              if(vrouterPostData){
                  configApiServer.apiPost('/virtual-routers', vrouterPostData, appData,
                          function(error, data) {
-                            console.log('response for vrouters create');
                             if(error) {
-                                console.log('error creating vrouter');
                                 commonUtils.handleJSONResponse(error, response, null);
                                 return;
                             } else {
                                 delete postData['physical-router']['virtual-routers'];
                                 delete postData['physical-router']['virtual_router_type'];
                                 //create physical router
-                                console.log('creating prouter');
                                 configApiServer.apiPost('/physical-routers', postData, appData,
                                         function(error, data) {
                                             if(error){
-                                                console.log('error creating prtouer');
                                                 commonUtils.handleJSONResponse(error, response, null);
                                                 return;
                                             }
-                                            console.log('created prouter');
                                            getPhysicalRouters(request, response, appData);
                                         });
                             }
@@ -238,15 +228,12 @@ function createPhysicalRouters (request, response, appData)
                  delete postData['physical-router']['virtual-routers'];
                  delete postData['physical-router']['virtual_router_type'];
                  //create physical router
-                 console.log('creating prouter');
                  configApiServer.apiPost('/physical-routers', postData, appData,
                          function(error, data) {
                              if(error){
-                                 console.log('error creating prtouer');
                                  commonUtils.handleJSONResponse(error, response, null);
                                  return;
                              }
-                             console.log('created prouter');
                             getPhysicalRouters(request, response, appData);
                          });
              }
@@ -256,7 +243,6 @@ function createPhysicalRouters (request, response, appData)
          else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'){
              var vrouterPostData = postData['physical-router']['virtual-routers'];
              if(vrouterPostData.length > 0){
-                 console.log('trying to create tor agent');
                  var reqUrl = null;
                  var dataObjArr        = [];
                  for(i = 0; i < vrouterPostData.length; i++) {
@@ -268,19 +254,15 @@ function createPhysicalRouters (request, response, appData)
                      commonUtils.getAPIServerResponse(configApiServer.apiPost, false),
                      function(error, results) {
                          if (error) {
-                            console.log('error creating vrouters');
                             commonUtils.handleJSONResponse(error, response, null);
                             return;
                          }
-                         console.log('creating prouter');
                          delete postData['virtual-routers'];
                          delete postData['virtual_router_type'];
                          //create physical router
                          configApiServer.apiPost('/physical-routers', postData, appData,
                                  function(error, data) {
                                      if(error){
-                                         console.log('error creating prouter');
-                                         console.log(error);
                                          commonUtils.handleJSONResponse(error, response, null);
                                          return;
                                      }
@@ -295,8 +277,6 @@ function createPhysicalRouters (request, response, appData)
                  configApiServer.apiPost('/physical-routers', postData, appData,
                          function(error, data) {
                              if(error){
-                                 console.log('error creating prouter');
-                                 console.log(error);
                                  commonUtils.handleJSONResponse(error, response, null);
                                  return;
                              }
@@ -306,12 +286,9 @@ function createPhysicalRouters (request, response, appData)
          }  
      } else {
          //create physical router
-         console.log('no vrouters just creating the prouter');
          configApiServer.apiPost('/physical-routers', postData, appData,
                  function(error, data) {
                      if(error){
-                         console.log('error creating prouter');
-                         console.log(error);
                          commonUtils.handleJSONResponse(error, response, null);
                          return;
                      }
@@ -341,36 +318,27 @@ function updatePhysicalRouters (request, response, appData)
          */
     var pRouterId = validatePhysicalRouterId(request);
     var postData     =  request.body;
-    console.log('postData : ' + JSON.stringify(postData));
-    console.log('type' + postData['physical-router']['virtual_router_type']);
-    console.log('virtualrouters' + JSON.stringify(postData['physical-router']['virtual-routers']));
     //Read the virtual router type to be created
     //if embedded use the details to create a virtual router. If it fails dont create physical router as well.
     if(postData['physical-router']['virtual_router_type'] != null){
         if(postData['physical-router']['virtual_router_type'] == 'Embedded'){
             var vrouterPostData = postData['physical-router']['virtual-routers'][0];
-            console.log("vrouter post data :"+ JSON.stringify(vrouterPostData));
             if(vrouterPostData){
                 configApiServer.apiPost('/virtual-routers', vrouterPostData, appData,
                         function(error, data) {
-                           console.log('response for vrouters create');
                            if(error) {
-                               console.log('error creating vrouter');
                                commonUtils.handleJSONResponse(error, response, null);
                                return;
                            } else {
                                delete postData['physical-router']['virtual-routers'];
                                delete postData['physical-router']['virtual_router_type'];
                                //create physical router
-                               console.log('creating prouter');
                                configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
                                        function(error, data) {
                                            if(error){
-                                               console.log('error creating prtouer');
                                                commonUtils.handleJSONResponse(error, response, null);
                                                return;
                                            }
-                                           console.log('created prouter');
                                           getPhysicalRouters(request, response, appData);
                                        });
                            }
@@ -379,15 +347,12 @@ function updatePhysicalRouters (request, response, appData)
                 delete postData['physical-router']['virtual-routers'];
                 delete postData['physical-router']['virtual_router_type'];
                 //create physical router
-                console.log('creating prouter');
                 configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
                         function(error, data) {
                             if(error){
-                                console.log('error updating prtouer');
                                 commonUtils.handleJSONResponse(error, response, null);
                                 return;
                             }
-                            console.log('created prouter');
                            getPhysicalRouters(request, response, appData);
                         });
             }
@@ -397,7 +362,6 @@ function updatePhysicalRouters (request, response, appData)
         else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'){
             var vrouterPostData = postData['physical-router']['virtual-routers'];
             if(vrouterPostData.length > 0){
-                console.log('trying to create tor agent');
                 var reqUrl = null;
                 var dataObjArr        = [];
                 for(i = 0; i < vrouterPostData.length; i++) {
@@ -409,19 +373,15 @@ function updatePhysicalRouters (request, response, appData)
                     commonUtils.getAPIServerResponse(configApiServer.apiPost, false),
                     function(error, results) {
                         if (error) {
-                           console.log('error creating vrouters');
                            commonUtils.handleJSONResponse(error, response, null);
                            return;
                         }
-                        console.log('creating prouter');
                         delete postData['virtual-routers'];
                         delete postData['virtual_router_type'];
                         //create physical router
                         configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
                                 function(error, data) {
                                     if(error){
-                                        console.log('error updating prouter');
-                                        console.log(error);
                                         commonUtils.handleJSONResponse(error, response, null);
                                         return;
                                     }
@@ -436,8 +396,6 @@ function updatePhysicalRouters (request, response, appData)
                 configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
                         function(error, data) {
                             if(error){
-                                console.log('error updating prouter');
-                                console.log(error);
                                 commonUtils.handleJSONResponse(error, response, null);
                                 return;
                             }
@@ -447,12 +405,9 @@ function updatePhysicalRouters (request, response, appData)
         }  
     } else {
         //create physical router
-        console.log('no vrouters just creating the prouter');
         configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
                 function(error, data) {
                     if(error){
-                        console.log('error updating prouter');
-                        console.log(error);
                         commonUtils.handleJSONResponse(error, response, null);
                         return;
                     }
