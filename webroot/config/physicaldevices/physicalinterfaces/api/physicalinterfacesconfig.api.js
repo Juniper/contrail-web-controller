@@ -265,7 +265,7 @@ function validateQueryParam (request, key)
     var paramValue = null;
     if (!(paramValue = request.param(key).toString())) {
         error = new appErrors.RESTServerError('Add Virtual Router id');
-        commonUtils.handleJSONResponse(error, response, null);
+        commonUtils.handleJSONResponse(error, request.res, null);
         return;
     }
     return paramValue;
