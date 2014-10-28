@@ -368,6 +368,7 @@ function initActions() {
 	    else if(mode ==="edit"){
 		    url='/api/tenants/config/virtual-DNS/'+ gblSelRow["uuid"];
 		    type="PUT";
+            dnsServerCfg["virtual-DNS"]['uuid'] = gblSelRow["uuid"];
 	    }
         dnsServerCfg["virtual-DNS"]["display_name"] = dnsServerCfg["virtual-DNS"]["fq_name"][dnsServerCfg["virtual-DNS"]["fq_name"].length-1];
         doAjaxCall(url, type, JSON.stringify(dnsServerCfg),

@@ -445,7 +445,7 @@ function physicalInterfacesConfig() {
         var url = '/api/tenants/config/physical-interfaces/' + currentUUID + '/' + infType;
         if(mode === 'edit') {
             methodType = 'PUT';
-            url = '/api/tenants/config/physical-interface/' + currentUUID + '/' + gblSelRow.type + '/' + gblSelRow.uuid
+            url = '/api/tenants/config/physical-interface/' + currentUUID + '/' + gblSelRow.type + '/' + gblSelRow.uuid;
         }
         var type = $("#ddType").data('contrailDropdown').value();
         var name = $("#txtPhysicalInterfaceName").val();
@@ -459,6 +459,9 @@ function physicalInterfacesConfig() {
             postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), name];
             postObject["physical-interface"]["parent_type"] = "physical-router";
             postObject["physical-interface"]["name"] = name;
+            if(mode === 'edit') {
+                postObject["physical-interface"]["uuid"] = gblSelRow.uuid;
+            }
         } else {
             var liType = $('#ddLIType').data('contrailDropdown').value();
             var parent = $('#ddParent').data('contrailDropdown');
@@ -482,13 +485,19 @@ function physicalInterfacesConfig() {
                     postObject["logical-interface"] ['virtual_machine_interface_refs'] = [];
                 }
                 postObject["logical-interface"]["logical_interface_type"] = liType;
+                if(mode === 'edit') {
+                    postObject["logical-interface"]["uuid"] = gblSelRow.uuid;
+                }
             } else {
                 if(!isItemExists(parent.text(), dsSrcDest)) {
                     doubleCreation = true;
                     postObject["physical-interface"] = {};
                     postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), parent.text()];
                     postObject["physical-interface"]["parent_type"] = "physical-router";
-                    postObject["physical-interface"]["name"] = parent.text();   
+                    postObject["physical-interface"]["name"] = parent.text();
+                    if(mode === 'edit') {
+                        postObject["physical-interface"]["uuid"] = gblSelRow.uuid;
+                    }
                     url = '/api/tenants/config/physical-interfaces/' + currentUUID + '/Physical';                 
                 } else {
                     doubleCreation = false;
@@ -504,6 +513,9 @@ function physicalInterfacesConfig() {
                         postObject["logical-interface"] ['virtual_machine_interface_refs'] = [];
                     }
                     postObject["logical-interface"]["logical_interface_type"] = liType;
+                    if(mode === 'edit') {
+                        postObject["logical-interface"]["uuid"] = gblSelRow.uuid;
+                    }
                 }
             }
         }
