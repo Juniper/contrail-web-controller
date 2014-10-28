@@ -512,25 +512,6 @@ function setNetworkValues(url, viewModelKeys, viewModel) {
             for (var i = 0; i < viewModelKeys.length; i++) {
                 viewModel[viewModelKeys[i]] = validValueObservable;
             }
-            /*Initializing the combobox in first where clause with the network names 
-            var element = 'append-where-clause-1';
-            if($("#"+element).find("input[name='value[]']").length > 0){
-                var comboBoxElement = $("#"+element).find("input[name='value[]']"),
-                    fieldName = $('#' + element).find("select[name='field[]']").val();
-                comboBoxElement.contrailCombobox({
-                    placeholder:(placeHolders[fieldName] != null ? placeHolders[fieldName][0] : 'Select'),
-                    dataTextField:"name",
-                    dataValueField:"value",
-                    dataSource:{
-                        type: 'local',
-                        data:validValueObservable()
-                    }, 
-                    change: function(e, ui){
-                        validateOrClause(element);
-                        setORClauseTerm('fr',$('#' + element).parents('.or-clause-item'));
-                    }
-                });
-            }*/
         }
     });
 };
@@ -942,10 +923,11 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                     //$("#reversemapflow").attr('disabled','disabled');
                 },
                 onSomethingChecked: function(e){
-                    $("div.slick-cell-checkboxsel > input").attr('disabled','disabled');
+                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
                     $("#mapflow").removeAttr('disabled');
                     //$("#reversemapflow").removeAttr('disabled');
-                    $(e['currentTarget']).removeAttr('disabled')
+                    //$(e['currentTarget']).removeAttr('disabled');
+                    $(e['currentTarget']).attr('checked',true);
                 }
             },
             actionCell: [
