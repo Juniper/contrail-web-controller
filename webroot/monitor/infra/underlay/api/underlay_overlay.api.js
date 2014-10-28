@@ -151,25 +151,27 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
     }
     var linksCnt = links.length;
     for (var i = 0; i < linksCnt; i++) {
+        /* First check any one of the link is vRouter or not */
         if (ctrlGlobal.NODE_TYPE_VROUTER == getpRouterLinkType(links[i]['type'])) {
             return ctrlGlobal.NODE_CHASSIS_TYPE_TOR;
-        } else {
+        }
+    }
+    for (var i = 0; i < linksCnt; i++) {
             /* Type prouter */
-            linkDataLen = prouterData.length;
-            for (var j = 0; j < linkDataLen; j++) {
-                if (links[i]['remote_system_name'] == prouterData[j]['name']) {
-                    break;
-                }
+        linkDataLen = prouterData.length;
+        for (var j = 0; j < linkDataLen; j++) {
+            if (links[i]['remote_system_name'] == prouterData[j]['name']) {
+                break;
             }
-            if (j == linkDataLen) {
-                /* pRouters's link is not known */
-                return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
-            }
-            var isLinkvRouter =
-                isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
-            if (true == isLinkvRouter) {
-                return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
-            }
+        }
+        if (j == linkDataLen) {
+            /* pRouters's link is not known */
+            return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+        }
+        var isLinkvRouter =
+            isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
+        if (true == isLinkvRouter) {
+            return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
         }
     }
     return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
