@@ -52,11 +52,11 @@
                            	<div id='{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}' class="and-clause-item row-fluid">
 								<div class="span1 and-text">AND</div>
                            		<select class="span4" name="field[]"
-                                   	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                   	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                    	onchange="updateWhereOptions('{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}', '{{../../queryPrefix}}', '', '', true);">
                            		</select>
                            		<select class="span2" name="operator[]" 
-                                   	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                   	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                            		</select>
                            		<div class="span4"><input type="text" class="span12" name="value[]" value="" data-bind="value: '{{this.value}}'"/></div>
                            		<div class="span1"><i class="icon-remove" onclick="deleteAppendedWhere('{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}');"></i></div>
@@ -88,9 +88,9 @@
 	<div id="append-where-clause-{{andIndex}}" class="row-fluid and-clause-item">
     	<div class="span1 and-text">AND</div>
 		<select class="{{queryPrefix}}-new-and-clause-field span4" name="field[]" 
-			data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+			data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
       	</select>
-        <select class="span2" name="operator[]" data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+        <select class="span2" name="operator[]" data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
       	</select>
        	<div class="span4">
        		<input type="text" class="span12" name="value[]" value=""/>
@@ -111,11 +111,11 @@
                     	<div id='{{../queryPrefix}}-filter-clause{{@index}}' class="row-fluid and-clause-item">
                         	<div class="span1 and-text">AND</div>
                             <select class="span4 margin-0-0-0-5" name="field[]"
-                            	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                            	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                 onchange="loadFilterOptions('{{../queryPrefix}}-filter-clause{{@index}}', '{{../queryPrefix}}', -1);">
                         	</select>
                             <select class="span2" name="operator[]"
-                            	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                            	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                           	</select>
                             <div class="span4">
                             	<input type="text" class="span12" name="value[]" value=""
@@ -129,11 +129,11 @@
                     <div id="{{queryPrefix}}-first-filter-clause" class="row-fluid and-clause-item">
                     	<div class="span1 and-text">AND</div>
 						<select class="span4 margin-0-0-0-5" name="field[]"
-                        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                             onchange="loadFilterOptions('{{queryPrefix}}-first-filter-clause', '{{queryPrefix}}', -1);">
                    		</select>
                         <select class="span2" name="operator[]"
-                        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                        	</select>
                         <div class="span4">
                         	<input type="text" class="span12" name="value[]" value=""/>
@@ -192,7 +192,7 @@
                         	<div class="span4">
                             	<label>Sort Order</label>
                             	<div>
-                                	<select name="sortOrder" data-bind="options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                	<select name="sortOrder" data-bind="options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                 	</select>
                             	</div>
                         	</div>
@@ -216,10 +216,10 @@
     <div id="{{queryPrefix}}-appended-filter-clause" class="row-fluid and-clause-item">
         <div class="span1 and-text">AND</div>
 		<select id="{{queryPrefix}}-new-filter-clause-field" class="span4 margin-0-0-0-5" name="field[]"
-                data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
         </select>
         <select class="span2" name="operator[]"
-                data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
         </select>
         <div class="span4">
             <input type="text" class="span12" name="value[]" value=""/>

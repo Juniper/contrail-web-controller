@@ -64,11 +64,11 @@
                             	<div id='{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}' class="and-clause-item row-fluid">
 									<div class="span1 and-text">AND</div>
                                		<select class="span3" name="field[]"
-                                    	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1, 'dropdownCssClass' : 'select2-large-width'}"
+                                    	data-bind="options: selectFields, value: '{{this.field}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7, 'dropdownCssClass' : 'select2-large-width'}"
                                     	onchange="updateWhereOptions('{{../../queryPrefix}}-where-clause-{{../loopIndex}}-{{@index}}', '{{../../queryPrefix}}', '', '', true);">
                                		</select>
                                		<select class="span1" name="operator[]" 
-                                    	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                    	data-bind="options: opValues, value: '{{this.operator}}', optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                		</select>
                                		<div class="span3"><input type="text" class="span12" name="value[]" value="" data-bind="value: '{{this.value}}'"/></div>
                                		<div class="span3">
@@ -103,10 +103,10 @@
     <div id="append-where-clause-{{andIndex}}" class="row-fluid and-clause-item">
         <div class="span1 and-text">AND</div>
         <select class="{{queryPrefix}}-new-and-clause-field span3" name="field[]"
-        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1, 'dropdownCssClass' : 'select2-large-width'}">
+        	data-bind="options: selectFields, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7, 'dropdownCssClass' : 'select2-large-width'}">
       	</select>
         <select class="span1" name="operator[]"
-        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+        	data-bind="options: opValues, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
       	</select>
 		<div class="span3">
            	<input type="text" class="span12" name="value[]" value=""/>
@@ -149,7 +149,7 @@
                                 <div>
                                     <select id="fs-time-range" name="timeRange" class="span12"
                                             value=""
-                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="selectTimeRange(this, 'fs');">
                                     </select>
                             	</div>
@@ -185,7 +185,7 @@
                                     <div class="span3">
                                         <input id="fs-tg-value" name="tgValue" class="span12 pull-left" type="text" value=""/>
                                     </div>
-                                    <select id="fs-tg-units" name="tgUnits" class="span3" data-bind="options: tgUnits, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                    <select id="fs-tg-units" name="tgUnits" class="span3" data-bind="options: tgUnits, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                     </select>
                                 </div>
                             </div>
@@ -205,7 +205,7 @@
                             <div class="span4">
                                 <label>Direction</label>
                                 <div>
-                                    <select id="fs-select-dir" value="" class="span6" name="direction" data-bind="options: direction, value: defaultDirectionValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"></select>
+                                    <select id="fs-select-dir" value="" class="span6" name="direction" data-bind="options: direction, value: defaultDirectionValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"></select>
                                 </div>
                             </div>
                         </div>
@@ -384,7 +384,7 @@
         	       	<div class="span4">
 						<label>Sort Order</label>
 						<div>
-    	    	    	    <select name="sortOrder" data-bind="enable: isEnabled.sort, options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+    	    	    	    <select name="sortOrder" data-bind="enable: isEnabled.sort, options: orderTypes, value: sortOrder, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
     	            	   	</select>
 						</div>
 					</div>
@@ -432,7 +432,7 @@
                                 <div>
                                     <select id="fr-time-range" name="timeRange" class="span12"
                                             value=""
-                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="selectTimeRange(this, 'fr');">
                                     </select>
                                 </div>
@@ -477,7 +477,7 @@
                             <div class="span4">
                                 <label>Direction</label>
                                 <div>
-                                    <select id="fr-select-dir" value="" class="span6" name="direction" data-bind="options: direction, value: defaultDirectionValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                    <select id="fr-select-dir" value="" class="span6" name="direction" data-bind="options: direction, value: defaultDirectionValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                     </select>
                                 </div>
                             </div>

@@ -47,7 +47,7 @@
                                 <label>Time Range</label>
                                 <div>
                                     <select id="sl-time-range" name="timeRange" class="span12" value=""
-                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="selectTimeRange(this, 'sl');">
                                     </select>
                                 </div>
@@ -104,7 +104,7 @@
                                 <label>Level</label>
                                 <div>
                                     <select id="sl-select-level" class="span12" name="level"
-                                            data-bind="options: levels, selectedOptions: selectedLevel, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}">
+                                            data-bind="options: levels, selectedOptions: selectedLevel, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}">
                                     </select>
                                 </div>
                             </div>
@@ -152,7 +152,7 @@
                                 <div>
                                     <select id="ot-time-range" name="timeRange" class="span12"
                                             value=""
-                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: timeRange, value: defaultTRValue, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="selectTimeRange(this, 'ot');">
                                     </select>
                                 </div>
@@ -177,7 +177,7 @@
                                 <div>
                                     <select id="ot-select-obj-type" class="span12"
                                             name="objectType"
-                                            data-bind="options: objectTypes, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': -1}"
+                                            data-bind="options: objectTypes, optionsText: 'name', optionsValue: 'value', select2: {'minimumResultsForSearch': 7}"
                                             onchange="loadOTSources();">
                                     </select>
                                 </div>
