@@ -232,7 +232,7 @@ function virtualRoutersConfig() {
         var url = '/api/tenants/config/virtual-routers';
         if(mode === 'edit') {
             methodType = 'PUT';
-            url = '/api/tenants/config/virtual-router/' + gblSelRow.uuid
+            url = '/api/tenants/config/virtual-router/' + gblSelRow.uuid;
         }
         var name = $("#txtVirtualRouterName").val();
         var ipAddress = $("#txtIPAddress").val();
@@ -251,6 +251,9 @@ function virtualRoutersConfig() {
             postObject["virtual-router"]["virtual_router_type"] = [type];
         } else {
             postObject["virtual-router"]["virtual_router_type"] = [];
+        }
+        if(mode === 'edit') {
+            postObject["virtual-router"]["uuid"] = gblSelRow.uuid;
         }
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
