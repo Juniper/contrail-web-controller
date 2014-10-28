@@ -500,7 +500,6 @@ function setVrouterValues(viewModelKey, viewModel) {
         viewModel[viewModelKey] = validValueObservable;
     });
 }
-
 function setNetworkValues(url, viewModelKeys, viewModel) {
     $.ajax({
         url:url,
@@ -710,7 +709,6 @@ function runFRQuery() {
         options = getFRDefaultOptions(),
         select = "setup_time, teardown_time, agg-bytes, agg-packets",
         columnDisplay, selectArray, queryId;
-        reqQueryObj.where = addWhereForUnderLay('fr');
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
     	$("#"+queryPrefix+"-results").data('endTime',new Date().getTime());
@@ -728,61 +726,6 @@ function runFRQuery() {
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}
-};
-function addWhereForUnderLay(queryPrefix) {
-    var query = queries[queryPrefix];
-    query.whereViewModel.whereClauseView([]);
-    query.whereViewModel.whereClauseSubmit([]);
-    
-    var whereClauseArray =  query.whereViewModel.whereClauseView(),
-        whereClauseSubmitArray = query.whereViewModel.whereClauseSubmit();
-    
-    $('#' + queryPrefix + '-or-clauses').find('.or-clause-item').each(function(){
-        if($(this).attr('id') != 'fs-or-clause-item-new-term'){
-            var fieldArray = [], opArray = [], valArray = [], val2Array = [],
-                whereClauseViewStr = "", i, length, whereForm, splitFlowFieldArray = [],
-                whereClauseSubmit = [];
-        
-            whereForm = $(this);
-            whereForm.find("select[name='field[]']").each(function () {
-                fieldArray.push($(this).val());
-            });
-            whereForm.find("select[name='operator[]']").each(function () {
-                opArray.push($(this).val());
-            });
-            whereForm.find("input[name='value[]']").each(function () {
-                valArray.push($(this).data('contrailCombobox').value());
-            });
-            if (queryPrefix == 'fs' || queryPrefix == 'fr') {
-                whereForm.find("input[name='value2[]']").each(function () {
-                    val2Array.push($(this).val());
-                });
-            }
-            length = fieldArray.length;
-            for (i = 0; i < length; i += 1) {
-                if (queryPrefix == 'fs' || queryPrefix == 'fr') {
-                    splitFlowFieldArray = fieldArray[i].split('_');
-                    whereClauseViewStr += (valArray[i] != '') ? (((i != 0 && whereClauseViewStr != '') ? " AND " : "") + splitFlowFieldArray[0] + " " + opArray[i] + " " + valArray[i]) : "";
-                    whereClauseViewStr += (val2Array[i] != '') ? (((whereClauseViewStr != '') ? " AND " : "") + splitFlowFieldArray[1] + " " + opArray[i] + " " + val2Array[i]) : "";
-                    whereClauseSubmit.push({field:fieldArray[i], operator:opArray[i], value:valArray[i], value2:val2Array[i] });
-                } else {
-                    whereClauseViewStr += (valArray[i] != '') ? (((i != 0 && whereClauseViewStr != '') ? " AND " : "") + fieldArray[i] + " " + opArray[i] + " " + valArray[i]) : "";
-                    whereClauseSubmit.push({field:fieldArray[i], operator:opArray[i], value:valArray[i]});
-                }
-            }
-            if (whereClauseViewStr != "") {
-                whereClauseArray.push({text: "(" + whereClauseViewStr + ")", whereClauseEdit: whereClauseSubmit});
-                whereClauseSubmitArray.push(whereClauseSubmit);
-            }
-        }
-    });
-    var whereClause = query.whereViewModel.whereClauseView(),
-        whereClauseStr = "", whereClauseLength;
-    whereClauseLength = whereClause.length;
-    for (var i = 0; i < whereClauseLength; i += 1) {
-        whereClauseStr += (i != 0 ? " OR " : "") + whereClause[i].text;
-    }
-    return whereClauseStr;
 };
 
 function viewFRQueryResults(dataItem, params) {

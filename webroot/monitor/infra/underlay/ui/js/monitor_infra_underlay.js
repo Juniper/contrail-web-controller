@@ -8,7 +8,7 @@ var underlayRenderer = new underlayRenderer();
 var PROUTER_DBL_CLICK =  'config_net_vn';
 var PROUTER = 'physical-router';
 var VROUTER = 'virtual-router';
-
+var VIRTUALMACHINE = 'virtual-machine';
 var LEVEL_1_DIMENSION = {width: 0, height:0};
 var LEVEL_2_DIMENSION = {width: 0, height:0};
 var ZOOMED_OUT = 0;
@@ -966,6 +966,30 @@ underlayView.prototype.initGraphEvents = function() {
                 $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
                 $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
                 break;
+            case 'contrail.VirtualMachine':
+                var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var ip = [],vnList = [];
+                for(var i = 0; i < instances.length; i++) {
+                    if(instances[i]['name'] == nodeDetails['name']) {
+                        var intfList = ifNull(instances[i]['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+                        if (intfList.length > 1) {
+                            for(var j = 0; j < intfList.length; j++) {
+                                ip.push(intfList['ip_address']);
+                                vnList.push(intfList['virtual_network']);
+                            }
+                        } else {
+                           ip[0] =  intfList[0]['ip_address'];
+                           vnList[0] = intfList[0]['virtual_network'];
+                        }
+                        break;
+                    }
+                }
+                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                $("#underlay_topology").data('nodeIp',ip);
+                $("#underlay_topology").data('vnList',vnList);
+                break;
             case 'link':
                 var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
                     sourceElement = graph.getCell(clickedElement['attributes']['source']['id']);
@@ -1078,6 +1102,8 @@ underlayView.prototype.resetTopology = function() {
     ZOOMED_OUT = 0;
     this.hideVRouters();
     this.hideVMs();
+    $("#underlay_topology").removeData('nodeType');
+    $("#underlay_topology").removeData('nodeName');
 }
 
 underlayView.prototype.renderTopology = function(response) {
@@ -1379,11 +1405,13 @@ underlayView.prototype.renderUnderlayViz = function() {
 }
 
 underlayView.prototype.renderFlowRecords = function() {
-    if($("#fr-results").data('contrailGrid') == null) {
+    if($("#fr-results").data('contrailGrid') == null || $("#underlay_topology").data('nodeType') != null) {
+        var nodeType = $("#underlay_topology").data('nodeType');
+        var nodeName = $("#underlay_topology").data('nodeName');
+        var whereClauseStr;
         $("#flows-tab").html($("#qe-template").html());
         setFRValidValues();
         initFRQueryView('fr');
-        //openWhereWithUnderlay('fr');
         initWidgetBoxes();
         queries['fr'].queryViewModel.timeRange([
                                                 {"name":"Last 5 Mins", "value":300},
@@ -1395,6 +1423,20 @@ underlayView.prototype.renderFlowRecords = function() {
         queries['fr'].queryViewModel.defaultTRValue("600");
         queries['fr'].queryViewModel.isCustomTRVisible(false);
         ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
+        if(nodeType == VROUTER) {
+            whereClauseStr = '(vrouter = '+nodeName+')';
+        } else if(nodeType == VIRTUALMACHINE) {
+            var nodeIp = ifNull($("#underlay_topology").data('nodeIp'),[]);
+            var vnList = ifNull($("#underlay_topology").data('vnList'),[]);
+            whereClauseStr = '(';
+            for(var i = 0; i < nodeIp.length; i++) {
+                whereClauseStr += 'sourcevn = '+vnList[i]+' AND sourceip = '+nodeIp[i];
+                if((i+1) < nodeIp.length)
+                    whereClauseStr += 'AND';
+            }
+            whereClauseStr += ')';
+        }
+        $('#fr-where').val(whereClauseStr);
     }
 }
 
