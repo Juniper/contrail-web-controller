@@ -380,6 +380,7 @@ function initActions() {
         }
         else if (mode === "edit") {
             var sgUUID = jsonPath(configObj, "$.security-group[*][?(@.fq_name[2]=='" + txtRuleName.val() + "')]")[0].uuid;
+            sgConfig["security-group"]['uuid'] = sgUUID;
             doAjaxCall("/api/tenants/config/securitygroup/" + sgUUID, "PUT", JSON.stringify(sgConfig),
                 "createSGSuccessCb", "createSGFailureCb");
         }
@@ -1037,6 +1038,7 @@ function successHandlerForgridSGRow(result) {
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var SGData = $("#gridSG").data("contrailGrid")._dataView.getItems();
     var SG = result.data;
+    if(SG != undefined){
     for (var i = 0; i < SG.length; i++) {
         var eachSG = SG[i]["security-group"];
         var sgName = eachSG.fq_name[2];
@@ -1052,7 +1054,7 @@ function successHandlerForgridSGRow(result) {
         configObj["security-group"].push(SG[i]);
         SGData.push({"id":idCount++, "sgName":sgName,"sgDisplayName":sgDisplayName, "sgRules":sgRule, "sgUUID":sgUUID});
     }
-
+    }
     if(result.more == true || result.more == "true"){
         gridSG.showGridMessage('loading');
     } else {
