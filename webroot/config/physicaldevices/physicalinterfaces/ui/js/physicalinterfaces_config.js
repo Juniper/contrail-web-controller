@@ -356,12 +356,16 @@ function physicalInterfacesConfig() {
         $('#btnDeletePhysicalInterface').addClass('disabled-link');	
         if(selected_rows && selected_rows.length > 0){
             var deleteAjaxs = [];
+            var deleteVMIs = [];
             for(var i = 0;i < selected_rows.length;i++){
                 var sel_row_data = selected_rows[i];
                 deleteAjaxs[i] = $.ajax({
                     url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
                     type:'DELETE'
                 });
+                if(sel_row_data.vmi_uuid != null) {
+                    deleteVMIs.push(sel_row_data.vmi_uuid);
+                }
             }
             $.when.apply($,deleteAjaxs).then(
                 function(response){
@@ -375,7 +379,26 @@ function physicalInterfacesConfig() {
                     fetchData();
                 }
             );
+            if(deleteVMIs.length > 0) {
+                deleteVirtulMachineInterfaces(deleteVMIs);
+            }
         }
+    }
+
+    function deleteVirtulMachineInterfaces(deleteVMIs) {
+        var deleteAjaxs = [];
+        for(var i = 0; i < deleteVMIs.length; i++) {
+            deleteAjaxs[i] =  $.ajax({
+                    url:'/api/tenants/config/delete-port/' + deleteVMIs[i],
+                    type:'DELETE'
+                })
+        }
+        $.when.apply($,deleteAjaxs).then(
+            function(response){
+            },
+            function(){
+            }
+        );        
     }    
     
     window.physicalInterfaceEditWindow = function(index) {
@@ -730,7 +753,8 @@ function physicalInterfacesConfig() {
                     server : liDetails.vmiDetails != null ? liDetails.vmiDetails : '-',
                     vn : liDetails.vnRefs != null ? liDetails.vnRefs : '-',
                     li_type : liDetails.liType != null ? liDetails.liType : '-' ,
-                    vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-'
+                    vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-',
+                    vmi_uuid : liDetails.vmiUUID
                 });
                 var lInterfaces = pInterfaces[i]['physical-interface'] ? pInterfaces[i]['physical-interface']['logical_interfaces'] : null;
                 var lInterfaceNames = '';
@@ -754,7 +778,8 @@ function physicalInterfacesConfig() {
                             server : liDetails.vmiDetails,
                             vn : liDetails.vnRefs,
                             li_type : liDetails.liType,
-                            vmi_ip : liDetails.vmiIP
+                            vmi_ip : liDetails.vmiIP,
+                            vmi_uuid : liDetails.vmiUUID
                         });                        
                     }
                     var currPhysicalInfRow = getCurrentPhysicalInfRow(gridDS, pInterface.uuid);
@@ -820,14 +845,16 @@ function physicalInterfacesConfig() {
             liType = liType === 'l2' ? 'L2' : 'L3';
         }
         var vmiDetails = inf['vmi_details'] ? inf['vmi_details'].mac[0] +' ('+ inf['vmi_details'].ip[0] + ')' : '-';
+        var vmiUUID;
         if(vmiDetails != '-') {
             vmiIP = inf['vmi_details'].ip[0];
             vnRefs = inf['vmi_details']['vn_refs'] ? inf['vmi_details']['vn_refs'][0].to : '-';
             if(vnRefs != '-') {
                 vnRefs = vnRefs[2] + ' (' + vnRefs[0] + ':' + vnRefs[1] + ')';
-            }                            
+            }
+            vmiUUID = inf['vmi_details']['vmi_fq_name'][2];            
         }
-        return { vlanTag : vlanTag, liType : liType, vmiDetails : vmiDetails, vnRefs : vnRefs, vmiIP : vmiIP};
+        return { vlanTag : vlanTag, liType : liType, vmiDetails : vmiDetails, vnRefs : vnRefs, vmiIP : vmiIP, vmiUUID : vmiUUID};
     }
     
     window.failureHandlerForPhysicalInterfaces =  function(error) {
