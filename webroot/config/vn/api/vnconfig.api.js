@@ -435,6 +435,25 @@ function readVirtualNetworks (dataObj, callback)
     });
 }
 
+function readVirtualNetworkAsyncIgnoreError(vnObj, callback)
+{
+    var vnID = vnObj['uuid'];
+    var appData = vnObj['appData'];
+
+    readVirtualNetwork(vnID, appData, function(err, data) {
+        callback(null, data);
+    });
+}
+
+function getPagedVirtualNetworks (dataObj, callback)
+{
+    var dataObjArr = dataObj['reqDataArr'];
+    async.map(dataObjArr, readVirtualNetworkAsyncIgnoreError,
+              function(err, data) {
+        callback(err, data);
+    });
+}
+
 /**
  * @createVirtualNetworkCb
  * private function
@@ -2150,3 +2169,5 @@ exports.listVirtualMachineInterfaces = listVirtualMachineInterfaces;
 exports.updateVNRouteTargets         = updateVNRouteTargets;
 exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
+exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
+

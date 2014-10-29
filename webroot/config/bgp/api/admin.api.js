@@ -1333,7 +1333,7 @@ function createReqArrByType (dataObjArr, type, obj)
 
 var configCBList = 
 {
-    'virtual-network': vnConfig.readVirtualNetworks,
+    'virtual-network': vnConfig.getPagedVirtualNetworks,
     'network-policy': polConfig.readPolicys,
     'security-group': sgConfig.readSecurityGroup,
     'logical-router': logicalRouterConfig.readLogicalRouter,
