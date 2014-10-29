@@ -20,19 +20,19 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
 function getModuleType (modName)
 {
     switch(modName){
-    case 'VRouterAgent':
+    case 'contrail-vrouter-agent':
         return 'Compute';
-    case 'ControlNode':
-    case 'DnsAgent':
+    case 'contrail-control':
+    case 'contrail-dns':
         return 'Control';
-    case 'ApiServer':
-    case 'DiscoveryService':
-    case 'ServiceMonitor':
-    case 'Schema':
+    case 'contrail-api':
+    case 'contrail-svc-monitor':
+    case 'contrail-discovery':
+    case 'contrail-schema':
         return 'Config';
-    case 'Collector':
-    case 'OpServer':
-    case 'QueryEngine':
+    case 'contrail-collector':
+    case 'contrail-analytics-api':
+    case 'contrail-query-engine':
         return 'Analytics';
     default:
         logutils.logger.error('Unknown moduleName used: ' + modName);
@@ -105,7 +105,7 @@ function doNodeExist (configData, moduleName, host)
     }
     for (var i = 0; i < cnt; i++) {
         try {
-            if (moduleName == 'ControlNode') {
+            if (moduleName == 'contrail-control') {
                 fqName = configData[i]['bgp-router']['fq_name'];
             } else {
                 fqName = configData[i]['virtual-router']['fq_name'];
@@ -125,9 +125,9 @@ function doNodeExist (configData, moduleName, host)
 function getProcStateMappedModule(moduleName)
 {
     switch (moduleName) {
-    case 'VRouterAgent':
+    case 'contrail-vrouter-agent':
         return 'contrail-vrouter-agent';
-    case 'ControlNode':
+    case 'contrail-control':
         return 'contrail-control';
     default:
         return moduleName;
@@ -201,13 +201,13 @@ function checkAndGetSummaryJSON (configData, uves, moduleNames)
     var nodeFound = false;
     for (i = 0; i < cnt; i++) {
         try {
-            if (moduleNames[0] == 'ControlNode') {
+            if (moduleNames[0] == 'contrail-control') {
                 fqName = configData[i]['bgp-router']['fq_name'];
             } else {
                 fqName = configData[i]['virtual-router']['fq_name'];
             }
             if (null == configData[i]['visited']) {
-                if (moduleNames[0] == 'ControlNode') {
+                if (moduleNames[0] == 'contrail-control') {
                     if (adminApiHelper.isContrailControlNode(configData[i]['bgp-router'])) {
                         nodeFound = true;
                     }
@@ -394,7 +394,7 @@ function dovRouterListProcess (configData, uuidList, nodeList, addGen,
         }
         resultJSON =
             checkAndGetSummaryJSON(confData, uveData,
-                                   ['VRouterAgent']);
+                                   ['contrail-vrouter-agent']);
         callback(null, resultJSON);
     });
 }

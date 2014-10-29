@@ -58,16 +58,16 @@ var monitorInfraUrls = {
 }
 
 var UVEModuleIds = {
-        VROUTER_AGENT       : 'VRouterAgent',
-        CONTROLNODE         : 'ControlNode',
-        COLLECTOR           : 'Collector',
-        OPSERVER            : 'OpServer',
-        QUERYENGINE         : 'QueryEngine',
-        APISERVER           : 'ApiServer',
-        DISCOVERY_SERVICE   : 'DiscoveryService',
-        SERVICE_MONITOR     : 'ServiceMonitor',
-        SCHEMA              : 'Schema',
-        ANALYTICS_NODEMGR   : 'Contrail-Analytics-Nodemgr',
+        VROUTER_AGENT       : 'contrail-vrouter-agent',
+        CONTROLNODE         : 'contrail-control',
+        COLLECTOR           : 'contrail-collector',
+        OPSERVER            : 'contrail-analytics-api',
+        QUERYENGINE         : 'contrail-query-engine',
+        APISERVER           : 'contrail-api',
+        DISCOVERY_SERVICE   : 'contrail-discovery',
+        SERVICE_MONITOR     : 'contrail-svc-monitor',
+        SCHEMA              : 'contrail-schema',
+        ANALYTICS_NODEMGR   : 'contrail-analytics-nodemgr',
         CONFIG_NODE         : 'ConfigNode'
 }
 

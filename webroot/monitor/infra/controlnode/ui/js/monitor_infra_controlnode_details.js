@@ -41,7 +41,7 @@ monitorInfraControlDetailsClass = (function() {
                     ]}, slConfig);
                     endWidgetLoading('control-sparklines');
                     $('#control-chart').initMemCPULineChart($.extend({url:function() {
-                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'ControlNode', '30', '10', obj['name'], endTime);
+                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
@@ -134,7 +134,7 @@ monitorInfraControlDetailsClass = (function() {
                     })()},
                     //TODO{lbl:'Config Messages', value:ctrlNodeData['configMessagesIn'] + ' In, ' + ctrlNodeData['configMessagesOut'] + ' Out'},
                     {lbl:'Analytics Messages', value:(function(){
-                        var msgs = getAnalyticsMessagesCountAndSize(ctrlNodeData,['ControlNode']);
+                        var msgs = getAnalyticsMessagesCountAndSize(ctrlNodeData,['contrail-control']);
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
                     {lbl:'Peers', value:(function(){

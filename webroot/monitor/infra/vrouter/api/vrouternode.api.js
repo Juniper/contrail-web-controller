@@ -260,9 +260,9 @@ function getvRouterDetails (req, res, appData)
             });
         } else {
             var postData = {};
-            postData['kfilt'] = [host + ':*VRouterAgent*'];
+            postData['kfilt'] = [host + ':*contrail-vrouter-agent*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, host,
-                                  ['VRouterAgent'],
+                                  ['contrail-vrouter-agent'],
                                   function(err, data) {
                 infraCmn.getDataFromConfigNode('virtual-routers', host, appData,
                                                data, function(err, data) {
@@ -329,7 +329,7 @@ function dovRouterListPostProcess (configData, uuidList, nodeList, addGen,
         }
         resultJSON =
             infraCmn.checkAndGetSummaryJSON(confData, uveData,
-                                            ['VRouterAgent']);
+                                            ['contrail-vrouter-agent']);
         callback(null, resultJSON);
     });
 }
@@ -379,7 +379,7 @@ function getvRouterDetailConfigUVEData (configData, uuidList, nodeList, addGen,
         postData['kfilt'] = [];
         if (null != nodeList) {
             var nodeCnt = nodeList.length;
-            var kfilt = ['VRouterAgent'];
+            var kfilt = ['contrail-vrouter-agent'];
             var kLen = kfilt.length;
             for (var i = 0; i < nodeCnt; i++) {
                 for (var j = 0; j < kLen; j++) {
@@ -387,7 +387,7 @@ function getvRouterDetailConfigUVEData (configData, uuidList, nodeList, addGen,
                 }
             }
         } else {
-            postData['kfilt'] = ['*:VRouterAgent*'];
+            postData['kfilt'] = ['*:contrail-vrouter-agent*'];
         }
         postData['cfilt'] = ['ModuleClientState:client_info',
                              'ModuleServerState:generator_info'];

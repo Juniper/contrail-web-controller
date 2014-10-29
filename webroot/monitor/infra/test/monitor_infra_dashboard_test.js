@@ -235,7 +235,7 @@ test("testGetCores", function() {
 //    alertsData[0]['value']['CollectorState']['build_info'] = {};
 //    /*for(var i = 0; i < alertsData[0]['value']['ModuleCpuState']['module_cpu_info'].length; i++ ){
 //        var cpuObj = alertsData[0]['value']['ModuleCpuState']['module_cpu_info'][i];
-//        if(cpuObj['module_id'] == 'Collector') {
+//        if(cpuObj['module_id'] == 'contrail-collector') {
 //            cpuObj['cpu_info'] = {};
 //            alertsData[0]['value']['ModuleCpuState']['module_cpu_info'][i] = cpuObj;
 //        }
@@ -253,7 +253,7 @@ test("testGetCores", function() {
 //    alertsData[0]['value']['configNode']['ModuleCpuState']['build_info'] = {};
 //    /*for(var i = 0; i < alertsData[0]['value']['configNode']['ModuleCpuState']['module_cpu_info'].length; i++ ){
 //        var cpuObj = alertsData[0]['value']['configNode']['ModuleCpuState']['module_cpu_info'][i];
-//        if(cpuObj['module_id'] == 'ApiServer') {
+//        if(cpuObj['module_id'] == 'contrail-api') {
 //            cpuObj['cpu_info'] = {};
 //            alertsData[0]['value']['configNode']['ModuleCpuState']['module_cpu_info'][i] = cpuObj;
 //        }

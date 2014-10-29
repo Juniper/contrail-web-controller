@@ -2352,7 +2352,7 @@ function getCollectorCPUUve(uveData)
     data = data[0];
     var cnt = data.length;
     for (var i = 0; i < cnt; i++) {
-        if (data[i]['module_id'] == 'Collector') {
+        if (data[i]['module_id'] == 'contrail-collector') {
             break;
         }
     }
@@ -2388,18 +2388,18 @@ function getCurrentMemCpuLoad(resultJSON, uveData, moduleId)
 
     try {
         switch (moduleId) {
-            case 'ControlNode':
+            case 'contrail-control':
                 data = uveData['BgpRouterState'];
                 break;
-            case 'vRouterAgent':
+            case 'contrail-vrouter-agent':
                 data = uveData['VrouterStatsAgent'];
                 break;
-            case 'ApiServer':
-            case 'Schema':
-            case 'ServiceMonitor':
-            case 'Collector':
-            case 'OpServer':
-            case 'QueryEngine':
+            case 'contrail-api':
+            case 'contrail-schema':
+            case 'contrail-svc-monitor':
+            case 'contrail-collector':
+            case 'contrail-analytics-api':
+            case 'contrail-query-engine':
                 data = getNodeCPUUveByModuleId(uveData, moduleId);
                 break;
             default:
@@ -2476,13 +2476,13 @@ function getCpuMemoryFlowSeriesByUVE(appData, callback)
     var source = appData.source,
         moduleId = appData.moduleId, url;
 
-    if (moduleId == 'ControlNode') {
+    if (moduleId == 'contrail-control') {
         url = '/analytics/uves/control-node/' + source + '?flat';
-    } else if (moduleId == 'vRouterAgent') {
+    } else if (moduleId == 'contrail-vrouter-agent') {
         url = '/analytics/uves/vrouter/' + source + '?flat';
-    } else if ((moduleId == 'ApiServer') || (moduleId == 'Schema') || (moduleId == 'ServiceMonitor')) {
+    } else if ((moduleId == 'contrail-api') || (moduleId == 'contrail-schema') || (moduleId == 'contrail-svc-monitor')) {
         url = '/analytics/uves/config-node/' + source + '?flat';
-    } else if ((moduleId == 'Collector') || (moduleId == 'OpServer') || (moduleId == 'QueryEngine')) {
+    } else if ((moduleId == 'contrail-collector') || (moduleId == 'contrail-analytics-api') || (moduleId == 'contrail-query-engine')) {
         url = '/analytics/uves/analytics-node/' + source + '?flat';
     } else {
         /* Not supported module */
@@ -2515,27 +2515,27 @@ function processCPULoadFlowSeries (pubChannel, saveChannelKey, jobData, done)
     if (moduleId) {
         /* ModuleId : ControlNode/VRouterAgent */
         switch (moduleId) {
-            case 'ControlNode':
+            case 'contrail-control':
                 tableName = 'StatTable.ControlCpuState.cpu_info';
                 selectArr.push("cpu_info.module_id");
                 whereClause = [{'Source':source}, {'cpu_info.module_id': moduleId}];
                 break;
-            case 'vRouterAgent':
+            case 'contrail-vrouter-agent':
                 tableName = 'StatTable.ComputeCpuState.cpu_info';
                 selectArr.push("cpu_info.used_sys_mem");
                 selectArr.push("cpu_info.one_min_cpuload");
                 whereClause = [{'Source':source}];
                 break;
-            case 'ApiServer':
-            case 'Schema':
-            case 'ServiceMonitor':
+            case 'contrail-api':
+            case 'contrail-schema':
+            case 'contrail-svc-monitor':
                 tableName = 'StatTable.ConfigCpuState.cpu_info';
                 selectArr.push("cpu_info.module_id");
                 whereClause = [{'Source':source}, {'cpu_info.module_id': moduleId}];
                 break;
-            case 'OpServer':
-            case 'Collector':
-            case 'QueryEngine':
+            case 'contrail-analytics-api':
+            case 'contrail-collector':
+            case 'contrail-query-engine':
                 tableName = 'StatTable.AnalyticsCpuState.cpu_info';
                 selectArr.push("cpu_info.module_id");
                 whereClause = [{'Source':source}, {'cpu_info.module_id': moduleId}];

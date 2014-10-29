@@ -47,7 +47,7 @@ function getControlNodesSummary (req, res, appData)
             }
             resultJSON =
                 infraCmn.checkAndGetSummaryJSON(configData, uveData,
-                    ['ControlNode']);
+                    ['contrail-control']);
             commonUtils.handleJSONResponse(err, res, resultJSON);
         });
     }, global.DEFAULT_CB_TIMEOUT));
@@ -69,9 +69,9 @@ function getControlNodeDetails (req, res, appData)
             });
         } else {
             var postData = {};
-            postData['kfilt'] = [hostName + '*:ControlNode*'];
+            postData['kfilt'] = [hostName + '*:contrail-control*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, hostName,
-                                  ['ControlNode'],
+                                  ['contrail-control'],
                                   function(err, data) {
                 infraCmn.getDataFromConfigNode('bgp-routers', hostName, appData,
                                                data, function(err, data) {
@@ -269,7 +269,7 @@ function getControlNodeDetailConfigUVEData (configData, addGen, appData, callbac
                              postData, opApiServer, null, appData);
     if (null != addGen) {
         var genPostData = {};
-        genPostData['kfilt'] = ['*:ControlNode*'];
+        genPostData['kfilt'] = ['*:contrail-control*'];
         genPostData['cfilt'] = ['ModuleClientState:client_info',
                                 'ModuleServerState:generator_info'];
         reqUrl = '/analytics/uves/generator';

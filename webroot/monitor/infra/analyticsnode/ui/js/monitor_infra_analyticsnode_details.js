@@ -51,13 +51,13 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     ]}, slConfig);
                     endWidgetLoading('analytics-sparklines');
                     $('#collector-chart').initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'Collector', '30', '10', obj['name'], endTime);
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-collector', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                     $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'QueryEngine', '30', '10', obj['name'], endTime);
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-query-engine', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                     $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'OpServer', '30', '10', obj['name'], endTime);
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-analytics-api', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: false, showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
@@ -93,13 +93,13 @@ monitorInfraAnalyticsDetailsClass = (function() {
                             return ifNull(analyticsProcessStatusList['contrail-analytics-nodemgr'],noDataStr);
                         }catch(e){return noDataStr;}
                     })()},*/
-                    {lbl:INDENT_RIGHT+'Collector', value:(function(){
+                    {lbl:INDENT_RIGHT+'contrail-collector', value:(function(){
                         return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
                     })()},
-                    {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
+                    {lbl:INDENT_RIGHT+'contrail-query-engine', value:(function(){
                         return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
                     })()},
-                    {lbl:INDENT_RIGHT+'OpServer', value:(function(){
+                    {lbl:INDENT_RIGHT+'contrail-analytics-api', value:(function(){
                         return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
                     })()},
                    /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
@@ -108,7 +108,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
                     {lbl:'Messages', value:(function(){
-                        var msgs = getAnalyticsMessagesCountAndSize(aNodeData,['Collector']);
+                        var msgs = getAnalyticsMessagesCountAndSize(aNodeData,['contrail-collector']);
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
                     {lbl:'Generators', value:(function(){

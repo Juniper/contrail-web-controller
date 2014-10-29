@@ -373,8 +373,8 @@ var infraMonitorUtils = {
         var retArr = [];
         $.each(result,function(idx,d) {
             var obj = {};
-            obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="Collector")]..cpu_share')[0]);
-            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="Collector")]..meminfo.virt')[0])/1024;
+            obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..cpu_share')[0]);
+            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..meminfo.virt')[0])/1024;
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$..collector_cpu_share[*].history-10');
@@ -409,7 +409,7 @@ var infraMonitorUtils = {
             obj['errorStrings'] = ifNull(jsonPath(d,"$.value.ModuleCpuState.error_strings")[0],[]);
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
-            if(isEmptyObject(jsonPath(d,'$.value.ModuleCpuState.module_cpu_info[?(@.module_id=="Collector")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.CollectorState.build_info')[0])) {
+            if(isEmptyObject(jsonPath(d,'$.value.ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.CollectorState.build_info')[0])) {
                 obj['isPartialUveMissing'] = true;
             }
           //get the cpu for analytics node
@@ -432,8 +432,8 @@ var infraMonitorUtils = {
         var retArr = [];
         $.each(result,function(idx,d) {
             var obj = {};
-            obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")]..cpu_share')[0]);
-            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")]..meminfo.virt')[0])/1024;
+            obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")]..cpu_share')[0]);
+            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")]..meminfo.virt')[0])/1024;
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
             //Re-visit once average response time added for config nodes
@@ -465,7 +465,7 @@ var infraMonitorUtils = {
                 });
                 obj['summaryIps'] = ipString;
             }
-            if(isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.module_cpu_info[?(@.module_id=="ApiServer")].cpu_info')[0]) || 
+            if(isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")].cpu_info')[0]) ||
                     isEmptyObject(jsonPath(d,'$.value.configNode.ModuleCpuState.build_info')[0])) {
                 obj['isPartialUveMissing'] = true;
             }
@@ -572,13 +572,13 @@ var infraMonitorUtils = {
                     url: '/api/admin/table/values/MessageTable/Category',
                     parse:function (response) {
                         if (nodeType == 'control')
-                            return ifNull(response['ControlNode'], []);
+                            return ifNull(response['contrail-control'], []);
                         else if (nodeType == 'compute')
-                            return ifNull(response['VRouterAgent'], []);
+                            return ifNull(response['contrail-vrouter-agent'], []);
                         else if (nodeType == 'analytics')
-                            return ifNull(response['Collector'], []);
+                            return ifNull(response['contrail-collector'], []);
                         else if (nodeType == 'config')
-                            return ifNull(response['ApiServer'], []);
+                            return ifNull(response['contrail-api'], []);
                     }
                 },
                 placeholder:'All'
@@ -671,20 +671,20 @@ var infraMonitorUtils = {
         	var hostName = obj['name'];
         	if(nodeType == 'compute'){
         		type = 'vrouter';
-        		kfilt = hostName+":*:VRouterAgent:*";
+        		kfilt = hostName+":*:contrail-vrouter-agent:*";
         	} else if (nodeType == 'control'){
         		type = 'controlnode';
-        		kfilt = hostName+":*:ControlNode:*";
+        		kfilt = hostName+":*:contrail-control:*";
         	} else if (nodeType == 'analytics'){
-        		type = 'Collector';
-        		kfilt = hostName+":*:Collector:*,"+
-        		        hostName+":*:OpServer:*";
+        		type = 'contrail-collector';
+        		kfilt = hostName+":*:contrail-collector:*,"+
+        		        hostName+":*:contrail-analytics-api:*";
         	} else if (nodeType == 'config'){
         		type = 'confignode';
-        		kfilt = hostName+":*:ApiServer*,"+
-	                    hostName+":*:DiscoveryService:*,"+
-    	                hostName+":*:ServiceMonitor:*,"+
-    	                hostName+":*:Schema:*";
+        		kfilt = hostName+":*:contrail-api*,"+
+	                    hostName+":*:contrail-discovery:*,"+
+    	                hostName+":*:contrail-svc-monitor:*,"+
+    	                hostName+":*:contrail-schema:*";
         	}
         	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
         	$.ajax({
@@ -776,13 +776,13 @@ var infraMonitorUtils = {
                 //messageType:'any'
             };
             if (nodeType == 'control') {
-                filterObj['moduleId'] = 'ControlNode';
+                filterObj['moduleId'] = 'contrail-control';
             } else if (nodeType == 'compute') {
-                filterObj['moduleId'] = 'VRouterAgent';
+                filterObj['moduleId'] = 'contrail-vrouter-agent';
             } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId=Schema AND Source='+obj['name']+') OR (ModuleId=ApiServer AND Source='+obj['name']+') OR (ModuleId=ServiceMonitor AND Source='+obj['name']+') OR (ModuleId=DiscoveryService AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId=contrail-schema AND Source='+obj['name']+') OR (ModuleId=contrail-api AND Source='+obj['name']+') OR (ModuleId=contrail-svc-monitor AND Source='+obj['name']+') OR (ModuleId=contrail-discovery AND Source='+obj['name']+')';
             } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId=OpServer AND Source='+obj['name']+') OR (ModuleId=Collector AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId=contrail-analytics-api AND Source='+obj['name']+') OR (ModuleId=contrail-collector AND Source='+obj['name']+')';
             }
 
             if (cboMsgCategory.value() != '') {

@@ -106,7 +106,7 @@ function toggleSysLogForm(dis){
 function setSLValidValues() {
     var viewModels = [queries.sl.whereViewModel, queries.sl.filterViewModel];
     setValidLevelValues('/api/admin/table/values/MessageTable/Level', 'levels', queries.sl.queryViewModel);
-    setValidValues('/api/admin/table/values/MessageTable/Category', 'Category', viewModels, 'ControlNode');
+    setValidValues('/api/admin/table/values/MessageTable/Category', 'Category', viewModels, 'contrail-control');
     setColumnValues('/api/admin/table/schema/MessageTable', 'selectFields', [queries.sl.whereViewModel], 'columns');
     setColumnValues('/api/admin/table/schema/MessageTable', 'selectFields', [queries.sl.filterViewModel], 'columns', null, true, [
         {"name":'Xmlmessage', "value":'Xmlmessage'}

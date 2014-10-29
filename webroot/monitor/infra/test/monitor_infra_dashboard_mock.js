@@ -777,7 +777,7 @@ function InfraMockData() {
                             "num_cpu" : 4
                           },
                         "instance_id" : "0",
-                        "module_id" : "Schema"
+                        "module_id" : "contrail-schema"
                       },
                       { "cpu_info" : { "cpu_share" : 0,
                             "cpuload" : { "fifteen_min_avg" : 0,
@@ -796,7 +796,7 @@ function InfraMockData() {
                               }
                           },
                         "instance_id" : "0",
-                        "module_id" : "ApiServer"
+                        "module_id" : "contrail-api"
                       },
                       { "cpu_info" : { "cpu_share" : 0,
                             "meminfo" : { "peakvirt" : 300249,
@@ -806,7 +806,7 @@ function InfraMockData() {
                             "num_cpu" : 4
                           },
                         "instance_id" : "0",
-                        "module_id" : "ServiceMonitor"
+                        "module_id" : "contrail-svc-monitor"
                       }
                     ],
                     "NodeStatus":{
@@ -1027,73 +1027,73 @@ function InfraMockData() {
                     'ANALYTICSNODES_SUMMARY': [{ "name" : "nodea8",
                         "value" : { "CollectorState" : { "build_info" : "{\"build-info\":[{\"build-time\":\"2014-02-05 17:58:37.582885\",\"build-hostname\":\"contrail-ec-build04\",\"build-git-ver\":\"\",\"build-user\":\"mganley\",\"build-version\":\"1.03\",\"build-id\":\"1.03-1107.el6\",\"build-number\":\"1107\"}]}",
                             "generator_infos" : [ { "instance_id" : "0",
-                                  "module_id" : "ApiServer",
+                                  "module_id" : "contrail-api",
                                   "node_type" : "Config",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "Collector",
+                                  "module_id" : "contrail-collector",
                                   "node_type" : "Analytics",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "Contrail-Analytics-Nodemgr",
+                                  "module_id" : "contrail-analytics-nodemgr",
                                   "node_type" : "Analytics",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "Contrail-Config-Nodemgr",
+                                  "module_id" : "contrail-config-nodemgr",
                                   "node_type" : "Config",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "Contrail-Control-Nodemgr",
+                                  "module_id" : "contrail-control-nodemgr",
                                   "node_type" : "Control",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "Contrail-Vrouter-Nodemgr",
+                                  "module_id" : "contrail-vrouter-nodemgr",
                                   "node_type" : "Compute",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "ControlNode",
+                                  "module_id" : "contrail-control",
                                   "node_type" : "Control",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "DnsAgent",
+                                  "module_id" : "contrail-dns",
                                   "node_type" : "Control",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "OpServer",
+                                  "module_id" : "contrail-analytics-api",
                                   "node_type" : "Analytics",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "QueryEngine",
+                                  "module_id" : "contrail-query-engine",
                                   "node_type" : "Analytics",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "ServiceMonitor",
+                                  "module_id" : "contrail-svc-monitor",
                                   "node_type" : "Config",
                                   "source" : "nodea8",
                                   "state" : "Established"
                                 },
                                 { "instance_id" : "0",
-                                  "module_id" : "VRouterAgent",
+                                  "module_id" : "contrail-vrouter-agent",
                                   "node_type" : "Compute",
                                   "source" : "nodea8",
                                   "state" : "Established"
@@ -1166,7 +1166,7 @@ function InfraMockData() {
                                       "num_cpu" : 4
                                     },
                                   "instance_id" : "0",
-                                  "module_id" : "Collector"
+                                  "module_id" : "contrail-collector"
                                 },
                                 { "cpu_info" : { "cpu_share" : 0.0041673600000000002,
                                       "meminfo" : { "peakvirt" : 412612,
@@ -1176,7 +1176,7 @@ function InfraMockData() {
                                       "num_cpu" : 4
                                     },
                                   "instance_id" : "0",
-                                  "module_id" : "QueryEngine"
+                                  "module_id" : "contrail-query-engine"
                                 },
                                 { "cpu_info" : { "cpu_share" : 0,
                                       "meminfo" : { "peakvirt" : 255392,
@@ -1185,7 +1185,7 @@ function InfraMockData() {
                                         }
                                     },
                                   "instance_id" : "0",
-                                  "module_id" : "OpServer"
+                                  "module_id" : "contrail-analytics-api"
                                 }
                               ],
                             "opserver_cpu_share" : [ { "history-10" : { "{\"ts\":1392198362237235}" : 0,

@@ -975,28 +975,28 @@ function getFlowSeriesByCPU (req, res)
     var url = '/flow_series/cpu';
     var key = null;
     switch (moduleId) {
-    case 'ControlNode':
+    case 'contrail-control':
         key = ctrlGlobal.STR_GET_CONTROL_NODE_CPU_FLOW_SERIES;
         break;
-    case 'vRouterAgent':
+    case 'contrail-vrouter-agent':
         key = ctrlGlobal.STR_GET_VROUTER_NODE_CPU_FLOW_SERIES;
         break;
-    case 'Collector':
+    case 'contrail-collector':
         key = ctrlGlobal.STR_GET_COLLECTOR_CPU_FLOW_SERIES;
         break;
-    case 'QueryEngine':
+    case 'contrail-query-engine':
         key = ctrlGlobal.STR_GET_QE_CPU_FLOW_SERIES;
         break;
-    case 'OpServer':
+    case 'contrail-analytics-api':
         key = ctrlGlobal.STR_GET_OPS_CPU_FLOW_SERIES;
         break;
-    case 'ApiServer':
+    case 'contrail-api':
         key = ctrlGlobal.STR_GET_API_SERVER_CPU_FLOW_SERIES;
         break;
-    case 'ServiceMonitor':
+    case 'contrail-svc-monitor':
         key = ctrlGlobal.STR_GET_SVC_MON_CPU_FLOW_SERIES;
         break;
-    case 'Schema':
+    case 'contrail-schema':
         key = ctrlGlobal.STR_GET_SCHEMA_FLOW_SERIES;
         break;
     default:

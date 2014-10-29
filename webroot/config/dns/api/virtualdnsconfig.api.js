@@ -935,10 +935,10 @@ function getDNSNodeByGeneratorsData (dnsNodes, dnsGen)
     } catch(e) {
         return null;
     }
-    var modType = infraCmn.getModuleType('DnsAgent');
+    var modType = infraCmn.getModuleType('contrail-dns');
     for (var i = 0; i < dnsNodesCnt; i++) {
         try {
-            var dnsAgent = dnsNodes[i]['name'] + ':' + modType + ':DnsAgent';
+            var dnsAgent = dnsNodes[i]['name'] + ':' + modType + ':contrail-dns';
             if (-1 != dnsGen[0]['name'].indexOf(dnsAgent)) {
                 break;
             }

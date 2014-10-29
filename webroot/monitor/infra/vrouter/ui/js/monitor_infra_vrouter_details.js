@@ -47,10 +47,10 @@ monitorInfraComputeDetailsClass = (function() {
                     $('#system-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'VrouterStatsAgent':[{name: 'one_min_avg_cpuload', color: 'blue-sparkline'}, {name: 'used_sys_mem', color: 'green-sparkline'}]}, slConfig);
                     endWidgetLoading('vrouter-sparklines');
                     $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
+                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
                     $('#system-chart').initMemCPULineChart($.extend({url:function() {
-                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'vRouterAgent', '30', '10', obj['name'], endTime);
+                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
                     }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart-box'], hideWidgetIds: ['vrouter-chart-box'], titles: {memTitle:'Memory',cpuTitle:'Avg. Load / CPU'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
@@ -152,7 +152,7 @@ monitorInfraComputeDetailsClass = (function() {
 
                     //Best way to get the primary node - jsonPath(computeNodeData,'$.VrouterAgent.xmpp_peer_list[?(@.primary==true)].ip')},
                     {lbl:'Analytics Messages', value:(function(){
-                        var msgs = getAnalyticsMessagesCountAndSize(computeNodeData,['VRouterAgent']);
+                        var msgs = getAnalyticsMessagesCountAndSize(computeNodeData,['contrail-vrouter-agent']);
                         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
                     })()},
                     {lbl:'XMPP Messages', value:(function(){
