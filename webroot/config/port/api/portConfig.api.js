@@ -54,5 +54,14 @@ function createPort (req, res, appData)
     });
 }
 
+function deletePort (req, res, appData)
+{
+    var portId = req.param('portid');
+    nwMgr.deleteNetworkPort(req, portId, function(err, results) {
+        commonUtils.handleJSONResponse(err, res, results);
+    });
+}
+
 exports.createPort = createPort;
+exports.deletePort = deletePort;
 

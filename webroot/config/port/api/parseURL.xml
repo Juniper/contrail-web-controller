@@ -16,5 +16,11 @@
         <feature>portconfig</feature>
         <callback>portConfig.createPort</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/delete-port/:portid</url>
+        <method>delete</method>
+        <feature>portconfig</feature>
+        <callback>portConfig.deletePort</callback>
+    </item>
 
 </urlLists>
