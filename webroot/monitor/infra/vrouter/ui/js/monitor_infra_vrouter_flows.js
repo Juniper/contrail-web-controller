@@ -74,6 +74,9 @@ monitorInfraComputeFlowsClass = (function() {
             if(flowKey != "0:0:0:0:0.0.0.0:0.0.0.0" && flowKeyStack[flowKeyStack.length - 1] != flowKey) 
                 flowKeyStack.push(flowKey);
         }
+        if((flowKey == null) || (flowKey == "0:0:0:0:0.0.0.0:0.0.0.0")) {
+            lastFlowReq = true;
+        }
         //Push the aclIterKey to the stack for Next use
         if(iterationKey != null && !$.isEmptyObject(iterationKey)){
             //Had to add this hack because sometimes we get into to this parse function twice leading this to be added twice to the stack

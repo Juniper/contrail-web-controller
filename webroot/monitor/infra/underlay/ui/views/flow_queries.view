@@ -501,7 +501,16 @@
                 <form id="fr-query-form" onsubmit="return false;">
                     <div id="fr-query-container" class="row-fluid">
                         <div class="row-fluid margin-0-0-5">
-                            <div class="span3">
+                            <div class="span5">
+                                <label>Where</label>
+                                <div>
+                                    <div class="input-append inset span12">
+                                        <textarea id="fr-where" name="where" class="span12 where-textarea" value="" placeholder="*" rows="1"></textarea>
+                                        <span class="add-on"><i class="icon-pencil" onclick="openWhere('fr');"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="span2">
                                 <label>Time Range</label>
                                 <div>
                                     <select id="fr-time-range" name="timeRange" class="span12"
@@ -511,22 +520,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="span8">
-                                <label>Where</label>
-                                <div>
-                                    <div class="input-append inset span12">
-                                        <textarea id="fr-where" name="where" class="span12 where-textarea" value="" placeholder="*" rows="1"></textarea>
-                                        <span class="add-on"><i class="icon-pencil" onclick="openWhere('fr');"></i></span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="span4" data-bind="visible: isCustomTRVisible">
+                            <div class="span2" data-bind="visible: isCustomTRVisible">
                                 <label>From Time</label>
                                 <div>
                                     <input id="fr-from-time" name="fromTime" class="span12 checkValidDate" value="" required/>
                                 </div>
                             </div>
-                            <div class="span4" data-bind="visible: isCustomTRVisible">
+                            <div class="span2" data-bind="visible: isCustomTRVisible">
                                 <label>To Time</label>
                                 <div>
                                     <input id="fr-to-time" name="toTime" class="span12" value="" required/>

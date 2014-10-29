@@ -711,9 +711,14 @@ function runFRQuery() {
         columnDisplay, selectArray, queryId;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
-    	$("#"+queryPrefix+"-results").data('endTime',new Date().getTime());
-    	var startTime = (new Date().getTime() - (parseInt(reqQueryObj['timeRange']) * 1000));
-    	$("#"+queryPrefix+"-results").data('startTime',startTime);
+        if(reqQueryObj['timeRange']+"" === '0') {
+            $("#"+queryPrefix+"-results").data('endTime', reqQueryObj['toTime']);
+            $("#"+queryPrefix+"-results").data('startTime',reqQueryObj['fromTime']);
+        } else {
+            $("#"+queryPrefix+"-results").data('endTime',new Date().getTime());
+            var startTime = (new Date().getTime() - (parseInt(reqQueryObj['timeRange']) * 1000));
+            $("#"+queryPrefix+"-results").data('startTime',startTime);
+        }
         reqQueryObj.select = select;
         queryId = randomUUID();
         reqQueryObj = setUTCTimeObj('fr', reqQueryObj);

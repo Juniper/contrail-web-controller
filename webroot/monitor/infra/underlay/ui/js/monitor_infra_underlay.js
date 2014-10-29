@@ -965,6 +965,7 @@ underlayView.prototype.initGraphEvents = function() {
                 var nodeDetails = clickedElement['attributes']['nodeDetails'];
                 $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
                 $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                _this.updateWhereClause();
                 break;
             case 'contrail.VirtualMachine':
                 var nodeDetails = clickedElement['attributes']['nodeDetails'];
@@ -989,6 +990,7 @@ underlayView.prototype.initGraphEvents = function() {
                 $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
                 $("#underlay_topology").data('nodeIp',ip);
                 $("#underlay_topology").data('vnList',vnList);
+                _this.updateWhereClause();
                 break;
             case 'link':
                 var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
@@ -1406,8 +1408,6 @@ underlayView.prototype.renderUnderlayViz = function() {
 
 underlayView.prototype.renderFlowRecords = function() {
     if($("#fr-results").data('contrailGrid') == null || $("#underlay_topology").data('nodeType') != null) {
-        var nodeType = $("#underlay_topology").data('nodeType');
-        var nodeName = $("#underlay_topology").data('nodeName');
         var whereClauseStr;
         $("#flows-tab").html($("#qe-template").html());
         setFRValidValues();
@@ -1419,25 +1419,36 @@ underlayView.prototype.renderFlowRecords = function() {
                                                 {"name":"Last 20 Mins", "value":1200},
                                                 {"name":"Last 30 Mins", "value":1800},
                                                 {"name":"Last 1 Hr", "value":3600},
+                                                {"name":"Custom", "value":0},
                                      ]);
         queries['fr'].queryViewModel.defaultTRValue("600");
         queries['fr'].queryViewModel.isCustomTRVisible(false);
         ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
-        if(nodeType == VROUTER) {
-            whereClauseStr = '(vrouter = '+nodeName+')';
-        } else if(nodeType == VIRTUALMACHINE) {
-            var nodeIp = ifNull($("#underlay_topology").data('nodeIp'),[]);
-            var vnList = ifNull($("#underlay_topology").data('vnList'),[]);
-            whereClauseStr = '(';
-            for(var i = 0; i < nodeIp.length; i++) {
-                whereClauseStr += 'sourcevn = '+vnList[i]+' AND sourceip = '+nodeIp[i];
-                if((i+1) < nodeIp.length)
-                    whereClauseStr += 'AND';
-            }
-            whereClauseStr += ')';
-        }
-        $('#fr-where').val(whereClauseStr);
+        whereClauseStr = this.updateWhereClause();
     }
+}
+/*
+ * This method updates the where clause in search flow based on the selection of
+ * device in the topology(currently we are updating vrouter and VM details ) 
+ */
+underlayView.prototype.updateWhereClause = function () {
+    var nodeType = $("#underlay_topology").data('nodeType');
+    var nodeName = $("#underlay_topology").data('nodeName');
+    var whereClauseStr;
+    if(nodeType == VROUTER) {
+        whereClauseStr = '(vrouter = '+nodeName+')';
+    } else if(nodeType == VIRTUALMACHINE) {
+        var nodeIp = ifNull($("#underlay_topology").data('nodeIp'),[]);
+        var vnList = ifNull($("#underlay_topology").data('vnList'),[]);
+        whereClauseStr = '(';
+        for(var i = 0; i < nodeIp.length; i++) {
+            whereClauseStr += 'sourcevn = '+vnList[i]+' AND sourceip = '+nodeIp[i];
+            if((i+1) < nodeIp.length)
+                whereClauseStr += 'AND';
+        }
+        whereClauseStr += ')';
+    }
+    $('#fr-where').val(whereClauseStr);
 }
 
 underlayView.prototype.renderTracePath = function(options) {
@@ -1446,6 +1457,7 @@ underlayView.prototype.renderTracePath = function(options) {
     var nodeName = $("#underlay_topology").data('nodeName');
     var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())();
     var defaultValue = '',ip = '';
+    var isAllPrevFirstTimeClicked = true;
     $("#traceFlow").html(tracePathTemplate);
     var computeNodes = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
     if(nodeType == VROUTER && nodeName != null) {
@@ -1467,8 +1479,9 @@ underlayView.prototype.renderTracePath = function(options) {
         dataValueField: "value",
         change: function(e) {
             if($('#vrouterRadiobtn').is(':checked') == true) {
+                ip = e['val'];
                 var newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + e['val'], 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip, 
                         type:'Get'
                     };
                 flowGrid._dataView.setData([]);
@@ -1510,7 +1523,7 @@ underlayView.prototype.renderTracePath = function(options) {
                        }
                    },
                    {
-                     //same grid we are using for the instance flows and vrouter flows
+                     //same columns we are using for the instance flows and vrouter flows
                        // As the properties in the data are different we need to refer both
                        field:"src_vn",
                        name:"Src Network",
@@ -1610,8 +1623,10 @@ underlayView.prototype.renderTracePath = function(options) {
                 text : 'Flows'
             },
             customControls : [
+                '<button id="nextFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow">Next >></button>',
+                '<button id="prevFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow"><< Prev</button>',
                 '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
-                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>'
+                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>',
             ],
         },
         columnHeader : {
@@ -1667,11 +1682,55 @@ underlayView.prototype.renderTracePath = function(options) {
     flowGrid = $('#vrouterflows').data('contrailGrid');
     $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
     flowGrid.showGridMessage('loading');
+    $("#prevFlowBtn").on('click',function(){
+        var newAjaxConfig = {};
+        if(!lastFlowReq)
+            flowKeyStack.pop();
+        flowKeyStack.pop();
+        if(flowKeyStack.length > 0) {
+            newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip 
+                        + '&flowKey=' + flowKeyStack.pop(),
+                    type:'Get'
+                };
+        } else if (flowKeyStack.length < 1){
+            newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip,
+                    type:'Get'
+                };
+        }
+        flowGrid._dataView.setData([]);
+        flowGrid.showGridMessage('loading');
+        flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+        reloadGrid(flowGrid);
+        lastFlowReq = false;
+    });
+    $("#nextFlowBtn").on('click',function(){
+        lastFlowReq = false;
+        if(flowKeyStack.length > 0) {
+            newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip 
+                        + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1],
+                    type:'Get'
+                };
+        } else if (flowKeyStack.length < 1){
+            newAjaxConfig = {
+                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip,
+                    type:'Get'
+                };
+        }
+        flowGrid._dataView.setData([]);
+        flowGrid.showGridMessage('loading');
+        flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+        reloadGrid(flowGrid);
+    });
+
     var vmFlowsGrid;
     $('input[name="flowtype"]').change(function(){
         if($('#vrouterRadiobtn').is(':checked') == true) {
             tracePathDropdown.setData(computeNodeCombobox);
             var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+            ip = selItem['id'];
             $("#vmflows").hide();
             $("#vrouterflows").show();
             if(!isGridInitialized($('#vrouterflows'))) {
@@ -1681,6 +1740,8 @@ underlayView.prototype.renderTracePath = function(options) {
                             text : 'Flows'
                         },
                         customControls : [
+                            '<button id="nextFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow">Next >></button>',
+                            '<button id="prevFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow"><< Prev</button>',
                             '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
                             '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>'
                         ],
@@ -1737,7 +1798,7 @@ underlayView.prototype.renderTracePath = function(options) {
                 });
             } else {
                 var newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + selItem['id'], 
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip, 
                         type:'Get'
                     };
                 flowGrid._dataView.setData([]);
@@ -1834,6 +1895,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $("#vmflows").find('input.headerRowCheckbox').parent('span').remove();
         }
     });
+    
     $("#traceFlowBtn").on('click',function(e){
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
