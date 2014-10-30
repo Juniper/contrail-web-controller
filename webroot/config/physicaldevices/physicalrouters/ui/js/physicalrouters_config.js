@@ -611,8 +611,7 @@ function physicalRoutersConfig() {
     }
     
     window.failureHandlerForPhysicalRouters =  function(error) {
-         //gridPhysicalRouters.showGridMessage("errorGettingData");
-         fetchData();
+         gridPhysicalRouters.showGridMessage("errorGettingData");
     }
     
     function fetchVirtualRouters() {

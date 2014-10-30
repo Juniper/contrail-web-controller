@@ -255,7 +255,11 @@ function virtualRoutersConfig() {
         if(mode === 'edit') {
             postObject["virtual-router"]["uuid"] = gblSelRow.uuid;
         }
-        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
+        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForVirtualRouters', 'failureHandlerForCreateVirtualRouters', null, null);
+    }
+    
+    function failureHandlerForCreateVirtualRouters(error) {
+         fetchData();    
     }
     
     function clearCreateEditWindow() {
@@ -302,8 +306,7 @@ function virtualRoutersConfig() {
     }
     
     window.failureHandlerForVirtualRouters =  function(error) {
-         //gridVirtualRouters.showGridMessage("errorGettingData");
-         fetchData();
+         gridVirtualRouters.showGridMessage("errorGettingData");
     }
     
     function validate() {

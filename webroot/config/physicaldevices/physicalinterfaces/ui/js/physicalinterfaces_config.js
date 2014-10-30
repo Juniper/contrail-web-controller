@@ -542,9 +542,12 @@ function physicalInterfacesConfig() {
                 }
             }
         }
-        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalInterfaces', 'failureHandlerForPhysicalInterfaces', null, null);
+        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalInterfaces', 'failureHandlerForCreatePhysicalInterfaces', null, null);
     }
     
+    function failureHandlerForCreatePhysicalInterfaces(error) {
+        fetchData();
+    }
     function clearCreateEditWindow() {
         $('#ddType').data('contrailDropdown').value('logical');
         $('#txtPhysicalInterfaceName').removeAttr('disabled');
@@ -858,8 +861,7 @@ function physicalInterfacesConfig() {
     }
     
     window.failureHandlerForPhysicalInterfaces =  function(error) {
-         //gridPhysicalInterfaces.showGridMessage("errorGettingData");
-         fetchData();
+         gridPhysicalInterfaces.showGridMessage("errorGettingData");
     }
     
     function validate() {
