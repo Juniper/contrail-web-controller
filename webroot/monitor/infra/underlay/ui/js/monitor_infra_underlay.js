@@ -647,7 +647,26 @@ underlayView.prototype.initTooltipConfig = function() {
         },
         link: {
             title: function(element, graph) {
-                return "Link";
+                var viewElement = graph.getCell(element.attr('model-id'));
+                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var instanceName1 = "";
+                var instanceName2 = "";
+                var endpoint1 = viewElement.attributes.linkDetails.endpoints[0];
+                var endpoint2 = viewElement.attributes.linkDetails.endpoints[1];
+                for(var i=0; i<instances.length; i++) {
+                    if(instances[i].name === endpoint1) {
+                        instanceName1 = instances[i].vmName;
+                    } else if (instances[i].name === endpoint1) {
+                        instanceName2 = instances[i].vmName;
+                    }
+                }
+                if("" == instanceName1)
+                    instanceName1 = endpoint1;
+                if("" == instanceName2)
+                    instanceName2 = endpoint2;
+                return "<div class='row-fluid'><div class='span1' style='margin-right:5px'>" + "Link" + "</div>" +
+                    "<div class='span5'>" + instanceName1 + "</div>" +
+                    "<div class='span5'>" + instanceName2 + "</div></div>";
             },
             content: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
@@ -656,7 +675,8 @@ underlayView.prototype.initTooltipConfig = function() {
                 var remote_interfaces = [];
                 if(viewElement.attributes && viewElement.attributes.hasOwnProperty('linkDetails') &&
                     viewElement.attributes.linkDetails.hasOwnProperty('more_attributes') &&
-                    viewElement.attributes.linkDetails.more_attributes && 
+                    viewElement.attributes.linkDetails.more_attributes &&
+                    "-" !== viewElement.attributes.linkDetails.more_attributes &&
                     viewElement.attributes.linkDetails.more_attributes.length > 0) {
                     var moreAttrs = viewElement.attributes.linkDetails.more_attributes;
                     for(var i=0; i<moreAttrs.length; i++) {

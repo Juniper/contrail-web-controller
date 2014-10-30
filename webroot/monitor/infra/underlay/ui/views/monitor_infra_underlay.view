@@ -189,11 +189,9 @@ body > svg {
         {{#each this}}
             <div class="row-fluid chart-tooltip-body span6">
                 <div class="row-fluid chart-tooltip-row">
-                    <span class="key span6" style="min-height:20px;">{{this.lbl}}</span>
-                </div>
-                <div class="row-fluid chart-tooltip-row">
                     {{#each this.value}}
-                        <span class="value span12" style="min-height:20px;">{{this}}</span>
+                        <span class="span2"></span>
+                        <span class="value span9" style="min-height:20px;">{{this}}</span>
                     {{/each}}
                 </div>
             </div>

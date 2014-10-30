@@ -888,7 +888,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                 }
             ]
         };
-        $("#mapflow").live('click',function(e){
+        $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
             var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
             var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
