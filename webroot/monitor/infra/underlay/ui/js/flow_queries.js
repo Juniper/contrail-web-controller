@@ -44,6 +44,8 @@ frQuery['columnDisplay'] = [
     {select:"setup_time", display:{id:"setup_time", field:"setup_time", width:180, minWidth:180, name:"Setup Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.setup_time); }, filterable:false, groupable:false}},
     {select:"teardown_time", display:{id:"teardown_time", field:"teardown_time", width:210, name:"Teardown Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.teardown_time); }, filterable:false, groupable:false}},
     {select:"vrouter", display:{id:"vrouter", field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
+    {select:"vrouter_ip", display:{id:'vrouter_ip', field:'vrouter_ip', width:120, name:"Vrouter IP", groupable:false,formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter_ip);}}},
+    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other Vrouter IP", groupable:false,formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.other_vrouter_ip);}}},
     {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:250, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
     {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
     {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:120, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
@@ -52,8 +54,8 @@ frQuery['columnDisplay'] = [
     {select:"dport", display:{id:"dport", field:"dport", width:120, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
     {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:120, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
     {select:"protocol", display:{id:"protocol", field:"protocol", width:120, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"agg-bytes", display:{id:'["agg-bytes"]', field:'["agg-bytes"]', width:120, name:"Aggregate Bytes", format:"{0:n0}", groupable:false}},
-    {select:"agg-packets", display:{id:'["agg-packets"]', field:'["agg-packets"]', width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}}
+    {select:"agg-bytes", display:{id:'agg-bytes', field:'agg-bytes', width:120, name:"Aggregate Bytes", groupable:false,formatter: function(r, c, v, cd, dc){ return formatBytes(dc['agg-bytes'],'-');}}},
+    {select:"agg-packets", display:{id:'agg-packets', field:'agg-packets', width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}},
 ];
 
 frQuery['defaultColumns'] = ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'];
@@ -765,7 +767,7 @@ function viewFRQueryResults(dataItem, params) {
     loadFlowResultsForUnderlay(options, reqQueryObj, queryColumnDisplay);
 };
 
-function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridDisplay) {
+function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridDisplay,reverseTraceFlow) {
     var grid = $('#' + options.elementId).data('contrailGrid'),
         url = "/api/admin/reports/query",
         btnId = options.btnId;
@@ -859,22 +861,30 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                               <a title="View Results as Chart" id="fs-chart-link" class="margin-0-5 disabled-link" onclick=toggleToChart("fs");><i class="icon-bar-chart"></i></a>'];
     }
     else if(options.queryPrefix == 'fr'){
-        gridConfig.header.customControls = [
-            '<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
-        ],
+        var customControls = [
+               '<button id="mapflow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
+        ];
+        if(reverseTraceFlow == true){
+            customControls = [
+                              '<button id="revTraceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Reverse Trace Flow">Reverse Trace Flow</button>',
+                              '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>',
+                       ];
+        }
+        gridConfig.header.customControls = customControls,
         gridConfig.body.options = {
             checkboxSelectable: {
                 enableRowCheckbox: true,
                 onNothingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
                     $("#mapflow").attr('disabled','disabled');
-                    //$("#reversemapflow").attr('disabled','disabled');
+                    $("#traceFlowBtn").attr('disabled','disabled');
+                    $("#revTraceFlowBtn").attr('disabled','disabled');
                 },
                 onSomethingChecked: function(e){
                     $("div.slick-cell-checkboxsel > input").attr('checked',false);
                     $("#mapflow").removeAttr('disabled');
-                    //$("#reversemapflow").removeAttr('disabled');
-                    //$(e['currentTarget']).removeAttr('disabled');
+                    $("#traceFlowBtn").removeAttr('disabled');
+                    $("#revTraceFlowBtn").removeAttr('disabled');
                     $(e['currentTarget']).attr('checked',true);
                 }
             },
@@ -897,23 +907,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             dataItem['endTime'] = endTime;
             showUnderlayPaths(dataItem);
         });
-        /*$("#reversemapflow").live('click',function(e){
-            var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
-            var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
-            var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
-            var dataItem = ifNull(checkedRows[0],{});
-            var reverseDataItem = {};
-            reverseDataItem['startTime'] = startTime;
-            reverseDataItem['endTime'] = endTime;
-            reverseDataItem.sourceip = dataItem.destip;
-            reverseDataItem.destip = dataItem.sourceip;
-            reverseDataItem.sourcevn = dataItem.destvn;
-            reverseDataItem.destvn = dataItem.sourcevn;
-            reverseDataItem.sport = dataItem.dport;
-            reverseDataItem.dport = dataItem.sport;
-            reverseDataItem.protocol = dataItem.protocol;
-            showUnderlayPaths(reverseDataItem);
-        });*/
     }
 
     $("#" + options.elementId).contrailGrid(gridConfig);

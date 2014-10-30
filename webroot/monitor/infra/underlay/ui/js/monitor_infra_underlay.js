@@ -1470,7 +1470,9 @@ underlayView.prototype.updateWhereClause = function () {
     }
     $('#fr-where').val(whereClauseStr);
 }
-
+underlayView.prototype.renderTracePath = function(options) {
+    
+}
 underlayView.prototype.renderTracePath = function(options) {
     var _this = this;
     var nodeType = $("#underlay_topology").data('nodeType');
@@ -1491,37 +1493,27 @@ underlayView.prototype.renderTracePath = function(options) {
             ip = computeNodes[i]['ip'];
         computeNodeCombobox.push({
             text:computeNodes[i]['name'],
-            value:computeNodes[i]['ip']
+            value:computeNodes[i]['name']
         });
     }
     $("#tracePathDropdown").contrailDropdown({
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
+            var ajaxConfig = {};
             if($('#vrouterRadiobtn').is(':checked') == true) {
-                ip = e['val'];
-                var newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip, 
-                        type:'Get'
-                    };
-                flowGrid._dataView.setData([]);
-                flowGrid.showGridMessage('loading');
-                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-                reloadGrid(flowGrid);
+                ajaxConfig = getInstFlowsUrl(e['val'],VROUTER);
+                
             } else if($('#instRadiobtn').is(':checked') == true) {
-                vmFlowsGrid._dataView.setData([]);
-                vmFlowsGrid.showGridMessage('loading');
-                var uuid = e['val'];
-                var url = getInstFlowsUrl(uuid);
-                vmFlowsGrid.setRemoteAjaxConfig({url:url,type:'Get'});
-                vmFlowsGrid.showGridMessage('loading');
-                reloadGrid(vmFlowsGrid);
+                ajaxConfig = getInstFlowsUrl(e['val'],VIRTUALMACHINE);
             }
+            reloadFlowsGrid(ajaxConfig);
         }
     });
     var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
     tracePathDropdown.setData(computeNodeCombobox);
     tracePathDropdown.text(defaultValue);
+    
     $("#vrouterRadiobtn").prop('checked',true);
     var instances = globalObj['dataSources']['instDS']['dataSource'].getItems(),instComboboxData = [];
     var instMap = {};
@@ -1533,390 +1525,32 @@ underlayView.prototype.renderTracePath = function(options) {
         });
         instMap[instances[i]['name']] = instances[i];
     }
-    var columns = [
-                   {
-                       field:"protocol",
-                       name:"Protocol",
-                       minWidth:60,
-                       formatter:function(r,c,v,cd,dc){
-                           return formatProtocol(dc['protocol']);
-                       }
-                   },
-                   {
-                     //same columns we are using for the instance flows and vrouter flows
-                       // As the properties in the data are different we need to refer both
-                       field:"src_vn",
-                       name:"Src Network",
-                       cssClass:'cell-hyperlink-blue',
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['src_vn'] != null ? dc['src_vn'] : dc['sourcevn'];
-                       },
-                       events: {
-                           onClick: function(e,dc){
-                               var tabIdx = $.inArray("networks", computeNodeTabs);
-                               selectTab(computeNodeTabStrip,tabIdx);
-                           }
-                        },
-                       minWidth:195
-                   },
-                   {
-                       field:"sip",
-                       name:"Src IP",
-                       minWidth:70,
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['sip'] != null ? dc['sip'] : dc['sourceip'];
-                       }
-                   },
-                   {
-                       field:"src_port",
-                       name:"Src Port",
-                       minWidth:50,
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['src_port'] != null ? dc['src_port'] : dc['sport'];
-                       }
-                   },
-                   {
-                       field:"dst_vn",
-                       name:"Dest Network",
-                       cssClass:'cell-hyperlink-blue',
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['dst_vn'] != null ? dc['dst_vn'] : dc['destvn'];
-                       },
-                       events: {
-                           onClick: function(e,dc){
-                               var tabIdx = $.inArray("networks", computeNodeTabs);
-                               selectTab(computeNodeTabStrip,tabIdx);
-                           }
-                        },
-                       minWidth:195
-                   },
-                   {
-                       field:"dip",
-                       name:"Dest IP",
-                       minWidth:70,
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['dip'] != null ? dc['dip'] : dc['destip'];
-                       },
-                   },
-                   {
-                       field:"dst_port",
-                       name:"Dest Port",
-                       minWidth:50,
-                       formatter:function(r,c,v,cd,dc) {
-                           return dc['dst_port'] != null ? dc['dst_port'] : dc['dport'];
-                       },
-                   },
-                   {
-                       field:"direction",
-                       name:"Direction",
-                       minWidth:80,
-                       formatter:function(r,c,v,cd,dc) {
-                           var directionMap = {
-                               'egress': 'EGRESS',
-                               'ingress': 'INGRESS',
-                                      1 : 'INGRESS',
-                                      0 : 'EGRESS'
-                           };
-                           var dir = dc['raw_json'] != null ? dc['raw_json']['direction'] : dc['direction_ing']; 
-                           return ifNull(directionMap[dir],'-');
-                       }
-                   },
-                   {
-                       field:"stats_bytes",
-                       name:"Bytes/Pkts",
-                       minWidth:80,
-                       formatter:function(r,c,v,cd,dc){
-                           var bytes = dc['stats_bytes'] != null ? dc['stats_bytes'] : dc['agg-bytes'];
-                           var pkts = dc['stats_packets'] != null ? dc['stats_packets'] : dc['agg-packets'];
-                           return contrail.format("{0}/{1}",formatBytes(bytes,'-'),pkts);
-                       },
-                       searchFn:function(d){
-                           var bytes = dc['stats_bytes'] != null ? dc['stats_bytes'] : dc['agg-bytes'];
-                           var pkts = dc['stats_packets'] != null ? dc['stats_packets'] : dc['agg-packets'];
-                           return bytes+ '/ ' +pkts;
-                       }
-                   }
-               ];
-    $("#vrouterflows").contrailGrid({
-        header : {
-            title : {
-                text : 'Flows'
-            },
-            customControls : [
-                '<button id="nextFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow">Next >></button>',
-                '<button id="prevFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow"><< Prev</button>',
-                '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
-                '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>',
-            ],
-        },
-        columnHeader : {
-            columns: columns
-        },
-        body : {
-            options : {
-                forceFitColumns: true,
-                sortable : false,
-                checkboxSelectable: {
-                    enableRowCheckbox: true,
-                    onNothingChecked: function(e){
-                        //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
-                        $("#traceFlowBtn").attr('disabled','disabled');
-                        $("#reverseFlowBtn").attr('disabled','disabled');
-                    },
-                    onSomethingChecked: function(e){
-                        $("div.slick-cell-checkboxsel > input").attr('checked',false);
-                        $("#traceFlowBtn").removeAttr('disabled');
-                        $("#reverseFlowBtn").removeAttr('disabled');
-                        //$(e['currentTarget']).removeAttr('disabled')
-                        $(e['currentTarget']).attr('checked',true);
-                    }
-                },
-            },
-            dataSource : {
-                remote: {
-                    ajaxConfig: {
-                        url: function () {
-                            return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
-                        }(),
-                        type: 'GET'
-                    },
-                    dataParser: self.parseFlowsData
-                }
-            },
-            statusMessages: {
-                loading: {
-                    text: 'Loading Flows..',
-                },
-                empty: {
-                    text: 'No Flows to display'
-                }, 
-                errorGettingData: {
-                    type: 'error',
-                    iconClasses: 'icon-warning',
-                    text: 'Error in getting Data.'
-                }
-            }
-        },
-        footer : false,
-    });
-    flowGrid = $('#vrouterflows').data('contrailGrid');
-    $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
-    flowGrid.showGridMessage('loading');
-    $("#prevFlowBtn").on('click',function(){
-        var newAjaxConfig = {};
-        if(!lastFlowReq)
-            flowKeyStack.pop();
-        flowKeyStack.pop();
-        if(flowKeyStack.length > 0) {
-            newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip 
-                        + '&flowKey=' + flowKeyStack.pop(),
-                    type:'Get'
-                };
-        } else if (flowKeyStack.length < 1){
-            newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip,
-                    type:'Get'
-                };
-        }
-        flowGrid._dataView.setData([]);
-        flowGrid.showGridMessage('loading');
-        flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-        reloadGrid(flowGrid);
-        lastFlowReq = false;
-    });
-    $("#nextFlowBtn").on('click',function(){
-        lastFlowReq = false;
-        if(flowKeyStack.length > 0) {
-            newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip 
-                        + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1],
-                    type:'Get'
-                };
-        } else if (flowKeyStack.length < 1){
-            newAjaxConfig = {
-                    url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip,
-                    type:'Get'
-                };
-        }
-        flowGrid._dataView.setData([]);
-        flowGrid.showGridMessage('loading');
-        flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-        reloadGrid(flowGrid);
-    });
-
-    var vmFlowsGrid;
+    var vRouterAjaxReq = getInstFlowsUrl(defaultValue,VROUTER);
+    var options = getFRDefaultOptions();
+    options['elementId'] = 'vrouterflows';
+    var selectArray = parseStringToArray(vRouterAjaxReq['data']['select'], ',');
+    selectArray = selectArray.concat(queries['fr']['defaultColumns']);
+    var columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
+    loadFlowResultsForUnderlay(options,vRouterAjaxReq['data'],columnDisplay,null,true);
+    function reloadFlowsGrid(newAjaxConfig) {
+        loadFlowResultsForUnderlay(options,newAjaxConfig['data'],columnDisplay,null,true);
+    }
     $('input[name="flowtype"]').change(function(){
+        var ajaxConfig = {},selItem = {};
         if($('#vrouterRadiobtn').is(':checked') == true) {
             tracePathDropdown.setData(computeNodeCombobox);
-            var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            ip = selItem['id'];
-            $("#vmflows").hide();
-            $("#vrouterflows").show();
-            if(!isGridInitialized($('#vrouterflows'))) {
-                $("#vrouterflows").contrailGrid({
-                    header : {
-                        title : {
-                            text : 'Flows'
-                        },
-                        customControls : [
-                            '<button id="nextFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow">Next >></button>',
-                            '<button id="prevFlowBtn" class="btn btn-primary btn-mini"  title="Trace Flow"><< Prev</button>',
-                            '<button id="reverseFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Reverse Flow">Trace Reverse Flow</button>',
-                            '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>'
-                        ],
-                    },
-                    columnHeader : {
-                        columns: columns
-                    },
-                    body : {
-                        options : {
-                            forceFitColumns: true,
-                            sortable : false,
-                            checkboxSelectable: {
-                                enableRowCheckbox: true,
-                                onNothingChecked: function(e){
-                                    //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
-                                    $("#traceFlowBtn").attr('disabled','disabled');
-                                    $("#reverseFlowBtn").attr('disabled','disabled');
-                                },
-                                onSomethingChecked: function(e){
-                                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
-                                    $("#traceFlowBtn").removeAttr('disabled');
-                                    $("#reverseFlowBtn").removeAttr('disabled');
-                                    //$(e['currentTarget']).removeAttr('disabled')
-                                    $(e['currentTarget']).attr('checked',true);
-                                }
-                            },
-                        },
-                        dataSource : {
-                            remote: {
-                                ajaxConfig: {
-                                    url: function () {
-                                        return monitorInfraUrls['VROUTER_FLOWS'] + '?ip='+ip;
-                                    }(),
-                                    type: 'GET'
-                                },
-                                dataParser: self.parseFlowsData
-                            }
-                        },
-                        statusMessages: {
-                            loading: {
-                                text: 'Loading Flows..',
-                            },
-                            empty: {
-                                text: 'No Flows to display'
-                            }, 
-                            errorGettingData: {
-                                type: 'error',
-                                iconClasses: 'icon-warning',
-                                text: 'Error in getting Data.'
-                            }
-                        }
-                    },
-                    footer : false,
-                });
-            } else {
-                var newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + ip, 
-                        type:'Get'
-                    };
-                flowGrid._dataView.setData([]);
-                flowGrid.showGridMessage('loading');
-                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-                reloadGrid(flowGrid);
-            }
+            selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+            ajaxConfig = getInstFlowsUrl(selItem['id'],VROUTER);
         } else if($('#instRadiobtn').is(':checked') == true) {
             tracePathDropdown.setData(instComboboxData);
-            var selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            var instUUID = instComboboxData[0]['value'];
-            $("#vrouterflows").hide();
-            $("#vmflows").show();
-            if(!isGridInitialized($('#vmflows'))) {
-                $("#vmflows").contrailGrid({
-                    header : {
-                        title : {
-                            text : 'Flows'
-                        },
-                        customControls : [
-                            '<button id="traceFlowBtn_vmFlow" class="btn btn-primary btn-mini" disabled="disabled" title="Map Flow">Map Flow</button>'
-                        ],
-                    },
-                    columnHeader : {
-                        columns: columns
-                    },
-                    body : {
-                        options : {
-                            forceFitColumns: true,
-                            sortable : false,
-                            checkboxSelectable: {
-                                enableRowCheckbox: true,
-                                onNothingChecked: function(e){
-                                    //$("div.slick-cell-checkboxsel > input").removeAttr('disabled')
-                                    $("#reverseFlowBtn_vmFlow").attr('disabled','disabled');
-                                    $("#traceFlowBtn_vmFlow").attr('disabled','disabled');
-                                },
-                                onSomethingChecked: function(e){
-                                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
-                                    $("#reverseFlowBtn_vmFlow").removeAttr('disabled');
-                                    $("#traceFlowBtn_vmFlow").removeAttr('disabled');
-                                    //$(e['currentTarget']).removeAttr('disabled')
-                                    $(e['currentTarget']).attr('checked',true);
-                                }
-                            },
-                        },
-                        dataSource : {
-                            remote: {
-                                ajaxConfig: {
-                                    url: function () {
-                                        return getInstFlowsUrl(instUUID);
-                                    }(),
-                                    type: 'GET'
-                                },
-                                dataParser: function(response){
-                                    return (response['data'] != null) ? response['data'] : [];
-                                }
-                            }
-                        },
-                        statusMessages: {
-                            loading: {
-                                text: 'Loading Flows..',
-                            },
-                            empty: {
-                                text: 'No Flows to display'
-                            }, 
-                            errorGettingData: {
-                                type: 'error',
-                                iconClasses: 'icon-warning',
-                                text: 'Error in getting Data.'
-                            }
-                        }
-                    },
-                    footer : false,
-                });
-                vmFlowsGrid = $("#vmflows").data('contrailGrid');
-                $("#traceFlowBtn_vmFlow").on('click',function(){
-                    var instCheckedRows = vmFlowsGrid.getCheckedRows();
-                    var instDataItem = ifNull(instCheckedRows[0],{});
-                    showUnderlayPaths(instDataItem);
-                });
-                $("#reverseFlowBtn_vmFlow").on('click',function(){
-                    var instCheckedRows = vmFlowsGrid.getCheckedRows();
-                    var instDataItem = ifNull(instCheckedRows[0],{});
-                    showUnderlayPaths(instDataItem);
-                });
-            } else {
-                var url = getInstFlowsUrl(selItem['id']);
-                vmFlowsGrid._dataView.setData([]);
-                vmFlowsGrid.showGridMessage('loading');
-                vmFlowsGrid.setRemoteAjaxConfig({url:url,type:'Get'});
-                reloadGrid(vmFlowsGrid);
-            }
-            $("#vmflows").find('input.headerRowCheckbox').parent('span').remove();
+            selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+            ajaxConfig = getInstFlowsUrl(selItem['value'],VIRTUALMACHINE);
         }
+        reloadFlowsGrid(ajaxConfig);
     });
     
-    $("#traceFlowBtn").on('click',function(e){
+    $("#traceFlowBtn").die('click').live('click',function(e){
+        var flowGrid = $("#vrouterflows").data('contrailGrid');
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
         var item = tracePathDropdown.getSelectedData();
@@ -1924,16 +1558,21 @@ underlayView.prototype.renderTracePath = function(options) {
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
          */
-        var ip = dataItem['raw_json']['direction'] == 'egress' ? dataItem['raw_json']['peer_vrouter'] : item[0]['id'] ;  
+        var postData = {};
         var postData = {
-               nodeIP: ip,
-               srcIP: dataItem['sip'],
-               destIP: dataItem['dip'],
-               srcPort: dataItem['src_port'],
-               destPort: dataItem['dst_port'],
-               protocol: dataItem['protocol'],
-               vrfId: parseInt(dataItem['raw_json']['vrf'])
-        };
+                srcIP: dataItem['sourceip'],
+                destIP: dataItem['destip'],
+                srcPort: dataItem['sport'],
+                destPort: dataItem['dport'],
+                protocol: dataItem['protocol'],
+         };
+        if(dataItem['direction_ing'] == 1) {
+            postData['nodeIP'] = dataItem['vrouter_ip'];
+            postData['vrfName'] = (dataItem['sourcevn'] +":"+ dataItem['sourcevn'].split(':')[2]);
+        } else if(dataItem['direction_ing'] == 0) {
+            postData['nodeIP'] = dataItem['other_vrouter_ip'];
+            postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
+        }
         $.ajax({
             url:'/api/tenant/networking/trace-flow',
             type:'POST',
@@ -1945,24 +1584,28 @@ underlayView.prototype.renderTracePath = function(options) {
         }).always(function(response){
         });
     });
-    $("#reverseFlowBtn").on('click',function(e){
+    $("#revTraceFlowBtn").die('click').live('click',function(e){
+        var flowGrid = $("#vrouterflows").data('contrailGrid');
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
-        var item = vrouterDropdown.getSelectedData();
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
          */
-        var ip = dataItem['raw_json']['direction'] == 'egress' ? dataItem['raw_json']['peer_vrouter'] : item[0]['id'] ;  
         var postData = {
-               nodeIP: dataItem['raw_json']['peer_vrouter'],
-               srcIP: dataItem['dip'],
-               destIP: dataItem['sip'],
-               srcPort: dataItem['dst_port'],
-               destPort: dataItem['src_port'],
+               srcIP: dataItem['destip'],
+               destIP: dataItem['sourceip'],
+               srcPort: dataItem['dport'],
+               destPort: dataItem['sport'],
                protocol: dataItem['protocol'],
-               vrfId: parseInt(dataItem['raw_json']['dest_vrf'])
         };
+        if(dataItem['direction_ing'] == 0) {
+            postData['nodeIP'] = dataItem['vrouter_ip'];
+            postData['vrfName'] = (dataItem['sourcevn'] +":"+ dataItem['sourcevn'].split(':')[2]);
+        } else if(dataItem['direction_ing'] == 1) {
+            postData['nodeIP'] = dataItem['other_vrouter_ip'];
+            postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
+        }
         $.ajax({
             url:'/api/tenant/networking/trace-flow',
             type:'POST',
@@ -1974,29 +1617,35 @@ underlayView.prototype.renderTracePath = function(options) {
         }).always(function(response){
         });
     });
-    function getInstFlowsUrl(uuid){
+    function getInstFlowsUrl(name,type){
+        var req = {};
         var ajaxData = {
                 pageSize: 50,
-                page: 1,
-                timeRange: 1800,
-                select: 'setup_time, teardown_time, agg-bytes, agg-packets',
-                fromTimeUTC: 'now-3600s',
+                timeRange: 300,
+                select: 'setup_time, teardown_time, agg-bytes, agg-packets,vrouter_ip,other_vrouter_ip',
+                fromTimeUTC: 'now-300s',
                 toTimeUTC: 'now',
                 queryId: randomUUID(),
                 async: true,
                 table:'FlowRecordTable'
         };
-        var vmData = instMap[uuid];
-        var intfData = ifNull(vmData['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
-        var where = '';
-        for(var i = 0; i < intfData.length; i++) {
-            where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
-            if(i+1 > intfData.length)
-                where+= 'OR';
+        if(type == VIRTUALMACHINE) {
+            var vmData = instMap[name];
+            var intfData = ifNull(vmData['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+            var where = '';
+            for(var i = 0; i < intfData.length; i++) {
+                where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
+                if(i+1 > intfData.length)
+                    where+= 'OR';
+            }
+            ajaxData['where'] = where;
+        } else if(type == VROUTER) {
+            ajaxData['where'] = "(vrouter = "+name+")";
         }
-        ajaxData['where'] = where;
-        ajaxData['url'] = '/api/admin/reports/query?'+$.param(ajaxData);
-        return ajaxData['url'];
+        ajaxData['engQueryStr'] = getEngQueryStr(ajaxData);
+        req['data'] = ajaxData;
+        req['url'] = '/api/admin/reports/query';
+        return req;
     }
 }
 
