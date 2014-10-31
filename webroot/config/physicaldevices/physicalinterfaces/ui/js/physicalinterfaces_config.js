@@ -355,22 +355,42 @@ function physicalInterfacesConfig() {
     function deletePhysicalInterface(selected_rows) {
         $('#btnDeletePhysicalInterface').addClass('disabled-link');	
         if(selected_rows && selected_rows.length > 0){
-            var deleteAjaxs = [];
-            var deleteVMIs = [];
+            var physicalIntfsDeleteAjaxs = [];
+            var logicalIntfsDeleteAjaxs = [];
             for(var i = 0;i < selected_rows.length;i++){
                 var sel_row_data = selected_rows[i];
-                deleteAjaxs[i] = $.ajax({
-                    url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
-                    type:'DELETE'
-                });
-                if(sel_row_data.vmi_uuid != null) {
-                    deleteVMIs.push(sel_row_data.vmi_uuid);
-                }
+                if(sel_row_data['type'] == 'Logical'){
+                    logicalIntfsDeleteAjaxs.push($.ajax({
+                        url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
+                        type:'DELETE'
+                    }));
+                } 
             }
-            $.when.apply($,deleteAjaxs).then(
+            //First delete logical interfaces
+            $.when.apply($,logicalIntfsDeleteAjaxs).then(
                 function(response){
-                    //all success
-                    fetchData();
+                    //now delete physical interfaces
+                    for(var i = 0;i < selected_rows.length;i++){
+                        var sel_row_data = selected_rows[i];
+                        if(sel_row_data['type'] == 'Physical'){
+                            physicalIntfsDeleteAjaxs.push($.ajax({
+                                    url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
+                                    type:'DELETE'
+                                }));
+                        } 
+                    }
+                    $.when.apply($,physicalIntfsDeleteAjaxs).then(
+                            function(response){
+                                //all success
+                                fetchData();
+                            },
+                            function(){
+                                //if at least one delete operation fails
+                                var r = arguments;
+                                showInfoWindow(r[0].responseText,r[2]);     
+                                fetchData();
+                            }
+                        );
                 },
                 function(){
                     //if at least one delete operation fails
