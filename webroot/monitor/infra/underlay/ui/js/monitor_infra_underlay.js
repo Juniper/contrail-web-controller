@@ -1066,6 +1066,7 @@ underlayView.prototype.hideNodesOfType = function(type) {
     var link_type = type.split('-');
     link_type = link_type[0][0] + link_type[1][0];
     var elements = this.getModel().getConnectedElements();
+    var _this = this;
     $.each(elements, function(key, value){
         if(value.attributes && value.attributes.linkDetails && value.attributes.linkDetails.link_type &&
             value.attributes.linkDetails.link_type.indexOf(link_type) !== -1) {
@@ -1086,6 +1087,14 @@ underlayView.prototype.hideNodesOfType = function(type) {
                 .removeClassSVG('elementHighlighted')
                 .removeClassSVG('dimHighlighted')
                 .addClassSVG('hidden');
+            if(type == 'virtual-machine' && value.hasOwnProperty('old_position') &&
+                null !== value.old_position &&
+                typeof value.old_position !== 'undefined') {
+                var old_position = value.old_position;
+                _this.getGraph().getCell(value.id).transition('position/x', old_position.x);
+                _this.getGraph().getCell(value.id).transition('position/y', old_position.y);
+                delete value.old_position;
+            }
         }/* else {
             $('g.element[model-id="' + value.id + '"]')
                 .addClassSVG('elementHighlighted')
@@ -1238,6 +1247,17 @@ underlayView.prototype.highlightPath = function(response, data) {
         var hlNode = highlightedElements.nodes[i];
         if(hlNode.node_type === 'virtual-machine') {
             var model_id = elementMap.nodes[hlNode.name];
+            var associatedVRouter =
+            jsonPath(globalObj.dataSources.instDS.dataSource.getItems(), "$[?(@.name =='" + hlNode.name + "')]");
+            var associatedVRouterUID = "";
+            if(false !== associatedVRouter &&
+                "string" !== typeof associatedVRouter &&
+                associatedVRouter.length > 0 ) {
+                associatedVRouter = associatedVRouter[0].vRouter;
+                if(null !== associatedVRouter && typeof associatedVRouter !== "undefined") {
+                    associatedVRouterUID = _this.getModel().getElementMap().nodes[associatedVRouter];
+                }
+            }
             if(hlNode.name == srcVM) {
                 //Plot green
                 $('div.font-element[font-element-model-id="' + model_id + '"]')
@@ -1247,6 +1267,17 @@ underlayView.prototype.highlightPath = function(response, data) {
                 $('g.element[model-id="' + model_id + '"]')
                     .css('stroke', "green")
                     .css('fill', "green");
+
+                if(associatedVRouterUID !== "") {
+                    var cell = _this.getGraph().getCell(associatedVRouterUID);
+                    var vrouterPosition = cell.attributes.position;
+                    var vmNode = jsonPath(conElements, "$[?(@.id=='" + model_id + "')]");
+                    if(false !== vmNode && vmNode.length == 1) {
+                        vmNode[0].old_position = _this.getGraph().getCell(model_id).attributes.position;
+                    }
+                    _this.getGraph().getCell(model_id).transition('position/x', vrouterPosition.x);
+                    _this.getGraph().getCell(model_id).transition('position/y', vrouterPosition.y + 80);
+                }
             } else if(hlNode.name == destVM) {
                 //Plot red
                 $('div.font-element[font-element-model-id="' + model_id + '"]')
@@ -1256,7 +1287,18 @@ underlayView.prototype.highlightPath = function(response, data) {
                 $('g.element[model-id="' + model_id + '"]')
                     .css('stroke', "red")
                     .css('fill', "red");
+                if(associatedVRouterUID !== "") {
+                    var cell = _this.getGraph().getCell(associatedVRouterUID);
+                    var vrouterPosition = cell.attributes.position;
+                    var vmNode = jsonPath(conElements, "$[?(@.id=='" + model_id + "')]");
+                    if(false !== vmNode && vmNode.length == 1) {
+                        vmNode[0].old_position = _this.getGraph().getCell(model_id).attributes.position;
+                    }
+                    _this.getGraph().getCell(model_id).transition('position/x', vrouterPosition.x);
+                    _this.getGraph().getCell(model_id).transition('position/y', vrouterPosition.y + 80);
+                }
             }
+            _this.getModel().setConnectedElements(conElements);
         }
     }
 };

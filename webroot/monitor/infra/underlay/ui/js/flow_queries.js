@@ -713,23 +713,23 @@ function runFRQuery() {
         columnDisplay, selectArray, queryId;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
-        if(reqQueryObj['timeRange']+"" === '0') {
-            $("#"+queryPrefix+"-results").data('endTime', reqQueryObj['toTime']);
-            $("#"+queryPrefix+"-results").data('startTime',reqQueryObj['fromTime']);
-        } else {
-            $("#"+queryPrefix+"-results").data('endTime',new Date().getTime());
-            var startTime = (new Date().getTime() - (parseInt(reqQueryObj['timeRange']) * 1000));
-            $("#"+queryPrefix+"-results").data('startTime',startTime);
-        }
         reqQueryObj.select = select;
         queryId = randomUUID();
-        reqQueryObj = setUTCTimeObj('fr', reqQueryObj);
+        var option = {};
+        reqQueryObj = setUTCTimeObj('fr', reqQueryObj, option);
         reqQueryObj.table = 'FlowRecordTable';
         reqQueryObj.queryId = queryId;
         reqQueryObj.async = 'true';
         selectArray = parseStringToArray(select, ',');
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
+        if(reqQueryObj['timeRange']+"" === '0') {
+            $("#"+queryPrefix+"-results").data('endTimeUTC', reqQueryObj['toTimeUTC']);
+            $("#"+queryPrefix+"-results").data('startTimeUTC',reqQueryObj['fromTimeUTC']);
+        } else {
+            $("#"+queryPrefix+"-results").data('endTimeUTC', option['toTime']);
+            $("#"+queryPrefix+"-results").data('startTimeUTC',option['fromTime']);
+        }
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}
@@ -899,8 +899,8 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             ]
         };
         $("#mapflow").die('click').live('click',function(e){
-            var startTime = $("#"+options.queryPrefix+"-results").data('startTime');
-            var endTime = $("#"+options.queryPrefix+"-results").data('endTime');
+            var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
+            var endTime = $("#"+options.queryPrefix+"-results").data('endTimeUTC');
             var checkedRows = $("#"+options.queryPrefix+"-results").data('contrailGrid').getCheckedRows();
             var dataItem = ifNull(checkedRows[0],{});
             dataItem['startTime'] = startTime;
