@@ -1257,19 +1257,6 @@ function deleteBGPRouter (request, response, appData)
                          });
 };
 
-function getWebConfigValueByName (req, res, appData)
-{
-    var type = req.param('type'),
-        variable = req.param('variable'),
-        configObj = {}, value;
-    if(type != null && variable != null) {
-        value = ((null != config[type]) && (null != config[type][variable])) ? 
-            config[type][variable] : null;
-        configObj[variable] = value;
-    }
-    commonUtils.handleJSONResponse(null, res, configObj);
-}
-
 function getMatchStrByType (type)
 {
     switch (type) {
@@ -1513,6 +1500,3 @@ exports.getGlobalASN    = getGlobalASN;
 exports.deleteBGPRouter = deleteBGPRouter;
 exports.getControlNodeDetailsFromConfig = getControlNodeDetailsFromConfig;
 exports.getApiServerDataByPage = getApiServerDataByPage;
-exports.getWebConfigValueByName = getWebConfigValueByName;
-
-
