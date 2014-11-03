@@ -3,7 +3,7 @@
  */
 
 var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    config = process.mainModule.exports["config"],
     adminapi = module.exports,
     logutils = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/utils/log.utils'),

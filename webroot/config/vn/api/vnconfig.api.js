@@ -16,7 +16,7 @@ var logutils    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/log.utils');
 var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils');
-var config      = require(process.mainModule.exports["corePath"] + '/config/config.global.js');
+var config      = process.mainModule.exports["config"];
 var messages    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/messages');
 var global      = require(process.mainModule.exports["corePath"] +

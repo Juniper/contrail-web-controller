@@ -13,7 +13,7 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     infraCmn = require('./infra.common.api'),
     assert = require('assert'),
-    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    config = process.mainModule.exports["config"],
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     async = require('async');
 

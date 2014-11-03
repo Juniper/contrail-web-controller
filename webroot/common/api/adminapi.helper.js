@@ -8,7 +8,7 @@
  */
 
 var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    config = process.mainModule.exports["config"],
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
