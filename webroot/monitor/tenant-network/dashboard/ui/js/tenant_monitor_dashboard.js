@@ -20,10 +20,14 @@ function domainSummaryRenderer() {
         var networkDS = new SingleDataSource('networkDS');
         var result = networkDS.getDataSourceObj();
         $(networkDS).on("startLoading",function(){
-            $('.icon-spinner').show();
+            $('#traffic-stats-loading').show();
+            $('#domain_0').parent().parent().siblings('div.widget-header').find('.icon-spinner').show();
+            $('#domain_1').parent().parent().siblings('div.widget-header').find('.icon-spinner').show();
         });
         $(networkDS).on("endLoading",function(){
-            $('.icon-spinner').hide();
+            $('#traffic-stats-loading').hide();
+            $('#domain_0').parent().parent().siblings('div.widget-header').find('.icon-spinner').hide();
+            $('#domain_1').parent().parent().siblings('div.widget-header').find('.icon-spinner').hide();
         });
         var dashboardData,callUpdateDashboard = false;
         cfg['loadedDeferredObj'] = result['deferredObj'];
@@ -123,16 +127,15 @@ function domainSummaryRenderer() {
         domainStatsViewModel.inBytes(formatBytes(dashboardData['aggData']['inBytes']));
         domainStatsViewModel.outBytes(formatBytes(dashboardData['aggData']['outBytes']));
         var container = cfg['container'];
-        var projectChart = $(container).find('div.stack-chart').first().data('chart');
-        var networkChart = $(container).find('div.stack-chart').last().data('chart');
-        var container = cfg['container'];
+        var projectChart = $(container).find('#domain_0').first().data('chart');
+        var networkChart = $(container).find('#domain_1').last().data('chart');
         dashboardData['projectsData'] = updateCharts.setUpdateParams(dashboardData['projectsData']);
         dashboardData['networksData'] = updateCharts.setUpdateParams(dashboardData['networksData']);
         var projObj = {},nwObj = {};
-        projObj['selector'] = $(container).find('div.stack-chart > svg').first()[0];
+        projObj['selector'] = $(container).find('#domain_0 > svg').first()[0];
         projObj['data'] = [{key:'Projects',values:dashboardData['projectsData']}];
         projObj['type'] = 'bubblechart';
-        nwObj['selector'] = $(container).find('div.stack-chart > svg').last()[0];
+        nwObj['selector'] = $(container).find('#domain_1 > svg').last()[0];
         nwObj['data'] = [{key:'Networks',values:dashboardData['networksData']}];
         nwObj['type'] = 'bubblechart';
         updateCharts.updateView(projObj);
