@@ -128,11 +128,5 @@
         <feature>orchestration</feature>
         <callback>adminapi.getApiServerDataByPage</callback>
     </item>
-    <item>
-        <url>/api/admin/webconfig/:type/:variable</url>
-        <method>get</method>
-        <feature>setting</feature>
-        <callback>adminapi.getWebConfigValueByName</callback>
-    </item>
 </urlLists>
 
