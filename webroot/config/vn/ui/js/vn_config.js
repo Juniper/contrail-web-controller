@@ -465,7 +465,7 @@ function initActions() {
                 var enableDHCP = $("#ipamTuples_"+id+"_chkDHCP")[0].checked;
                 var currentGateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
                 var allocation_pools = [];
-                var addrFromStart = false;
+                var addrFromStart = true;
                 var finalHR = [];
                 var finalSubnet = [];
                 if( typeof  allocPoolVal !== null && allocPoolVal !== "") {
@@ -1606,7 +1606,7 @@ function autoPopulateGW(me) {
     var id = getID($(me)[0].id);
     if(ip.indexOf("/") !== -1 && !isNaN(ip.split("/")[1])) {
         try {
-            var default_gateway = genarateGateway(ip,"end");
+            var default_gateway = genarateGateway(ip,"start");
             if(default_gateway != false){
                 $("#ipamTuples_"+id+"_txtGateway").val(default_gateway);
             }
