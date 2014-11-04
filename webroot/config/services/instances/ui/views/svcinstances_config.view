@@ -17,14 +17,18 @@
                 <span class="span2"><label>Template</label></span>
                 <span class="span10">{{ Service_Template }}</span>
             </div>
+            {{#ifCond showDetail '===' true}}
             <div class="row-fluid">
                 <span class="span2"><label>Number of instances</label></span>
                 <span class="span10">{{ Number_of_instances }}</span>
             </div>
+            {{/ifCond}}
             <div class="row-fluid">
                 <span class="span2"><label>Networks</label></span>
                 <span class="span10">{{ All_Network }}</span>
             </div>
+            
+            {{#ifCond showDetail '===' true}}
             <div class="row-fluid">
                 <div class="span2"><label>Image</label></div>
                 <div class="span10">{{ Instance_Image }}</div>
@@ -68,7 +72,7 @@
                     {{/ifCond}}
                 {{/ifCond}}
             {{/ifCond}}
-
+            {{/ifCond}}
         </div>
     </div>
 </script>
