@@ -20,12 +20,14 @@ var infraMonitorAlertUtils = {
             return !isProcessExcluded(obj['process_name']);
         })
         if(filteredResponse.length == 0){
-            alerts.push($.extend({
-                sevLevel: sevLevels['ERROR'],
-                name: data['name'],
-                pName: obj['display_type'],
-                msg: infraAlertMsgs['PROCESS_STATES_MISSING']
-            }, infoObj));
+            if(IS_NODE_MANAGER_INSTALLED){
+                alerts.push($.extend({
+                    sevLevel: sevLevels['ERROR'],
+                    name: data['name'],
+                    pName: obj['display_type'],
+                    msg: infraAlertMsgs['PROCESS_STATES_MISSING']
+                }, infoObj));
+            }
         } else {
             for(var i=0;i<filteredResponse.length;i++) {
             if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {

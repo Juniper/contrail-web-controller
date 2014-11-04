@@ -65,22 +65,28 @@ monitorInfraComputeDetailsClass = (function() {
                         return ifNullOrEmpty(getVrouterIpAddresses(computeNodeData,"details"),noDataStr);
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Overall Node Status', value:overallStatus},
-                    {lbl:'Processes', value:" "},
-                    {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
-                        return ifNull(vRouterProcessStatusList['contrail-vrouter-agent'],noDataStr);
-                    })()},
-                    /*{lbl:INDENT_RIGHT+'vRouter Node Manager', value:(function(){
-                        try{
-                            return ifNull(vRouterProcessStatusList['contrail-vrouter-nodemgr'],noDataStr);
-                        }catch(e){return noDataStr;}
-                    })()},
-                    {lbl:INDENT_RIGHT+'Openstack Nova Compute', value:(function(){
-                        try{
-                            return ifNull(vRouterProcessStatusList['openstack-nova-compute'],noDataStr);
-                        }catch(e){return noDataStr;}
-                    })()},*/
-                    {lbl:'Analytics Node', value:(function(){
+                    {lbl:'Overall Node Status', value:overallStatus}
+                    ];
+                    //If node manager is not installed dont show the processes
+                computeNodeDashboardInfo = computeNodeDashboardInfo.concat((IS_NODE_MANAGER_INSTALLED)? 
+                            ([
+                              {lbl:'Processes', value:" "},
+                            {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
+                                return ifNull(vRouterProcessStatusList['contrail-vrouter-agent'],noDataStr);
+                            })()}
+                            /*{lbl:INDENT_RIGHT+'vRouter Node Manager', value:(function(){
+                            try{
+                                return ifNull(vRouterProcessStatusList['contrail-vrouter-nodemgr'],noDataStr);
+                            }catch(e){return noDataStr;}
+                            })()},
+                            {lbl:INDENT_RIGHT+'Openstack Nova Compute', value:(function(){
+                                try{
+                                    return ifNull(vRouterProcessStatusList['openstack-nova-compute'],noDataStr);
+                                }catch(e){return noDataStr;}
+                            })()},*/
+                            ]): []);
+                computeNodeDashboardInfo = computeNodeDashboardInfo.concat(
+                    [{lbl:'Analytics Node', value:(function(){
                         var anlNode = noDataStr; 
                         var secondaryAnlNode, status;
                         try{
@@ -192,7 +198,7 @@ monitorInfraComputeDetailsClass = (function() {
                             }catch(e){return noDataStr;}
                         } else return noDataStr;
                     })()}
-                ]
+                ]);
                 var cores=getCores(computeNodeData);
                 for(var i=0;i<cores.length;i++)
                     computeNodeDashboardInfo.push(cores[i]);
