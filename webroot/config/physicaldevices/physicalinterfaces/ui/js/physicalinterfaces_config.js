@@ -355,6 +355,7 @@ function physicalInterfacesConfig() {
     function deletePhysicalInterface(selected_rows) {
         $('#btnDeletePhysicalInterface').addClass('disabled-link');	
         if(selected_rows && selected_rows.length > 0){
+            var deleteVMIs = [];
             var physicalIntfsDeleteAjaxs = [];
             var logicalIntfsDeleteAjaxs = [];
             for(var i = 0;i < selected_rows.length;i++){
@@ -365,6 +366,9 @@ function physicalInterfacesConfig() {
                         type:'DELETE'
                     }));
                 } 
+                if(sel_row_data.vmi_uuid != null) {
+                    deleteVMIs.push(sel_row_data.vmi_uuid);
+                }
             }
             //First delete logical interfaces
             $.when.apply($,logicalIntfsDeleteAjaxs).then(
