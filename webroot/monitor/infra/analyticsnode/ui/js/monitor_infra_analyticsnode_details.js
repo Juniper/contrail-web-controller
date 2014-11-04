@@ -86,26 +86,32 @@ monitorInfraAnalyticsDetailsClass = (function() {
                         return ips;
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Overall Node Status', value:overallStatus},
-                    {lbl:'Processes', value:" "},
-                    /*{lbl:INDENT_RIGHT+'Analytics Node Manager', value:(function(){
-                        try{
-                            return ifNull(analyticsProcessStatusList['contrail-analytics-nodemgr'],noDataStr);
-                        }catch(e){return noDataStr;}
-                    })()},*/
-                    {lbl:INDENT_RIGHT+'contrail-collector', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
-                    })()},
-                    {lbl:INDENT_RIGHT+'contrail-query-engine', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
-                    })()},
-                    {lbl:INDENT_RIGHT+'contrail-analytics-api', value:(function(){
-                        return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
-                    })()},
-                   /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
-                        return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
-                    })()},*/
-                    {lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
+                    {lbl:'Overall Node Status', value:overallStatus}
+                    ];
+                
+                    //If node manager is not installed dont show the processes
+                aNodeDashboardInfo = aNodeDashboardInfo.concat( 
+                    (IS_NODE_MANAGER_INSTALLED)? 
+                        ([{lbl:'Processes', value:" "},
+                        /*{lbl:INDENT_RIGHT+'Analytics Node Manager', value:(function(){
+                            try{
+                                return ifNull(analyticsProcessStatusList['contrail-analytics-nodemgr'],noDataStr);
+                            }catch(e){return noDataStr;}
+                        })()},*/
+                        {lbl:INDENT_RIGHT+'contrail-collector', value:(function(){
+                            return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
+                        })()},
+                        {lbl:INDENT_RIGHT+'contrail-query-engine', value:(function(){
+                            return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
+                        })()},
+                        {lbl:INDENT_RIGHT+'contrail-analytics-api', value:(function(){
+                            return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
+                        })()}
+                       /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
+                            return ifNull(analyticsProcessStatusList['redis-sentinel'],noDataStr);
+                        })()},*/
+                    ]):[]);
+                aNodeDashboardInfo = aNodeDashboardInfo.concat([{lbl:'CPU', value:$.isNumeric(parsedData['cpu']) ? parsedData['cpu'] + ' %' : noDataStr},
                     {lbl:'Memory', value:parsedData['memory'] != '-' ? parsedData['memory'] : noDataStr},
                     {lbl:'Messages', value:(function(){
                         var msgs = getAnalyticsMessagesCountAndSize(aNodeData,['contrail-collector']);
@@ -135,7 +141,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     //'Collectors ' + aNodeData['activevRouterCount'] + ', ' +
                     //'Analytics Nodes ' + aNodeData['activevRouterCount'] + ', ' +
                     //'Config Nodes ' + aNodeData['activevRouterCount']},
-                ]
+                ]);
                 /*Selenium Testing*/
                 aNodeDetailsData = aNodeDashboardInfo;
                 /*End of Selenium Testing*/             

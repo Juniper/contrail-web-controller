@@ -61,17 +61,21 @@ monitorInfraControlDetailsClass = (function() {
                         return ip;
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Overall Node Status', value:overallStatus},
-                    {lbl:'Processes', value:" "},
-                    {lbl:INDENT_RIGHT+'Control Node', value:(function(){
-                        return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
-                    })()},
+                    {lbl:'Overall Node Status', value:overallStatus}];
+              //If node manager is not installed dont show the processes
+                ctrlNodeDashboardInfo = ctrlNodeDashboardInfo.concat((IS_NODE_MANAGER_INSTALLED)?
+                        ([{lbl:'Processes', value:" "},
+                        {lbl:INDENT_RIGHT+'Control Node', value:(function(){
+                            return ifNull(controlProcessStatusList['contrail-control'],noDataStr);
+                        })()}
+                    ]): []);
                     /*{lbl:INDENT_RIGHT+'Control Node Manager', value:(function(){
                      try{
                         return ifNull(controlProcessStatusList['contrail-control-nodemgr'],noDataStr);
                      }catch(e){return noDataStr;}
                     })()},*/
-                    {lbl:'Ifmap Connection', value:(function(){
+                ctrlNodeDashboardInfo =ctrlNodeDashboardInfo.concat(
+                   [{lbl:'Ifmap Connection', value:(function(){
                      var cnfNode = '';
                      try{
                         var url = ctrlNodeData.BgpRouterState.ifmap_info.url;
@@ -184,7 +188,7 @@ monitorInfraControlDetailsClass = (function() {
                         }catch(e){return noDataStr;}
                      } else return noDataStr;
                     })()}
-                ]
+                ]);
                 /*Selenium Testing*/
                 ctrlNodeDetailsData = ctrlNodeDashboardInfo;
                 /*End of Selenium Testing*/

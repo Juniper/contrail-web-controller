@@ -96,30 +96,36 @@ monitorInfraConfigDetailsClass = (function() {
                         return ips;
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Overall Node Status', value:overallStatus},
-                    {lbl:'Processes', value:" "},
-                    {lbl:INDENT_RIGHT+'API Server', value:(function(){
-                        return configProcessStatusList['contrail-api'];
-                    })()},
-                    {lbl:INDENT_RIGHT+'Schema Transformer', value:(function(){
-                        return configProcessStatusList['contrail-schema'];
-                    })()},
-                    {lbl:INDENT_RIGHT+'Service Monitor', value:(function(){
-                        return configProcessStatusList['contrail-svc-monitor'];
-                    })()},
-                    /*{lbl:INDENT_RIGHT+'Config Node Manager', value:(function(){
-                        return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
-                    })()},*/
-                    {lbl:INDENT_RIGHT+'Discovery', value:(function(){
-                        return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
-                    })()},
-                   /* {lbl:INDENT_RIGHT+'Zookeeper', value:(function(){
-                        return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
-                    })()},*/
-                    {lbl:INDENT_RIGHT+'Ifmap', value:(function(){
-                        return ifNull(configProcessStatusList['ifmap'],noDataStr);
-                    })()},
-                    {lbl:'Analytics Node', value:(function(){
+                    {lbl:'Overall Node Status', value:overallStatus}
+                    ];
+                    //If node manager is not installed dont show the processes
+                confNodeDashboardInfo = confNodeDashboardInfo.concat(
+                    (IS_NODE_MANAGER_INSTALLED)? 
+                        ([{lbl:'Processes', value:" "},
+                        {lbl:INDENT_RIGHT+'API Server', value:(function(){
+                            return configProcessStatusList['contrail-api'];
+                        })()},
+                        {lbl:INDENT_RIGHT+'Schema Transformer', value:(function(){
+                            return configProcessStatusList['contrail-schema'];
+                        })()},
+                        {lbl:INDENT_RIGHT+'Service Monitor', value:(function(){
+                            return configProcessStatusList['contrail-svc-monitor'];
+                        })()},
+                        /*{lbl:INDENT_RIGHT+'Config Node Manager', value:(function(){
+                            return ifNull(configProcessStatusList['contrail-config-nodemgr'],noDataStr);
+                        })()},*/
+                        {lbl:INDENT_RIGHT+'Discovery', value:(function(){
+                            return ifNull(configProcessStatusList['contrail-discovery'],noDataStr);
+                        })()},
+                       /* {lbl:INDENT_RIGHT+'Zookeeper', value:(function(){
+                            return ifNull(configProcessStatusList['contrail-zookeeper'],noDataStr);
+                        })()},*/
+                        {lbl:INDENT_RIGHT+'Ifmap', value:(function(){
+                            return ifNull(configProcessStatusList['ifmap'],noDataStr);
+                        })()}
+                    ]):[]);
+                confNodeDashboardInfo = confNodeDashboardInfo.concat(
+                   [{lbl:'Analytics Node', value:(function(){
                      var anlNode = noDataStr; 
                      var secondaryAnlNode, status;
                      try{
@@ -156,7 +162,7 @@ monitorInfraConfigDetailsClass = (function() {
                         }catch(e){return noDataStr;}
                      } else return noDataStr;
                      })()}
-                ]
+                ]);
                 /*Selenium Testing*/
                 confNodeDetailsData = confNodeDashboardInfo;
                 /*End of Selenium Testing*/                          
