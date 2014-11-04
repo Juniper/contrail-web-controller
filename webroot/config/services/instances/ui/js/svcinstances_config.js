@@ -197,15 +197,21 @@ function initComponents() {
                     }
                 },
                 forceFitColumns: true,
-                actionCell: [
-                    {
-                        title: 'Edit',
-                        iconClass: 'icon-edit',
-                        onClick: function(rowIndex){
-                            svcInstancesCreateWindow('edit',rowIndex);
-                        }
+                actionCell: function(dc){
+                    if(dc.enableControles == true){
+                        return [
+                            {
+                                title: 'Edit',
+                                iconClass: 'icon-edit',
+                                onClick: function(rowIndex){
+                                    svcInstancesCreateWindow('edit',rowIndex);
+                                }
+                            }
+                        ]
+                    } else {
+                        return [];
                     }
-                ],
+                },
                 detail: {
                     template: $("#gridsTempDetailSVCInstences").html(),
                 }
@@ -582,27 +588,48 @@ function successHandlerForGridStatusUpdate(result) {
     var reload = false;
     var svcDS = $("#gridsvcInstances").data("contrailGrid")._dataView.getItems();
     for(var i=0; i < svcDS.length ;i++){
+        var vmStatusData = "";
+        var vmStatus = "";
+        var VMDetails = "";
+        var updated = false;
         if("ConfigData" in svcInstancesConfig[i] && svcDS[i].uuid == svcInstancesConfig[i].ConfigData["service-instance"].uuid){
-            var vmStatusData  = svcInstancesConfig[i]["vmStatus"];
-            var vmStatus  = svcInstancesConfig[i]["vmStatus"];
-            var VMDetails = svcInstancesConfig[i]["VMDetails"];
+            if(svcDS[i].showDetail == false){
+                vmStatusData = "Active";
+                vmStatus = "Active";
+            } else {
+                vmStatusData  = svcInstancesConfig[i]["vmStatus"];
+                vmStatus  = svcInstancesConfig[i]["vmStatus"];
+            }
+            VMDetails = svcInstancesConfig[i]["VMDetails"];
             if(vmStatusData != "Inactive" && vmStatusData != "Active"){
                 reload = true;
             }
-            updateStatus(svcDS[i],vmStatusData,vmStatus,VMDetails);            
+            updateStatus(svcDS[i],vmStatusData,vmStatus,VMDetails);
+            updated = true;
         } else {
             for(var j=0;j<svcInstancesConfig.length;j++){
                 if("ConfigData" in svcInstancesConfig[i] && svcDS[i].uuid === svcInstancesConfig[j].ConfigData["service-instance"].uuid){
-                    var vmStatus  = svcInstancesConfig[j]["vmStatus"];
-                    var vmStatusData  = svcInstancesConfig[j]["vmStatus"];
-                    var VMDetails = svcInstancesConfig[j]["VMDetails"];
+                    if(svcDS[i].showDetail == false){
+                        vmStatusData = "Active";
+                        vmStatus = "Active";
+                    } else {
+                        vmStatus  = svcInstancesConfig[j]["vmStatus"];
+                        vmStatusData  = svcInstancesConfig[j]["vmStatus"];
+                    }
+                    VMDetails = svcInstancesConfig[j]["VMDetails"];
                     updateStatus(svcDS[i],vmStatusData,vmStatus,VMDetails);
+                    updated = true;
                     if(vmStatusData != "Inactive" && vmStatusData != "Active"){
                         reload = true;
                     }
                     break;
                 }
             }
+        }
+        if(updated == false) {
+            svcDS[i].vmStatus = "Active";
+            svcDS[i].vmStatusData = "Active";
+            svcDS[i].InstDetailArr = [];
         }
     }
     $("#gridsvcInstances").data("contrailGrid")._dataView.updateData(svcDS);
@@ -853,6 +880,7 @@ function successHandlerForGridsvcInstanceRow(result) {
         var svc_ordered_interfaces = false;
         var svc_image = "-";
         var availability_zone = "";
+        var showDetail = true;
 
         var svc_tmpl_name_text = svcInstance.service_template_refs[0].to[1];
         svc_tmpl_name =  svc_tmpl_name_text + " (" + ucfirst(getServiceMode(svc_tmpl_name_text)) + ")";
@@ -878,6 +906,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             }        
         }
         var statRoutes = [];
+        var enableControles = false;
         all_network = [];
         availability_zone = svcInstance['service_instance_properties']['availability_zone'];
         if(availability_zone == "" || availability_zone == null){
@@ -889,20 +918,31 @@ function successHandlerForGridsvcInstanceRow(result) {
            && templateDetail["service_template_properties"]["ordered_interfaces"] != "false" 
            && templateDetail["service_template_properties"]["ordered_interfaces"] != false)){
             svc_image = templateDetail["service_template_properties"]["image_name"];
+            var templateType = templateDetail["service_template_properties"]["service_type"];
+            if(templateType != "analyzer" && templateType != "firewall"){
+                showDetail = false;
+                svcScalingStr = "-";
+            }
             svc_ordered_interfaces = templateDetail["service_template_properties"]["ordered_interfaces"];
             svc_flavor = templateDetail["service_template_properties"]["flavor"]
             for(var tinc = 0;tinc < templateOrder.length;tinc++){
                 //if(network != "") network += ", ";
-                network = ucfirst(templateOrder[tinc].service_interface_type) + " Network : ";
+                if(showDetail == true){
+                    network = ucfirst(templateOrder[tinc].service_interface_type) + " Network : ";
+                } else {
+                    network =" ";
+                }
                 var virNetwork = null;
                 if("interface_list" in svcInstance['service_instance_properties'] &&
                     svcInstance['service_instance_properties']["interface_list"].length > 0 &&
+                    tinc < svcInstance['service_instance_properties']["interface_list"].length &&
                    "virtual_network" in  svcInstance['service_instance_properties']["interface_list"][tinc] &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != null &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != undefined){
                     virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"];
                 }
                 if(templateOrder[tinc].static_route_enable === true){
+                    enableControles = true;
                     var len = statRoutes.length;
                     statRoutes[len] = {};
                     statRoutes[len]["name"] = templateOrder[tinc].service_interface_type;
@@ -1014,6 +1054,7 @@ function successHandlerForGridsvcInstanceRow(result) {
                 vmUUIds.push(vmBackRefs[k]["uuid"]);
             }
         }
+
         svcInstancesData.push({"Id":idCount++, "uuid":svcInstance.uuid,
             "Service_Instance":svcInstance.name,
             "Service_Instance_DN":svcInstance.display_name,
@@ -1021,6 +1062,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             "Service_Template_Name":svc_tmpl_name_text,
             "Number_of_instances":svcScalingStr,
             "Instance_Image":svc_image,
+            "showDetail":showDetail,
             "flavor":svc_flavor,
             "order":svc_ordered_interfaces,
             "All_Network":all_network,
@@ -1031,6 +1073,7 @@ function successHandlerForGridsvcInstanceRow(result) {
 //            "InstDetailArr":InstDetailArr,
             "InstDetailArr":null,
             "StaticRoutes":statRoutes,
+            "enableControles":enableControles,
             "VMUUIDS":vmUUIds,
             "ServiceProperties":ServiceProperties
         });
@@ -1332,14 +1375,15 @@ var interfacesLen = $("#instanceDiv").children().length;
     }
     $("#instanceDiv").append(intfDiv);
     if(editData != {} && editData != undefined ){
+        $(selectNet).data("contrailDropdown").enable(false);
         if(editData.virtual_network != ""){
             $(selectNet).data("contrailDropdown").value(editData.virtual_network);
         } else {
             $(selectNet).data("contrailDropdown").value("Auto Configured"); 
             $(widgetDiv).addClass("hide");
         }
-        $(selectNet).data("contrailDropdown").enable(false);
-        if("static_routes" in editData && "route" in editData.static_routes){
+        
+        if("static_routes" in editData && editData.static_routes != null && "route" in editData.static_routes){
         for(var inc=0;inc<(editData.static_routes.route).length;inc++){
             appendStaticRouteEntry(this, true,'interface_' + interfacesLen + '_srTuple','Interface '+(interfacesLen+1),editData.static_routes.route[inc].prefix);
         }
@@ -1355,7 +1399,7 @@ function zoneChange(who){
     var ddZoneText = $("#ddZone").data("contrailDropdown").text();
     setHostForZone(ddZoneText);
 }
-function svcTemplateChange(who,editData) {
+function svcTemplateChange(who,editData,mode) {
     
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
     var tmplSvcScaling = templateProps["service_template_properties"]["service_scaling"];
@@ -1419,7 +1463,12 @@ function svcTemplateChange(who,editData) {
             }
             $(txtMaximumInstances).val(editData.ServiceProperties.scale_out.max_instances);
         }
-        createInterfaceEntry(svcTmplIntf[i],i,showAuto,showOption,data);
+        if(mode == "edit"){
+            if(data != null || data != undefined)
+            createInterfaceEntry(svcTmplIntf[i],i,showAuto,showOption,data);
+        } else {
+            createInterfaceEntry(svcTmplIntf[i],i,showAuto,showOption,data);
+        }
     }
 }
 function reorderInterface(templateObj){
@@ -1691,8 +1740,8 @@ function successHostZone(result,arg) {
     setHostForZone(ddzoneList[0].text);
     if(mode == "edit"){
         var selectedRow = $("#gridsvcInstances").data("contrailGrid")._dataView.getItem(rowIndex);
+        var zoneHost = (selectedRow.availability_zone).split(":");
         $("#ddZone").data("contrailDropdown").value(zoneHost[0]);
-		var zoneHost = (selectedRow.availability_zone).split(":");
         setHostForZone(zoneHost[0],zoneHost[1]);
         $("#ddZoneHost").attr("disabled","disabled");
     }
@@ -1734,7 +1783,7 @@ function editWindow(rowIndex){
         templateDataLocal = JSON.parse(ddsvcTemplateData[i].value);
         if(selectedRow.Service_Template_Name == templateDataLocal.name){
             $("#ddsvcTemplate").data("contrailDropdown").value(ddsvcTemplateData[i].value);
-            svcTemplateChange(this,selectedRow);
+            svcTemplateChange(this,selectedRow,"edit");
             break;
         }
     }
