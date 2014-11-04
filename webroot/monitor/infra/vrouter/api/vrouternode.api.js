@@ -3,7 +3,7 @@
  */
 
 var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    config = require(process.mainModule.exports["corePath"] + '/config/config.global.js'),
+    config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),

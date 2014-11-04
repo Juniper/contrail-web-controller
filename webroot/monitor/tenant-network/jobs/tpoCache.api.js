@@ -8,7 +8,7 @@
 
 var assert = require('assert')
     , rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api')
-    , config = require(process.mainModule.exports["corePath"] + '/config/config.global.js')
+    , config = process.mainModule.exports["config"]
     , commonUtils = require(process.mainModule.exports["corePath"] +
                             '/src/serverroot/utils/common.utils')
     , jobsApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/jobs.api')
