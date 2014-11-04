@@ -1875,17 +1875,19 @@ function successHandlerForGridVNRow(result) {
 
         
         var fwdMode = jsonPath(vn, "$.virtual_network_properties.forwarding_mode");
-        if (fwdMode !== false && typeof fwdMode !== "undefined" && fwdMode.length > 0) {
+        if (fwdMode !== false && typeof fwdMode !== "undefined" && fwdMode.length > 0 && fwdMode[0] != null && fwdMode[0] != undefined) {
             fwdMode = fwdMode[0];
             if(fwdMode === "l2_l3") {
                 fwdMode = "L2 and L3";
             } else if(fwdMode === "l2") {
                 fwdMode = "L2 Only";
+            }else if(fwdMode === "l3") {
+                fwdMode = "L3 Only";
             } else {
                 fwdMode = "";
             }
         } else {
-            fwdMode = "";
+            fwdMode = "L2 Only";
         }
         
         var vxlanid = jsonPath(vn, "$.virtual_network_properties.vxlan_network_identifier");
