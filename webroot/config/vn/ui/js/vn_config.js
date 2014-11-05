@@ -7,7 +7,8 @@ virtualnetworkConfigObj = new VirtualNetworkConfig();
 //Prepend the URL with vCenter in case of vCenter orchestration mode
 function getConfigURL(url) {
     if(isVCenter()) {
-        if(["/api/tenants/config/virtual-network/",'/api/tenants/config/virtual-networks'].indexOf(url) > -1)
+        if(url.match(/(\/api\/tenants\/config\/virtual-network\/)|(\/api\/tenants\/config\/virtual-networks)/) != null)
+        // if(["/api/tenants/config/virtual-network/",'/api/tenants/config/virtual-networks'].indexOf(url) > -1)
             return '/vcenter' + url;
     }
     return url;
