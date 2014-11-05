@@ -38,40 +38,33 @@ if (!module.parent)
     process.exit(1);
 }
 
-
-function ifNetworkExists(appData,projUUID,name,callback) {
+//No of times to retry to check for VN on API Server
+var maxRetryCnt = 10;
+function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
+    if(retryCnt == null)
+        retryCnt = 0;
+    if(retryCnt == maxRetryCnt) {
+        return;
+        callback(false);
+    }
+    retryCnt++;
     var networkListURL = '/project/' + projUUID;
     configApiServer.apiGet(networkListURL,appData,function(err,data) {
         var networkUUIDs = [],reqUrl = '';
         data = data['project']['virtual_networks'];
         var nwURLsArr = [],nwNames = [];
         for(var i=0;i<data.length;i++) {
-            // nwUUIDs.push(data[i]['uuid']);
-            // nwNames.push(data[i]['to'][2]);
             var nwUUID = data[i]['uuid'];
             var nwName = data[i]['to'][2];
             if(nwName == name) {
                 callback(nwUUID);
                 return;
             }
-            /*
-            reqUrl = '/virtual-network/' + data[i]['uuid'];
-            commonUtils.createReqObj(nwURLsArr, reqUrl,global.HTTP_REQUEST_GET,
-                null,null,null,appData);*/
         }
         setTimeout(function() {
-            ifNetworkExists(appData,projUUID,name,callback);
-        },3000);
+            ifNetworkExists(appData,projUUID,name,callback,retryCnt);
+        },10000);
 
-        /*async.map(nwURLsArr,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),function(error,results) {
-            console.info(results);
-            var nwDisplayNames = [];
-            for(var i=0;i<results.length;i++) {
-                var currNw= results[i]['project'];
-                if(currNw['display_name'] == name) {
-                }
-            }
-            callback(null, projectList);*/
         });
 }
 
@@ -84,6 +77,57 @@ function ifNetworkExists(appData,projUUID,name,callback) {
 function deleteVirtualNetwork (request, response, appData) 
 {
     var vnPostData = request.body;
+    //Check if there any vmi back refs/instance ip backrefs
+    var vnGetURL = '/virtual-network',
+        virtualNetworkId = null;
+    if (virtualNetworkId = request.param('id').toString()) {
+        vnGetURL += virtualNetworkId;
+    } else {
+        error = new appErrors.RESTServerError('Virtual Network Id ' +
+                                              'is required');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    configApiServer.apiGet(vnGetURL, appData, function(err, data) {
+        if (err || (null == data)) {
+            var error = new appErrors.RESTServerError('Virtual Network Id' +
+                                                      virtualNetworkId + ' does not exist');
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+
+        var vmiBackRefs = 
+            data['virtual-network']['virtual_machine_interface_back_refs'];
+        var instanceIPBackRefs = data['virtual-network']['instance_ip_back_refs'];
+        if (null != vmiBackRefs) {
+            var uuidList = [];
+            var vmiCnt = vmiBackRefs.length;
+            for (var i = 0; i < vmiCnt; i++) {
+                uuidList.push(vmiBackRefs[i]['uuid']);
+            }   
+            if (vmiCnt > 0) {
+                var error =
+                    new appErrors.RESTServerError('Virtual machine back refs ' +
+                                                  uuidList.join(',') + ' exist');
+                commonUtils.handleJSONResponse(error, response, null);
+                return;                                
+            }
+        }
+        if (null != instanceIPBackRefs) {
+            var uuidList = [];
+            var instanceIPBackRefCnt = instanceIPBackRefs.length;
+            for (var i = 0; i < instanceIPBackRefCnt; i++) {
+                uuidList.push(instanceIPBackRefs[i]['uuid']);
+            }   
+            if (instanceIPBackRefCnt > 0) {
+                var error =
+                    new appErrors.RESTServerError('Instance IP back refs ' +
+                                                  uuidList.join(',') + ' exist');
+                commonUtils.handleJSONResponse(error, response, null);
+                return;                                
+            }
+        }
+    });
     vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
         var ipPoolName = 'ip-pool-for-' + vnPostData['Network'];
         vCenterApi.queryIpPools(appData).done(function(data) {
@@ -132,6 +176,10 @@ function createVirtualNetwork(req,res,appData) {
             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']});
         //Check if network synced on Api Server
         ifNetworkExists(appData,vnPostData['virtual-network']['parent_uuid'],userData['name'],function(vnUUID) {
+            //If VN is not synced up with API Server
+            if(vnUUID == false) {
+                commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'VN is not synced on API server'});
+            }
             appData['vnUUID'] =vnUUID;
             //Update network synced on Api Server 
             vnConfigApi.updateVirtualNetwork(req,res,appData);
