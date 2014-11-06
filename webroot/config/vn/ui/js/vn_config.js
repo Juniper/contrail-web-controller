@@ -2227,6 +2227,9 @@ function showVNEditWindow(mode, rowIndex) {
                     $('#btnCommonAddIpam').hide();
                 }
             } else if (mode === "edit") {
+                if(isVCenter()) {
+                    $('#btnCommonAddIpam').hide();
+                }
                 var selectedRow = $("#gridVN").data("contrailGrid")._dataView.getItem(rowIndex);
                 if(null === selectedRow || typeof selectedRow === "undefined" || {} === selectedRow ||
                     [] === selectedRow || "" === selectedRow) {

@@ -78,7 +78,7 @@ function deleteVirtualNetwork (request, response, appData)
 {
     var vnPostData = request.body;
     //Check if there any vmi back refs/instance ip backrefs
-    var vnGetURL = '/virtual-network',
+    var vnGetURL = '/virtual-network/',
         virtualNetworkId = null;
     if (virtualNetworkId = request.param('id').toString()) {
         vnGetURL += virtualNetworkId;
@@ -127,25 +127,34 @@ function deleteVirtualNetwork (request, response, appData)
                 return;                                
             }
         }
-    });
-    vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
-        var ipPoolName = 'ip-pool-for-' + vnPostData['Network'];
-        vCenterApi.queryIpPools(appData).done(function(data) {
-            if(data['Fault'] != null)
-                commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
-            else {
-                var ipPoolsArr = data['QueryIpPoolsResponse'][0]['_value']['returnval'];
-                var poolId = '';
-                for(var i=0;i<ipPoolsArr.length;i++) {
-                    if(ipPoolsArr[i]['name'] == ipPoolName)
-                        poolId = ipPoolsArr[i]['id'];
-                }
-                vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
-                    commonUtils.handleJSONResponse(null,response,data);
-                });
+        //Delete portGroup and its IPPool from vCenter
+        vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
+            var ipPoolName = 'ip-pool-for-' + vnPostData['Network'];
+            if(data['Fault'] != null) {
+                commonUtils.handleJSONResponse(createErrorObjFromFaultObj(data['Fault']),response,null);
+                return;
             }
+            vCenterApi.queryIpPools(appData).done(function(data) {
+                if(data['Fault'] != null)
+                    commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
+                else {
+                    var ipPoolsArr = data['QueryIpPoolsResponse'][0]['_value']['returnval'];
+                    var poolId = '';
+                    for(var i=0;i<ipPoolsArr.length;i++) {
+                        if(ipPoolsArr[i]['name'] == ipPoolName)
+                            poolId = ipPoolsArr[i]['id'];
+                    }
+                    vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
+                        commonUtils.handleJSONResponse(null,response,data);
+                    });
+                }
+            });
         });
     });
+}
+
+function createErrorObjFromFaultObj(faultObj) {
+    return {custom:true,responseCode:500,message:faultObj['faultstring']}
 }
 
 
@@ -173,12 +182,12 @@ function createVirtualNetwork(req,res,appData) {
         };
     vCenterApi.createNetwork(userData,appData,function(err,data) {
         if(data['Fault'] != null)
-            commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']});
+            commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},res,null);
         //Check if network synced on Api Server
         ifNetworkExists(appData,vnPostData['virtual-network']['parent_uuid'],userData['name'],function(vnUUID) {
             //If VN is not synced up with API Server
             if(vnUUID == false) {
-                commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'VN is not synced on API server'});
+                commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'VN ' + userData['name'] + " doesn't exist on config server"},res,null);
             }
             appData['vnUUID'] =vnUUID;
             //Update network synced on Api Server 
