@@ -62,6 +62,9 @@ function load() {
 function init() {
     this.initComponents();
     this.initActions();
+    //Disable add in case of vCenter
+    if(isVCenter())
+        btnCreateEditipam.addClass('disabled-link');
     this.fetchData();
 }
 
@@ -132,7 +135,8 @@ function initComponents() {
                         $('#btnDeleteIpam').addClass('disabled-link');
                     },
                     onSomethingChecked: function(e){
-                        $('#btnDeleteIpam').removeClass('disabled-link');
+                        if(!isVCenter())
+                            $('#btnDeleteIpam').removeClass('disabled-link');
                     }
                 },
                 forceFitColumns: true,
@@ -458,7 +462,8 @@ function populateProjects(result) {
             dataValueField:"value",
             change:handleProjects
         });
-        btnCreateEditipam.removeClass('disabled-link')
+        if(!isVCenter())
+            btnCreateEditipam.removeClass('disabled-link')
         $("#ddProjectSwitcher").data("contrailDropdown").enable(true);
         $("#ddProjectSwitcher").data("contrailDropdown").setData(projects);
         var sel_project = getSelectedDomainProjectObjNew("ddProjectSwitcher", "contrailDropdown", 'project');
