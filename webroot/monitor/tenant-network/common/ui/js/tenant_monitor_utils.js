@@ -28,7 +28,11 @@ var STATS_PROP = {
                 'outPkts':'SUM(fip_stats.out_pkts)'
                },
      };
-
+//Setting the project datasource in global obj
+globalObj['dataSources']['projectDS'] = {
+        data:null,
+        dataSource:null
+};
 function ObjectListView() {
     //Context & type 
     this.load = function(obj) {
@@ -223,13 +227,10 @@ function ObjectListView() {
             });
         } else if(objectType == 'project') {
             var projectDataSource = new ContrailDataView();
-            if(globalObj['dataSources']['projectDS'] != null)
-                globalObj['dataSources']['projectDS']['dataSource'] = projectDataSource;
-            else
-                globalObj['dataSources']['projectDS'] = {dataSource:projectDataSource};
+            globalObj['dataSources']['projectDS']['dataSource'] = projectDataSource;
             var networkDS = new SingleDataSource('networkDS');
             var result = networkDS.getDataSourceObj();
-            var projData = getProjectData(result['dataSource'].getItems(),ifNull(globalObj['dataSources']['projectDS'],{}))['projectsData'];
+            var projData = getProjectData(result['dataSource'].getItems(),globalObj['dataSources']['projectDS'])['projectsData'];
             projectDataSource.setData(projData);
             $(networkDS).on("change",function(args){
                 objListView.refreshProjectSummaryGrid(result['dataSource']);
@@ -313,7 +314,7 @@ function ObjectListView() {
      */
     this.refreshProjectSummaryGrid = function(networkdataSource) {
         //Get the latest project's data and merge into projectDataSource
-        var projData = getProjectData(networkdataSource.getItems(),ifNull(globalObj['dataSources']['projectDS'],{}))['projectsData'];
+        var projData = getProjectData(networkdataSource.getItems(),globalObj['dataSources']['projectDS'])['projectsData'];
         var projectDataSource = globalObj['dataSources']['projectDS']['dataSource'];
         projectDataSource.setData(projData);
         /*
@@ -1217,11 +1218,7 @@ var networkPopulateFns = {
                             kfilts.push(projObj['fq_name'].join(':') + ':*');
                             projData.push(projObj);
                             projNamesArr.push(projObj['fq_name'].join(':'));
-                            //globalObj['dataSources']['projectData'] = projData;
-                            if(globalObj['dataSources']['projectDS'] != null)
-                                globalObj['dataSources']['projectDS']['data'] = projData;
-                            else
-                                globalObj['dataSources']['projectDS'] = {data:projData};
+                            globalObj['dataSources']['projectDS']['data'] = projData;
                         });
                         obj['transportCfg'] = { 
                                 url:'/api/tenant/networking/virtual-networks/details?count='+NETWORKS_PAGINATION_CNT,
@@ -1723,10 +1720,7 @@ function getVirtualNetworksData(deferredObj,dataSource,dsObj) {
                 $.each(ifNull(projList[0]['projects'],[]),function(idx,projObj) {
                     projData.push(projObj);
                     projNamesArr.push(projObj['fq_name'].join(':'));
-                    if(globalObj['dataSources']['projectDS'] != null)
-                        globalObj['dataSources']['projectDS']['data'] = projData;
-                    else
-                        globalObj['dataSources']['projectDS'] = {data:projData};
+                    globalObj['dataSources']['projectDS']['data'] = projData;
                 });
                 obj['transportCfg'] = { 
                         url:'/api/tenant/networking/virtual-networks/details?count='+NETWORKS_PAGINATION_CNT,
