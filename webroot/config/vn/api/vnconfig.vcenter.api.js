@@ -25,7 +25,7 @@ var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var vnConfigApi = require('./vnconfig.api');
-// var vCenterApi = require(process.mainModule.exports['corePath'] + '/src/serverroot/orchestration/plugins/vcenter/vcenter.api');
+var vCenterApi = require(process.mainModule.exports['corePath'] + '/src/serverroot/orchestration/plugins/vcenter/vcenter.api');
 
 /**
  * Bail out if called directly as "nodejs vnconfig.api.js"

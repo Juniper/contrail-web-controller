@@ -73,6 +73,23 @@ function fetchData() {
 }
 
 function initComponents() {
+    var actionCell = [
+                    {
+                        title: 'Edit',
+                        iconClass: 'icon-edit',
+                        onClick: function(rowIndex){
+                            ipamCreateEditWindow('edit',rowIndex);
+                        }
+                    }];
+    if(!isVCenter()) {
+        actionCell.push({
+                        title: 'Delete',
+                        iconClass: 'icon-trash',
+                        onClick: function(rowIndex){
+                            showRemoveWindow(rowIndex);
+                        }
+                    });
+    }
     $("#gridipam").contrailGrid({
         header : {
             title : {
@@ -140,22 +157,7 @@ function initComponents() {
                     }
                 },
                 forceFitColumns: true,
-                actionCell: [
-                    {
-                        title: 'Edit',
-                        iconClass: 'icon-edit',
-                        onClick: function(rowIndex){
-                            ipamCreateEditWindow('edit',rowIndex);
-                        }
-                    },
-                    {
-                        title: 'Delete',
-                        iconClass: 'icon-trash',
-                        onClick: function(rowIndex){
-                            showRemoveWindow(rowIndex);
-                        }
-                    }
-                ],
+                actionCell: actionCell,
                 detail: {
                     template: $("#gridIpamDetailTemplate").html()
                 }
@@ -724,7 +726,7 @@ function populateIpamEditWindow(rowIndex) {
     var ntpServer = "";
 
     if(null !== selectedIpam && null !== selectedIpam["network_ipam_mgmt"] &&
-        null !== selectedIpam["network_ipam_mgmt"]["dhcp_option_list"] &&
+        null !== getValueByJsonPath(selectedIpam,"network_ipam_mgmt;dhcp_option_list") &&
         typeof selectedIpam !== "undefined" && 
         typeof selectedIpam["network_ipam_mgmt"] !== "undefined" &&
         typeof selectedIpam["network_ipam_mgmt"]["dhcp_option_list"] !== "undefined") {
@@ -753,8 +755,11 @@ function populateIpamEditWindow(rowIndex) {
  * IPAM Create window
  */
 function ipamCreateEditWindow(mode,rowIndex) {
-    if($("#btnCreateEditipam").hasClass('disabled-link')) {
-        return;
+    //Looks when add is disabled,edit is also disabled
+    if(!isVCenter()) {
+        if($("#btnCreateEditipam").hasClass('disabled-link')) {
+            return;
+        }
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown");
     var selectedDomainName =  $("#ddDomainSwitcher").data("contrailDropdown").text();
