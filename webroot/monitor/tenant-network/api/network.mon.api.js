@@ -25,6 +25,13 @@ nwMonApi = module.exports;
 opServer = rest.getAPIServer({apiName: global.label.OPS_API_SERVER, 
                               server: config.analytics.server_ip, 
                               port: config.analytics.server_port });
+var instanceDetailsMap = {
+        vcenter:getInstancesDetailsForUser
+}
+
+var virtualNetworkDetailsMap = {
+        vcenter:getVirtualNetworksForUser
+}
 
 function getTopNetworkDetailsByDomain (req, res)
 {
@@ -2493,14 +2500,19 @@ function getVirtualNetworksDetailsByFqn (fqn, lastUUID, count, res, appData)
 
 function aggConfigVNList (fqn, appData, callback)
 {
-    var vnList     = [],dataObjArr = [];
+    var vnList     = [],dataObjArr = [],req = appData.authObj.req;
     var configURL = null;
     if (null != fqn) {
         configURL = '/virtual-networks?parent_type=project&parent_fq_name_str=' +
             fqn;
         getVNConfigList(configURL,appData,callback);
     } else {
-        if(appData.authObj.req.session.userRole.indexOf(global.STR_ROLE_ADMIN) == -1) {
+        var getVNCB = virtualNetworkDetailsMap[req.session.loggedInOrchestrationMode];
+        if(null != getVNCB) {
+            getVNCB(appData,callback);
+            return;
+        } 
+        if(req.session.userRole.indexOf(global.STR_ROLE_ADMIN) == -1) {
             getVirtualNetworksForUser(appData,callback)
         } else {
             configURL = '/virtual-networks';
@@ -2535,7 +2547,7 @@ function getVirtualNetworksForUser(appData,callback)
 {
     var vnList     = [],dataObjArr = [];
     var configURL = null;
-    authApi.getTenantList(appData.authObj.req,
+    authApi.getTenantList(appData.authObj.req, appData,
        function(error, tenantList) {
             var tenantListLen = (tenantList['tenants'] != null) ? (tenantList['tenants'].length) : 0;
             for(var i = 0; i < tenantListLen; i++) {
@@ -2620,6 +2632,13 @@ function getVirtualNetworksDetails (req, res, appData)
 
 function getInstanceDetails (req, res, appData)
 {
+    var getVMCB = instanceDetailsMap[req.session.loggedInOrchestrationMode];
+    if(null != getVMCB) {
+        getVMCB(req, appData, function(err, instDetails) {
+            commonUtils.handleJSONResponse(err, res, instDetails);
+            return;
+        });
+    }
     if(req.session.userRole.indexOf(global.STR_ROLE_ADMIN) > -1) {
         getInstanceDetailsForAdmin(req,appData,function(err, instDetails) {
             commonUtils.handleJSONResponse(err, res, instDetails);
@@ -2696,10 +2715,10 @@ function getInstancesDetailsForUser(req, appData, callback)
         getInstanceDetailsByFqn(req, appData, callback);
         return;
     }
-    authApi.getProjectList(req,appData,function(err,projects) {
-        var projectsLen = (projects['projects'] != null) ? (projects['projects'].length) : 0;
+    authApi.getTenantList(req,appData,function(err,tenantList) {
+        var projectsLen = (tenantList['tenants'] != null) ? (tenantList['tenants'].length) : 0;
         for(var i = 0; i < projectsLen; i++) {
-            configURL = '/project/'+projects['projects'][i]['uuid'];
+            configURL = '/project/' + commonUtils.convertUUIDToString(tenantList['tenants'][i]['id']);
             commonUtils.createReqObj(dataObjArr, configURL,
                 global.HTTP_REQUEST_GET, null, null, null,
                 appData);
