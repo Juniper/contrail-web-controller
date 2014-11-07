@@ -1202,8 +1202,10 @@ var networkPopulateFns = {
                         'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
                         'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
             var obj = {};
+            //If the role is admin then we will display all the projects else the projects which has access
+            var url = globalObj['webServerInfo']['role'].indexOf(roles['ADMIN']) > -1 ? '/api/tenants/projects/default-domain' :'/api/tenants/config/projects';
             $.when($.ajax({
-                        url:'/api/tenants/projects/default-domain',
+                        url:url,
                         abortOnNavigate:enableHardRefresh == true ? false : true
                     }), $.ajax({
                         url:'/api/tenants/config/virtual-networks',
@@ -1697,44 +1699,6 @@ function initializeRefreshBtn() {
     $(pageContainer).siblings().filter('.refresh-btn').on('click',function() {
         monitorRefresh($(pageContainer));
     });
-}
-/*
- * Function is the populate function of the network datasource which fetches networks page by page.
- */
-function getVirtualNetworksData(deferredObj,dataSource,dsObj) {
-    //Check whether networkDatatSource is available and if not populate, else take it
-    var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
-                'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
-                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
-    var obj = {};
-    //If the role is admin then we will display all the projects else 
-    var url = globalObj['webServerInfo']['role'].indexOf(roles['ADMIN']) > -1 ? '/api/tenants/projects/default-domain' :'/api/tenants/config/projects';
-    $.when($.ajax({
-                url:url,
-                abortOnNavigate:enableHardRefresh == true ? false : true
-            }), $.ajax({
-                url:'/api/tenants/config/virtual-networks',
-                abortOnNavigate:enableHardRefresh == true ? false : true
-            })).done(function(projList,vnList) {
-                var projNamesArr = [],projData = [];
-                $.each(ifNull(projList[0]['projects'],[]),function(idx,projObj) {
-                    projData.push(projObj);
-                    projNamesArr.push(projObj['fq_name'].join(':'));
-                    if(globalObj['dataSources']['projectDS'] != null)
-                        globalObj['dataSources']['projectDS']['data'] = projData;
-                    else
-                        globalObj['dataSources']['projectDS'] = {data:projData};
-                });
-                obj['transportCfg'] = { 
-                        url:'/api/tenant/networking/virtual-networks/details?count='+NETWORKS_PAGINATION_CNT,
-                        type:'POST',
-                        data:{data:[{"type":"virtual-network", "cfilt":vnCfilts.join(',')}]}
-                    }
-                getOutputByPagination(dataSource,{transportCfg:obj['transportCfg'],
-                    parseFn:function(response){return networkParseFnForPagination(response,vnList,projData);},loadedDeferredObj:deferredObj},dsObj);
-            }).fail(function(errObj,status,errorText) {
-                deferredObj.reject({errObj:errObj,status:status,errTxt:errorText});
-            });
 }
 
 /**
