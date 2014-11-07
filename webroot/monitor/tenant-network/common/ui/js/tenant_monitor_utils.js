@@ -1202,8 +1202,10 @@ var networkPopulateFns = {
                         'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
                         'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
             var obj = {};
+            //If the role is admin then we will display all the projects else the projects which has access
+            var url = globalObj['webServerInfo']['role'].indexOf(roles['ADMIN']) > -1 ? '/api/tenants/projects/default-domain' :'/api/tenants/config/projects';
             $.when($.ajax({
-                        url:'/api/tenants/projects/default-domain',
+                        url:url,
                         abortOnNavigate:enableHardRefresh == true ? false : true
                     }), $.ajax({
                         url:'/api/tenants/config/virtual-networks',
