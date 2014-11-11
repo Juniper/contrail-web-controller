@@ -1206,9 +1206,14 @@ var networkPopulateFns = {
                         'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
                         'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
             var obj = {};
-            //If the role is admin then we will display all the projects else the projects which has access
-            var url = globalObj['webServerInfo']['role'].indexOf(roles['ADMIN']) > -1 ? '/api/tenants/projects/default-domain' :'/api/tenants/config/projects';
-            $.when($.ajax({
+	    //If the role is admin then we will display all the projects else the projects which has access
+            var url = '/api/tenants/projects/default-domain'; 
+	    var role = globalObj['webServerInfo']['role'];
+	    var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode']; 	
+            if(activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1){
+	      url = '/api/tenants/config/projects'; 
+            }	
+	    $.when($.ajax({
                         url:url,
                         abortOnNavigate:enableHardRefresh == true ? false : true
                     }), $.ajax({
