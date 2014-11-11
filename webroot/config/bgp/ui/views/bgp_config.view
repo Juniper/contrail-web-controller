@@ -103,7 +103,7 @@
                                    </input>
                                    <span class="ace-lbl ">&nbsp;</span> 
                                </div>
-                               <label class="pull-left margin-right-60"
+                               <label class="pull-left margin-right-60 hyperlink-active"
                                    onclick="$('\#chkjnpr').click()">
                                    Control Node
                                </label>
@@ -115,7 +115,7 @@
                                    <span class="ace-lbl">&nbsp;</span>
                                </div>                                
                                <label 
-                                   onclick="$('\#chkextern').click()">
+                                   onclick="$('\#chkextern').click()" class="hyperlink-active">
                                    BGP Peer
                                </label>                               
                           </div>  
@@ -202,7 +202,53 @@
                 Confirm
             </button>
         </div>
-    </div>    
+    </div> 
+    <div id="confirmAutoMeshUpdate" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" 
+                aria-hidden="true">
+                <i class="icon-remove"></i>
+            </button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>Confirm iBGP Auto Mesh Update</h6>
+            </div>       
+        </div>
+        <div class="modal-footer">
+            <button id="btnAutoMeshUpdatePopupCancel" class="btn btn-mini" 
+                data-dismiss="modal" aria-hidden="true">
+                Cancel
+            </button>
+            <button id="btnAutoMeshUpdatePopupOK" class="btn btn-primary btn-mini">
+                Confirm
+            </button>
+        </div>
+    </div>
+    <div id="confirmPeers" class="modal modal-280 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" 
+                aria-hidden="true">
+                <i class="icon-remove"></i>
+            </button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>No peer is selected</h6>
+            </div>       
+        </div>
+        <div class="modal-footer">
+            <button id="btnPeersPopupCancel" class="btn btn-mini" 
+                data-dismiss="modal" aria-hidden="true">
+                Cancel
+            </button>
+            <button id="btnPeersPopupOK" class="btn btn-primary btn-mini">
+                Continue
+            </button>
+        </div>
+    </div>      
 </script>
 
 <script type="text/x-handlebars-template" id="gridBGPDetailTemplate">

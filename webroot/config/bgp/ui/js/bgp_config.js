@@ -6,7 +6,7 @@ bgpConfigObj = new bgpConfigObj();
 
 function bgpConfigObj() {
     var mode = "", guuid = "",
-    ghref = "", ggasn = "", ggasnObj = "";
+    ghref = "", ggasn = "", ggasnObj = "",isiBGPAutoMesh = '';
 
     var bgpGrid, bgpwindow, gasnwindow, selectedName, bgpData,
         bgp_details_data, bgpavailabledata, bgpselectdata, globalData;
@@ -124,27 +124,27 @@ function handlertol(left, right, options) {
         type = "control";
     else
         type = "external";
-    if (selected.length > 0) {
-        if (isGlobalASN()) {
-            showInfoWindow("Peer cannot be unpaired.", "Selection Error");
-            return false;
-        } else {
-            for (var i = 0; i < selected.length; i++) {
-                for (var j = 0; j < globalData.length; j++) {
-                    if (globalData[j].name == selected[i].value) {
-                        if (type == "control") {
-                            if (isJuniperControlNode(globalData[j].vendor)) {
-                                showInfoWindow("Control Node('" +
-                                    globalData[j].name + "') cannot be unpaired.",
-                                    "Selection Error");
-                                return false;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // if (selected.length > 0) {
+        // if (isGlobalASN()) {
+            // showInfoWindow("Peer cannot be unpaired.", "Selection Error");
+            // return false;
+        // } else {
+            // for (var i = 0; i < selected.length; i++) {
+                // for (var j = 0; j < globalData.length; j++) {
+                    // if (globalData[j].name == selected[i].value) {
+                        // if (type == "control") {
+                            // if (isJuniperControlNode(globalData[j].vendor)) {
+                                // showInfoWindow("Control Node('" +
+                                    // globalData[j].name + "') cannot be unpaired.",
+                                    // "Selection Error");
+                                // return false;
+                            // }
+                        // }
+                    // }
+                // }
+            // }
+        // }
+    // }
     
     return true;
 }
@@ -287,21 +287,21 @@ function getBGPJson() {
         type = "external";
     }
     peers = [];
-    if(type == "control") {
-        //If user is trying to create a new control node, 
-        //peer with all control nodes and external bgp peers.
-        for (var j = 0; j < bgpData.length; j++) {
-            if(mode === "add") {
-                peers.push({"uuid":bgpData[j].uuid, "href":bgpData[j].href, "_id_params":bgpData[j]._id_params,
-                "to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpData[j].name],"display_name":bgpData[j].display_name});
-            } else if(mode === "edit") {
-                if(bgpData[j].uuid !== guuid) {
-                    peers.push({"uuid":bgpData[j].uuid, "href":bgpData[j].href, "_id_params":bgpData[j]._id_params,
-                    "to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpData[j].name],"display_name":bgpData[j].display_name});
-                }
-            }
-        }
-    } else {
+    // if(type == "control") {
+        // //If user is trying to create a new control node, 
+        // //peer with all control nodes and external bgp peers.
+        // for (var j = 0; j < bgpData.length; j++) {
+            // if(mode === "add") {
+                // peers.push({"uuid":bgpData[j].uuid, "href":bgpData[j].href, "_id_params":bgpData[j]._id_params,
+                // "to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpData[j].name],"display_name":bgpData[j].display_name});
+            // } else if(mode === "edit") {
+                // if(bgpData[j].uuid !== guuid) {
+                    // peers.push({"uuid":bgpData[j].uuid, "href":bgpData[j].href, "_id_params":bgpData[j]._id_params,
+                    // "to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpData[j].name],"display_name":bgpData[j].display_name});
+                // }
+            // }
+        // }
+    // } else {
         //If user is trying to create a new external BGP node, 
         //peer with all control nodes.
         var selectdata = $('#msbgppeer').data('contrail2WayMultiselect').getRightData();
@@ -316,8 +316,8 @@ function getBGPJson() {
                 }
             }
         }
-    }
-    if (peers.length > 0) {
+    // }
+    if (!isiBGPAutoMesh || type === 'external') {
         if (mode == "add") {
             bgp_params = {
                 "bgp-router":{
@@ -461,7 +461,7 @@ function addEditBgp(data) {
             }            
         }
         data.details.forEach(function (d) {
-            if (d.name == "Peers") {
+            if (d.name == "Peers" && d.value.trim() != '') {
                 peers = d.value.split(",");
                 peers.forEach(function (a) {
                     bgpEditselectdata.push({"label":a, "value":a});
@@ -473,21 +473,22 @@ function addEditBgp(data) {
         vendor = $("#txtvendor").val().trim();
         if (isJuniperControlNode(vendor)) {
             for (var j = 0; j < bgpData.length; j++) {
-                if (!isJuniperControlNode(bgpData[j].vendor) &&
-                    $("#txtname").val() != bgpData[j].name)
+                if ($("#txtname").val() != bgpData[j].name) {
                     tmp_availablelist.push({'label':bgpData[j].name, 'value':bgpData[j].name});
+                }
             }
         } else {
             if ("" != $("#txtvendor").val().trim()) {
                 for (var j = 0; j < bgpData.length; j++) {
                     if (isJuniperControlNode(bgpData[j].vendor) &&
-                        $("#txtname").val() != bgpData[j].name)
+                        $("#txtname").val() != bgpData[j].name) {
                         tmp_availablelist.push({'label':bgpData[j].name, 'value':bgpData[j].name});
+                    }    
                 }
             }
         }
         for (var i = 0; i < tmp_selectlist.length; i++) {
-            for (var j = 0; j < tmp_availablelist.length; j++) {
+            for (var j = tmp_availablelist.length - 1; j > -1; j--) {
                 if (tmp_selectlist[i].label == tmp_availablelist[j].label) {
                     tmp_availablelist.splice(j, 1);
                 }
@@ -507,6 +508,14 @@ function fetchData() {
     }).success(function (res) {
             ggasnObj = jsonPath(res, "$.*")[0];
             ggasn = ggasnObj["autonomous_system"];
+            isiBGPAutoMesh = ggasnObj['ibgp_auto_mesh'] == null ? true : ggasnObj['ibgp_auto_mesh'];
+            if(isiBGPAutoMesh) {
+                 $('#chk_ibgp_auto_mesh').attr('checked', 'checked');
+                 //$("#peersdiv").hide();
+            } else {
+                $('#chk_ibgp_auto_mesh').removeAttr('checked');
+                //$("#peersdiv").show();
+            }
             //$("#btneditgasn").val("Global ASN - " + ggasn);
             $('#btneditgasn').removeClass('disabled-link');
             $("#btneditgasn").attr("title", "Global ASN - " + ggasn);
@@ -693,7 +702,8 @@ function initComponents() {
             customControls: [
                 '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
                 '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>',
-                '<button id="btneditgasn" class="btn btn-primary btn-mini" onclick="openGasnWindow();return false;" title="Edit Global ASN"></button>'
+                '<button id="btneditgasn" class="btn btn-primary btn-mini" onclick="openGasnWindow();return false;" title="Edit Global ASN"></button>',
+                '<div><input type="checkbox" id="chk_ibgp_auto_mesh" class="ace-input" onchange="toggleiBGPAutoMesh(this)"></input><span class="ace-lbl">&nbsp;</span><label class="ace-lbl hyperlink-active" for="chk_ibgp_auto_mesh">iBGP Auto Mesh</label></div>'
             ]
         },
         columnHeader : {
@@ -815,10 +825,28 @@ function initComponents() {
 
     confirmMainRemove = $("#confirmMainRemove");
     confirmMainRemove.modal({backdrop:'static', keyboard: false, show:false});
+    
+    $('#confirmAutoMeshUpdate').modal({backdrop:'static', keyboard: false, show:false});
+    $('#confirmPeers').modal({backdrop:'static', keyboard: false, show:false});
+}
+
+function toggleiBGPAutoMesh(e) {
+    $('#confirmAutoMeshUpdate').find('.modal-header-title').text("Confirm");
+    $('#confirmAutoMeshUpdate').modal('show');
+}
+
+function ibgpAutoMeshSuccess(res) {
+    //showInfoWindow("iBGP Auto Mesh value is updated","Success");
+    fetchData();
+}
+
+function ibgpAutoMeshFailure() {
+    showInfoWindow("Error in submitting iBGP Auto Mesh data", "Error");
+    fetchData();
 }
 
 function btnaddbgpClick() {
-    $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(bgpavailabledata);
+    //$('#msbgppeer').data('contrail2WayMultiselect').setLeftData(bgpavailabledata);
     mode = "add";
     bgpwindow.modal('show');
     bgpwindow.find('h6').text("Create BGP Peer");
@@ -836,9 +864,34 @@ function initActions() {
             confirmMainRemove.modal('show');
         }
     });
+    $('#btnAutoMeshUpdatePopupOK').click(function(a){
+        $('#confirmAutoMeshUpdate').modal('hide');
+        var autoMeshCkd =  $('#chk_ibgp_auto_mesh')[0].checked;
+        if(autoMeshCkd) {
+            $("#peersdiv").hide();
+        } else {
+            $("#peersdiv").show();
+        }
+        var ibgpAutoMeshObj = {
+             "global-system-config":{
+                 "_type":ggasnObj._type,
+                 "uuid":ggasnObj.uuid,
+                 "ibgp_auto_mesh":autoMeshCkd
+             }
+         };        
+         doAjaxCall("/api/tenants/admin/config/ibgp-auto-mesh",
+             "PUT", JSON.stringify(ibgpAutoMeshObj), "ibgpAutoMeshSuccess", "ibgpAutoMeshFailure"); 
+        $("#gridBGP").data("contrailGrid")._dataView.setData([]);
+        $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+    });
+    
+    $('#btnAutoMeshUpdatePopupCancel').click(function(a){
+        $('#chk_ibgp_auto_mesh')[0].checked = !$('#chk_ibgp_auto_mesh')[0].checked;
+        $('#confirmAutoMeshUpdate').modal('hide');
+    });
 
     $("#btnCnfRemoveMainPopupCancel").click(function (a) {
-        confirmMainRemove.modal('hide')
+        confirmMainRemove.modal('hide');
     });
 
     $("#btnCnfRemoveMainPopupOK").click(function (a) {
@@ -852,75 +905,91 @@ function initActions() {
     });
     $("#btnbgpok").click(function (a) {
         if (validate()) {
-            bgp_params = getBGPJson();
-            var params;
-            if (window.JSON) {
-                params = {"content":bgp_params}
-                params = JSON.stringify(params);
-            }
-            else {
-                params = {"content":bgp_params}
-                params = $.toJSON(params);
-            }
-
-            if (mode == "add") {
-                bgpwindow.modal('hide');
-                $.ajax({
-                    type:"POST",
-                    url:"/api/admin/bgp-router",
-                    data:params,
-                    contentType:"application/json; charset=utf-8",
-                    headers:{'X-Tenant-Name':'default-project'},
-                    dataType:"json"
-                }).success(function (msg) {
-                        guuid = "";
-                        ghref = "";
-                        _gid_perms = [];
-                        mode = "add";
-                        bgpData = [];
-                        bgp_details_data = [];
-                        $("#gridBGP").data("contrailGrid")._dataView.setData([]);
-                        $("#gridBGP").data("contrailGrid").showGridMessage('loading');
-                        fetchData();
-                    }).fail(function (msg) {
-                        $("#gridBGP").data("contrailGrid")._dataView.setData([]);
-                        $("#gridBGP").data("contrailGrid").showGridMessage('loading');
-                        showInfoWindow("Error in submitting data", "Error");
-                        selectedName = "";
-                        mode = "";
-                        fetchData();
-                    });
-            }
-            else if (mode == "edit") {
-                selectedName = $("#txtname").val().trim();
-                bgpwindow.modal('hide');
-                $.ajax({
-                    type:"PUT",
-                    url:"/api/admin/bgp-router/" + bgp_params["bgp-router"].uuid,
-                    data:params,
-                    contentType:"application/json; charset=utf-8",
-                    dataType:"json"
-                }).success(function (msg) {
-                        guuid = "";
-                        ghref = "";
-                        _gid_perms = [];
-                        $("#gridBGP").data("contrailGrid")._dataView.setData([]);
-                        $("#gridBGP").data("contrailGrid").showGridMessage('loading');
-                        mode = "edit";
-                        bgpData = [];
-                        bgp_details_data = [];
-                        fetchData();
-                    }).fail(function (msg) {
-                        $("#gridBGP").data("contrailGrid")._dataView.setData([]);
-                        $("#gridBGP").data("contrailGrid").showGridMessage('loading');
-                        showInfoWindow("Error in submitting data", "Error");
-                        selectedName = "";
-                        mode = "";
-                        fetchData();
-                    });
+            var peers = $('#msbgppeer').data('contrail2WayMultiselect').getRightData();
+            if(peers.length === 0 &&(!isiBGPAutoMesh || !$("#chkjnpr")[0].checked)) {
+                $('#confirmPeers').find('.modal-header-title').text("Information");
+                $('#confirmPeers').modal('show');
+            } else {
+                createUpdateBgp();    
             }
         }
     });
+    $('#btnPeersPopupOK').click(function(a){
+        $('#confirmPeers').modal('hide');
+        createUpdateBgp();    
+    });
+}
+
+function createUpdateBgp() {
+    //if (validate()) {
+        bgp_params = getBGPJson();
+        var params;
+        if (window.JSON) {
+            params = {"content":bgp_params}
+            params = JSON.stringify(params);
+        }
+        else {
+            params = {"content":bgp_params}
+            params = $.toJSON(params);
+        }
+
+        if (mode == "add") {
+            bgpwindow.modal('hide');
+            $.ajax({
+                type:"POST",
+                url:"/api/admin/bgp-router",
+                data:params,
+                contentType:"application/json; charset=utf-8",
+                headers:{'X-Tenant-Name':'default-project'},
+                dataType:"json"
+            }).success(function (msg) {
+                    guuid = "";
+                    ghref = "";
+                    _gid_perms = [];
+                    mode = "add";
+                    bgpData = [];
+                    bgp_details_data = [];
+                    $("#gridBGP").data("contrailGrid")._dataView.setData([]);
+                    $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+                    fetchData();
+                }).fail(function (msg) {
+                    $("#gridBGP").data("contrailGrid")._dataView.setData([]);
+                    $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+                    showInfoWindow("Error in submitting data", "Error");
+                    selectedName = "";
+                    mode = "";
+                    fetchData();
+                });
+        }
+        else if (mode == "edit") {
+            selectedName = $("#txtname").val().trim();
+            bgpwindow.modal('hide');
+            $.ajax({
+                type:"PUT",
+                url:"/api/admin/bgp-router/" + bgp_params["bgp-router"].uuid,
+                data:params,
+                contentType:"application/json; charset=utf-8",
+                dataType:"json"
+            }).success(function (msg) {
+                    guuid = "";
+                    ghref = "";
+                    _gid_perms = [];
+                    $("#gridBGP").data("contrailGrid")._dataView.setData([]);
+                    $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+                    mode = "edit";
+                    bgpData = [];
+                    bgp_details_data = [];
+                    fetchData();
+                }).fail(function (msg) {
+                    $("#gridBGP").data("contrailGrid")._dataView.setData([]);
+                    $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+                    showInfoWindow("Error in submitting data", "Error");
+                    selectedName = "";
+                    mode = "";
+                    fetchData();
+                });
+        }
+    //}
 }
 
 function copyToRouterID() {
@@ -932,7 +1001,11 @@ function selectJnpr() {
     $("#vendor-n-family").addClass('hide');
     $("#multipanel").addClass('hide');        
     $("#txtpanel").removeClass('hide');
-    $("#peersdiv").hide();
+    if(isiBGPAutoMesh){
+        $("#peersdiv").hide();
+    } else {
+        $("#peersdiv").show();
+    }
     populateMultiselect("chkjnpr");
 }
 function populateMultiselect(who) {
@@ -958,18 +1031,22 @@ function populateMultiselect(who) {
             }
         }
     }
-    if (who == "chkjnpr") {
-        $('#msbgppeer').data('contrail2WayMultiselect').setRightData(jnprs);
-        $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(externs);
-    } else if (who == "chkexternal") {
-        if (isGlobalASN()) {
-            $('#msbgppeer').data('contrail2WayMultiselect').setRightData(jnprs);
-            $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
-        } else {
-            $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
-            $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(jnprs);
-        }
-    }
+    // if (who == "chkjnpr") {
+        // var all = externs.concat(jnprs);
+        // $('#msbgppeer').data('contrail2WayMultiselect').setRightData(all);
+        // $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
+    // } else if (who == "chkexternal") {
+        // if (isGlobalASN()) {
+            // $('#msbgppeer').data('contrail2WayMultiselect').setRightData(jnprs);
+            // $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
+        // } else {
+            // $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
+            // $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(jnprs);
+        // }
+    // }
+    var all = externs.concat(jnprs);
+    $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
+    $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(all);
 }
 
 function selectExternal() {
