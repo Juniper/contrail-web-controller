@@ -294,13 +294,17 @@ adminapi.createBGPRouter = function (req, res, appData) {
 	delete content["bgp-router"]["bgp_router_refs"];
 		configApiServer.apiPost(url, content, appData, function (error, data) {
 			if (!error) {
-				data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
-				data["bgp-router"]["_type"] = type;
-				data["bgp-router"]["parent_name"] = parentName;
-				data["bgp-router"]["bgp_router_parameters"] = bgpParams;
-				logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
-				updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
-                                        appData);
+                if(bgpRefs && bgpRefs.length > 0) {
+				    data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
+				    data["bgp-router"]["_type"] = type;
+				    data["bgp-router"]["parent_name"] = parentName;
+				    data["bgp-router"]["bgp_router_parameters"] = bgpParams;
+				    logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
+				    updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
+                                            appData);
+                } else {
+                      commonUtils.handleJSONResponse(error, res, data);
+                }
 			} else {
 				error = new appErrors.RESTServerError(messages.error.create_bgpr);
 				commonUtils.handleJSONResponse(error, res, null);
@@ -378,9 +382,9 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold_time"];    
 	var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
 		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
-	if (!newBGPRefs || newBGPRefs.length == 0) {
+	if (newBGPRefs != null && newBGPRefs.length == 0) {
 		bgpJSON["bgp-router"]["bgp_router_refs"] = [];
-	} else {
+	} else if(newBGPRefs != null && newBGPRefs.length > 0) {
 		if (!bgpRefs || bgpRefs.length == 0) {
 			bgpJSON["bgp-router"]["bgp_router_refs"] = bgpUpdates["bgp_router_refs"];
 		} else {
@@ -974,6 +978,77 @@ function updateGlobalASN (request, response, appData) {
 }
 
 /**
+ * @updateiBGPAutoMeshObj
+ *  Update the iBGP Auto Mesh
+ */
+function updateiBGPAutoMeshObj (error, data,
+                                globaliBGPAutoMesh, response, appData)
+{
+    var gscURL = '/global-system-config/';
+    var iBGPAutoMesh   = null;
+
+    if (error) {
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+
+    iBGPAutoMesh = globaliBGPAutoMesh['global-system-config']['ibgp_auto_mesh'] ;
+    data['global-system-config']['ibgp_auto_mesh'] = iBGPAutoMesh;
+
+    gscURL += data['global-system-config']['uuid'];
+
+    configApiServer.apiPut(gscURL, data, appData,
+    function(error, data) {
+        setTimeout(function() {
+            commonUtils.handleJSONResponse(error, response, null);
+        }, 3000);
+    });
+}
+
+/**
+ * @getiBGPAutoMeshObj
+ * private function
+ * Gets the GSC Object
+ */
+function getiBGPAutoMeshObj (error, data, globaliBGPAutoMesh, response, appData) {
+    var gscURL = '/global-system-config/';
+
+    if (error) {
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+
+    gscURL += data['uuid'];
+
+    configApiServer.apiGet(gscURL, appData,
+                         function(error, data) {
+                         updateiBGPAutoMeshObj(error, data,
+                                               globaliBGPAutoMesh, response, appData)
+                         });
+}
+
+
+/**
+ * @updateiBGPAutoMesh
+ * public function
+ * 1. URL /api/tenants/admin/config/ibgp-auto-mesh
+ * 2. Updates Global ASN
+ */
+function updateiBGPAutoMesh (request, response, appData) {
+    var globaliBGPAutoMesh = request.body;
+    var fqnameURL     = '/fqname-to-id';
+    var gscReqBody    = null;
+
+    gscReqBody = {'fq_name': ['default-global-system-config'],
+                  'type': 'global-system-config'};
+    configApiServer.apiPost(fqnameURL, gscReqBody, appData,
+                         function(error, data) {
+                         getiBGPAutoMeshObj(error, data,
+                                            globaliBGPAutoMesh, response, appData);
+                         });
+}
+
+/**
  * @readGlobalConfigObj
  * private function
  * Gets the GSC Object
@@ -1000,7 +1075,8 @@ function readGlobalConfigObj (error, data, globalASNBody, response, appData) {
                       'uuid': data['global-system-config']
                                   ['uuid'],
                       'autonomous_system':data['global-system-config']
-                                  ['autonomous_system']}
+                                  ['autonomous_system'],
+                      'ibgp_auto_mesh':data['global-system-config']['ibgp_auto_mesh']}
             };
             commonUtils.handleJSONResponse(error, response, gscObj);
             return;
@@ -1500,3 +1576,5 @@ exports.getGlobalASN    = getGlobalASN;
 exports.deleteBGPRouter = deleteBGPRouter;
 exports.getControlNodeDetailsFromConfig = getControlNodeDetailsFromConfig;
 exports.getApiServerDataByPage = getApiServerDataByPage;
+exports.updateiBGPAutoMesh = updateiBGPAutoMesh;
+
