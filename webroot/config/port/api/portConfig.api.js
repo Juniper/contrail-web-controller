@@ -8,6 +8,8 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var nwMgr = require(process.mainModule.exports["corePath"] +
                     '/src/serverroot/common/networkmanager.api');
+var computeApi = require(process.mainModule.exports["corePath"] +
+                         '/src/serverroot/common/computemanager.api');
 var appErrors   = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/errors/app.errors');
 function createPort (req, res, appData)
@@ -62,6 +64,22 @@ function deletePort (req, res, appData)
     });
 }
 
+function portAttach (req, res, appData)
+{
+    computeApi.portAttach(req, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, data);
+    });
+}
+
+function portDetach (req, res, appData)
+{
+    computeApi.portDetach(req, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, data);
+    });
+}
+
 exports.createPort = createPort;
 exports.deletePort = deletePort;
+exports.portAttach = portAttach;
+exports.portDetach = portDetach;
 

@@ -22,5 +22,16 @@
         <feature>portconfig</feature>
         <callback>portConfig.deletePort</callback>
     </item>
-
+    <item>
+        <url>/api/tenants/config/interface-attach</url>
+        <method>post</method>
+        <feature>portconfig</feature>
+        <callback>portConfig.portAttach</callback>
+     </item>
+     <item>
+        <url>/api/tenants/config/interface-detach</url>
+        <method>delete</method>
+        <feature>portconfig</feature>
+        <callback>portConfig.portDetach</callback>
+    </item>
 </urlLists>
