@@ -117,6 +117,12 @@
         <callback>adminapi.updateGlobalASN</callback>
     </item>
     <item>
+        <url>/api/tenants/admin/config/ibgp-auto-mesh</url>
+        <method>put</method>
+        <feature>bgp</feature>
+        <callback>adminapi.updateiBGPAutoMesh</callback>
+    </item>
+    <item>
         <url>/api/admin/control-node/:name</url>
         <method>get</method>
         <feature>control-node</feature>

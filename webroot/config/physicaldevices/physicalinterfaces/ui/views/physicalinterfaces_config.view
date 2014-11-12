@@ -86,13 +86,33 @@
                                                         <input type="text" id="txtVlan" name="txtVlan" title="Vlan ID" class="span10" />
                                                     </div>
                                                 </div>                       
-                                            </div> 
-                                            <div id="l2TypePanel" class="control-group">                                            
+                                            </div>
+                                            <div id="l2TypePanel" class="control-group">
+                                                <label class="control-label">Server Type</label>
                                                 <div class="controls">
-                                                   <input type="radio" name="l2Type" id="l2Server" checked="checked" class="ace-input" style="position:relative" value="l2Server">
-                                                   <span class="ace-lbl"> Server </span>
-                                                   <input type="radio" name="l2Type" id="l2Gateway"  class="ace-input" style="position:relative" value="l2Gateway">
-                                                   <span class="ace-lbl"> L2 Gateway </span>                                               
+                                                    <div class="row-fluid padding-top-5">
+                                                         <div class="pull-left">
+                                                             <input id="l2Server"
+                                                                 type="radio" name="l2Type" 
+                                                                 value="l2Server" checked class="ace-input  margin-right-10">
+                                                             </input>
+                                                             <span class="ace-lbl ">&nbsp;</span>
+                                                         </div>
+                                                         <label class="pull-left margin-right-60 hyperlink-active"
+                                                             onclick="$('\#l2Server').click()">
+                                                             Server
+                                                         </label>
+                                                         <div class ="pull-left">
+                                                             <input id="l2Gateway" type="radio" name="l2Type"
+                                                                value="l2Gateway" class="ace-input  margin-right-10">
+                                                             </input>
+                                                             <span class="ace-lbl">&nbsp;</span>
+                                                         </div>
+                                                         <label class="hyperlink-active"
+                                                             onclick="$('\#l2Gateway').click()">
+                                                             L2 Gateway
+                                                         </label>
+                                                    </div>
                                                 </div>
                                             </div>
                                             <div class="control-group">
