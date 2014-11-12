@@ -700,6 +700,38 @@ function getvRouterVrfList (req, res)
     });
 }
 
+function getVirtualMachineInterfacesPervRouter (req, res, appData)
+{
+    var resultJSON = {};
+    var vrouter = req.param('vrouter');
+    var url = '/analytics/uves/vrouter';
+    var postData = {};
+    postData['kfilt'] = [vrouter];
+    postData['cfilt'] = ['VrouterAgent:virtual_machine_list'];
+    opApiServer.apiPost(url, postData, appData, function(err, vmList) {
+        if ((null != err) || (null == vmList) || (null == vmList['value']) ||
+            (!vmList['value'].length)) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        var vmUUIDList = jsonPath(vmList, "$..virtual_machine_list");
+        if (!vmUUIDList.length) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        postData['kfilt'] = [];
+        var uuidLen = vmUUIDList[0].length;
+        for (var i = 0; i < uuidLen; i++) {
+            postData['kfilt'].push(vmUUIDList[0][i]);
+        }
+        url = '/analytics/uves/virtual-machine';
+        postData['cfilt'] = ['UveVirtualMachineAgent:interface_list'];
+        opApiServer.apiPost(url, postData, appData, function(err, intfList) {
+            commonUtils.handleJSONResponse(err, res, intfList);
+        });
+    });
+}
+
 exports.getvRoutersSummaryByJob = getvRoutersSummaryByJob;
 exports.getvRouterPagedSummary = getvRouterPagedSummary;
 exports.getvRouterGenerators = getvRouterGenerators;
@@ -716,4 +748,5 @@ exports.getvRouterMCastRoutes = getvRouterMCastRoutes;
 exports.getvRouterVrfList = getvRouterVrfList;
 exports.getvRouterL2Routes = getvRouterL2Routes;
 exports.getvRouterUCast6Routes = getvRouterUCast6Routes;
-
+exports.getVirtualMachineInterfacesPervRouter =
+    getVirtualMachineInterfacesPervRouter

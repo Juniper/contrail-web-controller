@@ -132,6 +132,7 @@ function getFlowSeriesByVN (req, res)
     var timeGran        = req.query['timeGran'];
     var minsAlign       = req.query['minsAlign'];
     var serverTime      = req.query['useServerTime'];
+    var vrouter         = req.query['vrouter'];
     var reqKey;
     
     if (null == dstVN) {
@@ -154,6 +155,7 @@ function getFlowSeriesByVN (req, res)
         relEndTime: relEndTime,
         timeGran: timeGran,
         serverTime: serverTime,
+        vrouter: vrouter,
         minsAlign: minsAlign
     };
 
@@ -2832,6 +2834,15 @@ function getStats(req, res) {
     });
 }
 
+function getvnStatsPerVrouter (req, res, appData)
+{
+    var reqUrl = '/analytics/uves/vrouter';
+    var urlKey = ctrlGlobal.STR_GET_VN_STATS_PER_VROUTER;
+    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
+                                             urlKey, reqUrl,
+                                             0, 1, 0, -1, true, req.query);
+}
+
 /* List all public functions */
 exports.getTopNetworkDetailsByDomain = getTopNetworkDetailsByDomain;
 exports.getTopNetworkDetailsByProject = getTopNetworkDetailsByProject;
@@ -2863,3 +2874,5 @@ exports.isAllowedVN = isAllowedVN;
 exports.getVNListByProject = getVNListByProject;
 exports.getOpServerPagedResponseByLastKey = getOpServerPagedResponseByLastKey;
 exports.getStats = getStats;
+exports.getvnStatsPerVrouter = getvnStatsPerVrouter;
+

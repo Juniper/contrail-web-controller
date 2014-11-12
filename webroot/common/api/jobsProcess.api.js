@@ -261,6 +261,13 @@ function processvRoutersGenRequestByJob (pubChannel, saveChannelKey,
                                    done);
 }
 
+function processVNStatsPerVRouter (pubChannel, saveChannelKey,
+                                   jobData, done)
+{
+    nwMonJobsApi.processVNFlowSeriesData(pubChannel, saveChannelKey, jobData,
+                                         done)
+}
+
 jobsProcess.mainJobprocessControlNodesSummaryRequestByJob = 
     function(pubChannel, saveChannelKey, dependData, storedData, jobData, done) {
     bgpNode.getControlNodesSummary(pubChannel, saveChannelKey, JSON.parse(dependData), 
@@ -302,4 +309,5 @@ jobsProcess.processcRouterAclFlowsRequestByJob =
 
 exports.processvRoutersSummaryRequestByJob = processvRoutersSummaryRequestByJob;
 exports.processvRoutersGenRequestByJob = processvRoutersGenRequestByJob;
+exports.processVNStatsPerVRouter = processVNStatsPerVRouter;
 
