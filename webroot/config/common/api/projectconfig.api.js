@@ -24,6 +24,7 @@ var authApi          = require(process.mainModule.exports["corePath"] + '/src/se
 var configApiServer  = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 var configUtils      = require(process.mainModule.exports["corePath"] + 
                                '/src/serverroot/common/configServer.utils');
+var async            = require('async');
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -198,6 +199,49 @@ function isEmpty(obj) {
     return true;
 }
 
+function getAvailableIPFromInstanceIPList (req, res, appData)
+{
+    var ipListObj = {};
+    var body = req.body;
+    var ipAddr = body.ipAddr;
+    var subnet = body.subnet;
+    var ipType = body.ipType;
+    var instIPUrl = '/instance-ips';
+    var dataObjArr = [];
+
+    configApiServer.apiGet(instIPUrl, appData, function(err, instList) {
+        if ((null != err) || (null == instList)) {
+            commonUtils.handleJSONResponse(null, res, ipAddr);
+            return;
+        }
+        var instList = instList['instance-ips'];
+        var instCnt = instList.length;
+        for (var i = 0; i < instCnt; i++) {
+            var url = '/instance-ip/' + instList[i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, url, null, null, null, null,
+                                     appData);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   true),
+                  function(err, results) {
+            var ipCnt = results.length;
+            for (i = 0; i < ipCnt; i++) {
+                if ((null != results[i]) &&
+                    (null != results[i]['instance-ip']) &&
+                    (null != results[i]['instance-ip']['instance_ip_address'])) {
+                    ipListObj[results[i]['instance-ip']['instance_ip_address']]
+                        = results[i];
+                }
+            }
+            var ipObj = commonUtils.getAvailableIpByIPList(ipListObj, ipAddr, subnet);
+            commonUtils.handleJSONResponse(ipObj['err'], res, ipObj['address']);
+        });
+    });
+}
+
 exports.listDomains  = listDomains;
 exports.listProjects = listProjects;
 exports.getProjectByParameter   = getProjectByParameter;
+exports.getAvailableIPFromInstanceIPList = getAvailableIPFromInstanceIPList;
+

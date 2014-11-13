@@ -46,5 +46,11 @@
         <feature>projectconfig</feature>
         <callback>projectconfigapi.listDomains</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/get-valid-ip</url>
+        <method>post</method>
+        <feature>projectconfig</feature>
+        <callback>projectconfigapi.getAvailableIPFromInstanceIPList</callback>
+    </item>
 </urlLists>
 
