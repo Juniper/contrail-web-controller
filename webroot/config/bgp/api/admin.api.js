@@ -30,6 +30,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     polConfig = require('../../networkpolicies/api/policyconfig.api'),
     sgConfig = require('../../securitygroup/api/securitygroupconfig.api'),
     logicalRouterConfig = require('../../logicalrouters/api/logicalroutersconfig.api'),
+    portsConfig = require('../../ports/api/portsconfig.api'),
     ipamConfig = require('../../ipaddressmanagement/api/ipamconfig.api'),
     vdnsConfig = require('../../dns/api/virtualdnsconfig.api'),
     svcTempl = require('../../services/template/api/servicetemplateconfig.api'),
@@ -1340,6 +1341,8 @@ function getMatchStrByType (type)
         return 'network_policys';
     case 'logical-router':
         return 'logical_routers';
+    case 'ports':
+        return 'virtual_machine_interfaces';
     case 'virtual-network':
         return 'virtual_networks';
     case 'network-ipam':
@@ -1384,6 +1387,7 @@ function createReqArrByType (dataObjArr, type, obj)
     case 'network-policy':
     case 'security-group':
     case 'logical-router':
+    case 'ports':
     case 'network-ipam':
     case 'virtual-DNS':
     case 'virtual-DNS-record':
@@ -1400,6 +1404,7 @@ var configCBList =
     'network-policy': polConfig.readPolicys,
     'security-group': sgConfig.readSecurityGroup,
     'logical-router': logicalRouterConfig.readLogicalRouter,
+    'ports': portsConfig.readPorts,
     'network-ipam': ipamConfig.readIpams,
     'virtual-DNS': vdnsConfig.readVirtualDNSs,
     'virtual-DNS-record': vdnsConfig.readVirtualDNSRecords,
