@@ -178,6 +178,7 @@ function parseVNSubnets (error, vnConfig, callback)
                     m++;
                 }*/
 
+                nwIpamRefsClone[k]['subnet']['subnet_uuid'] = ipamSubnets[j]['subnet_uuid'];
                 nwIpamRefsClone[k]['subnet']['ipam'] = nwIpamRefs[i]['to'];
                 k++;
             }
