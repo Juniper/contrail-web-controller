@@ -1,0 +1,433 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<script type="text/x-handlebars-template" id="gridPortsDetailTemplate">
+    <div>
+        <div class="row-fluid">
+                    
+            <label><h6><b>Port Properties</b></h6></label>
+
+            
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Network</label> </span>
+                    <span class="span10">: {{vnString}} </span>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>UUID</label> </span>
+                    <span class="span10">: {{portUUID}} </span>
+                </div>
+            </div>
+            
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Name</label> </span>
+                    <span class="span10">: {{portName}} </span>
+                </div>
+            </div>
+                        
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Status</label> </span>
+                    <span class="span10">: {{status}} </span>
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Fixed IP's</label> </span>
+                    <span class="span10">: {{fixedip}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Floating IP's</label> </span>
+                    <span class="span10">: {{floatingIP}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Security Groups</label> </span>
+                    <span class="span10">: {{sgString}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Allowed Address pair</label> </span>
+                    <span class="span10">: {{AllowedAddressPair}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Mac Address</label> </span>
+                    <span class="span10">: {{macAddress}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Static IP</label> </span>
+                    <span class="span10">: {{staticIPString}} </span>
+                </div>
+            </div>
+            
+<!--            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Tenant ID</label> </span>
+                    <span class="span10">: {{tenentID}} </span>
+                </div>
+            </div>-->
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Device Owner/ID</label> </span>
+                    <span class="span10">: {{deviceID}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>DHCP Options</label> </span>
+                    <span class="span10">: {{DHCPOption}} </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id='ports-config-template'>
+<!-- Modal -->
+    <div id="windowCreatePorts" class="modal modal-700 hide"  tabindex="-1">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+          <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div>
+                <form class="form-horizontal">
+
+                    <div class="row-fluid margin-0-0-10">
+                        <div class="control-group">
+                            <label class="control-label">Virtual Network</label>
+                            <div class="controls">
+                                    <div class="span5">
+                                        <div id="ddVN" class = "span12 pull-right" ></div>
+                                    </div>
+                                    <div class="span5">
+                                        <label class="control-label span3">Status</label>
+                                        <div id="ddVNState" class="span9" ></div>
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="control-group">
+                                <label class="control-label">Name</label>
+                                <div class="controls">
+                                    <div class="row-fluid margin-0-0-10">
+                                        <div class="span10">
+                                            <input type="text" id="txtPortName" placeholder="Port Name" class="span12"/>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Security Group(s)</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class="span10">
+                                    <input checked class="ace-input" type="checkbox" id="is_SG" onclick="enableSG(this);"><span class="ace-lbl"> </span>
+                                    <div id="msSecurityGroup" placeholder="Select Security Group..." class="span11 pull-right" ></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                    <label class="control-label">Floating IP's</label>
+                        <div class="controls">
+                            <div class="row-fluid margin-0-0-10">
+                                <div class="span10">
+                                    <div id="msFloatingIp" placeholder="Select Floating IP..." class="span12"></div>
+                                </div>
+                            </div>
+                            <!--<div class="row-fluid margin-0-0-10">
+                                <div class="rule-item-header margin-0-0-10 span10">
+                                    <div class="row-fluid">
+                                        <div class="span11">
+                                            <h6>Floating IP</h6>
+                                        </div>
+                                        <div class="span1 pull-left">
+                                            <div title="Add Floating IP below" class="margin-5 padding-10-0">
+                                                <i class="pull-left icon-plus" onclick="appendFloatingIPEntry(this,'FloatingIPTuples', true);"></i>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row-fluid">
+                                <div id="FloatingIPTuples" class="row-fluid"></div>
+                            </div>-->
+                        </div>
+                    </div>
+                    
+                    <div class="row-fluid">
+                        <div>
+                            <div class="widget-box transparent collapsed">
+                                <div class="widget-header">
+                                    <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true);">
+                                        <i class="icon-caret-right grey"></i>
+                                        <span>Advanced</span>
+                                    </h5>
+                                </div>
+                                <div class="widget-body">
+                                    <div class="widget-main padding-4">
+                                        <div class="row-fluid margin-0-0-10">
+                                            <div class="row-fluid">
+                                                <label class="control-label">Fixed IP's</label>
+                                                <div class="controls">
+                                                    <div class="span10">
+                                                        <input class="ace-input" type="checkbox" checked id="is_FixedIp" onclick="enableFixedIP(this);" ><span class="ace-lbl"> </span>
+                                                    </div>
+                                                    <div id="fixedipContainer">
+                                                        <div class="rule-item-header margin-0-0-10 span10">
+                                                            <div class="row-fluid">
+                                                                <div class="span10">
+                                                                    <h6>Fixed IP</h6>
+                                                                </div>
+                                                                <div class="pull-left" style="margin-left:5px">
+                                                                    <div title="Add Fixed IP below" class="margin-5 padding-10-0">
+                                                                        <i class="icon-plus pull-left" onclick="appendFixedIPEntry(this, 'FixedIPTuples',true);"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <div id="FixedIPTuples" class="row-fluid"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                                <label class="control-label">Mac Address</label>
+                                                <div class="controls">
+                                                    <div class="row-fluid  margin-0-0-10">
+                                                        <div class="span10">
+                                                            <input type="text" id="txtMacAddress" placeholder="Specify Mac Address" class="span12" />
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="row-fluid">
+                                                <label class="control-label">Allowed Address Pairs</label>
+                                                <div class="controls">
+                                                    <div class="span10">
+                                                        <input class="ace-input" type="checkbox" id="is_AAP" onclick="enableAAP(this);" ><span class="ace-lbl"> </span>
+                                                    </div>
+                                                    <div id="divddAAp" class="hide">
+                                                        <div class="rule-item-header margin-0-0-10 span10">
+                                                            <div class="row-fluid">
+                                                                <div class="span10">
+                                                                    <h6>Allowed Address Pairs</h6>
+                                                                </div>
+                                                                <div class="pull-left" style="margin-left:5px">
+                                                                    <div title="Add Allowed Address Pairs below" class="margin-5 padding-10-0">
+                                                                        <i class="icon-plus pull-left" onclick="appendAAPEntry(this,'AAPTuples', true);"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="row-fluid" id = "divddAAp">
+                                                            <div id="AAPTuples" class="row-fluid"></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <!--<div id = "AllowAddressPairDiv" class="widget-box transparent collapsed">
+                                               <div class="widget-header span11 pull-right">
+                                                   <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true,'#AllowAddressPairDiv');">
+                                                       <i class="icon-caret-right grey"></i>
+                                                       <span>Allow Address Pair</span>
+                                                    </h5>
+                                                </div>
+                                                <div class="widget-body">
+                                                    <div class="widget-main padding-4">
+                                                    <div class="row-fluid margin-0-0-10">
+                                                        <label class="control-label hide "><input class="ace-input pull-left" type="checkbox" id="is_AAP" onclick="enableAAP(this);"><span class="ace-lbl pull-right"> </span></label>
+                                                        <div class="controls">
+                                                            <div class="rule-item-header margin-0-0-10 span10">
+                                                                <div class="row-fluid" >
+                                                                    <div class="span11">
+                                                                        <h6>Allow Address Pair</h6>
+                                                                    </div>
+                                                                    <div class="span1 pull-left">
+                                                                        <div title="Add Address Pair below" class="margin-5 padding-10-0">
+                                                                            <i class="pull-left icon-plus" id="AAPAdd" onclick="appendAAPEntry(this,'AAPTuples', true);"></i>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="row-fluid" id = "divddAAp">
+                                                                <div id="AAPTuples" class="row-fluid"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    </div>
+                                                </div>
+                                            </div>-->
+                                            <div>
+                                                <div class="span1"></div>
+                                                <div class="span11">
+                                                <div>
+                                                    <div id="divDHCP" class="widget-box transparent collapsed">
+                                                        <div class="widget-header">
+                                                            <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true,'#divDHCP');">
+                                                                <i class="icon-caret-right grey"></i>
+                                                                <span>DHCP Options</span>
+
+                                                            </h5>
+                                                        </div>
+                                                        <div class="widget-body">
+                                                            <div class="widget-main padding-4">
+                                                                <div class="row-fluid margin-0-0-10">
+                                                                    <label class="control-label">DHCP</label>
+                                                                    <div class="pading-4">
+                                                                        <div class="controls">
+                                                                                <div class="rule-item-header span10 margin-0-0-10">
+                                                                                        <div class="span11">
+                                                                                            <h6>DHCP Options</h6>
+                                                                                        </div>
+                                                                                        <div class="span1 pull-left">
+                                                                                            <div title="Add DHCP below" class="margin-5 padding-10-0">
+                                                                                                <i id="btnCommonAddDNSServer" class="pull-left icon-plus" onclick="appendDHCPEntry(this, 'DHCPTuples',true);"></i>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                </div>
+                                                                            <div class="row-fluid">
+                                                                                <div id="DHCPTuples" class="row-fluid"></div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                            
+                                                <div>
+                                                    <div id = "StaticRoutes" class="widget-box transparent collapsed">
+                                                        <div class="widget-header">
+                                                            <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true,'#StaticRoutes');">
+                                                                <i class="icon-caret-right grey"></i>
+                                                                <span>Static Routes</span>
+                                                            </h5>
+                                                        </div>
+                                                        <div class="widget-body">
+                                                            <div class="widget-main padding-4">
+                                                            <div class="row-fluid margin-0-0-10">
+                                                                <label class="control-label">Static Routes</label>
+                                                                <div class="controls">
+                                                                    <div class="rule-item-header margin-0-0-10 span10">
+                                                                        <div class="row-fluid">
+                                                                            <div class="span11">
+                                                                                <h6>Static Routes</h6>
+                                                                            </div>
+                                                                            <div class="span1 pull-left">
+                                                                                <div title="Static Routes" class="margin-5 padding-10-0">
+                                                                                    <i class="pull-left icon-plus" id="StaticRoutesAdd"  onclick="appendStaticRouteEntry(this,'StaticRoutTuples', true);"></i>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row-fluid" id = "divStaticRoutesAdd">
+                                                                        <div id="StaticRoutTuples" class="row-fluid"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                </div>
+                                            </div>
+                                            <div class="row-fluid">
+                                            <div class="control-group">
+                                                <label class="control-label">Device Owner</label>
+                                                <div class="controls">
+                                                    <div class="row-fluid margin-0-0-10">
+                                                        <div class="span10">
+                                                            <div id="ddDeviceOwnerName" class="span6" ></div>
+                                                            <div id="ddDeviceOwnerUUID" class="span6" ></div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            </div>
+                                           <!-- <div class="row-fluid">
+                                                <label class="control-label">Tenant ID</label>
+                                                <div class="controls">
+                                                    <div class="row-fluid">
+                                                        <div id="ddTenentID" class="span10" ></div>
+                                                    </div>
+                                                </div>
+                                            </div>-->
+                                        </div>
+
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button id="btnCreatePortsCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+          <button id="btnCreatePortsOK" class="btn btn-primary btn-mini">Save</button>
+        </div>
+    </div>
+    
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div id="gridPorts"/>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirmRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>Confirm Removing record</h6>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnRemovePopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnRemovePopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+    
+    <div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center">
+                <h6>Confirm Port(s) delete</h6>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>

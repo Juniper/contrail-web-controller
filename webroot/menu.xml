@@ -524,7 +524,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Routers</searchStrings>
                         </item> 
-                        <!--<item>
+                        <item>
                             <label>Ports</label>
                             <hash>config_net_ports</hash>
                             <resources>
@@ -536,7 +536,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Ports</searchStrings>
-                        </item>-->
+                        </item>
                    </items>
                 </item>
                 <item>
