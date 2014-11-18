@@ -13,6 +13,12 @@ and need to add the iconClass tag wherever we need to show some icons
     <item>
       <label>Monitor</label>
       <name>monitor</name>
+      <resources>
+           <resource>
+             <rootDir>/common/ui</rootDir>
+             <js>controller-utils.js</js>
+           </resource>
+      </resources>
       <iconClass>icon-bar-chart</iconClass>
       <items>
         <item>
