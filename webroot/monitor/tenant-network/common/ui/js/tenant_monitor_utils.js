@@ -109,12 +109,12 @@ function ObjectListView() {
             },{
                 field:'name',
                 name:'UUID',
-                minWidth:260,
+                minWidth:250,
                 searchable: true
             },{
                 field:'intfCnt',
                 name:'Interfaces',
-                minWidth:80
+                minWidth:60
             },{
                 field:'vRouter',
                 name:'vRouter',
@@ -130,9 +130,9 @@ function ObjectListView() {
                 field:'ip',
                 name:'IP Address',
                 formatter:function(r,c,v,cd,dc){
-                    return getMultiValueStr(dc['ip']);
+                    return formatIPArr(dc['ip']);
                 },
-                minWidth:100
+                minWidth:130
             },{
                 field:'floatingIP',
                 name:'Floating IPs (In/Out)',
@@ -837,14 +837,19 @@ var tenantNetworkMonitorUtils = {
             obj['vRouter'] = ifNull(jsonPath(currObj, '$..vrouter')[0], '-');
             obj['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
             obj['vn'] = ifNull(jsonPath(currObj, '$..interface_list[*].virtual_network'),[]);
-            obj['vn'] = $.map(obj['vn'],function(value,idx) {
-                var fqNameArr = value.split(':');
-                if(fqNameArr.length == 3)
-                    return fqNameArr[2] + ' (' + fqNameArr[1] + ')';
-                else
-                    return value;
-            });
-            obj['ip'] = ifNull(jsonPath(currObj, '$..interface_list[*].ip_address'), []);
+            obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
+            obj['ip'] = [];
+            var intfList = ifNull(currObj['UveVirtualMachineAgent']['interface_list'],[]);
+            for(var i = 0; i < intfList.length; i++ ) {
+                if(intfList[i]['ip6_active'] == true) {
+                    if(intfList[i]['ip_address'] != '0.0.0.0')
+                        obj['ip'].push(intfList[i]['ip_address']);
+                    obj['ip'].push(intfList[i]['ip6_address']);
+                } else {
+                    if(intfList[i]['ip_address'] != '0.0.0.0')
+                        obj['ip'].push(intfList[i]['ip_address']);
+                }
+            }
             var floatingIPs = ifNull(jsonPath(currObj, '$..fip_stats_list')[0], []);
               obj['floatingIP'] = [];
             if(getValueByJsonPath(currObj,'VirtualMachineStats;if_stats') != null) {
@@ -865,7 +870,25 @@ var tenantNetworkMonitorUtils = {
         });
         return retArr;
     },
-    
+    /*
+     * This function formats the VN name by discarding the domain name and appending the 
+     * project name in the braces 
+     * input:either array of networks or single network like [default-domain:demo:ipv6test2],default-domain:demo:ipv6test2
+     * output:[ipv6test2 (demo)],ipv6test2 (demo)
+     */
+    formatVN: function(vn) {
+        var formattedValue
+        if(!$.isArray(vn))
+            vn = [vn];
+        formattedValue = $.map(vn,function(value,idx) {
+                                    var fqNameArr = value.split(':');
+                                    if(fqNameArr.length == 3)
+                                        return fqNameArr[2] + ' (' + fqNameArr[1] + ')';
+                                    else
+                                        return value;
+                                  });
+        return formattedValue;
+    },
     statsOracleParseFn: function(response,type) {
         var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
             var item = {};
@@ -993,7 +1016,7 @@ var tenantNetworkMonitorUtils = {
         var throughputIn = 0;
         var throughputOut = 0;
         var allSamples = 0;
-        spanWidths = [235,105,35,190,110,110,95,55]
+        spanWidths = [235,145,35,160,110,100,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
         var spanWidthsForFip = [95,250,300,110];
         retArr.push({lbl:'UUID',value:ifNull(rowData['name'],'-')});
@@ -1031,7 +1054,7 @@ var tenantNetworkMonitorUtils = {
         if(interfaces.length > 0) {
           //Here the Ip Address/Mac Address wraps to next line so to avoid the background color in second line 
           //the height property set to 40px
-            interfaceDetails.push({lbl:'Interfaces',value:['Interface UUID','IP Address /<br/> Mac Address','Label','Network','Traffic (In/Out) <br/>(Last 1 hr)','Throughput (In/Out)','Gateway','Status'],
+            interfaceDetails.push({lbl:'Interfaces',value:['Interface UUID','Addresses','Label','Network','Traffic (In/Out) <br/>(Last 1 hr)','Throughput (In/Out)','Gateway','Status'],
                                     span:spanWidths,config:{labels:true,minHeight:'40px'}});
         }
         $.each(interfaces,function(idx,obj) {
@@ -1058,9 +1081,25 @@ var tenantNetworkMonitorUtils = {
                 intfStatus = 'Active';
             else if(obj['active'] != null && obj['active'] == false)
                 intfStatus = 'InActive';
-            intfStr[idx] = [uuid, ifNull(obj['ip_address'],'-')+" /<br/> "+ifNull(obj['mac_address'],'-'), ifNull(obj['label'],'-'),
-                           ifNull(obj['virtual_network'],'-'), formatBytes(intfInBytes) + '/' + formatBytes(intfOutBytes),
-                           formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
+            var addr = "";
+            if(obj['ip6_active']) {
+                if(obj['ip_address'] != '0.0.0.0') {
+                    addr += wrapLabelValue('IPv4',ifNull(obj['ip_address'],'-'))+"<br/>"+wrapLabelValue('IPv6',ifNull(new v6.Address(obj['ip6_address']).correctForm(),'-'))
+                    +"<br/> "+wrapLabelValue('Mac',ifNull(obj['mac_address'],'-'));
+                } else {
+                    addr += wrapLabelValue('IPv6',ifNull(new v6.Address(obj['ip6_address']).correctForm(),'-'))
+                    +"<br/> "+wrapLabelValue('Mac',ifNull(obj['mac_address'],'-'));
+                }
+            } else {
+                if(obj['ip_address'] != '0.0.0.0') {
+                    addr += wrapLabelValue('IPv4',ifNull(obj['ip_address'],'-'))+"<br/>"+wrapLabelValue('Mac',ifNull(obj['mac_address'],'-'));
+                } else {
+                    addr += "<br/>"+wrapLabelValue('Mac',ifNull(obj['mac_address'],'-'));
+                }
+            }
+            intfStr[idx] = [uuid, addr, ifNull(obj['label'],'-'),ifNull(tenantNetworkMonitorUtils.formatVN(obj['virtual_network']),'-'),
+                            formatBytes(intfInBytes) + '/' + formatBytes(intfOutBytes),
+                            formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
         });
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
@@ -1834,6 +1873,29 @@ function getMultiValueStr(arr) {
     if(arr.length > 2)
         retStr += '<br/>' + contrail.format('({0} more)',arr.length-entriesToShow);
     return retStr;
+}
+/*
+ * This function accepts array of ips, checks the type(IPv4/IPv6) and 
+ * returns the label value html content of the first two elements of the array
+ * and more tag 
+ */
+function formatIPArr(arr) {
+    var retStr = '';
+    var entriesToShow = 2;
+    $.each(arr,function(idx,value) {
+        var lbl = 'IPv4',isIpv6 = false;
+        isIpv6 = isIPv6(value);
+        if(idx == 0) {
+            retStr += getLabelValueForIP(value);
+        } else if(idx < entriesToShow) {
+            retStr += "<br/>"+getLabelValueForIP(value);
+        }
+        else
+            return;
+    });
+    if(arr.length > 2)
+        retStr += '<br/>' + contrail.format('({0} more)',arr.length-entriesToShow);
+    return contrail.format(retStr);
 }
 
 function getSelInstanceFromDropDown() {
