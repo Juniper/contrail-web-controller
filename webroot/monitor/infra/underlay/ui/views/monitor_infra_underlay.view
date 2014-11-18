@@ -154,29 +154,16 @@ body > svg {
         {{/IfCompare}} -->
         {{#each this.intfObjs}}
             <div class="row-fluid">
-                <div class="widget-box span6 transparent" id="prouter-lclstats-widget-{{@index}}">
+                <div class="widget-box span12 transparent" id="prouter-lclstats-widget-{{@index}}">
                     <div class="widget-header">
                         <h4 class="smaller">
                             <i id="prouter-lclstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
-                            Traffic Statistics {{this.title}}
+                            Transmit Statistics {{this.title}}
                         </h4>
                     </div>
                     <div class="widget-body">
                         <div class="widget-main">
                             <div id="prouter-lclstats-{{@index}}" class='height-300'></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="widget-box span6 transparent" id="prouter-rmtstats-widget-{{@index}}">
-                    <div class="widget-header">
-                        <h4 class="smaller">
-                            <i id="prouter-rmtstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
-                            Traffic Statistics {{this.title}}
-                        </h4>
-                    </div>
-                    <div class="widget-body">
-                        <div class="widget-main">
-                            <div id="prouter-rmtstats-{{@index}}" class='height-300'></div>
                         </div>
                     </div>
                 </div>
