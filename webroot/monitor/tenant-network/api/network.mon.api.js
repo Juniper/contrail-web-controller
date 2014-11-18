@@ -292,13 +292,19 @@ function getVNVMData (vmJSON, vmName)
     try {
         var len = ipData[0].length;
         for (var i = 0; i < len; i++) {
-            resultJSON['ipList'][i] = {};
-            resultJSON['ipList'][i]['ip_address'] =
-                ipData[0][i]['ip_address'];
-            resultJSON['ipList'][i]['virtual_network'] =
-                ipData[0][i]['virtual_network'];
-            resultJSON['ipList'][i]['vm_vn_name'] = 
-                ipData[0][i]['name'];
+            var item = ipData[0][i];
+            var ipv4Obj = {};
+            ipv4Obj['ip_address'] = item['ip_address'];
+            ipv4Obj['virtual_network'] = item['virtual_network'];
+            ipv4Obj['vm_vn_name'] = item['name'];
+            resultJSON['ipList'].push(ipv4Obj);
+            if(item['ip6_active'] == true) {
+                var ipv6Obj = {};
+                ipv6Obj['ip_address'] = item['ip6_address'];
+                ipv6Obj['virtual_network'] = item['virtual_network'];
+                ipv6Obj['vm_vn_name'] = item['name'];
+                resultJSON['ipList'].push(ipv6Obj);
+            }
         }
     } catch(e) {
         console.log("In getVNVMData(): IP List JSON Parse error:" + e);

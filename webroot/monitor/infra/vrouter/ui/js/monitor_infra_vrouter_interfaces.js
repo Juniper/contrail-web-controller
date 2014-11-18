@@ -103,7 +103,21 @@ monitorInfraComputeInterfacesClass = (function() {
                        {
                            field:"ip_addr",
                            name:"IP Address",
-                           minWidth:100
+                           minWidth:100,
+                           formatter:function(r,c,v,cd,dc) {
+                               var ipColumnContent = '',breakStmt = false;
+                               if(dc['ip_addr'] != '0.0.0.0') {
+                                   ipColumnContent = getLabelValueForIP(dc['ip_addr']);
+                                   breakStmt = true;
+                               }
+                               if(dc['raw_json']['ip6_active'] == 'Active') {
+                                   if(breakStmt)
+                                       ipColumnContent += "<br/>"+getLabelValueForIP(dc['raw_json']['ip6_addr']);
+                                   else
+                                       ipColumnContent += getLabelValueForIP(dc['raw_json']['ip6_addr']);
+                               }
+                               return ipColumnContent;
+                           }
                        },
                        {
                            field:"disp_fip_list",
