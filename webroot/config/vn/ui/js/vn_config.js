@@ -317,7 +317,8 @@ function deleteVN(selected_rows) {
         cbParams.errorTitle = "Error";
         cbParams.errorShortMessage = "Error in deleting networks - ";
         cbParams.errorField = "Network";
-        cbParams.timeout = 120000;
+        if(isVCenter())
+            cbParams.timeout = 120000;
         deleteObject(cbParams);
     }
 }
@@ -701,9 +702,15 @@ function initActions() {
 
         console.log(JSON.stringify(vnConfig))
         if (mode === "add") {
+            if(isVCenter()) {
+                vnConfig['pVlanId'] = $('#txtPVlanId').val();
+            }
+            var addTimeout = 30000;
+            if(isVCenter())
+                addTimeout = 120000;
             //Info:In case of vCenter, issue a request to create a port-group
             doAjaxCall(getConfigURL("/api/tenants/config/virtual-networks"), "POST", JSON.stringify(vnConfig),
-                "createVNSuccessCb", "createVNFailureCb",null,null,120000);
+                "createVNSuccessCb", "createVNFailureCb",null,null,addTimeout);
             //Info:Check if network got created in APIServer from vCenter
             /*function waitForVNCreation() {
                 $.ajax({
@@ -721,7 +728,7 @@ function initActions() {
         else if (mode === "edit") {
             var vnUUID = jsonPath(configObj, "$.virtual-networks[?(@.fq_name[2]=='" + txtVNName.val() + "')]")[0].uuid;
             doAjaxCall("/api/tenants/config/virtual-network/" + vnUUID, "PUT", JSON.stringify(vnConfig),
-                "createVNSuccessCb", "createVNFailureCb", null, null, 120000);
+                "createVNSuccessCb", "createVNFailureCb", null, null, 30000);
         }
         windowCreateVN.modal("hide");
     });
@@ -2072,6 +2079,8 @@ function clearValuesFromDomElements() {
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
     msNetworkPolicies.data("contrailMultiselect").value("");
+    $('#txtPVlanId').parents('.control-group').hide();
+    $('#txtPVlanId').val('');
 
     clearFipEntries();
     clearRTEntries();
@@ -2098,6 +2107,7 @@ function showVNEditWindow(mode, rowIndex) {
     if($("#btnCreateVN").hasClass('disabled-link')) {
         return;
     }
+
 
     $("#widgetFip").addClass("collapsed");
     $("#widgetRT").addClass("collapsed");
@@ -2141,6 +2151,13 @@ function showVNEditWindow(mode, rowIndex) {
         function () {
             //all success
             clearValuesFromDomElements();
+            if(isVCenter()) {
+                if(mode == 'add') {
+                    $('#txtPVlanId').parents('.control-group').show();
+                } else {
+                    $('#txtPVlanId').parents('.control-group').hide();
+                }
+            }
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
             var l2Mode = results[3][0].L2_enable;
@@ -2404,6 +2421,18 @@ function validate() {
         return false;
     }*/
     var vnDisName = txtDisName.val().trim();
+    var pVlanId; 
+    if($('#txtPVlanId').is(':visible')) {
+        pVlanId = $('#txtPVlanId').val().trim();
+        if (typeof pVlanId === "undefined" || pVlanId === "" || !isNumber(pVlanId)) {
+            showInfoWindow("Enter a valid Private VLAN", "Input required");
+            return false;
+        }
+    }
+    if (typeof vnDisName === "undefined" || vnDisName === "") {
+        showInfoWindow("Enter a valid display network name", "Input required");
+        return false;
+    }
     if (typeof vnDisName === "undefined" || vnDisName === "") {
         showInfoWindow("Enter a valid display network name", "Input required");
         return false;

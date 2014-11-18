@@ -161,6 +161,9 @@ function createVirtualNetwork(req,res,appData) {
     var vnPostData = req.body;
     //Ensure only one subnet is specified
     var subnets;
+    var pVlanId;
+    pVlanId = vnPostData['pVlanId'];
+    delete vnPostData['pVlanId'];
     if(vnPostData['virtual-network']['network_ipam_refs'] != null)
         subnets = vnPostData['virtual-network']['network_ipam_refs'][0]['attr']['ipam_subnets']
     else {
@@ -173,6 +176,7 @@ function createVirtualNetwork(req,res,appData) {
     }
     var userData = {
             name    : vnPostData['virtual-network']['display_name'],
+            pVlanId : pVlanId,
             subnet  : {
                 gateway  : subnets[0]['default_gateway'],
                 address  : subnets[0]['subnet']['ip_prefix'],
