@@ -649,7 +649,9 @@ and need to add the iconClass tag wherever we need to show some icons
         <orchModels>
           <model>openstack</model>
           <model>cloudstack</model>
+          <model>vcenter</model>
         </orchModels>
+        <accessFn>hideInFederatedvCenter</accessFn>
       </access>
       <items>
         <item>
