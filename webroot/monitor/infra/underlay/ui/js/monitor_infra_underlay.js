@@ -1842,31 +1842,15 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     var rmtData = ifNull(rawFlowData[1],{});
                     var intfFlowData = [],lclInBytesData = [],lclOutBytesData = [],rmtInBytesData = [],rmtOutBytesData = [];
                     var lclFlows = ifNull(lclData['flow-series']['value'],[]);
-                    var rmtFlows = ifNull(rmtData['flow-series']['value'],[]),lclTitle,rmtTitle;
-                    lclTitle = contrail.format('Traffic statistics of link {0} ({1}) --> {2} ({3})',lclData['summary']['name'],
+                    var rmtFlows = ifNull(rmtData['flow-series']['value'],[]),chrtTitle;
+                    chrtTitle = contrail.format('Transmit statistics of link {0} ({1}) -- {2} ({3})',lclData['summary']['name'],
                             lclData['summary']['if_name'],rmtData['summary']['name'],rmtData['summary']['if_name']);
-                    rmtTitle = contrail.format('Traffic statistics of link {0} ({1}) --> {2} ({3})',rmtData['summary']['name'],
-                            rmtData['summary']['if_name'],lclData['summary']['name'],lclData['summary']['if_name']);
                     for(var j = 0; j < lclFlows.length; j++) {
                         var lclFlowObj = lclFlows[j];
                         lclInBytesData.push({
                             x: lclFlowObj['T='],
                             y: ifNull(lclFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
                         });
-                        lclOutBytesData.push({
-                            x: lclFlowObj['T='],
-                            y: ifNull(lclFlowObj['SUM(ifStats.ifOutUcastPkts)'],0)
-                        });
-                    }
-                    var lclChartObj = {
-                            title: lclTitle,
-                            data:[{
-                                key:'Transmit',
-                                values:lclInBytesData,
-                            },{
-                                key:'Receive',
-                                values:lclOutBytesData
-                            }]
                     }
                     for(var j = 0; j < rmtFlows.length; j++) {
                         var rmtFlowObj = rmtFlows[j];
@@ -1874,27 +1858,21 @@ underlayView.prototype.populateDetailsTab = function(data) {
                             x: rmtFlowObj['T='],
                             y: ifNull(rmtFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
                         });
-                        rmtOutBytesData.push({
-                            x: rmtFlowObj['T='],
-                            y: ifNull(rmtFlowObj['SUM(ifStats.ifOutUcastPkts)'],0)
-                        });
                     }
-                    var rmtChartObj = {
-                            title: rmtTitle,
+                    var chartObj = {
+                            title: chrtTitle,
                             data:[{
-                                key:'Transmit',
-                                values:rmtInBytesData,
+                                key:contrail.format('{0} ({1})',lclData['summary']['name'],lclData['summary']['if_name']),
+                                values:lclInBytesData,
                             },{
-                                key:'Receive',
-                                values:rmtOutBytesData
+                                key:contrail.format('{0} ({1})',rmtData['summary']['name'],rmtData['summary']['if_name']),
+                                values:rmtInBytesData
                             }]
                     }
                     var icontag = "<i id='prouter-ifstats-loading-0' class='icon-spinner icon-spin blue bigger-125' " +
                             "style='display: none;'></i>";
-                    $("#prouter-lclstats-widget-"+i).find('.widget-header > h4').html(icontag+lclTitle);
-                    initMemoryLineChart('#prouter-lclstats-'+i,lclChartObj['data'],{height:300});
-                    $("#prouter-rmtstats-widget-"+i).find('.widget-header > h4').html(icontag+rmtTitle);
-                    initMemoryLineChart('#prouter-rmtstats-'+i,rmtChartObj['data'],{height:300});
+                    $("#prouter-lclstats-widget-"+i).find('.widget-header > h4').html(icontag+chrtTitle);
+                    initMemoryLineChart('#prouter-lclstats-'+i,chartObj['data'],{height:300});
                 }
             } 
         }).always(function(response){
