@@ -28,11 +28,6 @@ var STATS_PROP = {
                 'outPkts':'SUM(fip_stats.out_pkts)'
                },
      };
-//Setting the project datasource in global obj
-globalObj['dataSources']['projectDS'] = {
-        data:null,
-        dataSource:null
-};
 function ObjectListView() {
     //Context & type 
     this.load = function(obj) {
@@ -1250,7 +1245,7 @@ var networkPopulateFns = {
 	    var role = globalObj['webServerInfo']['role'];
 	    var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode']; 	
             if(activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1){
-	      url = '/api/tenants/config/projects'; 
+                url = '/api/tenants/config/projects'; 
             }	
 	    $.when($.ajax({
                         url:url,
