@@ -586,7 +586,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                                         global.HTTP_STATUS_INTERNAL_ERROR, 
                                         global.STR_CACHE_RETRIEVE_ERROR,
                                         global.STR_CACHE_RETRIEVE_ERROR,
-                                        0, 0, done);
+                                        0, 0, done, jobData);
             return;
         }
         infraCmn.dovRouterListProcess(null, uuidList, nodeList, addGen, jobData,
@@ -596,7 +596,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                                             global.HTTP_STATUS_INTERNAL_ERROR, 
                                             global.STR_CACHE_RETRIEVE_ERROR,
                                             global.STR_CACHE_RETRIEVE_ERROR,
-                                            0, 0, done);
+                                            0, 0, done, jobData);
                 return;
             }
             if ((null == appData['addGen']) || 
@@ -737,7 +737,7 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
                                         global.HTTP_STATUS_INTERNAL_ERROR,
                                         global.STR_CACHE_RETRIEVE_ERROR,
                                         global.STR_CACHE_RETRIEVE_ERROR, 0,
-                                        0, done);
+                                        0, done, jobData);
             return;
         }
         var genCnt = data.length;
@@ -778,14 +778,14 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
         }
         /* Now issue request */
         async.mapSeries(postDataArr, getGeneratorsDataInChunk, 
-                        commonUtils.doEnsureExecution(function(err, data) {
+                        function(err, data) {
             /* Now Merge the data */
             if ((null != err) || (null == data)) {
                 redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                             global.HTTP_STATUS_INTERNAL_ERROR,
                                             global.STR_CACHE_RETRIEVE_ERROR,
                                             global.STR_CACHE_RETRIEVE_ERROR, 0,
-                                            0, done);
+                                            0, done, jobData);
                 return;
             }
             var cnt = data.length;
@@ -808,8 +808,8 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
                                         global.HTTP_STATUS_RESP_OK, 
                                         JSON.stringify(dataObj), 
                                         JSON.stringify(dataObj), 1, 0,
-                                        done);
-        }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
+                                        done, jobData);
+        });
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
