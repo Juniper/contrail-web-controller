@@ -963,7 +963,7 @@ function getQueryJSON4Table(tableName, autoSort, autoLimit)
             queryJSON['limit'] =  150000;
         }
     } else if(tableName == 'FlowRecordTable') {
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'], "limit": 150000};
+        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing', 'UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid', 'vrouter_ip', 'other_vrouter_ip', 'underlay_proto', 'underlay_source_port'], "limit": 150000};
     } else if(tableName.indexOf('Object') != -1) {
         queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Source", "ModuleId"], "sort_fields": ['MessageTS'], "sort": 2, "filter": [], "limit": 50000};
     } else if(tableName.indexOf('StatTable.') != -1) {

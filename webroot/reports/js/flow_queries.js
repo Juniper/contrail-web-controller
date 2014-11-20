@@ -41,9 +41,12 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
+    {select:"action", display:{id:"action", field:"action", width:90, name:"Action", groupable:true}},
     {select:"setup_time", display:{id:"setup_time", field:"setup_time", width:180, minWidth:180, name:"Setup Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.setup_time); }, filterable:false, groupable:false}},
     {select:"teardown_time", display:{id:"teardown_time", field:"teardown_time", width:210, name:"Teardown Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.teardown_time); }, filterable:false, groupable:false}},
     {select:"vrouter", display:{id:"vrouter", field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
+    {select:"vrouter_ip", display:{id:"vrouter_ip", field:"vrouter_ip", width:120, name:"Virtual Router IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter_ip);}}},
+    {select:"other_vrouter_ip", display:{id:"other_vrouter_ip", field:"other_vrouter_ip", width:120, name:"Other Virtual Router IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.other_vrouter_ip);}}},
     {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:250, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
     {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
     {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:120, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
@@ -52,11 +55,16 @@ frQuery['columnDisplay'] = [
     {select:"dport", display:{id:"dport", field:"dport", width:120, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
     {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:120, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
     {select:"protocol", display:{id:"protocol", field:"protocol", width:120, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"agg-bytes", display:{id:'["agg-bytes"]', field:'["agg-bytes"]', width:120, name:"Aggregate Bytes", format:"{0:n0}", groupable:false}},
-    {select:"agg-packets", display:{id:'["agg-packets"]', field:'["agg-packets"]', width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}}
+    {select:"underlay_proto", display:{id:"underlay_proto", field:"underlay_proto", width:120, name:"Underlay Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.underlay_proto);}}},
+    {select:"underlay_source_port", display:{id:"underlay_source_port", field:"underlay_source_port", width:120, name:"Underlay Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.underlay_source_port);}}},
+    {select:"UuidKey", display:{id:"UuidKey", field:"UuidKey", width:280, name:"UUID", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.UuidKey);}}},
+    {select:"sg_rule_uuid", display:{id:"sg_rule_uuid", field:"sg_rule_uuid", width:280, name:"Rule UUID", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sg_rule_uuid);}}},
+    {select:"nw_ace_uuid", display:{id:"nw_ace_uuid", field:"nw_ace_uuid", width:280, name:"Network UUID", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.nw_ace_uuid);}}},
+    {select:"agg-bytes", display:{id:"agg-bytes", field:"agg-bytes", width:120, name:"Aggregate Bytes", format:"{0:n0}", groupable:false}},
+    {select:"agg-packets", display:{id:"agg-packets", field:"agg-packets", width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}}
 ];
 
-frQuery['defaultColumns'] = ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'];
+frQuery['defaultColumns'] = ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing', 'UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid', 'vrouter_ip', 'other_vrouter_ip', 'underlay_proto', 'underlay_source_port'];
 fsQuery['defaultColumns'] = ['flow_class_id', 'direction_ing'];
 
 function getDirName(dirId) {
@@ -485,6 +493,7 @@ function setFSValidValues() {
     queries.fs.whereViewModel.selectFields(flowWhereFields);
     setNetworkValues('/api/admin/networks', ['sourcevn_sourceip', 'destvn_destip'], queries.fs.whereViewModel);
     setProtocolValues(['protocol_sport', 'protocol_dport'], queries.fs.whereViewModel);
+    setVirtualRouterValues('/api/admin/monitor/infrastructure/vrouters/cached-summary', ['vrouter'],queries.fs.whereViewModel);
     //TODO: Create a cache and get the values from that cache
 };
 
@@ -512,11 +521,36 @@ function setProtocolValues(viewModelKeys, viewModel) {
     }
 };
 
+function setVirtualRouterValues(url, viewModelKeys, viewModel) {
+    $.ajax({
+        url:url,
+        dataType:"json",
+        success:function (response) {
+            var validValueDS = formatVRouterNames(response);
+            var validValueObservable = ko.observableArray([]);
+            validValueObservable(validValueDS);
+            for (var i = 0; i < viewModelKeys.length; i++) {
+                viewModel[viewModelKeys[i]] = validValueObservable;
+            }
+        }
+    });
+};
+
 function formatNetworkNames(response, tableName) {
     var res = jsonPath(response, "$.virtual-networks[*].fq_name"),
         i, results = [];
     for (i = 0; i < res.length; i++) {
         results.push({"name":res[i].join(':'), "value":res[i].join(':')});
+    }
+    results.sort(objValueComparator);
+    return results;
+};
+
+function formatVRouterNames(response, tableName) {
+    var res = jsonPath(response, "$.data[*].name"),
+        i, results = [];
+    for (i = 0; i < res.length; i++) {
+        results.push({"name":res[i], "value":res[i]});
     }
     results.sort(objValueComparator);
     return results;
@@ -767,6 +801,7 @@ function setFRValidValues() {
     queries.fr.whereViewModel.selectFields(flowWhereFields);
     setNetworkValues('/api/admin/networks', ['sourcevn_sourceip', 'destvn_destip'], queries.fr.whereViewModel);
     setProtocolValues(['protocol_sport', 'protocol_dport'], queries.fr.whereViewModel);
+    setVirtualRouterValues('/api/admin/monitor/infrastructure/vrouters/cached-summary', ['vrouter'],queries.fr.whereViewModel);
 };
 //Flow Record Query - End
 
