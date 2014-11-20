@@ -134,13 +134,11 @@
                             </div>
                         </div>
                     </div>
-                    <div class="control-group hide">
-                        <label class="control-label">Private VLAN</label>
-                        <div class="controls">
-                            <div class="row-fluid">
-                                <input type="text" id="txtPVlanId" placeholder="Private VLAN" class="span8" />
-                            </div>
-                        </div>
+                    <div class="row-fluid control-group hide">
+                        <label style="width:160px" class="control-label">Primary VLAN</label>
+                        <input type="text" id="txtPVlanId" placeholder="Primary VLAN" style="margin-left:20px;width: 175px;" class="span2">
+                        <label style="width: 120px;margin-left:20px;display:inline-block">Secondary VLAN</label>
+                        <input type="text" id="txtSVlanId" placeholder="Secondary VLAN" class="span2" style="width: 175px;">
                     </div>
                     <div class="control-group">
                         <label class="control-label">Network Policy(s)</label>
