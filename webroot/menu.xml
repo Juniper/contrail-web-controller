@@ -371,6 +371,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Services</label>
                         </item>
                         -->
+                        <item>
+                            <label>Project Quotas</label>
+                            <hash>config_net_quotas</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/quotas/ui</rootDir>
+                                    <js>quotas_config.js</js>
+                                    <view>quotas_config.view</view>
+                                    <class>quotasConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Project Quotas</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
@@ -441,6 +454,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Configure Networks</searchStrings>
                         </item>
                         <item>
+                            <label>Ports</label>
+                            <hash>config_net_ports</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/ports/ui</rootDir>
+                                    <js>ports_config.js</js>
+                                    <view>ports_config.view</view>
+                                    <class>portsConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Ports</searchStrings>
+                        </item>
+                        <item>
                             <label>Policies</label>
                             <hash>config_net_policies</hash>
                             <resources>
@@ -452,45 +478,6 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Network Policies</searchStrings>
-                        </item>
-                        <item>
-                            <label>IP Address Management</label>
-                            <hash>config_net_ipam</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/ipaddressmanagement/ui</rootDir>
-                                    <js>ipam_config.js</js>
-                                    <view>ipam_config.view</view>
-                                    <class>IPAddressManagementObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>IP Address Management, IPAM</searchStrings>
-                        </item>
-                        <item>
-                            <label>Manage Floating IPs</label>
-                            <hash>config_net_fip</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/fip/ui</rootDir>
-                                    <js>fip_config.js</js>
-                                    <view>fip_config.view</view>
-                                    <class>FloatingIPConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Manage Floating IPs</searchStrings>
-                        </item>
-                        <item>
-                            <label>Project Quotas</label>
-                            <hash>config_net_quotas</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/config/quotas/ui</rootDir>
-                                    <js>quotas_config.js</js>
-                                    <view>quotas_config.view</view>
-                                    <class>quotasConfigObj</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Project Quotas</searchStrings>
                         </item>
                         <item>
                             <label>Security Groups</label>
@@ -519,17 +506,30 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Routers</searchStrings>
                         </item> -->
                         <item>
-                            <label>Ports</label>
-                            <hash>config_net_ports</hash>
+                            <label>IP Address Management</label>
+                            <hash>config_net_ipam</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/ports/ui</rootDir>
-                                    <js>ports_config.js</js>
-                                    <view>ports_config.view</view>
-                                    <class>portsConfigObj</class>
+                                    <rootDir>/config/ipaddressmanagement/ui</rootDir>
+                                    <js>ipam_config.js</js>
+                                    <view>ipam_config.view</view>
+                                    <class>IPAddressManagementObj</class>
                                 </resource>
                             </resources>
-                            <searchStrings>Ports</searchStrings>
+                            <searchStrings>IP Address Management, IPAM</searchStrings>
+                        </item>
+                        <item>
+                            <label>Manage Floating IPs</label>
+                            <hash>config_net_fip</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/fip/ui</rootDir>
+                                    <js>fip_config.js</js>
+                                    <view>fip_config.view</view>
+                                    <class>FloatingIPConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Manage Floating IPs</searchStrings>
                         </item>
                    </items>
                 </item>
