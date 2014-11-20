@@ -330,7 +330,8 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                     tempVMIResourceObj.push({"mac": vmi
                         ['virtual_machine_interface_mac_addresses']['mac_address'], "owner" : vmi['virtual_machine_interface_device_owner'],
                         "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
-                        "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : []});
+                        "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : [],
+                        "subnet" : vmi['subnet_back_refs'] != null ? vmi['subnet_back_refs'][0].to[0] : ''});
                      var instIPBackRefs = vmi['instance_ip_back_refs'];
                      //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
                      if(instIPBackRefs != null && instIPBackRefs.length > 0) {
@@ -361,15 +362,14 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                                  if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
                                      resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs,
                                                      "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                                     "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
+                                                     "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet']});
                                  }
                              } else {
                                  resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [],
                                                  "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                                 "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
+                                                 "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet']});
                              }
                          }
-                         console.log("DATA:", resultJSON);
                          if(callback != null) {
                              callback(resultJSON);
                          } else {
@@ -380,10 +380,9 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                      if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
                          resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [], 
                                          "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                         "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
+                                         "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet']});
                      } 
                      if(callback != null) {
-                         console.log("DATA:", JSON.stringify(resultJSON));
                          callback(resultJSON);
                      } else {
                          commonUtils.handleJSONResponse(null, response, resultJSON);
@@ -431,7 +430,7 @@ function mapVirtualMachineRefs(request, response, appData)
 {
     var vmiId = validateQueryParam(request, 'vmiId');
     var vmId  = UUID.create().hex.toString();
-    var vmPostData = {"virtual-machine" : {"fq_name" : [vmId], "name" : vmId}};
+    var vmPostData = {"virtual-machine" : {"fq_name" : [vmId], "name" : vmId, "uuid" : vmId}};
      configApiServer.apiPost('/virtual-machines', vmPostData, appData,
          function(error, vmData) {
              if(error) {
@@ -440,13 +439,11 @@ function mapVirtualMachineRefs(request, response, appData)
              }
              configApiServer.apiGet('/virtual-machine-interface/' + vmiId, appData,
                  function(err, vmiData) {
-                     if(err) {
+                     if(err || vmiData['virtual-machine-interface'] == null) {
                          commonUtils.handleJSONResponse(err, response, null);
                          return;
                      }
-                     if(vmiData['virtual-machine-interface'] != null) {
-                         vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [vmId]}];
-                     }
+                     vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [vmId]}];
                      configApiServer.apiPut('/virtual-machine-interface/' + vmiId, vmiData, appData,
                          function(er, updatedVMIData) {
                              if(er) {
@@ -454,7 +451,8 @@ function mapVirtualMachineRefs(request, response, appData)
                                 return;
                              }
                              commonUtils.handleJSONResponse(null, response, updatedVMIData);
-                         });
+                         }
+                     );
                  });
          });
 }
@@ -478,6 +476,68 @@ function deleteLIVirtualMachines (request, response, appData)
          });
 }
 
+/**
+ * @mapVMIRefsToSubnet
+ * public function
+ * 1. URL /api/tenants/config/set-subnet-refs/:vmiId
+ * 2. Creates subnet and Sets this ref to Virtual Machine Interface object in config api server
+ */
+function mapVMIRefsToSubnet(request, response, appData)
+{
+    var vmiId        = validateQueryParam(request, 'vmiId');
+    var subnetPostData     = request.body;
+    var subnetId = UUID.create().hex.toString();
+    subnetPostData['subnet']['fq_name'] = [subnetId];
+    subnetPostData['subnet']['name'] = subnetId;
+    subnetPostData['subnet']['uuid'] = subnetId;
+    configApiServer.apiPost('/subnets', subnetPostData, appData,
+        function(error, subnetDetails) {
+             if(error || subnetDetails['subnet'] == null) {
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
+             configApiServer.apiGet('/virtual-machine-interface/' + vmiId, appData,
+                 function(err, vmiData) {
+                      if(err || vmiData['virtual-machine-interface'] == null) {
+                         commonUtils.handleJSONResponse(err, response, null);
+                         return;
+                     }
+                     var subnet = subnetDetails['subnet'];
+                     subnet['virtual_machine_interface_refs'] = [{"to" : vmiData['virtual-machine-interface'].fq_name}];
+                     configApiServer.apiPut('/subnet/' + subnet.uuid, subnetDetails, appData,
+                         function(er, updatedSubnetData) {
+                             if(er) {
+                                commonUtils.handleJSONResponse(er, response, null);
+                                return;
+                             }
+                             commonUtils.handleJSONResponse(null, response, updatedSubnetData);
+                         }
+                     );
+                 }
+             );
+        }
+    );
+}
+
+/**
+ * @deleteLISubnets
+ * public function
+ * 1. URL /api/tenants/config/li-subnet/:id
+ * 2. deletes a subnet which has ref to li in config api server
+ */
+function deleteLISubnet (request, response, appData)
+{
+     var subnetId = validateQueryParam(request,'id');
+     configApiServer.apiDelete(/subnet/ + subnetId, appData,
+         function(error, data) {
+            if(error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
+            }
+            commonUtils.handleJSONResponse(error, response, data);
+         });
+}
+
  /* List all public function here */
 exports.getPhysicalInterfaces = getPhysicalInterfaces;
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
@@ -486,3 +546,6 @@ exports.deletePhysicalInterfaces = deletePhysicalInterfaces;
 exports.getVirtualNetworkInternals = getVirtualNetworkInternals;
 exports.mapVirtualMachineRefs = mapVirtualMachineRefs;
 exports.deleteLIVirtualMachines = deleteLIVirtualMachines;
+exports.mapVMIRefsToSubnet = mapVMIRefsToSubnet;
+exports.deleteLISubnet = deleteLISubnet;
+
