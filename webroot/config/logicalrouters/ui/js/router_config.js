@@ -12,6 +12,9 @@ function routerConfigObj() {
 
     //Dropdowns
     var ddDomain, ddProject, ddRouterStatus,ddExtGateway;
+    
+    
+    var msConnectedNetworks;
 
     //Grids
     var gridLogRouter;
@@ -131,7 +134,7 @@ function initComponents() {
             {
                 id:"lRouterStatus",
                 field:"lRouterStatus",
-                name:"Status",
+                name:"Admin State",
                 minWidth : 70,
             }
         ]
@@ -212,6 +215,14 @@ function initComponents() {
         dataTextField:"text",
         dataValueField:"value",
     });
+    msConnectedNetworks = $("#msConnectedNetworks").contrailMultiselect({
+        placeholder: "Select Networks",
+        dataTextField:"text",
+        dataValueField:"value",
+        dropdownCssClass: 'select2-medium-width'
+    });
+
+    
 
     $(ddRouterStatus).data("contrailDropdown").setData([{"text":"Up","value":true},{"text":"Down","value":false}]);
     $(ddRouterStatus).data("contrailDropdown").text("Up");
@@ -285,9 +296,8 @@ function initActions() {
         var instName = $(txtRouterName).val();
         var maxInstances = 1;
         var autoScale = false;
-        if(txtRouterName.attr("disabled") === "disabled"){
-            var uuid = $('#btnCreateLROK').data('uuid');
-            for(var inc = 0; inc < configObj["logical_router"].length; inc++){
+            
+/*            for(var inc = 0; inc < configObj["logical_router"].length; inc++){
                 if(uuid == configObj["logical_router"][inc]["uuid"]){
                     lRouter["logical-router"] = configObj["logical_router"][inc];
                     break;
@@ -309,16 +319,12 @@ function initActions() {
             } else {
                  lRouter["logical-router"]["virtual_network_refs"] = [];
             }
-            lRouter["logical-router"]["display_name"] = lRouter["logical-router"]["fq_name"][lRouter["logical-router"]["fq_name"].length-1];
-            console.log("update"+JSON.stringify(lRouter));
-            doAjaxCall("/api/tenants/config/logicalrouter/" + $('#btnCreateLROK').data('uuid'), "PUT", JSON.stringify(lRouter), "createLogicalRouterSuccessCb", "createLogRouterFailureCb");
-        } else {
+            lRouter["logical-router"]["display_name"] = lRouter["logical-router"]["fq_name"][lRouter["logical-router"]["fq_name"].length-1];*/
+
             lRouter["logical-router"] = {};
             lRouter["logical-router"]["parent_type"] = "project";
             lRouter["logical-router"]["fq_name"] = [];
-            lRouter["logical-router"]["fq_name"] = [selectedDomain,
-                selectedProject,
-                $(txtRouterName).val()];
+            lRouter["logical-router"]["fq_name"] = [selectedDomain, selectedProject, $(txtRouterName).val()];
             lRouter["logical-router"]["id_perms"] = {};
             lRouter["logical-router"]["id_perms"]["enable"] = JSON.parse($("#ddRouterStatus").data("contrailDropdown").value());
             if($("#ddExtGateway").data("contrailDropdown").value() != ""){
@@ -328,16 +334,56 @@ function initActions() {
                 obj.to = ($("#ddExtGateway").data("contrailDropdown").value()).split(":");
                 lRouter["logical-router"]["virtual_network_refs"][0] = obj;
             }
-            /*
-            for(var i=0; i<$("#ConnectedNetwork").children().length; i++) {
+            var selectedConnectedNetworks = $("#msConnectedNetworks").data("contrailMultiselect").value();
+            
+            if(selectedConnectedNetworks.length > 0){
                 lRouter["logical-router"]["virtual_machine_interface_refs"] = [];
-                lRouter["logical-router"]["virtual_machine_interface_refs"][0] = {};
-                lRouter["logical-router"]["virtual_machine_interface_refs"][0] = {};
+            }
+            var inc = 0;
+            for(var i=0; i<selectedConnectedNetworks.length; i++) {
+                var selectedSubnet = [];
+                for(var j = 0;j<network_subnet.length;j++){
+                    if(network_subnet[j]["value"] == selectedConnectedNetworks[i]){
+                        selectedSubnet = network_subnet[j]["subnet"];
+                    }
+                }
+                if(selectedSubnet.length > 0){
+                //["subnet"][j]["subnet"]["ipam_subnet"]
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc] = {};
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"][0] = selectedDomain;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"][1] = selectedProject;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0] = {};
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0] = {};
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["fixedIp"] = selectedSubnet[0]["subnet"]["default_gateway"];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["domain"] = selectedSubnet[0]["subnet"]["ipam"][0];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["project"] = selectedSubnet[0]["subnet"]["ipam"][1];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["subnet_uuid"] = selectedSubnet[0]["subnet"]["subnet_uuid"];
+                    /*if(mode == "edit"){
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["uuid"] = cidrValue["fixedipuuid"];
+                    }*/
+                    inc++;
+                }
+
+            }
+            if(txtRouterName.attr("disabled") === "disabled"){
+                var uuid = $('#btnCreateLROK').data('uuid');
+                var selectedLRoutedIDpermUUID = [];
+                for(var inc = 0; inc < configObj["logical_router"].length; inc++){
+                    if(uuid == configObj["logical_router"][inc]["uuid"]){
+                        selectedLRoutedIDpermUUID = configObj["logical_router"][inc]["id_perms"]["uuid"];
+                        break;
+                    }
+                }
+                lRouter["logical-router"]["id_perms"]["uuid"] = selectedLRoutedIDpermUUID;
+                console.log("update"+JSON.stringify(lRouter));
                 
-                
-            }*/
-            doAjaxCall("/api/tenants/config/logicalrouter", "POST", JSON.stringify(lRouter), "createLogicalRouterSuccessCb", "createLogRouterFailureCb");
-        }
+                doAjaxCall("/api/tenants/config/logicalrouter/" + $('#btnCreateLROK').data('uuid'), "PUT", JSON.stringify(lRouter), "createLogicalRouterSuccessCb", "createLogRouterFailureCb");
+            } else {
+                doAjaxCall("/api/tenants/config/logicalrouter", "POST", JSON.stringify(lRouter), "createLogicalRouterSuccessCb", "createLogRouterFailureCb");
+            }
         /*for(var i=0; i<$("#instanceDiv").children().length; i++) {
             var divid = String($("#instanceDiv").children()[i].id);
             var id = getID(divid);
@@ -574,20 +620,22 @@ function successHandlerForGridsLRouterRow(result) {
     LogicalRouterData = $("#gridLogRouter").data("contrailGrid")._dataView.getItems();
     var selectedDomainName = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProjectName = $("#ddProjectSwitcher").data("contrailDropdown").text();
-    for(var j=0;j < LogicalRouterConfig.length;j++) {
-        var logicalRouter = LogicalRouterConfig[j]['logical-router'];
-        var vmUUIds = [];
-        configObj["logical_router"].push(logicalRouter);
-        var logicalObjectObj = mapLogicalRouterData(logicalRouter,selectedProjectName,selectedDomainName);
-        LogicalRouterData.push({"Id":idCount++, "uuid":logicalObjectObj.uuid,
-            "routerName":logicalObjectObj.routerName,
-            "lRouterStatus":logicalObjectObj.lRouterStatus,
-            "externalGateway":logicalObjectObj.externalGateway,
-            "externalGatewayVal":logicalObjectObj.externalGatewayValue,
-            "connectedNetwork":logicalObjectObj.connectedNetwork,
-            "connectedNetworkArr":logicalObjectObj.connectedNetworkArr,
-            "InterfaceDetailArr":logicalObjectObj.InterfaceDetailArr
-        });
+    if(LogicalRouterConfig != null && LogicalRouterConfig != undefined){
+        for(var j=0;j < LogicalRouterConfig.length;j++) {
+            var logicalRouter = LogicalRouterConfig[j]['logical-router'];
+            var vmUUIds = [];
+            configObj["logical_router"].push(logicalRouter);
+            var logicalObjectObj = mapLogicalRouterData(logicalRouter,selectedProjectName,selectedDomainName);
+            LogicalRouterData.push({"Id":idCount++, "uuid":logicalObjectObj.uuid,
+                "routerName":logicalObjectObj.routerName,
+                "lRouterStatus":logicalObjectObj.lRouterStatus,
+                "externalGateway":logicalObjectObj.externalGateway,
+                "externalGatewayVal":logicalObjectObj.externalGatewayValue,
+                "connectedNetwork":logicalObjectObj.connectedNetwork,
+                "connectedNetworkArr":logicalObjectObj.connectedNetworkArr,
+                "InterfaceDetailArr":logicalObjectObj.InterfaceDetailArr
+            });
+        }
     }
     if(result.more == true || result.more == "true"){
         gridLogRouter.showGridMessage('loading');
@@ -609,7 +657,8 @@ function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){
         resultObject.lRouterStatus = "Down";
     }
     if(LogicalRuter["virtual_network_refs"] != "" && LogicalRuter["virtual_network_refs"] != undefined && LogicalRuter["virtual_network_refs"] != null){
-        resultObject.externalGatewayValue = LogicalRuter["virtual_network_refs"][0]["to"].join(":");
+        //resultObject.externalGatewayValue = [];
+        resultObject.externalGatewayValue = (LogicalRuter["virtual_network_refs"][0]["to"].join(":"));
         var externalNet = LogicalRuter["virtual_network_refs"][0]["to"];
         if(externalNet[0] == selectedDomainName && externalNet[1] == projectName){
            resultObject.externalGateway = externalNet[2];
@@ -619,20 +668,31 @@ function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){
     }
     resultObject.connectedNetwork = "";
     resultObject.connectedNetworkArr = [];
+    resultObject.InterfaceDetailArr = [];
+    
     if(LogicalRuter["virtual_machine_interface_refs"] != undefined && LogicalRuter["virtual_machine_interface_refs"] != ""){
         for(var inc = 0 ; inc < LogicalRuter["virtual_machine_interface_refs"].length;inc++){
-            var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["to"];
+            var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"][0]["to"];
+            var uuid = LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"];
+            var network = "";
+            var ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
+            if(ip == undefined){
+                ip = "";
+            }
             resultObject.connectedNetworkArr.push(connectedNetwork.join(":"));
             if(resultObject.connectedNetwork != "") 
                 resultObject.connectedNetwork += ", ";
             if(connectedNetwork[0] == selectedDomainName && connectedNetwork[1] == projectName){
                resultObject.connectedNetwork += connectedNetwork[2];
+               network = connectedNetwork[2];
             } else {
                resultObject.connectedNetwork += connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";
+               network = connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";;
             }
+            resultObject.InterfaceDetailArr.push({"uuid":uuid,"network":network,"ip":ip});
         }
     }
-    resultObject.InterfaceDetailArr = [];
+    
     return resultObject;
 }
 
@@ -958,10 +1018,14 @@ function logRouterCreateWindow(mode,rowIndex) {
                 }
                 externalNetworks.push({'text':networkText,'value':val})
             }
+            
             $(ddExtGateway).data("contrailDropdown").setData(externalNetworks);
-            if(externalNetworks.length > 0) {
-                $(ddExtGateway).data("contrailDropdown").text(externalNetworks[0].value);
-            }
+            $(ddExtGateway).data("contrailDropdown").value("");
+            //if(externalNetworks.length > 0) {
+            //    $(ddExtGateway).data("contrailDropdown").value(externalNetworks[0].value);
+            //}
+            
+            $("#msConnectedNetworks").data("contrailMultiselect").setData(networks);
 
             $("#ConnectedNetwork").empty();
             windowCreateRouter.modal('show');
@@ -975,6 +1039,8 @@ function logRouterCreateWindow(mode,rowIndex) {
                 windowCreateRouter.find('.modal-header-title').text("Create Router");
                 $("#txtRouterName").removeAttr("disabled","disabled");
             }
+            
+            
         },
         function () {
             //If atleast one api fails
@@ -1011,14 +1077,17 @@ function editWindow(rowIndex){
     $("#ddRouterStatus").data("contrailDropdown").value("false");
     if(selectedRow.lRouterStatus == "Up")
     $("#ddRouterStatus").data("contrailDropdown").value("true");
-    $("#ddExtGateway").data("contrailDropdown").value(selectedRow.externalGatewayVal);
-    if(selectedRow.connectedNetworkArr.length > 0){
+    console.log(selectedRow.externalGatewayVal)
+    $(ddExtGateway).data("contrailDropdown").value(selectedRow.externalGatewayVal);
+    $("#msConnectedNetworks").data("contrailMultiselect").value(selectedRow.connectedNetworkArr);
+    
+    /*if(selectedRow.connectedNetworkArr.length > 0){
     var len = selectedRow.connectedNetworkArr.length;
         for(var i = 0; i<len;i++){
             var connectedNetEntry = createConnectedNetworkEntry(selectedRow.connectedNetworkArr[i],"ConnectedNetwork")
             $("#ConnectedNetwork").append($(connectedNetEntry));
         }
-    }
+    }*/
     
 }
 function ucfirst(str) {
@@ -1187,39 +1256,10 @@ Handlebars.registerHelper("interfaceDetail",function(InterfaceDetailArr,options)
     var returnHtml = '';
     for(k=0;k<InterfaceDetailArr.length;k++){
         returnHtml += '<div>';
-        returnHtml += '<div class="span2">' + InterfaceDetailArr[k][1] +'</div>';
-        returnHtml += '<div class="span2">';
-        var Stat = String(InterfaceDetailArr[k][2]).toUpperCase();
-        if(Stat == "SPAWNING"){
-            returnHtml += '<img src="/img/loading.gif">';
-        } else if(Stat == "INACTIVE") {
-            returnHtml += '<span class="status-badge-rounded status-inactive"></span>';
-        } else if(Stat == "PARTIALLY ACTIVE"){
-            returnHtml += '<img src="/img/loading.gif">'
-        } else if(Stat == "ACTIVE"){
-            returnHtml += '<span class="status-badge-rounded status-active"></span>'
-        } else if(Stat == "UPDATE"){
-            returnHtml += 'Updating';
-        }
-        returnHtml += InterfaceDetailArr[k][2]+' </div>';
-        returnHtml += '<div class="span2">' +InterfaceDetailArr[k][3] +'</div>';
-        returnHtml += '<div class="span6">';
-        var InstDetailStr = InterfaceDetailArr[k][4].split("~~");
-        if(InstDetailStr.length > 1) {
-            returnHtml += '<div class="span10">';
-            var msgSplit = InstDetailStr[0].split(" ");
-            var msgStr = msgSplit[msgSplit.length-1] + " IP Address not assigned.";
-            returnHtml += InstDetailStr[0];
-            for(var inc = 0;inc < InstDetailStr.length-1;inc++) {
-                returnHtml += '&nbsp;&nbsp;<span class="status-badge-rounded status-inactive" title="#= msgStr #" ></span>'
-                returnHtml += InstDetailStr[inc+1];
-            }
-            returnHtml += '</div>';
-        } else {
-            returnHtml += '<div class="span10">'+ InstDetailStr +'</div>';
-        }
-        
-        returnHtml += '</div></div>';
+        returnHtml += '<div class="span4">' + InterfaceDetailArr[k]["uuid"] +'</div>';
+        returnHtml += '<div class="span3">' + InterfaceDetailArr[k]["network"] +'</div>';
+        returnHtml += '<div class="span3">' + InterfaceDetailArr[k]["ip"] +'</div>';        
+        returnHtml += '</div>';
     }
     return returnHtml;
 });
