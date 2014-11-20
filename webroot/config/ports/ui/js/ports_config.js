@@ -109,33 +109,65 @@ function initComponents() {
             {
                 id:"portUUID",
                 field:"portUUID",
-                name:"Port",
-                width:400,
+                name:"UUID",
+                width:225,
                 sortable: true
             },
             {
                 id: "vnString",
                 field: "vnString",
                 name: "Network",
-                width:200
+                width:175
             },
             {
-                id: "fixedip",
-                field: "fixedip",
+                id: "fixedIPVal",
+                field: "fixedIPVal",
                 name: "Fixed IPs",
-                width:100
+                formatter: function(r, c, v, cd, dc) {
+                    var returnString = "";
+                    if(typeof dc.fixedIPVal === "object") {
+                       for(var i=0; i<dc.fixedIPVal.length, i<2; i++) {
+                           if(typeof dc.fixedIPVal[i] !== "undefined") {
+                               returnString += dc.fixedIPVal[i] + "<br>";
+                           }
+                       }
+                       if(dc.fixedIPVal.length > 2) {
+                           returnString += '<span class="moredataText">(' + 
+                           (dc.fixedIPVal.length-2) + 
+                           ' more)</span><span class="moredata" style="display:none;"></span>';
+                       }
+                    }
+                    return returnString;
+                },
+                width:150
+            },
+            {
+                id: "floatingIPVal",
+                field: "floatingIPVal",
+                name: "Floating IPs",
+                formatter: function(r, c, v, cd, dc) {
+                    var returnString = "";
+                    if(typeof dc.floatingIPVal === "object") {
+                       for(var i=0; i<dc.floatingIPVal.length, i<2; i++) {
+                           if(typeof dc.floatingIPVal[i] !== "undefined") {
+                               returnString += dc.floatingIPVal[i] + "<br>";
+                           }
+                       }
+                       if(dc.floatingIPVal.length > 2) {
+                           returnString += '<span class="moredataText">(' + 
+                           (dc.floatingIPVal.length-2) + 
+                           ' more)</span><span class="moredata" style="display:none;"></span>';
+                       }
+                    }
+                    return returnString;
+                },
+                width:150
             },
             {
                 id: "devOwnerName",
                 field: "devOwnerName",
                 name: "Owner",
-                width:200
-            },
-            {
-                id: "floatingIP",
-                field: "floatingIP",
-                name: "Floating IPs",
-                width:100
+                width:150
             },
             /*{
                 id: "AllowedAddressPair",
@@ -255,14 +287,14 @@ function initComponents() {
     });*/
 
     msSecurityGroup = $("#msSecurityGroup").contrailMultiselect({
-        placeholder: "Select Security Group...",
+        placeholder: "Select Security Group",
         dataTextField:"text",
         dataValueField:"value",
         dropdownCssClass: 'select2-medium-width'
     });
     
     msFloatingIp = $("#msFloatingIp").contrailMultiselect({
-        placeholder: "Select Floating IP...",
+        placeholder: "Select Floating IPs",
         dataTextField:"text",
         dataValueField:"value",
         dropdownCssClass: 'select2-medium-width'
@@ -404,7 +436,12 @@ function initActions() {
         if(deviceName == "None"){
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
         } else if(deviceName == "router"){
+            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "network:router_interface";
+            portConfig["virtual-machine-interface"]["logical_router_back_refs"] = [];
+            portConfig["virtual-machine-interface"]["logical_router_back_refs"][0] = {};
+            portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["to"] = deviceDetail[0]["to"];
+            portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"] = deviceDetail[0]["uuid"];
         } else if(deviceName == "compute"){
             var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
@@ -488,12 +525,13 @@ function initActions() {
         // Static Route
         var staticIPElement = "StaticRoutTuples";
         var allStaticIPTuples = $("#"+staticIPElement)[0].children;
+        portConfig["virtual-machine-interface"]["interface_route_table_refs"] = [];
         if (allStaticIPTuples && allStaticIPTuples.length > 0) {
-            portConfig["virtual-machine-interface"]["interface_route_table_refs"] = [];
             for(i = 0 ; i< allStaticIPTuples.length ; i++){
                 var divid = allStaticIPTuples[i].id;
                 var id = getID(divid);
                 var staticIPValue = $("#"+staticIPElement+"_"+id+"_txtPrefix").val();
+                var staticIPNextHop = $("#"+staticIPElement+"_"+id+"_txtNextHop").val();
                 var staticIPData = $("#"+staticIPElement+"_"+id+"_SRdata").val();
                 portConfig["virtual-machine-interface"]["interface_route_table_refs"][i] = {};
                 portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"] = {};
@@ -532,11 +570,11 @@ function initActions() {
         
         
         //Allow Address Pair
+        portConfig["virtual_machine_interface_allowed_address_pairs"] = {};
         if($("#is_AAP")[0].checked == true){
             var aapElement = "AAPTuples";
             var allaapTuples = $("#"+aapElement)[0].children;
             if (allaapTuples && allaapTuples.length > 0) {
-                portConfig["virtual_machine_interface_allowed_address_pairs"] = {};
                 portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"] = {};
                 portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"]["allowed_address_pair"] = [];
 
@@ -1052,7 +1090,9 @@ function successHandlerForgridPortsRow(result) {
                              "deviceOwner":mapedData.deviceOwner,
                              "devOwnerName":mapedData.devOwnerName,
                              "fixedip":mapedData.fixedip,
+                             "fixedIPVal":mapedData.fixedIPVal,
                              "floatingIP":mapedData.floatingIP,
+                             "floatingIPVal":mapedData.floatingIPVal,
                              "macAddress":mapedData.macAddress,
                              "AllowedAddressPair":mapedData.AllowedAddressPair,
                              "DHCPOption":mapedData.DHCPOption,
@@ -1119,6 +1159,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
         }
     }
     var fixedIPString = "";
+    var fixedIPVal = [];
     var fixedIPValue = [];
     if(portData["instance_ip_back_refs"] != undefined && portData["instance_ip_back_refs"] != null){
         var fixedIP = portData["instance_ip_back_refs"];
@@ -1130,12 +1171,14 @@ function mapVMIData(portData,selectedDomain,selectedProject){
                     if(fixedIPString != "") fixedIPString += ", ";
                     fixedIPString += fixedIP[i]["fixedip"]["ip"];
                     fixedIPValue.push({"fixedip":fixedIP[i]["fixedip"]["ip"],'subnetid':fixedIP[i]["fixedip"]["subnet_uuid"],'fixedipuuid':fixedIP[i]['uuid']});
+                    fixedIPVal.push(fixedIP[i]["fixedip"]["ip"]);
                 }
             }
         }
     }
     
     var floatingIPString = "";
+    var floatingIPVal = [];
     var floatingIPValue = [];
     if(portData["floating_ip_back_refs"] != undefined && portData["floating_ip_back_refs"] != null){
         var floatingIP = portData["floating_ip_back_refs"];
@@ -1148,6 +1191,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
                     floatingIPString += floatingIP[i]["floatingip"]["ip"];
                     var val = floatingIP[i].uuid;
                     floatingIPValue.push(val);
+                    floatingIPVal.push(floatingIP[i]["floatingip"]["ip"]);
                 }
             }
         }
@@ -1177,7 +1221,10 @@ function mapVMIData(portData,selectedDomain,selectedProject){
                    staticIP[i]["sharedip"]["route"].length > 0 && staticIP[i]["sharedip"]["route"][0]["prefix"] !== null){
                     if(staticIPString != "") staticIPString += ", ";
                     staticIPString += staticIP[i]["sharedip"]["route"][0]["prefix"];
-                    staticIPValue.push({"prefix":staticIP[i]["sharedip"]["route"][0]["prefix"],"uuid":staticIP[i]["uuid"],"to":staticIP[i]["to"]});
+                    if(staticIP[i]["sharedip"]["route"][0]["next_hop"] != "" && staticIP[i]["sharedip"]["route"][0]["next_hop"] != null){
+                        staticIPString += ":"+staticIP[i]["sharedip"]["route"][0]["next_hop"];
+                    }
+                    staticIPValue.push({"prefix":staticIP[i]["sharedip"]["route"][0]["prefix"],"nexthop":staticIP[i]["sharedip"]["route"][0]["next_hop"],"uuid":staticIP[i]["uuid"],"to":staticIP[i]["to"]});
                 }
             }
         }
@@ -1199,10 +1246,14 @@ function mapVMIData(portData,selectedDomain,selectedProject){
         }
         for(var AAPinc = 0;AAPinc < AAPLen;AAPinc++){
             var address = "";
-            if(AAP[AAPinc]["ip"]["ip_prefix"] != ""){
+            if(("ip" in AAP[AAPinc]) &&
+              ("ip_prefix" in AAP[AAPinc]["ip"]) &&
+              (AAP[AAPinc]["ip"]["ip_prefix"] != undefined ) &&
+              (AAP[AAPinc]["ip"]["ip_prefix"] != null )){
                 address = AAP[AAPinc]["ip"]["ip_prefix"] +"/"+ AAP[AAPinc]["ip"]["ip_prefix_len"];
             }
-            if(AAP[AAPinc]["mac"] != ""){
+            if(("mac" in AAP[AAPinc]) &&
+              (AAP[AAPinc]["mac"] != "")){
                 if((address) != "") address += ", "; 
                 address += AAP[AAPinc]["mac"];
             }
@@ -1226,7 +1277,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     if(devOwner == "network:router_interface"){
         if("logical_router_back_refs" in portData && portData["logical_router_back_refs"].length >= 0 ){
             deviceOwnerValue = "router";
-            devOwnerName = "Router";
+            //devOwnerName = "Router";
             var deviceUUIDArr = [];
             deviceUUIDArr.push({"to":portData["logical_router_back_refs"][0]["to"],"uuid":portData["logical_router_back_refs"][0]["uuid"]});
             deviceOwnerUUIDValue = JSON.stringify(deviceUUIDArr);
@@ -1235,7 +1286,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     } else  if(devOwner == "compute:nova"){
         if("virtual_machine_refs" in portData && portData["virtual_machine_refs"].length >= 0 ){
             deviceOwnerValue = "compute";
-            devOwnerName = "Nova";
+            //devOwnerName = "Nova";
             var deviceUUIDArr = []
             deviceUUIDArr.push({"to":portData["virtual_machine_refs"][0]["to"],"uuid":portData["virtual_machine_refs"][0]["uuid"]});
             deviceOwnerUUIDValue = JSON.stringify(deviceUUIDArr);
@@ -1259,8 +1310,10 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     returnMapData.vnString = vnString;
     returnMapData.vnValues = vnValues;
     returnMapData.fixedip = fixedIPString;
+    returnMapData.fixedIPVal = fixedIPVal;
     returnMapData.fixedIPValue = fixedIPValue;
     returnMapData.floatingIP = floatingIPString;
+    returnMapData.floatingIPVal = floatingIPVal;
     returnMapData.floatingIPValue = floatingIPValue;
     returnMapData.DHCPOption = DHCPOption;
     returnMapData.macAddress = macAddress;
@@ -1441,6 +1494,11 @@ function showPortEditWindow(mode, rowIndex) {
     if($("#btnCreatePorts").hasClass('disabled-link')) {
         return;
     }
+    if (mode === "add") {
+        windowCreatePorts.find('.modal-header-title').text('Create Port');
+    } else {
+        windowCreatePorts.find('.modal-header-title').text('Edit Port');
+    }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var selectedProjectVal = $("#ddProjectSwitcher").data("contrailDropdown").value();
@@ -1464,6 +1522,10 @@ function showPortEditWindow(mode, rowIndex) {
     });
     getAjaxs[3] = $.ajax({
         url:"/api/admin/config/get-data?type=ports&fqnUUID="+selectedProjectVal,
+        type:"GET"
+    });
+    getAjaxs[4] = $.ajax({
+        url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
         type:"GET"
     });
 
@@ -1594,16 +1656,7 @@ function showPortEditWindow(mode, rowIndex) {
                         }
                     }
                     
-                    if(ip["virtual_machine_interface_device_owner"] == "network:router_interface"){
-                        // take it from logical router
-                        if("logical_router_back_refs" in ip && ip["logical_router_back_refs"].length >=0){
-                            var logicalRouter = ip["logical_router_back_refs"];
-                            var text = logicalRouter[0]["to"][2] + " (" + logicalRouter[0]["uuid"] + ")";
-                            var valArr = [];
-                            valArr.push({"to":logicalRouter[0]["to"], "uuid":logicalRouter[0]["uuid"]});
-                            routerUUID.push({"text":text,"value":JSON.stringify(valArr)});
-                        }
-                    } else if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
+                    if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
                         //take it from VMR
                         if("virtual_machine_refs" in ip && ip["virtual_machine_refs"].length >=0){
                             var compute = ip["virtual_machine_refs"];
@@ -1613,6 +1666,17 @@ function showPortEditWindow(mode, rowIndex) {
                             computeUUID.push({"text":text,"value":JSON.stringify(valArr)});
                         }
                     }
+                }
+            }
+            if(results[4][0] != null && results[4][0] != "" && results[4][0]["data"] && results[4][0]["data"].length > 0) {
+                var logicalRouter = results[4][0]["data"];
+                for(var lrInc = 0; lrInc < logicalRouter.length; lrInc++){
+                    // take it from logical router
+                    var localLogicalRout = logicalRouter[lrInc]["logical-router"]
+                    var text = localLogicalRout["fq_name"][2] + " (" + localLogicalRout["uuid"] + ")";
+                    var valArr = [];
+                    valArr.push({"to":localLogicalRout["fq_name"], "uuid":localLogicalRout["uuid"]});
+                    routerUUID.push({"text":text,"value":JSON.stringify(valArr)});
                 }
             }
             /*
@@ -1711,18 +1775,26 @@ is_SG
                 if(mapedData.sgMSValues.length > 0){
                     $("#msSecurityGroup").data("contrailMultiselect").value(mapedData.sgMSValues);
                 } else {
-                    $("#msSecurityGroup").data("contrailMultiselect").value(mapedData.sgMSValues);
+                    $("#is_SG")[0].checked = false;
+                    $("#msSecurityGroup").addClass("hide");
+                    $("#msSecurityGroup").data("contrailMultiselect").value("");
                 }
                 
                 var element = "FixedIPTuples";
-                $("#"+element).empty()
-                for(var localInc = 0; localInc < mapedData.fixedIPValue.length;localInc++){
-                    dynamicID++;
-                    var FixedIPEntry = createFixedIPEntry(mapedData.fixedIPValue[localInc], dynamicID,element);
-                    $("#"+element).append(FixedIPEntry);
+                $("#"+element).empty();
+                if(mapedData.fixedIPValue.length <= 0){
+                    $("#is_FixedIp")[0].checked = false;
+                    $("#fixedipContainer").addClass("hide");
+
+                } else {
                     $("#fixedipContainer").removeClass("hide");
+                    for(var localInc = 0; localInc < mapedData.fixedIPValue.length;localInc++){
+                        dynamicID++;
+                        var FixedIPEntry = createFixedIPEntry(mapedData.fixedIPValue[localInc], dynamicID,element);
+                        $("#"+element).append(FixedIPEntry);
+                        
+                    }
                 }
-                
                 var floatingIPArr = [];
                 //element = "FloatingIPTuples";
                 for(var localInc = 0; localInc < mapedData.floatingIPValue.length;localInc++){
@@ -1786,7 +1858,7 @@ is_SG
                         for(var AAPinc = 0; AAPinc < mapedData.AllowedAddressPairValue.length; AAPinc++){
                             dynamicID++;
                             var element = "AAPTuples";
-                            var AAPEntry = createAAPEntry(mapedData.AllowedAddressPairValue[AAPinc],dynamicID,element);
+                            var AAPEntry = appendAAPEntry(mapedData.AllowedAddressPairValue[AAPinc],element);
                             $("#"+element).append($(AAPEntry));
                         }
                     }
@@ -1950,7 +2022,7 @@ function createDHCPEntry(DHCPData, id,element) {
     var inputTxtDHCPCode = document.createElement("input");
     inputTxtDHCPCode.type = "text";
     inputTxtDHCPCode.className = "span12";
-    inputTxtDHCPCode.setAttribute("placeholder", "DHCP option");
+    inputTxtDHCPCode.setAttribute("placeholder", "Option code");
     inputTxtDHCPCode.setAttribute("id", element+"_"+id+"_txtDHCPCode");
     var divDHCPName = document.createElement("div");
     divDHCPName.className = "span5";
@@ -1959,7 +2031,7 @@ function createDHCPEntry(DHCPData, id,element) {
     var inputTxtDHCPValue = document.createElement("input");
     inputTxtDHCPValue.type = "text";
     inputTxtDHCPValue.className = "span12";
-    inputTxtDHCPValue.setAttribute("placeholder", "Value");
+    inputTxtDHCPValue.setAttribute("placeholder", "Option value");
     inputTxtDHCPValue.setAttribute("id", element+"_"+id+"_txtDHCPValue");
     var divDHCPCode = document.createElement("div");
     divDHCPCode.className = "span5";
@@ -1992,7 +2064,7 @@ function createDHCPEntry(DHCPData, id,element) {
 
     var rootDiv = document.createElement("div");
     rootDiv.id = element + "_" + id;
-    rootDiv.className = "span11 margin-0-0-5";
+    rootDiv.className = "";
     rootDiv.appendChild(divRowFluidMargin5);
 
     if (null !== DHCPData && typeof DHCPData !== "undefined" && DHCPData.length > 1) {
@@ -2110,7 +2182,6 @@ function createFixedIPEntry(FixedIPData, id,element) {
         subnetData.push({"text" : FixedIPData.fixedip , "value":JSON.stringify(SubnetVal)});
         $(inputTxtFixedIPValue).val(FixedIPData.fixedip);
         $(inputTxtFixedIPValue).attr("disabled","disabled");
-        $(inputTxtFixedIPValue).addClass("hide");
         $(ddFixedIPSubnet).attr("disabled","disabled");
         $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
     } else {
@@ -2184,7 +2255,7 @@ function appendAAPEntry(who,element, defaultRow) {
     dynamicID++;
     var AAPEntry = createAAPEntry(null, dynamicID,element);
     if (defaultRow) {
-        $("#"+element).prepend($(AAPEntry));
+        $("#"+element).append($(AAPEntry));
     } else {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(AAPEntry, parentEl.nextSibling);
@@ -2276,23 +2347,19 @@ function deleteAAPEntry(who) {
 
 function validateAAP(element){
     return true;
-/*    var len = $("#"+element).children().length;
+    var len = $("#"+element).children().length;
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var elementid = getID($("#"+element).children()[i].id);
-            var FixedIPSubnet = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data("contrailDropdown").value();
-            if (typeof FixedIPSubnet === "undefined" || FixedIPSubnet.trim() === "") {
-                showInfoWindow("Enter FixedIP Subnet", "Input required");
-                return false;
-            }
-            var FixedIPValue = $("#"+element +"_"+ elementid +"_txtFixedIPValue").val();
-            if (typeof FixedIPValue === "undefined" || FixedIPValue.trim() === "") {
-                showInfoWindow("Enter FixedIP Value", "Input required");
+            var IP = $("#"+element +"_"+ elementid +"_txtAddAllowPairMAC").val();
+            var MAC = $("#"+element +"_"+ elementid +"_txtAddAllowPairMAC").val();
+            if (IP.trim() === "" && MAC.trim() === "") {
+                showInfoWindow("Enter IP or MAC Address", "Input required");
                 return false;
             }
         }
     }
-    return true;*/
+    return true;
 }
 
 ////////End of Allow Address pair///////////////////////////
@@ -2318,11 +2385,20 @@ function createstaticRouteEntry(staticIp, id,element) {
     var inputTxtPrefix = document.createElement("input");
     inputTxtPrefix.type = "text";
     inputTxtPrefix.className = "span12";
-    inputTxtPrefix.setAttribute("placeholder", "xxx.xxx.xxx.xxx");
+    inputTxtPrefix.setAttribute("placeholder", "Prefix");
     inputTxtPrefix.setAttribute("id",element+"_"+id+"_txtPrefix");
     var divPrefix = document.createElement("div");
-    divPrefix.className = "span9";
+    divPrefix.className = "span10";
     divPrefix.appendChild(inputTxtPrefix);
+    
+    var inputTxtNextHop = document.createElement("input");
+    inputTxtNextHop.type = "text";
+    inputTxtNextHop.className = "span12";
+    inputTxtNextHop.setAttribute("placeholder", "Next Hop");
+    inputTxtNextHop.setAttribute("id",element+"_"+id+"_txtNextHop");
+    var divNextHop = document.createElement("div");
+    divNextHop.className = "span5";
+    divNextHop.appendChild(inputTxtNextHop);
 
     var inputTxtData = document.createElement("input");
     inputTxtData.type = "text";
@@ -2330,7 +2406,6 @@ function createstaticRouteEntry(staticIp, id,element) {
     inputTxtData.setAttribute("id",element+"_"+id+"_SRdata");
     $(inputTxtData).val("");
     divPrefix.appendChild(inputTxtData);
-
 
     var netHopDiv = document.createElement("div");
     //netHopDiv.className = "span12";
@@ -2360,6 +2435,7 @@ function createstaticRouteEntry(staticIp, id,element) {
     var divRowFluidMargin5 = document.createElement("div");
     divRowFluidMargin5.className = "row-fluid margin-0-0-5";
     divRowFluidMargin5.appendChild(divPrefix);
+    //divRowFluidMargin5.appendChild(divNextHop);
     divRowFluidMargin5.appendChild(divNetwork);
     divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
     divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
@@ -2371,6 +2447,7 @@ function createstaticRouteEntry(staticIp, id,element) {
 
     if (null !== staticIp && typeof staticIp !== "undefined") {
         $(inputTxtPrefix).val(staticIp["prefix"]);
+        $(inputTxtNextHop).val(staticIp["nexthop"]);
         $(inputTxtData).val(JSON.stringify(staticIp));
     }
     

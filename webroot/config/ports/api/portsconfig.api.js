@@ -129,7 +129,9 @@ function getVirtualIachineInterfaceCb(err, vmiData, appData, callback)
     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
     function(error, results) {
         vmiFloatingFixedIP(error, results, vmiData, floatingipPoolRefsLen, routeTableRefsLen,
-                              appData, callback);
+                              appData, function(error, vmiData){
+                                  callback(error, vmiData);
+                              });
     });
 }
 
@@ -220,6 +222,10 @@ function createPortsValidate(request, response, appData, callback){
     if ((('interface_route_table_refs' in portPostData['virtual-machine-interface']))){
         delete portPostData['virtual-machine-interface']['interface_route_table_refs'];
     }
+    if ((('logical_router_back_refs' in portPostData['virtual-machine-interface']))){
+        delete portPostData['virtual-machine-interface']['logical_router_back_refs'];
+    }
+    
     configApiServer.apiPost(portsCreateURL, portPostData, appData,
     function (error, vmisData) {
         if(error) {
@@ -270,6 +276,30 @@ function createFixedIPDataObject(response,portConfig, fixedip)
         fixedIpObj["instance-ip"]["virtual_network_refs"] = portConfig['virtual-machine-interface']['virtual_network_refs'];
         response = fixedIpObj;
     }
+    return response;
+}
+
+/**
+ * @createlogicalRouterDataObject
+ * private function
+ * 1. Callback for Ports create / update operations
+ * 2. Reads the response of Ports get from config api server
+ *    and sends it back to the client.
+ */
+function createlogicalRouterDataObject(response,portConfig,fqname)
+{
+    var logicalrouter = {};
+    logicalrouter["logical-router"] = {};
+    logicalrouter["logical-router"]["fq_name"] = [];
+    logicalrouter["logical-router"]["fq_name"][0] = fqname['to'];
+    logicalrouter["logical-router"]["fq_name"]['uuid'] = fqname['uuid'];
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"] = [];
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"][0] = {};
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"][0]["to"] = portConfig['virtual-machine-interface']["fq_name"];
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"][0]["uuid"] = portConfig['virtual-machine-interface']['uuid'];
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"][0]["attr"] = null;
+    logicalrouter["logical-router"]["virtual_machine_interface_refs"][0]["href"] = portConfig['virtual-machine-interface']['href'];
+    response = logicalrouter;
     return response;
 }
 
@@ -386,6 +416,28 @@ function portSendResponse(error, req, portConfig, orginalPortData, appData, call
         }
     }
 
+    var logicalRouter = null;
+    var logicalRouterLen = 0;
+    if (('logical_router_back_refs' in orginalPortData['virtual-machine-interface']) &&
+       (orginalPortData['virtual-machine-interface']['logical_router_back_refs'].length > 0)){
+        logicalRouter = orginalPortData['virtual-machine-interface']['logical_router_back_refs'];
+        logicalRouterLen = logicalRouter.length;
+    }
+
+    if(logicalRouter != null && logicalRouter != ""){
+        if(logicalRouterLen > 0){
+            for(var i = 0;i<logicalRouterLen;i++){
+                var logicalRouterURL = '/logical-router/'+logicalRouter[i]['uuid'];
+                var responceData = {};
+                responceData = createlogicalRouterDataObject(responceData,portConfig,logicalRouter[i]);
+                commonUtils.createReqObj(DataObjectArr, logicalRouterURL,
+                             global.HTTP_REQUEST_PUT, commonUtils.cloneObj(responceData), null, null,
+                            appData);
+                            }
+        }
+    }
+
+
     var floatingipPoolRef = null;
     var floatingipPoolRefLen = 0;
 
@@ -429,7 +481,7 @@ function portSendResponse(error, req, portConfig, orginalPortData, appData, call
         function(error, results) {
             var DataObjectArrUpdate = [];
             if(staticIpPoolRefLen <= 0){
-                callback(error, results);
+                callback(error, portConfig);
                 return;
             } else if(staticIpPoolRefLen > 0){
                 portConfig["virtual-machine-interface"]["interface_route_table_refs"] = [];
@@ -526,6 +578,7 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
     portPutData["virtual-machine-interface"]["id_perms"]["uuid"] = vmiData['virtual-machine-interface']["id_perms"]["uuid"];
 
+    var DataObjectLenDetail = [];
     var DataObjectArr = [];
     var DataObjectDelArr = [];
     var creatFloatingIpLen = 0;
@@ -547,7 +600,9 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                     }
                 }
             }
-
+            DataObjectLenDetail["FloatingIpCreateStartIndex"] = 0;
+            DataObjectLenDetail["FloatingIpCreateCount"] = creatFloatingIpLen;
+            
             //deleteFloatingIP();
             if(deleteFloatingip != null && deleteFloatingip != ""){
                 deleteFloatingIpLen = deleteFloatingip.length;
@@ -560,6 +615,45 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                     }
                 }
             }
+            DataObjectLenDetail["FloatingIpDeleteStartIndex"] = DataObjectArr.length - deleteFloatingip.length;
+            DataObjectLenDetail["FloatingIpDeleteCount"] = deleteFloatingip.length;
+        });
+    }
+    
+
+    if("logical_router_back_refs" in portPutData["virtual-machine-interface"] ||
+        "logical_router_back_refs" in vmiData["virtual-machine-interface"])
+    {
+        filterUpdateLogicalRouter(error, portPutData, vmiData, function(createlogicalRouterArray,deletelogicalRouterArray){
+            //createFloatingIP();
+            if(createlogicalRouterArray != null && createlogicalRouterArray != ""){
+                var creatlogicalRouterLen = createlogicalRouterArray.length;
+                if(creatlogicalRouterLen > 0){
+                    for(var i = 0;i<creatlogicalRouterLen;i++){
+                        var logicalRouterURL = '/logical-router/'+createlogicalRouterArray[i]['uuid'];
+                        commonUtils.createReqObj(DataObjectArr, logicalRouterURL,
+                                     global.HTTP_REQUEST_GET, null, configApiServer, null,
+                                     appData);
+                    }
+                }
+            }
+            DataObjectLenDetail["LogicalRouterCreateStartIndex"] = DataObjectArr.length - creatlogicalRouterLen;
+            DataObjectLenDetail["LogicalRouterCreateCount"] = creatlogicalRouterLen;
+            
+            //deletelogicalRouter();
+            if(deletelogicalRouterArray != null && deletelogicalRouterArray != ""){
+                deletelogicalRouterLen = deletelogicalRouterArray.length;
+                if(deletelogicalRouterLen > 0){
+                    for(var i = 0;i<deletelogicalRouterLen;i++){
+                        var logicalRouterURL = '/logical-router/'+deletelogicalRouterArray[i]['uuid'];
+                        commonUtils.createReqObj(DataObjectArr, logicalRouterURL,
+                                     global.HTTP_REQUEST_GET, null, configApiServer, null,
+                                     appData);
+                    }
+                }
+            }
+            DataObjectLenDetail["LogicalRouterDeleteStartIndex"] = DataObjectArr.length - deletelogicalRouterArray.length;
+            DataObjectLenDetail["LogicalRouterDeleteCount"] = deletelogicalRouterArray.length;
 
         });
     }
@@ -581,6 +675,9 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                     }
                 }
             }
+            DataObjectLenDetail["instanceIPCreateStartIndex"] = DataObjectArr.length - createFixedIp.length;
+            DataObjectLenDetail["instanceIPDeleteCount"] = createFixedIp.length;
+            
             if(deleteFixedip != null && deleteFixedip != ""){
                 if(deleteFixedip.length > 0){
                     for(var i = 0;i<deleteFixedip.length;i++){
@@ -591,6 +688,8 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                     }
                 }
             }
+            DataObjectLenDetail["instanceIPDeleteStartIndex"] = DataObjectArr.length - deleteFixedip.length;
+            DataObjectLenDetail["instanceIPDeleteCount"] = deleteFixedip.length;
         });
     }
 
@@ -599,12 +698,12 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
     if("interface_route_table_refs" in portPutData["virtual-machine-interface"] ||
         "interface_route_table_refs" in vmiData["virtual-machine-interface"])
     {
-        var portDataLen = 0;
+        var staticIPLen = 0;
         if('interface_route_table_refs' in portPutData["virtual-machine-interface"])
-            portDataLen = portPutData["virtual-machine-interface"]["interface_route_table_refs"].length;
-        if(portDataLen > 0){
+            staticIPLen = portPutData["virtual-machine-interface"]["interface_route_table_refs"].length;
+        if(staticIPLen > 0){
 
-            for(i = 0 ; i< portDataLen ; i++){
+            for(i = 0 ; i< staticIPLen ; i++){
                 if(portPutData["virtual-machine-interface"]["interface_route_table_refs"][i]["uuid"] == undefined ||
                    portPutData["virtual-machine-interface"]["interface_route_table_refs"][i]["uuid"] == null ||
                    portPutData["virtual-machine-interface"]["interface_route_table_refs"][i]["uuid"] == ""){
@@ -619,6 +718,9 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                }
             }
         }
+        DataObjectLenDetail["statucRoutCreateStartIndex"] = DataObjectArr.length - staticIPLen;
+        DataObjectLenDetail["statucRoutCreateCount"] = staticIPLen;
+        
         filterUpdateStaticRoute(error, portPutData, vmiData, function(deleteStaticRoute){
             if(deleteStaticRoute != null && deleteStaticRoute != ""){
                 if(deleteStaticRoute.length > 0){
@@ -630,10 +732,11 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                     }
                 }
             }
-
+            DataObjectLenDetail["instanceIPDeleteStartIndex"] = DataObjectArr.length - deleteStaticRoute.length;
+            DataObjectLenDetail["instanceIPDeleteCount"] = deleteStaticRoute.length;
         });
     }
-    processDataObjects(DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiUUID, portPutData, creatFloatingIpLen, deleteFloatingIpLen, appData,
+    processDataObjects(DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiUUID, portPutData, DataObjectLenDetail, appData,
     function(error, result){
         if(error){
             callback(error, result);
@@ -682,7 +785,6 @@ function computeVMI(portPutData, vmiData, request, callback){
         } else if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") &&
                  (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] != "compute:nova")){
             //attach
-
             var body = {};
             body.portID = portPutData["virtual-machine-interface"]["uuid"];
             body.netID = portPutData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
@@ -706,12 +808,13 @@ function computeVMI(portPutData, vmiData, request, callback){
                 callback(error, results);
                 return;
             });
+        } else {
+            callback(null, portPutData);
         }
     }
 }
 
-function processDataObjects(DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiUUID, portPutData, creatFloatingIpLen, deleteFloatingIpLen, appData, callback) {
-
+function processDataObjects(DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiUUID, portPutData, DataObjectLenDetail, appData, callback) {
     var portPutURL = '/virtual-machine-interface/';
     portPutURL += vmiUUID;
 
@@ -724,8 +827,8 @@ function processDataObjects(DataObjectArr, DataObjectDelArr, DataSRObjectArr, vm
     } else if (DataObjectArr.length >  0){
         async.map(DataObjectArr,
         commonUtils.getServerResponseByRestApi(configApiServer, true),
-        function(error, floatingIP) {
-            linkUnlinkFloatingIp(error, floatingIP, creatFloatingIpLen, deleteFloatingIpLen, portPutData, appData,
+        function(error, result) {
+            linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, appData,
             function(error, data){
                 if(error){
                     callback(error, results);
@@ -784,31 +887,64 @@ function updateVMI(DataSRObjectArr, portPutURL, portPutData, appData, callback){
     });
 }
 
-function linkUnlinkFloatingIp(error, floatingIP, creatFloatingIpLen, deleteFloatingIpLen, portPutData, appData, callback){
+function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, appData, callback){
+
     var i=0;
     var DataObjectArr = [];
-    for(i = 0;i<creatFloatingIpLen;i++){
-        if(floatingIP[i] != null){
-            var floatingIPURL = '/floating-ip/'+floatingIP[i]['floating-ip']['uuid'];
-            var responceData = createFloatingIPDataObject(responceData,portPutData,floatingIP[i]);
+    for(i = DataObjectLenDetail["FloatingIpCreateStartIndex"];i<DataObjectLenDetail["FloatingIpCreateStartIndex"]+DataObjectLenDetail["FloatingIpCreateCount"];i++){
+        if(result[i] != null){
+            var floatingIPURL = '/floating-ip/'+result[i]['floating-ip']['uuid'];
+            var responceData = createFloatingIPDataObject(responceData,portPutData,result[i]);
             commonUtils.createReqObj(DataObjectArr, floatingIPURL,
                                 global.HTTP_REQUEST_PUT, commonUtils.cloneObj(responceData), null, null,
                                 appData);
         }
     }
-    for(i = creatFloatingIpLen; i < (creatFloatingIpLen+deleteFloatingIpLen);i++){
-        if(floatingIP[i] != null){
-            if( 'floating-ip' in floatingIP[i] && 'virtual_machine_interface_refs' in floatingIP[i]['floating-ip']){
-                var floatingIPURL = '/floating-ip/'+floatingIP[i]['floating-ip']['uuid'];
-                var vmiRef = floatingIP[i]['floating-ip']['virtual_machine_interface_refs'];
-                var vmiRefLen = floatingIP[i]['floating-ip']['virtual_machine_interface_refs'].length;
+    for(i = DataObjectLenDetail["FloatingIpDeleteStartIndex"]; i < (DataObjectLenDetail["FloatingIpDeleteStartIndex"]+DataObjectLenDetail["FloatingIpDeleteCount"]);i++){
+        if(result[i] != null){
+            if( 'floating-ip' in result[i] && 'virtual_machine_interface_refs' in result[i]['floating-ip']){
+                var floatingIPURL = '/floating-ip/'+result[i]['floating-ip']['uuid'];
+                var vmiRef = result[i]['floating-ip']['virtual_machine_interface_refs'];
+                var vmiRefLen = result[i]['floating-ip']['virtual_machine_interface_refs'].length;
                 for(var j=0;j<vmiRefLen;j++){
                     if(vmiRef[j]['uuid'] == portPutData['virtual-machine-interface']['uuid']){
-                        floatingIP[i]['floating-ip']['virtual_machine_interface_refs'].splice(j,1);
+                        result[i]['floating-ip']['virtual_machine_interface_refs'].splice(j,1);
                         j--;
                         vmiRefLen--;
                         commonUtils.createReqObj(DataObjectArr, floatingIPURL,
-                           global.HTTP_REQUEST_PUT, floatingIP[i], null, null,
+                           global.HTTP_REQUEST_PUT, result[i], null, null,
+                           appData);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    for(i = DataObjectLenDetail["LogicalRouterCreateStartIndex"];i<DataObjectLenDetail["LogicalRouterCreateStartIndex"]+DataObjectLenDetail["LogicalRouterCreateCount"];i++){
+    
+        if(result[i] != null){
+            var floatingIPURL = '/logical-router/'+result[i]['logical-router']['uuid'];
+            var responceData = createlogicalRouterDataObject(responceData,portPutData,result[i]);
+            commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                                global.HTTP_REQUEST_PUT, commonUtils.cloneObj(responceData), null, null,
+                                appData);
+        }
+    }
+
+    for(i = DataObjectLenDetail["LogicalRouterDeleteStartIndex"]; i < (DataObjectLenDetail["LogicalRouterDeleteStartIndex"]+DataObjectLenDetail["LogicalRouterDeleteCount"]);i++){
+        if(result[i] != null){
+            if( 'logical-router' in result[i] && 'virtual_machine_interface_refs' in result[i]['logical-router']){
+                var floatingIPURL = '/logical-router/'+result[i]['logical-router']['uuid'];
+                var vmiRef = result[i]['logical-router']['virtual_machine_interface_refs'];
+                var vmiRefLen = result[i]['logical-router']['virtual_machine_interface_refs'].length;
+                for(var j=0;j<vmiRefLen;j++){
+                    if(vmiRef[j]['uuid'] == portPutData['virtual-machine-interface']['uuid']){
+                        result[i]['logical-router']['virtual_machine_interface_refs'].splice(j,1);
+                        j--;
+                        vmiRefLen--;
+                        commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                           global.HTTP_REQUEST_PUT, result[i], null, null,
                            appData);
                         break;
                     }
@@ -823,6 +959,72 @@ function linkUnlinkFloatingIp(error, floatingIP, creatFloatingIpLen, deleteFloat
           callback(error, results);
       });
 
+}
+
+function filterUpdateLogicalRouter(error, portPutData, vmiData, callback)
+{
+    var i = 0;
+    var postCopyData = [];
+    var createlogicalRouterArray = [];
+    var deletelogicalRouterArray = [];
+    var logicalRouteripPoolRef_server = [];
+    var logicalRouteripPoolRefs_serverLen = 0;
+    var logicalRouteripPoolRef_put = [];
+    var logicalRouteripPoolRefs_putLen = 0;
+
+    if ( 'virtual-machine-interface' in vmiData &&
+         'logical_router_back_refs' in vmiData['virtual-machine-interface']) {
+        logicalRouteripPoolRef_server = vmiData['virtual-machine-interface']['logical_router_back_refs'];
+        logicalRouteripPoolRefs_serverLen = logicalRouteripPoolRef_server.length;
+    }
+    if ( 'virtual-machine-interface' in portPutData &&
+         'logical_router_back_refs' in portPutData['virtual-machine-interface']) {
+        logicalRouteripPoolRef_put = portPutData['virtual-machine-interface']['logical_router_back_refs'];
+        logicalRouteripPoolRefs_putLen = logicalRouteripPoolRef_put.length;
+    }
+    if(logicalRouteripPoolRefs_serverLen == 0) {
+        for(i = 0;i<logicalRouteripPoolRefs_putLen;i++){
+            createlogicalRouterArray.push(logicalRouteripPoolRef_put[i]);
+        }
+        callback(createlogicalRouterArray,deletelogicalRouterArray);
+        return;
+
+    }
+    if(logicalRouteripPoolRefs_putLen == 0) {
+        for(i = 0;i<logicalRouteripPoolRefs_serverLen;i++){
+            deletelogicalRouterArray.push(logicalRouteripPoolRef_server[i]);
+        }
+        callback(createlogicalRouterArray,deletelogicalRouterArray);
+        return;
+    }
+    var j = 0;
+    var create = true;
+    for(i=0; i<logicalRouteripPoolRefs_putLen ;i++){
+        create = true;
+        for(j=0; j<logicalRouteripPoolRefs_serverLen && i >= 0;j++){
+            var portlogicalRouterip_fqname = JSON.stringify(logicalRouteripPoolRef_put[i]["to"]);
+            var vmilogicalRouterip_fqname = JSON.stringify(logicalRouteripPoolRef_server[j]["to"]);
+            if( portlogicalRouterip_fqname == vmilogicalRouterip_fqname){
+                logicalRouteripPoolRef_put.splice(i,1);
+                logicalRouteripPoolRef_server.splice(j,1);
+                create = false;
+                i--;
+                j--;
+                logicalRouteripPoolRefs_putLen = logicalRouteripPoolRef_put.length;
+                logicalRouteripPoolRefs_serverLen = logicalRouteripPoolRef_server.length;
+            }
+        }
+        if(create == true) {
+            createlogicalRouterArray.push(logicalRouteripPoolRef_put[i]);
+            logicalRouteripPoolRef_put.splice(i,1);
+            i--;
+            logicalRouteripPoolRefs_putLen = logicalRouteripPoolRef_put.length;
+        }
+    }
+    for(j=0; j<logicalRouteripPoolRefs_serverLen;j++){
+        deletelogicalRouterArray.push(logicalRouteripPoolRef_server[j]);
+    }
+    callback(createlogicalRouterArray,deletelogicalRouterArray);
 }
 
 
@@ -1030,7 +1232,7 @@ function deletePortsCB(request, appData, callback)
     var portId = "";
     portId = request.param('uuid');
     readVMIwithUUID(portId, appData, function(err, vmiData){
-        getReadDelVMICb(err, vmiData, appData, function(error, response, data){
+        getReadDelVMICb(err, vmiData, appData, function(error, data){
             callback(error, data);
             return;
         });
@@ -1042,7 +1244,7 @@ function deletePorts(request, response, appData)
     var portId = "";
     portId = request.param('uuid');
     readVMIwithUUID(portId, appData, function(err, vmiData){
-        getReadDelVMICb(err, vmiData, appData, function(error, response, data){
+        getReadDelVMICb(err, vmiData, appData, function(error, data){
             commonUtils.handleJSONResponse(error, response, data);
             return;
         });
@@ -1078,6 +1280,18 @@ function deletePortAsync (dataObj, callback)
         });
         return;
     }
+    if (dataObj['type'] == 'logical-router') {
+        async.map(dataObj['dataObjArr'],
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            function(error, results) {
+                vmiDelLogicalRout(error, results, dataObj['vmiData'],
+                                    dataObj['appData'], function(err, data){
+                        callback(error, results);
+                        return;
+                });
+        });
+        return;
+    }
     if (dataObj['type'] == 'instance-ip') {
         async.map(dataObj['dataObjArr'],
             commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
@@ -1105,20 +1319,23 @@ function deletePortAsync (dataObj, callback)
             });
         return;
     }
-    callback(null, null);
+    callback(null, dataObj);
     return;
 }
 
 function getReadDelVMICb(err, vmiData, appData, callback)
 {
     var floatingIPdataObjArr            = [];
+    var logicalRouterdataObjArr            = [];
     var instanceIPdataObjArr            = [];
     var staticRoutObjArr            = [];
     var vmiObjArr            = [];
     var allDataObj            = [];
     var floatingipPoolRefsLen = 0;
     var fixedipPoolRefsLen    = 0;
+    var logicalRouterRefLen    = 0;
     var floatingipPoolRef     = null;
+    var logicalRouterRef     = null;
     var fixedipPoolRef        = [];
     var floatingipObj         = null;
 
@@ -1139,13 +1356,36 @@ function getReadDelVMICb(err, vmiData, appData, callback)
 
     if(floatingIPdataObjArr.length > 0){
         var floatingIPObj = {};
-        floatingIPObj['type'] = "instance-ip";
+        floatingIPObj['type'] = "floating-ip";
         floatingIPObj['dataObjArr'] = floatingIPdataObjArr;
         floatingIPObj['vmiData'] = vmiData;
         floatingIPObj['appData'] = appData;
         allDataObj.push(floatingIPObj);
     }
+    //LogicalRouter Reference
+    if ( 'virtual-machine-interface' in vmiData &&
+         'logical_router_back_refs' in vmiData['virtual-machine-interface']) {
+        logicalRouterRef = vmiData['virtual-machine-interface']['logical_router_back_refs'];
+        logicalRouterRefLen = logicalRouterRef.length;
+    }
+    for (i = 0; i < logicalRouterRefLen; i++) {
+        var logicalRoutObj = logicalRouterRef[i];
+        reqUrl = '/logical-router/' + logicalRoutObj['uuid'];
+        commonUtils.createReqObj(logicalRouterdataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
 
+    }
+    if(logicalRouterdataObjArr.length > 0){
+        var logicalRouterObj = {};
+        logicalRouterObj['type'] = "logical-router";
+        logicalRouterObj['dataObjArr'] = logicalRouterdataObjArr;
+        logicalRouterObj['vmiData'] = vmiData;
+        logicalRouterObj['appData'] = appData;
+        allDataObj.push(logicalRouterObj);
+    }
+
+    //Instance IP
     if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
         fixedipPoolRef = vmiData['virtual-machine-interface']['instance_ip_back_refs'];
         fixedipPoolRefsLen = fixedipPoolRef.length;
@@ -1241,26 +1481,50 @@ function vmiDelFloatingIP(error, results, vmiData, appData, callback)
     }
     callback(error,null);
 }
-/*
-function deleteVMI(error, uuid, response, appData, callback){
-    var portsDelURL = '/virtual-machine-interface/';
-    var portId = uuid;
 
-    if (portId != null && portId != "") {
-        portsDelURL += portId;
-    } else {
-        error = new appErrors.RESTServerError('Port UUID is required.');
-        callback(error, response, null);
+function vmiDelLogicalRout(error, results, vmiData, appData, callback)
+{
+    if (error) {
+        callback(error, results, null);
         return;
     }
-    configApiServer.apiDelete(portsDelURL, appData,
-        function (error, data) {
-            callback(error, response ,null);
-            return;
-        });
-    callback(error, response ,null);
+    var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
+    var i = 0;
+    var DataObjectArr = []
+    if(results.length > 0){
+    var resultLength = results.length;
+        for (i = 0; i < resultLength; i++) {
+            if(results[i] != null){
+                if( 'logical-router' in results[i] && 'virtual_machine_interface_refs' in results[i]['logical-router']){
+                var floatingIPURL = '/logical-router/'+results[i]['logical-router']['uuid'];
+                    var vmiRef = results[i]['logical-router']['virtual_machine_interface_refs'];
+                    var vmiRefLen = results[i]['logical-router']['virtual_machine_interface_refs'].length;
+                    for(var j=0;j<vmiRefLen;j++){
+                        if(vmiRef[j]['uuid'] == vmiUUID){
+                            results[i]['logical-router']['virtual_machine_interface_refs'].splice(j,1);
+                            j--;
+                            vmiRefLen--;
+                            commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                            global.HTTP_REQUEST_PUT, results[i], null, null,
+                            appData);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (DataObjectArr.length > 0) {
+        async.map(DataObjectArr,
+              commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
+              function(error, results) {
+                callback(error, results);
+                return
+              });
+    }
+    callback(error,null);
 }
-*/
+
+
 exports.readPorts = readPorts;
 exports.createPorts = createPorts;
 exports.createPortsCB = createPortsCB;

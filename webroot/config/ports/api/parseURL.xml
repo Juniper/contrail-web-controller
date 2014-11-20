@@ -16,25 +16,25 @@
     <item>
         <url>/api/tenants/config/ports</url>
         <method>get</method>
-        <feature>portsconfigapi</feature>
+        <feature>portconfig</feature>
         <callback>portsconfigapi.readPorts</callback>
     </item>
     <item>
         <url>/api/tenants/config/ports</url>
         <method>post</method>
-        <feature>portsconfigapi</feature>
+        <feature>portconfig</feature>
         <callback>portsconfigapi.createPorts</callback>
     </item>
     <item>
         <url>/api/tenants/config/ports/:uuid</url>
         <method>put</method>
-        <feature>portsconfigapi</feature>
+        <feature>portconfig</feature>
         <callback>portsconfigapi.updatePorts</callback>
     </item>
     <item>
         <url>/api/tenants/config/ports/:uuid</url>
         <method>delete</method>
-        <feature>portsconfigapi</feature>
+        <feature>portconfig</feature>
         <callback>portsconfigapi.deletePorts</callback>
     </item>
 </urlLists>
