@@ -51,4 +51,16 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.getVirtualNetworkInternals</callback>
     </item>   
+    <item>
+        <url>/api/tenants/config/map-virtual-machine-refs/:vmiId</url>
+        <method>get</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.mapVirtualMachineRefs</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/li-virtual-machine/:id</url>
+        <method>delete</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.deleteLIVirtualMachines</callback>
+    </item>
 </urlLists>

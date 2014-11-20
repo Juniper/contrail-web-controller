@@ -25,9 +25,10 @@ var appErrors   = require(process.mainModule.exports["corePath"] +
 var util        = require('util');
 var url         = require('url');
 var jsonPath    = require('JSONPath').eval;
+var UUID        = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var async = require('async'); 
+var async = require('async');
 
 /**
  * @getPhysicalInterfaces
@@ -263,7 +264,7 @@ function validateQueryParam (request, key)
 {
     var paramValue = null;
     if (!(paramValue = request.param(key).toString())) {
-        error = new appErrors.RESTServerError('Add Virtual Router id');
+        error = new appErrors.RESTServerError('Add id');
         commonUtils.handleJSONResponse(error, request.res, null);
         return;
     }
@@ -325,10 +326,11 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                     if ((null == data[j]) || (null == data[j]['virtual-machine-interface'])) {
                         continue;
                     }
-                    var vmi =  data[j]['virtual-machine-interface']; 
+                    var vmi =  data[j]['virtual-machine-interface'];
                     tempVMIResourceObj.push({"mac": vmi
                         ['virtual_machine_interface_mac_addresses']['mac_address'], "owner" : vmi['virtual_machine_interface_device_owner'],
-                        "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs']});
+                        "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
+                        "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : []});
                      var instIPBackRefs = vmi['instance_ip_back_refs'];
                      //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
                      if(instIPBackRefs != null && instIPBackRefs.length > 0) {
@@ -357,14 +359,17 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                                  total += instIpCnt;
                                  var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
                                  if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
-                                     resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs, 
-                                                     "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
+                                     resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs,
+                                                     "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
+                                                     "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
                                  }
                              } else {
-                                 resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [], 
-                                                 "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});                             
+                                 resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [],
+                                                 "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
+                                                 "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
                              }
                          }
+                         console.log("DATA:", resultJSON);
                          if(callback != null) {
                              callback(resultJSON);
                          } else {
@@ -374,9 +379,11 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                  } else {
                      if(tempVMIResourceObj[i]['owner'] == null || tempVMIResourceObj[i]['owner'] == "") {
                          resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [], 
-                                         "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"]});
+                                         "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
+                                         "vm_refs" : tempVMIResourceObj[i]["vm_refs"]});
                      } 
                      if(callback != null) {
+                         console.log("DATA:", JSON.stringify(resultJSON));
                          callback(resultJSON);
                      } else {
                          commonUtils.handleJSONResponse(null, response, resultJSON);
@@ -414,9 +421,68 @@ function updateVMIDetails(request, appData, postData, callback) {
     }         
 }
 
+/**
+ * @setVirtualMachineRefs
+ * public function
+ * 1. URL /api/tenants/config/set-virtual-machine-refs/:vmiId
+ * 2. Creates Virtual machine and Sets this ref to Virtual Machine Interface object in config api server
+ */
+function mapVirtualMachineRefs(request, response, appData)
+{
+    var vmiId = validateQueryParam(request, 'vmiId');
+    var vmId  = UUID.create().hex.toString();
+    var vmPostData = {"virtual-machine" : {"fq_name" : [vmId], "name" : vmId}};
+     configApiServer.apiPost('/virtual-machines', vmPostData, appData,
+         function(error, vmData) {
+             if(error) {
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
+             configApiServer.apiGet('/virtual-machine-interface/' + vmiId, appData,
+                 function(err, vmiData) {
+                     if(err) {
+                         commonUtils.handleJSONResponse(err, response, null);
+                         return;
+                     }
+                     if(vmiData['virtual-machine-interface'] != null) {
+                         vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [vmId]}];
+                     }
+                     configApiServer.apiPut('/virtual-machine-interface/' + vmiId, vmiData, appData,
+                         function(er, updatedVMIData) {
+                             if(er) {
+                                commonUtils.handleJSONResponse(er, response, null);
+                                return;
+                             }
+                             commonUtils.handleJSONResponse(null, response, updatedVMIData);
+                         });
+                 });
+         });
+}
+
+/**
+ * @deleteLIVirtualMachines
+ * public function
+ * 1. URL /api/tenants/config/li-virtual-machine/:id
+ * 2. deletes a virtual machine which has ref to li in config api server
+ */
+function deleteLIVirtualMachines (request, response, appData)
+{
+     var vmId = validateQueryParam(request,'id');
+     configApiServer.apiDelete(/virtual-machine/ + vmId, appData,
+         function(error, data) {
+            if(error) {
+               commonUtils.handleJSONResponse(error, response, null);
+               return;
+            }
+            commonUtils.handleJSONResponse(error, response, data);
+         });
+}
+
  /* List all public function here */
 exports.getPhysicalInterfaces = getPhysicalInterfaces;
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
 exports.deletePhysicalInterfaces = deletePhysicalInterfaces;
 exports.getVirtualNetworkInternals = getVirtualNetworkInternals;
+exports.mapVirtualMachineRefs = mapVirtualMachineRefs;
+exports.deleteLIVirtualMachines = deleteLIVirtualMachines;
