@@ -971,12 +971,15 @@ underlayView.prototype.initGraphEvents = function() {
         switch(elementType) {
             case 'contrail.PhysicalRouter':
                 var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                if(nodeDetails['more_attributes']['ifTable'] == '-')
+                    nodeDetails['more_attributes']['ifTable'] = [];
                 data = {
                     host_name : ifNull(nodeDetails['name'],'-'),
                     description: ifNull(nodeDetails['more_attributes']['lldpLocSysDesc'],'-'),
-                    intfCnt   : ifNull(nodeDetails['more_attributes']['ifTable'],[]).length,
+                    intfCnt   : nodeDetails['more_attributes']['ifTable'].length,
                 };
-                data['type'] = 'node';
+                data['type'] = PROUTER;
+                data['response'] = nodeDetails;
                 _this.populateDetailsTab(data);
                 $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
                 $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
@@ -1755,14 +1758,82 @@ underlayView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content;
     $("#detailsLink").show();
     $("#underlay_tabstrip").tabs({active:2});
-    if(type == 'node') {
+    if(type == PROUTER) {
         content = {
             host_name : ifNull(data['host_name'],'-'),
             description: ifNull(data['description'],'-'),
-            intfCnt   : ifNull(data['intfCnt'],0)
+            intfCnt   : data['intfCnt']
         };
         details = Handlebars.compile($("#device-summary-template").html())(content);
         $("#detailsTab").html(details);
+        var intfDetails = [];
+        for(var i = 0; i < ifNull(data['response']['more_attributes']['ifTable'],[]).length; i++ ) {
+            var intfObj = data['response']['more_attributes']['ifTable'][i];
+            var rowObj = {
+                    ifDescr: ifNull(intfObj['ifDescr'],'-'),
+                    ifIndex: ifNull(intfObj['ifIndex'],'-'),
+                    ifInOctets: intfObj['ifInOctets'],
+                    ifOutOctets: intfObj['ifOutOctets'],
+                    ifPhysAddress: ifNull(intfObj['ifPhysAddress'],'-'),
+                    rawData: intfObj
+            };
+            intfDetails.push(rowObj);
+        }
+        var dataSource = new ContrailDataView();
+        dataSource.setData(intfDetails);
+        var columns = [{
+            field:'ifDescr',
+            name:'Name',
+            minWidth: 150,
+        },{
+            field:'ifIndex',
+            name:'Index',
+            minWidth: 150
+        },{
+            field:'bandwidth',
+            name:'Traffic (In/Out)',
+            minWidth:150,
+            formatter:function(r,c,v,cd,dc) {
+                return contrail.format("{0} / {1}",formatBytes(dc['ifInOctets']),formatBytes(dc['ifOutOctets']));
+            }
+        },{
+            field:'ifPhysAddress',
+            name:'Address',
+            minWidth:150,
+        }];
+        var selector = $("#detailsTab").find('div.contrail-grid')[0];
+        $(selector).contrailGrid({
+            header : {
+                title : {
+                    text : 'Interfaces'
+                }
+            },
+            columnHeader : {
+                columns:columns
+            },
+            body : {
+                options : {
+                    forceFitColumns: true,
+                    sortable : false
+                },
+                dataSource:{
+                    dataView:dataSource,
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Interface ...',
+                    },
+                    empty: {
+                        text: 'No Interfaces to display'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
+                }
+            }
+        });
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
         var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
