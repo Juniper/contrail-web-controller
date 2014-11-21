@@ -74,6 +74,6 @@
         <method>delete</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deleteLISubnet</callback>
-    </itm>
+    </item>
 </urlLists>
 
