@@ -12,6 +12,7 @@ function physicalInterfacesConfig() {
     var interfaceDelimiters = [];
     var vmiDetails = null;
     var flow = null;
+    var gblSelRow = null;
     //Method Definations
     this.load = load;
     this.destroy = destroy;	
@@ -264,24 +265,39 @@ function physicalInterfacesConfig() {
                 if(isVMICreate) {
                     var mac = $('#ddVMI').data('contrailCombobox').value().trim();
                     var ip = $('#txtVMI').val() != '' ? $('#txtVMI').val().trim() : '';
-                    if(ip != '') {
-                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "fixedIPs":[ip], "macAddress":mac};
-                    } else {
-                        postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value(), "macAddress":mac};
-                    }
-                    doAjaxCall('/api/tenants/config/create-port', 'POST', JSON.stringify(postObject), 'successHandlerForVMICreation', 'failureHandlerForVMICreation', null, null);
+                    createPort({mac : mac, ip : ip});
                 } else if(isSubnetCreate && $('#ddLIType').data('contrailDropdown').value() === 'l3') {
-                    postObject = {"vnUUID": $('#ddVN').data('contrailDropdown').value()};
-                    doAjaxCall('/api/tenants/config/create-port', 'POST', JSON.stringify(postObject), 'successHandlerForVMICreation', 'failureHandlerForVMICreation', null, null);
+                    createPort({mac : '', ip : ''});
                 }
                 else {
                     createUpdatePhysicalInterface(); 
                 }
-                if($('#txtSubnet').val().trim() == '' && gblSelRow.subnet != '-') {
+                if($('#txtSubnet').val().trim() == '' && gblSelRow != null &&  gblSelRow.subnet != '-') {
                     deleteSubnets([gblSelRow.subnet]);
                 }
             }
         });
+        
+        function createPort(portDetails) {
+            var postObjInput = {};
+            var selVN = $('#ddVN').data('contrailDropdown').getSelectedData()[0];
+            selVN = JSON.parse(selVN.data);
+            postObjInput.subnetId = selVN.subnetId;
+            postObjInput.fqName = selVN.fqName;
+            if(portDetails.mac != '') {
+                postObjInput.mac = portDetails.mac;
+            }
+            postObjInput.ip = portDetails.ip;
+            $.ajax({
+                url : '/api/tenants/config/ports',
+                type : "POST",
+                contentType : 'application/json',
+                data : JSON.stringify(prepareVMIPostObject(postObjInput)),
+                success : successHandlerForVMICreation,
+                error : failureHandlerForVMICreation
+            });        
+        }
+        
         window.successHandlerForVMICreation = function(result, status, xhr) {
             if(result != null && result['virtual-machine-interface']
                 && result['virtual-machine-interface']['fq_name']) {
@@ -377,6 +393,73 @@ function physicalInterfacesConfig() {
                 $('#lblServer').text('L2 Gateway');
             }
         });        
+    }
+    
+    function prepareVMIPostObject(input) {
+        var curDomain = getCookie('domain');
+        var curProject = getCookie('project');
+        var postObj = '';
+        if(input.mac != undefined) {
+            postObj = {
+                "virtual-machine-interface": {
+                    "parent_type": "project",
+                    "fq_name": [
+                        curDomain,
+                        curProject
+                    ],
+                    "virtual_network_refs": [
+                        {
+                            "to": input.fqName
+                        }
+                    ],
+                    "virtual_machine_interface_mac_addresses": {
+                        "mac_address": [
+                            input.mac
+                        ]
+                    },
+                    "instance_ip_back_refs": [
+                        {
+                            "instance_ip_address": [
+                                {
+                                    "fixedIp": input.ip,
+                                    "domain": curDomain,
+                                    "project": curProject
+                                }
+                            ],
+                            "subnet_uuid": input.subnetId
+                        }
+                    ]
+                }
+            };
+        } else {
+            postObj = {
+                "virtual-machine-interface": {
+                    "parent_type": "project",
+                    "fq_name": [
+                        curDomain,
+                        curProject
+                    ],
+                    "virtual_network_refs": [
+                        {
+                            "to": input.fqName
+                        }
+                    ],
+                    "instance_ip_back_refs": [
+                        {
+                            "instance_ip_address": [
+                                {
+                                    "fixedIp": input.ip,
+                                    "domain": curDomain,
+                                    "project": curProject
+                                }
+                            ],
+                            "subnet_uuid": input.subnetId
+                        }
+                    ]
+                }
+            };            
+        }
+        return postObj;
     }
 
     //As Junos can have e-0/0/0.0 pattern for physical interface setting it has parent for logical interface
@@ -485,16 +568,16 @@ function physicalInterfacesConfig() {
         var deleteAjaxs = [];
         for(var i = 0; i < deleteVMIs.length; i++) {
             deleteAjaxs[i] =  $.ajax({
-                    url:'/api/tenants/config/delete-port/' + deleteVMIs[i],
+                    url:'/api/tenants/config/ports/' + deleteVMIs[i],
                     type:'DELETE'
                 })
         }
         $.when.apply($,deleteAjaxs).then(
             function(response){
                 //delete all vms
-                // if(deleteVMs.length > 0) {
-                    // deleteVirtualMachines(deleteVMs);
-                // }
+                if(deleteVMs.length > 0) {
+                    deleteVirtualMachines(deleteVMs);
+                }
             },
             function(){
             }
