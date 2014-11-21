@@ -511,7 +511,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Security Groups</searchStrings>
                         </item>
-<!--                    <item>
+                    <item>
                             <label>Routers</label>
                             <hash>config_net_routers</hash>
                             <resources>
@@ -523,7 +523,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Routers</searchStrings>
-                        </item> -->
+                        </item> 
                         <item>
                             <label>Ports</label>
                             <hash>config_net_ports</hash>

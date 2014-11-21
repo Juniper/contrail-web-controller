@@ -13,12 +13,16 @@
                 <span class="span10">{{ externalGateway }}</span>
             </div>
             <div class="row-fluid">
+                <span class="span2"><label>SNAT</label></span>
+                <span class="span10">Enabled</span>
+            </div>
+            <div class="row-fluid">
                 <span class="span2"><label>Connected Network</label></span>
                 <span class="span10">{{ connectedNetwork }}</span>
             </div>
 
             <div class="row-fluid">
-                <div class="span2"><label>Interfaces</label></div>
+                <div class="span2"><label>Router Interfaces</label></div>
             </div>
             {{#ifCond InterfaceDetailArr '===' "Error"}}
                 Error in Fetching data.
@@ -30,11 +34,9 @@
                         <div class="span2"></div>
                         <div class="span10">
                             <div class="span12 bgCol">
-                                <div class="span2"><label>Network</label></div>
-                                <div class="span2"><label>Interface</label></div>
-                                <div class="span2"><label>Fixed IP</label></div>
-                                <div class="span2"><label>Status</label></div>
-                                <div class="span2"><label>Type</label></div>
+                                <div class="span4"><label>UUID</label></div>
+                                <div class="span3"><label>Network</label></div>
+                                <div class="span3"><label>IP</label></div>
                             </div>
                             {{{interfaceDetail InterfaceDetailArr}}}
                         </div>
@@ -61,13 +63,14 @@
                     </div>
                 </div>
                 <div class="control-group">
-                    <label class="control-label" class="span3">Status</label>
+                    <label class="control-label" class="span3">Admin State</label>
                     <div class="controls">
                         <div class="row-fluid">
                             <input type="text" id="ddRouterStatus" class="span10"/>
                         </div>
                     </div>
                 </div>
+                
                 <div class="control-group">
                     <label class="control-label" class="span3">External Gateway</label>
                     <div class="controls">
@@ -76,6 +79,7 @@
                         </div>
                     </div>
                 </div>
+
                 <div class="control-group">
                     <label class="control-label" class="span3">SNAT</label>
                     <div class="controls">
@@ -85,7 +89,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="widget-box transparent" id="rNetDiv" >
+                <div class="control-group">
+                    <label class="control-label" class="span3">Connected Networks</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="msConnectedNetworks" class="span10"/>
+                        </div>
+                    </div>
+                </div>
+                <!--<div class="widget-box transparent" id="rNetDiv" >
                             <div class="row-fluid">
                                 <div class="rule-item-header span12 margin-0-0-5">
                                     <div class="row-fluid span12">
@@ -101,7 +113,7 @@
                                 </div>
                                 <div class=".serviceTemplate_allInterface" id="ConnectedNetwork"></div>
                             </div>
-                </div>
+                </div>-->
 
                 <div id="instanceDiv"></div>
             </form>

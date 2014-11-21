@@ -17,6 +17,8 @@ var logutils = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/utils/log.utils');
 var commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils');
+                          
+var portConfig = require('../../ports/api/portsconfig.api');
 var config = process.mainModule.exports["config"];
 var messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages');
 var global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global');
@@ -49,7 +51,6 @@ if (!module.parent)
  */
 function listLogicalRouter(request, response, appData)
 {
-console.log("ListLogicalRouter");
     var tenantId = null;
     var requestParams = url.parse(request.url, true);
     var logicalRouterListURL = '/logical-routers';
@@ -74,46 +75,78 @@ console.log("ListLogicalRouter");
  */
 function listLogicalRouterCb(error, lrListData, appData)
 {
-console.log("ListLogicalRouterCB");
 
     if (error) {
         commonUtils.handleJSONResponse(error, appData, null);
         return;
     }
 }
-function vmIfAggCb(error, vmIfList, lrListData, appData, callback) 
-{console.log("vmIfAggCb");
-    if ((null != error) || (vmIfList && !vmIfList.length) || (null == vmIfList)) {
+/*
+function vmIfAggCb(error, vmiData, lrListData, appData, callback) 
+{
+    if ((null != error) || (vmiData && !vmiData.length) || (null == vmiData)) {
         callback(error, lrListData);
         return;
     }
 
     var dataObjArr = [];
-    var vmIfListLen = vmIfList.length;
+    var vmiDataLen = vmiData.length;
     var instance_ip_ObjRefs = null;
     var instance_ip_RefsLen = 0;
-    
-    for(var i=0; i<vmIfListLen; i++) {
-        if('virtual_network_refs' in vmIfList[i]["virtual-machine-interface"]) {
-            
-            //instance_ip_ObjRefs = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"];
+    var fixedipPoolRefsLen    = 0;
+    var fixedipPoolRef        = [];
+            //instance_ip_ObjRefs = vmiData[i]["virtual-machine-interface"]["instance_ip_back_refs"];
             //instance_ip_RefsLen = vmObjRefs.length;
-            
-            var vm_ref = vmIfList[i]["virtual-machine-interface"]["virtual_network_refs"][0];
-            if (vm_ref) {
-                lrListData['logical-router']["virtual_machine_interface_refs"][i] = vm_ref;
-            }
-        }
+            console.log("vmiData['virtual-machine-interface']"+JSON.stringify(vmiData));
+    if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
+        fixedipPoolRef = vmiData['virtual-machine-interface']['instance_ip_back_refs'];
+        fixedipPoolRefsLen = fixedipPoolRef.length;
+    }
+    for (i = 0; i < fixedipPoolRefsLen; i++) {
+        fixedipObj = fixedipPoolRef[i];
+        reqUrl = '/instance-ip/' + fixedipObj['uuid'];
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
     }
     
-    console.log(lrListData);
+    async.map(dataObjArr,
+    commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+    function(error, results) {
+        vmiFixedIP(error, results, vmiData,
+                              appData, function (error, vmiData){
+                                if(error){
+                                    callback(error, lrListData);
+                                }
+                                for(i=0;i<vmiData.length;i++){
+                                      lrListData['logical-router']['virtual_machine_interface_refs'][i] = vmiData['virtual-machine-interface']['instance_ip_back_refs'][i];
+                                }
+                                callback(error, lrListData);
+                              });
+    });
+    
+}
+*/
+function vmiFixedIP(error, instanceIPData, vmiData, appData, callback)
+{
+    if (error) {
+        callback(error, vmiData);
+        return;
+    }
+    var i = 0;
+    var IpPoolsLen = results.length;
 
-    callback(error, lrListData);
+    for(i = 0; i< IpPoolsLen;i++){
+        if(results[i]){
+            vmiData['virtual-machine-interface']['instance_ip_back_refs'][i]['instanceIp'] =
+                     instanceIPData[i]['interface-route-table']['interface_route_table_routes'];
+        }
+    }
+    callback(error, vmiData);
 }
 
 function readLogicalRouter (logicalRouterObj, callback)
 {
-console.log("readLogicalRouter");
     var dataObjArr = logicalRouterObj['reqDataArr'];
     async.map(dataObjArr, getLogicalRouterAsync, function(err, data) {
         callback(err, data);
@@ -122,15 +155,17 @@ console.log("readLogicalRouter");
 
 function getLogicalRouterAsync (logicalRouterObj, callback)
 {
-console.log("getLogicalRouterAsync");
     var logicalRouterId = logicalRouterObj['uuid'];
     var appData = logicalRouterObj['appData'];
     var reqUrl = '/logical-router/' + logicalRouterId;
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
-        getLogicalRouterCb(err, data,appData, callback);
+        listVMInterfacesAggCb(err, data, appData, function(err, data) {
+           callback(err, data);
+        });
     });
     
 }
+
 
 /**
  * @getLogicalRouterCb
@@ -139,11 +174,10 @@ console.log("getLogicalRouterAsync");
  * 2. Reads the response of Logical Router get from config api server
  *    and sends it back to the client.
  */
-function getLogicalRouterCb(error, lrListData,appData, callback)
+/*function getLogicalRouterCb(error, lrListData,appData, callback)
 {
-    console.log("getLogicalRouterCb");
     if (error) {
-        commonUtils.handleJSONResponse(error, appData, null);
+        callback(error, lrListData);
         return;
     }
     //callback(error, lrConfig);
@@ -167,9 +201,124 @@ function getLogicalRouterCb(error, lrListData,appData, callback)
           commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
           function(error, results) {
               vmIfAggCb(error, results, lrListData,
-                                    appData, callback);
+                                    appData, function (error, results){
+                                        callback(error, results);
+                                    });
           });
 
+}*/
+
+function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback) 
+{
+//console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+    var vnListLen = 0, i = 0;
+    var vnRef     = [];
+    var vmListRef = [];
+    var dataObjArr = [];
+
+    if (error) {
+       callback(error, null);
+       return;
+    }
+    var vmList = logicalRouterDetail;
+/*
+    vnListLen = logicalRouterDetail.length;
+    vnRef = logicalRouterDetail['logical-router'];
+        if ('virtual_machine_interface_refs' in vnRef) {
+            for (i = 0; i < vnRef['virtual_machine_interface_refs']; i++) {
+            vmListRef = vnRef;
+            vmList
+            .push(vmListRef);
+        }
+    }
+*/
+    if(('logical-router' in logicalRouterDetail) &&
+      ('virtual_machine_interface_refs' in logicalRouterDetail['logical-router'])){
+        var vmiLen = logicalRouterDetail['logical-router']['virtual_machine_interface_refs'].length;
+        for(i=0; i<vmiLen; i++) {
+            var reqUrl = '/virtual-machine-interface/' + logicalRouterDetail['logical-router']['virtual_machine_interface_refs'][i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                    global.HTTP_REQUEST_GET, null, null, null,
+                    appData);        
+        }
+        async.map(dataObjArr,
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+                function(error, results) {
+                   vmIfAggCb(error, results, logicalRouterDetail, appData, function(error, logicalRouterDetail) {
+                       callback(error, logicalRouterDetail);
+                   });
+                });
+    } else {
+        callback(error, logicalRouterDetail);
+    }
+}
+
+function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback) 
+{
+//console.log("vmIfAggCb-vmIfList"+JSON.stringify(vmIfList));
+//console.log("vmIfAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+
+    var dataObjArr = [];
+    if (error) {
+        callback(error, null);
+        return;
+    }
+    var vmiLen = vmIfList.length;
+    if( vmiLen <= 0) {
+        callback(error,logicalRouterDetail);
+        return;
+    }
+    for(var i=0; i<vmiLen; i++) {
+        if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
+            var vm_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"];
+            logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["virtual_network_refs"] = vmIfList[i]["virtual-machine-interface"]["virtual_network_refs"]
+            if (vm_ref) {
+                logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]['instance_ip_back_refs'] = [];
+                logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]['instance_ip_back_refs'] = vm_ref;
+            }
+        }
+    }
+    console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+    for(var i=0; i<vmiLen; i++) {
+        if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
+            var inst_ip_ref = logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0];
+            if (inst_ip_ref) {
+                var reqUrl = '/instance-ip/' + inst_ip_ref['uuid'];
+            
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_GET, 
+                                         null, null, null, appData);
+            }
+        }
+    }
+    async.map(dataObjArr,
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            function(error, results) {
+                instanceIPRefAggCb(error, results, logicalRouterDetail, vmiLen, appData, function(error, logicalRouterDetail){
+                    callback(error, logicalRouterDetail);
+                });
+            });
+}
+
+function instanceIPRefAggCb(error, instanceIPList, logicalRouterDetail, vmiLen, appData, callback) 
+{
+console.log("instanceIPRefAggCb-instanceIPList"+JSON.stringify(instanceIPList));
+console.log("instanceIPRefAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+console.log("vmiLen"+vmiLen);
+
+    if (error) {
+        callback(error, null);
+        return;
+    }
+    if(instanceIPList.length <= 0) {
+        callback(error, logicalRouterDetail);
+        return;
+    }
+    for(var i=0; i<vmiLen; i++) {
+        console.log("instanceIPList[i]"+instanceIPList[i]+","+i);
+        logicalRouterDetail["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["ip"] = instanceIPList[i]["instance-ip"]["instance_ip_address"];
+    }
+    callback(error, logicalRouterDetail);
 }
 
 
@@ -181,7 +330,6 @@ function getLogicalRouterCb(error, lrListData,appData, callback)
  */
 function createLogicalRouter(request, response, appData)
 {
-console.log("createLogicalRouters_ch");
     var logicalRouterCreateURL = '/logical-routers';
     var logicalRouterPostData = request.body;
 
