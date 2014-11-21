@@ -703,7 +703,7 @@ function initActions() {
         console.log(JSON.stringify(vnConfig))
         if (mode === "add") {
             if(isVCenter()) {
-                vnConfig['pVlanId'] = $('#txtPVlanId').val();
+                vnConfig['pVlanId'] = $('#txtSVlanId').val();
             }
             var addTimeout = 30000;
             if(isVCenter())
@@ -2081,6 +2081,8 @@ function clearValuesFromDomElements() {
     msNetworkPolicies.data("contrailMultiselect").value("");
     $('#txtPVlanId').parents('.control-group').hide();
     $('#txtPVlanId').val('');
+    $('#txtSVlanId').parents('.control-group').hide();
+    $('#txtSVlanId').val('');
 
     clearFipEntries();
     clearRTEntries();
@@ -2154,8 +2156,10 @@ function showVNEditWindow(mode, rowIndex) {
             if(isVCenter()) {
                 if(mode == 'add') {
                     $('#txtPVlanId').parents('.control-group').show();
+                    $('#txtSVlanId').parents('.control-group').show();
                 } else {
                     $('#txtPVlanId').parents('.control-group').hide();
+                    $('#txtSVlanId').parents('.control-group').hide();
                 }
             }
             var results = arguments;
@@ -2425,7 +2429,14 @@ function validate() {
     if($('#txtPVlanId').is(':visible')) {
         pVlanId = $('#txtPVlanId').val().trim();
         if (typeof pVlanId === "undefined" || pVlanId === "" || !isNumber(pVlanId)) {
-            showInfoWindow("Enter a valid Private VLAN", "Input required");
+            showInfoWindow("Enter a valid Primary VLAN", "Input required");
+            return false;
+        }
+    }
+    if($('#txtSVlanId').is(':visible')) {
+        sVlanId = $('#txtSVlanId').val().trim();
+        if (typeof sVlanId === "undefined" || sVlanId === "" || !isNumber(sVlanId)) {
+            showInfoWindow("Enter a valid Secondary VLAN", "Input required");
             return false;
         }
     }
