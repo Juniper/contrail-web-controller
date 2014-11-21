@@ -32,20 +32,25 @@
                         
             <div class="row-fluid">
                 <div>
-                    <span class="span2"><label>Status</label> </span>
+                    <span class="span2"><label>Admin State</label> </span>
                     <span class="span10">: {{status}} </span>
                 </div>
             </div>
-
             <div class="row-fluid">
                 <div>
-                    <span class="span2"><label>Fixed IP's</label> </span>
+                    <span class="span2"><label>MAC Address</label> </span>
+                    <span class="span10">: {{macAddress}} </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Fixed IPs</label> </span>
                     <span class="span10">: {{fixedip}} </span>
                 </div>
             </div>
             <div class="row-fluid">
                 <div>
-                    <span class="span2"><label>Floating IP's</label> </span>
+                    <span class="span2"><label>Floating IPs</label> </span>
                     <span class="span10">: {{floatingIP}} </span>
                 </div>
             </div>
@@ -57,23 +62,23 @@
             </div>
             <div class="row-fluid">
                 <div>
-                    <span class="span2"><label>Allowed Address pair</label> </span>
-                    <span class="span10">: {{AllowedAddressPair}} </span>
+                    <span class="span2"><label>DHCP Options</label> </span>
+                    <span class="span10">: {{DHCPOption}} </span>
                 </div>
             </div>
             <div class="row-fluid">
                 <div>
-                    <span class="span2"><label>Mac Address</label> </span>
-                    <span class="span10">: {{macAddress}} </span>
-                </div>
-            </div>
-            <div class="row-fluid">
-                <div>
-                    <span class="span2"><label>Static IP</label> </span>
+                    <span class="span2"><label>Static Routes</label> </span>
                     <span class="span10">: {{staticIPString}} </span>
                 </div>
             </div>
-            
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>Allowed address pairs</label> </span>
+                    <span class="span10">: {{AllowedAddressPair}} </span>
+                </div>
+            </div>
+
 <!--            <div class="row-fluid">
                 <div>
                     <span class="span2"><label>Tenant ID</label> </span>
@@ -86,12 +91,7 @@
                     <span class="span10">: {{deviceID}} </span>
                 </div>
             </div>
-            <div class="row-fluid">
-                <div>
-                    <span class="span2"><label>DHCP Options</label> </span>
-                    <span class="span10">: {{DHCPOption}} </span>
-                </div>
-            </div>
+
         </div>
     </div>
 </script>
@@ -108,14 +108,14 @@
 
                     <div class="row-fluid margin-0-0-10">
                         <div class="control-group">
-                            <label class="control-label">Virtual Network</label>
+                            <label class="control-label">Network</label>
                             <div class="controls">
                                     <div class="span5">
                                         <div id="ddVN" class = "span12 pull-right" ></div>
                                     </div>
                                     <div class="span5">
-                                        <label class="control-label span3">Status</label>
-                                        <div id="ddVNState" class="span9" ></div>
+                                        <label class="control-label span5">Admin State</label>
+                                        <div id="ddVNState" class="span7" ></div>
                                     </div>
                             </div>
                         </div>
@@ -144,11 +144,11 @@
                     </div>
                     
                     <div class="control-group">
-                    <label class="control-label">Floating IP's</label>
+                    <label class="control-label">Floating IPs</label>
                         <div class="controls">
                             <div class="row-fluid margin-0-0-10">
                                 <div class="span10">
-                                    <div id="msFloatingIp" placeholder="Select Floating IP..." class="span12"></div>
+                                    <div id="msFloatingIp" placeholder="Select Floating IPs..." class="span12"></div>
                                 </div>
                             </div>
                             <!--<div class="row-fluid margin-0-0-10">
@@ -184,7 +184,7 @@
                                     <div class="widget-main padding-4">
                                         <div class="row-fluid margin-0-0-10">
                                             <div class="row-fluid">
-                                                <label class="control-label">Fixed IP's</label>
+                                                <label class="control-label">Fixed IPs</label>
                                                 <div class="controls">
                                                     <div class="span10">
                                                         <input class="ace-input" type="checkbox" checked id="is_FixedIp" onclick="enableFixedIP(this);" ><span class="ace-lbl"> </span>
@@ -192,8 +192,11 @@
                                                     <div id="fixedipContainer">
                                                         <div class="rule-item-header margin-0-0-10 span10">
                                                             <div class="row-fluid">
-                                                                <div class="span10">
-                                                                    <h6>Fixed IP</h6>
+                                                                <div class="span6">
+                                                                    <h6>Subnet</h6>
+                                                                </div>
+                                                                <div class="span4">
+                                                                    <h6>IP</h6>
                                                                 </div>
                                                                 <div class="pull-left" style="margin-left:5px">
                                                                     <div title="Add Fixed IP below" class="margin-5 padding-10-0">
@@ -220,7 +223,7 @@
                                             </div>
                                             
                                             <div class="row-fluid">
-                                                <label class="control-label">Allowed Address Pairs</label>
+                                                <label class="control-label">Allowed address pairs</label>
                                                 <div class="controls">
                                                     <div class="span10">
                                                         <input class="ace-input" type="checkbox" id="is_AAP" onclick="enableAAP(this);" ><span class="ace-lbl"> </span>
@@ -228,11 +231,14 @@
                                                     <div id="divddAAp" class="hide">
                                                         <div class="rule-item-header margin-0-0-10 span10">
                                                             <div class="row-fluid">
-                                                                <div class="span10">
-                                                                    <h6>Allowed Address Pairs</h6>
+                                                                <div class="span5">
+                                                                    <h6>IP</h6>
+                                                                </div>
+                                                                <div class="span5">
+                                                                    <h6>MAC</h6>
                                                                 </div>
                                                                 <div class="pull-left" style="margin-left:5px">
-                                                                    <div title="Add Allowed Address Pairs below" class="margin-5 padding-10-0">
+                                                                    <div title="Add Allowed address pairs below" class="margin-5 padding-10-0">
                                                                         <i class="icon-plus pull-left" onclick="appendAAPEntry(this,'AAPTuples', true);"></i>
                                                                     </div>
                                                                 </div>
@@ -249,7 +255,7 @@
                                                <div class="widget-header span11 pull-right">
                                                    <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true,'#AllowAddressPairDiv');">
                                                        <i class="icon-caret-right grey"></i>
-                                                       <span>Allow Address Pair</span>
+                                                       <span>Allowed address pairs</span>
                                                     </h5>
                                                 </div>
                                                 <div class="widget-body">
@@ -260,7 +266,7 @@
                                                             <div class="rule-item-header margin-0-0-10 span10">
                                                                 <div class="row-fluid" >
                                                                     <div class="span11">
-                                                                        <h6>Allow Address Pair</h6>
+                                                                        <h6>Allowed address pairs</h6>
                                                                     </div>
                                                                     <div class="span1 pull-left">
                                                                         <div title="Add Address Pair below" class="margin-5 padding-10-0">
@@ -292,12 +298,14 @@
                                                         <div class="widget-body">
                                                             <div class="widget-main padding-4">
                                                                 <div class="row-fluid margin-0-0-10">
-                                                                    <label class="control-label">DHCP</label>
                                                                     <div class="pading-4">
-                                                                        <div class="controls">
-                                                                                <div class="rule-item-header span10 margin-0-0-10">
-                                                                                        <div class="span11">
-                                                                                            <h6>DHCP Options</h6>
+                                                                        <div>
+                                                                                <div class="rule-item-header span12 margin-0-0-10">
+                                                                                        <div class="span5">
+                                                                                            <h6>Option code</h6>
+                                                                                        </div>
+                                                                                        <div class="span5">
+                                                                                            <h6>Option value</h6>
                                                                                         </div>
                                                                                         <div class="span1 pull-left">
                                                                                             <div title="Add DHCP below" class="margin-5 padding-10-0">
@@ -328,12 +336,15 @@
                                                         <div class="widget-body">
                                                             <div class="widget-main padding-4">
                                                             <div class="row-fluid margin-0-0-10">
-                                                                <label class="control-label">Static Routes</label>
-                                                                <div class="controls">
-                                                                    <div class="rule-item-header margin-0-0-10 span10">
+                                                                <div>
+                                                                    <div class="rule-item-header margin-0-0-10 span12">
                                                                         <div class="row-fluid">
-                                                                            <div class="span11">
-                                                                                <h6>Static Routes</h6>
+                                                                            <div class="span10">
+                                                                                <h6>Prefix</h6>
+                                                                            </div>
+                                                                            
+                                                                            <div class="span5 hide">
+                                                                                <h6>Next hop</h6>
                                                                             </div>
                                                                             <div class="span1 pull-left">
                                                                                 <div title="Static Routes" class="margin-5 padding-10-0">
@@ -353,6 +364,7 @@
                                                 </div>
                                                 </div>
                                             </div>
+                                            <div>&nbsp;</div>
                                             <div class="row-fluid">
                                             <div class="control-group">
                                                 <label class="control-label">Device Owner</label>
