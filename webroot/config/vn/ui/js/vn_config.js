@@ -627,12 +627,12 @@ function initActions() {
             vnConfig["virtual-network"]["router_external"] = true;
         else
             vnConfig["virtual-network"]["router_external"] = false;
-            
+
         if($("#is_shared")[0].checked === true)
             vnConfig["virtual-network"]["is_shared"] = true;
         else
             vnConfig["virtual-network"]["is_shared"] = false;
-                    
+
         if (floatingIpPools && floatingIpPools.length > 0) {            
             vnConfig["virtual-network"]["floating_ip_pools"] = [];
             for (var i = 0; i < floatingIpPools.length; i++) {
@@ -696,6 +696,11 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["forwarding_mode"] = fwdMode;
         }
+        if($("#allow_transit")[0].checked === true)
+            vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = true;
+        else
+            vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = false;
+
         //vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
 
 
@@ -1788,6 +1793,17 @@ function successHandlerForGridVNRow(result) {
         } else
             vnName = "";
 
+        var at = jsonPath(vn, "$.virtual_network_properties.allow_transit");
+        if (at !== false && typeof at !== "undefined" && at.length > 0 && at[0] != null && at[0] != undefined) {
+            at = at[0];
+        }
+        if(String(at) === "true")
+            at = "Enabled";
+        else {
+            at = "Disabled";
+        }
+        var AllowTransit = at;
+
         var uuid = jsonPath(vn, "$.uuid");
         if (typeof uuid === "object" && uuid.length === 1)
             uuid = uuid[0];
@@ -1947,7 +1963,7 @@ function successHandlerForGridVNRow(result) {
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         //if(vn.fq_name[1] == selectedProject){
-            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
+            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "AllowTransit": AllowTransit, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
     }
     if(result.more == true || result.more == "true"){
@@ -2071,6 +2087,7 @@ function clearValuesFromDomElements() {
     $("#ddAdminState").data("contrailDropdown").value("true");
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
+    $("#allow_transit")[0].checked = false;
     msNetworkPolicies.data("contrailMultiselect").value("");
 
     clearFipEntries();
@@ -2340,14 +2357,14 @@ function showVNEditWindow(mode, rowIndex) {
                         $("#DNSServerTuples").append(DNSEntry);
                     }
                 }
-                //place to add edid of AdminState, Extend/Shared,DNS Server                 
+                //place to add edid of AdminState, Extend/Shared,DNS Server
                 var AdminState = selectedVN["id_perms"]["enable"];
                 var isShared = selectedVN["is_shared"];
                 var isExternal = selectedVN["router_external"];
                 $("#ddAdminState").data("contrailDropdown").value(AdminState);
                 $("#is_shared")[0].checked = isShared;
                 $("#router_external")[0].checked = isExternal;
-                
+
                 if(null !== selectedVN["virtual_network_properties"] &&
                     typeof selectedVN["virtual_network_properties"] !== "undefined") {
                     var vnProps = selectedVN["virtual_network_properties"];
@@ -2360,6 +2377,13 @@ function showVNEditWindow(mode, rowIndex) {
                         typeof vnProps["forwarding_mode"] && 
                         "" !== vnProps["forwarding_mode"].trim()) {
                         $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
+                    }
+                    if(null !== vnProps["allow_transit"] && 
+                        "" !==  vnProps["allow_transit"]) {
+                        if(String(vnProps["allow_transit"]) === "true")
+                            $("#allow_transit")[0].checked = true;
+                        else
+                            $("#allow_transit")[0].checked = false;
                     }
                 }
             }

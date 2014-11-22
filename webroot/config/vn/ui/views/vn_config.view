@@ -93,6 +93,10 @@
                 <span class="span10">: {{VxLanId}}</span>
             </div>
             <div class="row-fluid">
+                <span class="span2"><label>Allow Transit</label></span>
+                <span class="span10">: {{AllowTransit}}</span>
+            </div>
+            <div class="row-fluid">
                 <div>
                     <span class="span2"><label>DNS Servers</label> </span>
                     <span class="span10">: {{{DNSServer}}} </span>
@@ -300,6 +304,14 @@
                                             <div class="controls">
                                                 <div class="row-fluid">
                                                     <input type="text" id="txtVxLanId" placeholder="0-1048575" class="span5" />
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
+                                            <label class="control-label"></label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <div><input class="ace-input" type="checkbox" id="allow_transit"><span class="ace-lbl">Allow Transit</span></div>
                                                 </div>
                                             </div>
                                         </div>

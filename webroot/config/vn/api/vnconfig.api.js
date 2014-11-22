@@ -783,7 +783,11 @@ function updateVNPolicyRefs (vnConfig, response, appData)
         vnConfig['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] =
         vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'];
     }
-
+    if(null !== vnPutData['virtual-network']['virtual_network_properties']['allow_transit'] &&
+        typeof vnPutData['virtual-network']['virtual_network_properties']['allow_transit'] !== "undefined") {
+        vnConfig['virtual-network']['virtual_network_properties']['allow_transit'] =
+        vnPutData['virtual-network']['virtual_network_properties']['allow_transit'];
+    }
     vnConfig['virtual-network']['route_target_list'] = {};
     if ('route_target_list' in vnPutData['virtual-network']) {
         vnConfig['virtual-network']['route_target_list'] = 
