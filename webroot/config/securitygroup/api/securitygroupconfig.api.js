@@ -202,10 +202,10 @@ function updateSecurityGroup(request, response, appData)
 }
 
 /**
- * @deleteServiceInstance
+ * @deleteSecurityGroup
  * public function
  * 1. URL /api/tenants/config/securitygroup/:id
- * 2. Deletes the service instance from config api server
+ * 2. Deletes the Security Group from config api server
  */
 function deleteSecurityGroup(request, response, appData)
 {
@@ -215,7 +215,7 @@ function deleteSecurityGroup(request, response, appData)
     if (securityGroupId = request.param('uuid').toString()) {
         securityGroupDelURL += securityGroupId;
     } else {
-        error = new appErrors.RESTServerError('Service Instance ID is required.');
+        error = new appErrors.RESTServerError('Security Group ID is required.');
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }

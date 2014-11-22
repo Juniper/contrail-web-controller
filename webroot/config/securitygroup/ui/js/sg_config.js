@@ -510,9 +510,9 @@ function createSGRuleEntry(rule, id, element,SGData) {
     var divRowFluidMargin10 = document.createElement("div");
     divRowFluidMargin10.className = "row-fluid margin-0-0-5";
     divRowFluidMargin10.appendChild(selectDivDirection);
-    divRowFluidMargin10.appendChild(selectDivProtocol);
     divRowFluidMargin10.appendChild(selectDivAction);
     divRowFluidMargin10.appendChild(selectDivRemoteAddress);
+    divRowFluidMargin10.appendChild(selectDivProtocol);
     divRowFluidMargin10.appendChild(divRowFluidDestPorts);
     divRowFluidMargin10.appendChild(divPullLeftMargin5Plus);
     divRowFluidMargin10.appendChild(divPullLeftMargin5Minus);
@@ -1103,7 +1103,7 @@ function formatSGPolicyRule(rule){
         direction = "egress";
     }
     direction = sgRuleFormat(direction);
-    returnString = direction + " " +etherType +" protocol " + protocal + remoteAddr + " ports " + remotePort;
+    returnString = direction + " " +etherType + " " +remoteAddr + " protocol " + protocal +  " ports " + remotePort;
     return returnString;
 }
 
@@ -1218,11 +1218,11 @@ function showsgEditWindow(mode, rowIndex) {
             window.sgData = [];
             window.sgData = results[0]["security-groups"];
             if (mode === "add") {
-                windowCreateSG.find('.modal-header-title').text('Create Security Groups');
+                windowCreateSG.find('.modal-header-title').text('Create Security Group');
                 $(txtRuleName).focus();
             } else if (mode === "edit") {
                 var selectedRow = $("#gridSG").data("contrailGrid")._dataView.getItem(rowIndex);
-                windowCreateSG.find('.modal-header-title').text('Edit Security Groups ' + selectedRow.sgName);
+                windowCreateSG.find('.modal-header-title').text('Edit Security Group ' + selectedRow.sgName);
                 txtRuleName.val(selectedRow.sgName);
                 txtRuleName[0].disabled = true;
                 var rowId = selectedRow["id"];
