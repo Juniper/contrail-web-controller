@@ -210,12 +210,13 @@ monitorInfraComputeDetailsClass = (function() {
                 /*End of Selenium Testing*/
                 var ipList = getVrouterIpAddressList(computeNodeData);
                 var ipDeferredObj = $.Deferred();
-                getReachableIp(ipList,"8085",ipDeferredObj);
+                var introspectPort = getValueByJsonPath(computeNodeData,'VrouterAgent;sandesh_http_port','8085');
+                getReachableIp(ipList,introspectPort,ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
                     if(nodeIp != null && nodeIp != noDataStr) {  
                         $('#linkIntrospect').unbind('click');
                         $('#linkIntrospect').click(function(){
-                            window.open('/proxy?proxyURL=http://'+nodeIp+':8085&indexPage', '_blank');
+                            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +'&indexPage', '_blank');
                         });
                         $('#linkStatus').unbind('click');
                         $('#linkStatus').on('click', function(){
