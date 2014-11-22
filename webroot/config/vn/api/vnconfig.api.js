@@ -392,12 +392,11 @@ function getSharedVirtualNetworks (req, res, appData)
  */
 function getExternalVirtualNetworks (req, res, appData)
 {
-console.log("aa");
     var resultJSON = [];
     var vnObjArr = [];
     var vnURL = '/virtual-networks?detail=true&field=router';
     configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
-        if ((null != err) || (null == vnDetails) || 
+        if ((null != err) || (null == vnDetails) ||
             (null == vnDetails['virtual-networks'])) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
@@ -2004,25 +2003,29 @@ function vmIfAggCb(error, vmIfList, response, vmList, appData)
     }
     for(var i=0; i<vmIfList.length; i++) {
         if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
-            var inst_ip_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"][0];
+            var inst_ip_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"];
             if (inst_ip_ref) {
-                var reqUrl = '/instance-ip/' + inst_ip_ref['uuid'];
-            
-                commonUtils.createReqObj(dataObjArr, reqUrl,
-                                         global.HTTP_REQUEST_GET, 
-                                         null, null, null, appData);
+                var inst_ip_ref_len = inst_ip_ref.length;
+                for (var j = 0; j < inst_ip_ref_len; j++) {
+                    var reqUrl = '/instance-ip/' + inst_ip_ref[j]['uuid'];
+                    commonUtils.createReqObj(dataObjArr, reqUrl,
+                                             global.HTTP_REQUEST_GET,
+                                             null, null, null, appData);
+                }
             }
         }
     }
     async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
+            commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, results) {
             instanceIPRefAggCb(error, results, response, vmList, appData);
             });
 }
 
-function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData) 
+function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData)
 {
+    var respVMList = [];
+    var tmpVMObjs = {};
     if (error) {
         commonUtils.handleJSONResponse(error, response, null);
         return;
@@ -2032,11 +2035,29 @@ function instanceIPRefAggCb(error, instanceIPList, response, vmList, appData)
             {"virtual_machine_interface_back_refs" : vmList});
         return;
     }
-    for(var i=0; i<instanceIPList.length; i++) {
-        vmList[i]["instance_ip_address"] = instanceIPList[i]["instance-ip"]["instance_ip_address"];
+    var vmListLen = vmList.length;
+    for (var i = 0; i < vmListLen; i++) {
+        tmpVMObjs[vmList[i]['uuid']] = vmList[i];
+    }
+    var instanceIPListLen = instanceIPList.length;
+    for (i = 0, k = 0; i < instanceIPListLen; i++) {
+        if ((null == instanceIPList[i]['instance-ip']) &&
+            (null ==
+             instanceIPList[i]['instance-ip']['virtual_machine_interface_refs'])) {
+            continue;
+        }
+        var vmRefs =
+            instanceIPList[i]['instance-ip']['virtual_machine_interface_refs'][0];
+        if (null != tmpVMObjs[vmRefs['uuid']]) {
+            respVMList[k] = {};
+            respVMList[k] = commonUtils.cloneObj(tmpVMObjs[vmRefs['uuid']]);
+            respVMList[k]['instance_ip_address'] =
+                instanceIPList[i]['instance-ip']['instance_ip_address'];
+            k++;
+        }
     }
     commonUtils.handleJSONResponse(error, response,
-        {'virtual_machine_interface_back_refs': vmList});
+        {'virtual_machine_interface_back_refs': respVMList});
 }
 
 /**
