@@ -118,7 +118,7 @@ var infraMonitorAlertUtils = {
         if(obj['isUveMissing'] == false) {
             //ifmap down alerts for control node
             if(obj['isIfmapDown']) {
-                alertsList.push($.extend({sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['IFMAP_DOWN'],timeStamp:obj['ifmapDownAt']},infoObj));
+                alertsList.push($.extend({sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['IFMAP_DOWN']},infoObj));
             }
             if(obj['isPartialUveMissing'] == true)
                 alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
