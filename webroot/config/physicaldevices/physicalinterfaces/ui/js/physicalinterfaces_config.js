@@ -835,7 +835,9 @@ function physicalInterfacesConfig() {
             for(var i = 0; i < result.length; i++) {
                 var vmi = result[i];
                 var txt = vmi.mac[0]; //+ ' (' + vmi.ip[0] + ')';
-                vmiDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : vmi.ip[0]});
+                if(vmi.ip != null && vmi.ip.length > 0) {
+                    vmiDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : vmi.ip[0]});
+                }
             }
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             if(flow === 'edit' && gblSelRow.server != '-') {
