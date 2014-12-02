@@ -53,7 +53,7 @@ test("testVRouterConfigMissing", function() {
     vRouterDataInput[0]['value']['ConfigData'] = {};
     var vRouterData = infraMonitorUtils.parsevRoutersDashboardData(vRouterDataInput); 
     equal(vRouterData[0]['isConfigMissing'],true,"isConfigMissing flag to be set");
-    equal(vRouterData[0]['color'],d3Colors['orange'],"vRouter color to be orange on config missing");
+    equal(vRouterData[0]['color'],d3Colors['red'],"vRouter color to be orange on config missing");
 });
 
 //Test vRouter parsing with UVE missing
@@ -83,7 +83,7 @@ test("testGetCores", function() {
 //    vRouterDataInput = vRouterDataInput.
 //    var vRouterData = infraMonitorUtils.parsevRoutersDashboardData(vRouterDataInput,); 
 //    equal(vRouterData[0]['isConfigMissing'],true,"isConfigMissing flag to be set");
-//    equal(vRouterData[0]['color'],d3Colors['orange'],"vRouter color to be orange on config missing");
+//    equal(vRouterData[0]['color'],d3Colors['orange'],"vRouter color to be red on config missing");
 //});
 
 //test("testProcessAlerts", function() {
