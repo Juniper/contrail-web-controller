@@ -179,35 +179,37 @@ function vmiFloatingFixedIP(error, results, vmiData, floatingipPoolRefsLen, rout
  * 2. Sets Post Data and sends back the VMI to client
  */
 
-function createPortsCB (req, appData, callback)
+function createPortsCB (req, data, response, appData, callback)
 {
-    createPortsValidate(request, response, appData, function (error, results) {
+console.log("data1"+JSON.stringify(data));
+    createPortsValidate(req, data, response, appData, function (error, results) {
         callback(error, results);
     }) ;
 }
 function createPorts(request, response, appData){
-    createPortsValidate(request, response, appData, function (error, results) {
+    createPortsValidate(request, request.data, response, appData, function (error, results) {
         commonUtils.handleJSONResponse(error, response, results);
     }) ;
 }
 
-function createPortsValidate(request, response, appData, callback){
+function createPortsValidate(request, data, response, appData, callback){
     var portsCreateURL = '/virtual-machine-interfaces';
-    var portPostData = request.body;
-    var orginalPortData = commonUtils.cloneObj(request.body);
+    var portPostData = data;
+    var orginalPortData = commonUtils.cloneObj(data);
 
     if (typeof(portPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
         callback(error, null);
         return;
     }
-
+console.log("-11");
     if ((!('virtual-machine-interface' in portPostData)) ||
         (!('fq_name' in portPostData['virtual-machine-interface']))) {
         error = new appErrors.RESTServerError('Enter Port Name ');
         callback(error, null);
         return;
     }
+console.log("-10");
     var uuid = UUID.create();
     portPostData["virtual-machine-interface"]["uuid"] = uuid['hex'];
     if(portPostData['virtual-machine-interface']['fq_name'].length == 2) {
@@ -215,7 +217,7 @@ function createPortsValidate(request, response, appData, callback){
         portPostData["virtual-machine-interface"]["display_name"] = uuid['hex'];
         portPostData["virtual-machine-interface"]["name"] = uuid['hex'];
     }
-
+console.log("-9");
     if ((('instance_ip_back_refs' in portPostData['virtual-machine-interface']))){
         delete portPostData['virtual-machine-interface']['instance_ip_back_refs'];
     }
@@ -225,7 +227,8 @@ function createPortsValidate(request, response, appData, callback){
     if ((('logical_router_back_refs' in portPostData['virtual-machine-interface']))){
         delete portPostData['virtual-machine-interface']['logical_router_back_refs'];
     }
-    
+console.log("-8");
+    console.log("1");
     configApiServer.apiPost(portsCreateURL, portPostData, appData,
     function (error, vmisData) {
         if(error) {
@@ -1258,11 +1261,11 @@ function filterUpdateStaticRoute(error, portPutData, vmiData, callback)
  * 2. Deletes the ports from config api server
   */
 
-function deletePortsCB(request, appData, callback)
+function deletePortsCB(request, uuid, appData, callback)
 {
 //console.log("deletePortsCB");
     var portId = "";
-    portId = request.param('uuid');
+    portId = uuid;
     readVMIwithUUID(portId, appData, function(err, vmiData){
         getReadDelVMICb(err, vmiData, appData, function(error, data){
             callback(error, data);

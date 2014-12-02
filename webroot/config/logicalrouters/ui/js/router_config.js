@@ -34,9 +34,11 @@ function routerConfigObj() {
 
     var dynamicID;
     var networks = [];
+    var connectedNetworksVMI = [];
     var network_subnet = [];
     var ajaxParam;
     var stAjaxcount;
+    var externalGatewayChanged;
 
     //Method definitions
     this.load = load;
@@ -57,6 +59,8 @@ function routerConfigObj() {
     this.createLogRouterFailureCb = createLogRouterFailureCb;
     this.destroy = destroy;
     this.dynamicID = dynamicID;
+    this.connectedNetworksVMI = connectedNetworksVMI;
+    this.externalGatewayChanged = externalGatewayChanged;
     this.stAjaxcount = stAjaxcount;
 }
 /* istanbul ignore next */
@@ -104,7 +108,7 @@ function initComponents() {
                 id:"externalGateway",
                 field:"externalGateway",
                 name:"External Gateway",
-                minWidth : 145,
+                minWidth : 300,
                 sortable: true
             },
             {
@@ -196,6 +200,7 @@ function initComponents() {
     btnCnfDelLRPopupCancel = $("#btnCnfDelLRPopupCancel");
     dynamicID = 0;
     stAjaxcount = 0;
+    connectedNetworksVMI = [];
 
     ddDomain = $("#ddDomainSwitcher").contrailDropdown({
         dataTextField:"text",
@@ -214,6 +219,7 @@ function initComponents() {
     ddExtGateway = $("#ddExtGateway").contrailDropdown({
         dataTextField:"text",
         dataValueField:"value",
+        //change:changeGateway
     });
     msConnectedNetworks = $("#msConnectedNetworks").contrailMultiselect({
         placeholder: "Select Networks",
@@ -223,7 +229,6 @@ function initComponents() {
     });
 
     
-
     $(ddRouterStatus).data("contrailDropdown").setData([{"text":"Up","value":true},{"text":"Down","value":false}]);
     $(ddRouterStatus).data("contrailDropdown").text("Up");
 
@@ -327,11 +332,13 @@ function initActions() {
             lRouter["logical-router"]["fq_name"] = [selectedDomain, selectedProject, $(txtRouterName).val()];
             lRouter["logical-router"]["id_perms"] = {};
             lRouter["logical-router"]["id_perms"]["enable"] = JSON.parse($("#ddRouterStatus").data("contrailDropdown").value());
-            if($("#ddExtGateway").data("contrailDropdown").value() != ""){
-                lRouter["logical-router"]["virtual_network_refs"] = [];
+            lRouter["logical-router"]["virtual_network_refs"] = [];
+            if($("#ddExtGateway").data("contrailDropdown").value() != "None"){
                 lRouter["logical-router"]["virtual_network_refs"][0] = {};
                 var obj = {};
-                obj.to = ($("#ddExtGateway").data("contrailDropdown").value()).split(":");
+                extGatewayArray = ($("#ddExtGateway").data("contrailDropdown").value()).split(",");
+                obj.to = extGatewayArray[0].split(":");
+                obj.uuid = extGatewayArray[1];
                 lRouter["logical-router"]["virtual_network_refs"][0] = obj;
             }
             var selectedConnectedNetworks = $("#msConnectedNetworks").data("contrailMultiselect").value();
@@ -342,31 +349,56 @@ function initActions() {
             var inc = 0;
             for(var i=0; i<selectedConnectedNetworks.length; i++) {
                 var selectedSubnet = [];
+                var uuid = "";
+                var to = [];
+                var connectedNetworkValue = selectedConnectedNetworks[i].split("_");
                 for(var j = 0;j<network_subnet.length;j++){
-                    if(network_subnet[j]["value"] == selectedConnectedNetworks[i]){
+                    if(network_subnet[j]["value"] == connectedNetworkValue[0]){
                         selectedSubnet = network_subnet[j]["subnet"];
                     }
                 }
-                if(selectedSubnet.length > 0){
-                //["subnet"][j]["subnet"]["ipam_subnet"]
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc] = {};
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"] = [];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"][0] = selectedDomain;
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["to"][1] = selectedProject;
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"] = [];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0] = {};
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"] = [];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0] = {};
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["fixedIp"] = selectedSubnet[0]["subnet"]["default_gateway"];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["domain"] = selectedSubnet[0]["subnet"]["ipam"][0];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["instance_ip_address"][0]["project"] = selectedSubnet[0]["subnet"]["ipam"][1];
-                    lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["subnet_uuid"] = selectedSubnet[0]["subnet"]["subnet_uuid"];
-                    /*if(mode == "edit"){
-                        lRouter["logical-router"]["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["uuid"] = cidrValue["fixedipuuid"];
-                    }*/
-                    inc++;
+                if(connectedNetworksVMI.length > 0){
+                    for(var tempInc = 0;tempInc < connectedNetworksVMI.length;tempInc++){
+                        if("virtual_network_refs" in connectedNetworksVMI[tempInc]){
+                            if(connectedNetworksVMI[tempInc]["virtual_network_refs"][0]["to"].join(":") == connectedNetworkValue[0]){
+                                uuid = connectedNetworksVMI[tempInc]["uuid"];
+                                to = connectedNetworksVMI[tempInc]["to"];
+                            }
+                        }
+                    }
                 }
+                var currentConnectedNetwork = connectedNetworkValue[0].split(":")
+                lRouter["logical-router"]["virtual_machine_interface_refs"][i] = {};
+                if(uuid != "" ) {
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["uuid"] = uuid;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["to"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["to"] = to;
+                } else {
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["parent_type"] = "project";
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["fq_name"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["fq_name"][0] = selectedDomain;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["fq_name"][1] = selectedProject;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["virtual_network_refs"] = [];
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["virtual_network_refs"][0] = {};
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["virtual_network_refs"][0]["to"] = currentConnectedNetwork;
+                    lRouter["logical-router"]["virtual_machine_interface_refs"][i]["virtual_machine_interface_device_owner"] = "network:router_interface";
+                    if(selectedSubnet.length > 0){
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"] = [];
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0] = {};
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"] = [];
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0] = {};
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["fixedIp"] = "";//selectedSubnet[0]["subnet"]["default_gateway"];
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["domain"] = selectedDomain;
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["project"] = selectedProject;
+                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["subnet_uuid"] = selectedSubnet[0]["subnet"]["subnet_uuid"];
+                        /*if(mode == "edit"){
+                            lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["uuid"] = cidrValue["fixedipuuid"];
+                        }*/
+                    }
 
+                
+                }
+                
             }
             if(txtRouterName.attr("disabled") === "disabled"){
                 var uuid = $('#btnCreateLROK').data('uuid');
@@ -384,6 +416,7 @@ function initActions() {
             } else {
                 doAjaxCall("/api/tenants/config/logicalrouter", "POST", JSON.stringify(lRouter), "createLogicalRouterSuccessCb", "createLogRouterFailureCb");
             }
+            connectedNetworksVMI = [];
         /*for(var i=0; i<$("#instanceDiv").children().length; i++) {
             var divid = String($("#instanceDiv").children()[i].id);
             var id = getID(divid);
@@ -457,6 +490,10 @@ function handleDomains(e) {
     fetchProjects("populateProjects", "failureHandlerForGridsTemp");
 }
 
+function changeGateway(e){
+
+}
+
 function populateProjects(result) {
     if (result && result.projects && result.projects.length > 0) {
         var projects = [];
@@ -510,7 +547,7 @@ function fetchDataForGridLogRouter() {
     configObj["logical_router"] = [];
     ajaxParam = selectedDomain+"_"+stAjaxcount;
     doAjaxCall(
-        "/api/admin/config/get-data?type=logical-router&count=4&fqnUUID=" + proid, "GET",
+        "/api/admin/config/get-data?type=logical-router&count=20&fqnUUID=" + proid, "GET",
         null, "successHandlerForGridsLRouterLoop", "failureHandlerForLRouterLoop", null, ajaxParam
     );
 }
@@ -520,7 +557,7 @@ function successHandlerForGridsLRouterLoop(result , cbparam) {
         return;
     }
     if(result.more == true || result.more == "true"){
-        doAjaxCall("/api/admin/config/get-data?type=logical-router&count=4&fqnUUID="+
+        doAjaxCall("/api/admin/config/get-data?type=logical-router&count=20&fqnUUID="+
             $("#ddProjectSwitcher").data("contrailDropdown").value() +"&lastKey="+result.lastKey,
             "GET", null, "successHandlerForGridsLRouterLoop", "failureHandlerForLRouterLoop", null, cbparam);
     }
@@ -614,10 +651,9 @@ function deleteStaticRouteEntry(who) {
     templateDiv = $();
 }
 function successHandlerForGridsLRouterRow(result) {
-    var LogicalRouterData = [];
     var LogicalRouterConfig = result.data;
     var idCount = 0;
-    LogicalRouterData = $("#gridLogRouter").data("contrailGrid")._dataView.getItems();
+    var LogicalRouterData = $("#gridLogRouter").data("contrailGrid")._dataView.getItems();
     var selectedDomainName = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProjectName = $("#ddProjectSwitcher").data("contrailDropdown").text();
     if(LogicalRouterConfig != null && LogicalRouterConfig != undefined){
@@ -633,6 +669,7 @@ function successHandlerForGridsLRouterRow(result) {
                 "externalGatewayVal":logicalObjectObj.externalGatewayValue,
                 "connectedNetwork":logicalObjectObj.connectedNetwork,
                 "connectedNetworkArr":logicalObjectObj.connectedNetworkArr,
+                "connectedNetworksVMI":logicalObjectObj.connectedNetworksVMI,
                 "InterfaceDetailArr":logicalObjectObj.InterfaceDetailArr
             });
         }
@@ -656,9 +693,11 @@ function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){
     } else {
         resultObject.lRouterStatus = "Down";
     }
+    resultObject.externalGatewayValue = "None"
     if(LogicalRuter["virtual_network_refs"] != "" && LogicalRuter["virtual_network_refs"] != undefined && LogicalRuter["virtual_network_refs"] != null){
         //resultObject.externalGatewayValue = [];
         resultObject.externalGatewayValue = (LogicalRuter["virtual_network_refs"][0]["to"].join(":"));
+        resultObject.externalGatewayValue += ","+ LogicalRuter["virtual_network_refs"][0]["uuid"];
         var externalNet = LogicalRuter["virtual_network_refs"][0]["to"];
         if(externalNet[0] == selectedDomainName && externalNet[1] == projectName){
            resultObject.externalGateway = externalNet[2];
@@ -669,30 +708,56 @@ function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){
     resultObject.connectedNetwork = "";
     resultObject.connectedNetworkArr = [];
     resultObject.InterfaceDetailArr = [];
-    
+    resultObject.connectedNetworksVMI = [];
     if(LogicalRuter["virtual_machine_interface_refs"] != undefined && LogicalRuter["virtual_machine_interface_refs"] != ""){
         for(var inc = 0 ; inc < LogicalRuter["virtual_machine_interface_refs"].length;inc++){
-            var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"][0]["to"];
-            var uuid = LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"];
-            var network = "";
-            var ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
-            if(ip == undefined){
-                ip = "";
+            if("virtual_network_refs" in LogicalRuter["virtual_machine_interface_refs"][inc]){
+                var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"][0]["to"];
+                var uuid = LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"];
+                var network = "";
+                var ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
+                if(ip == undefined){
+                    ip = "";
+                }
+                resultObject.connectedNetworkArr.push(connectedNetwork.join(":"));
+                if(resultObject.connectedNetwork != "")
+                    resultObject.connectedNetwork += ", ";
+                if(connectedNetwork[0] == selectedDomainName && connectedNetwork[1] == projectName){
+                   resultObject.connectedNetwork += connectedNetwork[2];
+                   network = connectedNetwork[2];
+                } else {
+                   resultObject.connectedNetwork += connectedNetwork[2]+" " +connectedNetwork[0] +":"+ connectedNetwork[1] +")";
+                   network = connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";;
+                }
+                resultObject.InterfaceDetailArr.push({"uuid":uuid,"network":network,"ip":ip});
+                /*if (("virtual_network_refs" in LogicalRuter["virtual_machine_interface_refs"][inc] ) && 
+                  (LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"].length > 0)){
+                    var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"][0]["to"];
+                    var uuid = LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"];
+                    var network = "";
+                    var ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
+                    if(ip == undefined){
+                        ip = "";
+                    }
+                    
+                    var val = String(LogicalRuter["virtual_machine_interface_refs"][inc]["to"].join(":")+"_"+LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"]);
+                    
+                    resultObject.connectedNetworkArr.push(val);
+                    if(resultObject.connectedNetwork != "") 
+                        resultObject.connectedNetwork += ", ";
+                    if(connectedNetwork[0] == selectedDomainName && connectedNetwork[1] == projectName){
+                       resultObject.connectedNetwork += connectedNetwork[2];
+                       network = connectedNetwork[2];
+                    } else {
+                       resultObject.connectedNetwork += connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";
+                       network = connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";;
+                    }
+                    resultObject.InterfaceDetailArr.push({"uuid":uuid,"network":network,"ip":ip});
+                }*/
             }
-            resultObject.connectedNetworkArr.push(connectedNetwork.join(":"));
-            if(resultObject.connectedNetwork != "") 
-                resultObject.connectedNetwork += ", ";
-            if(connectedNetwork[0] == selectedDomainName && connectedNetwork[1] == projectName){
-               resultObject.connectedNetwork += connectedNetwork[2];
-               network = connectedNetwork[2];
-            } else {
-               resultObject.connectedNetwork += connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";
-               network = connectedNetwork[2]+" (" +connectedNetwork[0] +":"+ connectedNetwork[1] +")";;
-            }
-            resultObject.InterfaceDetailArr.push({"uuid":uuid,"network":network,"ip":ip});
         }
+        resultObject.connectedNetworksVMI = LogicalRuter["virtual_machine_interface_refs"];
     }
-    
     return resultObject;
 }
 
@@ -964,6 +1029,17 @@ function logRouterCreateWindow(mode,rowIndex) {
         url:"/api/tenants/config/external-virtual-networks",
         type:"GET"
     });
+    
+    getAjaxs[2] = $.ajax({
+        url:"/api/admin/config/get-data?type=ports&fqnUUID="+selectedProject,
+        type:"GET"
+    });
+    
+    getAjaxs[3] = $.ajax({
+        url:"/api/tenants/config/shared-virtual-networks",
+        type:"GET"
+    });
+
     $.when.apply($, getAjaxs).then(
         function () {
             var results = arguments;
@@ -990,8 +1066,10 @@ function logRouterCreateWindow(mode,rowIndex) {
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                 } else {
                     networkText = localNetwork.fq_name[2];
+                    if(localNetworks[j]["virtual-network"]["router_external"] == false){
+                        networks.push({'text':networkText,'value':val});
+                    }
                 }
-                networks.push({'text':networkText,'value':val})
                 var subnet = localNetwork["network_ipam_refs"];
                 network_subnet.push({"value" :val,"subnet":subnet})
             }
@@ -1000,16 +1078,19 @@ function logRouterCreateWindow(mode,rowIndex) {
             if(results[1][0] != null && results[1][0] != "" && results[1][0] && results[1][0].length > 0) {
                 localNetworks = results[1][0];
             }
+            externalNetworks = [];
+            externalNetworks.push({'text':"None",'value':"None"})
             for(var j=0;j < localNetworks.length;j++){
-                var val="";
                 var localNetwork = localNetworks[j]["virtual-network"];
-                var networklen = localNetwork.fq_name.length;
+                var val=localNetwork.fq_name.join(":");
+                val += ","+ localNetwork.uuid;
+                /*var networklen = localNetwork.fq_name.length;
                 for(var k=0;k<networklen;k++){
                     val += localNetwork.fq_name[k];
                     if(k < networklen-1) {
                         val+=":";
                     }
-                }
+                }*/
                 var networkText = "";
                 if(localNetwork.fq_name[1] != $("#ddProjectSwitcher").data("contrailDropdown").text()){
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
@@ -1020,10 +1101,49 @@ function logRouterCreateWindow(mode,rowIndex) {
             }
             
             $(ddExtGateway).data("contrailDropdown").setData(externalNetworks);
-            $(ddExtGateway).data("contrailDropdown").value("");
+            $(ddExtGateway).data("contrailDropdown").text("None");
             //if(externalNetworks.length > 0) {
             //    $(ddExtGateway).data("contrailDropdown").value(externalNetworks[0].value);
             //}
+            /*var vmi = [];
+            var vmiArr = []
+            if(results[2][0] != null && results[2][0] != "" && results[2][0].data != null && results[2][0].data.length > 0) {
+                vmi = results[2][0].data;
+            }
+            for(var j=0;j < vmi.length;j++){
+                var val="";
+                if("virtual_network_refs" in vmi[j]["virtual-machine-interface"]){
+                    var localvmi = vmi[j]["virtual-machine-interface"]["virtual_network_refs"][0];
+                    val = String(vmi[j]["virtual-machine-interface"]["fq_name"].join(":")+"_"+vmi[j]["virtual-machine-interface"]["uuid"]);
+                    var networkText = "";
+                    if(localvmi["to"][1] != selectedProjectName){
+                        networkText = localvmi["to"][2] +" ("+localvmi["to"][0]+":"+localvmi["to"][1]+")";
+                    } else {
+                        networkText = localvmi["to"][2];
+                    }
+                    networkText += " (" +vmi[j]["virtual-machine-interface"]["uuid"] + ") ";
+                    vmiArr.push({'text':networkText,'value':val})
+                    //var subnet = localvmi["network_ipam_refs"];
+                    //network_subnet.push({"value" :val,"subnet":subnet})
+                }
+            }*/
+            
+            var localNetworks = [];
+            if(results[3][0] != null && results[3][0] != "" && results[3][0].length > 0) {
+                localNetworks = results[3][0];
+            }
+            for(var j=0;j < localNetworks.length;j++){
+                var val="";
+                var localNetwork = localNetworks[j]["virtual-network"];
+                val = localNetwork["fq_name"].join(":");
+                var networkText = "";
+                if(localNetwork.fq_name[1] != selectedProjectName){
+                    if(localNetwork["router_external"] == false){
+                        networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
+                        networks.push({'text':networkText,'value':val})
+                    }
+                }
+            }
             
             $("#msConnectedNetworks").data("contrailMultiselect").setData(networks);
 
@@ -1080,7 +1200,7 @@ function editWindow(rowIndex){
     console.log(selectedRow.externalGatewayVal)
     $(ddExtGateway).data("contrailDropdown").value(selectedRow.externalGatewayVal);
     $("#msConnectedNetworks").data("contrailMultiselect").value(selectedRow.connectedNetworkArr);
-    
+    connectedNetworksVMI = selectedRow.connectedNetworksVMI;
     /*if(selectedRow.connectedNetworkArr.length > 0){
     var len = selectedRow.connectedNetworkArr.length;
         for(var i = 0; i<len;i++){
