@@ -209,6 +209,12 @@ function createVirtualNetwork(req,res,appData) {
         commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'Only one subnet need to be specified'},res,null)
         return;
     }
+    var allocationPools = subnets[0]['allocation_pools'];
+    var ranges = [];
+    var allocationPoolsLen = allocationPools.length;
+    for(var i=0;i<allocationPoolsLen;i++) {
+        ranges.push(allocationPools[i]['start'] + ' # ' + commonUtils.getIPRangeLen(allocationPools[i]));
+    }
     var userData = {
             name    : vnPostData['virtual-network']['display_name'],
             pVlanId : pVlanId,
@@ -218,6 +224,8 @@ function createVirtualNetwork(req,res,appData) {
                 netmask  : commonUtils.prefixToNetMask(subnets[0]['subnet']['ip_prefix_len'])
             }
         };
+    if(ranges.length > 0)
+        userData['subnet']['range'] = ranges.join(',');
     vCenterApi.createNetwork(userData,appData,function(err,data) {
         if(data['Fault'] != null) {
             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},res,null);
