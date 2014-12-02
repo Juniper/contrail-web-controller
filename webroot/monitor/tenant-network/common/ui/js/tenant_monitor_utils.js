@@ -203,48 +203,90 @@ function ObjectListView() {
         obj['context'] = context;
         obj['objectType'] = objectType;
         if(objectType == 'network') {
-            var networkDS = new SingleDataSource('networkDS');
-            var result = networkDS.getDataSourceObj();
-            obj['dataSource'] = result['dataSource'];
-            obj['deferredObj'] = result['deferredObj'];
-            obj['error'] = result['error'];
-            obj['idField'] = 'uuid';
-            obj['isAsyncLoad'] = false;
-            $(networkDS).on("startLoading",function(){
-                var grid = $('div.contrail-grid').data('contrailGrid');
-                if(grid != null)
-                    grid.showGridMessage('loadingNextPage');
-            });
-            $(networkDS).on("endLoading",function(){
-                var grid = $('div.contrail-grid').data('contrailGrid');
-                if(grid != null)
-                    grid.removeGridLoading();
-            });
+        	if(contrail.checkIfExist(obj['fqn'])){
+        		var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
+        		                'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
+        		                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
+        		obj['transportCfg'] = { 
+                    url:'/api/tenant/networking/virtual-networks/details?fqn=' + obj['fqn'],
+                    type:'POST',
+                    data:{data:[{"type":"virtual-network", "cfilt":vnCfilts.join(',')}]}
+                };
+		        networkDS = new ContrailDataView();
+		        //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
+		        var networkDeferredObj = $.Deferred();
+		        //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
+		        var loadedDeferredObj = $.Deferred();
+		        getOutputByPagination(networkDS,{transportCfg:obj['transportCfg'],
+		        	parseFn:tenantNetworkMonitorUtils.networkParseFn,loadedDeferredObj:networkDeferredObj});
+		        
+		        getOutputByPagination(instanceDS,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,deferredObj:instDeferredObj,
+                    loadedDeferredObj:loadedDeferredObj});
+		        
+		        obj['dataSource'] = networkDS;
+		        obj['loadedDeferredObj'] = networkDeferredObj;
+		        obj['isAsyncLoad'] = true;
+		        //Passing the deferredObj to initGrid such that is hides loading icon in Grid/displays error message if ajax call fails
+		        obj['deferredObj'] = loadedDeferredObj;
+        	} else {
+                var networkDS = new SingleDataSource('networkDS');
+                var result = networkDS.getDataSourceObj();
+                obj['dataSource'] = result['dataSource'];
+                obj['deferredObj'] = result['deferredObj'];
+                obj['error'] = result['error'];
+                obj['idField'] = 'uuid';
+                obj['isAsyncLoad'] = false;
+                $(networkDS).on("startLoading",function(){
+                    var grid = $('div.contrail-grid').data('contrailGrid');
+                    if(grid != null)
+                        grid.showGridMessage('loadingNextPage');
+                });
+                $(networkDS).on("endLoading",function(){
+                    var grid = $('div.contrail-grid').data('contrailGrid');
+                    if(grid != null)
+                        grid.removeGridLoading();
+                });
+        	}
         } else if(objectType == 'project') {
-            var projectDataSource = new ContrailDataView();
-            globalObj['dataSources']['projectDS']['dataSource'] = projectDataSource;
-            var networkDS = new SingleDataSource('networkDS');
-            var result = networkDS.getDataSourceObj();
-            var projData = getProjectData(result['dataSource'].getItems(),globalObj['dataSources']['projectDS'])['projectsData'];
-            projectDataSource.setData(projData);
-            $(networkDS).on("change",function(args){
-                objListView.refreshProjectSummaryGrid(result['dataSource']);
+            $.ajax({
+                url:'/api/tenants/projects/default-domain',
+                async: false
+            }).done(function(projList,vnList) {
+                //projList.projects = []
+                if (projList.projects.length > 0) {
+                    layoutHandler.setURLHashParams({fqName: projList.projects[0].fq_name.join(':')},{merge:false});
+                } else {
+                    var projectDataSource = new ContrailDataView();
+                    if(globalObj['dataSources']['projectDS'] != null)
+                        globalObj['dataSources']['projectDS']['dataSource'] = projectDataSource;
+                    else
+                        globalObj['dataSources']['projectDS'] = {dataSource:projectDataSource};
+                    var networkDS = new SingleDataSource('networkDS');
+                    var result = networkDS.getDataSourceObj();
+                    var projData = getProjectData(result['dataSource'].getItems(),globalObj['dataSources']['projectDS'])['projectsData'];
+                    projectDataSource.setData(projData);
+                    $(networkDS).on("change",function(args){
+                        objListView.refreshProjectSummaryGrid(result['dataSource']);
+                    });
+                    $(networkDS).on("startLoading",function(){
+                        var grid = $('div.contrail-grid').data('contrailGrid');
+                        if(grid != null)
+                            grid.showGridMessage('loadingNextPage');
+                    });
+                    $(networkDS).on("endLoading",function(){
+                        var grid = $('div.contrail-grid').data('contrailGrid');
+                        if(grid != null)
+                            grid.removeGridLoading();
+                    });
+                    obj['dataSource'] = projectDataSource;
+                    obj['deferredObj'] = result['deferredObj'];
+                    obj['error'] = result['error'];
+                    obj['isAsyncLoad'] = false;
+                }
+           }).fail(function(errObj,status,errorText) {
+                deferredObj.reject({errObj:errObj,status:status,errTxt:errorText});
             });
-            $(networkDS).on("startLoading",function(){
-                var grid = $('div.contrail-grid').data('contrailGrid');
-                if(grid != null)
-                    grid.showGridMessage('loadingNextPage');
-            });
-            $(networkDS).on("endLoading",function(){
-                var grid = $('div.contrail-grid').data('contrailGrid');
-                if(grid != null)
-                    grid.removeGridLoading();
-            });
-            obj['dataSource'] = projectDataSource;
-            obj['deferredObj'] = result['deferredObj'];
-            obj['error'] = result['error'];
-            obj['isAsyncLoad'] = false;
-        } else if(objectType == 'instance') { 
+        } else if(objectType == 'instance') {
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
                               'UveVirtualMachineAgent:fip_stats_list'];
             if(ifNull(obj['fqName'],'') == '') {
@@ -1261,7 +1303,7 @@ var networkPopulateFns = {
                             projNamesArr.push(projObj['fq_name'].join(':'));
                             globalObj['dataSources']['projectDS']['data'] = projData;
                         });
-                        obj['transportCfg'] = { 
+                        obj['transportCfg'] = {
                                 url:'/api/tenant/networking/virtual-networks/details?count='+NETWORKS_PAGINATION_CNT,
                                 type:'POST',
                                 data:{data:[{"type":"virtual-network", "cfilt":vnCfilts.join(',')}]}
@@ -1935,7 +1977,7 @@ function connectedNetworkRenderer() {
   }
 }
 /*
- * This function gets the VM/VN stats for the new VM/VN's added to datasource and updates it 
+ * This function gets the VM/VN stats for the new VM/VN's added to datasource and updates it
  * and the deferredObj is resolved when all the VM/VN stats are fetched
  */
 function getStats(dataSource,arguments,type,deferredObj) {
@@ -1981,7 +2023,7 @@ function getStats(dataSource,arguments,type,deferredObj) {
     });
 }
 /* Function is to check whether stats column in the rows are updated,
- * by comparing with the default value of stats "-" to avoid 
+ * by comparing with the default value of stats "-" to avoid
  * change event trigger for same data multiple times.
  */
 function isStatsPopulated(dataSource,updateRows){
@@ -1992,4 +2034,130 @@ function isStatsPopulated(dataSource,updateRows){
         return false;
     else
         return true;
+}
+
+function constructProjectBreadcrumbDropdown(fqName){
+    pushBreadcrumbDropdown('projectDropdown');
+    var domain = fqName.split(':')[0],
+        projectDropdown = $('#projectDropdown').contrailDropdown({
+            dataTextField:"name",
+            dataValueField: "value",
+            dataSource:{
+                type: 'remote',
+                url:'/api/tenants/config/projects/' + domain,
+                parse: function(data){
+                    return $.map(data.projects, function(n,i){
+                        return {
+                            name: n.fq_name.join(':'),
+                            value: n.uuid
+                        };
+                    });
+                }
+            },
+            change: function(e){
+                loadFeature({
+                    p:'mon_net_projects',
+                    q: {
+                        fqName: $('#projectDropdown').data('contrailDropdown').text()
+                    }
+                });
+            }
+        }).data('contrailDropdown');
+
+    projectDropdown.text(fqName);
+};
+
+function constructNetworkBreadcrumbDropdown(fqName){
+    pushBreadcrumbDropdown('networkDropdown');
+    var project = fqName.split(':').splice(0,2).join(':'),
+        networkDropdown = $('#networkDropdown').contrailDropdown({
+            dataTextField:"name",
+            dataValueField: "value",
+            dataSource:{
+                type: 'remote',
+                url:'/api/tenants/networks/' + project,
+                parse: function(data){
+                    return $.map(data['virtual-networks'], function(n,i){
+                        return {
+                            name: n.fq_name.join(':'),
+                            value: n.uuid
+                        };
+                    });
+                }
+            },
+            change: function(e){
+                loadFeature({
+                    p:'mon_net_networks',
+                    q: {
+                        fqName: $('#networkDropdown').data('contrailDropdown').text()
+                    }
+                });
+            }
+        }).data('contrailDropdown');
+
+    networkDropdown.text(fqName);
+}
+
+function loadVisualizationTab(cfg){
+    var template = cfg.type + '-tab-template',
+        summaryTemplate = contrail.getTemplate4Id(template),
+        tabContainer = cfg.container;
+
+    switch(cfg.type) {
+        case 'connected-network':
+            var srcVN = cfg.sourceElement['attributes']['nodeDetails']['name'],
+                destVN = cfg.targetElement['attributes']['nodeDetails']['name'],
+                dropDownData = [
+                    {
+                        text: 'Traffic from ' + srcVN.split(':')[2] + ' to ' + destVN.split(':')[2],
+                        value: srcVN + '<->' + destVN
+                    }
+                ];
+
+            if(cfg.selfElement.attributes.linkDetails.dir == 'bi'){
+                dropDownData.push({
+                    text: 'Traffic from ' + destVN.split(':')[2] + ' to ' + srcVN.split(':')[2],
+                    value: destVN + '<->' + srcVN
+                });
+            }
+
+            var obj = $.extend({},cfg);
+
+            $(tabContainer).html(summaryTemplate(obj));
+
+            var loadConnectedNetworkTraffic = function(linkValue){
+                var linkElements = linkValue.split('<->'),
+                    obj = {
+                        fqName: cfg.fqName,
+                        srcVN: linkElements[0],
+                        destVN: linkElements[1],
+                        context: "connected-nw",
+                        container: '#topology-visualization-tabs',
+                    },
+                    data = {stats:{},charts:{},grids:{}};
+
+                data['stats']['url'] = constructReqURL($.extend({},obj,{type:'summary'}));
+                data['ts-chart'] = {};
+                data['ts-chart']['url'] = constructReqURL($.extend({},obj,{widget:'flowseries'}));
+
+                $(obj.container).initTemplates(data);
+                $('#ts-connected-vn-chart-title').html('Traffic from ' + linkElements[0].split(':')[2] + ' to ' + linkElements[1].split(':')[2]);
+            };
+
+            $("#connected-network-traffic-dropdown").contrailDropdown({
+                dataTextField:"text",
+                dataValueField: "value",
+                placeholder: 'Traffic Statistics',
+                data: dropDownData,
+                change: function(e){
+                    loadConnectedNetworkTraffic(e.val);
+                }
+            });
+
+            $("#connected-network-traffic-dropdown").data('contrailDropdown').value(srcVN + '<->' + destVN);
+            loadConnectedNetworkTraffic(srcVN + '<->' + destVN);
+
+            $('#connected-network-tabs').contrailTabs();
+            break;
+    }
 }

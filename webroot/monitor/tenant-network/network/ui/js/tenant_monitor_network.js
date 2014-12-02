@@ -19,20 +19,21 @@ function networkSummaryRenderer() {
             obj['uuid'] = getUUIDByName(obj['fqName']);
         } 
         layoutHandler.setURLHashParams({fqName:obj['fqName']},{p:'mon_net_networks',merge:false,triggerHashChange:false});
-        pushBreadcrumb([obj['fqName']]);
-        template = 'network-template';
+        constructNetworkBreadcrumbDropdown(obj['fqName']);
+        template = 'visualization-template';
         data['grids'] = [{},{}];
         var detailURL = constructReqURL($.extend({},obj,{type:'details'}));
 
         //Time-series chart
         data['ts-chart'] = {};
         data['ts-chart'] = {
-           'url' : constructReqURL($.extend({},obj,{widget:'flowseries'}))
-        }
+           'url' : constructReqURL($.extend({},obj,{widget:'flowseries'})),
+           height: 250
+        };
 
         //For Network Topology
         data['topology']={renderFn:function(){
-                topologyView.drawTopology(obj['fqName'])
+                drawNetworkTopology(obj['fqName']);
             }
         }
         //data['charts'] = {};
@@ -60,17 +61,17 @@ function networkSummaryRenderer() {
         var summaryTemplate = contrail.getTemplate4Id(template);
         var container = cfg['container'];
         $(container).html(summaryTemplate(obj));
+        $('#topology-visualization-tabs').html(contrail.getTemplate4Id('network-tab-template'));
         $(container).initTemplates(data);
-
         var instanceTabLoaded = 0;
-        var tabsLoaded = {'Summary':0, 'Port Distribution':0, 'Port Map':0, 'Instances':0, 'Details':0};
+        var tabsLoaded = {'Traffic Statistics':0, 'Port Distribution':0, 'Port Map':0, 'Instances':0, 'Details':0};
         $('#network-tabs').contrailTabs({
             activate: function(e, ui) {
                 //var selTab = $(ui.newTab).text();
                 var selTab = $(ui.newTab.context).text();
                 if (selTab == 'Port Distribution') {
                     if (tabsLoaded[selTab] == 0) {
-                        startWidgetLoading('charts');
+                    	$('#network-tabs').data('contrailTabs').startLoading('#network-port-dist-tab-link')
                         $.ajax({
                             url: portDistributionURL,
                             timeout: FLOW_QUERY_TIMEOUT
@@ -79,7 +80,7 @@ function networkSummaryRenderer() {
                                 portDeferredObj.resolve(result);
                             }
                         }).always(function(result) {
-                            endWidgetLoading('charts');
+                        	$('#network-tabs').data('contrailTabs').endLoading('#network-port-dist-tab-link')
                         });
                     } else {
                         $('#networks-summary-charts').find('svg').trigger('refresh');
@@ -88,7 +89,8 @@ function networkSummaryRenderer() {
                     $('#networkInstances .contrail-grid').data('contrailGrid').refreshView(); 
                     $('#networkInstances .contrail-grid').data('loadedDeferredObj').resolve();
                 } else if ($.inArray(selTab, ['Details', 'Port Map']) > -1) {
-                    if (tabsLoaded['Details'] == 0 && tabsLoaded['Port Map'] == 0) {
+                	$('#network-tabs').data('contrailTabs').startLoading('#network-port-map-tab-link');
+                	if (tabsLoaded['Details'] == 0 && tabsLoaded['Port Map'] == 0) {
                         $.ajax({
                             url: '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + obj['fqName']
                         }).done(function(result) {
@@ -98,8 +100,9 @@ function networkSummaryRenderer() {
                         tabsLoaded['Details'] = 1;
                         tabsLoaded['Port Map'] = 1;
                     }
-                } else if (selTab == 'Summary' && tabsLoaded[selTab] == 1) {
-                    $('#ts-vn-chart').find('svg').trigger('refresh');
+                	$('#network-tabs').data('contrailTabs').endLoading('#network-port-map-tab-link');
+                } else if (selTab == 'Traffic Statistics' && tabsLoaded[selTab] == 1) {
+                	$('#ts-vn-chart').find('svg').trigger('refresh');
                 }
                 if (tabsLoaded[selTab] == 0) {
                     tabsLoaded[selTab] = 1;
@@ -111,9 +114,9 @@ function networkSummaryRenderer() {
                 }
             }
         });
-         //Init Port Distribution map charts
-         initPortMapCharts(uveDeferredObj);
-         objListView.load({view:'list',type:'instance',uuid:obj['uuid'],fqName:obj['fqName'],context:'network',selector:'#networkInstances'});
+        //Init Port Distribution map charts
+        initPortMapCharts(uveDeferredObj);
+        objListView.load({view:'list',type:'instance',uuid:obj['uuid'],fqName:obj['fqName'],context:'network',selector:'#networkInstances'});
     }
 }
 
@@ -178,3 +181,12 @@ function getProtocolName(protNo) {
         return protNo;
 }
 
+function drawNetworkTopology(fqName) {
+    var config= {
+    	url: '/api/tenant/monitoring/network-topology?fqName=' + fqName, 
+    	selectorId: '#topology', 
+    	fqName: fqName,
+    	focusedElement: 'VirtualNetwork'
+    };
+    drawVisualization(config);
+};

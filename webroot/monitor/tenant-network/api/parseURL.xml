@@ -111,6 +111,12 @@
         <callback>nwMonApi.getNetworkTreeTopology</callback>
     </item>
     <item>
+        <url>/api/tenant/monitoring/project-topology</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getProjectTreeTopology</callback>
+    </item>
+    <item>
         <url>/api/tenant/networking/project/summary</url>
         <method>get</method>
         <feature>monitoring</feature>

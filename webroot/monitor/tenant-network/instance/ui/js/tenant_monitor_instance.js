@@ -24,8 +24,8 @@ function instSummaryRenderer() {
         var obj = $.extend({},cfg);
         var data = {stats:{},charts:{},grids:{}};
         layoutHandler.setURLHashParams({vmName:obj['vmName'],fqName:obj['fqName'],srcVN:obj['srcVN']},{p:'mon_net_instances',merge:false,triggerHashChange:false});
-        pushBreadcrumb([obj['vmName']]);
-        template = 'inst-template';
+        //pushBreadcrumb([obj['vmName']]);
+        template = 'visualization-template';
         obj['title'] = contrail.format("Traffic Statistics",obj['fqName'],obj['srcVN'].split(':').pop());
         data['stats'] = [{},{}];
         data['stats'][0] = {
@@ -46,6 +46,14 @@ function instSummaryRenderer() {
         data['ts-chart']['url'] = function() {
             return instSummaryView.getInstanceURL($.extend({},obj,{context:'instance',widget:'flowseries'}));
         };
+        
+        data['topology']={
+        	renderFn:function(){
+	        	var fqName = 'default-domain:' + obj['srcVN'].split(' ')[1].substr(1,(obj['srcVN'].split(' ')[1]).length - 2) + ':' + obj['srcVN'].split(' ')[0];
+	            drawInstanceTopology(fqName, obj['fqName']);
+        	}
+        };
+        
         data['charts']['colCount'] = 3;
         data['charts']['id'] = 'instance';
         data['charts']['d'] = [{
@@ -100,6 +108,7 @@ function instSummaryRenderer() {
         var summaryTemplate = contrail.getTemplate4Id(template);
         var container = cfg['container'];
         $(container).html(summaryTemplate(obj));
+        $('#topology-visualization-tabs').html(contrail.getTemplate4Id('virtual-machine-tab-template'));
         var instDeferredObj = $.Deferred();
         var dropdownIP = $(container).find('.z-dropdown').contrailDropdown({
             dataTextField:"name",
@@ -114,12 +123,12 @@ function instSummaryRenderer() {
             change: instSummaryView.onInstanceIntfChange
         });
         
-        var tabsLoaded = {'Summary':0, 'Details':0};
-        $('#instance-tabs').contrailTabs({
+        var tabsLoaded = {'Traffic Statistics':0, 'Details':0};
+        $('#virtual-machine-tabs').contrailTabs({
             activate: function(e,ui) {
                 //var selTab = $(e.item).text();
                 var selTab = $(ui.newTab.context).text();
-                if(selTab == 'Summary' && tabsLoaded[selTab] == 1) {
+                if(selTab == 'Traffic Statistics' && tabsLoaded[selTab] == 1) {
                     $('#ts-instance-chart').find('svg').trigger('refresh');
                 }
                 if(tabsLoaded[selTab] == 0) {
@@ -210,3 +219,13 @@ function instSummaryRenderer() {
 }
 
 
+function drawInstanceTopology(fqName, vmFqName) {
+    var config= {
+    	url: '/api/tenant/monitoring/network-topology?fqName=' + fqName, 
+    	selectorId: '#topology', 
+    	fqName: fqName,
+    	focusedElement: 'VirtualMachine',
+    	vmFqName: vmFqName
+    };
+    drawVisualization(config);
+};
