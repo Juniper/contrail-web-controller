@@ -471,51 +471,76 @@ function InfraMockData() {
                 ]
             },
             output: {
-                'VROUTER_SUMMARY' : [ { "alerts" : [  ],
-                    "color" : "#7892dd",
-                    "configIP" : "10.204.217.111",
-                    "cpu" : "0.05",
-                    "display_type" : "vRouter",
-                    "errorIntfCnt" : 0,
-                    "errorIntfCntText" : "",
-                    "histCpuArr" : [ 0.051394599999999999,
-                        0.047230099999999997,
-                        0.051394599999999999,
-                        0.051397499999999999,
-                        0.051394599999999999,
-                        0.048619200000000001,
-                        0.050005599999999997,
-                        0.048619200000000001,
-                        0.051394599999999999,
-                        0.050008299999999999
-                      ],
-                    "instCnt" : 0,
-                    "intfCnt" : 0,
-                    "ip" : "10.204.217.111",
-                    "isConfigMissing" : false,
-                    "isGeneratorRetrieved" : false,
-                    "isPartialUveMissing" : false,
-                    "isUveMissing" : false,
-                    "memory" : "393.09 MB",
-                    "name" : "nodeh7",
-                    "nodeAlerts" : [  ],
-                    "processAlerts" : [  ],
-                    "shape" : "circle",
-                    "size" : 1,
-                    "status" : "Up since ",
-                    "summaryIps" : "10.204.217.111",
-                    "type" : "vRouter",
-                    "uveCfgIPMisMatch" : false,
-                    "uveIP" : [ "10.204.217.111",
-                        "10.204.217.111"
-                      ],
-                    "version" : "1.03 (Build 1101)",
-                    "vnCnt" : 0,
-                    "vns" : [  ],
-                    "x" : 0.050008299999999999,
-                    "xmppPeerDownCnt" : 0,
-                    "y" : 393.08984375
-                  } ],
+                'VROUTER_SUMMARY' : [ { "alerts" : [ { "link" : { "p" : "mon_infra_vrouter",
+                    "q" : { "node" : "nodeh7",
+                        "tab" : ""
+                      }
+                  },
+                "msg" : "Process States unavailable",
+                "name" : "nodeh7",
+                "pName" : "vRouter",
+                "sevLevel" : 0,
+                "type" : "vRouter"
+              } ],
+          "color" : "#dc6660",
+          "configIP" : "10.204.217.111",
+          "cpu" : "0.05",
+          "display_type" : "vRouter",
+          "errorIntfCnt" : 0,
+          "errorIntfCntText" : "",
+          "histCpuArr" : [ 0.051394599999999999,
+              0.047230099999999997,
+              0.051394599999999999,
+              0.051397499999999999,
+              0.051394599999999999,
+              0.048619200000000001,
+              0.050005599999999997,
+              0.048619200000000001,
+              0.051394599999999999,
+              0.050008299999999999
+            ],
+          "instCnt" : 0,
+          "intfCnt" : 0,
+          "ip" : "10.204.217.111",
+          "isConfigMissing" : false,
+          "isGeneratorRetrieved" : false,
+          "isPartialUveMissing" : false,
+          "isUveMissing" : false,
+          "link" : { "p" : "mon_infra_vrouter",
+              "q" : { "node" : "nodeh7",
+                  "tab" : ""
+                }
+            },
+          "memory" : "393.09 MB",
+          "name" : "nodeh7",
+          "nodeAlerts" : [  ],
+          "processAlerts" : [ { "link" : { "p" : "mon_infra_vrouter",
+                    "q" : { "node" : "nodeh7",
+                        "tab" : ""
+                      }
+                  },
+                "msg" : "Process States unavailable",
+                "name" : "nodeh7",
+                "pName" : "vRouter",
+                "sevLevel" : 0,
+                "type" : "vRouter"
+              } ],
+          "shape" : "circle",
+          "size" : 1,
+          "status" : "Up since ",
+          "summaryIps" : "10.204.217.111",
+          "type" : "vRouter",
+          "uveCfgIPMisMatch" : false,
+          "uveIP" : [ "10.204.217.111",
+              "10.204.217.111"
+            ],
+          "version" : "1.03 (Build 1101)",
+          "vnCnt" : 0,
+          "vns" : [  ],
+          "x" : 0.050008299999999999,
+          "xmppPeerDownCnt" : 0,
+          "y" : 393.08984375
+        } ],
                         "test1": []
                 }
             },
@@ -667,6 +692,11 @@ function InfraMockData() {
                 output: {
                     'CONTROLNODES_SUMMARY': [ { "activevRouterCount" : 1,
                         "alerts" : [ { "ip" : "10.204.216.46",
+                            "link" : { "p" : "mon_infra_control",
+                                "q" : { "node" : "nodea8",
+                                    "tab" : ""
+                                  }
+                              },
                             "msg" : "Ifmap Connection down",
                             "name" : "nodea8",
                             "sevLevel" : 0,
@@ -701,9 +731,19 @@ function InfraMockData() {
                       "isIfmapDown" : true,
                       "isPartialUveMissing" : false,
                       "isUveMissing" : false,
+                      "link" : { "p" : "mon_infra_control",
+                          "q" : { "node" : "nodea8",
+                              "tab" : ""
+                            }
+                        },
                       "memory" : "411.46 MB",
                       "name" : "nodea8",
                       "nodeAlerts" : [ { "ip" : "10.204.216.46",
+                            "link" : { "p" : "mon_infra_control",
+                                "q" : { "node" : "nodea8",
+                                    "tab" : ""
+                                  }
+                              },
                             "msg" : "Ifmap Connection down",
                             "name" : "nodea8",
                             "sevLevel" : 0,
@@ -965,61 +1005,88 @@ function InfraMockData() {
     } ]
                 },
                 output: {
-                	'CONFIGNODES_SUMMARY':[ { "alerts" : [ { "msg" : "stopped",
-                        "nName" : "nodea8",
-                        "pName" : "ifmap",
-                        "popupMsg" : "Stopped",
-                        "sevLevel" : 0,
-                        "timeStamp" : "1392189058210917",
-                        "tooltipAlert" : false
+                	'CONFIGNODES_SUMMARY': [ { "alerts" : [ { "link" : { "p" : "mon_infra_config",
+                        "q" : { "node" : "nodea8",
+                            "tab" : ""
+                          }
                       },
-                      { "detailAlert" : false,
-                        "msg" : "1 Process down",
-                        "sevLevel" : 0
-                      }
-                    ],
-                  "color" : "#dc6660",
-                  "cpu" : "0.00",
-                  "display_type" : "Config Node",
-                  "histCpuArr" : [ 0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0,
-                      0
-                    ],
-                  "ip" : "-",
-                  "isGeneratorRetrieved" : false,
-                  "isPartialUveMissing" : false,
-                  "memory" : "314.16 MB",
-                  "name" : "nodea8",
-                  "nodeAlerts" : [  ],
-                  "processAlerts" : [ { "msg" : "stopped",
-                        "nName" : "nodea8",
-                        "pName" : "ifmap",
-                        "popupMsg" : "Stopped",
-                        "sevLevel" : 0,
-                        "timeStamp" : "1392189058210917",
-                        "tooltipAlert" : false
+                    "msg" : "ifmap stopped",
+                    "name" : "nodea8",
+                    "pName" : "ifmap",
+                    "sevLevel" : 0,
+                    "timeStamp" : "1392189058210917",
+                    "tooltipAlert" : false,
+                    "type" : "Config Node"
+                  },
+                  { "detailAlert" : false,
+                    "link" : { "p" : "mon_infra_config",
+                        "q" : { "node" : "nodea8",
+                            "tab" : ""
+                          }
                       },
-                      { "detailAlert" : false,
-                        "msg" : "1 Process down",
-                        "sevLevel" : 0
-                      }
-                    ],
-                  "shape" : "circle",
-                  "size" : 1,
-                  "status" : "Down since ",
-                  "summaryIps" : "-",
-                  "type" : "configNode",
-                  "version" : "-",
-                  "x" : 0,
-                  "y" : 314.1630859375
-                } ]
+                    "msg" : "1 Process down",
+                    "sevLevel" : 0,
+                    "type" : "Config Node"
+                  }
+                ],
+              "color" : "#dc6660",
+              "cpu" : "0.00",
+              "display_type" : "Config Node",
+              "histCpuArr" : [ 0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0,
+                  0
+                ],
+              "ip" : "-",
+              "isGeneratorRetrieved" : false,
+              "isPartialUveMissing" : false,
+              "link" : { "p" : "mon_infra_config",
+                  "q" : { "node" : "nodea8",
+                      "tab" : ""
+                    }
+                },
+              "memory" : "314.16 MB",
+              "name" : "nodea8",
+              "nodeAlerts" : [  ],
+              "processAlerts" : [ { "link" : { "p" : "mon_infra_config",
+                        "q" : { "node" : "nodea8",
+                            "tab" : ""
+                          }
+                      },
+                    "msg" : "ifmap stopped",
+                    "name" : "nodea8",
+                    "pName" : "ifmap",
+                    "sevLevel" : 0,
+                    "timeStamp" : "1392189058210917",
+                    "tooltipAlert" : false,
+                    "type" : "Config Node"
+                  },
+                  { "detailAlert" : false,
+                    "link" : { "p" : "mon_infra_config",
+                        "q" : { "node" : "nodea8",
+                            "tab" : ""
+                          }
+                      },
+                    "msg" : "1 Process down",
+                    "sevLevel" : 0,
+                    "type" : "Config Node"
+                  }
+                ],
+              "shape" : "circle",
+              "size" : 1,
+              "status" : "Down since ",
+              "summaryIps" : "-",
+              "type" : "configNode",
+              "version" : "-",
+              "x" : 0,
+              "y" : 314.1630859375
+            } ]
                 }
             },
             parseAnalyticNodesDashboardData: {
@@ -1377,6 +1444,11 @@ function InfraMockData() {
                         "ip" : "10.204.216.46",
                         "isGeneratorRetrieved" : false,
                         "isPartialUveMissing" : false,
+                        "link" : { "p" : "mon_infra_analytics",
+                            "q" : { "node" : "nodea8",
+                                "tab" : ""
+                              }
+                          },
                         "memory" : "344.02 MB",
                         "name" : "nodea8",
                         "nodeAlerts" : [  ],

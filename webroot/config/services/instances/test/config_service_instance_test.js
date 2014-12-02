@@ -46,7 +46,7 @@ test("refreshInstence", function() {
 	equal(typeof svcInstanceTimer,"number",'Valid');
 });
 
-
+/*
 test("ajaxcall", function(){
     //expect(1);
     this.server.respondWith("GET", "/api/tenants/config/domains/",
@@ -124,3 +124,4 @@ test("ajaxcall", function(){
 	ok(ServicesInstancesObj.destroy, "Destroy is fine");
     u.clearDom();
 });
+*/
