@@ -122,11 +122,22 @@
                 
 </script>
 
+<script type="text/x-handlebars-template" id="port-distribution-charts-template">
+    <div class="row-fluid port-distribution-chart-container"> 
+		{{#IfCompare @index 1 operator='%2'}}
+        	<div id="{{../../id}}_{{@index}}" class="port-distribution-chart negate"></div>
+        {{else}}
+        	<div id="{{../../id}}_{{@index}}" class="port-distribution-chart"></div>
+      	{{/IfCompare}}
+    </div>
+</script>
+
 <script type="text/x-handlebars-template" id="portDetail-template">
     <div class="row-fluid">
         <div id="gridFlows" class="z-grid"></div>
     </div>
 </script>
+
 <script type="text/x-handlebars-template" id="portRangeDetail-template">
     <div class="row-fluid">
         <div class='summary-charts' class='table'></div>
@@ -224,9 +235,90 @@
               </div>
           <div class="widget-body">
               <div class="widget-main">
-                  <div id="ts-connected-vn-chart" class='ts-chart height-300'></div>
+                  <div id="ts-connected-vn-chart" class='ts-chart'></div>
                   <div class='summary-stats'></div>
                   <!--<div class='summary-charts'></div>-->
               </div>
           </div>
   </script>
+  
+<script type="text/x-handlebars-template" id="visualization-template">
+	<div class="row-fluid visualization-container">
+		<div class="topology-visualization-canvas" style="height: 300px; overflow: hidden;">
+			<div class="topology-visualization-loading progress progress-striped active">
+  				<div class="bar" style="width: 100%;"></div>
+			</div>
+			<div id="topology" class="topology-visualization row-fluid colmask holygrail">
+			    <div class="colmid">
+			        <div class="colleft">
+			            <div class="col1wrap">
+			                <div class="col1">
+								<div id="topology-connected-elements" class="topology-visualization-connected-elements row-fluid"></div>
+							</div>
+			            </div>
+			            <div class="col2">
+							<div id="topology-config-elements" class="topology-visualization-config-elements row-fluid"></div>
+			            </div>
+			            <div class="col3">
+							<div id="topology-controls" class="topology-controls pull-right">
+                                <div class="topology-control-item zoom-in" title="Zoom In"><i class="icon-zoom-in"></i></div>
+								<div class="topology-control-item zoom-out" title="Zoom Out"><i class="icon-zoom-out"></i></div>
+								<div class="topology-control-item zoom-reset" title="Zoom Reset"><i class="icon-remove-circle"></i></div>
+								<div class="topology-control-item" onclick="resizeWidget(this,'#topology');" title="Expand Visualization">
+                                    <i class="icon-resize-full"></i>
+                                </div>
+                            </div>
+							<div id="topology-breadcrumb" class="hide breadcrumbs pull-right"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="topology-visualization-tabs" class="topology-visualization-tabs row-fluid margin-10-0-0"></div>
+	</div>
+</script>
+
+<script type="text/x-handlebars-template" id="connected-network-tab-template">
+	<div id="connected-network-tabs" class="row-fluid contrail-widget-tabs topology-visualization-tabs">
+    	<ul>
+           	<li><a id="connected-network-traffic-tab-link" href="#connected-network-traffic-tab">Traffic Statistics</a></li>
+   			<li><a id="connected-network-details-tab-link" href="#connected-network-details-tab">Details</a></li>
+		
+		</ul>
+        <div id="connected-network-traffic-tab">
+			<div class="row-fluid center">
+				<div id="connected-network-traffic-dropdown"></div>
+			</div>
+			<div class="row-fluid">
+				<div id="ts-connected-vn-chart" class='ts-chart height-300'></div>
+			</div>
+		</div>
+		<div id="connected-network-details-tab"></div>
+   	</div>
+</script>
+
+<script type="text/x-handlebars-template" id="virtual-machine-tab-template">
+	<div id="virtual-machine-tabs" class="row-fluid contrail-widget-tabs topology-visualization-tabs">
+    	<ul>
+        	<li><a id="virtual-machine-traffic-tab-link" href="#virtual-machine-traffic-tab">Traffic Statistics</a></li>
+   			<li><a id="virtual-machine-details-tab-link" href="#virtual-machine-details-tab">Details</a></li>
+     	</ul>
+		<div id="virtual-machine-traffic-tab">
+			<div class="row-fluid center"> 
+				<div class='z-dropdown' class="select2-medium-width" id='dropdownIP'></div>
+			</div>
+			<div class="row-fluid">
+				<div id="ts-virtual-machine-chart" class='ts-chart height-300'></div>
+			</div>
+			
+			<div class='height-130'>
+            	<div class='summary-stats'></div>
+                <div class='summary-stats'></div>
+        	</div>
+		</div>
+		<div id="virtual-machine-details-tab">
+			<pre id="uve-information"></pre>
+		</div>
+   	</div>
+</script>
+

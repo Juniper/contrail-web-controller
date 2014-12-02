@@ -173,22 +173,6 @@ and need to add the iconClass tag wherever we need to show some icons
           <iconClass>icon-sitemap</iconClass>
           <items>
             <item>
-              <label>Dashboard</label>
-              <hash>mon_net_dashboard</hash>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/tenant-network/dashboard/ui</rootDir>
-                  <view>tenant_monitor_dashboard.view</view>
-                  <js>tenant_monitor_dashboard.js</js>
-                  <class>tenantNetworkMonitorView</class>
-                </resource>
-              </resources>
-              <queryParams>
-                <fqName>default-domain</fqName>
-              </queryParams>
-              <searchStrings>Networking Dashboard</searchStrings>
-            </item>
-            <item>
               <label>Projects</label>
               <hash>mon_net_projects</hash>
               <resources>
@@ -241,6 +225,22 @@ and need to add the iconClass tag wherever we need to show some icons
                 <source>uve</source>
               </queryParams>
               <searchStrings>Monitor instances</searchStrings>
+            </item>
+            <item>
+              <label>Traffic Statistics</label>
+              <hash>mon_net_dashboard</hash>
+              <resources>
+                  <resource>
+                      <rootDir>/monitor/tenant-network/dashboard/ui</rootDir>
+                      <view>tenant_monitor_dashboard.view</view>
+                      <js>tenant_monitor_dashboard.js</js>
+                      <class>tenantNetworkMonitorView</class>
+                  </resource>
+              </resources>
+              <queryParams>
+                  <fqName>default-domain</fqName>
+              </queryParams>
+              <searchStrings>Networking Dashboard</searchStrings>
             </item>
           </items>
         </item>
@@ -662,7 +662,7 @@ and need to add the iconClass tag wherever we need to show some icons
       <items>
         <item>
           <label>Config DB</label>
-          <iconClass>icon-table</iconClass>
+          <iconClass>icon-contrail-config-db</iconClass>
           <items>
             <item>
               <hash>setting_configdb_fqname</hash>
@@ -692,7 +692,7 @@ and need to add the iconClass tag wherever we need to show some icons
         </item>
         <item>
           <label>Analytics DB</label>
-          <iconClass>icon-table</iconClass>
+          <iconClass>icon-contrail-analytics-db</iconClass>
           <items>
               <item>
                   <hash>setting_analyticsdb_usage</hash>
@@ -775,7 +775,7 @@ and need to add the iconClass tag wherever we need to show some icons
         </item>
         <item>
           <label>Logs</label>
-          <iconClass>icon-hdd</iconClass>
+          <iconClass>icon-contrail-system-logs</iconClass>
           <items>
             <item>
               <hash>query_log_system</hash>
@@ -823,7 +823,7 @@ and need to add the iconClass tag wherever we need to show some icons
         </item>
         <item>
             <label>Statistics</label>
-            <iconClass>icon-tasks</iconClass>
+            <iconClass>icon-contrail-system-stats</iconClass>
             <items>
                 <item>
                     <hash>query_stat_query</hash>

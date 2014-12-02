@@ -16,15 +16,20 @@ function projSummaryRenderer() {
             obj['uuid'] = getUUIDByName(obj['fqName']);
         } 
         layoutHandler.setURLHashParams({fqName:obj['fqName']},{p:'mon_net_projects',merge:false,triggerHashChange:false});
-        pushBreadcrumb([cfg['fqName']]);
-        template = 'project-template';
+        constructProjectBreadcrumbDropdown(cfg['fqName']);
+        template = 'visualization-template';
         obj['title'] = contrail.format('Traffic Statistics for Project ({0})',obj['fqName'].split(':').pop());
-        //obj['topologyTitle'] = contrail.format('Topology for Project ({0})',obj['fqName'].split(':').pop());
-        obj['topologyTitle'] = contrail.format('Connectivity Details');
         data['stats']['url'] = constructReqURL($.extend({},obj,{type:'summary'}));
         //For Project Topology
-        data['topology']={renderFn:function(){
-            topologyView.drawTopology(obj['fqName']);
+        data['topology']={renderFn:function() {
+                //topologyView.drawTopology(obj['fqName']);
+                var config= {
+            		url: '/api/tenant/monitoring/project-topology?fqName=' + obj['fqName'], 
+            		selectorId: '#topology', 
+            		fqName: obj['fqName'],
+            		focusedElement: 'Project'
+            	};
+                drawVisualization(config);
             }
         }
 
@@ -40,7 +45,7 @@ function projSummaryRenderer() {
                 deferredObj.resolve(result);
             }
         }).always(function(result) {
-            endWidgetLoading('charts');
+        	$('#project-tabs').data('contrailTabs').endLoading('#project-port-dist-tab-link');
         });
         data['charts']['id'] = 'project';
         data['charts']['chartType'] = 'bubble';
@@ -63,29 +68,32 @@ function projSummaryRenderer() {
         var summaryTemplate = contrail.getTemplate4Id(template);
         var container = cfg['container'];
         $(container).html(summaryTemplate(obj));
+        var tabsLoaded = {'Port Distribution':0, 'Instances':0, 'Networks': 0};
+        $('#topology-visualization-tabs').html(contrail.getTemplate4Id('project-tab-template'));
         $(container).initTemplates(data);
-        var tabsLoaded = {'Summary':0, 'Instances':0};
-        startWidgetLoading('charts');
-        $('#project-tabs').contrailTabs({
+        var projectTabs = $('#project-tabs').contrailTabs({
             activate: function(e, ui) {    
-                var topoDivId = escape(obj['fqName']).replace(/%/g,'_').replace(/\*/g,'-').replace(/@/g,':').replace(/\+/g,'.');
-                if($('#project-tabs').find('#topology').is(":visible") && $('#project-tabs').find('#topology').length>0 && $("#" + topoDivId).data('topology')!=undefined){
-                    $("#" + topoDivId).html('');
-                    topologyView.renderTopology($("#" + topoDivId).data('topology'));
-                }
                 var selTab = $(ui.newTab.context).text();
-                if(selTab == 'Summary' && tabsLoaded[selTab] == 1) {
-                    $('#projects-summary-charts').find('svg').trigger('refresh');
-                } else if(selTab == 'Instances' && tabsLoaded[selTab] == 0) {
-                    $('.contrail-grid').data('contrailGrid').refreshView();
+                if(selTab == 'Port Distribution') {
+                	$('#projects-port-distribution-charts').find('svg').trigger('refresh');
+                } 
+                else if(selTab == 'Networks' && tabsLoaded[selTab] == 0) {
+                    $('#projNetworks').find('.contrail-grid').data('contrailGrid').refreshView();
                     //Issue the request only for the first time when Instances tab is selected
-                    $('.contrail-grid').data('loadedDeferredObj').resolve();
+                    $('#projNetworks').find('.contrail-grid').data('loadedDeferredObj').resolve();
+                }
+                else if(selTab == 'Instances' && tabsLoaded[selTab] == 0) {
+                    $('#projInstances').find('.contrail-grid').data('contrailGrid').refreshView();
+                    //Issue the request only for the first time when Instances tab is selected
+                    $('#projInstances').find('.contrail-grid').data('loadedDeferredObj').resolve();
                 }
                 if(tabsLoaded[selTab] == 0) {
                     tabsLoaded[selTab] = 1;
                 }
             }
-        });
+        }).data('contrailTabs');
+        projectTabs.startLoading('#project-port-dist-tab-link');
         objListView.load({view:'list',type:'instance',uuid:obj['uuid'],fqName:obj['fqName'],context:'project',selector:'#projInstances'});
-    }
+        objListView.load({view:'list',type:'network',uuid:obj['uuid'],fqn:obj['fqName'],context:'project',selector:'#projNetworks'});
+    };
 }

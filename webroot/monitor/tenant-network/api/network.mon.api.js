@@ -461,8 +461,7 @@ function getVMStatByInterface (vmStat, vmVnName)
                     break;
                 }
             } catch(e) {
-                console.log("In getVMStatByInterface(): Data JSON Parse error:"
-                            + e);
+                console.log("In getVMStatByInterface(): Data JSON Parse error:"+ e);
                 continue;
             }
         }
@@ -1263,12 +1262,30 @@ function getVirtualNetworkNode (fqName, resultJSON, vnUVENode)
         var vmList = jsonPath(vnUVENode, "$..virtualmachine_list");
         if (vmList.length > 0) {
             vmCnt = vmList[0].length;
+            resultJSON['nodes'][nodeCnt]['more_attr']['virtualmachine_list'] = vmList[0];
         } else {
             vmCnt = 0;
         }
         resultJSON['nodes'][nodeCnt]['more_attr']['vm_cnt'] = vmCnt;
     } catch(e) {
         resultJSON['nodes'][nodeCnt]['more_attr']['vm_cnt'] = 0;
+        resultJSON['nodes'][nodeCnt]['more_attr']['virtualmachine_list'] = [];
+    }
+    try {
+        var interfaceList = jsonPath(vnUVENode, "$..interface_list");
+        if (interfaceList.length > 0) {
+            resultJSON['nodes'][nodeCnt]['more_attr']['interface_list'] = interfaceList[0];
+        }
+    } catch(e) {
+        resultJSON['nodes'][nodeCnt]['more_attr']['interface_list'] = [];
+    }
+    try {
+        var attachedPolicies = jsonPath(vnUVENode, "$..attached_policies");
+        if(attachedPolicies.length > 0) {
+            resultJSON['nodes'][nodeCnt]['more_attr']['attached_policies'] = attachedPolicies[0];
+        }
+    } catch(e) {
+        resultJSON['nodes'][nodeCnt]['more_attr']['attached_policies'] = [];
     }
     try {
         var fipCnt = jsonPath(vnUVENode, "$..associated_fip_count");
@@ -1320,19 +1337,14 @@ function getVirtualNetworkNode (fqName, resultJSON, vnUVENode)
     if (connNws.length > 0) {
         var len = connNws[0].length;
         j = 0, k = 0;
+        resultJSON['nodes'][nodeCnt]['more_attr']['connected_networks'] = connNws;
         for (var i = 0; i < len; i++) {
-            if (((-1 == (vnUVENode['name']).indexOf(fqName)) && 
-                (-1 == (connNws[0][i]).indexOf(fqName))) ||
-                (true == isServiceVN(vnUVENode['name'])) ||
-                (true == isServiceVN(connNws[0][i]))) {
+            if ((-1 == (vnUVENode['name']).indexOf(fqName)) || (true == isServiceVN(vnUVENode['name'])) || (true == isServiceVN(connNws[0][i]))) {
                 continue;
             }
-            var index = vnLinkListed(vnUVENode['name'], connNws[0][i],
-                                     'bi', resultJSON['links']);
+            var index = vnLinkListed(vnUVENode['name'], connNws[0][i], 'bi', resultJSON['links']);
             if (-1 != index) {
-                getLinkStats(resultJSON['links'][index]['more_attributes'],
-                             vnUVENode, connNws[0][i],
-                             resultJSON['links'][index]);
+                getLinkStats(resultJSON['links'][index]['more_attributes'], vnUVENode, connNws[0][i], resultJSON['links'][index]);
                 continue;
             }
             resultJSON['links'][linkCnt + j] = {};
@@ -1340,8 +1352,7 @@ function getVirtualNetworkNode (fqName, resultJSON, vnUVENode)
             resultJSON['links'][linkCnt + j]['dst'] = connNws[0][i];
             resultJSON['links'][linkCnt + j]['dir'] = 'bi';
             resultJSON['links'][linkCnt + j]['more_attributes'] = {};
-            getLinkStats(resultJSON['links'][linkCnt + j]['more_attributes'],
-                         vnUVENode, connNws[0][i], resultJSON['links'][index]);
+            getLinkStats(resultJSON['links'][linkCnt + j]['more_attributes'], vnUVENode, connNws[0][i], resultJSON['links'][index]);
             j++;
         }
     }
@@ -1364,14 +1375,12 @@ function getVNPolicyRuleDirection (dir)
 
 function getServiceChainNode (fqName, resultJSON, scUVENode)
 {
-    var nodeCnt = resultJSON['nodes'].length;
-    var linkCnt = resultJSON['links'].length;
+    var nodeCnt = resultJSON['nodes'].length,
+        linkCnt = resultJSON['links'].length,
+        j = 0;
 
-    var j = 0;
-    var srcVN =
-        scUVENode['value']['UveServiceChainData']['source_virtual_network'];
-    var destVN = 
-        scUVENode['value']['UveServiceChainData']['destination_virtual_network'];
+    var srcVN = scUVENode['value']['UveServiceChainData']['source_virtual_network'],
+        destVN =  scUVENode['value']['UveServiceChainData']['destination_virtual_network'];
 
     if ((false == isAllowedVN(fqName, srcVN)) && (false == isAllowedVN(fqName, destVN))) {
         return resultJSON;
@@ -1409,8 +1418,8 @@ function getServiceChainNode (fqName, resultJSON, scUVENode)
     resultJSON['links'][linkCnt]['dst'] = destVN;
     resultJSON['links'][linkCnt]['more_attributes'] = {};
     resultJSON['links'][linkCnt]['service_inst'] = services;
-    resultJSON['links'][linkCnt]['dir'] =
-        getVNPolicyRuleDirection(scUVENode['value']['UveServiceChainData']['direction']);
+    resultJSON['links'][linkCnt]['dir'] = getVNPolicyRuleDirection(scUVENode['value']['UveServiceChainData']['direction']);
+
     for (var i = 0; i < svcCnt; i++) {
         /*
         if (i == 0) {
@@ -1429,8 +1438,7 @@ function getServiceChainNode (fqName, resultJSON, scUVENode)
         if (false == found) {
             resultJSON['nodes'][nodeCnt + j] = {};
             resultJSON['nodes'][nodeCnt + j]['name'] = services[i];
-            resultJSON['nodes'][nodeCnt + j]['node_type'] =
-                global.STR_NODE_TYPE_SERVICE_CHAIN;
+            resultJSON['nodes'][nodeCnt + j]['node_type'] = global.STR_NODE_TYPE_SERVICE_CHAIN;
             j++;
         }
         /*
@@ -1460,9 +1468,6 @@ function getServiceChainNode (fqName, resultJSON, scUVENode)
 function parseServiceChainUVE (fqName, resultJSON, scUVE)
 {
     var cnt = scUVE.length;
-    var scName = null;
-    var vnPait = [];
-    var scArr = [];
     for (var i = 0; i < cnt; i++) {
         resultJSON = getServiceChainNode(fqName, resultJSON, scUVE[i]);
     }
@@ -1600,8 +1605,7 @@ function updateVNConnectedList (resultJSON, vnName, vnUVEs, otherVN)
     try {
         if (null ==
             vnUVEs[i]['value']['UveVirtualNetworkConfig']['connected_networks']) {
-            vnUVEs[i]['value']['UveVirtualNetworkConfig']['connected_networks'] =
-                [];
+            vnUVEs[i]['value']['UveVirtualNetworkConfig']['connected_networks'] = [];
         }
     } catch(e) {
         return false;
@@ -1696,12 +1700,10 @@ function parseAndGetMissingVNsUVEs (fqName, vnUVE, callback)
                         (false == isServiceVN(connVN))) {
                         insertedVNObjs[connVN] = connVN;
                         if (false == isAllowedVN(fqName, connVN)) {
-                            url = getNetworkTopoMissingVNsURL(arrIndex, url,
-                                connVN);
+                            url = getNetworkTopoMissingVNsURL(arrIndex, url, connVN);
                             arrIndex++;
                         } else {
-                            resultJSON[index++] = getVNUVEByVNName(vnUVE,
-                                connVN);
+                            resultJSON[index++] = getVNUVEByVNName(vnUVE, connVN);
                         }
                     }
                 }
@@ -1921,8 +1923,7 @@ function updateVNStatsBySIData (scResultJSON, vnUVE)
     return scResultJSON;
 }
 
-function updateServiceInstanceConfigData (scResultJSON, siConfig, appData,
-                                          callback)
+function updateServiceInstanceConfigData (scResultJSON, siConfig, appData, callback)
 {
     var reqUrl = null;
     var dataObjArr = [];
@@ -1966,19 +1967,53 @@ function updateServiceInstanceConfigData (scResultJSON, siConfig, appData,
     async.map(dataObjArr, 
               commonUtils.getServerResponseByRestApi(configApiServer, false),
               function(err, data) {
-        scResultJSON['configData'] = {};
         scResultJSON['configData']['service-instances'] = data;
         callback(scResultJSON);
     });
 }
 
-function processNetworkTopology (fqName, uve, appData, callback)
-{
-    var resultJSON = [];
-    var vnFound = true;
 
-    var configVN = uve[2]['virtual-networks'];
-    var configSI = uve[3]['service-instances'];
+function updatePolicyConfigData (scResultJSON, appData, callback)
+{
+    var reqUrl = null, dataObjArr = [],
+        policys, policyCount;
+
+    try {
+        policys = scResultJSON['configData']['network-policys'];
+        policyCount = policys.length;
+        for (var i = 0; i < policyCount; i++) {
+            reqUrl = '/network-policy/' + policys[i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, null, null, appData);
+        }
+    } catch(e) {
+        callback(scResultJSON);
+        return;
+    }
+
+    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function(err, data) {
+        for(var j = 0; j < data.length; j++) {
+            try {
+                var npEntries = data[j]['network-policy']['network_policy_entries'];
+                policys[j]['network_policy_entries'] = npEntries;
+            } catch (error) {
+                policys[j]['network_policy_entries'] = {'policy_rule': []};
+            }
+        }
+        callback(scResultJSON);
+    });
+}
+
+function processProjectTopology (fqName, uve, appData, callback)
+{
+    var resultJSON = [],
+        vnFound = true;
+
+    var configVN = uve[2]['virtual-networks'],
+        configSI = uve[3]['service-instances'],
+        configNP = uve[4]['network-policys'],
+        configSG = uve[5]['security-groups'],
+        configIPAM = uve[6]['network-ipams'];
+
     try {
         var vnUVE = uve[0]['value'];
         var scUVE = uve[1]['value'];
@@ -1998,21 +2033,73 @@ function processNetworkTopology (fqName, uve, appData, callback)
         var scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
         scResultJSON = updateVNStatsBySIData(scResultJSON, vnUVE);
         updateVNNodeStatus(scResultJSON, configVN, configSI, fqName);
-        updateServiceInstanceConfigData(scResultJSON, configSI, appData, 
-                                        function (scResultJSON) {
+        scResultJSON['configData'] = {'network-policys': configNP, 'security-groups': configSG, 'network-ipams': configIPAM, "service-instances": configSI};
+        updatePolicyConfigData(scResultJSON, appData, function (scResultJSON) {
+            callback(null, scResultJSON);
+        });
+        /*
+        updateServiceInstanceConfigData(scResultJSON, configSI, appData, function (scResultJSON) {
             callback(null, scResultJSON)
         });
+        */
     });
 }
 
-function getWCByFqName (fqName)
+function processNetworkTopology (fqName, uve, appData, callback)
 {
-    var fqnArr = fqName.split(':');
-    var len = fqnArr.length;
-    if (len == 3) {
-        return fqName;// + '?flat';
+    var resultJSON = [],
+        vnFound = true;
+
+    var configVN = uve[2]['virtual-networks'],
+        configSI = uve[3]['service-instances'];
+
+    try {
+        var vnUVE = uve[0]['value'];
+        var scUVE = uve[1]['value'];
+        if ((null == vnUVE) && (null == scUVE)) {
+            vnFound = false;
+        }
+    } catch(e) {
+        vnFound = false;
     }
-    return fqName + ':*';
+    if (false == vnFound) {
+        callback(null, resultJSON);
+        return;
+    }
+
+    parseAndGetMissingVNsUVEs(fqName, vnUVE, function(err, vnUVE) {
+        var vnResultJSON = parseVirtualNetworkUVE(fqName, vnUVE);
+        var scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
+        scResultJSON = updateVNStatsBySIData(scResultJSON, vnUVE);
+        updateVNNodeStatus(scResultJSON, configVN, configSI, fqName);
+        scResultJSON['configData'] = {"service-instances": configSI};
+        setAssociatedPolicys4Network(fqName, scResultJSON);
+        callback(null, scResultJSON);
+        /*
+         updatePolicyConfigData(scResultJSON, appData, function (scResultJSON) {
+            callback(null, scResultJSON);
+         });
+        updateServiceInstanceConfigData(scResultJSON, configSI, appData, function (scResultJSON) {
+            callback(null, scResultJSON)
+        });
+        */
+    });
+}
+
+function setAssociatedPolicys4Network (fqName, scResultJSON)
+{
+    var nodes = scResultJSON['nodes'],
+        node, i, attachedPolicies, networkPolicys = [];
+    for(i = 0; i < nodes.length; i++) {
+        node = nodes[i];
+        if(node['name'] == fqName && node['node_type'] == global.STR_NODE_TYPE_VIRTUAL_NETWORK) {
+            attachedPolicies = node['more_attr']['attached_policies'];
+            for (var j = 0; attachedPolicies!=null && j < attachedPolicies.length; j++) {
+                networkPolicys.push({"fq_name": (attachedPolicies[j]['vnp_name']).split(":")});
+            }
+            scResultJSON['configData']['network-policys'] = networkPolicys;
+        }
+    }
 }
 
 function makeBulkDataByFqn (fqName, data)
@@ -2084,33 +2171,89 @@ function updateMissingVNsByConfig (fqName, nwTopoData, configData)
 
 function getNetworkTreeTopology (req, res, appData)
 {
-    var fqName = req.query['fqName'];
-    var url;
-    var dataObjArr = [];
+    var fqName = req.query['fqName'],
+        dataObjArr = [], reqUrl;
 
-    reqUrl = '/analytics/virtual-network/' + getWCByFqName(fqName) + 
-        '?cfilt=UveVirtualNetworkAgent:out_bytes,UveVirtualNetworkAgent:in_bytes,' +
-        'UveVirtualNetworkAgent:out_tpkts,UveVirtualNetworkAgent:in_tpkts,' +
-        'UveVirtualNetworkAgent:in_stats,UveVirtualNetworkAgent:virtualmachine_list,' +
-        'UveVirtualNetworkAgent:associated_fip_count,UveVirtualNetworkAgent:out_stats,' +
-        'UveVirtualNetworkConfig';
+    var cFilters = [
+        'UveVirtualNetworkAgent:out_bytes',
+        'UveVirtualNetworkAgent:in_bytes',
+        'UveVirtualNetworkAgent:out_tpkts',
+        'UveVirtualNetworkAgent:out_tpkts',
+        'UveVirtualNetworkAgent:in_tpkts',
+        'UveVirtualNetworkAgent:in_stats',
+        'UveVirtualNetworkAgent:virtualmachine_list',
+        'UveVirtualNetworkAgent:interface_list',
+        'UveVirtualNetworkAgent:associated_fip_count',
+        'UveVirtualNetworkAgent:out_stats',
+        'UveVirtualNetworkConfig'
+    ];
 
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                             null, opApiServer, null, appData);
+    reqUrl = '/analytics/virtual-network/' + fqName + '?cfilt=' + cFilters.join(',');
+
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+
     reqUrl = '/analytics/service-chain/*';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                             null, opApiServer, null, appData);
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+
     reqUrl = '/virtual-networks';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                             null, configApiServer, null, appData);
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
     reqUrl = '/service-instances';
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                             null, configApiServer, null, appData);
-    async.map(dataObjArr, 
-              commonUtils.getServerResponseByRestApi(configApiServer, false),
-              function(err, data) {
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function(err, data) {
         data[0] = makeBulkDataByFqn(fqName, data[0]);
         processNetworkTopology(fqName, data, appData, function(err, result) {
+            result = updateMissingVNsByConfig(fqName, result, data[2]);
+            commonUtils.handleJSONResponse(null, res, result);
+        });
+    });
+}
+
+function getProjectTreeTopology (req, res, appData)
+{
+    var fqName = req.query['fqName'],
+        dataObjArr = [], reqUrl;
+
+    var cFilters = [
+        'UveVirtualNetworkAgent:out_bytes',
+        'UveVirtualNetworkAgent:in_bytes',
+        'UveVirtualNetworkAgent:out_tpkts',
+        'UveVirtualNetworkAgent:out_tpkts',
+        'UveVirtualNetworkAgent:in_tpkts',
+        'UveVirtualNetworkAgent:in_stats',
+        'UveVirtualNetworkAgent:virtualmachine_list',
+        'UveVirtualNetworkAgent:interface_list',
+        'UveVirtualNetworkAgent:associated_fip_count',
+        'UveVirtualNetworkAgent:out_stats',
+        'UveVirtualNetworkConfig'
+    ];
+
+    reqUrl = '/analytics/virtual-network/' + fqName + ':*?cfilt=' + cFilters.join(',');
+
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+
+    reqUrl = '/analytics/service-chain/*';
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
+
+    reqUrl = '/virtual-networks';
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    reqUrl = '/service-instances';
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    reqUrl = '/network-policys?parent_type=project&parent_fq_name_str=' + fqName;
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    reqUrl = '/security-groups?parent_type=project&parent_fq_name_str=' + fqName;
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    reqUrl = '/network-ipams?parent_type=project&parent_fq_name_str=' + fqName;
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, configApiServer, null, appData);
+
+    async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function(err, data) {
+        data[0] = makeBulkDataByFqn(fqName, data[0]);
+        processProjectTopology(fqName, data, appData, function(err, result) {
             result = updateMissingVNsByConfig(fqName, result, data[2]);
             commonUtils.handleJSONResponse(null, res, result);
         });
@@ -2492,14 +2635,14 @@ function getVirtualNetworksDetailsByFqn (fqn, lastUUID, count, res, appData)
     
     if (2 == len) {
         /* Project */
-        getVNListByProject(fqn, appData, function(err, vnList) {
+        getVNListByProject(fqn, appData, function(err, vnList, tenantList) {
             if (err || (null == vnList) || (!vnList.length)) {
                 commonUtils.handleJSONResponse(err, res, resultJSON);
                 return;
             }
 
             processVirtualNetworksReqByLastUUID(lastUUID, count, false, vnList,
-                                                filtUrl, function(err, data) {
+                                                filtUrl, tenantList, function(err, data) {
                 commonUtils.handleJSONResponse(err, res, data);
             });
         });
@@ -2873,6 +3016,7 @@ exports.getFlowSeriesByCPU = getFlowSeriesByCPU;
 exports.getVirtualNetworksSummary = getVirtualNetworksSummary;
 exports.getVirtualMachinesSummary = getVirtualMachinesSummary;
 exports.getNetworkTreeTopology = getNetworkTreeTopology;
+exports.getProjectTreeTopology = getProjectTreeTopology;
 exports.getVMDetails = getVMDetails;
 exports.getInstanceDetails = getInstanceDetails;
 exports.getVirtualNetworksDetails = getVirtualNetworksDetails;

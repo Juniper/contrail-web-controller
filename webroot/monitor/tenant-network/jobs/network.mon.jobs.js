@@ -1025,6 +1025,24 @@ function doConcatArr (data)
     return result;
 }
 
+function getZeroFlowSeries(startTime, endTime, timeGran) {
+    var timeInterval = timeGran * 1000000,
+        countTimeIntervals = Math.ceil((endTime - startTime)/timeInterval),
+        zeroFlowSeries = [];
+
+    for(var i = 0 ; i < countTimeIntervals; i++) {
+        zeroFlowSeries.push(getZeroFlowSample(startTime + (timeInterval * i)));
+    }
+
+    return zeroFlowSeries;
+}
+
+function getZeroFlowSample(time) {
+    return {
+        time: time, outPkts: 0, outBytes: 0, inPkts: 0, inBytes: 0, totalPkts: 0, totalBytes: 0
+    };
+}
+
 function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
 {
     var appData = jobData.taskData.appData;
@@ -1071,6 +1089,9 @@ function processVNFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
     flowCache.getFlowSeriesData('vn', appData, queryJSON, null,
             commonUtils.doEnsureExecution(function(err, data) {
             if (data != null) {
+                if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                    data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                }
                 resultJSON = data;
             } else {
                 resultJSON = {};
@@ -1121,6 +1142,9 @@ function processVNsFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
     flowCache.getFlowSeriesData('conn-vn', appData, queryJSON, null,
         function (err, data) {
             if (data != null) {
+                if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                    data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                }
                 resultJSON = data;
             } else {
                 resultJSON = {};
@@ -1623,6 +1647,9 @@ function processVMFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
     flowCache.getFlowSeriesData(context, appData, queryJSON, null,
         function (err, data) {
             if (data != null) {
+                if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                    data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                }
                 resultJSON = data;
             } else {
                 resultJSON = {};
@@ -2074,6 +2101,9 @@ function processPortLevelFlowSeriesByDomain (pubChannel, saveChannelKey,
         flowCache.getFlowSeriesData('port', appData, srcQueryJSON,
             destQueryJSON, function (err, data) {
                 if (data != null) {
+                    if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                        data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                    }
                     resultJSON = data;
                 } else {
                     resultJSON = {};
@@ -2146,6 +2176,9 @@ function processPortLevelFlowSeriesByProject (pubChannel, saveChannelKey,
             flowCache.getFlowSeriesData('port', appData, srcQueryJSON,
                 destQueryJSON, function (err, data) {
                     if (data != null) {
+                        if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                            data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                        }
                         resultJSON = data;
                     } else {
                         resultJSON = {};
@@ -2229,6 +2262,9 @@ function processPortLevelFlowSeriesByNetwork (pubChannel, saveChannelKey,
     flowCache.getFlowSeriesData('port', appData, srcQueryJSON, destQueryJSON,
         function (err, data) {
             if (data != null) {
+                if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                    data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
+                }
                 resultJSON = data;
             } else {
                 resultJSON = {};
