@@ -756,7 +756,7 @@ function populateIpamEditWindow(rowIndex) {
  */
 function ipamCreateEditWindow(mode,rowIndex) {
     //Looks when add is disabled,edit is also disabled
-    if(!isVCenter()) {
+    if(!isVCenter() || (isVCenter() && mode == "add")) {
         if($("#btnCreateEditipam").hasClass('disabled-link')) {
             return;
         }
