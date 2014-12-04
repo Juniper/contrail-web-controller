@@ -34,7 +34,9 @@ function ObjectListView() {
         var listTemplate = $("#list-template").html();
         var context = obj['context'];
         //If context is all,set fqName = *
-        var objectType = obj['type'];
+        var objectType = obj['type'],
+            columns = [];
+
         if(objectType == 'flowdetail') {
             layoutHandler.setURLHashParams(obj,{merge:false,triggerHashChange:false});
         } else if(context == 'instance') {
@@ -154,44 +156,44 @@ function ObjectListView() {
                     searchable:true
                 });
             }
-        } else if(objectType == 'project') {
-            if(obj['fqName'] == null || obj['fqName'] == '' || obj['fqName'] == '*')
-                obj['title'] = contrail.format('Projects Summary');
-            else
-                obj['title'] = contrail.format('Top Projects for Domain ({0})',obj['fqName']);
-            if((obj['source'] != null) && obj['source'] == 'uve')
-                obj['subTitle'] = '';
-            columns = [{
-                field:'name',
-                name:'Project',
-                formatter: function(r,c,v,cd,dc){
-                    return cellTemplateLinks({cellText:'name',tooltip:true,name:'project',rowData:dc});
-                },
-                minWidth: 300,
-                searchable:true,
-                events:{
-                    onClick:onClickGridLink
-                },
-                cssClass: 'cell-hyperlink-blue',
-            },{
-                field:'vnCnt',
-                name:'Networks',
-                minWidth: 150
-            },{
-                field:'inBytes',
-                name:'Traffic (In/Out) <br/> (Last 1 hr)',
-                minWidth:150,
-                formatter:function(r,c,v,cd,dc){
-                    return contrail.format("{0} / {1}",formatBytes(dc['inBytes']),formatBytes(dc['outBytes']));
-                }
-            },{
-                field:'outBytes',
-                name:'Throughput (In/Out)',
-                minWidth:150,
-                formatter:function(r,c,v,cd,dc){
-                    return contrail.format("{0} / {1}",formatThroughput(dc['inThroughput']),formatThroughput(dc['outThroughput']));
-                }
-            }];
+        //} else if(objectType == 'project') {
+        //    if(obj['fqName'] == null || obj['fqName'] == '' || obj['fqName'] == '*')
+        //        obj['title'] = contrail.format('Projects Summary');
+        //    else
+        //        obj['title'] = contrail.format('Top Projects for Domain ({0})',obj['fqName']);
+        //    if((obj['source'] != null) && obj['source'] == 'uve')
+        //        obj['subTitle'] = '';
+        //    columns = [{
+        //        field:'name',
+        //        name:'Project',
+        //        formatter: function(r,c,v,cd,dc){
+        //            return cellTemplateLinks({cellText:'name',tooltip:true,name:'project',rowData:dc});
+        //        },
+        //        minWidth: 300,
+        //        searchable:true,
+        //        events:{
+        //            onClick:onClickGridLink
+        //        },
+        //        cssClass: 'cell-hyperlink-blue',
+        //    },{
+        //        field:'vnCnt',
+        //        name:'Networks',
+        //        minWidth: 150
+        //    },{
+        //        field:'inBytes',
+        //        name:'Traffic (In/Out) <br/> (Last 1 hr)',
+        //        minWidth:150,
+        //        formatter:function(r,c,v,cd,dc){
+        //            return contrail.format("{0} / {1}",formatBytes(dc['inBytes']),formatBytes(dc['outBytes']));
+        //        }
+        //    },{
+        //        field:'outBytes',
+        //        name:'Throughput (In/Out)',
+        //        minWidth:150,
+        //        formatter:function(r,c,v,cd,dc){
+        //            return contrail.format("{0} / {1}",formatThroughput(dc['inThroughput']),formatThroughput(dc['outThroughput']));
+        //        }
+        //    }];
         }
         var listContainer;
         if(obj['selector'] == null) 
@@ -219,8 +221,8 @@ function ObjectListView() {
 		        var loadedDeferredObj = $.Deferred();
 		        getOutputByPagination(networkDS,{transportCfg:obj['transportCfg'],
 		        	parseFn:tenantNetworkMonitorUtils.networkParseFn,loadedDeferredObj:networkDeferredObj});
-		        
-		        getOutputByPagination(instanceDS,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,deferredObj:instDeferredObj,
+
+                getOutputByPagination(instanceDS,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,deferredObj:instDeferredObj,
                     loadedDeferredObj:loadedDeferredObj});
 		        
 		        obj['dataSource'] = networkDS;
@@ -341,7 +343,10 @@ function ObjectListView() {
             if(layoutHandler.getURLHashObj()['p'] != 'mon_net_instances')
                 obj['config']['autoBind'] = false;
         }
-        $(listContainer).find('.list-view').initListTemplate(obj);
+
+        if(objectType != 'project') {
+            $(listContainer).find('.list-view').initListTemplate(obj);
+        }
     }
 
     /**
@@ -2157,7 +2162,16 @@ function loadVisualizationTab(cfg){
             $("#connected-network-traffic-dropdown").data('contrailDropdown').value(srcVN + '<->' + destVN);
             loadConnectedNetworkTraffic(srcVN + '<->' + destVN);
 
-            $('#connected-network-tabs').contrailTabs();
-            break;
+            var tabsLoaded = {'Traffic Statistics': false, 'Details': false};
+            $('#connected-network-tabs').contrailTabs({
+                activate: function (e, ui) {
+                    var selTab = $(ui.newTab.context).text();
+                    if (selTab == 'Details' && !tabsLoaded[selTab]) {
+                        $("#uve-information").html(syntaxHighlight(obj.selfElement.attributes.linkDetails));
+                    }
+                    tabsLoaded[selTab] = true;
+                }
+            });
+        break;
     }
 }

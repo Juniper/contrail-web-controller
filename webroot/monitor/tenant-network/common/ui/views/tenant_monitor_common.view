@@ -293,7 +293,9 @@
 				<div id="ts-connected-vn-chart" class='ts-chart height-300'></div>
 			</div>
 		</div>
-		<div id="connected-network-details-tab"></div>
+		<div id="connected-network-details-tab">
+            <pre id="uve-information"></pre>
+		</div>
    	</div>
 </script>
 
