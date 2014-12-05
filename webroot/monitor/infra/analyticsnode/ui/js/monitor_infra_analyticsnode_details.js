@@ -98,13 +98,13 @@ monitorInfraAnalyticsDetailsClass = (function() {
                                 return ifNull(analyticsProcessStatusList['contrail-analytics-nodemgr'],noDataStr);
                             }catch(e){return noDataStr;}
                         })()},*/
-                        {lbl:INDENT_RIGHT+'contrail-collector', value:(function(){
+                        {lbl:INDENT_RIGHT+'Collector', value:(function(){
                             return ifNull(analyticsProcessStatusList['contrail-collector'],noDataStr);
                         })()},
-                        {lbl:INDENT_RIGHT+'contrail-query-engine', value:(function(){
+                        {lbl:INDENT_RIGHT+'Query Engine', value:(function(){
                             return ifNull(analyticsProcessStatusList['contrail-query-engine'],noDataStr);
                         })()},
-                        {lbl:INDENT_RIGHT+'contrail-analytics-api', value:(function(){
+                        {lbl:INDENT_RIGHT+'OpServer', value:(function(){
                             return ifNull(analyticsProcessStatusList['contrail-analytics-api'],noDataStr);
                         })()}
                        /* {lbl:INDENT_RIGHT+'Redis Sentinel', value:(function(){
