@@ -775,10 +775,18 @@ function physicalInterfacesConfig() {
                 }
             }
         }
-        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalInterfaces', 'failureHandlerForCreatePhysicalInterfaces', null, null);
+        doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForCreatePhysicalInterfaces', 'failureHandlerForCreatePhysicalInterfaces', null, null);
     }
-    
-    function failureHandlerForCreatePhysicalInterfaces(error) {
+
+    window.successHandlerForCreatePhysicalInterfaces = function(result) {
+        var mac = $('#ddVMI').data('contrailCombobox').value().trim();
+        if(gblSelRow != null && gblSelRow.server != '-' && gblSelRow.server.split(' ')[0] != mac) {
+            deleteVirtulMachineInterfaces([gblSelRow.vmi_uuid], [gblSelRow.vm_uuid]);
+        }
+        fetchData();
+    }
+
+    window.failureHandlerForCreatePhysicalInterfaces = function(error) {
         fetchData();
     }
     function clearCreateEditWindow() {
