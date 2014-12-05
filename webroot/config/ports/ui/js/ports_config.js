@@ -527,26 +527,28 @@ function initActions() {
         var allStaticIPTuples = $("#"+staticIPElement)[0].children;
         portConfig["virtual-machine-interface"]["interface_route_table_refs"] = [];
         if (allStaticIPTuples && allStaticIPTuples.length > 0) {
+            portConfig["virtual-machine-interface"]["interface_route_table_refs"][0] = {};
+            portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"] = {};
+            portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"]["route"] = [];
+
             for(i = 0 ; i< allStaticIPTuples.length ; i++){
                 var divid = allStaticIPTuples[i].id;
                 var id = getID(divid);
                 var staticIPValue = $("#"+staticIPElement+"_"+id+"_txtPrefix").val();
                 var staticIPNextHop = $("#"+staticIPElement+"_"+id+"_txtNextHop").val();
                 var staticIPData = $("#"+staticIPElement+"_"+id+"_SRdata").val();
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i] = {};
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"] = {};
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"]["route"] = [];
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"]["route"][0] = {};
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"]["route"][0]["prefix"] = staticIPValue;
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"]["route"][0]["next_hop"] = null;
-                portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["sharedip"]["route"][0]["next_hop_type"] = null;
-                if(staticIPData != "" && staticIPData != null && staticIPData != undefined){
-                    staticIPData = JSON.parse(staticIPData);
-                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["to"] = staticIPData["to"];
-                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i]["uuid"] = staticIPData["uuid"];
-                    
-                }
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"]["route"][i] = {};
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"]["route"][i]["prefix"] = staticIPValue;
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"]["route"][i]["next_hop"] = null;
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["sharedip"]["route"][i]["next_hop_type"] = null;
             }
+            if(staticIPData != "" && staticIPData != null && staticIPData != undefined){
+                staticIPData = JSON.parse(staticIPData);
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["to"] = staticIPData["to"];
+                portConfig["virtual-machine-interface"]["interface_route_table_refs"][0]["uuid"] = staticIPData["uuid"];
+                
+            }
+
         }
         
         
@@ -672,54 +674,6 @@ function isItemExists(txt, data) {
     }
     return isThere;
 }
-/*
-function validatePort(id){
-    var protocal = $("#sGRuleTuples_"+id+"_protocol").val();
-    if(protocal == "icmp"){
-        var remotePorts = $("#sGRuleTuples_"+id+"_remotePorts").val();
-        if(remotePorts.toLowerCase() != "any" && remotePorts.toLowerCase() != "") {
-            var rp = remotePorts.split("-");
-            if((rp.length == 2 && Number(rp[1]) > 255) || (rp.length == 1 && Number(rp[0]) > 255) ){
-                showInfoWindow("ICMP range has to be within the range 0 - 255.", "Error");
-                return false;
-            }
-        }
-    }
-    return true;
-}*/
-/*
-function formatedRule(rule){
-    var returnObject = {};
-    returnObject.direction = getDirection(rule);
-    returnObject.protocol = rule.protocol;
-    returnObject.etherType = "ipv4";
-    if(returnObject.direction == "Ingress") {
-        if(rule.src_addresses[0].security_group === null){
-            if(rule.src_addresses[0].subnet != null){
-                var cidr = rule.src_addresses[0].subnet.ip_prefix + "/" + rule.src_addresses[0].subnet.ip_prefix_len;
-                returnObject.remoteAddress = cidr;
-                returnObject.remoteType = "CIDR";
-            }
-        } else {
-            returnObject.remoteAddress = rule.src_addresses[0].security_group;
-            returnObject.remoteType = "SecurityGroup";
-        }
-    } else if(returnObject.direction == "Egress"){
-        if(rule.dst_addresses[0].security_group === null){
-            if(rule.dst_addresses[0].subnet != null){
-                var cidr = rule.dst_addresses[0].subnet.ip_prefix +"/"+rule.dst_addresses[0].subnet.ip_prefix_len;
-                returnObject.remoteAddress = cidr;
-                returnObject.remoteType = "CIDR";
-            }
-        } else {
-            returnObject.remoteAddress = rule.dst_addresses[0].security_group;
-            returnObject.remoteType = "SecurityGroup";
-        }
-    }
-    returnObject.remotePort = rule.dst_ports[0].start_port+" - "+ rule.dst_ports[0].end_port;
-    return returnObject;
-}
-*/
 function getIndexOf(arry, txt) {
     for(var i = 0; i < arry.length; i ++) {
         if(arry[i].value === txt) {
@@ -1218,13 +1172,16 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             for(i = 0;i< fixedIPLength;i++){
                 if(staticIP[i]["sharedip"] !== undefined && staticIP[i]["sharedip"] !== null &&
                    staticIP[i]["sharedip"]["route"] !== undefined && staticIP[i]["sharedip"]["route"] !== null &&
-                   staticIP[i]["sharedip"]["route"].length > 0 && staticIP[i]["sharedip"]["route"][0]["prefix"] !== null){
-                    if(staticIPString != "") staticIPString += ", ";
-                    staticIPString += staticIP[i]["sharedip"]["route"][0]["prefix"];
-                    if(staticIP[i]["sharedip"]["route"][0]["next_hop"] != "" && staticIP[i]["sharedip"]["route"][0]["next_hop"] != null){
-                        staticIPString += ":"+staticIP[i]["sharedip"]["route"][0]["next_hop"];
+                   staticIP[i]["sharedip"]["route"].length > 0){
+                    for(var j = 0;j < staticIP[i]["sharedip"]["route"].length; j++){
+                    
+                        if(staticIPString != "") staticIPString += ", ";
+                        staticIPString += staticIP[i]["sharedip"]["route"][j]["prefix"];
+                        if(staticIP[i]["sharedip"]["route"][j]["next_hop"] != "" && staticIP[i]["sharedip"]["route"][j]["next_hop"] != null){
+                            staticIPString += ":"+staticIP[i]["sharedip"]["route"][j]["next_hop"];
+                        }
+                        staticIPValue.push({"prefix":staticIP[i]["sharedip"]["route"][j]["prefix"],"nexthop":staticIP[i]["sharedip"]["route"][j]["next_hop"],"uuid":staticIP[i]["uuid"],"to":staticIP[i]["to"]});
                     }
-                    staticIPValue.push({"prefix":staticIP[i]["sharedip"]["route"][0]["prefix"],"nexthop":staticIP[i]["sharedip"]["route"][0]["next_hop"],"uuid":staticIP[i]["uuid"],"to":staticIP[i]["to"]});
                 }
             }
         }
@@ -1281,7 +1238,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             var deviceUUIDArr = [];
             deviceUUIDArr.push({"to":portData["logical_router_back_refs"][0]["to"],"uuid":portData["logical_router_back_refs"][0]["uuid"]});
             deviceOwnerUUIDValue = JSON.stringify(deviceUUIDArr);
-            deviceOwnerUUID = portData["logical_router_back_refs"][0]["uuid"];
+            deviceOwnerUUID = portData["logical_router_back_refs"][0]["to"][2] + " (" + portData["logical_router_back_refs"][0]["uuid"] +")";
         }
     } else  if(devOwner == "compute:nova"){
         if("virtual_machine_refs" in portData && portData["virtual_machine_refs"].length >= 0 ){
@@ -1339,16 +1296,16 @@ function updateSubnet(){
             if(fqname === selectedFqname){
                 var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
                 if(subnet.length > 0){
-                    $("#is_FixedIp")[0].disabled =  false;
-                    $("#is_FixedIp")[0].checked = true;
-                    $("#fixedipContainer").removeClass("hide");
+                    $("#fixedipContainer").find('div.pull-left').removeClass('hide');
                     var element = "FixedIPTuples";
                     var FixedIPEntry = createFixedIPEntry(null, dynamicID++,element);
+                    if(FixedIPEntry !== false)
                     $("#"+element).append(FixedIPEntry);
                 } else {
                     $("#is_FixedIp")[0].disabled =  true;
                     $("#is_FixedIp")[0].checked = false;
                     $("#fixedipContainer").addClass("hide");
+                    $("#fixedipContainer").find('div.pull-left').addClass('hide');
                 }
                 break;
             } 
@@ -1373,66 +1330,6 @@ function updateDevice(e){
         }
     }
 }
-/*
-function getDirection(rule){
-    if(rule.dst_addresses[0].security_group != null && rule.dst_addresses[0].security_group == "local"){
-        return ("Ingress");
-    }
-    if(rule.src_addresses[0].security_group != null && rule.src_addresses[0].security_group == "local"){
-        return ("Egress");
-    }
-    return ("");
-}
-
-function formatPortsPolicyRule(rule){
-    var direction = getDirection(rule);
-    var protocal = sgRuleFormat(rule.protocol);
-    var etherType = sgRuleFormat("ipv4");
-    var remoteAddr = "";
-    var remotePort = "";
-    remotePort = formatePortsRule_port(rule.dst_ports[0]);
-    
-    var returnString = "-";
-    if(direction == "Ingress"){
-        if(rule.src_addresses[0].security_group != "local" && rule.src_addresses[0].security_group != null){
-            remoteAddr = formatePortsRule_PortsText(rule.src_addresses[0].security_group);
-        }  else if(rule.src_addresses[0].subnet !== null) {
-            remoteAddr = " network " + sgRuleFormat(rule.src_addresses[0].subnet.ip_prefix + "/" +rule.src_addresses[0].subnet.ip_prefix_len);
-        }
-    } else if(direction == "Egress"){
-        if(rule.dst_addresses[0].security_group != "local" && rule.dst_addresses[0].security_group != null){
-            remoteAddr = formatePortsRule_PortsText(rule.dst_addresses[0].security_group);
-        }  else if(rule.dst_addresses[0].subnet !== null) {
-            remoteAddr = " network " + sgRuleFormat(rule.dst_addresses[0].subnet.ip_prefix + "/" +rule.dst_addresses[0].subnet.ip_prefix_len);
-        }
-    }
-    direction = sgRuleFormat(getDirection(rule));
-    returnString = direction + " " +etherType +" protocol " + protocal + remoteAddr + " ports " + remotePort;
-    return returnString;
-}
-
-function formatePortsRule_port(port){
-    var returnPortString = "";
-    var sp = port.start_port;
-    var ep = port.end_port;
-    if(sp === ep) {
-        returnPortString = sgRuleFormat("["+ sp + "]");
-    } else {
-        if((Number(sp) == 0 && Number(ep) == 65535) || 
-            (Number(sp) == 0 && Number(ep) == 255) ||
-            (Number(sp) == -1 && Number(ep) == -1)){
-                returnPortString = sgRuleFormat("any");
-        }
-    }
-    return returnPortString;
-}
-
-function formatePortsRule_PortsText(sg){
-    var sgArray = sg.split(":");
-    var returnString = " security group " + sgRuleFormat(sgArray[2]) +" ("+ sgArray[0] + sgArray[1] + ") ";
-    return returnString;
-}
-*/
 
 function failureHandlerForgridPortsRow(result, cbParam) {
     showInfoWindow("Error in getting Port data.", "Error");
@@ -1679,28 +1576,6 @@ function showPortEditWindow(mode, rowIndex) {
                     routerUUID.push({"text":text,"value":JSON.stringify(valArr)});
                 }
             }
-            /*
-            mainDS.push({text : 'MACAddress', id : 'MACAddress', children : mac_address},{text : 'IPAddress', id : 'IPAddress', children : ip_address});
-            dsSrcDest = mainDS;
-            ddAAP = $("#ddAAP")[0];
-            $(ddAAP).contrailDropdown({
-                dataTextField:"text",
-                dataValueField:"value",
-                query : select2Query,
-                formatResult : select2ResultFormat,
-                formatSelection : select2Format,
-                minimumResultsForSearch:1,
-            }).on('select2-close', function() {
-                loadSelect2CloseActions();
-            }).on('select2-open', function() {
-                loadSelect2OpenActions();
-            });            
-            $(ddAAP).data("contrailDropdown").setData(mainDS);
-            if(mainDS.length > 0 && mainDS[0].children.length > 0)
-                $(ddAAP).data("contrailDropdown").value(mainDS[0].children[0].value);
-            */
-            
-            
             if (mode === "add") {
                 windowCreatePorts.find('.modal-header-title').text('Create Port');
                 $(txtPortName).focus();
@@ -1722,37 +1597,6 @@ function showPortEditWindow(mode, rowIndex) {
                 
                 var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
                 windowCreatePorts.find('.modal-header-title').text('Edit Port ' + mapedData.portName);
-
-/*                             "portName":mapedData.portName,
-                             "portUUID":mapedData.portUUID,
-                             "sgString":mapedData.sgString,
-                             "vnString":mapedData.vnString,
-                             "status":mapedData.status,
-                             "deviceOwner":mapedData.deviceOwner,
-                             "fixedip":mapedData.fixedip,
-                             "floatingIP":mapedData.floatingIP,
-                             "macAddress":,
-                             "AllowedAddressPair":mapedData.AllowedAddressPair,
-                             "DHCPOption":mapedData.DHCPOption,
-                             "tenentID":mapedData.tenentID,
-                             "deviceID":mapedData.deviceID
-                             
-ddVN > done 
-ddVNState > Done
-txtPortName > Done 
-Floating ip > done
-msSecurityGroup > done
-ddAAP , is_AAP
-DHCP > Done
-Fixed ip > Done
-ddDeviceOwnerName > ?
-ddDeviceOwnerUUID 
-txtMacAddress > Done
-ddTenentID
-
-
-is_SG
-*/
 
                 // Not editable fields
                 $("#txtPortName").attr("disabled","disabled");
@@ -1783,14 +1627,13 @@ is_SG
                 var element = "FixedIPTuples";
                 $("#"+element).empty();
                 if(mapedData.fixedIPValue.length <= 0){
-                    $("#is_FixedIp")[0].checked = false;
-                    $("#fixedipContainer").addClass("hide");
-
+                    $("#fixedipContainer").find('div.pull-left').removeClass('hide');
                 } else {
                     $("#fixedipContainer").removeClass("hide");
                     for(var localInc = 0; localInc < mapedData.fixedIPValue.length;localInc++){
                         dynamicID++;
                         var FixedIPEntry = createFixedIPEntry(mapedData.fixedIPValue[localInc], dynamicID,element);
+                        if(FixedIPEntry !== false)
                         $("#"+element).append(FixedIPEntry);
                         
                     }
@@ -1887,120 +1730,20 @@ function createPortsFailureCb() {
 }
 
 function validate() {
-    /*var PortsName = txtPortName.val().trim();
-    if (typeof PortsName === "undefined" || PortsName === "") {
-        showInfoWindow("Enter a valid Port name", "Input required");
-        return false;
-    }
-    var ruleTuples = $("#sGRuleTuples")[0].children;
-    if (ruleTuples && ruleTuples.length > 0) {
-        for (var i = 0; i < ruleTuples.length; i++) {
-            var divid = $(ruleTuples[i])[0].id;
-            var id = getID(divid);
-            if(id !== -1){
-                if (validatePort(id) == false)
-                    return false;
-            }
+    var macText = txtMacAddress.val().trim();
+    if(macText != ""){
+        if(isValidMACAddress(macText) == false){
+            showInfoWindow("Enter valid MAC Address", "Invalid Input");
+            return false;
         }
-    }*/
+    }
+    if(!validateFixedIP("FixedIPTuples")) return false;
+    if(!validateAAP("AAPTuples")) return false;
+    if(!validateStaticRoute("StaticRoutTuples")) return false;
+    if(!validateDHCP("DHCPTuples")) return false;
     return true;
 }
 
-
-/////////////////////////////////////////////////////
-//////////////////Floating IP////////////////////////
-/////////////////////////////////////////////////////
-/*function appendFloatingIPEntry(who,element, defaultRow) {
-    if(validateFloatingIP(element) === false)
-        return false;
-    dynamicID++;
-    var FloatingIPEntry = createFloatingIPEntry(null, dynamicID,element);
-    if (defaultRow) {
-        $("#"+element).prepend($(FloatingIPEntry));
-    } else {
-        var parentEl = who.parentNode.parentNode.parentNode;
-        parentEl.parentNode.insertBefore(FloatingIPEntry, parentEl.nextSibling);
-    }
-    scrollUp("#windowCreatePorts",FloatingIPEntry,false);
-}
-
-function createFloatingIPEntry(FloatingIP, id,element) {
-    var divFloatingIPdd = document.createElement("div");
-    divFloatingIPdd.className = "span12";
-    divFloatingIPdd.setAttribute("placeholder", "Floating IP");
-    divFloatingIPdd.setAttribute("id", element+"_"+id+"_ddFIP");
-    var divFloatingIPddName = document.createElement("div");
-    divFloatingIPddName.className = "span10";
-    divFloatingIPddName.appendChild(divFloatingIPdd);
-    
-    var iBtnAddRule = document.createElement("i");
-    iBtnAddRule.className = "icon-plus";
-    iBtnAddRule.setAttribute("onclick", "appendFloatingIPEntry(this,'"+element+"');");
-    iBtnAddRule.setAttribute("title", "Add Floating IP below");
-
-    var divPullLeftMargin5Plus = document.createElement("div");
-    divPullLeftMargin5Plus.className = "pull-left margin-5";
-    divPullLeftMargin5Plus.appendChild(iBtnAddRule);
-
-    var iBtnDeleteRule = document.createElement("i");
-    iBtnDeleteRule.className = "icon-minus";
-    iBtnDeleteRule.setAttribute("onclick", "deleteFloatingIPEntry(this);");
-    iBtnDeleteRule.setAttribute("title", "Delete Floating IP");
-
-    var divPullLeftMargin5Minus = document.createElement("div");
-    divPullLeftMargin5Minus.className = "pull-left margin-5";
-    divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
-
-    var divRowFluidMargin5 = document.createElement("div");
-    divRowFluidMargin5.className = "row-fluid margin-0-0-5 span12";
-    divRowFluidMargin5.appendChild(divFloatingIPddName);
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
-    divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
-
-    $(divFloatingIPdd).contrailDropdown({
-        dataTextField:"text",
-        dataValueField:"value",
-        placeholder: "Subnet"
-    });
-    
-    $(divFloatingIPdd).data("contrailDropdown").setData(allfloatingIP);
-    if(allfloatingIP.length > 0)
-        $(divFloatingIPdd).data("contrailDropdown").value(allfloatingIP[0].value);
-    
-    var rootDiv = document.createElement("div");
-    rootDiv.id = element + "_" + id;
-    rootDiv.className = "span11 margin-0-0-5";
-    rootDiv.appendChild(divRowFluidMargin5);
-
-    if (null !== FloatingIP && typeof FloatingIP !== "undefined") {
-        $(divFloatingIPdd).data("contrailDropdown").value(FloatingIP);
-        $(divFloatingIPdd).attr("disabled","disabled");
-    }
-    return rootDiv;
-}
-
-function deleteFloatingIPEntry(who) {
-    var templateDiv = who.parentNode.parentNode.parentNode;
-    $(templateDiv).remove();
-    templateDiv = $();
-}
-
-function validateFloatingIP(element){
-    var len = $("#"+element).children().length;
-    if(len > 0) {
-        for(var i=0; i<len; i++) {
-            var elementid = getID($("#"+element).children()[i].id);
-            var FloatingIP = $("#"+element +"_"+ elementid +"_ddFIP").data("contrailDropdown").value();
-            if (typeof FloatingIP === "undefined" || FloatingIP === "") {
-                showInfoWindow("Enter Floating IP", "Input required");
-                return false;
-            }
-        }
-    }
-    return true;
-}
-////////End of Floating IP///////////////////////////
-*/
 /////////////////////////////////////////////////////
 //////////////////DHCP option////////////////////////
 /////////////////////////////////////////////////////
@@ -2109,6 +1852,8 @@ function appendFixedIPEntry(who,element, defaultRow) {
         return false;
     dynamicID++;
     var FixedIPEntry = createFixedIPEntry(null, dynamicID,element);
+    if(FixedIPEntry === false)
+        return false;
     if (defaultRow) {
         $("#"+element).prepend($(FixedIPEntry));
     } else {
@@ -2174,6 +1919,70 @@ function createFixedIPEntry(FixedIPData, id,element) {
     });
 
     var subnetData = [];
+    var selectedFqname = $("#ddVN").data("contrailDropdown").value();
+    var fqname;
+    for(var i = 0 ;i<allNetworkData.length;i++){
+        fqname = allNetworkData[i]["virtual-network"]["fq_name"].join(":");
+        if(fqname === selectedFqname){
+            var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
+            if(subnet.length > 0){
+                for(var subnetInc = 0; subnetInc < subnet.length; subnetInc++){
+                    var subnetCIDR = subnet[subnetInc]["subnet"]["ipam_subnet"];
+                    var subnetGateway = subnet[subnetInc]["subnet"]["default_gateway"];
+                    var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
+                    var SubnetVal = {};
+                    SubnetVal.Gateway = subnetGateway;
+                    SubnetVal.subnetUUID = subnetUUID;
+                    subnetData.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
+                }
+            }
+            break;
+        }
+    }
+    $(inputTxtFixedIPValue).val("");
+    $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
+    if(subnetData.length > 0){
+        if(subnetData.length === 1) {
+            $(iBtnAddRule).addClass('hide');
+            $("#fixedipContainer").find('div.pull-left').addClass('hide');
+        }
+            var allSubnets = clone(subnetData);
+            var len = $("#"+element).children().length;
+            if(len > 0) {
+                var fixedIPs = [];
+                for(var i=0; i<len; i++) {
+                    var elementid = getID($("#"+element).children()[i].id);
+                    var fixedIP = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').text();
+                    fixedIPs.push(fixedIP);
+                }
+
+                var fipObjs = {};
+                for(var i=0; i<fixedIPs.length; i++) {
+                    if(fipObjs.hasOwnProperty(fixedIPs[i])) {
+                        showInfoWindow("Only one Floating IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
+                        return false;
+                    } else {
+                        fipObjs[fixedIPs[i]]=0;
+                    }
+                }
+                for(var i=0; i<fixedIPs.length; i++) {
+                    var fixedIP = fixedIPs[i];
+                    for(var j=0; j<allSubnets.length; j++) {
+                        if(fixedIP === allSubnets[j].text) {
+                            allSubnets.splice(j, 1);
+                            break;
+                        }
+                    }
+                }
+            }
+            if(allSubnets.length > 0)
+                $(ddFixedIPSubnet).data("contrailDropdown").value(allSubnets[0].value);
+            else {
+                showInfoWindow("Fixed IPs from all subnets are entered already.", "");
+                return false;
+            }
+    }
+
     if (null !== FixedIPData && typeof FixedIPData !== "undefined") {
         var SubnetVal = {};
         SubnetVal.Gateway = "";
@@ -2184,32 +1993,6 @@ function createFixedIPEntry(FixedIPData, id,element) {
         $(inputTxtFixedIPValue).attr("disabled","disabled");
         $(ddFixedIPSubnet).attr("disabled","disabled");
         $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
-    } else {
-        var selectedFqname = $("#ddVN").data("contrailDropdown").value();
-        var fqname;
-        for(var i = 0 ;i<allNetworkData.length;i++){
-            fqname = allNetworkData[i]["virtual-network"]["fq_name"].join(":");
-            if(fqname === selectedFqname){
-                var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
-                if(subnet.length > 0){
-                    for(var subnetInc = 0; subnetInc < subnet.length; subnetInc++){
-                        var subnetCIDR = subnet[subnetInc]["subnet"]["ipam_subnet"];
-                        var subnetGateway = subnet[subnetInc]["subnet"]["default_gateway"];
-                        var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
-                        var SubnetVal = {};
-                        SubnetVal.Gateway = subnetGateway;
-                        SubnetVal.subnetUUID = subnetUUID;
-                        subnetData.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
-                    }
-                }
-                break;
-            }
-        }
-        $(inputTxtFixedIPValue).val("");
-        $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
-        if(subnetData.length > 0){
-            $(ddFixedIPSubnet).data("contrailDropdown").value(subnetData[0].value);
-        }
     }
     return rootDiv;
 }
@@ -2218,23 +2001,38 @@ function deleteFixedIPEntry(who) {
     var templateDiv = who.parentNode.parentNode.parentNode;
     $(templateDiv).remove();
     templateDiv = $();
+    $("#fixedipContainer").find('div.pull-left').removeClass('hide');
 }
 
 function validateFixedIP(element){
+    var fixedIPTexts = [];
     var len = $("#"+element).children().length;
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var elementid = getID($("#"+element).children()[i].id);
-            var FixedIPSubnet = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data("contrailDropdown").value();
-            if (typeof FixedIPSubnet === "undefined" || FixedIPSubnet.trim() === "") {
-                showInfoWindow("Enter FixedIP Subnet", "Input required");
-                return false;
+            var fixedIP = $("#"+element +"_"+ elementid +"_txtFixedIPValue").val();
+            var fixedIPText = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').text();
+            if (typeof fixedIP === "string" && fixedIP.trim().length > 0) {
+                if(!isValidIP(fixedIP.trim())) {
+                   showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
+                    return false;
+                }
+                if(fixedIP.split("/").length > 1) {
+                    showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
+                    return false;
+                }
+                fixedIPTexts.push(fixedIPText);
             }
-/*            var FixedIPValue = $("#"+element +"_"+ elementid +"_txtFixedIPValue").val();
-            if (typeof FixedIPValue === "undefined" || FixedIPValue.trim() === "") {
-                showInfoWindow("Enter FixedIP Value", "Input required");
+        }
+        var fipObjs = {};
+        for(var i=0; i<fixedIPTexts.length; i++) {
+            if(fipObjs.hasOwnProperty(fixedIPTexts[i])) {
+                showInfoWindow("Only one Floating IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
                 return false;
-            }*/
+            } else {
+                fipObjs[fixedIPTexts[i]]=0;
+            }
+
         }
     }
     return true;
@@ -2356,6 +2154,12 @@ function validateAAP(element){
             if (IP.trim() === "" && MAC.trim() === "") {
                 showInfoWindow("Enter IP or MAC Address", "Input required");
                 return false;
+            }
+            if(MAC.trim() != ""){
+                if(isValidMACAddress(MAC) == false){
+                    showInfoWindow("Enter valid MAC Address in Allowed address pairs", "Invalid Input");
+                    return false;
+                }
             }
         }
     }
@@ -2482,6 +2286,66 @@ function validateStaticRoute(element){
 }
 
 ////////End of Static Rout///////////////////////////
+
+Handlebars.registerHelper("formatDHCPOption",function(DHCPOption,options) {
+    var returnHtml = '';
+    if(DHCPOption.length > 0){
+        returnHtml += '<span class="span10">';
+        returnHtml += '<div class="bgCol span2">';
+        returnHtml += '    <div class="span6"><label>&nbsp;&nbsp;Code</label></div>';
+        returnHtml += '    <div class="span6"><label>Value</label></div>';
+        returnHtml += '</div>';
+        returnHtml += '<div class="span9"></div>';
+        for(k=0;k<DHCPOption.length;k++){
+            returnHtml += '<div>';
+            returnHtml += '<div class="span2">';
+            returnHtml += '<div class="span6">&nbsp;&nbsp;' + DHCPOption[k]["code"] +'</div>';
+            returnHtml += '<div class="span6">' + DHCPOption[k]["value"] +'</div>';
+            returnHtml += '</div>';
+            returnHtml += '<div class="span10"></div>';
+            returnHtml += '</div>';
+        }
+        returnHtml += '</span>';
+        returnHtml += '<span class="span12"></span>';
+    } else {
+        returnHtml += '<span class="span10">:</span>';
+    }
+    return returnHtml;
+});
+
+Handlebars.registerHelper("formatAAP",function(AllowedAddressPairValue,options) {
+    var returnHtml = '';
+    if(AllowedAddressPairValue.length > 0){
+        returnHtml += '';
+        returnHtml += '<span class="span10">: Enabled</span>';
+        returnHtml += '<div><div class="span2"></div>';
+        returnHtml += '<div class="bgCol span4">';
+        returnHtml += '    <div class="span6"><label>&nbsp;&nbsp;IP</label></div>';
+        returnHtml += '    <div class="span6"><label>MAC</label></div>';
+        returnHtml += '</div>';
+        returnHtml += '<div class="span6"></div>';
+        for(k=0;k<AllowedAddressPairValue.length;k++){
+            returnHtml += '<div><div class="span2"></div>';
+            returnHtml += '<div class="span4">';
+            returnHtml += '<div class="span6">&nbsp;&nbsp;' + AllowedAddressPairValue[k]["ip"]["ip_prefix"] +"/"+ AllowedAddressPairValue[k]["ip"]["ip_prefix_len"] +'</div>';
+            returnHtml += '<div class="span6">' + AllowedAddressPairValue[k]["mac"] +'</div>';
+            returnHtml += '</div>';
+            returnHtml += '<div class="span6"></div>';
+            returnHtml += '</div>';
+        }
+        returnHtml += '</span></div>';
+        returnHtml += '<span class="span12"></span>';
+    } else {
+        returnHtml += '<span class="span10">: Disabled</span>';
+    }
+    return returnHtml;
+});
+
+function isValidMACAddress(mac) {
+    var mac_address_regex = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
+    //return mac_address_regex.test(mac);
+    return true;
+}
 
 function destroy() {
     ddDomain = $("#ddDomainSwitcher").data("contrailDropdown");
@@ -2651,19 +2515,3 @@ function destroy() {
     window.globalSubArry = [];
     window.ruleId = '';
 }
-/*////////////////
-ddVN
-ddVNState
-ddAAP
-ddDeviceOwnerName
-ddDeviceOwnerUUID
-ddTenentID
-
-msSecurityGroup
-
-txtMacAddress
-
-
-is_SG
-is_AAP
-/////////////////////*/
