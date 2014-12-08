@@ -509,6 +509,12 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <class>routerConfigObj</class>
                                 </resource>
                             </resources>
+                            <access>
+                                <orchModels>
+                                <model>openstack</model>
+                                <model>cloudstack</model>
+                                </orchModels>
+                            </access>
                             <searchStrings>Routers</searchStrings>
                         </item> 
                         <item>
