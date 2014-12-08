@@ -94,6 +94,15 @@ function fetchData() {
 }
 
 function initComponents() {
+    var columnsToBeAddedDynamically = [];
+    var ownerColumn = {
+                id: "devOwnerName",
+                field: "devOwnerName",
+                name: "Owner",
+                width:150
+            };
+    if(!isVCenter())
+        columnsToBeAddedDynamically.push(ownerColumn);
     $("#gridPorts").contrailGrid({
         header : {
             title : {
@@ -162,13 +171,7 @@ function initComponents() {
                     return returnString;
                 },
                 width:150
-            },
-            {
-                id: "devOwnerName",
-                field: "devOwnerName",
-                name: "Owner",
-                width:150
-            },
+            }
             /*{
                 id: "AllowedAddressPair",
                 field: "AllowedAddressPair",
@@ -179,7 +182,7 @@ function initComponents() {
                 field: "status",
                 name: "Status"
             }*/
-            ]
+            ].concat(columnsToBeAddedDynamically)
         },
         body : {
             options : {
@@ -1390,6 +1393,10 @@ function showPortEditWindow(mode, rowIndex) {
     if($("#btnCreatePorts").hasClass('disabled-link')) {
         return;
     }
+    if(!isVCenter()) {
+        $('#ddDeviceOwnerName').parents('.controls').parent().show();
+    } else
+        $('#ddDeviceOwnerName').parents('.controls').parent().hide();
     if (mode === "add") {
         windowCreatePorts.find('.modal-header-title').text('Create Port');
     } else {
@@ -1610,9 +1617,11 @@ function showPortEditWindow(mode, rowIndex) {
                     $("#ddVNState").data("contrailDropdown").value("false");
                 }
                 
-                $("#ddDeviceOwnerName").data("contrailDropdown").value(mapedData.deviceOwnerValue);
-                updateDevice();
-                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
+                if(!isVCenter()) {
+                    $("#ddDeviceOwnerName").data("contrailDropdown").value(mapedData.deviceOwnerValue);
+                    updateDevice();
+                    $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
+                }
                 if(mapedData.sgMSValues.length > 0){
                     $("#msSecurityGroup").data("contrailMultiselect").value(mapedData.sgMSValues);
                 } else {
@@ -2372,6 +2381,7 @@ function destroy() {
         ddAAP.destroy();
         ddAAP = $();
     }*/
+    if(!isVCenter()) {
     ddDeviceOwnerName = $("#ddDeviceOwnerName").data("contrailDropdown");
     if(isSet(ddDeviceOwnerName)) {
         ddDeviceOwnerName.destroy();
@@ -2381,6 +2391,7 @@ function destroy() {
     if(isSet(ddDeviceOwnerUUID)) {
         ddDeviceOwnerUUID.destroy();
         ddDeviceOwnerUUID = $();
+    }
     }
 
     /*ddTenentID = $("#ddTenentID").data("contrailDropdown");
