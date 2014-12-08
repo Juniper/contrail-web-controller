@@ -101,7 +101,7 @@ function vmIfAggCb(error, vmiData, lrListData, appData, callback)
     var fixedipPoolRef        = [];
             //instance_ip_ObjRefs = vmiData[i]["virtual-machine-interface"]["instance_ip_back_refs"];
             //instance_ip_RefsLen = vmObjRefs.length;
-            console.log("vmiData['virtual-machine-interface']"+JSON.stringify(vmiData));
+            //console.log("vmiData['virtual-machine-interface']"+JSON.stringify(vmiData));
     if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
         fixedipPoolRef = vmiData['virtual-machine-interface']['instance_ip_back_refs'];
         fixedipPoolRefsLen = fixedipPoolRef.length;
@@ -214,7 +214,7 @@ function getLogicalRouterAsync (logicalRouterObj, callback)
 
 function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback) 
 {
-//console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+////console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
     var vnListLen = 0, i = 0;
     var vnRef     = [];
     var vmListRef = [];
@@ -259,8 +259,8 @@ function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback)
 
 function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback) 
 {
-//console.log("vmIfAggCb-vmIfList"+JSON.stringify(vmIfList));
-//console.log("vmIfAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+////console.log("vmIfAggCb-vmIfList"+JSON.stringify(vmIfList));
+////console.log("vmIfAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
 
     var dataObjArr = [];
     if (error) {    
@@ -273,15 +273,15 @@ function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback)
         return;
     }
     for(var i=0; i<vmiLen; i++) {
+        logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["virtual_network_refs"] = vmIfList[i]["virtual-machine-interface"]["virtual_network_refs"]
         if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
             var vm_ref = vmIfList[i]["virtual-machine-interface"]["instance_ip_back_refs"];
-            logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["virtual_network_refs"] = vmIfList[i]["virtual-machine-interface"]["virtual_network_refs"]
             if (vm_ref) {
                 logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]['instance_ip_back_refs'] = vm_ref;
             }
         }
     }
-    //console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+    //console.log("logicalRouterDetail With vmi "+JSON.stringify(logicalRouterDetail));
     for(var i=0; i<vmiLen; i++) {
         if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
             var inst_ip_ref = logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0];
@@ -305,9 +305,9 @@ function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback)
 
 function instanceIPRefAggCb(error, instanceIPList, logicalRouterDetail, vmiLen, appData, callback) 
 {
-//console.log("instanceIPRefAggCb-instanceIPList"+JSON.stringify(instanceIPList));
-//console.log("instanceIPRefAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
-//console.log("vmiLen"+vmiLen);
+////console.log("instanceIPRefAggCb-instanceIPList"+JSON.stringify(instanceIPList));
+////console.log("instanceIPRefAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
+////console.log("vmiLen"+vmiLen);
 
     if (error) {
         callback(error, null);
@@ -365,40 +365,68 @@ function createLogicalRouter(request, response, appData)
            logicalRouterPostData['logical-router']['virtual_network_refs'].length > 0 &&
            'uuid' in logicalRouterPostData['logical-router']['virtual_network_refs'][0]) {
            networkUUID = logicalRouterPostData['logical-router']['virtual_network_refs'][0]["uuid"];
-           logicalRouterPostData['logical-router']['virtual_network_refs'] = [];
+           delete logicalRouterPostData['logical-router']['virtual_network_refs'];
         }
     }
     if('virtual_machine_interface_refs' in orginalDataFromUI['logical-router']){
         var vmiLength = orginalDataFromUI['logical-router']['virtual_machine_interface_refs'].length;
+        var allDataArr = []
         for(var i=0;i<vmiLength;i++){
             var vmidata = {};
             vmidata["virtual-machine-interface"] = {};
             vmidata["virtual-machine-interface"] = orginalDataFromUI['logical-router']['virtual_machine_interface_refs'][i];
             //setUUID
-            var uuid = UUID.create();
             if(vmidata['virtual-machine-interface']['fq_name'].length == 2) {
+                var uuid = UUID.create();
                 vmidata["virtual-machine-interface"]["fq_name"][2] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
             }
-            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i] = {};
-            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["to"] = vmidata["virtual-machine-interface"]["fq_name"];
-            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["uuid"] = uuid['hex'];
-            console.log("vmidata" + JSON.stringify(vmidata));
-            portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
-            console.log("b");
+            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i] = {};
+            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["to"] = vmidata["virtual-machine-interface"]["fq_name"];
+            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["uuid"] = uuid['hex'];
+            //console.log("vmidata" + JSON.stringify(vmidata));
+            allDataArr.push({
+                request: request,
+                vmidata: vmidata,
+                response: response,
+                appData: appData
+            });
+            /*portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
+            //console.log("b");
                 if(error){
                     commonUtils.handleJSONResponse(error, response, null);
                     return;
-                }
                 if(vmiLength == i){
                     configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
                     function (error, data) {
                         setLogicalRouterRead(error, data, networkUUID, request, response, appData);
                     });
                 }
-            });
+            });*/
         }
+        async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
+            if(error){
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            //console.log("createPortsCBResult" + JSON.stringify(data));
+            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'] = [];
+            var datalen = data.length;
+            for(var i = 0; i < datalen; i++){
+                if(data[i] != null){
+                    logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i] = {};
+                    logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["to"] = data[i]["virtual-machine-interface"]["fq_name"];
+                    logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["uuid"] = data[i]["virtual-machine-interface"]["uuid"];
+                }
+            }
+            removeBackRefFromPostData(logicalRouterPostData);
+            configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
+            function (error, data) {
+                setLogicalRouterRead(error, data, networkUUID, request, response, appData);
+            });
+        });
+        //}
     } else {
 //remove     {"router": {"external_gateway_info": {}}}
 // add / update {"router": {"external_gateway_info": {"network_id": "1dcfa234-840d-4114-842e-34247e3251d3"}}}
@@ -424,7 +452,7 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, request, 
         return;
     }
 
-    //console.log("config.network.router_L3Enable"+config.network.router_L3Enable)
+    ////console.log("config.network.router_L3Enable"+config.network.router_L3Enable)
     if(config.network.router_L3Enable === true){
         if(networkUUID != "") {
             var routerObj = {};
@@ -444,6 +472,7 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, request, 
             });
             //{"router": {"external_gateway_info": {"network_id": "1dcfa234-840d-4114-842e-34247e3251d3"}}}
         } else {
+            //console.log("setLogicalRouterRead-logicalRouterConfig"+JSON.stringify(logicalRouterConfig));
             logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
             configApiServer.apiGet(logicalRouterGetURL, appData,
             function (error, data) {
@@ -509,30 +538,23 @@ function updateLogicalRouter(request, response, appData)
            logicalRouterPostData['logical-router']['virtual_network_refs'].length > 0 &&
            'uuid' in logicalRouterPostData['logical-router']['virtual_network_refs'][0]) {
            networkUUID = logicalRouterPostData['logical-router']['virtual_network_refs'][0]["uuid"];
-           logicalRouterPostData['logical-router']['virtual_network_refs'] = [];
+           delete logicalRouterPostData['logical-router']['virtual_network_refs'];
         }
     }
-    if('virtual_machine_interface_refs' in orginalDataFromUI['logical-router']){
-        if(orginalDataFromUI['logical-router']['virtual_machine_interface_refs'].length > 0){
-            var logicalRouterURL = logicalRouterPutURL;
-            configApiServer.apiGet(logicalRouterURL, appData, function(err, data) {
-                readLogicalRouterToUpdate(err, logicalRouterURL, orginalDataFromUI, logicalRouterPostData, data, networkUUID, request, response, appData);
-            });
-        }
-    } else {
-    configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
-        function (error, data) {
-            setLogicalRouterRead(error, data, networkUUID, request, response, appData);
-        });
-    }
+    configApiServer.apiGet(logicalRouterPutURL, appData, function(err, data) {
+        readLogicalRouterToUpdate(err, logicalRouterPutURL, orginalDataFromUI, logicalRouterPostData, data, networkUUID, request, response, appData);
+    });
 }
 
 function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, logicalRouterPostData, datafromAPI, networkUUID, request, response, appData){
+
     filterVMI(error, orginalDataFromUI, datafromAPI, function (createVMIArray,deleteVMIArray){
+        //console.log("createVMIArray"+JSON.stringify(createVMIArray));
+        //console.log("deleteVMIArray"+JSON.stringify(deleteVMIArray));
+        var allDataArr = [];
         
-        console.log("createVMIArray"+JSON.stringify(createVMIArray));
-        console.log("deleteVMIArray"+JSON.stringify(deleteVMIArray));
         if(createVMIArray.length > 0){
+            
             for(var i=0;i<createVMIArray.length;i++){
                 var vmidata = {};
                 vmidata["virtual-machine-interface"] = {};
@@ -544,55 +566,116 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                     vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
                     vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
                 }
+                /*
                 for(var j = 0; j < logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length; j++){
                     if("virtual_network_refs" in logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]){
                         var updatevmiData = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]["virtual_network_refs"][0]["to"].join(":");
                         var createvmiData = createVMIArray[i]["virtual_network_refs"][0]["to"].join(":");
                         if( updatevmiData == createvmiData){
-                            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j] = {};
-                            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]["to"] = vmidata["virtual-machine-interface"]["fq_name"];
-                            logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]["uuid"] = uuid['hex'];
+                            
                         }
                     }
                 }
-                console.log("vmidata" + JSON.stringify(vmidata));
-                portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
-                console.log("b");
+                //console.log("vmidata" + JSON.stringify(vmidata));*/
+                allDataArr.push({
+                    request: request,
+                    vmidata: vmidata,
+                    response: response,
+                    appData: appData
+                });
+                
+            }
+            
+            async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
+                var datalen = data.length;
+                var vmiLength = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length;
+                for(var i = 0; i < datalen; i++){
+                    if(data[i] != null){
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][vmiLength] = {};
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][vmiLength]["to"] = data[i]["virtual-machine-interface"]["fq_name"];
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][vmiLength]["uuid"] = data[i]["virtual-machine-interface"]["uuid"];
+                        vmiLength++
+                    }
+                }
+                removeBackRefFromPostData(logicalRouterPostData);
+                updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
+/*
+                //portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
+                //console.log("b");
+                //console.log("data"+JSON.stringify(data));
                     if(error){
                         commonUtils.handleJSONResponse(error, response, null);
                         return;
+                    } else {
+                        var index = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length;
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index] = {};
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index]["to"] = data["virtual-machine-interface"]["fq_name"];
+                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index]["uuid"] = data["virtual-machine-interface"]["uuid"];
                     }
                     if(createVMIArray.length == i){
                         updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
-                    }
-                });
-            }
+                    }*/
+            });
         } else {
             updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
         }
     });
 }
 
+function removeVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData){
+    // delete vmi Reference 
+    if(deleteVMIArray.length > 0){
+        var allDataArr = [];
+        var delVMILength = deleteVMIArray.length;
+        for(var j = 0 ; j < delVMILength ; j++){
+            var uuid = deleteVMIArray[j]["uuid"];
+            allDataArr.push({
+                uuid: uuid,
+                appData: appData
+            });
+        }
+        async.mapSeries(allDataArr, portConfig.deletePortsCB, function(error, data){
+            if(error){
+                //console.log("");
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            setLogicalRouterRead(error, logicalRouterPostData, networkUUID, request, response, appData);
+        });
+    } else {
+        setLogicalRouterRead(error, logicalRouterPostData, networkUUID, request, response, appData);
+    }
+
+}
+
 function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData){
+    //console.log("logicalRouterPostData"+JSON.stringify(logicalRouterPostData));
     configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
     function (error, data) {
-        if(deleteVMIArray.length > 0){
-            for(var j=0;j<deleteVMIArray.length;j++){
-                portConfig.deletePortsCB(request, deleteVMIArray[j]["uuid"], appData, function(error, data){
-                    if(deleteVMIArray.length == j){
-                        setLogicalRouterRead(error, data, networkUUID, request, response, appData);
-                    }
-                });
-            }
-        } else {
-            setLogicalRouterRead(error, data, networkUUID, request, response, appData);
-        }
+        removeVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
     });
+}
+
+function removeBackRefFromPostData(logicalRouterPostData){
+    if("virtual_machine_interface_refs" in logicalRouterPostData["logical-router"] && 
+       logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].length > 0){
+        var vmiLength = logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].length;
+        //console.log("VMI -Objects"+ JSON.stringify(logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"]));
+        //console.log("vmiLength"+vmiLength);
+        for(var i = 0 ; i < vmiLength ; i++){
+        //console.log("logicalRouterPostData"+ JSON.stringify(logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"][i]));
+            if(!('uuid' in logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"][i])){
+                logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].splice(i,1);
+                i--;
+                vmiLength--;
+            }
+        }
+    }
 }
 
 function filterVMI(error, orginalDataFromUI, datafromAPI, callback)
 {
-//console.log("filterUpdateLogicalRouter");
+////console.log("filterUpdateLogicalRouter");
     var i = 0;
     var createVMIArray = [];
     var deleteVMIArray = [];
@@ -632,8 +715,8 @@ function filterVMI(error, orginalDataFromUI, datafromAPI, callback)
         for(j=0; j<vmiRefs_serverLen && i >= 0;j++){
             var portlogicalRouterip_fqname = JSON.stringify(vmiReffrom_ui[i]["uuid"]);
             var vmilogicalRouterip_fqname = JSON.stringify(vmiRef_server[j]["uuid"]);
-            console.log("portlogicalRouterip_fqname"+portlogicalRouterip_fqname);
-            console.log("vmilogicalRouterip_fqname"+vmilogicalRouterip_fqname);
+            //console.log("portlogicalRouterip_fqname"+portlogicalRouterip_fqname);
+            //console.log("vmilogicalRouterip_fqname"+vmilogicalRouterip_fqname);
             if( portlogicalRouterip_fqname == vmilogicalRouterip_fqname){
                 vmiReffrom_ui.splice(i,1);
                 vmiRef_server.splice(j,1);

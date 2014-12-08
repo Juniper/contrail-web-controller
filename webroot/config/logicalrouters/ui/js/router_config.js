@@ -409,6 +409,7 @@ function initActions() {
                         break;
                     }
                 }
+                lRouter["logical-router"]["uuid"] = uuid;
                 lRouter["logical-router"]["id_perms"]["uuid"] = selectedLRoutedIDpermUUID;
                 console.log("update"+JSON.stringify(lRouter));
                 
@@ -715,9 +716,12 @@ function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){
                 var connectedNetwork = LogicalRuter["virtual_machine_interface_refs"][inc]["virtual_network_refs"][0]["to"];
                 var uuid = LogicalRuter["virtual_machine_interface_refs"][inc]["uuid"];
                 var network = "";
-                var ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
-                if(ip == undefined){
-                    ip = "";
+                var ip = "";
+                if("instance_ip_back_refs" in LogicalRuter["virtual_machine_interface_refs"][inc] && 
+                   LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"].length  > 0 && 
+                   "ip" in LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]
+                   ){
+                    ip = LogicalRuter["virtual_machine_interface_refs"][inc]["instance_ip_back_refs"][0]["ip"];
                 }
                 resultObject.connectedNetworkArr.push(connectedNetwork.join(":"));
                 if(resultObject.connectedNetwork != "")
@@ -1138,7 +1142,7 @@ function logRouterCreateWindow(mode,rowIndex) {
                 val = localNetwork["fq_name"].join(":");
                 var networkText = "";
                 if(localNetwork.fq_name[1] != selectedProjectName){
-                    if(localNetwork["router_external"] == false){
+                    if(localNetwork["router_external"] == false ){
                         networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                         networks.push({'text':networkText,'value':val})
                     }
