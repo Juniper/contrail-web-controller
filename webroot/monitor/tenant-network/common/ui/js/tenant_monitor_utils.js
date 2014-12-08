@@ -2049,7 +2049,7 @@ function constructProjectBreadcrumbDropdown(fqName){
             dataValueField: "value",
             dataSource:{
                 type: 'remote',
-                url:'/api/tenants/config/projects/' + domain,
+                url:'/api/tenants/projects/' + domain,
                 parse: function(data){
                     return $.map(data.projects, function(n,i){
                         return {
