@@ -300,7 +300,7 @@ function initComponents() {
         dropdownCssClass: 'select2-medium-width'
     });
     dynamicID = 0;
-    pageCount = 4;
+    pageCount = 50;
     allfloatingIP = [];
     allNetworkData = [];
 
