@@ -251,7 +251,7 @@ function ObjectListView() {
         	}
         } else if(objectType == 'project') {
             $.ajax({
-                url:'/api/tenants/projects/default-domain',
+                url:'/api/tenants/config/projects/default-domain',
                 async: false
             }).done(function(projList,vnList) {
                 //projList.projects = []
