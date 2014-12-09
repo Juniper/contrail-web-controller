@@ -72,6 +72,8 @@ monitorInfraComputeNetworksClass = (function() {
                                  events: {
                                      onClick: function(e,dc){
                                          var tabIdx = $.inArray("routes", computeNodeTabs);
+                                         var data = {tab:"routes",filters:[{routeName:dc['vrf_name']}]};
+                                         $('#' + computeNodeTabStrip).data('tabFilter',data);
                                          selectTab(computeNodeTabStrip,tabIdx);
                                      }
                                   }
