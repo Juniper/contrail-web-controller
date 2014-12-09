@@ -1990,6 +1990,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
         $(inputTxtFixedIPValue).attr("disabled","disabled");
         $(ddFixedIPSubnet).attr("disabled","disabled");
         $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
+        $(ddFixedIPSubnet).data("contrailDropdown").value(JSON.stringify(SubnetVal));
     }
     return rootDiv;
 }
@@ -2024,7 +2025,7 @@ function validateFixedIP(element){
         var fipObjs = {};
         for(var i=0; i<fixedIPTexts.length; i++) {
             if(fipObjs.hasOwnProperty(fixedIPTexts[i])) {
-                showInfoWindow("Only one Floating IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
+                showInfoWindow("Only one Fixed IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
                 return false;
             } else {
                 fipObjs[fixedIPTexts[i]]=0;
