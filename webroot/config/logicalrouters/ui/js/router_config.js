@@ -1070,7 +1070,9 @@ function logRouterCreateWindow(mode,rowIndex) {
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                 } else {
                     networkText = localNetwork.fq_name[2];
-                    if(localNetworks[j]["virtual-network"]["router_external"] == false){
+                    if(localNetworks[j]["virtual-network"]["router_external"] == false &&
+                       "network_ipam_refs" in localNetworks[j]["virtual-network"] && 
+                       localNetworks[j]["virtual-network"]["network_ipam_refs"].length > 0){
                         networks.push({'text':networkText,'value':val});
                     }
                 }
@@ -1142,7 +1144,9 @@ function logRouterCreateWindow(mode,rowIndex) {
                 val = localNetwork["fq_name"].join(":");
                 var networkText = "";
                 if(localNetwork.fq_name[1] != selectedProjectName){
-                    if(localNetwork["router_external"] == false ){
+                    if(localNetwork["router_external"] == false &&
+                      "network_ipam_refs" in localNetworks[j]["virtual-network"] && 
+                      localNetworks[j]["virtual-network"]["network_ipam_refs"].length > 0){
                         networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                         networks.push({'text':networkText,'value':val})
                     }
