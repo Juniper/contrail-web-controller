@@ -144,10 +144,15 @@ monitorInfraComputeRoutesClass = (function() {
         var rdoRouteType = $('#routeType').val();
         var cboVRF;
         var selectedRoute;
-        if(obj['filters'] != null){
-            var postfix = obj['filters'].split(':');
-            selectedRoute = obj['filters'] + ':' + postfix[postfix.length - 1];
+        var tabFilter =  $('#' + computeNodeTabStrip).data('tabFilter');
+        var filters;
+        if(tabFilter != null && tabFilter['tab'] == 'routes'){
+            filters = tabFilter['filters'];
+            $('#' + computeNodeTabStrip).removeData('tabFilter');
         }
+        if (filters != null){
+            selectedRoute = filters[0]['routeName'];
+        }        
         if(isDropdownInitialized('comboVRF')) {
             cboVRF = $('#comboVRF').data('contrailDropdown');
 //            cboVRF.select(function(dataItem) {
@@ -186,6 +191,9 @@ monitorInfraComputeRoutesClass = (function() {
             }
            // cboVRF.list.width(300);
             $('input[name="routeType"]').change(onRouteTypeChange);
+        }
+        if(selectedRoute != null) {
+             cboVRF.text(selectedRoute);    
         }
         function destroyAndHide(currentTypeDivId){
             $(currentTypeDivId).data("contrailGrid").destroy();
