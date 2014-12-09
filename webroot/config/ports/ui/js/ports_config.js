@@ -277,7 +277,7 @@ function initComponents() {
         change:updateDevice
     });
 
-    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").contrailDropdown({
+    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").contrailCombobox({
         dataTextField:"text",
         dataValueField:"value"
     });
@@ -419,14 +419,14 @@ function initActions() {
         if(deviceName == "None"){
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
         } else if(deviceName == "router"){
-            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
+            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailCombobox").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "network:router_interface";
             portConfig["virtual-machine-interface"]["logical_router_back_refs"] = [];
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0] = {};
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["to"] = deviceDetail[0]["to"];
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"] = deviceDetail[0]["uuid"];
         } else if(deviceName == "compute"){
-            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
+            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailCombobox").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
             portConfig["virtual-machine-interface"]["virtual_machine_refs"] = [];
             portConfig["virtual-machine-interface"]["virtual_machine_refs"][0] = {};
@@ -1302,17 +1302,17 @@ function updateDevice(e){
 //update
 //ddDeviceOwnerUUID
     var selectedDeviceValue = $("#ddDeviceOwnerName").data("contrailDropdown").value();
-    $("#ddDeviceOwnerUUID").data("contrailDropdown").setData([]);
+    $("#ddDeviceOwnerUUID").data("contrailCombobox").setData([]);
     if(selectedDeviceValue != "None"){
         if(selectedDeviceValue == "router"){
-            $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(routerUUID);
+            $("#ddDeviceOwnerUUID").data("contrailCombobox").setData(routerUUID);
             if(routerUUID.length > 0){
-                $("#ddDeviceOwnerUUID").data("contrailDropdown").value(routerUUID[0].value);
+                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(routerUUID[0].value);
             }
         } else if(selectedDeviceValue == "compute"){
-            $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(computeUUID);
+            $("#ddDeviceOwnerUUID").data("contrailCombobox").setData(computeUUID);
             if(computeUUID.length > 0){
-                $("#ddDeviceOwnerUUID").data("contrailDropdown").value(computeUUID[0].value);
+                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(computeUUID[0].value);
             }
         }
     }
@@ -1485,10 +1485,8 @@ function showPortEditWindow(mode, rowIndex) {
                 var networkText = "";
                 if(localNetwork.fq_name[1] != selectedProject){
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
-                } else {
-                    networkText = localNetwork.fq_name[2];
+                    allNetworks.push({'text':networkText,'value':val})
                 }
-                allNetworks.push({'text':networkText,'value':val})
             }
             $("#ddVN").data("contrailDropdown").setData(allNetworks);
             if(allNetworks.length > 0) {
@@ -1623,7 +1621,7 @@ function showPortEditWindow(mode, rowIndex) {
                 
                 $("#ddDeviceOwnerName").data("contrailDropdown").value(mapedData.deviceOwnerValue);
                 updateDevice();
-                $("#ddDeviceOwnerUUID").data("contrailDropdown").value(mapedData.deviceOwnerUUIDValue);
+                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
                 if(mapedData.sgMSValues.length > 0){
                     $("#is_SG")[0].checked = true;
                     $("#msSecurityGroup").data('contrailMultiselect').enable(true);
@@ -2393,7 +2391,7 @@ function destroy() {
         ddDeviceOwnerName.destroy();
         ddDeviceOwnerName = $();
     }
-    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").data("contrailDropdown");
+    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").data("contrailCombobox");
     if(isSet(ddDeviceOwnerUUID)) {
         ddDeviceOwnerUUID.destroy();
         ddDeviceOwnerUUID = $();

@@ -179,14 +179,20 @@ function vmiFloatingFixedIP(error, results, vmiData, floatingipPoolRefsLen, rout
  * 2. Sets Post Data and sends back the VMI to client
  */
 
-function createPortsCB (req, data, response, appData, callback)
+function createPortsCB (dataObj, callback)
 {
+    var req = dataObj.request;
+    var response = dataObj.response;
+    var appData = dataObj.appData;
+    var data = dataObj.vmidata;
+
     createPortsValidate(req, data, response, appData, function (error, results) {
         callback(error, results);
     }) ;
 }
+
 function createPorts(request, response, appData){
-    createPortsValidate(request, request.data, response, appData, function (error, results) {
+    createPortsValidate(request, request.body, response, appData, function (error, results) {
         commonUtils.handleJSONResponse(error, response, results);
     }) ;
 }
@@ -659,7 +665,7 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
                 }
             }
             DataObjectLenDetail["instanceIPCreateStartIndex"] = DataObjectArr.length - createFixedIp.length;
-            DataObjectLenDetail["instanceIPDeleteCount"] = createFixedIp.length;
+            DataObjectLenDetail["instanceIPCreateCount"] = createFixedIp.length;
             
             if(deleteFixedip != null && deleteFixedip != ""){
                 if(deleteFixedip.length > 0){
@@ -982,12 +988,16 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                         //Attaching the new Logical router
                                         var logicalRouterURL = '/logical-router/'+result[uiIndex]['logical-router']['uuid'];
                                         var vmiIndexinLR = -1;
+                                        
+                                        //console.log("logicalRouter"+JSON.stringify(result[uiIndex]['logical-router']));
+                                        
                                         if('virtual_machine_interface_refs' in result[uiIndex]['logical-router']){
                                             vmiIndexinLR = result[uiIndex]['logical-router']['virtual_machine_interface_refs'].length-1;
                                         }
                                         if(vmiIndexinLR == -1){
                                             result[uiIndex]["logical-router"]["virtual_machine_interface_refs"] = [];
                                         }
+                                        //console.log("vmiIndexinLR"+vmiIndexinLR);
                                         vmiIndexinLR++;
                                         result[uiIndex]["logical-router"]["virtual_machine_interface_refs"][vmiIndexinLR] = {};
                                         result[uiIndex]["logical-router"]["virtual_machine_interface_refs"][vmiIndexinLR]["to"] = portPutData['virtual-machine-interface']["fq_name"];
@@ -1296,9 +1306,10 @@ function filterUpdateFixedIP(error, portPutData, vmiData, callback)
  * 2. Deletes the ports from config api server
   */
 
-function deletePortsCB(request, uuid, appData, callback)
+function deletePortsCB(dataObject, callback)
 {
-    var portId = uuid;
+    var appData =  dataObject.appData;
+    var portId = dataObject.uuid;
     readVMIwithUUID(portId, appData, function(err, vmiData){
         getReadDelVMICb(err, vmiData, appData, function(error, data){
             callback(error, data);
@@ -1335,6 +1346,7 @@ function readVMIwithUUID(uuid, appData, callback ){
 
 function deletePortAsync (dataObj, callback)
 {
+//console.log("deletePortAsync1");
     if (dataObj['type'] == 'floating-ip') {
         async.map(dataObj['dataObjArr'],
             commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
@@ -1360,23 +1372,32 @@ function deletePortAsync (dataObj, callback)
         return;
     }
     if (dataObj['type'] == 'instance-ip') {
+    //console.log("deletePortAsync1-instance-ip1");
         async.map(dataObj['dataObjArr'],
             commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
             function(error, results) {
+            //console.log("deletePortAsync1-instance-ip2");
                 callback(error, results);
+                //console.log("deletePortAsync1-instance-ip3");
                 return;
             });
+            //console.log("deletePortAsync1-instance-ip4");
         return;
     }
+    //console.log("deletePortAsync2");
     if (dataObj['type'] == 'vmi') {
+        //console.log("deletePortAsync2-vmi1");
         async.map(dataObj['dataObjArr'],
             commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
             function(error, results) {
+            //console.log("deletePortAsync2-vmi2");
                 callback(error, results);
                 return;
             });
+            //console.log("deletePortAsync2-vmi3");
         return;
     }
+    //console.log("deletePortAsync3");
     if (dataObj['type'] == 'staticRout') {
         async.map(dataObj['dataObjArr'],
             commonUtils.getAPIServerResponse(configApiServer.apiDelete, false),
@@ -1501,9 +1522,11 @@ function getReadDelVMICb(err, vmiData, appData, callback)
         statObj['dataObjArr'] = staticRoutObjArr;
         allDataObj.push(statObj);
     }
-
+    //console.log("allDataObj"+allDataObj);
     async.mapSeries(allDataObj, deletePortAsync, function(err, data) {
+        //console.log("inside allDataObj");
     });
+    //console.log("outside allDataObj");
     callback(err, null);
 }
 

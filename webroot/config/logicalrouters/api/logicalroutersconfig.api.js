@@ -622,7 +622,7 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
     });
 }
 
-function removeVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData){
+function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData){
     // delete vmi Reference 
     if(deleteVMIArray.length > 0){
         var allDataArr = [];
@@ -652,7 +652,7 @@ function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, 
     //console.log("logicalRouterPostData"+JSON.stringify(logicalRouterPostData));
     configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
     function (error, data) {
-        removeVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
+        removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
     });
 }
 
@@ -762,7 +762,8 @@ function deleteLogicalRouter(request, response, appData)
     
     var logicalRouterURL = logicalRouterDelURL;
     configApiServer.apiGet(logicalRouterURL, appData, function(err, data) {
-        readLogicalRouterToDeleteVMI(err, logicalRouterURL, data, request, response, appData);
+        //readLogicalRouterToDeleteVMI(err, logicalRouterURL, data, request, response, appData);
+        deleteLogicalRouterCb(err, logicalRouterURL, data, request, response, appData);
     });
 
 }
@@ -770,42 +771,82 @@ function deleteLogicalRouter(request, response, appData)
 function readLogicalRouterToDeleteVMI(error, logicalRouterURL, datafromAPI, request, response, appData){    
     configApiServer.apiDelete(logicalRouterURL, appData,
         function (error, data) {
-            deleteLogicalRouterCb(error, data, datafromAPI, request, response, appData);
+            if('virtual_machine_interface_refs' in datafromAPI['logical-router'] && 
+                datafromAPI['logical-router']['virtual_machine_interface_refs'].length > 0){
+                var deleteVMIArray = datafromAPI['logical-router']['virtual_machine_interface_refs']
+                if(deleteVMIArray.length > 0){
+                    var allDataArr = [];
+                    var delVMILength = deleteVMIArray.length;
+                    for(var j = 0 ; j < delVMILength ; j++){
+                        var uuid = deleteVMIArray[j]["uuid"];
+                        allDataArr.push({
+                            uuid: uuid,
+                            appData: appData
+                        });
+                    }
+                    async.mapSeries(allDataArr, portConfig.deletePortsCB, function(error, data){
+                            commonUtils.handleJSONResponse(error, response, null);
+                            return;
+                    });
+                }
+            } else {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
         });
-
 }
+
 /**
  * @deleteLogicalRouterCb
  * private function
  * 1. Return back the response of logical router delete.
  */
-function deleteLogicalRouterCb(error, logicalRouterDelResp, datafromAPI, request, response, appData)
+function deleteLogicalRouterCb(error, logicalRouterGetURL, datafromAPI, request, response, appData)
 {
     if (error) {
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    
-    if('virtual_machine_interface_refs' in datafromAPI['logical-router'] && 
-        datafromAPI['logical-router']['virtual_machine_interface_refs'].length > 0){
-        var deleteVMIArray = datafromAPI['logical-router']['virtual_machine_interface_refs']
-        if(deleteVMIArray.length > 0){
-            for(var j=0;j<deleteVMIArray.length;j++){
-                portConfig.deletePortsCB(request, deleteVMIArray[j]["uuid"], appData, function(error, data){
-                    if(deleteVMIArray.length == j){
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    }
-                });
-            }
+    //console.log("datafromAPI"+JSON.stringify(datafromAPI));
+    if(config.network.router_L3Enable === true){
+    //console.log("1");
+        var networkUUID = "";
+        if("logical-router" in datafromAPI && 
+        'virtual_network_refs' in datafromAPI['logical-router']){
+            networkUUID = datafromAPI['logical-router']['virtual_network_refs']
+        }
+    //console.log("1");
+        if(networkUUID != "") {
+            var routerObj = {};
+            routerObj["router"] = {};
+            routerObj["router"]["external_gateway_info"] = {};
+            //routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
+            var routerUUID = datafromAPI['logical-router']['uuid'];
+            
+            networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
+                //console.log("1.-10");
+                if(error) {
+                //console.log("1.0");
+                    //logicalRouterSendResponse(error, data, response);
+                    commonUtils.handleJSONResponse(error, appData, null);
+                    return;
+                }
+                logicalRouterGetURL += datafromAPI['logical-router']['uuid'];
+                configApiServer.apiGet(logicalRouterGetURL, appData,
+                    function (error, data) {
+                        //console.log("1.1");
+                        readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData)
+                        //logicalRouterSendResponse(error, data, response);
+                    });
+            });
         } else {
-            commonUtils.handleJSONResponse(error, response, null);
-            return;
-        }    
+            readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData);
+        }
     } else {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
+        //console.log("2");
+        readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData);
     }
+
 }
 
 exports.listLogicalRouter = listLogicalRouter;
