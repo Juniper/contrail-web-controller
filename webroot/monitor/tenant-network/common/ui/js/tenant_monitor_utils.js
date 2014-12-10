@@ -878,8 +878,10 @@ var tenantNetworkMonitorUtils = {
             obj['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
             obj['vRouter'] = ifNull(jsonPath(currObj, '$..vrouter')[0], '-');
             obj['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
-            obj['vn'] = ifNull(jsonPath(currObj, '$..interface_list[*].virtual_network') ? jsonPath(currObj, '$..interface_list[*].virtual_network') : null ,[]);
-            obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
+            obj['vn'] = ifNull(jsonPath(currObj, '$..interface_list[*].virtual_network'),[]);
+            //Parse the VN only if it exists
+            if(obj['vn'] != false)
+                obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
             obj['ip'] = [];
             var intfList = ifNull(currObj['UveVirtualMachineAgent'] != null ? currObj['UveVirtualMachineAgent']['interface_list'] : null,[]);
             for(var i = 0; i < intfList.length; i++ ) {
