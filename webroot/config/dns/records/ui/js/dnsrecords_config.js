@@ -435,13 +435,13 @@ function dnsRecordsConfig() {
 
 
         //handle key down validations
-        txtRecordName.bind('keydown',function(e){
+        /*txtRecordName.bind('keydown',function(e){
             handleSpecialCharectersWithDot(e);
         });
 		
         $("#cmbRecordData").bind('keydown',function(e){
             handleSpecialCharectersWithDot(e);
-        })
+        })*/
     }
 	
     function deleteDNSRecord(selected_rows) {
