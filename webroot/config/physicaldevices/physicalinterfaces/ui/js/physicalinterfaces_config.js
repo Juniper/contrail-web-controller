@@ -313,6 +313,7 @@ function physicalInterfacesConfig() {
         }
 
         window.failureHandlerForVMICreation = function(xhr, status, error) {
+            showInfoWindow(error, status);
             fetchData();
         }
 
@@ -950,7 +951,7 @@ function physicalInterfacesConfig() {
     
     window.failureHandlerForVNInternals = function(error){
         var r = arguments;
-        showInfoWindow(r[0].responseText,r[2])    
+        showInfoWindow(r[0].responseText,r[2]);
     }
     
     function fetchConfigurations() {
