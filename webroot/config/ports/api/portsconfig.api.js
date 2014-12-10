@@ -790,7 +790,6 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
         callback(error, result)
     });
 }
-
 function processDataObjects(error, DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiData, portPutData, DataObjectLenDetail, boolDeviceOwnerChange, request, appData, callback) {
     var portPutURL = '/virtual-machine-interface/';
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
