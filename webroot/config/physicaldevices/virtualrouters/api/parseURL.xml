@@ -43,5 +43,6 @@
         <method>delete</method>
         <feature>virtualroutersconfig</feature>
         <callback>virtualroutersconfigapi.deleteVirtualRouters</callback>
-    </item>     
+    </item>
 </urlLists>
+
