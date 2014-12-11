@@ -251,7 +251,7 @@ function ObjectListView() {
         	}
         } else if(objectType == 'project') {
             $.ajax({
-                url:'/api/tenants/projects/default-domain',
+                url:networkPopulateFns.getProjectsURL('default-domain'),
                 async: false
             }).done(function(projList,vnList) {
                 //projList.projects = []
@@ -1276,6 +1276,16 @@ function getNetworkTooltipContents(obj) {
  * All functions which are called for populating the network datasource
  */
 var networkPopulateFns = {
+        getProjectsURL : function(domain) {
+            //If the role is admin then we will display all the projects else the projects which has access
+            var url = '/api/tenants/projects/' + domain 
+            var role = globalObj['webServerInfo']['role'];
+            var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode']; 	
+            if(activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1){
+                url = '/api/tenants/config/projects'; 
+            }	
+            return url;
+        },
         /*
          * Function is the populate function of the network datasource which fetches networks page by page.
          */
@@ -1287,13 +1297,7 @@ var networkPopulateFns = {
                         'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
                         'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
             var obj = {};
-	    //If the role is admin then we will display all the projects else the projects which has access
-            var url = '/api/tenants/projects/default-domain'; 
-	    var role = globalObj['webServerInfo']['role'];
-	    var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode']; 	
-            if(activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1){
-                url = '/api/tenants/config/projects'; 
-            }	
+            var url = networkPopulateFns.getProjectsURL('default-domain');
 	    $.when($.ajax({
                         url:url,
                         abortOnNavigate:enableHardRefresh == true ? false : true
@@ -1408,7 +1412,7 @@ function getUUIDByName(fqName) {
         context = 'network';
     if(context == 'project') {
         $.ajax({
-            url:'/api/tenants/projects/default-domain',
+            url:networkPopulateFns.getProjectsURL('default-domain'),
             async:false
         }).done(function(response) {
             $.each(response['projects'],function(idx,projObj) {
@@ -2049,7 +2053,7 @@ function constructProjectBreadcrumbDropdown(fqName){
             dataValueField: "value",
             dataSource:{
                 type: 'remote',
-                url:'/api/tenants/projects/' + domain,
+                url:networkPopulateFns.getProjectsURL(domain),
                 parse: function(data){
                     return $.map(data.projects, function(n,i){
                         return {
