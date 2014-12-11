@@ -280,7 +280,7 @@ function initComponents() {
         change:updateDevice
     });
 
-    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").contrailCombobox({
+    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").contrailDropdown({
         dataTextField:"text",
         dataValueField:"value"
     });
@@ -416,20 +416,20 @@ function initActions() {
         portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["to"] = vnVal;
                 
         portConfig["virtual-machine-interface"]["id_perms"] = {};
-        portConfig["virtual-machine-interface"]["id_perms"]["enable"] = $("#ddVNState").data("contrailDropdown").value();
+        portConfig["virtual-machine-interface"]["id_perms"]["enable"] = JSON.parse($("#ddVNState").data("contrailDropdown").value());
         
         var deviceName =  $("#ddDeviceOwnerName").data("contrailDropdown").value();
         if(deviceName == "None"){
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
         } else if(deviceName == "router"){
-            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailCombobox").value());
+            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "network:router_interface";
             portConfig["virtual-machine-interface"]["logical_router_back_refs"] = [];
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0] = {};
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["to"] = deviceDetail[0]["to"];
             portConfig["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"] = deviceDetail[0]["uuid"];
         } else if(deviceName == "compute"){
-            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailCombobox").value());
+            var deviceDetail = JSON.parse($("#ddDeviceOwnerUUID").data("contrailDropdown").value());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
             portConfig["virtual-machine-interface"]["virtual_machine_refs"] = [];
             portConfig["virtual-machine-interface"]["virtual_machine_refs"][0] = {};
@@ -1305,17 +1305,17 @@ function updateDevice(e){
 //update
 //ddDeviceOwnerUUID
     var selectedDeviceValue = $("#ddDeviceOwnerName").data("contrailDropdown").value();
-    $("#ddDeviceOwnerUUID").data("contrailCombobox").setData([]);
+    $("#ddDeviceOwnerUUID").data("contrailDropdown").setData([]);
     if(selectedDeviceValue != "None"){
         if(selectedDeviceValue == "router"){
-            $("#ddDeviceOwnerUUID").data("contrailCombobox").setData(routerUUID);
+            $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(routerUUID);
             if(routerUUID.length > 0){
-                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(routerUUID[0].value);
+                $("#ddDeviceOwnerUUID").data("contrailDropdown").value(routerUUID[0].value);
             }
         } else if(selectedDeviceValue == "compute"){
-            $("#ddDeviceOwnerUUID").data("contrailCombobox").setData(computeUUID);
+            $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(computeUUID);
             if(computeUUID.length > 0){
-                $("#ddDeviceOwnerUUID").data("contrailCombobox").value(computeUUID[0].value);
+                $("#ddDeviceOwnerUUID").data("contrailDropdown").value(computeUUID[0].value);
             }
         }
     }
@@ -1366,6 +1366,7 @@ function clearValuesFromDomElements() {
     $("#FixedIPTuples").empty();
     $("#DHCPTuples").empty();
     $("#is_SG")[0].checked = true;
+    $("#msSecurityGroup").data('contrailMultiselect').enable(true);
     $("#StaticRoutTuples").empty();
     $("#AAPTuples").empty();
     $("#txtMacAddress").val("");
@@ -1418,6 +1419,10 @@ function showPortEditWindow(mode, rowIndex) {
     });
     getAjaxs[5] = $.ajax({
         url:"/api/tenants/config/shared-virtual-networks",
+        type:"GET"
+    });
+    getAjaxs[6] = $.ajax({
+        url:"/api/tenants/config/listVirtualMachines",
         type:"GET"
     });
 
@@ -1499,6 +1504,12 @@ function showPortEditWindow(mode, rowIndex) {
             if(allNetworks.length > 0) {
                 $("#ddVN").data("contrailDropdown").value(allNetworks[0].value);
                 updateSubnet();
+            } else {
+                //Disable port create and show a popup 
+                windowCreatePorts.modal("hide");
+                $("#ddVN").data("contrailDropdown").value("");
+                showInfoWindow("No Network found", "Invalid Input");
+                return false;
             }
 
             //Floating IP
@@ -1565,7 +1576,7 @@ function showPortEditWindow(mode, rowIndex) {
                         }
                     }
                     
-                    if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
+                    /*if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
                         //take it from VMR
                         if("virtual_machine_refs" in ip && ip["virtual_machine_refs"].length >=0){
                             var compute = ip["virtual_machine_refs"];
@@ -1574,9 +1585,22 @@ function showPortEditWindow(mode, rowIndex) {
                             valArr.push({"to":compute[0]["to"], "uuid":compute[0]["uuid"]});
                             computeUUID.push({"text":text,"value":JSON.stringify(valArr)});
                         }
-                    }
+                    }*/
                 }
             }
+            var vmArray = [];
+            if(results[6][0] != null && results[6][0] != "" && results[6][0].length > 0) {
+                vmArray = results[6][0];
+            }
+            var vmArrayLen = vmArray.length;
+            for(var j=0;j < vmArrayLen;j++){
+                var vm = vmArray[j]["virtual-machine"];
+                var text = vm["fq_name"][0];
+                var valArr = [];
+                valArr.push({"to":vm["fq_name"], "uuid":vm["uuid"]});
+                computeUUID.push({"text":text,"value":JSON.stringify(valArr)});
+            }
+            
             if(results[4][0] != null && results[4][0] != "" && results[4][0]["data"] && results[4][0]["data"].length > 0) {
                 var logicalRouter = results[4][0]["data"];
                 for(var lrInc = 0; lrInc < logicalRouter.length; lrInc++){
@@ -1629,7 +1653,7 @@ function showPortEditWindow(mode, rowIndex) {
                 if(!isVCenter()) {
                     $("#ddDeviceOwnerName").data("contrailDropdown").value(mapedData.deviceOwnerValue);
                     updateDevice();
-                    $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
+                    $("#ddDeviceOwnerUUID").data("contrailDropdown").value(mapedData.deviceOwnerUUIDValue);
                 }
                 if(mapedData.sgMSValues.length > 0){
                     $("#is_SG")[0].checked = true;
@@ -1751,6 +1775,13 @@ function validate() {
     if(!validateAAP("AAPTuples")) return false;
     if(!validateStaticRoute("StaticRoutTuples")) return false;
     if(!validateDHCP("DHCPTuples")) return false;
+    var selectedFloatingIP = $("#msFloatingIp").data("contrailMultiselect").getSelectedData();
+    var deviceName =  $("#ddDeviceOwnerName").data("contrailDropdown").value();
+    if (selectedFloatingIP && selectedFloatingIP.length > 0 && deviceName == "router"){
+        showInfoWindow("Floating Ip cannot be assigned to Router port", "Invalid Input");
+        return false;
+    }
+    
     return true;
 }
 
@@ -1971,7 +2002,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
                 var fipObjs = {};
                 for(var i=0; i<fixedIPs.length; i++) {
                     if(fipObjs.hasOwnProperty(fixedIPs[i])) {
-                        showInfoWindow("Only one Floating IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
+                        showInfoWindow("Only one Fixed IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
                         return false;
                     } else {
                         fipObjs[fixedIPs[i]]=0;
@@ -1990,7 +2021,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
             if(allSubnets.length > 0)
                 $(ddFixedIPSubnet).data("contrailDropdown").value(allSubnets[0].value);
             else {
-                showInfoWindow("Fixed IPs from all subnets are entered already.", "");
+                showInfoWindow("Fixed IPs from all subnets are entered already.", "Invalid Input");
                 return false;
             }
     }
@@ -2363,9 +2394,8 @@ Handlebars.registerHelper("formatAAP",function(AllowedAddressPairValue,options) 
 });
 
 function isValidMACAddress(mac) {
-    var mac_address_regex = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
-    //return mac_address_regex.test(mac);
-    return true;
+    var mac_address_regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-F]{2})$/;
+    return mac_address_regex.test(mac);
 }
 
 function destroy() {
@@ -2402,7 +2432,7 @@ function destroy() {
         ddDeviceOwnerName.destroy();
         ddDeviceOwnerName = $();
     }
-    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").data("contrailCombobox");
+    ddDeviceOwnerUUID = $("#ddDeviceOwnerUUID").data("contrailDropdown");
     if(isSet(ddDeviceOwnerUUID)) {
         ddDeviceOwnerUUID.destroy();
         ddDeviceOwnerUUID = $();

@@ -85,52 +85,7 @@ function listLogicalRouterCb(error, lrListData, appData)
         return;
     }
 }
-/*
-function vmIfAggCb(error, vmiData, lrListData, appData, callback) 
-{
-    if ((null != error) || (vmiData && !vmiData.length) || (null == vmiData)) {
-        callback(error, lrListData);
-        return;
-    }
 
-    var dataObjArr = [];
-    var vmiDataLen = vmiData.length;
-    var instance_ip_ObjRefs = null;
-    var instance_ip_RefsLen = 0;
-    var fixedipPoolRefsLen    = 0;
-    var fixedipPoolRef        = [];
-            //instance_ip_ObjRefs = vmiData[i]["virtual-machine-interface"]["instance_ip_back_refs"];
-            //instance_ip_RefsLen = vmObjRefs.length;
-            //console.log("vmiData['virtual-machine-interface']"+JSON.stringify(vmiData));
-    if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
-        fixedipPoolRef = vmiData['virtual-machine-interface']['instance_ip_back_refs'];
-        fixedipPoolRefsLen = fixedipPoolRef.length;
-    }
-    for (i = 0; i < fixedipPoolRefsLen; i++) {
-        fixedipObj = fixedipPoolRef[i];
-        reqUrl = '/instance-ip/' + fixedipObj['uuid'];
-        commonUtils.createReqObj(dataObjArr, reqUrl,
-                                 global.HTTP_REQUEST_GET, null, null, null,
-                                 appData);
-    }
-    
-    async.map(dataObjArr,
-    commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-    function(error, results) {
-        vmiFixedIP(error, results, vmiData,
-                              appData, function (error, vmiData){
-                                if(error){
-                                    callback(error, lrListData);
-                                }
-                                for(i=0;i<vmiData.length;i++){
-                                      lrListData['logical-router']['virtual_machine_interface_refs'][i] = vmiData['virtual-machine-interface']['instance_ip_back_refs'][i];
-                                }
-                                callback(error, lrListData);
-                              });
-    });
-    
-}
-*/
 function vmiFixedIP(error, instanceIPData, vmiData, appData, callback)
 {
     if (error) {
@@ -170,51 +125,8 @@ function getLogicalRouterAsync (logicalRouterObj, callback)
     
 }
 
-
-/**
- * @getLogicalRouterCb
- * private function
- * 1. Callback for getLogicalRouterAsync
- * 2. Reads the response of Logical Router get from config api server
- *    and sends it back to the client.
- */
-/*function getLogicalRouterCb(error, lrListData,appData, callback)
-{
-    if (error) {
-        callback(error, lrListData);
-        return;
-    }
-    //callback(error, lrConfig);
-    var dataObjArr = [];
-    var vmObjRefs = null;
-    var vmRefsLen = 0;
-    
-    if ( 'virtual_machine_interface_refs' in lrListData['logical-router']) {
-        vmObjRefs = lrListData['logical-router']['virtual_machine_interface_refs'];
-        vmRefsLen = vmObjRefs.length;
-    }
-
-    for (i = 0; i < vmRefsLen; i++) {
-        reqUrl = '/virtual-machine-interface/' + vmObjRefs[i]['uuid'];
-        commonUtils.createReqObj(dataObjArr, reqUrl,
-                                 global.HTTP_REQUEST_GET, null, null, null,
-                                 appData);
-    }
-
-    async.map(dataObjArr,
-          commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-          function(error, results) {
-              vmIfAggCb(error, results, lrListData,
-                                    appData, function (error, results){
-                                        callback(error, results);
-                                    });
-          });
-
-}*/
-
 function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback) 
 {
-////console.log("logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
     var vnListLen = 0, i = 0;
     var vnRef     = [];
     var vmListRef = [];
@@ -225,17 +137,6 @@ function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback)
        return;
     }
     var vmList = logicalRouterDetail;
-/*
-    vnListLen = logicalRouterDetail.length;
-    vnRef = logicalRouterDetail['logical-router'];
-        if ('virtual_machine_interface_refs' in vnRef) {
-            for (i = 0; i < vnRef['virtual_machine_interface_refs']; i++) {
-            vmListRef = vnRef;
-            vmList
-            .push(vmListRef);
-        }
-    }
-*/
     if(('logical-router' in logicalRouterDetail) &&
       ('virtual_machine_interface_refs' in logicalRouterDetail['logical-router'])){
         var vmiLen = logicalRouterDetail['logical-router']['virtual_machine_interface_refs'].length;
@@ -259,9 +160,6 @@ function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback)
 
 function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback) 
 {
-////console.log("vmIfAggCb-vmIfList"+JSON.stringify(vmIfList));
-////console.log("vmIfAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
-
     var dataObjArr = [];
     if (error) {    
         callback(error, null);
@@ -281,7 +179,6 @@ function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback)
             }
         }
     }
-    //console.log("logicalRouterDetail With vmi "+JSON.stringify(logicalRouterDetail));
     for(var i=0; i<vmiLen; i++) {
         if('instance_ip_back_refs' in vmIfList[i]["virtual-machine-interface"]) {
             var inst_ip_ref = logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0];
@@ -305,10 +202,6 @@ function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback)
 
 function instanceIPRefAggCb(error, instanceIPList, logicalRouterDetail, vmiLen, appData, callback) 
 {
-////console.log("instanceIPRefAggCb-instanceIPList"+JSON.stringify(instanceIPList));
-////console.log("instanceIPRefAggCb-logicalRouterDetail"+JSON.stringify(logicalRouterDetail));
-////console.log("vmiLen"+vmiLen);
-
     if (error) {
         callback(error, null);
         return;
@@ -322,8 +215,6 @@ function instanceIPRefAggCb(error, instanceIPList, logicalRouterDetail, vmiLen, 
         if(("virtual_machine_interface_refs" in logicalRouterDetail['logical-router']) && 
           (logicalRouterDetail['logical-router']["virtual_machine_interface_refs"].length > 0) &&
           ("instance_ip_back_refs" in logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i] > 0)){
-            //console.log("instanceIPList[inst]"+i+","+JSON.stringify(instanceIPList[inst]));
-            //console.log("logicalRouterDetail"+i+","+JSON.stringify(logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]));
             var inst_ip_ref = logicalRouterDetail['logical-router']["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0];
             if(inst_ip_ref && instanceIPList[inst] != undefined && instanceIPList[inst] != null) {
                 inst_ip_ref["ip"] = instanceIPList[inst]["instance-ip"]["instance_ip_address"];
@@ -382,35 +273,18 @@ function createLogicalRouter(request, response, appData)
                 vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
             }
-            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i] = {};
-            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["to"] = vmidata["virtual-machine-interface"]["fq_name"];
-            //logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][i]["uuid"] = uuid['hex'];
-            //console.log("vmidata" + JSON.stringify(vmidata));
             allDataArr.push({
                 request: request,
                 vmidata: vmidata,
                 response: response,
                 appData: appData
             });
-            /*portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
-            //console.log("b");
-                if(error){
-                    commonUtils.handleJSONResponse(error, response, null);
-                    return;
-                if(vmiLength == i){
-                    configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
-                    function (error, data) {
-                        setLogicalRouterRead(error, data, networkUUID, request, response, appData);
-                    });
-                }
-            });*/
         }
         async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
             if(error){
                 commonUtils.handleJSONResponse(error, response, null);
                 return;
             }
-            //console.log("createPortsCBResult" + JSON.stringify(data));
             logicalRouterPostData['logical-router']['virtual_machine_interface_refs'] = [];
             var datalen = data.length;
             for(var i = 0; i < datalen; i++){
@@ -426,10 +300,7 @@ function createLogicalRouter(request, response, appData)
                 setLogicalRouterRead(error, data, networkUUID, request, response, appData);
             });
         });
-        //}
     } else {
-//remove     {"router": {"external_gateway_info": {}}}
-// add / update {"router": {"external_gateway_info": {"network_id": "1dcfa234-840d-4114-842e-34247e3251d3"}}}
     configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
         function (error, data) {
             setLogicalRouterRead(error, data, networkUUID, request, response, appData);
@@ -452,7 +323,6 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, request, 
         return;
     }
 
-    ////console.log("config.network.router_L3Enable"+config.network.router_L3Enable)
     if(config.network.router_L3Enable === true){
         if(networkUUID != "") {
             var routerObj = {};
@@ -470,9 +340,7 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, request, 
                         logicalRouterSendResponse(error, data, response);
                     });
             });
-            //{"router": {"external_gateway_info": {"network_id": "1dcfa234-840d-4114-842e-34247e3251d3"}}}
         } else {
-            //console.log("setLogicalRouterRead-logicalRouterConfig"+JSON.stringify(logicalRouterConfig));
             logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
             configApiServer.apiGet(logicalRouterGetURL, appData,
             function (error, data) {
@@ -549,9 +417,7 @@ function updateLogicalRouter(request, response, appData)
 function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, logicalRouterPostData, datafromAPI, networkUUID, request, response, appData){
 
     filterVMI(error, orginalDataFromUI, datafromAPI, function (createVMIArray,deleteVMIArray){
-        //console.log("createVMIArray"+JSON.stringify(createVMIArray));
-        //console.log("deleteVMIArray"+JSON.stringify(deleteVMIArray));
-        var allDataArr = [];
+       var allDataArr = [];
         
         if(createVMIArray.length > 0){
             
@@ -566,17 +432,6 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                     vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
                     vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
                 }
-                /*
-                for(var j = 0; j < logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length; j++){
-                    if("virtual_network_refs" in logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]){
-                        var updatevmiData = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][j]["virtual_network_refs"][0]["to"].join(":");
-                        var createvmiData = createVMIArray[i]["virtual_network_refs"][0]["to"].join(":");
-                        if( updatevmiData == createvmiData){
-                            
-                        }
-                    }
-                }
-                //console.log("vmidata" + JSON.stringify(vmidata));*/
                 allDataArr.push({
                     request: request,
                     vmidata: vmidata,
@@ -599,22 +454,6 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                 }
                 removeBackRefFromPostData(logicalRouterPostData);
                 updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
-/*
-                //portConfig.createPortsCB(request, vmidata, response, appData, function(error, data) {
-                //console.log("b");
-                //console.log("data"+JSON.stringify(data));
-                    if(error){
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    } else {
-                        var index = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length;
-                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index] = {};
-                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index]["to"] = data["virtual-machine-interface"]["fq_name"];
-                        logicalRouterPostData['logical-router']['virtual_machine_interface_refs'][index]["uuid"] = data["virtual-machine-interface"]["uuid"];
-                    }
-                    if(createVMIArray.length == i){
-                        updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
-                    }*/
             });
         } else {
             updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
@@ -631,12 +470,12 @@ function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArra
             var uuid = deleteVMIArray[j]["uuid"];
             allDataArr.push({
                 uuid: uuid,
-                appData: appData
+                appData: appData,
+                request: request
             });
         }
         async.mapSeries(allDataArr, portConfig.deletePortsCB, function(error, data){
             if(error){
-                //console.log("");
                 commonUtils.handleJSONResponse(error, response, null);
                 return;
             }
@@ -649,7 +488,6 @@ function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArra
 }
 
 function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData){
-    //console.log("logicalRouterPostData"+JSON.stringify(logicalRouterPostData));
     configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
     function (error, data) {
         removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, request, response, appData);
@@ -660,10 +498,7 @@ function removeBackRefFromPostData(logicalRouterPostData){
     if("virtual_machine_interface_refs" in logicalRouterPostData["logical-router"] && 
        logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].length > 0){
         var vmiLength = logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].length;
-        //console.log("VMI -Objects"+ JSON.stringify(logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"]));
-        //console.log("vmiLength"+vmiLength);
         for(var i = 0 ; i < vmiLength ; i++){
-        //console.log("logicalRouterPostData"+ JSON.stringify(logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"][i]));
             if(!('uuid' in logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"][i])){
                 logicalRouterPostData["logical-router"]["virtual_machine_interface_refs"].splice(i,1);
                 i--;
@@ -675,7 +510,6 @@ function removeBackRefFromPostData(logicalRouterPostData){
 
 function filterVMI(error, orginalDataFromUI, datafromAPI, callback)
 {
-////console.log("filterUpdateLogicalRouter");
     var i = 0;
     var createVMIArray = [];
     var deleteVMIArray = [];
@@ -715,8 +549,6 @@ function filterVMI(error, orginalDataFromUI, datafromAPI, callback)
         for(j=0; j<vmiRefs_serverLen && i >= 0;j++){
             var portlogicalRouterip_fqname = JSON.stringify(vmiReffrom_ui[i]["uuid"]);
             var vmilogicalRouterip_fqname = JSON.stringify(vmiRef_server[j]["uuid"]);
-            //console.log("portlogicalRouterip_fqname"+portlogicalRouterip_fqname);
-            //console.log("vmilogicalRouterip_fqname"+vmilogicalRouterip_fqname);
             if( portlogicalRouterip_fqname == vmilogicalRouterip_fqname){
                 vmiReffrom_ui.splice(i,1);
                 vmiRef_server.splice(j,1);
@@ -762,7 +594,6 @@ function deleteLogicalRouter(request, response, appData)
     
     var logicalRouterURL = logicalRouterDelURL;
     configApiServer.apiGet(logicalRouterURL, appData, function(err, data) {
-        //readLogicalRouterToDeleteVMI(err, logicalRouterURL, data, request, response, appData);
         deleteLogicalRouterCb(err, logicalRouterURL, data, request, response, appData);
     });
 
@@ -807,43 +638,33 @@ function deleteLogicalRouterCb(error, logicalRouterGetURL, datafromAPI, request,
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    //console.log("datafromAPI"+JSON.stringify(datafromAPI));
     if(config.network.router_L3Enable === true){
-    //console.log("1");
         var networkUUID = "";
         if("logical-router" in datafromAPI && 
         'virtual_network_refs' in datafromAPI['logical-router']){
             networkUUID = datafromAPI['logical-router']['virtual_network_refs']
         }
-    //console.log("1");
         if(networkUUID != "") {
             var routerObj = {};
             routerObj["router"] = {};
             routerObj["router"]["external_gateway_info"] = {};
-            //routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
             var routerUUID = datafromAPI['logical-router']['uuid'];
             
             networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
-                //console.log("1.-10");
                 if(error) {
-                //console.log("1.0");
-                    //logicalRouterSendResponse(error, data, response);
                     commonUtils.handleJSONResponse(error, appData, null);
                     return;
                 }
                 logicalRouterGetURL += datafromAPI['logical-router']['uuid'];
                 configApiServer.apiGet(logicalRouterGetURL, appData,
                     function (error, data) {
-                        //console.log("1.1");
                         readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData)
-                        //logicalRouterSendResponse(error, data, response);
                     });
             });
         } else {
             readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData);
         }
     } else {
-        //console.log("2");
         readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData);
     }
 

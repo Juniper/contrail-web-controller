@@ -37,4 +37,10 @@
         <feature>portconfig</feature>
         <callback>portsconfigapi.deletePorts</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/listVirtualMachines</url>
+        <method>get</method>
+        <feature>portconfig</feature>
+        <callback>portsconfigapi.listVirtualMachines</callback>
+    </item>
 </urlLists>
