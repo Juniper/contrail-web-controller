@@ -248,12 +248,16 @@
 			<div class="topology-visualization-loading progress progress-striped active">
   				<div class="bar" style="width: 100%;"></div>
 			</div>
-			<div id="topology" class="topology-visualization row-fluid colmask holygrail">
+            <div id="topology" class="topology-visualization row-fluid colmask holygrail">
 			    <div class="colmid">
 			        <div class="colleft">
 			            <div class="col1wrap">
 			                <div class="col1">
-								<div id="topology-connected-elements" class="topology-visualization-connected-elements row-fluid"></div>
+								<div id="topology-connected-elements" class="topology-visualization-connected-elements row-fluid">
+                                    <div id="topology-visualization-connected-elements-empty" class="visualization-empty hide">
+                                        <p class="">No Virtual Network Found.</p>
+                                    </div>
+								</div>
 							</div>
 			            </div>
 			            <div class="col2">
