@@ -425,7 +425,7 @@ function initActions() {
         vnConfig["virtual-network"]["display_name"] = $("#txtDisName").val();
 
         vnConfig["virtual-network"]["id_perms"] = {};
-        vnConfig["virtual-network"]["id_perms"]["enable"] = $("#ddAdminState").data("contrailDropdown").value();
+        vnConfig["virtual-network"]["id_perms"]["enable"] = JSON.parse($("#ddAdminState").data("contrailDropdown").value());
         
         var policies = $("#msNetworkPolicies").data("contrailMultiselect").getSelectedData();
         if (policies && policies.length > 0) {
@@ -2382,7 +2382,7 @@ function showVNEditWindow(mode, rowIndex) {
                 var AdminState = selectedVN["id_perms"]["enable"];
                 var isShared = selectedVN["is_shared"];
                 var isExternal = selectedVN["router_external"];
-                $("#ddAdminState").data("contrailDropdown").value(AdminState);
+                $("#ddAdminState").data("contrailDropdown").value(String(AdminState));
                 $("#is_shared")[0].checked = isShared;
                 $("#router_external")[0].checked = isExternal;
 
