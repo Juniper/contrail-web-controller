@@ -250,7 +250,7 @@ function createLogicalRouter(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    var networkUUID = "";
+    var networkUUID = null;
     if(config.network.router_L3Enable === true){
         if('virtual_network_refs' in logicalRouterPostData['logical-router'] && 
            logicalRouterPostData['logical-router']['virtual_network_refs'].length > 0 &&
@@ -323,36 +323,30 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, request, 
         return;
     }
 
+    logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
+    var routerUUID = logicalRouterConfig['logical-router']['uuid'];
+    var routerObj = {};
+    routerObj["router"] = {};
+    routerObj["router"]["external_gateway_info"] = {};
+
     if(config.network.router_L3Enable === true){
-        if(networkUUID != "") {
-            var routerObj = {};
-            routerObj["router"] = {};
-            routerObj["router"]["external_gateway_info"] = {};
+        if(networkUUID != null) {
             routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
-            var routerUUID = logicalRouterConfig['logical-router']['uuid'];
-            networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
-                if(error) {
-                    logicalRouterSendResponse(error, data, response);
-                }
-                logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
-                configApiServer.apiGet(logicalRouterGetURL, appData,
-                    function (error, data) {
-                        logicalRouterSendResponse(error, data, response);
-                    });
-            });
-        } else {
-            logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
-            configApiServer.apiGet(logicalRouterGetURL, appData,
-            function (error, data) {
-                logicalRouterSendResponse(error, data, response);
-            });
         }
+        networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
+            if(error) {
+                logicalRouterSendResponse(error, data, response);
+            }
+            configApiServer.apiGet(logicalRouterGetURL, appData,
+                function (error, data) {
+                    logicalRouterSendResponse(error, data, response);
+            });
+        });
     } else {
-        logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
         configApiServer.apiGet(logicalRouterGetURL, appData,
             function (error, data) {
                 logicalRouterSendResponse(error, data, response);
-            });
+        });
     }
 }
 
@@ -400,7 +394,7 @@ function updateLogicalRouter(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    var networkUUID = "";
+    var networkUUID = null;
     if(config.network.router_L3Enable === true){
         if('virtual_network_refs' in logicalRouterPostData['logical-router'] && 
            logicalRouterPostData['logical-router']['virtual_network_refs'].length > 0 &&
@@ -639,23 +633,21 @@ function deleteLogicalRouterCb(error, logicalRouterGetURL, datafromAPI, request,
         return;
     }
     if(config.network.router_L3Enable === true){
-        var networkUUID = "";
+        var networkUUID = null; 
         if("logical-router" in datafromAPI && 
         'virtual_network_refs' in datafromAPI['logical-router']){
             networkUUID = datafromAPI['logical-router']['virtual_network_refs']
         }
-        if(networkUUID != "") {
+        if(networkUUID != null) {
             var routerObj = {};
             routerObj["router"] = {};
             routerObj["router"]["external_gateway_info"] = {};
             var routerUUID = datafromAPI['logical-router']['uuid'];
-            
             networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
                 if(error) {
                     commonUtils.handleJSONResponse(error, appData, null);
                     return;
                 }
-                logicalRouterGetURL += datafromAPI['logical-router']['uuid'];
                 configApiServer.apiGet(logicalRouterGetURL, appData,
                     function (error, data) {
                         readLogicalRouterToDeleteVMI(error, logicalRouterGetURL, datafromAPI, request, response, appData)
