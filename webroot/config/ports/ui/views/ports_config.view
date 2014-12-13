@@ -255,7 +255,7 @@
                                                                 <h6>Option value</h6>
                                                             </div>
                                                             <div class="pull-left">
-                                                                <div title="Add DHCP below" class="margin-5 padding-10-0">
+                                                                <div title="Add DHCP Options below" class="margin-5 padding-10-0">
                                                                     <i class="pull-right icon-plus" onclick="appendDHCPEntry(this, 'DHCPTuples',true);"></i>
                                                                 </div>
                                                             </div>
