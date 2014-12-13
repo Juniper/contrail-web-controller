@@ -558,7 +558,7 @@ function initActions() {
         
         
         //Allow Address Pair
-        portConfig["virtual_machine_interface_allowed_address_pairs"] = {};
+        portConfig["virtual-machine-interface"]["virtual_machine_interface_allowed_address_pairs"] = {};
             var aapElement = "AAPTuples";
             var allaapTuples = $("#"+aapElement)[0].children;
             if (allaapTuples && allaapTuples.length > 0) {
@@ -1824,7 +1824,7 @@ function createDHCPEntry(DHCPData, id,element) {
     var iBtnAddRule = document.createElement("i");
     iBtnAddRule.className = "icon-plus";
     iBtnAddRule.setAttribute("onclick", "appendDHCPEntry(this,'"+element+"');");
-    iBtnAddRule.setAttribute("title", "Add DHCP below");
+    iBtnAddRule.setAttribute("title", "Add DHCP Options below");
 
     var divPullLeftMargin5Plus = document.createElement("div");
     divPullLeftMargin5Plus.className = "pull-left margin-5";
@@ -1833,7 +1833,7 @@ function createDHCPEntry(DHCPData, id,element) {
     var iBtnDeleteRule = document.createElement("i");
     iBtnDeleteRule.className = "icon-minus";
     iBtnDeleteRule.setAttribute("onclick", "deleteDHCPEntry(this);");
-    iBtnDeleteRule.setAttribute("title", "Delete DHCP");
+    iBtnDeleteRule.setAttribute("title", "Delete DHCP Options");
 
     var divPullLeftMargin5Minus = document.createElement("div");
     divPullLeftMargin5Minus.className = "pull-left margin-5";
@@ -2128,7 +2128,7 @@ function createAAPEntry(AAPData, id,element) {
     var iBtnAddRule = document.createElement("i");
     iBtnAddRule.className = "icon-plus";
     iBtnAddRule.setAttribute("onclick", "appendAAPEntry(this,'"+element+"');");
-    iBtnAddRule.setAttribute("title", "Add FixedIP below");
+    iBtnAddRule.setAttribute("title", "Add Allowed address pairs below");
 
     var divPullLeftMargin5Plus = document.createElement("div");
     divPullLeftMargin5Plus.className = "pull-left margin-5";
@@ -2137,7 +2137,7 @@ function createAAPEntry(AAPData, id,element) {
     var iBtnDeleteRule = document.createElement("i");
     iBtnDeleteRule.className = "icon-minus";
     iBtnDeleteRule.setAttribute("onclick", "deleteAAPEntry(this);");
-    iBtnDeleteRule.setAttribute("title", "Delete FixedIP");
+    iBtnDeleteRule.setAttribute("title", "Delete Allowed address pairs");
 
     var divPullLeftMargin5Minus = document.createElement("div");
     divPullLeftMargin5Minus.className = "pull-left margin-5";
@@ -2394,7 +2394,8 @@ Handlebars.registerHelper("formatAAP",function(AllowedAddressPairValue,options) 
 });
 
 function isValidMACAddress(mac) {
-    var mac_address_regex = /^([0-9A-Fa-f]{2}[:-]){5}([0-9A-F]{2})$/;
+    mac = mac.toUpperCase();
+    var mac_address_regex = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
     return mac_address_regex.test(mac);
 }
 
