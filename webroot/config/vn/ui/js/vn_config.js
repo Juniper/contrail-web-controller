@@ -1942,7 +1942,7 @@ function successHandlerForGridVNRow(result) {
                 fwdMode = "";
             }
         } else {
-            fwdMode = "L2 Only";
+            fwdMode = "L2 and L3";
         }
         
         var vxlanid = jsonPath(vn, "$.virtual_network_properties.vxlan_network_identifier");
