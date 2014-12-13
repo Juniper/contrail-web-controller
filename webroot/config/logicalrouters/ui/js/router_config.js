@@ -351,23 +351,23 @@ function initActions() {
                 var selectedSubnet = [];
                 var uuid = "";
                 var to = [];
-                var connectedNetworkValue = selectedConnectedNetworks[i].split("_");
+                var connectedNetworkValue = selectedConnectedNetworks[i];
                 for(var j = 0;j<network_subnet.length;j++){
-                    if(network_subnet[j]["value"] == connectedNetworkValue[0]){
+                    if(network_subnet[j]["value"] == connectedNetworkValue){
                         selectedSubnet = network_subnet[j]["subnet"];
                     }
                 }
                 if(connectedNetworksVMI.length > 0){
                     for(var tempInc = 0;tempInc < connectedNetworksVMI.length;tempInc++){
                         if("virtual_network_refs" in connectedNetworksVMI[tempInc]){
-                            if(connectedNetworksVMI[tempInc]["virtual_network_refs"][0]["to"].join(":") == connectedNetworkValue[0]){
+                            if(connectedNetworksVMI[tempInc]["virtual_network_refs"][0]["to"].join(":") == connectedNetworkValue){
                                 uuid = connectedNetworksVMI[tempInc]["uuid"];
                                 to = connectedNetworksVMI[tempInc]["to"];
                             }
                         }
                     }
                 }
-                var currentConnectedNetwork = connectedNetworkValue[0].split(":")
+                var currentConnectedNetwork = connectedNetworkValue.split(":")
                 lRouter["logical-router"]["virtual_machine_interface_refs"][i] = {};
                 if(uuid != "" ) {
                     lRouter["logical-router"]["virtual_machine_interface_refs"][i]["uuid"] = uuid;
