@@ -246,12 +246,12 @@ function createPortsValidate(request, data, response, appData, callback){
         var portId = vmisData['virtual-machine-interface']['uuid'];
         readVMIwithUUID(portId, appData, function(err, vmiData){
             if(err) {
-                callback(error, vmiData);
+                callback(err, vmiData);
                 return;
             }
 	        readLogicalRouter(lrUUID, appData, function(err, apiLogicalRouterData){
 	            if(err) {
-	                callback(error, apiLogicalRouterData);
+	                callback(err, apiLogicalRouterData);
 	                return;
 	            }
 	            portSendResponse(error, request, vmiData, orginalPortData, apiLogicalRouterData, appData, function (err, results) {
@@ -807,7 +807,6 @@ function processDataObjects(error, DataObjectArr, DataObjectDelArr, DataSRObject
     var portPutURL = '/virtual-machine-interface/';
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
     portPutURL += vmiUUID;
-
     if (0 == DataObjectArr.length && 0 == DataObjectDelArr.length && 0 == DataSRObjectArr.length && boolDeviceOwnerChange == false) {
         //no change in floating or fixedip;
         updateVMI(DataSRObjectArr, portPutURL, portPutData, appData, function(error, data) {
@@ -1037,7 +1036,10 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
         if(vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
             if(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] != "network:router_interface"
                || ((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") &&
-                   (vmiData["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"] != portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"]))){
+                  "logical_router_back_refs" in vmiData["virtual-machine-interface"] && 
+                  vmiData["virtual-machine-interface"]["logical_router_back_refs"].length > 0 && 
+                  "uuid" in vmiData["virtual-machine-interface"]["logical_router_back_refs"][0] &&
+                  vmiData["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"] != portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["uuid"])){
                 // Detach Logical router
                 if(serverCount == 1 && result[serverIndex] != null && 'logical-router' in result[serverIndex] ) {
                     var logicalRouterURL = '/logical-router/'+result[serverIndex]['logical-router']['uuid'];
@@ -1099,14 +1101,23 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                             }
                         }
                     }
+                } else {
+                    // If Api serveris nothaving any data of Logical Router
+                    vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
                 }
             } else {
-            // No change in Route table
-                callback(error, result, DataObjectArr);
-                return;
+                // if Routerbackref is missing in the logical router.
+                if(("logical_router_back_refs" in vmiData["virtual-machine-interface"]) &&
+                (vmiData["virtual-machine-interface"]["logical_router_back_refs"].length > 0) &&
+                ("uuid" in vmiData["virtual-machine-interface"]["logical_router_back_refs"][0])){
+                    // No change in Route table
+                    callback(error, result, DataObjectArr);
+                    return;
+                } else {
+                    vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+                }
             }
         }
-            
         
         if(vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "") {
             if(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "network:router_interface") {
@@ -1449,7 +1460,7 @@ function deletePortAsync (dataObj, callback)
             body.vmUUID = vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
             detachVMICompute(request, body, function (error, results){
                 if(error){
-                    callback(error, result, DataObjectArr)
+                    callback(error, results)
                     return;
                 } else {
                     async.map(dataObj['dataObjArr'],
