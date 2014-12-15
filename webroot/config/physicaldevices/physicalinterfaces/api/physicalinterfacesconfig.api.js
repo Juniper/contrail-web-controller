@@ -423,14 +423,19 @@ function updateVMIDetails(request, appData, postData, callback) {
 /**
  * @setVirtualMachineRefs
  * public function
- * 1. URL /api/tenants/config/set-virtual-machine-refs/:vmiId
+ * 1. URL /api/tenants/config/map-virtual-machine-refs/:vmiId
  * 2. Creates Virtual machine and Sets this ref to Virtual Machine Interface object in config api server
  */
 function mapVirtualMachineRefs(request, response, appData)
 {
     var vmiId = validateQueryParam(request, 'vmiId');
+    var serverId = request.param('serverId');
     var vmId  = UUID.create().hex.toString();
-    var vmPostData = {"virtual-machine" : {"fq_name" : [vmId], "name" : vmId, "uuid" : vmId}};
+    var name = vmId;
+    if(serverId != null) {
+        name = serverId;
+    }
+    var vmPostData = {"virtual-machine" : {"fq_name" : [name], "name" : name, "uuid" : vmId}};
      configApiServer.apiPost('/virtual-machines', vmPostData, appData,
          function(error, vmData) {
              if(error) {
@@ -443,7 +448,7 @@ function mapVirtualMachineRefs(request, response, appData)
                          commonUtils.handleJSONResponse(err, response, null);
                          return;
                      }
-                     vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [vmId]}];
+                     vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [name]}];
                      configApiServer.apiPut('/virtual-machine-interface/' + vmiId, vmiData, appData,
                          function(er, updatedVMIData) {
                              if(er) {
