@@ -832,8 +832,10 @@ function processDataObjects(error, DataObjectArr, DataObjectDelArr, DataSRObject
     } else if(boolDeviceOwnerChange == true){
         deviceOwnerChange(error, [], DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(error, data, DataObjectArr){
             if(error) {
-                callback(error, data);
-                return;
+                deleteAllReference(DataObjectDelArr, DataSRObjectArr, portPutURL, portPutData, boolDeviceOwnerChange, appData, function(error, results){
+                    callback(error, data);
+                    return;
+                });
             }
             if(DataObjectArr != null && DataObjectArr.length > 0){
                 async.map(DataObjectArr,
