@@ -551,8 +551,8 @@ function initActions() {
                 var dhcpCode = $("#"+dhcpElement+"_"+id+"_txtDHCPCode").val();
                 var dhcpValue = $("#"+dhcpElement+"_"+id+"_txtDHCPValue").val();
                 portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i] = {};
-                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_name"] = dhcpCode;
-                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_value"] = dhcpValue;
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_name"] = dhcpCode.trim();
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_value"] = dhcpValue.trim();
             }
         }
         
@@ -1150,7 +1150,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             for(var i = 0;i< DHCPLen;i++){
                 if(DHCPOption != "") DHCPOption += ", ";
                 DHCPOption += DHCP[i]["dhcp_option_name"] +":"+ DHCP[i]["dhcp_option_value"];
-                DHCPOptionValue.push({"code":DHCP[i]["dhcp_option_name"],"value":DHCP[i]["dhcp_option_value"]});
+                DHCPOptionValue.push({"code":(DHCP[i]["dhcp_option_name"]).trim(),"value":(DHCP[i]["dhcp_option_value"]).trim()});
             }
         }
     }
@@ -2176,7 +2176,7 @@ function createAAPEntry(AAPData, id,element) {
             $(txtAddAllowPairMAC).val(AAPData["mac"]);
         }
         if("ip" in (AAPData) && "ip_prefix" in (AAPData["ip"])){
-            $(txtAddAllowPairIP).val(AAPData["ip"]["ip_prefix"]);
+            $(txtAddAllowPairIP).val(AAPData["ip"]["ip_prefix"] + "/" +AAPData["ip"]["ip_prefix_len"]);
         }
     }
     return rootDiv;
