@@ -236,6 +236,10 @@ function createPortsValidate(request, data, response, appData, callback){
         }
         delete portPostData['virtual-machine-interface']['logical_router_back_refs'];
     }
+    if (('virtual_machine_interface_device_owner' in portPostData['virtual-machine-interface']) && 
+        portPostData['virtual-machine-interface']["virtual_machine_interface_device_owner"] == "compute:nova"){
+        portPostData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+    }
     
     configApiServer.apiPost(portsCreateURL, portPostData, appData,
     function (error, vmisData) {
@@ -505,7 +509,7 @@ function portSendResponse(error, req, portConfig, orginalPortData, apiLogicalRou
 
     if("virtual_machine_interface_device_owner" in orginalPortData["virtual-machine-interface"] &&
        orginalPortData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
-        portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+        portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
         body = {};
         body.portID = portConfig["virtual-machine-interface"]["uuid"];
         body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
