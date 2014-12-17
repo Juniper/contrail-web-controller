@@ -342,6 +342,8 @@ function initActions() {
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = remoteAddr;
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"] = {};
+                        if(remoteAddr == null || remoteAddr == "")
+                            remoteAddr = "0.0.0.0/0";
                         var subnetAdd = remoteAddr.split("/")
                         if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
@@ -357,6 +359,8 @@ function initActions() {
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = remoteAddr;
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"] = {};
+                        if(remoteAddr == null || remoteAddr == "")
+                            remoteAddr = "0.0.0.0/0";
                         var subnetAdd = remoteAddr.split("/")
                         if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
@@ -571,7 +575,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
         }
     }
 
-    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0", disabled : true }]},
+    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0/0", disabled : true }]},
         {text : 'SecurityGroup', id : 'SecurityGroup', children : allSG});
     dsSrcDest = mainDS;
     $(remoteAddr).contrailDropdown({
