@@ -1503,6 +1503,19 @@ function deletePortAsync (dataObj, callback)
                 });
         });
         return;
+    } else if (dataObj['type'] == 'vm') {
+        async.map(dataObj['dataObjArr'],
+            function(item,callback) {
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, false,item,callback)
+            },
+            function(error, results) {
+                delVm(error, results, dataObj['appData'],
+                    function(err, data){
+                        callback(error, results);
+                        //return;
+                });
+        });
+        return;
     } else if(dataObj['type'] == 'logical-router') {
         async.map(dataObj['dataObjArr'],
             function(item,callback) {
@@ -1536,6 +1549,7 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
 {
     var floatingIPdataObjArr            = [];
     var logicalRouterdataObjArr            = [];
+    var vnObjArr            = [];
     var instanceIPdataObjArr            = [];
     var staticRoutObjArr            = [];
     var vmiObjArr            = [];
@@ -1543,9 +1557,11 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
     var floatingipPoolRefsLen = 0;
     var fixedipPoolRefsLen    = 0;
     var logicalRouterRefLen    = 0;
+    var vmRefLen    = 0;
     var floatingipPoolRef     = null;
     var logicalRouterRef     = null;
     var fixedipPoolRef        = null;
+    var vmRef        = null;
     var floatingipObj         = null;
     var reqUrl                = "";
 
@@ -1593,8 +1609,6 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
         logicalRouterObj['appData'] = appData;
         allDataObj.push(logicalRouterObj);
     }
-
-
 
     //Instance IP
     if ('instance_ip_back_refs' in vmiData['virtual-machine-interface']) {
@@ -1647,9 +1661,52 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
         statObj['dataObjArr'] = staticRoutObjArr;
         allDataObj.push(statObj);
     }
+    
+    //virtual machine
+    if ( 'virtual-machine-interface' in vmiData &&
+         'virtual_machine_refs' in vmiData['virtual-machine-interface']) {
+        vmRef = vmiData['virtual-machine-interface']['virtual_machine_refs'];
+        vmRefLen = vmRef.length;
+    }
+    if(vmRefLen == 1){
+        reqUrl = '/virtual-machine/' + vmRef[0]['uuid'];
+        commonUtils.createReqObj(vnObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
+    }
+    
+    if(vnObjArr.length > 0){
+        var vmObj = {};
+        vmObj['type'] = "vm";
+        vmObj['dataObjArr'] = vnObjArr;
+        vmObj['appData'] = appData;
+        allDataObj.push(vmObj);
+    }
+
+    
     async.mapSeries(allDataObj, deletePortAsync, function(err, data) {
         callback(err, null);
     });
+}
+
+function delVm(error, results, appData, callback){
+    if (error) {
+        callback(error, results);
+        return;
+    }
+    var linkedvmi2vmLength = 0;
+    if('virtual-machine' in results[0] && 'virtual_machine_interface_back_refs' in results[0]['virtual-machine']){
+        linkedvmi2vmLength = results[0]['virtual-machine']['virtual_machine_interface_back_refs'].length;
+    }
+    if(linkedvmi2vmLength <= 0){
+        var vmDelURL = "/virtual-machine/"+results[0]['virtual-machine']["uuid"];
+        configApiServer.apiDelete(vmDelURL, appData,
+        function (error, data) {
+            callback(error, data);
+        });
+    } else {
+        callback(error, results);
+    }
 }
 
 function vmiDelFloatingIP(error, results, vmiData, appData, callback)
