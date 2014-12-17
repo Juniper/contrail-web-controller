@@ -2066,6 +2066,15 @@ function validateFixedIP(element){
                     showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
                     return false;
                 }
+                if(!isIPBoundToRange(fixedIPText,fixedIP.trim())){
+                    showInfoWindow("Enter a fixed IP within the selected subnet range", "Invalid input in Fixed IP");
+                    return false;
+                }
+                var ciderValue = new v4.Address(fixedIPText);
+                if(fixedIP.trim() == ciderValue.endAddress().address || fixedIP.trim() == ciderValue.startAddress().address){
+                    showInfoWindow("Fixed IP cannot be same as broadcast address", "Invalid input in Fixed IP");
+                    return false;
+                }
                 fixedIPTexts.push(fixedIPText);
             }
         }
