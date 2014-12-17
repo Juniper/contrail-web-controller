@@ -1247,7 +1247,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     
     
     
-    returnMapData.portName = portData.display_name;
+    returnMapData.portName = portData['fq_name'][2];
     returnMapData.portUUID = portData.uuid;
     returnMapData.status = portStatus;
     returnMapData.deviceOwner = devOwner;
