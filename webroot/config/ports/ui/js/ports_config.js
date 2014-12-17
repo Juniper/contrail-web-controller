@@ -2057,6 +2057,8 @@ function validateFixedIP(element){
             var elementid = getID($("#"+element).children()[i].id);
             var fixedIP = $("#"+element +"_"+ elementid +"_txtFixedIPValue").val();
             var fixedIPText = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').text();
+            var fixedIPValue = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').value();
+            var gateway = JSON.parse(fixedIPValue).Gateway;
             if (typeof fixedIP === "string" && fixedIP.trim().length > 0) {
                 if(!isValidIP(fixedIP.trim())) {
                    showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
@@ -2066,6 +2068,16 @@ function validateFixedIP(element){
                     showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
                     return false;
                 }
+                if(!isIPBoundToRange(fixedIPText,fixedIP.trim())){
+                    showInfoWindow("Enter a fixed IP within the selected subnet range", "Invalid input in Fixed IP");
+                    return false;
+                }
+                var ciderValue = new v4.Address(fixedIPText); 
+                if(fixedIP.trim() == ciderValue.endAddress().address){
+                    showInfoWindow("Fixed IP cannot be same as broadcast address", "Invalid input in Fixed IP");
+                    return false;
+                }
+                
                 fixedIPTexts.push(fixedIPText);
             }
         }
