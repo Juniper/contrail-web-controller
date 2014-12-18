@@ -301,11 +301,10 @@ function initActions() {
         sgConfig["security-group"]["fq_name"][2] = txtRuleName.val();
         sgConfig["security-group"]["display_name"] = txtRuleName.val();
         sgConfig["security-group"]["name"] = txtRuleName.val();
-
+        sgConfig["security-group"]["security_group_entries"] = {};
+        sgConfig["security-group"]["security_group_entries"]["policy_rule"] = [];
         var sGRuleTuples = $("#sGRuleTuples")[0].children;
         if (sGRuleTuples && sGRuleTuples.length > 0) {
-            sgConfig["security-group"]["security_group_entries"] = {};
-            sgConfig["security-group"]["security_group_entries"]["policy_rule"] = [];
             for(i = 0 ; i< sGRuleTuples.length ; i++){
                 var divid = sGRuleTuples[i].id;
                 var id = getID(divid);
