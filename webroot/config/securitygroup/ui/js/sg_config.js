@@ -126,6 +126,9 @@ function initComponents() {
             options : {
                 forceFitColumns: true,
                 checkboxSelectable: {
+                    enableRowCheckbox: function(dc) {
+                         return (dc.sgName != "default");
+                    },
                     onNothingChecked: function(e){
                         $('#btnDeleteSG').addClass('disabled-link');
                     },
@@ -133,7 +136,34 @@ function initComponents() {
                         $('#btnDeleteSG').removeClass('disabled-link');
                     }
                 },
-                actionCell: [
+                actionCell: function(dc){
+                    if(dc.sgName != "default"){
+                        return [{
+                            title: 'Edit',
+                            iconClass: 'icon-edit',
+                            onClick: function(rowIndex){
+                                showsgEditWindow('edit',rowIndex);
+                            }
+                        },
+                        {
+                            title: 'Delete',
+                            iconClass: 'icon-trash',
+                            onClick: function(rowIndex){
+                                showRemoveWindow(rowIndex);
+                            }
+                        }];
+                    } else{
+                         return [{
+                            title: 'Edit',
+                            iconClass: 'icon-edit',
+                            onClick: function(rowIndex){
+                                showsgEditWindow('edit',rowIndex);
+                            }
+                        }];
+                    }
+                },
+
+                /*actionCell: [
                     {
                         title: 'Edit',
                         iconClass: 'icon-edit',
@@ -148,7 +178,7 @@ function initComponents() {
                             showRemoveWindow(rowIndex);
                         }
                     }
-                ],
+                ],*/
                 detail:{
                     template: $("#gridSGDetailTemplate").html()
                 }
@@ -1224,6 +1254,9 @@ function showsgEditWindow(mode, rowIndex) {
             if (mode === "add") {
                 windowCreateSG.find('.modal-header-title').text('Create Security Group');
                 $(txtRuleName).focus();
+                var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}]}');
+                var ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
+                $("#sGRuleTuples").append(ruleEntry);
             } else if (mode === "edit") {
                 var selectedRow = $("#gridSG").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreateSG.find('.modal-header-title').text('Edit Security Group ' + selectedRow.sgName);
