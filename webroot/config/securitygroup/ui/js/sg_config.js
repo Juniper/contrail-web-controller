@@ -301,11 +301,10 @@ function initActions() {
         sgConfig["security-group"]["fq_name"][2] = txtRuleName.val();
         sgConfig["security-group"]["display_name"] = txtRuleName.val();
         sgConfig["security-group"]["name"] = txtRuleName.val();
-
+        sgConfig["security-group"]["security_group_entries"] = {};
+        sgConfig["security-group"]["security_group_entries"]["policy_rule"] = [];
         var sGRuleTuples = $("#sGRuleTuples")[0].children;
         if (sGRuleTuples && sGRuleTuples.length > 0) {
-            sgConfig["security-group"]["security_group_entries"] = {};
-            sgConfig["security-group"]["security_group_entries"]["policy_rule"] = [];
             for(i = 0 ; i< sGRuleTuples.length ; i++){
                 var divid = sGRuleTuples[i].id;
                 var id = getID(divid);
@@ -372,8 +371,6 @@ function initActions() {
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = remoteAddr;
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"] = {};
-                        if(remoteAddr == null || remoteAddr == "")
-                            remoteAddr = "0.0.0.0/0";
                         var subnetAdd = remoteAddr.split("/")
                         if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
@@ -389,8 +386,6 @@ function initActions() {
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = remoteAddr;
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"] = {};
-                        if(remoteAddr == null || remoteAddr == "")
-                            remoteAddr = "0.0.0.0/0";
                         var subnetAdd = remoteAddr.split("/")
                         if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
@@ -605,7 +600,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
         }
     }
 
-    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0/0", disabled : true }]},
+    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0", disabled : true }]},
         {text : 'SecurityGroup', id : 'SecurityGroup', children : allSG});
     dsSrcDest = mainDS;
     $(remoteAddr).contrailDropdown({
@@ -1170,7 +1165,7 @@ function formateSGRule_port(port,protocal){
 
 function formateSGRule_SGText(sg){
     var sgArray = sg.split(":");
-    var returnString = " security group " + sgRuleFormat(sgArray[2]) +" ("+ sgArray[0] + sgArray[1] + ") ";
+    var returnString = " security group " + sgRuleFormat(sgArray[2]) +" ("+ sgArray[0] +":"+ sgArray[1] + ") ";
     return returnString;
 }
 
