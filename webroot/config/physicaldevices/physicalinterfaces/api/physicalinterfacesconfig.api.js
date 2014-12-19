@@ -432,7 +432,7 @@ function mapVirtualMachineRefs(request, response, appData)
     var serverId = request.param('serverId');
     var vmId  = UUID.create().hex.toString();
     var name = vmId;
-    if(serverId != null) {
+    if(serverId != 'null') {
         name = serverId;
     }
     var vmPostData = {"virtual-machine" : {"fq_name" : [name], "name" : name, "uuid" : vmId}};

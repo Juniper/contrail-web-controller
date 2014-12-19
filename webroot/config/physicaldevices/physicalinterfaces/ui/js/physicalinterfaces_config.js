@@ -341,7 +341,7 @@ function physicalInterfacesConfig() {
         }
 
         function setVirtualMachineRefsToVMI(vmiId) {
-            doAjaxCall('/api/tenants/config/map-virtual-machine-refs/' + vmiId, 'GET', null,
+            doAjaxCall('/api/tenants/config/map-virtual-machine-refs/' + vmiId +'/null', 'GET', null,
                 'successHandlerForVMRefToVMI', 'failureHandlerForVMRefToVMI', null, null);
         }
 
