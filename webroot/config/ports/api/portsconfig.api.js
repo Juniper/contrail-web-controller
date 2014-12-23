@@ -980,6 +980,16 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
 }
 
 function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, callback){
+    if("virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"] && 
+        vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:None"){
+        if("virtual_machine_refs" in vmiData["virtual-machine-interface"]){
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
+        } else if("logical_router_back_refs" in vmiData["virtual-machine-interface"]){
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "network:router_interface";
+        } else {
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+        }
+    }
     if("virtual_machine_interface_device_owner" in portPutData["virtual-machine-interface"] &&
             "virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"]){
         var serverIndex = DataObjectLenDetail["LogicalRouterServerStartIndex"];
