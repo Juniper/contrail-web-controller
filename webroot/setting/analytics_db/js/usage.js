@@ -13,30 +13,42 @@ var adbColumns = [{
         width:100
     },
     {
-        field:"disk_space_available",
+        field:"database_usage",
         name:"Total Disk Available",
         searchable: false,
+        sortable: {
+            soryBy: 'formattedValue'
+        },
         width:100,
         formatter: function(r, c, v, cd, dc) {
-            return prettifyBytes({'bytes': dc.disk_space_available * 1024});
+            var diskAvailable = dc['database_usage']['disk_space_available_1k'];
+            return prettifyBytes({'bytes': diskAvailable * 1024});
         }
     },
     {
-        field:"disk_space_used",
+        field:"database_usage",
         name:"Total Disk Used",
         searchable: false,
+        sortable: {
+            soryBy: 'formattedValue'
+        },
         width:100,
         formatter: function(r, c, v, cd, dc) {
-            return prettifyBytes({'bytes': dc.disk_space_used  * 1024});
+            var diskUsed = dc['database_usage']['disk_space_used_1k'];
+            return prettifyBytes({'bytes': diskUsed  * 1024});
         }
     },
     {
-        field:"analytics_db_size",
+        field:"database_usage",
         name:"Analytics DB Size",
         searchable: false,
+        sortable: {
+            soryBy: 'formattedValue'
+        },
         width:100,
         formatter: function(r, c, v, cd, dc) {
-            return prettifyBytes({'bytes': dc.analytics_db_size  * 1024});
+            var analyticsDBSize = dc['database_usage']['analytics_db_size_1k'];
+            return prettifyBytes({'bytes': analyticsDBSize  * 1024});
         }
     }
 ];
