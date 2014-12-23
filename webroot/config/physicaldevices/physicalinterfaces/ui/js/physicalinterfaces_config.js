@@ -576,9 +576,9 @@ function physicalInterfacesConfig() {
         $.when.apply($,deleteAjaxs).then(
             function(response){
                 //delete all vms
-                if(deleteVMs.length > 0) {
-                    deleteVirtualMachines(deleteVMs);
-                }
+                // if(deleteVMs.length > 0) {
+                    // deleteVirtualMachines(deleteVMs);
+                // }
             },
             function(){
             }

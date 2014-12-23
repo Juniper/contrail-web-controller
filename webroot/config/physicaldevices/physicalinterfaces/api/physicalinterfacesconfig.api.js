@@ -29,6 +29,7 @@ var UUID        = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var async = require('async');
+var ports  = require('../../../ports/api/portsconfig.api');
 
 /**
  * @getPhysicalInterfaces
@@ -436,30 +437,57 @@ function mapVirtualMachineRefs(request, response, appData)
         name = serverId;
     }
     var vmPostData = {"virtual-machine" : {"fq_name" : [name], "name" : name, "uuid" : vmId}};
-     configApiServer.apiPost('/virtual-machines', vmPostData, appData,
+    configApiServer.apiPost('/virtual-machines', vmPostData, appData,
          function(error, vmData) {
              if(error) {
-                 commonUtils.handleJSONResponse(error, response, null);
-                 return;
-             }
-             configApiServer.apiGet('/virtual-machine-interface/' + vmiId, appData,
-                 function(err, vmiData) {
-                     if(err || vmiData['virtual-machine-interface'] == null) {
-                         commonUtils.handleJSONResponse(err, response, null);
-                         return;
-                     }
-                     vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [name]}];
-                     configApiServer.apiPut('/virtual-machine-interface/' + vmiId, vmiData, appData,
-                         function(er, updatedVMIData) {
-                             if(er) {
-                                commonUtils.handleJSONResponse(er, response, null);
+                 if(error.responseCode === 409){
+                     var vmIdIndex = error.message.indexOf(':') + 1;
+                     var oldVmId = error.message.substr(vmIdIndex).trim();
+                     configApiServer.apiGet('/virtual-machine/' + oldVmId, appData,
+                         function(err, oldVmData) {
+                             if(err || oldVmData['virtual-machine'] == null
+                                 || (oldVmData['virtual-machine'] && oldVmData['virtual-machine']['virtual_machine_interface_back_refs'] == null)) {
+                                commonUtils.handleJSONResponse(err, response, null);
                                 return;
                              }
-                             commonUtils.handleJSONResponse(null, response, updatedVMIData);
-                         }
-                     );
-                 });
-         });
+                             var oldVmiId = oldVmData['virtual-machine']['virtual_machine_interface_back_refs'][0]['uuid'];
+                             ports.deletePortsCB({'appData' : appData, 'uuid' : oldVmiId, 'request' : request}, function(mapError, deleteData) {
+                                 configApiServer.apiPost('/virtual-machines', vmPostData, appData, function(newVmErr, newVmData) {
+                                     setVMRefToVMI(vmiId, name, appData, response);
+                                 });
+                            });
+                         });
+                 } else {
+                     commonUtils.handleJSONResponse(error, response, null);
+                     return;
+                 }
+             } else {
+                 setVMRefToVMI(vmiId, name, appData, response);
+             }
+         }
+    );
+}
+
+function setVMRefToVMI(vmiId, name, appData, response)
+{
+    configApiServer.apiGet('/virtual-machine-interface/' + vmiId, appData,
+        function(err, vmiData) {
+            if(err || vmiData['virtual-machine-interface'] == null) {
+                commonUtils.handleJSONResponse(err, response, null);
+                return;
+            }
+            vmiData['virtual-machine-interface']['virtual_machine_refs'] = [{"to" : [name]}];
+            configApiServer.apiPut('/virtual-machine-interface/' + vmiId, vmiData, appData,
+                function(er, updatedVMIData) {
+                    if(er) {
+                       commonUtils.handleJSONResponse(er, response, null);
+                       return;
+                    }
+                    commonUtils.handleJSONResponse(null, response, updatedVMIData);
+                }
+            );
+        }
+    );
 }
 
 /**
