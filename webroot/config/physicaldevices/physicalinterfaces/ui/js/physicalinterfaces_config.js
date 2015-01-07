@@ -397,8 +397,8 @@ function physicalInterfacesConfig() {
     }
 
     function prepareVMIPostObject(input) {
-        var curDomain = getCookie('domain');
-        var curProject = getCookie('project');
+        var curDomain = input.fqName[0];
+        var curProject = input.fqName[1];
         var postObj = '';
         if(input.mac != undefined) {
             postObj = {
