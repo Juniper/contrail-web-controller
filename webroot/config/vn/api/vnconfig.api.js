@@ -986,7 +986,7 @@ function deleteVirtualNetwork (request, response, appData)
             }   
             if (vmiCnt > 0) {
                 var error =
-                    new appErrors.RESTServerError('Virtual machine back refs ' +
+                    new appErrors.RESTServerError('Virtual machine interface back refs ' +
                                                   uuidList.join(',') + ' exist');
                 commonUtils.handleJSONResponse(error, response, null);
                 return;                                
