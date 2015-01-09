@@ -228,8 +228,12 @@ function physicalInterfacesConfig() {
     function onVMISelChanges(e) {
         var ipObj = $('#ddVMI').data('contrailCombobox').getSelectedItem();
         if(typeof ipObj === 'object') {
-            $('#txtVMI').val(ipObj.ip);
-              $('#txtVMI').attr('disabled','disabled');
+            if(ipObj.ip != null) {
+                $('#txtVMI').val(ipObj.ip);
+            } else {
+                $('#txtVMI').val('');
+            }
+            $('#txtVMI').attr('disabled','disabled');
         } else {
             $('#txtVMI').val('');
             $('#txtVMI').removeAttr('disabled');
