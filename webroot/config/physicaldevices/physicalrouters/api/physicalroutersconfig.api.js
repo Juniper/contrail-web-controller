@@ -322,42 +322,56 @@ function updatePhysicalRouters (request, response, appData)
     if(postData['physical-router']['virtual_router_type'] != null){
         if(postData['physical-router']['virtual_router_type'] == 'Embedded'){
             var vrouterPostData = postData['physical-router']['virtual-routers'][0];
+            var isvRouterEdit = postData['physical-router']['isVirtualRouterEdit'];
             if(vrouterPostData){
-                configApiServer.apiPost('/virtual-routers', vrouterPostData, appData,
-                        function(error, data) {
-                           if(error) {
-                               commonUtils.handleJSONResponse(error, response, null);
-                               return;
-                           } else {
-                               delete postData['physical-router']['virtual-routers'];
-                               delete postData['physical-router']['virtual_router_type'];
-                               //create physical router
-                               configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                                       function(error, data) {
-                                           if(error){
-                                               commonUtils.handleJSONResponse(error, response, null);
-                                               return;
-                                           }
-                                          getPhysicalRouters(request, response, appData);
-                                       });
-                           }
-                        });
+                if(isvRouterEdit){
+                    //Get the existing vRouter UUID
+                    //For that issue a call get all vrouters and loop through and find the UUID for the current one.
+                    configApiServer.apiGet('/virtual-routers', appData,
+                            function(error, data) {
+                               if(error) {
+                                   commonUtils.handleJSONResponse(error, response, null);
+                                   return;
+                               } else {
+                                   var existingvRouters = data['virtual-routers'];
+                                   var vRouterUUID = null;
+                                   for(var i=0; i < existingvRouters.length; i++){
+                                       if(vrouterPostData['virtual-router']['name'] == existingvRouters[i]['fq_name'][1]){
+                                           vRouterUUID = existingvRouters[i]['uuid'];
+                                       }
+                                   }
+                                   //Got the UUID now set the vrouter with new data. Mostly it will be the ipaddress only
+                                   if(vRouterUUID != null){
+                                       vrouterPostData['virtual-router']['uuid'] = vRouterUUID;
+                                       configApiServer.apiPut('/virtual-router/' + vRouterUUID, vrouterPostData, appData,
+                                               function(error, data) {
+                                                  if(error) {
+                                                      commonUtils.handleJSONResponse(error, response, null);
+                                                      return;
+                                                  } else {
+                                                      updatePRouter(request, response, pRouterId, postData, appData);
+                                                  }
+                                               });
+                                   }
+                               }
+                            });
+                } else {
+                    configApiServer.apiPost('/virtual-routers', vrouterPostData, appData,
+                            function(error, data) {
+                               if(error) {
+                                   commonUtils.handleJSONResponse(error, response, null);
+                                   return;
+                               } else {
+                                   updatePRouter(request, response, pRouterId, postData, appData);
+                               }
+                            });
+                }
             } else {
-                delete postData['physical-router']['virtual-routers'];
-                delete postData['physical-router']['virtual_router_type'];
-                //create physical router
-                configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                        function(error, data) {
-                            if(error){
-                                commonUtils.handleJSONResponse(error, response, null);
-                                return;
-                            }
-                           getPhysicalRouters(request, response, appData);
-                        });
+                updatePRouter(request, response, pRouterId, postData, appData);
             }
         } 
         //If Tor Agent
-        //Try to create the TOR Agent and TSN. Even if they fail go ahead and create physical router
+        //Try to create the TOR Agent and TSN. Even if they fail go ahead and update physical router
         else if(postData['physical-router']['virtual_router_type'] == 'TOR Agent'){
             var vrouterPostData = postData['physical-router']['virtual-routers'];
             if(vrouterPostData.length > 0){
@@ -375,46 +389,42 @@ function updatePhysicalRouters (request, response, appData)
                            commonUtils.handleJSONResponse(error, response, null);
                            return;
                         }
-                        delete postData['virtual-routers'];
-                        delete postData['virtual_router_type'];
-                        //create physical router
-                        configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                                function(error, data) {
-                                    if(error){
-                                        commonUtils.handleJSONResponse(error, response, null);
-                                        return;
-                                    }
-                                   getPhysicalRouters(request, response, appData);
-                                });
+                        updatePRouter(request, response, pRouterId, postData, appData);
                     }
                 );
             } else {
-                delete postData['virtual-routers'];
-                delete postData['virtual_router_type'];
-                //create physical router
-                configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                        function(error, data) {
-                            if(error){
-                                commonUtils.handleJSONResponse(error, response, null);
-                                return;
-                            }
-                           getPhysicalRouters(request, response, appData);
-                        });
+                updatePRouter(request, response, pRouterId, postData, appData);
             }
         }  
     } else {
-        //create physical router
-        configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
-                function(error, data) {
-                    if(error){
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    }
-                   getPhysicalRouters(request, response, appData);
-                });
+        //update physical router
+        updatePRouter(request, response, pRouterId, postData, appData)
     } 
 
 } 
+
+/**
+ * Common function to update the pRouter removing the unneccesary fields.
+ * @param request
+ * @param response
+ * @param pRouterId
+ * @param postData
+ * @param appData
+ */
+function updatePRouter(request, response, pRouterId, postData, appData){
+    delete postData['virtual-routers'];
+    delete postData['virtual_router_type'];
+    delete postData['physical-router']['isVirtualRouterEdit'];
+    //update physical router
+    configApiServer.apiPut('/physical-router/' + pRouterId, postData, appData,
+            function(error, data) {
+                if(error){
+                    commonUtils.handleJSONResponse(error, response, null);
+                    return;
+                }
+               getPhysicalRouters(request, response, appData);
+            });
+}
 
 /**
  * @deletePhysicalRouters

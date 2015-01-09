@@ -441,8 +441,18 @@ function physicalRoutersConfig() {
                 var virtualRouters = [];
                 postObject["physical-router"]["virtual-routers"] = [];
                 var currVr = getVirtualRouterDetails(name);
-                if(currVr != null && currVr.ip == mgmtIpAddress && currVr.type == 'embedded'){
-                    //dont add to the vrouters as it is already existing. just add a ref to this.
+                if(currVr != null && currVr.type == 'embedded'){
+                    if(currVr.ip != mgmtIpAddress){
+                        //If the ip is changed we now need to change the ip address for the virtual router as well.
+                        //add a flag to indicate edit of vrouter is required
+                        postObject["physical-router"]["isVirtualRouterEdit"] = true;
+                        virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", name],
+                            "parent_type":"global-system-config",
+                            "name": name,
+                            "virtual_router_ip_address" : mgmtIpAddress,
+                            "virtual_router_type" : ['embedded']}});
+                    }
+                    //ELSE dont add to the vrouters as it is already existing. just add a ref to this.
                 } else {
                     virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", name],
                                         "parent_type":"global-system-config",
