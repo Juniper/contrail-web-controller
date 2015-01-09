@@ -539,6 +539,12 @@ function physicalInterfacesConfig() {
                     $.when.apply($,physicalIntfsDeleteAjaxs).then(
                             function(response){
                                 //all success
+                                if(deleteVMIs.length > 0) {
+                                    deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs);
+                                }
+                                if(delSubnets.length > 0) {
+                                    deleteSubnets(delSubnets);
+                                }
                                 fetchData();
                             },
                             function(){
@@ -556,12 +562,6 @@ function physicalInterfacesConfig() {
                     fetchData();
                 }
             );
-            if(deleteVMIs.length > 0) {
-                deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs);
-            }
-            if(delSubnets.length > 0) {
-                deleteSubnets(delSubnets);
-            }
         }
     }
 
