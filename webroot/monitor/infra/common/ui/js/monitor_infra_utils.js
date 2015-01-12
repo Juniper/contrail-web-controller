@@ -7,7 +7,7 @@ var infraMonitorAlertUtils = {
     * Process-specific alerts
     */
     getProcessAlerts : function(data,obj,processPath) {
-        var res,filteredResponse = [],downProcess = 0; 
+        var res,filteredResponse = [],downProcess = 0,backOffProcess = 0,lastExitTime; 
         if(processPath != null)
             res = getValueByJsonPath(data['value'],processPath,[]);
         else
@@ -30,6 +30,7 @@ var infraMonitorAlertUtils = {
             }
         } else {
             for(var i=0;i<filteredResponse.length;i++) {
+            lastExitTime =  undefined;
             if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {
                 var msg = infraAlertMsgs['PROCESS_COREDUMP'].format(filteredResponse[i]['core_file_list'].length);
                 var restartCount = ifNull(filteredResponse[i]['exit_count'],0);
@@ -44,16 +45,20 @@ var infraMonitorAlertUtils = {
                 }, infoObj));
             }  
             var procName = filteredResponse[i]['process_name'];
-            if (filteredResponse[i]['process_state']!='PROCESS_STATE_STOPPED' && filteredResponse[i]['process_state']!='PROCESS_STATE_RUNNING' 
-                    && filteredResponse[i]['last_exit_time'] != null){
-                downProcess++;
+            if (filteredResponse[i]['process_state']!='PROCESS_STATE_STOPPED' && filteredResponse[i]['process_state']!='PROCESS_STATE_RUNNING'){
+                if(filteredResponse[i]['process_state'] == 'PROCESS_STATE_BACKOFF')
+                    backOffProcess++;
+                else
+                    downProcess++;
+                if(filteredResponse[i]['last_exit_time'] != null)
+                    lastExitTime = filteredResponse[i]['last_exit_time'];
                 alerts.push($.extend({
                     tooltipAlert: false,
                     name: data['name'],
                     pName: procName,
                     msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
-                    timeStamp: filteredResponse[i]['last_exit_time'],
-                    sevLevel: sevLevels['ERROR']
+                    timeStamp: lastExitTime,
+                    sevLevel: filteredResponse[i]['process_state'] == 'PROCESS_STATE_BACKOFF' ? sevLevels['WARNING'] : sevLevels['ERROR']
                 }, infoObj));
             } else if (filteredResponse[i]['process_state'] == 'PROCESS_STATE_STOPPED' && filteredResponse[i]['last_stop_time'] != null) {
                 downProcess++;
@@ -81,7 +86,9 @@ var infraMonitorAlertUtils = {
             } 
             }
             if(downProcess > 0)
-                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess)},infoObj));
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess + backOffProcess)},infoObj));
+            else if(backOffProcess > 0)
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['WARNING'],msg:infraAlertMsgs['PROCESS_DOWN'].format(backOffProcess)},infoObj));
         }
         return alerts.sort(dashboardUtils.sortInfraAlerts);
     },
