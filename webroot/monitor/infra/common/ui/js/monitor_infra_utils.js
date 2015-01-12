@@ -7,7 +7,8 @@ var infraMonitorAlertUtils = {
     * Process-specific alerts
     */
     getProcessAlerts : function(data,obj,processPath) {
-        var res,filteredResponse = [],downProcess = 0; 
+        var res,filteredResponse = [],downProcess = 0,backOffProcess = 0,
+            lastExitTime,lastStopTime,strtngProcess = 0; 
         if(processPath != null)
             res = getValueByJsonPath(data['value'],processPath,[]);
         else
@@ -30,58 +31,98 @@ var infraMonitorAlertUtils = {
             }
         } else {
             for(var i=0;i<filteredResponse.length;i++) {
-            if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {
-                var msg = infraAlertMsgs['PROCESS_COREDUMP'].format(filteredResponse[i]['core_file_list'].length);
-                var restartCount = ifNull(filteredResponse[i]['exit_count'],0);
-                if(restartCount > 0)
-                    msg +=", "+ infraAlertMsgs['PROCESS_RESTART'].format(restartCount);
-                alerts.push($.extend({
-                    tooltipAlert: false,
-                    sevLevel: sevLevels['INFO'],
-                    name: data['name'],
-                    pName: filteredResponse[i]['process_name'],
-                    msg: msg
-                }, infoObj));
-            }  
-            var procName = filteredResponse[i]['process_name'];
-            if (filteredResponse[i]['process_state']!='PROCESS_STATE_STOPPED' && filteredResponse[i]['process_state']!='PROCESS_STATE_RUNNING' 
-                    && filteredResponse[i]['last_exit_time'] != null){
-                downProcess++;
-                alerts.push($.extend({
-                    tooltipAlert: false,
-                    name: data['name'],
-                    pName: procName,
-                    msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
-                    timeStamp: filteredResponse[i]['last_exit_time'],
-                    sevLevel: sevLevels['ERROR']
-                }, infoObj));
-            } else if (filteredResponse[i]['process_state'] == 'PROCESS_STATE_STOPPED' && filteredResponse[i]['last_stop_time'] != null) {
-                downProcess++;
-                alerts.push($.extend({
-                    tooltipAlert: false,
-                    name: data['name'],
-                    pName: procName,
-                    msg: infraAlertMsgs['PROCESS_STOPPED'].format(procName),
-                    timeStamp: filteredResponse[i]['last_stop_time'],
-                    sevLevel: sevLevels['ERROR']
-                }, infoObj));
-                //Raise only info alert if process_state is missing for a process??
-            } else if  (filteredResponse[i]['process_state'] == null) {
-                downProcess++;
-                alerts.push($.extend({
-                    tooltipAlert: false,
-                    name: data['name'],
-                    pName: filteredResponse[i]['process_name'],
-                    msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(filteredResponse[i]['process_name']),
-                    timeStamp: filteredResponse[i]['last_exit_time'],
-                    sevLevel: sevLevels['INFO']
-                }, infoObj));
-                    msg +=", "+infraAlertMsgs['RESTARTS'].format(restartCount);
-                alerts.push($.extend({name:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg},infoObj));
-            } 
+                lastExitTime =  undefined;
+                lastStopTime =  undefined;
+                if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {
+                    var msg = infraAlertMsgs['PROCESS_COREDUMP'].format(filteredResponse[i]['core_file_list'].length);
+                    var restartCount = ifNull(filteredResponse[i]['exit_count'],0);
+                    if(restartCount > 0)
+                        msg +=", "+ infraAlertMsgs['PROCESS_RESTART'].format(restartCount);
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        sevLevel: sevLevels['INFO'],
+                        name: data['name'],
+                        pName: filteredResponse[i]['process_name'],
+                        msg: msg
+                    }, infoObj));
+                }  
+                var procName = filteredResponse[i]['process_name'];
+                var procState = filteredResponse[i]['process_state'];
+                /*
+                 * Different process states and corresponding bubble color and message 
+                 * PROCESS_STATE_STOPPPED: red, process stopped message
+                 * PROCESS_STATE_STARTING: blue, process starting message
+                 * PROCESS_STATE_BACKOFF: orange, process down message
+                 * rest all states are with red color and process down message
+                 */
+                if (procState != null && procState != 'PROCESS_STATE_STOPPED' && procState != 'PROCESS_STATE_RUNNING' 
+                    && procState != 'PROCESS_STATE_BACKOFF' && procState != 'PROCESS_STATE_STARTING') {
+                    downProcess++;
+                    if(filteredResponse[i]['last_exit_time'] != null)
+                        lastExitTime = filteredResponse[i]['last_exit_time'];
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        name: data['name'],
+                        pName: procName,
+                        msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
+                        timeStamp: lastExitTime,
+                        sevLevel: sevLevels['ERROR']
+                    }, infoObj));
+                } else if (procState == 'PROCESS_STATE_STOPPED') {
+                    downProcess++;
+                    if(filteredResponse[i]['last_stop_time'] != null)
+                        lastStopTime = filteredResponse[i]['last_stop_time'];
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        name: data['name'],
+                        pName: procName,
+                        msg: infraAlertMsgs['PROCESS_STOPPED'].format(procName),
+                        timeStamp: lastStopTime,
+                        sevLevel: sevLevels['ERROR']
+                    }, infoObj));
+                } else if (procState == 'PROCESS_STATE_BACKOFF') {
+                    backOffProcess++;
+                    if(filteredResponse[i]['last_exit_time'] != null)
+                        lastExitTime = filteredResponse[i]['last_exit_time'];
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        name: data['name'],
+                        pName: procName,
+                        msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
+                        timeStamp: lastExitTime,
+                        sevLevel: sevLevels['WARNING']
+                    }, infoObj));
+                } else if (procState == 'PROCESS_STATE_STARTING') { 
+                    strtngProcess++;
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        name: data['name'],
+                        pName: procName,
+                        msg: infraAlertMsgs['PROCESS_STARTING_MSG'].format(procName),
+                        timeStamp: undefined, //we are not showing the time stamp for the process in 
+                        sevLevel: sevLevels['INFO'] // starting state  
+                    }, infoObj));
+                    //Raise only info alert if process_state is missing for a process??
+                } else if  (procState == null) {
+                    downProcess++;
+                    alerts.push($.extend({
+                        tooltipAlert: false,
+                        name: data['name'],
+                        pName: filteredResponse[i]['process_name'],
+                        msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(filteredResponse[i]['process_name']),
+                        timeStamp: filteredResponse[i]['last_exit_time'],
+                        sevLevel: sevLevels['INFO']
+                    }, infoObj));
+                        /*msg +=", "+infraAlertMsgs['RESTARTS'].format(restartCount);
+                    alerts.push($.extend({name:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg},infoObj));*/
+                } 
             }
             if(downProcess > 0)
-                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess)},infoObj));
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess + backOffProcess)},infoObj));
+            else if(backOffProcess > 0)
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['WARNING'],msg:infraAlertMsgs['PROCESS_DOWN'].format(backOffProcess)},infoObj));
+            if(strtngProcess > 0)
+                alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PROCESS_STARTING'].format(strtngProcess)},infoObj));
         }
         return alerts.sort(dashboardUtils.sortInfraAlerts);
     },
