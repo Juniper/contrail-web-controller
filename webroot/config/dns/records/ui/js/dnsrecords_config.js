@@ -107,6 +107,8 @@ function dnsRecordsConfig() {
             }
             else{
                 currentUUID = $("#ddDNSServers").data("contrailDropdown").value();
+                //Push query parameter in URL
+                layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
             }            
             fetchDNSRecordsData();
         }
@@ -340,6 +342,8 @@ function dnsRecordsConfig() {
     
     function onServerSelChanged(e) {
         currentUUID = $("#ddDNSServers").data("contrailDropdown").value();
+        //Push query parameter in URL
+        layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
         fetchDNSRecordsData();
     }
 
