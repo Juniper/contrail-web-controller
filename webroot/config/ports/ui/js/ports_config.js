@@ -2405,12 +2405,6 @@ Handlebars.registerHelper("formatAAP",function(AllowedAddressPairValue,options) 
     return returnHtml;
 });
 
-function isValidMACAddress(mac) {
-    mac = mac.toUpperCase();
-    var mac_address_regex = /^([0-9A-F]{2}[:-]){5}([0-9A-F]{2})$/;
-    return mac_address_regex.test(mac);
-}
-
 function destroy() {
     ddDomain = $("#ddDomainSwitcher").data("contrailDropdown");
     if(isSet(ddDomain)) {
