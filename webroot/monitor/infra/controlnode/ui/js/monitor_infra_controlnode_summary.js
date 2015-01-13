@@ -37,7 +37,7 @@ monitorInfraControlSummaryClass = (function() {
                     detail:{
                         template: $("#controlnode-template").html(),
                         onExpand: function (e,dc) {
-                            $('#control_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px;zoom:90%');
+                            $('#control_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
                             ctrlNodeView.populateControlNode({name:dc['name'], ip:dc['ip'], detailView : true});
                             $('#gridControlNodes > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
                             $('#gridControlNodes > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
