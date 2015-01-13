@@ -433,7 +433,8 @@ function physicalInterfacesConfig() {
                             ],
                             "subnet_uuid": input.subnetId
                         }
-                    ]
+                    ],
+                    "virtual_machine_interface_device_owner" : ""
                 }
             };
         } else {
