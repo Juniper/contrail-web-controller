@@ -886,10 +886,10 @@ function physicalInterfacesConfig() {
                  }
                  var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
                  if(subnetStr != '') {
-                     textVN += ' (' + subnetStr + ')';  
+                     textVN += ' (' + subnetStr + ')';
+                     var vnData = {fqName : fqn, subnetId : subnetUUID};
+                     vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
                  }
-                 var vnData = {fqName : fqn, subnetId : subnetUUID};
-                 vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
              }
          } else {
              vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
@@ -1143,7 +1143,25 @@ function physicalInterfacesConfig() {
             showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
             return false;
         }
-        return true;         
+        var selVN = $('#ddVN').data('contrailDropdown').value();
+        var macAddress = '';
+        var selVMI = $('#ddVMI').data('contrailCombobox').getSelectedItem();
+        if(typeof selVMI === 'object') {
+            macAddress = selVMI.value;
+        } else {
+            macAddress = selVMI;
+        }
+        if(selVN != 'none' && macAddress == '') {
+            showInfoWindow("Enter a MAC Address for server", "Input required");
+            return false;
+        }
+        if(macAddress != ""){
+            if(isValidMACAddress(macAddress) == false){
+                showInfoWindow("Enter valid MAC Address", "Invalid Input");
+                return false;
+            }
+        }
+        return true;
     }
     
     function destroy() {
