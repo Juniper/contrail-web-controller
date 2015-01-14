@@ -90,7 +90,8 @@ function ObjectListView() {
         } else if(objectType == 'instance') { 
             obj['title'] = 'Instances Summary';
             obj['subTitle'] = '';
-            obj['detailParseFn'] = tenantNetworkMonitorUtils.parseInstDetails; 
+            obj['detailParseFn'] = tenantNetworkMonitorUtils.parseInstDetails;
+            obj['rowExpansionCB'] = tenantNetworkMonitorUtils.instRowExpansionCB;
             columns = [{
                 field:'vmName',
                 name:'Instance',
@@ -1059,7 +1060,7 @@ var tenantNetworkMonitorUtils = {
         var spanWidths = ['span2','span1','span2','span2','span2','span1','span1'];
         var throughputIn = 0;
         var throughputOut = 0;
-        var allSamples = 0;
+        var allSamples = 0,inBytes = 0,outBytes = 0;
         spanWidths = [235,145,35,160,110,100,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
         var spanWidthsForFip = [95,250,300,110];
@@ -1114,6 +1115,10 @@ var tenantNetworkMonitorUtils = {
             var intfOutBytes = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bytes)','-');
             var intfInBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.in_bw_usage)','-');
             var intfOutBw = getValueByJsonPath(currIfStatObj,'0;SUM(if_stats.out_bw_usage)','-');
+            if(intfInBytes != '-')
+                inBytes += intfInBytes;
+            if(intfOutBytes != '-')
+                outBytes += intfOutBytes;
             var samplesCount = getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)','-');
             allSamples += getValueByJsonPath(currIfStatObj,'0;COUNT(if_stats)',0);
             intfInBw = ($.isNumeric(intfInBw) && $.isNumeric(samplesCount) && samplesCount != 0)? intfInBw/samplesCount : '-';
@@ -1148,7 +1153,27 @@ var tenantNetworkMonitorUtils = {
         });
         retArr.push({lbl:'Throughput (In/Out)',value:formatBytes(throughputIn) + '/' +formatBytes(throughputOut)});
         retArr = $.merge($.merge(retArr,interfaceDetails),fipDetails);
+        retArr['inBytes'] = inBytes;
+        retArr['outBytes'] = outBytes;
         return retArr;
+    },
+    /*
+     * This function is callback for the instance summary page grid on row expansion,which updates the 
+     * stats in the grid
+     */
+    instRowExpansionCB: function(data,rowData,grid) {
+        var instRowData = tenantNetworkMonitorUtils.parseInstDetails(data, rowData);
+        if(grid != null) {
+            var dataView = $(grid).data('contrailGrid')._dataView;
+            var gridData = $(grid).data('contrailGrid')._dataView.getItems();
+            for(var i = 0; i < gridData.length; i++) {
+                if(gridData[i]['cgrid'] == rowData['cgrid']) {
+                    gridData[i]['inBytes'] = instRowData['inBytes'];
+                    gridData[i]['outBytes'] = instRowData['outBytes'];
+                }
+            }
+            dataView.updateData(gridData);
+        }
     },
     parseNetworkDetails: function(data) {
         var d = data['value'];
