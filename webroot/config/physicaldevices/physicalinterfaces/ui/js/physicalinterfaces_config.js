@@ -219,8 +219,14 @@ function physicalInterfacesConfig() {
         if(id != 'none') {
             $('#txtSubnet').removeAttr('disabled');
         } else {
-             $('#txtSubnet').val('');
-             $('#txtSubnet').attr('disabled', 'disabled');
+             var liType = $('#ddLIType').data('contrailDropdown').value();
+             if(liType === 'l3') {
+                 $('#txtSubnet').val('');
+                 $('#txtSubnet').attr('disabled', 'disabled');
+             } else if(liType === 'l2') {
+                 $('#txtVMI').val('');
+                 $('#txtVMI').attr('disabled', 'disabled');
+             }
         }
         fetchVirtualNetworkInternals(id);
     }
@@ -886,10 +892,10 @@ function physicalInterfacesConfig() {
                  }
                  var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
                  if(subnetStr != '') {
-                     textVN += ' (' + subnetStr + ')';  
+                     textVN += ' (' + subnetStr + ')';
+                     var vnData = {fqName : fqn, subnetId : subnetUUID};
+                     vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
                  }
-                 var vnData = {fqName : fqn, subnetId : subnetUUID};
-                 vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
              }
          } else {
              vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
@@ -1138,12 +1144,30 @@ function physicalInterfacesConfig() {
                 return false;            
             }
         }
-        var subnet =  $('#txtSubnet').val().trim();
-        if(subnet != '' && subnet.split("/").length != 2) {
-            showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
-            return false;
+        var liType = $('#ddLIType').data('contrailDropdown').value();
+        var selVN = $('#ddVN').data('contrailDropdown').value();
+        if(liType === 'l3') {
+            var subnet =  $('#txtSubnet').val().trim();
+            if(selVN != 'none' && subnet.split("/").length != 2) {
+                showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
+                return false;
+            }
+        } else if(liType === 'l2') {
+            var macAddress = '';
+            var selVMI = $('#ddVMI').data('contrailCombobox').getSelectedItem();
+            if(typeof selVMI === 'object') {
+                macAddress = selVMI.value;
+            } else {
+                macAddress = selVMI;
+            }
+            if(selVN != 'none') {
+                if(isValidMACAddress(macAddress) == false){
+                    showInfoWindow("Enter a valid MAC Address", "Invalid Input");
+                    return false;
+                }
+            }
         }
-        return true;         
+        return true;
     }
     
     function destroy() {
