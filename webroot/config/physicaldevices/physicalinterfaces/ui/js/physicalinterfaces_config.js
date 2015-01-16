@@ -194,8 +194,10 @@ function physicalInterfacesConfig() {
     }
     
     function onPhysicalRouterSelChange(e) {
-         currentUUID = e.added.value;
-         fetchData();
+        currentUUID = e.added.value;
+        //Push query parameter in URL
+        layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
+        fetchData();
     }
     
     function onTypeSelChange(e) {
@@ -854,6 +856,8 @@ function physicalInterfacesConfig() {
             } else {
                 pRouterDD.value(pRoutersDS[0].value)
                 currentUUID = pRouterDD.value();
+                //Push query parameter in URL
+                layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
             }
             fetchData();            
         } else {
