@@ -428,10 +428,12 @@ underlayView.prototype.createNode = function(node, i, cnt) {
         var yPos = 0, xPos = 0;
         switch(chassis_type) {
             case "tor":
+                chassis_type = 'switch';
                 xPos = (i+1)*275;
                 yPos = 220;
                 break;
             case "spine":
+                chassis_type = 'router';
                 xPos = (i+1)*275;
                 yPos = 120;
                 break;
@@ -441,7 +443,6 @@ underlayView.prototype.createNode = function(node, i, cnt) {
                 yPos = 20;
                 break;
             case "virtual-router":
-                chassis_type = 'vrouter';
                 xPos = (i+1)*150;
                 yPos = 320;
                 break;
