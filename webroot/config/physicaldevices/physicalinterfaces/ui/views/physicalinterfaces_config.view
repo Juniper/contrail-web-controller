@@ -91,7 +91,7 @@
                                                     </div>
                                                 </div>                       
                                             </div>
-                                            <div id="l2TypePanel" class="control-group">
+                                            <!--<div id="l2TypePanel" class="control-group">
                                                 <label class="control-label">Server Type</label>
                                                 <div class="controls">
                                                     <div class="row-fluid padding-top-5">
@@ -118,7 +118,7 @@
                                                          </label>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div>-->
                                             <div class="control-group">
                                                 <label class="control-label">Virtual Network</label>
                                                 <div class="controls">
