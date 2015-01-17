@@ -2552,7 +2552,7 @@ function processCPULoadFlowSeries (pubChannel, saveChannelKey, jobData, done)
         source = appData.source,
         moduleId = appData.moduleId,
         tableName, whereClause,
-        selectArr = ["T", "Source", "cpu_info.mem_virt", "cpu_info.cpu_share"];
+        selectArr = ["T", "Source", "cpu_info.mem_virt", "cpu_info.mem_res", "cpu_info.cpu_share"];
 
     whereClause = [
         {'ObjectId':source},

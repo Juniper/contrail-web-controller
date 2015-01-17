@@ -271,7 +271,7 @@ var infraMonitorUtils = {
             var d = result[i];
             var dValue = result[i]['value'];
             obj['x'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
-            obj['y'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024; //Convert to MB
+            obj['y'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;res','--'))/1024; //Convert to MB
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['ip'] = getValueByJsonPath(dValue,'VrouterAgent;control_ip','-');
             obj['uveIP'] = obj['ip'];
@@ -356,7 +356,7 @@ var infraMonitorUtils = {
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..cpu_info.cpu_share')[0]);
-            obj['y'] = parseInt(jsonPath(d,'$..meminfo.virt')[0])/1024; //Convert to MB
+            obj['y'] = parseInt(jsonPath(d,'$..meminfo.res')[0])/1024; //Convert to MB
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$..cpu_share[*].history-10');
             obj['uveIP'] = ifNull(jsonPath(d,'$..bgp_router_ip_list')[0],[]);
@@ -449,7 +449,7 @@ var infraMonitorUtils = {
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..cpu_share')[0]);
-            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..meminfo.virt')[0])/1024;
+            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..meminfo.res')[0])/1024;
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$..collector_cpu_share[*].history-10');
@@ -509,7 +509,7 @@ var infraMonitorUtils = {
         $.each(result,function(idx,d) {
             var obj = {};
             obj['x'] = parseFloat(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")]..cpu_share')[0]);
-            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")]..meminfo.virt')[0])/1024;
+            obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-api")]..meminfo.res')[0])/1024;
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
             //Re-visit once average response time added for config nodes
@@ -1863,9 +1863,9 @@ function getAnalyticsMessagesCountAndSize(d,procList){
 }
 
 function formatMemory(memory) {
-    if(memory == null || memory['virt'] == null)
+    if(memory == null || memory['res'] == null)
         return noDataStr;
-    var usedMemory = parseInt(memory['virt']) * 1024;
+    var usedMemory = parseInt(memory['res']) * 1024;
     //var totalMemory = parseInt(memory['total']) * 1024;
     return contrail.format('{0}', formatBytes(usedMemory));
 }

@@ -55,8 +55,8 @@ function InfraMockData() {
                                     "one_min_avg" : 0.27000000000000002
                                   },
                                 "meminfo" : { "peakvirt" : 402528,
-                                    "res" : 53208,
-                                    "virt" : 402524
+                                    "virt" : 53208,
+                                    "res"` : 402524
                                   },
                                 "num_cpu" : 4,
                                 "sys_mem_info" : { "buffers" : 217324,
@@ -169,8 +169,8 @@ function InfraMockData() {
                                     "one_min_avg" : 0.28999999999999998
                                   },
                                 "meminfo" : { "peakvirt" : 382380,
-                                    "res" : 47924,
-                                    "virt" : 382376
+                                    "virt" : 47924,
+                                    "res"` : 382376
                                   },
                                 "num_cpu" : 4,
                                 "sys_mem_info" : { "buffers" : 217140,
@@ -285,8 +285,8 @@ function InfraMockData() {
                                     "one_min_avg" : 0.41999999999999998
                                   },
                                 "meminfo" : { "peakvirt" : 414624,
-                                    "res" : 48496,
-                                    "virt" : 382480
+                                    "virt" : 48496,
+                                    "res"` : 382480
                                   },
                                 "num_cpu" : 4,
                                 "sys_mem_info" : { "buffers" : 146444,
@@ -401,8 +401,8 @@ function InfraMockData() {
                                     "one_min_avg" : 0.23000000000000001
                                   },
                                 "meminfo" : { "peakvirt" : 414624,
-                                    "res" : 48092,
-                                    "virt" : 382472
+                                    "virt" : 48092,
+                                    "res"` : 382472
                                   },
                                 "num_cpu" : 4,
                                 "sys_mem_info" : { "buffers" : 156304,
@@ -552,8 +552,8 @@ function InfraMockData() {
                                 "build_info" : "{\"build-info\":[{\"build-time\":\"2014-02-05 19:03:25.840629\",\"build-hostname\":\"contrail-ec-build04\",\"build-git-ver\":\"\",\"build-user\":\"mganley\",\"build-version\":\"1.03\",\"build-id\":\"1.03-1107.el6\",\"build-number\":\"1107\"}]}",
                                 "cpu_info" : { "cpu_share" : 0.016669400000000001,
                                     "meminfo" : { "peakvirt" : 484484,
-                                        "res" : 18292,
-                                        "virt" : 421336
+                                        "virt" : 18292,
+                                        "res"` : 421336
                                       },
                                     "num_cpu" : 4
                                   },
@@ -811,8 +811,8 @@ function InfraMockData() {
                   "build_info" : "{\"build-info\" : [{\"build-version\" : \"1.03\", \"build-time\" : \"2014-02-05 20:11:42.095589\", \"build-user\" : \"mganley\", \"build-hostname\" : \"contrail-ec-build04\", \"build-git-ver\" : \"\", \"build-id\" : \"1.03-1107.el6\n\", \"build-number\" : \"1107\n\"}]}",
                   "module_cpu_info" : [ { "cpu_info" : { "cpu_share" : 2.5750000000000002,
                             "meminfo" : { "peakvirt" : 314396,
-                                "res" : 54796,
-                                "virt" : 314396
+                                "virt" : 54796,
+                                "res"` : 314396
                               },
                             "num_cpu" : 4
                           },
@@ -825,8 +825,8 @@ function InfraMockData() {
                                 "one_min_avg" : 0
                               },
                             "meminfo" : { "peakvirt" : 321703,
-                                "res" : 66359,
-                                "virt" : 321703
+                                "virt" : 66359,
+                                "res"` : 321703
                               },
                             "num_cpu" : 4,
                             "sys_mem_info" : { "buffers" : 325513,
@@ -840,8 +840,8 @@ function InfraMockData() {
                       },
                       { "cpu_info" : { "cpu_share" : 0,
                             "meminfo" : { "peakvirt" : 300249,
-                                "res" : 51335,
-                                "virt" : 300249
+                                "virt" : 51335,
+                                "res"` : 300249
                               },
                             "num_cpu" : 4
                           },
@@ -1227,8 +1227,8 @@ function InfraMockData() {
                               ],
                             "module_cpu_info" : [ { "cpu_info" : { "cpu_share" : 0.23333300000000001,
                                       "meminfo" : { "peakvirt" : 417484,
-                                          "res" : 27996,
-                                          "virt" : 352272
+                                          "virt" : 27996,
+                                          "res"` : 352272
                                         },
                                       "num_cpu" : 4
                                     },
@@ -1237,8 +1237,8 @@ function InfraMockData() {
                                 },
                                 { "cpu_info" : { "cpu_share" : 0.0041673600000000002,
                                       "meminfo" : { "peakvirt" : 412612,
-                                          "res" : 26648,
-                                          "virt" : 347572
+                                          "virt" : 26648,
+                                          "res"` : 347572
                                         },
                                       "num_cpu" : 4
                                     },
@@ -1247,8 +1247,8 @@ function InfraMockData() {
                                 },
                                 { "cpu_info" : { "cpu_share" : 0,
                                       "meminfo" : { "peakvirt" : 255392,
-                                          "res" : 38644,
-                                          "virt" : 255392
+                                          "virt" : 38644,
+                                          "res"` : 255392
                                         }
                                     },
                                   "instance_id" : "0",
