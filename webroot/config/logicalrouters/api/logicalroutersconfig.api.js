@@ -280,7 +280,7 @@ function createLogicalRouter(request, response, appData)
                 appData: appData
             });
         }
-        async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
+        async.mapSeries(allDataArr, portConfig.createPortCB, function(error, data){
             if(error){
                 commonUtils.handleJSONResponse(error, response, null);
                 return;
@@ -435,7 +435,7 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                 
             }
             
-            async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
+            async.mapSeries(allDataArr, portConfig.createPortCB, function(error, data){
                 var datalen = data.length;
                 var vmiLength = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length;
                 for(var i = 0; i < datalen; i++){

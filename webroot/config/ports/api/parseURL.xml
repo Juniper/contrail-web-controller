@@ -23,7 +23,7 @@
         <url>/api/tenants/config/ports</url>
         <method>post</method>
         <feature>portconfig</feature>
-        <callback>portsconfigapi.createPorts</callback>
+        <callback>portsconfigapi.createPort</callback>
     </item>
     <item>
         <url>/api/tenants/config/ports/:uuid</url>
