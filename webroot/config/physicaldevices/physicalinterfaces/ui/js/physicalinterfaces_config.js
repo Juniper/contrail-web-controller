@@ -72,7 +72,7 @@ function physicalInterfacesConfig() {
                     id : 'server',
                     field : 'server',
                     name : 'Server'                    
-                }]                
+                }]
                                 
             },
             body : {
@@ -139,7 +139,7 @@ function physicalInterfacesConfig() {
         });
         
         var ddType = $('#ddType').data('contrailDropdown');
-        ddType.setData([{text : 'Physical', value : 'physical'},{text : 'Logical', value : 'logical'}]);
+        ddType.setData([{text : 'Physical', value : 'physical'},{text : 'Logical', value : 'logical'}, {text : 'Sub-Interface', value :'subinterface'}]);
         ddType.value('logical')
         
          $('#ddParent').contrailDropdown({
@@ -180,7 +180,14 @@ function physicalInterfacesConfig() {
             dataValueField:'value',
             change : onVMISelChanges,
             placeholder : 'Enter or Choose mac'
-        });         
+        });
+
+        $('#ddPort').contrailDropdown({
+            dataTextField:'text',
+            dataValueField:'value',
+            change:onPortSelChange,
+            minimumResultsForSearch : 1
+        });
         
         //initializing add record window	  	
         $('#addPhysicalInterfaceWindow').modal({backdrop:'static',keyboard:false,show:false});
@@ -199,23 +206,131 @@ function physicalInterfacesConfig() {
         layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
         fetchData();
     }
-    
+
+    function onPortSelChange(e) {
+        var selPortItem = $('#ddPort').data('contrailDropdown').getSelectedData()[0];
+        var portMac = selPortItem.value;
+        var ddVN = $('#ddVN').data('contrailDropdown');
+        var ddVMI = $('#ddVMI').data('contrailCombobox');
+        if(portMac != null && portMac != 'empty' && portMac != '' && portMac != 'none') {
+            $('#btnAddPhysicalInterfaceOk').removeAttr('disabled');
+            ddVN.enable(true);
+            var currVNUUID = getVirtualNetworkByUUID(selPortItem.vn_uuid);
+            if(currVNUUID != '') {
+                ddVN.value(currVNUUID);
+            }
+            ddVMI.enable(true);
+            ddVMI.setData([]);
+            ddVMI.text(portMac);
+            $('#txtVMI').removeAttr('disabled');
+        } else {
+            ddVN.value('none');
+            ddVN.enable(false);
+            var vmiDataSrc = [{text : 'None', value : 'none'}];
+            ddVMI.setData(vmiDataSrc);
+            ddVMI.value('none');
+            ddVMI.enable(false);
+            $('#txtVMI').val('');
+            $('#txtVMI').attr('disabled', 'disabled');
+            $('#btnAddPhysicalInterfaceOk').attr('disabled', 'disabled');
+        }
+    }
+
+    function getVirtualNetworkByUUID(uuid) {
+        var currentUUID = '';
+        var vnData = $('#ddVN').data('contrailDropdown').getAllData();
+        for(var i = 0; i < vnData.length; i++) {
+            if(vnData[i].value === uuid){
+                currentUUID = vnData[i].value;
+                break;
+            }
+        }
+        return currentUUID;
+    }
+
     function onTypeSelChange(e) {
        var inf = e.added.value;
-       if(inf === "logical") {
-           // if($('#infWidget').hasClass('collapsed')) {
-               // collapseElement('#vmSection', '#infWidget'); 
-           // }
+       var ddVN = $('#ddVN').data('contrailDropdown');
+       var vnDataSrc = ddVN.getAllData();
+       var ddVMI = $('#ddVMI').data('contrailCombobox');
+       $('#btnAddPhysicalInterfaceOk').removeAttr('disabled');
+       if(inf === 'subinterface') {
+           showPortProperties();
            $('#vmSection').removeClass('hide').addClass('show');
-           $('#ddParent').data('contrailDropdown').enable(true); 
+           var selPortItem = $('#ddPort').data('contrailDropdown').getSelectedData()[0];
+           var portMac = selPortItem.value;
+           if(portMac != null && portMac != 'empty' && portMac != '' && portMac != 'none') {
+               var currVNUUID = getVirtualNetworkByUUID(selPortItem.vn_uuid);
+               if(currVNUUID != '') {
+                   ddVN.value(currVNUUID);
+               }
+               ddVMI.enable(true);
+               ddVMI.setData([]);
+               ddVMI.text(portMac);
+               $('#txtVMI').removeAttr('disabled');
+           } else {
+               $('#btnAddPhysicalInterfaceOk').attr('disabled', 'disabled');
+           }
        } else {
-            $('#vmSection').removeClass('show').addClass('hide');
-            $('#ddParent').data('contrailDropdown').value(dsSrcDest[0].children[1].value);    
-            $('#ddParent').data('contrailDropdown').enable(false);            
+           if(vnDataSrc.length > 0) {
+               ddVN.value(vnDataSrc[0].value);
+           }
+           var vmiDataSrc = [{text : 'None', value : 'none'}];
+           ddVMI.setData(vmiDataSrc);
+           ddVMI.value('none');
+           ddVMI.enable(false);
+           $('#txtVMI').val('');
+           $('#txtVMI').attr('disabled', 'disabled');
+           showLIProperties();
+           if(inf === "logical") {
+               // if($('#infWidget').hasClass('collapsed')) {
+                   // collapseElement('#vmSection', '#infWidget');
+               // }
+               $('#vmSection').removeClass('hide').addClass('show');
+               $('#ddParent').data('contrailDropdown').enable(true);
+           } else if(inf === 'physical') {
+                $('#vmSection').removeClass('show').addClass('hide');
+                $('#ddParent').data('contrailDropdown').value(dsSrcDest[0].children[1].value);
+                $('#ddParent').data('contrailDropdown').enable(false);
+           }
        }
     }
-    
+
+    function showPortProperties() {
+        $('#lblName').removeClass('show').addClass('hide');
+        $('#lblParent').removeClass('show').addClass('hide');
+        $('#lblPort').removeClass('hide').addClass('show');
+        $('#txtName').removeClass('show').addClass('hide');
+        $('#ddParent').removeClass('show').addClass('hide');
+        $('#ddParent').data('contrailDropdown').hide();
+        $('#ddPort').removeClass('hide').addClass('show');
+        $('#ddPort').data('contrailDropdown').value('none');
+        $('#spanProp').text('Port Properties');
+        $('#divLiType').removeClass('show').addClass('hide');
+        $('#ddPort').data('contrailDropdown').show();
+        $('#lblSubInfName').removeClass('hide').addClass('show');
+        $('#txtSubInfName').removeClass('hide').addClass('show');
+        $('#ddVN').data('contrailDropdown').enable(false);
+    }
+
+    function showLIProperties() {
+        $('#lblName').removeClass('hide').addClass('show');
+        $('#lblParent').removeClass('hide').addClass('show');
+        $('#lblPort').removeClass('show').addClass('hide');
+        $('#txtName').removeClass('hide').addClass('show');
+        $('#ddParent').removeClass('hide').addClass('show');
+        $('#ddParent').data('contrailDropdown').show();
+        $('#ddPort').removeClass('show').addClass('hide');
+        $('#spanProp').text('Logical Interface Properties');
+        $('#divLiType').removeClass('hide').addClass('show');
+        $('#ddPort').data('contrailDropdown').hide();
+        $('#lblSubInfName').removeClass('show').addClass('hide');
+        $('#txtSubInfName').removeClass('show').addClass('hide');
+        $('#ddVN').data('contrailDropdown').enable(true);
+    }
+
     function onVNSelChange(e) {
+        var ddType = $('#ddType').data('contrailDropdown').value();
         var id = e.added.value;
         flow = null;
         if(id != 'none') {
@@ -231,6 +346,13 @@ function physicalInterfacesConfig() {
              }
         }
         fetchVirtualNetworkInternals(id);
+        if(ddType == 'subinterface') {
+            if(id == 'none') {
+                $('#btnAddPhysicalInterfaceOk').attr('disabled', 'disabled');
+            } else {
+                $('#btnAddPhysicalInterfaceOk').removeAttr('disabled');
+            }
+        }
     }
     
     function onVMISelChanges(e) {
@@ -264,28 +386,46 @@ function physicalInterfacesConfig() {
     
     function initActions() {
         $('#btnCreatePhysicalInterface').click(function() {
+            //fetchParentPorts();
             $('#addPhysicalInterfaceWindow').find(".modal-header-title").text('Add Interface');
             populateCreateEditWindow('create');
         });    
         
         $('#btnAddPhysicalInterfaceOk').click(function() {
             if(validate()) {
+                var type = $('#ddType').data('contrailDropdown').value();
+                var mac = $('#ddVMI').data('contrailCombobox').value().trim();
+                var ip = $('#txtVMI').val() != '' ? $('#txtVMI').val().trim() : '';
                 $('#addPhysicalInterfaceWindow').modal('hide');
-                var isVMICreate = !$('#txtVMI').is('[disabled]');
-                var isSubnetCreate = !$('#txtSubnet').is('[disabled]');
-                var postObject;
-                if(isVMICreate) {
-                    var mac = $('#ddVMI').data('contrailCombobox').value().trim();
-                    var ip = $('#txtVMI').val() != '' ? $('#txtVMI').val().trim() : '';
-                    createPort({mac : mac, ip : ip});
-                } else if(isSubnetCreate && $('#ddLIType').data('contrailDropdown').value() === 'l3') {
-                    createPort({mac : '', ip : ''});
-                }
-                else {
-                    createUpdatePhysicalInterface(); 
-                }
-                if($('#txtSubnet').val().trim() == '' && gblSelRow != null &&  gblSelRow.subnet != '-') {
-                    deleteSubnets([gblSelRow.subnet]);
+                if(type === 'subinterface') {
+                     if(gblSelRow != null && gblSelRow.vmi_uuid) {
+                         // delete old sub interface
+                         deleteVirtulMachineInterfaces([gblSelRow.vmi_uuid], null, function(res, err) {
+                             if(err == null) {
+                                 //create new sub interface
+                                 createPort({mac : mac, ip : ip, vlan : parseInt($("#txtVlan").val().trim()),
+                                     displayName : $("#txtSubInterfaceName").val().trim()});
+                             }
+                         });
+                     } else {
+                         createPort({mac : mac, ip : ip, vlan : parseInt($("#txtVlan").val().trim()),
+                             displayName : $("#txtSubInterfaceName").val().trim()});
+                     }
+                } else {
+                    var isVMICreate = !$('#txtVMI').is('[disabled]');
+                    var isSubnetCreate = !$('#txtSubnet').is('[disabled]');
+                    var postObject;
+                    if(isVMICreate) {
+                        createPort({mac : mac, ip : ip});
+                    } else if(isSubnetCreate && $('#ddLIType').data('contrailDropdown').value() === 'l3') {
+                        createPort({mac : '', ip : ''});
+                    }
+                    else {
+                        createUpdatePhysicalInterface();
+                    }
+                    if($('#txtSubnet').val().trim() == '' && gblSelRow != null &&  gblSelRow.subnet != '-') {
+                        deleteSubnets([gblSelRow.subnet]);
+                    }
                 }
             }
         });
@@ -300,6 +440,8 @@ function physicalInterfacesConfig() {
                 postObjInput.mac = portDetails.mac;
             }
             postObjInput.ip = portDetails.ip;
+            postObjInput.vlan = portDetails.vlan;
+            postObjInput.displayName = portDetails.displayName;
             $.ajax({
                 url : '/api/tenants/config/ports',
                 type : "POST",
@@ -314,10 +456,19 @@ function physicalInterfacesConfig() {
             if(result != null && result['virtual-machine-interface']
                 && result['virtual-machine-interface']['fq_name']) {
                 vmiDetails = result;
-                var vmiId = vmiDetails['virtual-machine-interface']['fq_name'][2];
-                setVirtualMachineRefsToVMI(vmiId);
-                if ($('#ddLIType').data('contrailDropdown').value() === 'l3' && $('#txtSubnet').val().trim() != '') {
-                    setVMIRefsToSubnet(vmiId);
+                var type = $('#ddType').data('contrailDropdown').value();
+                if(type === 'subinterface') {
+                    var selPort = $('#ddPort').data('contrailDropdown').getSelectedData()[0];
+                    var vmiId = selPort.uuid;
+                    var subInfObj = {"refs" :[{"to" : vmiDetails['virtual-machine-interface']['fq_name']}]};
+                    doAjaxCall('/api/tenants/config/map-virtual-machine-sub-interface-refs/' + vmiId, 'POST', JSON.stringify(subInfObj),
+                        'successHandlerForVMISubinterface', 'failureHandlerForVMIVMISubinterface', null, null);
+                } else {
+                    var vmiId = vmiDetails['virtual-machine-interface']['fq_name'][2];
+                    setVirtualMachineRefsToVMI(vmiId);
+                    if ($('#ddLIType').data('contrailDropdown').value() === 'l3' && $('#txtSubnet').val().trim() != '') {
+                        setVMIRefsToSubnet(vmiId);
+                    }
                 }
             } else {
                 fetchData();
@@ -369,6 +520,13 @@ function physicalInterfacesConfig() {
             fetchData();
         }
         
+        window.successHandlerForVMISubinterface = function(result) {
+            fetchData();
+        }
+
+        window.successHandlerForVMISubinterface = function(error) {
+            fetchData();
+        }
         $('#btnDeletePhysicalInterface').click(function(){
              if(!$(this).hasClass('disabled-link')) {
                  $('#confirmMainDelete').modal('show');
@@ -411,68 +569,24 @@ function physicalInterfacesConfig() {
     function prepareVMIPostObject(input) {
         var curDomain = input.fqName[0];
         var curProject = input.fqName[1];
-        var postObj = '';
-        if(input.mac != undefined) {
-            postObj = {
-                "virtual-machine-interface": {
-                    "parent_type": "project",
-                    "fq_name": [
-                        curDomain,
-                        curProject
-                    ],
-                    "virtual_network_refs": [
-                        {
-                            "to": input.fqName
-                        }
-                    ],
-                    "virtual_machine_interface_mac_addresses": {
-                        "mac_address": [
-                            input.mac
-                        ]
-                    },
-                    "instance_ip_back_refs": [
-                        {
-                            "instance_ip_address": [
-                                {
-                                    "fixedIp": input.ip,
-                                    "domain": curDomain,
-                                    "project": curProject
-                                }
-                            ],
-                            "subnet_uuid": input.subnetId
-                        }
-                    ],
-                    "virtual_machine_interface_device_owner" : ""
-                }
-            };
-        } else {
-            postObj = {
-                "virtual-machine-interface": {
-                    "parent_type": "project",
-                    "fq_name": [
-                        curDomain,
-                        curProject
-                    ],
-                    "virtual_network_refs": [
-                        {
-                            "to": input.fqName
-                        }
-                    ],
-                    "instance_ip_back_refs": [
-                        {
-                            "instance_ip_address": [
-                                {
-                                    "fixedIp": input.ip,
-                                    "domain": curDomain,
-                                    "project": curProject
-                                }
-                            ],
-                            "subnet_uuid": input.subnetId
-                        }
-                    ],
-                    "virtual_machine_interface_device_owner" : ""
-                }
-            };
+        var postObj = {};
+        postObj["virtual-machine-interface"] = {};
+        postObj["virtual-machine-interface"]["parent_type"] = "project";
+        postObj["virtual-machine-interface"]["fq_name"] = [curDomain, curProject];
+        postObj["virtual-machine-interface"]["virtual_network_refs"] = [{"to" : input.fqName}];
+        if(input.mac != null) {
+            postObj["virtual-machine-interface"]["virtual_machine_interface_mac_addresses"] = {"mac_address": [input.mac]};
+        }
+        postObj["virtual-machine-interface"]["instance_ip_back_refs"] = 
+            [{"instance_ip_address": [{"fixedIp": input.ip,"domain": curDomain,"project": curProject}],"subnet_uuid": input.subnetId}];
+        postObj["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+        if(input.vlan != null) {
+            postObj["virtual-machine-interface"]["virtual_machine_interface_properties"] = {};
+            postObj["virtual-machine-interface"]["virtual_machine_interface_properties"]["sub_interface_vlan_tag"] = input.vlan;
+        }
+        if(input.displayName != null) {
+            postObj["virtual-machine-interface"]["name"] = input.displayName;
+            postObj["virtual-machine-interface"]["fq_name"] = [curDomain, curProject, input.displayName];
         }
         return postObj;
     }
@@ -579,7 +693,7 @@ function physicalInterfacesConfig() {
         }
     }
 
-    function deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs) {
+    function deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs, callback) {
         var deleteAjaxs = [];
         for(var i = 0; i < deleteVMIs.length; i++) {
             deleteAjaxs[i] =  $.ajax({
@@ -593,8 +707,14 @@ function physicalInterfacesConfig() {
                 // if(deleteVMs.length > 0) {
                     // deleteVirtualMachines(deleteVMs);
                 // }
+                if(callback != null) {
+                    callback(response, null);
+                }
             },
-            function(){
+            function(error){
+                if(callback != null) {
+                    callback(null, error);
+                }
             }
         );
     }
@@ -633,6 +753,7 @@ function physicalInterfacesConfig() {
 
     
     window.physicalInterfaceEditWindow = function(index) {
+        clearCreateEditWindow();
         gblSelRow = gridPhysicalInterfaces._dataView.getItem(index);
         $('#addPhysicalInterfaceWindow').find(".modal-header-title").text('Edit Interface');
         populateCreateEditWindow('edit');
@@ -640,7 +761,6 @@ function physicalInterfacesConfig() {
     
     function populateCreateEditWindow(m) {
         mode = m;
-        clearCreateEditWindow();
         if(mode === 'edit') {
             $('#txtPhysicalInterfaceName').val(gblSelRow.name);
             $('#txtPhysicalInterfaceName').attr('disabled','disabled');
@@ -652,8 +772,10 @@ function physicalInterfacesConfig() {
             if(gblSelRow.type === 'Logical') {
                  flow = 'edit';
                  $('#vmSection').removeClass('hide').addClass('show');
+                 showLIProperties();
                  if(gblSelRow.vlan != "-") {
                      $('#txtVlan').val(gblSelRow.vlan);
+                     $('#txtVlan').attr('disabled','disabled');
                  }    
                  if(gblSelRow.vn != '-') {
                      var ddVN = $('#ddVN').data('contrailDropdown');
@@ -680,9 +802,34 @@ function physicalInterfacesConfig() {
                          $('#l2TypePanel').removeClass('hide').addClass('show');
                      }
                  }
-            } else {
+            } else if(gblSelRow.type === 'Sub-Interface') { //sub interface edit flow
+                flow = 'edit';
+                $('#vmSection').removeClass('hide').addClass('show');
+                showPortProperties();
+                $('#txtSubInterfaceName').val(gblSelRow.name);
+                $('#txtSubInterfaceName').attr('disabled','disabled');
+                if(gblSelRow.vn != '-') {
+                    var ddVN = $('#ddVN').data('contrailDropdown');
+                    ddVN.enable(true);
+                    ddVN.value(getCurrentVirtualNetworkId(gblSelRow.vn));
+                    fetchVirtualNetworkInternals(ddVN.value());
+                }
+                if(gblSelRow.parent != '-') {
+                    var selPort = getCurrentPortValueById(gblSelRow.parent);
+                    var ddPort = $('#ddPort').data('contrailDropdown');
+                    ddPort.value(selPort);
+                    ddPort.enable(false);
+                }
+                if(gblSelRow.vlan != "-") {
+                     $('#txtVlan').val(gblSelRow.vlan);
+                     $('#txtVlan').attr('disabled','disabled');
+                }
+            }
+            else {
                 $('#vmSection').removeClass('show').addClass('hide');
             }           
+        } else {
+            clearCreateEditWindow();
         }
         $('#addPhysicalInterfaceWindow').modal('show');       
     }
@@ -704,6 +851,18 @@ function physicalInterfacesConfig() {
             for(var i = 0; i < data.length; i++) {
                 if(data[i].text.indexOf(name) !== -1) {
                     return data[i].id;
+                }
+            }
+        }
+        return '';
+    }
+
+    function getCurrentPortValueById(uuid) {
+        if(uuid != '') {
+            var data = $('#ddPort').data('contrailDropdown').getAllData();
+            for(var i = 0; i < data.length; i++) {
+                if(data[i].uuid === uuid) {
+                    return data[i].value;
                 }
             }
         }
@@ -830,7 +989,16 @@ function physicalInterfacesConfig() {
         $('#l3SubnetPanel').removeClass('show').addClass('hide');
         $('#l2TypePanel').removeClass('hide').addClass('show');
         $('#l2ServerPanel').removeClass('hide').addClass('show'); 
-        fetchVirtualNetworkInternals('none');        
+        fetchVirtualNetworkInternals('none');
+        showLIProperties();
+        $('#btnAddPhysicalInterfaceOk').removeAttr('disabled');
+        $('#txtSubInterfaceName').removeAttr('disabled');
+        $('#txtSubInterfaceName').val('');
+        var ddPort = $('#ddPort').data('contrailDropdown');
+        ddPort.value('');
+        ddPort.enable(true);
+        $('#txtVlan').removeAttr('disabled');
+        gblSelRow = null;
     }
     
     function fetchPhysicalRouters() {
@@ -940,28 +1108,45 @@ function physicalInterfacesConfig() {
     window.successHandlerForVNInternals = function(result) {
         if(result != null && result.length > 0) {
             var vmiDataSrc = [{text : 'None', value : 'none'}];
+            var subInfDataSrc = [{text : 'None', value : 'none'}];
             for(var i = 0; i < result.length; i++) {
                 var vmi = result[i];
                 var txt = vmi.mac[0]; //+ ' (' + vmi.ip[0] + ')';
                 if(vmi.ip != null && vmi.ip.length > 0) {
                     vmiDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : vmi.ip[0]});
                 }
+                if(vmi.virtual_machine_refs === null) {
+                    var fixedIp = vmi.ip != null && vmi.ip.length > 0 ? vmi.ip[0] : '';
+                    subInfDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : fixedIp});
+                }
             }
-            $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
-            if(flow === 'edit' && gblSelRow.server != '-') {
-                var vmiMac = gblSelRow.server.split('(')[0].trim();
-                $('#ddVMI').data('contrailCombobox').text(vmiMac);
-                $('#txtVMI').val(gblSelRow.vmi_ip);
-                $('#txtVMI').attr('disabled', 'disabled');
+            if($('#ddType').data('contrailDropdown').value() === 'subinterface') {
+                var currMac =  $('#ddPort').data('contrailDropdown').value();
+                $('#ddVMI').data('contrailCombobox').text(currMac);
+                $('#txtVMI').removeAttr('disabled');
             } else {
-                $('#ddVMI').data('contrailCombobox').value('');
-                $('#txtVMI').val('');
-                $('#txtVMI').attr('disabled', 'disabled');
+                $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
+                if(flow === 'edit' && gblSelRow.server != '-') {
+                    var vmiMac = gblSelRow.server.split('(')[0].trim();
+                    $('#ddVMI').data('contrailCombobox').text(vmiMac);
+                    $('#txtVMI').val(gblSelRow.vmi_ip);
+                    $('#txtVMI').attr('disabled', 'disabled');
+                } else {
+                    $('#ddVMI').data('contrailCombobox').value('');
+                    $('#txtVMI').val('');
+                    $('#txtVMI').attr('disabled', 'disabled');
+                }
             }
         } else {
-            $('#ddVMI').data('contrailCombobox').setData([]);
-            $('#ddVMI').data('contrailCombobox').value('');
-            $('#txtVMI').val('');
+            if($('#ddType').data('contrailDropdown').value() === 'subinterface') {
+                var currMac =  $('#ddPort').data('contrailDropdown').value();
+                $('#ddVMI').data('contrailCombobox').text(currMac);
+                $('#txtVMI').removeAttr('disabled');
+            } else {
+                $('#ddVMI').data('contrailCombobox').setData([]);
+                $('#ddVMI').data('contrailCombobox').value('');
+                $('#txtVMI').val('');
+            }
         }       
     }
     
@@ -991,6 +1176,11 @@ function physicalInterfacesConfig() {
     }
     
     window.successHandlerForPhysicalInterfaces =  function(result) {
+        interfaceDataSrc = result;
+        fetchParentPorts();
+    }
+
+    function prepareGridData(result, portData) {
         var gridDS = [];
         var mainDS = [];
         var pRouterDS = [];
@@ -1067,6 +1257,10 @@ function physicalInterfacesConfig() {
                     pInterfaceDS.push({text : gridDS[i].name, value : gridDS[i].uuid, parent : 'physical_interface'});
                 }
             }
+            if(pRouterDD.text() === 'default-physical-router'){
+                //merge interface and port data
+                gridDS = gridDS.concat(portData);
+            }
             mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS},
                 {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
             dsSrcDest = mainDS;
@@ -1077,6 +1271,9 @@ function physicalInterfacesConfig() {
                 ddParent.setData(mainDS);
             }
         } else {
+            if(pRouterDD.text() === 'default-physical-router'){
+                gridDS = portData;
+            }
             mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS}, 
                 {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
             dsSrcDest = mainDS;
@@ -1084,7 +1281,7 @@ function physicalInterfacesConfig() {
             ddParent.value(mainDS[0].children[0].value);
             gridPhysicalInterfaces.showGridMessage("empty");
         }
-        gridPhysicalInterfaces._dataView.setData(gridDS); 
+        gridPhysicalInterfaces._dataView.setData(gridDS);
     }
     
    
@@ -1125,7 +1322,7 @@ function physicalInterfacesConfig() {
             if(vnRefs != '-') {
                 vnRefs = vnRefs[2] + ' (' + vnRefs[0] + ':' + vnRefs[1] + ')';
             }
-            vmiUUID = inf['vmi_details']['vmi_fq_name'][2];
+            vmiUUID = inf['vmi_details']['vmi_uuid'];
             vmUUID = inf['vmi_details']['vm_refs'][0] != null ? inf['vmi_details']['vm_refs'][0].to[0] : null;
             subnet = inf['vmi_details']['subnet'] != null && inf['vmi_details']['subnet'] != '' ? inf['vmi_details']['subnet'] : '-' ;
         }
@@ -1138,39 +1335,48 @@ function physicalInterfacesConfig() {
     }
     
     function validate() {
-        var name = $('#txtPhysicalInterfaceName').val().trim();
-        if(name  === ""){	
-            showInfoWindow("Enter an Interface Name","Input required");
-            return false;
+        var ddType = $('#ddType').data('contrailDropdown').value();
+        if(ddType != 'subinterface') {
+            var name = $('#txtPhysicalInterfaceName').val().trim();
+            if(name  === ""){
+                showInfoWindow("Enter an Interface Name","Input required");
+                return false;
+            }
+            var liType = $('#ddLIType').data('contrailDropdown').value();
+            var selVN = $('#ddVN').data('contrailDropdown').value();
+            if(liType === 'l3') {
+                var subnet =  $('#txtSubnet').val().trim();
+                if(selVN != 'none' && subnet.split("/").length != 2) {
+                    showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
+                    return false;
+                }
+            } else if(liType === 'l2') {
+                var macAddress = '';
+                var selVMI = $('#ddVMI').data('contrailCombobox').getSelectedItem();
+                if(typeof selVMI === 'object') {
+                    macAddress = selVMI.value;
+                } else {
+                    macAddress = selVMI;
+                }
+                if(selVN != 'none') {
+                    if(isValidMACAddress(macAddress) == false){
+                        showInfoWindow("Enter a valid MAC Address", "Invalid Input");
+                        return false;
+                    }
+                }
+            }
+        } else {
+            var name = $('#txtSubInterfaceName').val().trim();
+            if(name  === ""){
+                showInfoWindow("Enter a Sub Interface Name","Input required");
+                return false;
+            }
         }
         if($('#txtVlan').val() != '') {
             var vlan = parseInt($('#txtVlan').val().trim());
             if(isNaN(vlan) || vlan < 0 || vlan > 4094) {
                 showInfoWindow('Vlan ID should be in  "0 - 4094" range', "Input required");
                 return false;            
-            }
-        }
-        var liType = $('#ddLIType').data('contrailDropdown').value();
-        var selVN = $('#ddVN').data('contrailDropdown').value();
-        if(liType === 'l3') {
-            var subnet =  $('#txtSubnet').val().trim();
-            if(selVN != 'none' && subnet.split("/").length != 2) {
-                showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
-                return false;
-            }
-        } else if(liType === 'l2') {
-            var macAddress = '';
-            var selVMI = $('#ddVMI').data('contrailCombobox').getSelectedItem();
-            if(typeof selVMI === 'object') {
-                macAddress = selVMI.value;
-            } else {
-                macAddress = selVMI;
-            }
-            if(selVN != 'none') {
-                if(isValidMACAddress(macAddress) == false){
-                    showInfoWindow("Enter a valid MAC Address", "Invalid Input");
-                    return false;
-                }
             }
         }
         return true;
@@ -1364,5 +1570,63 @@ function physicalInterfacesConfig() {
     
     function loadSelect2OpenActions() {
         $('.select2-results').attr('style','max-height:400px;');
+    }
+
+    function fetchParentPorts() {
+        doAjaxCall('/api/admin/config/get-data?type=virtual-machine-interface', 'GET', null,
+            'successHandlerForParentPorts', 'failureHandlerForParentPorts', null, null);
+    }
+
+    window.successHandlerForParentPorts = function(result) {
+        var freePorts = [{ text : 'None', value : 'none'}];
+        var portData = [];
+
+        if(result != null && result['data'] != null && result['data'].length > 0) {
+            for(var i = 0; i < result['data'].length; i++) {
+                var port = result['data'][i]['virtual-machine-interface'];
+                var portProp = port.virtual_machine_interface_properties;
+                var fqName = port.fq_name;
+                var ip = port.instance_ip_back_refs != null ? port.instance_ip_back_refs[0].fixedip.ip : '-';
+                var mac =  port.virtual_machine_interface_mac_addresses.mac_address[0];
+                var vnRefs = port.virtual_network_refs[0];
+                var vnName = vnRefs.to[2] + ' (' +  vnRefs.to[0] + ':' +  vnRefs.to[1] + ')';
+                var textLastName = '\xa0\xa0\xa0\xa0' + vnName;
+                if(port.virtual_machine_refs != null
+                    && (portProp == null || portProp != null && portProp.sub_interface_vlan_tag == null )) {
+                        freePorts.push({ text : mac + ' (' + ip + ')' + textLastName
+                            , value : mac,  uuid : port.uuid, vn_uuid : vnRefs.uuid});
+                }
+                if(port.virtual_machine_interface_refs != null && port.virtual_machine_refs == null
+                    && (portProp != null && portProp.sub_interface_vlan_tag != null )){
+                        var vmiRefs = port.virtual_machine_interface_refs[0];
+                        portData.push({uuid : port.uuid,
+                            name : port.name,
+                            type : "Sub-Interface",
+                            parent : vmiRefs.uuid,
+                            vlan : portProp != null ? portProp.sub_interface_vlan_tag : '-',
+                            server : mac,
+                            vn : vnName,
+                            li_type : '-',
+                            vmi_ip : ip,
+                            vmi_uuid : port.uuid,
+                            vm_uuid : '-',
+                            subnet : '-'
+                        });
+                }
+            }
+        }
+        prepareGridData(interfaceDataSrc,portData);
+        if(freePorts.length == 0) {
+            freePorts.push({text : 'No Port found', value : 'empty'});
+        }
+        var ddPort = $('#ddPort').data('contrailDropdown');
+        ddPort.setData(freePorts);
+        ddPort.value(freePorts[0].value);
+        ddPort.hide();
+    }
+
+    window.failureHandlerForParentPorts = function(error) {
+        var r = arguments;
+        showInfoWindow(r[0].responseText,r[2]);
     }
  }

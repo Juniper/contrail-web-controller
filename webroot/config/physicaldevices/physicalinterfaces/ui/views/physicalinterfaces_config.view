@@ -51,15 +51,21 @@
         <div class="modal-body">
             <div class="row-fluid">
                  <label class="control-label span4">Type</label>
-                 <label class="control-label span4" >Name</label>
-                 <label  class="control-label span4">Parent</label>
+                 <label id="lblName" class="control-label span4" >Name</label>
+                 <label id="lblSubInfName" class="control-label span4 hide" >Name</label>
+                 <label id="lblParent"  class="control-label span4">Parent</label>
+                 <label id="lblPort"  class="control-label span4 hide">Server</label>
             </div>  
             <div class="row-fluid">
                  <input type="text" id="ddType" class="span4"/>
-                 <div class="span4">
+                 <div id="txtName" class="span4">
                      <input type="text" id="txtPhysicalInterfaceName" class="span12"/>	
                  </div>
+                 <div id="txtSubInfName" class="span4 hide">
+                     <input type="text" id="txtSubInterfaceName" class="span12"/>	
+                 </div>                 
                  <input type="text" id="ddParent" class="span4"/>
+                 <input type="text" id="ddPort" class="span4 hide"/>
             </div>     
             <div id ="vmSection" class="pull-down-30">   
                 <form class="form-horizontal">
@@ -69,13 +75,13 @@
                                 <div class="widget-header">
                                     <h4 class="smaller" onclick="collapseElement(this,'#infWidget')">
                                         <i class="grey icon-caret-right" ></i>
-                                        <span>Logical Interface Properties</span>
+                                        <span id="spanProp">Logical Interface Properties</span>
                                     </h4>
                                 </div>
                                 <div id="infWidget"  class="widget-body collapsed">
                                     <div class="widget-main padding-4">
                                         <div class="row-fluid margin-0-0-10">
-                                            <div class="control-group">
+                                            <div id="divLiType" class="control-group">
                                                 <label class="control-label">Logical Interface Type</label>
                                                 <div class="controls">
                                                     <div class="row-fluid">
