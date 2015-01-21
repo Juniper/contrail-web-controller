@@ -885,11 +885,27 @@ var tenantNetworkMonitorUtils = {
                 obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
             obj['ip'] = [];
             var intfList = ifNull(currObj['UveVirtualMachineAgent'] != null ? currObj['UveVirtualMachineAgent']['interface_list'] : null,[]);
+            //If interface_list is reported from multiple sources 
+            if(intfList[0] instanceof Array) {
+                var vrouterIndex = null;
+                //Loop through interface_list and pick the index for vrouteragent
+                for(var i=0;i<intfList.length;i++) {
+                    if(intfList[i][1] != null) {
+                        if(intfList[i][1].match('Compute:contrail-vrouter-agent')) {
+                            vrouterIndex = i;
+                            break;
+                        }
+                    }
+                }
+                if(vrouterIndex != null)
+                    intfList = intfList[vrouterIndex][0];
+            }
             for(var i = 0; i < intfList.length; i++ ) {
                 if(intfList[i]['ip6_active'] == true) {
                     if(intfList[i]['ip_address'] != '0.0.0.0')
                         obj['ip'].push(intfList[i]['ip_address']);
-                    obj['ip'].push(intfList[i]['ip6_address']);
+                    if(intfList[i]['ip6_address'] != null)
+                        obj['ip'].push(intfList[i]['ip6_address']);
                 } else {
                     if(intfList[i]['ip_address'] != '0.0.0.0')
                         obj['ip'].push(intfList[i]['ip_address']);
