@@ -75,5 +75,11 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deleteLISubnet</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/map-virtual-machine-sub-interface-refs/:vmiId</url>
+        <method>post</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.mapVirtualMachineSubInterfaceRefs</callback>
+    </item>
 </urlLists>
 
