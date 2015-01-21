@@ -275,7 +275,13 @@ function physicalInterfacesConfig() {
                 var isSubnetCreate = !$('#txtSubnet').is('[disabled]');
                 var postObject;
                 if(isVMICreate) {
-                    var mac = $('#ddVMI').data('contrailCombobox').value().trim();
+                    var mac;
+                    var vmiSelItem =  $('#ddVMI').data('contrailCombobox').getSelectedItem();
+                    if(typeof vmiSelItem === 'object') {
+                        mac = vmiSelItem.value;
+                    } else {
+                        mac = vmiSelItem;
+                    }
                     var ip = $('#txtVMI').val() != '' ? $('#txtVMI').val().trim() : '';
                     createPort({mac : mac, ip : ip});
                 } else if(isSubnetCreate && $('#ddLIType').data('contrailDropdown').value() === 'l3') {
@@ -654,6 +660,7 @@ function physicalInterfacesConfig() {
                  $('#vmSection').removeClass('hide').addClass('show');
                  if(gblSelRow.vlan != "-") {
                      $('#txtVlan').val(gblSelRow.vlan);
+                      $('#txtVlan').attr('disabled', 'disabled');
                  }    
                  if(gblSelRow.vn != '-') {
                      var ddVN = $('#ddVN').data('contrailDropdown');
@@ -795,7 +802,7 @@ function physicalInterfacesConfig() {
 
     window.successHandlerForCreatePhysicalInterfaces = function(result) {
         var mac = $('#ddVMI').data('contrailCombobox').value().trim();
-        if(gblSelRow != null && gblSelRow.server != '-' && gblSelRow.server.split(' ')[0] != mac) {
+        if(gblSelRow != null && gblSelRow.server != '-' && gblSelRow.server.split(' ')[0] != mac && !$('#txtVMI').is('[disabled]')) {
             deleteVirtulMachineInterfaces([gblSelRow.vmi_uuid], [gblSelRow.vm_uuid]);
         }
         fetchData();
@@ -809,6 +816,7 @@ function physicalInterfacesConfig() {
         $('#txtPhysicalInterfaceName').removeAttr('disabled');
         $('#txtPhysicalInterfaceName').val('');     
         $('#txtVlan').val('');
+        $('#txtVlan').removeAttr('disabled');
         var ddPhysicalRouters = $('#ddPhysicalRouters').data('contrailDropdown');        
         $('#ddParent').data('contrailDropdown').value(ddPhysicalRouters.value());
         $('#vmSection').removeClass('hide').addClass('show'); 
@@ -943,16 +951,19 @@ function physicalInterfacesConfig() {
             for(var i = 0; i < result.length; i++) {
                 var vmi = result[i];
                 var txt = vmi.mac[0]; //+ ' (' + vmi.ip[0] + ')';
-                if(vmi.ip != null && vmi.ip.length > 0) {
-                    vmiDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : vmi.ip[0]});
-                }
+                var fixedIp = vmi.ip != null && vmi.ip.length > 0 ? vmi.ip[0] : '';
+                vmiDataSrc.push({text : txt, value : JSON.stringify(vmi.vmi_fq_name), ip : fixedIp});
             }
             $('#ddVMI').data('contrailCombobox').setData(vmiDataSrc);
             if(flow === 'edit' && gblSelRow.server != '-') {
                 var vmiMac = gblSelRow.server.split('(')[0].trim();
                 $('#ddVMI').data('contrailCombobox').text(vmiMac);
-                $('#txtVMI').val(gblSelRow.vmi_ip);
-                $('#txtVMI').attr('disabled', 'disabled');
+                if(gblSelRow.vmi_ip != '-') {
+                    $('#txtVMI').val(gblSelRow.vmi_ip);
+                    $('#txtVMI').attr('disabled', 'disabled');
+                } else {
+                    $('#txtVMI').removeAttr('disabled');
+                }
             } else {
                 $('#ddVMI').data('contrailCombobox').value('');
                 $('#txtVMI').val('');
@@ -1112,15 +1123,20 @@ function physicalInterfacesConfig() {
         var vnRefs = '-';
         var vlanTag = inf['logical_interface_vlan_tag'] != null ? inf['logical_interface_vlan_tag'] : '-' ;
         var liType = inf['logical_interface_type'] != null ? inf['logical_interface_type'] : '-' ;
-        var vmiIP ;
+        var vmiIP = '-' ;
         if(liType != '-') {
             liType = liType === 'l2' ? 'L2' : 'L3';
         }
-        var vmiDetails = inf['vmi_details'] ? inf['vmi_details'].mac[0] +' ('+ inf['vmi_details'].ip[0] + ')' : '-';
+        var vmiDetails = '-';
+        if(inf['vmi_details'] != null) {
+            if(inf['vmi_details'].ip[0] != null) {
+                vmiIP = inf['vmi_details'].ip[0];
+            }
+            vmiDetails = inf['vmi_details'].mac[0] +' ('+ vmiIP + ')';
+        }
         var vmiUUID, vmUUID;
         var subnet = '-';
         if(vmiDetails != '-') {
-            vmiIP = inf['vmi_details'].ip[0];
             vnRefs = inf['vmi_details']['vn_refs'] ? inf['vmi_details']['vn_refs'][0].to : '-';
             if(vnRefs != '-') {
                 vnRefs = vnRefs[2] + ' (' + vnRefs[0] + ':' + vnRefs[1] + ')';
