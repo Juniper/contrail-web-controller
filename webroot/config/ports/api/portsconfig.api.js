@@ -229,6 +229,10 @@ function createPortsValidate(request, data, response, appData, callback){
     if ((('interface_route_table_refs' in portPostData['virtual-machine-interface']))){
         delete portPostData['virtual-machine-interface']['interface_route_table_refs'];
     }
+    if ('virtual_machine_interface_refs' in portPostData['virtual-machine-interface']){
+        delete portPostData['virtual-machine-interface']['virtual_machine_interface_refs'];
+    }
+    
     var lrUUID = "";
     if ((('logical_router_back_refs' in portPostData['virtual-machine-interface']))){
         if(portPostData['virtual-machine-interface']['logical_router_back_refs'].length === 1){
@@ -258,13 +262,56 @@ function createPortsValidate(request, data, response, appData, callback){
 	                callback(err, apiLogicalRouterData);
 	                return;
 	            }
-	            portSendResponse(error, request, vmiData, orginalPortData, apiLogicalRouterData, appData, function (err, results) {
-	                callback(error, results);
-	                return;
+                portSendResponse(error, request, vmiData, orginalPortData, apiLogicalRouterData, appData, function (err, results) {
+                    if(err){
+                        callback(err, results);
+                        return
+                    }
+                    putVMISubInterface(orginalPortData, vmiData, results, appData, function(err, results){
+                        callback(err, results);
+                    });
 	            });
-	        });            
+	        });
         });
     });
+}
+
+function putVMISubInterface (orginalPortData, currentVMIDetail, results, appData, callback) 
+{
+    if ('virtual_machine_interface_properties' in orginalPortData['virtual-machine-interface'] &&
+        'virtual_machine_interface_refs' in orginalPortData['virtual-machine-interface'] &&
+        'fq_name' in currentVMIDetail['virtual-machine-interface']) {
+        var subInterfaceUUID = orginalPortData['virtual-machine-interface']['virtual_machine_interface_refs'][0]['uuid'];
+        readVMIwithUUID(subInterfaceUUID, appData, function(err, vmiData){
+            var vmiSubInterfaceDetail = vmiData['virtual-machine-interface'];
+            var vmiSubInterfaceJSON = VMIJSONStructureSubInterface(vmiSubInterfaceDetail, currentVMIDetail);
+            var subInterfacePutURL = "/virtual-machine-interface/"+subInterfaceUUID;
+            configApiServer.apiPut(subInterfacePutURL, vmiSubInterfaceJSON, appData,
+                function (error, data) {
+                    callback(error, data);
+                    return;
+                });
+        });
+    } else {
+        callback(null, results);
+    }
+}
+
+function VMIJSONStructureSubInterface(vmiSubInterfaceDetail, currentVMIDetail){
+    var primaryInterfaceObject = {};
+    primaryInterfaceObject['virtual-machine-interface'] = {};
+    primaryInterfaceObject['virtual-machine-interface'] = vmiSubInterfaceDetail;
+    var vmirefIndex = 0;
+    if(primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'] != null &&
+       primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'] != undefined){
+        vmirefIndex = primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'].length;
+    } else {
+        primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'] = [];
+    }
+    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex] = {};
+    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["uuid"] = currentVMIDetail['virtual-machine-interface']["uuid"];
+    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["to"] = currentVMIDetail['virtual-machine-interface']["fq_name"];
+    return primaryInterfaceObject;
 }
 
 /**
@@ -623,6 +670,7 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
         callback(error, null);
         return;
     }
+
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
     portPutData["virtual-machine-interface"]["id_perms"]["uuid"] = vmiData['virtual-machine-interface']["id_perms"]["uuid"];
 
@@ -631,6 +679,8 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
     var DataObjectDelArr = [];
     var creatFloatingIpLen = 0;
     var deleteFloatingIpLen = 0;
+    var createVMISubInterfaceLen = 0;
+    var deleteVMISubInterfaceLen = 0;
 
     if("floating_ip_back_refs" in portPutData["virtual-machine-interface"] ||
         "floating_ip_back_refs" in vmiData["virtual-machine-interface"])
@@ -668,6 +718,39 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
         });
     }
 
+    if("virtual_machine_interface_refs" in portPutData["virtual-machine-interface"] ||
+        "virtual_machine_interface_refs" in vmiData["virtual-machine-interface"]){
+        filterVMISubInterface(error, portPutData, vmiData, function(createVMISubInterface,deleteVMISubInterface){
+            //createVMISubInterface();
+            if(createVMISubInterface != null && createVMISubInterface != ""){
+                createVMISubInterfaceLen = createVMISubInterface.length;
+                if(createVMISubInterfaceLen > 0){
+                    for(var i = 0;i < createVMISubInterfaceLen;i++){
+                        var vmiSubInterfaceURL = '/virtual-machine-interface/'+createVMISubInterface[i]['uuid'];
+                        commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
+                                     global.HTTP_REQUEST_GET, null, configApiServer, null,
+                                     appData);
+                    }
+                }
+            }
+            DataObjectLenDetail["VMISubnetInterfaceCreateStartIndex"] = DataObjectArr.length - createVMISubInterfaceLen;;
+            DataObjectLenDetail["VMISubnetInterfaceCreateCount"] = createVMISubInterfaceLen;
+            //deleteVMISubInterface();
+            if(deleteVMISubInterface != null && deleteVMISubInterface != ""){
+                deleteVMISubInterfaceLen = deleteVMISubInterface.length;
+                if(deleteVMISubInterfaceLen > 0){
+                    for(var i = 0;i<deleteVMISubInterfaceLen;i++){
+                        var vmiSubInterfaceURL = '/virtual-machine-interface/'+deleteVMISubInterface[i]['uuid'];
+                        commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
+                                     global.HTTP_REQUEST_GET, null, configApiServer, null,
+                                     appData);
+                    }
+                }
+            }
+            DataObjectLenDetail["VMISubnetInterfaceDeleteStartIndex"] = DataObjectArr.length - deleteVMISubInterfaceLen;
+            DataObjectLenDetail["VMISubnetInterfaceDeleteCount"] = deleteVMISubInterfaceLen;
+        });
+    }
     if("logical_router_back_refs" in portPutData["virtual-machine-interface"] ||
         "logical_router_back_refs" in vmiData["virtual-machine-interface"])
     {
@@ -917,6 +1000,9 @@ function removeBackRef(portPutData){
     if("logical_router_back_refs" in portPutData["virtual-machine-interface"]){
         delete portPutData["virtual-machine-interface"]["logical_router_back_refs"];
     }
+    if ('virtual_machine_interface_refs' in portPutData['virtual-machine-interface']) {
+        delete portPutData['virtual-machine-interface']['virtual_machine_interface_refs'];
+    }
     return portPutData;
 }
 function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, boolDeviceOwnerChange, vmiData, request, appData, callback){
@@ -943,6 +1029,37 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
                         j--;
                         vmiRefLen--;
                         commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                           global.HTTP_REQUEST_PUT, result[i], null, null,
+                           appData);
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    for(i = DataObjectLenDetail["VMISubnetInterfaceCreateStartIndex"];i<DataObjectLenDetail["VMISubnetInterfaceCreateStartIndex"]+DataObjectLenDetail["VMISubnetInterfaceCreateCount"];i++){
+        if(result[i] != null){
+            var vmiSubInterfaceURL = '/virtual-machine-interface/'+result[i]['virtual-machine-interface']['uuid'];
+            var responceData = VMIJSONStructureSubInterface(result[i], portPutData);
+            commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
+                                global.HTTP_REQUEST_PUT, commonUtils.cloneObj(responceData), null, null,
+                                appData);
+        }
+    }
+
+    for(i = DataObjectLenDetail["VMISubnetInterfaceDeleteStartIndex"]; i < (DataObjectLenDetail["VMISubnetInterfaceDeleteStartIndex"]+DataObjectLenDetail["VMISubnetInterfaceDeleteCount"]);i++){
+        if(result[i] != null){
+            if( 'virtual-machine-interface' in result[i] && 'virtual_machine_interface_refs' in result[i]['virtual-machine-interface']){
+                var vmiSubInterfaceURL = '/virtual-machine-interface/'+result[i]['virtual-machine-interface']['uuid'];
+                var vmiRef = result[i]['virtual-machine-interface']['virtual_machine_interface_refs'];
+                var vmiRefLen = result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].length;
+                for(var j=0;j<vmiRefLen;j++){
+                    if(vmiRef[j]['uuid'] == portPutData['virtual-machine-interface']['uuid']){
+                        result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                        j--;
+                        vmiRefLen--;
+                        commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
                            global.HTTP_REQUEST_PUT, result[i], null, null,
                            appData);
                         break;
@@ -1264,6 +1381,72 @@ function filterUpdateLogicalRouter(error, portPutData, vmiData, callback)
     callback(createlogicalRouterArray,deletelogicalRouterArray);
 }
 
+function filterVMISubInterface(error, portPutData, vmiData, callback)
+{
+    var i = 0;
+    var postCopyData = [];
+    var createVMISubInterfaceArray = [];
+    var deleteVMISubInterfaceArray = [];
+    var VMISubInterfaceRef_server = [];
+    var VMISubInterfaceRefs_serverLen = 0;
+    var VMISubInterfaceRef_put = [];
+    var VMISubInterfaceRefs_putLen = 0;
+
+    if ( 'virtual-machine-interface' in vmiData &&
+         'virtual_machine_interface_refs' in vmiData['virtual-machine-interface']) {
+        VMISubInterfaceRef_server = vmiData['virtual-machine-interface']['virtual_machine_interface_refs'];
+        VMISubInterfaceRefs_serverLen = VMISubInterfaceRef_server.length;
+    }
+    if ( 'virtual-machine-interface' in portPutData &&
+         'virtual_machine_interface_refs' in portPutData['virtual-machine-interface']) {
+        VMISubInterfaceRef_put = portPutData['virtual-machine-interface']['virtual_machine_interface_refs'];
+        VMISubInterfaceRefs_putLen = VMISubInterfaceRef_put.length;
+    }
+    if(VMISubInterfaceRefs_serverLen == 0) {
+        for(i = 0;i<VMISubInterfaceRefs_putLen;i++){
+            createVMISubInterfaceArray.push(VMISubInterfaceRef_put[i]);
+        }
+        callback(createVMISubInterfaceArray,deleteVMISubInterfaceArray);
+        return;
+
+    }
+    if(VMISubInterfaceRefs_putLen == 0) {
+        for(i = 0;i<VMISubInterfaceRefs_serverLen;i++){
+            deleteVMISubInterfaceArray.push(VMISubInterfaceRef_server[i]);
+        }
+        callback(createVMISubInterfaceArray,deleteVMISubInterfaceArray);
+        return;
+    }
+    var j = 0;
+    var create = true;
+    for(i=0; i<VMISubInterfaceRefs_putLen ;i++){
+        create = true;
+        for(j=0; j<VMISubInterfaceRefs_serverLen && i >= 0;j++){
+            var portVMISubInterface_fqname = JSON.stringify(VMISubInterfaceRef_put[i]["to"]);
+            var vmiVMISubInterface_fqname = JSON.stringify(VMISubInterfaceRef_server[j]["to"]);
+            if( portVMISubInterface_fqname == vmiVMISubInterface_fqname){
+                VMISubInterfaceRef_put.splice(i,1);
+                VMISubInterfaceRef_server.splice(j,1);
+                create = false;
+                i--;
+                j--;
+                VMISubInterfaceRefs_putLen = VMISubInterfaceRef_put.length;
+                VMISubInterfaceRefs_serverLen = VMISubInterfaceRef_server.length;
+            }
+        }
+        if(create == true) {
+            createVMISubInterfaceArray.push(VMISubInterfaceRef_put[i]);
+            VMISubInterfaceRef_put.splice(i,1);
+            i--;
+            VMISubInterfaceRefs_putLen = VMISubInterfaceRef_put.length;
+        }
+    }
+    for(j=0; j<VMISubInterfaceRefs_serverLen;j++){
+        deleteVMISubInterfaceArray.push(VMISubInterfaceRef_server[j]);
+    }
+    callback(createVMISubInterfaceArray,deleteVMISubInterfaceArray);
+}
+
 
 function filterUpdateFloatingIP(error, portPutData, vmiData, callback)
 {
@@ -1513,6 +1696,19 @@ function deletePortAsync (dataObj, callback)
                 });
         });
         return;
+    } else if (dataObj['type'] == 'virtual-machine-interface-ref') {
+        async.map(dataObj['dataObjArr'],
+            function(item,callback) {
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, false,item,callback)
+            },
+            function(error, results) {
+                removeRefSubInterface(error, results, dataObj['vmiData'],
+                                    dataObj['appData'], function(err, data){
+                        callback(error, results);
+                        //return;
+                });
+        });
+        return;
     } else if (dataObj['type'] == 'logicalInterface') {
         async.map(dataObj['dataObjArr'],
             function(item,callback) {
@@ -1591,6 +1787,9 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
     var floatingipObj         = null;
     var logicalInterfaceObj         = null;
     var reqUrl                = "";
+    var vmiRef               = null;
+    var vmiRefLen            = 0;
+    var vmiRefObjArr         = [];
 
     var uuid = vmiData['virtual-machine-interface']['uuid'];
 
@@ -1657,6 +1856,28 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
         logicalRouterObj['vmiData'] = vmiData;
         logicalRouterObj['appData'] = appData;
         allDataObj.push(logicalRouterObj);
+    }
+    
+    //Subnet Interface Reference
+    if ( 'virtual_machine_interface_refs' in vmiData['virtual-machine-interface']) {
+        vmiRef = vmiData['virtual-machine-interface']['virtual_machine_interface_refs'];
+        vmiRefLen = vmiRef.length;
+    }
+
+    for (i = 0; i < vmiRefLen; i++) {
+        reqUrl = '/virtual-machine-interface/' + vmiRef[i]['uuid'];
+        commonUtils.createReqObj(vmiRefObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
+
+    }
+    if(vmiRefObjArr.length > 0){
+        var vmiSubInterfaceObj = {};
+        vmiSubInterfaceObj['type'] = "virtual-machine-interface-ref";
+        vmiSubInterfaceObj['dataObjArr'] = vmiRefObjArr;
+        vmiSubInterfaceObj['vmiData'] = vmiData;
+        vmiSubInterfaceObj['appData'] = appData;
+        allDataObj.push(vmiSubInterfaceObj);
     }
 
     //Instance IP
@@ -1803,6 +2024,51 @@ function vmiDelLogicalInterface(error, results, vmiData, appData, callback)
     }
 }
 
+
+function removeRefSubInterface(error, results, vmiData, appData, callback)
+{
+    if (error) {
+        callback(error, results, null);
+        return;
+    }
+    var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
+    var i = 0;
+    var DataObjectArr = []
+    if(results.length > 0){
+    var resultLength = results.length;
+        for (i = 0; i < resultLength; i++) {
+            if(results[i] != null){
+                if( 'virtual-machine-interface' in results[i] && 'virtual_machine_interface_refs' in results[i]['virtual-machine-interface']){
+                var vmiRefURL = '/virtual-machine-interface/'+results[i]['virtual-machine-interface']['uuid'];
+                    var vmiRef = results[i]['virtual-machine-interface']['virtual_machine_interface_refs'];
+                    var vmiRefLen = results[i]['virtual-machine-interface']['virtual_machine_interface_refs'].length;
+                    for(var j=0;j<vmiRefLen;j++){
+                        if(vmiRef[j]['uuid'] == vmiUUID){
+                            results[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                            j--;
+                            vmiRefLen--;
+                            commonUtils.createReqObj(DataObjectArr, vmiRefURL,
+                            global.HTTP_REQUEST_PUT, results[i], null, null,
+                            appData);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (DataObjectArr.length > 0) {
+        async.map(DataObjectArr,
+              function(item,callback) {
+                commonUtils.getAPIServerResponse(configApiServer.apiPut, true,item,callback)
+              },
+              function(error, results) {
+                callback(error, results);
+                return
+              });
+    } else {
+        callback(error,null);
+    }
+}
 
 function vmiDelFloatingIP(error, results, vmiData, appData, callback)
 {
