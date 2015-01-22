@@ -250,6 +250,9 @@ function physicalInterfacesConfig() {
             $('#txtVMI').val('');
             $('#txtVMI').removeAttr('disabled');
         }
+        if($('#txtVMI').is('[disabled]') && $('#txtVMI').val() === "") {
+            $('#txtVMI').val(' ');
+        }
     }
     
     function onLITypeChange(e) {
@@ -658,7 +661,7 @@ function physicalInterfacesConfig() {
                  $('#vmSection').removeClass('hide').addClass('show');
                  if(gblSelRow.vlan != "-") {
                      $('#txtVlan').val(gblSelRow.vlan);
-                      $('#txtVlan').attr('disabled', 'disabled');
+                     $('#txtVlan').attr('disabled', 'disabled');
                  }    
                  if(gblSelRow.vn != '-') {
                      var ddVN = $('#ddVN').data('contrailDropdown');
@@ -981,6 +984,8 @@ function physicalInterfacesConfig() {
                 $('#ddVMI').data('contrailCombobox').value(vmiMac);
                 if(gblSelRow.vmi_ip != '-') {
                     $('#txtVMI').val(gblSelRow.vmi_ip);
+                } else {
+                    $('#txtVMI').val(' ');
                 }
                 $('#txtVMI').attr('disabled', 'disabled');
             } else {
