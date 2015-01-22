@@ -229,7 +229,7 @@ function mergeCollectorDataAndPrimaryData(collectorData,primaryDS){
         };
         updatedData.push(d);
     });
-    primaryDS.setItems(updatedData);
+    primaryDS.updateData(updatedData);
     return primaryDS;
 }
 
