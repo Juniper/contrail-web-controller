@@ -1341,7 +1341,7 @@ function getMatchStrByType (type)
         return 'network_policys';
     case 'logical-router':
         return 'logical_routers';
-    case 'ports':
+    case 'virtual-machine-interface':
         return 'virtual_machine_interfaces';
     case 'virtual-network':
         return 'virtual_networks';
@@ -1387,7 +1387,7 @@ function createReqArrByType (dataObjArr, type, obj)
     case 'network-policy':
     case 'security-group':
     case 'logical-router':
-    case 'ports':
+    case 'virtual-machine-interface':
     case 'network-ipam':
     case 'virtual-DNS':
     case 'virtual-DNS-record':
@@ -1404,7 +1404,7 @@ var configCBList =
     'network-policy': polConfig.readPolicys,
     'security-group': sgConfig.readSecurityGroup,
     'logical-router': logicalRouterConfig.readLogicalRouter,
-    'ports': portsConfig.readPorts,
+    'virtual-machine-interface': portsConfig.readPorts,
     'network-ipam': ipamConfig.readIpams,
     'virtual-DNS': vdnsConfig.readVirtualDNSs,
     'virtual-DNS-record': vdnsConfig.readVirtualDNSRecords,
