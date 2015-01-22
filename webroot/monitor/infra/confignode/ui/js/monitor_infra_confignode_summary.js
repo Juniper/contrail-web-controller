@@ -30,7 +30,7 @@ monitorInfraConfigSummaryClass = (function() {
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
                     lazyLoading:true,
-                    detail:{
+                    /*detail:{
                         template: $("#confignode-template").html(),
                         onExpand: function (e,dc) {
                             $('#config_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
@@ -40,7 +40,7 @@ monitorInfraConfigSummaryClass = (function() {
                         },
                         onCollapse:function (e,dc) {
                         }
-                    }
+                    }*/
                 },
                 dataSource: {
                     dataView: configNodesDataSource,

@@ -34,7 +34,7 @@ monitorInfraControlSummaryClass = (function() {
                     forceFitColumns:true,
                     enableAsyncPostRender: true,
                     lazyLoading:true,
-                    detail:{
+                    /*detail:{
                         template: $("#controlnode-template").html(),
                         onExpand: function (e,dc) {
                             $('#control_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
@@ -44,7 +44,7 @@ monitorInfraControlSummaryClass = (function() {
                         },
                         onCollapse:function (e,dc) {
                         }
-                    },
+                    },*/
                 },
                 dataSource: {
                     dataView: controlNodesDataSource,

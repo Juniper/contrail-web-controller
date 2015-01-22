@@ -30,7 +30,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     enableAsyncPostRender: true,
                     forceFitColumns:true,
                     lazyLoading:true,
-                    detail:{
+                    /*detail:{
                         template: $("#analyticsnode-template").html(),
                         onExpand: function (e,dc) {
                             $('#analytics_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
@@ -40,7 +40,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         },
                         onCollapse:function (e,dc) {
                         }
-                    }
+                    }*/
                 },
                 dataSource: {
                     dataView: analyticsNodesDataSource,

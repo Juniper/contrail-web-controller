@@ -206,7 +206,7 @@ monitorInfraComputeSummaryClass = (function() {
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
                     lazyLoading:true,
-                    detail:{
+                    /*detail:{
                         template: $("#computenode-template").html(),
                         onExpand: function (e,dc) {
                             //scaling down the content
@@ -218,7 +218,7 @@ monitorInfraComputeSummaryClass = (function() {
                         detailView : true,
                         onCollapse:function (e,dc) {
                         }
-                    }
+                    }*/
                 },
                 dataSource: {
                     dataView: emptyDataSource,
