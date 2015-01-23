@@ -614,6 +614,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
         minimumResultsForSearch:1,
+        dropdownCssClass: 'sgSelect2'
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
@@ -752,7 +753,7 @@ function loadSelect2OpenActions() {
         $(subEleArry[0]).addClass('hide');
         $(subEleArry[2]).addClass('hide');
     }
-    $('.select2-results').attr('style','max-height:400px;');
+    // $('.select2-results').attr('style','max-height:400px;');
     $('.res-icon').remove();
     $(".select2-search").prepend('<i class="'+ iconSubnet +' res-icon"> </i>')
 }
@@ -830,13 +831,14 @@ function select2Query(query) {
     //hide inbuilt select2 search results for custom term
     $('.select2-results > .select2-results-dept-0.select2-result-selectable').attr('style','display:none');
 
-    var subEleArry = $(".select2-result-sub");
-    if(subEleArry && subEleArry.length > 0) {
-        $(subEleArry[0]).attr('style','max-height:150px;overflow:auto;');
-        $(subEleArry[1]).attr('style','max-height:150px;overflow:auto;');
-        $(subEleArry[2]).attr('style','max-height:150px;overflow:auto;');
-    }
+    // var subEleArry = $(".select2-result-sub");
+    // if(subEleArry && subEleArry.length > 0) {
+    //     $(subEleArry[0]).attr('style','max-height:150px;overflow:auto;');
+    //     $(subEleArry[1]).attr('style','max-height:150px;overflow:auto;');
+    //     $(subEleArry[2]).attr('style','max-height:150px;overflow:auto;');
+    // }
     retainExpandedGroup();
+
 
     if($(".select2-result-label") && $(".select2-result-label").length > 0) {
         //set background color for groups
