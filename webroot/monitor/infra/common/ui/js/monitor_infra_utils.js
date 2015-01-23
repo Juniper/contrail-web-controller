@@ -2015,8 +2015,8 @@ function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
         };
         updatedData.push(d);
     });
-    genDS.setItems(updatedData);
-    return {dataSource:genDS};
+    primaryDS.updateData(updatedData);
+    return {dataSource:primaryDS};
 }
 
 function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {

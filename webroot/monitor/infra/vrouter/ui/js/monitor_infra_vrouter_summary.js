@@ -185,8 +185,13 @@ monitorInfraComputeSummaryClass = (function() {
             
             setTimeout(function () {
                 var cgrid = $('#divcomputesgrid').data('contrailGrid');
-                if(cgrid != null)
-                    cgrid._dataView.setData(filteredNodes);
+                if(cgrid != null) {
+                    try{
+                        cgrid._dataView.updateData(filteredNodes);
+                    } catch(e) {
+                        cgrid._dataView.setItems(filteredNodes);
+                    }
+                }
             }, 500);
             
             //ToDo: Need to see issue with sparkLine update
