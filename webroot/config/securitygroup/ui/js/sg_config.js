@@ -368,7 +368,11 @@ function initActions() {
                 if(direction == "Ingress"){
                     sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = "local";
                     if(selectedRemoteAddrType == "SecurityGroup"){
-                        sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = remoteAddr;
+                        if(remoteAddr.split(":").length == 3){
+                            sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = remoteAddr;
+                        } else if(remoteAddr.split(":").length == 1){
+                            sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = selectedDomain + ":" + selectedProject + ":" + remoteAddr;
+                        }
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"] = {};
                         if(remoteAddr == null || remoteAddr == "")
@@ -385,7 +389,11 @@ function initActions() {
                 } else if(direction == "Egress"){
                     sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["security_group"] = "local";
                     if(selectedRemoteAddrType == "SecurityGroup"){
-                        sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = remoteAddr;
+                        if(remoteAddr.split(":").length == 3) {
+                            sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = remoteAddr;
+                        } else if(remoteAddr.split(":").length == 1) {
+                            sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["security_group"] = selectedDomain + ":" + selectedProject + ":" + remoteAddr;
+                        }
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"] = {};
                         if(remoteAddr == null || remoteAddr == "")
@@ -638,7 +646,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
 function changePlaceHolder(id){
     var protical = $("#sGRuleTuples_"+id+"_protocol").data("contrailDropdown").value();
     if(protical == "icmp"){
-        $("#sGRuleTuples_"+id+"_remotePorts")[0].setAttribute("placeholder", "code ANY - type ANY");
+        $("#sGRuleTuples_"+id+"_remotePorts")[0].setAttribute("placeholder", "type ANY - code ANY");
         $("#sGRuleTuples_"+id+"_remotePorts").val("");
     } else {
         $("#sGRuleTuples_"+id+"_remotePorts")[0].setAttribute("placeholder", "ANY");
@@ -1171,7 +1179,14 @@ function formateSGRule_port(port,protocal){
 
 function formateSGRule_SGText(sg){
     var sgArray = sg.split(":");
-    var returnString = " security group " + sgRuleFormat(sgArray[2]) +" ("+ sgArray[0] +":"+ sgArray[1] + ") ";
+    var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
+    var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
+    var returnString = "";
+    if(sgArray[0] == selectedDomain && sgArray[1] == selectedProject) {
+        returnString = " security group " + sgRuleFormat(sgArray[2]) + " ";
+    } else  {
+        returnString = " security group " + sgRuleFormat(sgArray[2]) +" ("+ sgArray[0] +":"+ sgArray[1] + ") ";
+    }
     return returnString;
 }
 
@@ -1308,6 +1323,24 @@ function validate() {
             if(id !== -1){
                 if (validatePort(id) == false)
                     return false;
+
+                var remoteAddr = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").value();
+                var selectedRemoteAddrType = getSelectedGroupName($("#sGRuleTuples_"+id+"_remoteAddr"));
+                if(selectedRemoteAddrType == "SecurityGroup"){
+                    if ("" === remoteAddr.trim()) {
+                        showInfoWindow("Enter a valid remote Security Group name", "Invalid input in CIDR");
+                        return false;
+                    }
+                    if(isSet(remoteAddr) && isString(remoteAddr) && remoteAddr.indexOf(":") !== -1 && remoteAddr.split(":").length !== 3) {
+                        showInfoWindow("Fully Qualified Name of Remote Address should be in the format Domain:Project:SecurityGroup.", "Invalid FQN");
+                        return false;
+                    }
+                } else if (selectedRemoteAddrType == "CIDR") {
+                    if ("" === remoteAddr.trim() || !isValidIP(remoteAddr.trim())) {
+                        showInfoWindow("Enter a valid CIDR", "Invalid input in CIDR");
+                        return false;
+                    }
+                }
             }
         }
     }
