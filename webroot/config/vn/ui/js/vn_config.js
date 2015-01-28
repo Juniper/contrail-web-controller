@@ -74,6 +74,7 @@ function VirtualNetworkConfig() {
     this.validate = validate;
     this.toggleDHCP = toggleDHCP;
     this.setHeaderDHCP = setHeaderDHCP;
+    this.handleGw = handleGw;
     this.getAllDNSServer = getAllDNSServer;
     this.dynamicID = dynamicID;
     this.destroy = destroy;
@@ -920,6 +921,7 @@ function createDNSServerEntry(DNSNameServer, len) {
     if (null !== DNSNameServer && typeof DNSNameServer !== "undefined") {
         $(inputTxtDNSServerName).val(DNSNameServer);
         $(inputTxtDNSServerName).addClass("textBackground");
+        $(inputTxtDNSServerName).attr("disabled", "disabled");
     }
     return rootDiv;
 }
@@ -1056,14 +1058,28 @@ function createIPAMEntry(ipamBlock, id,element) {
     divDHCP.appendChild(inputcboxDhcp);
     divDHCP.appendChild(spanInputcboxDhcp);
 
+    var chkGw = document.createElement("input");
+    chkGw.type = "checkbox";
+    chkGw.setAttribute("enabled", "enable");
+    chkGw.className = "ace-input";
+    chkGw.setAttribute("id",element+"_"+id+"_chkGw");
+    chkGw.setAttribute("onchange", "handleGw(this)");
+    chkGw.setAttribute("title", "Enable/Disable Gateway");
+    chkGw.checked = true;
+    var spanInputcboxGw = document.createElement("span");
+    spanInputcboxGw.className = "ace-lbl";
+    spanInputcboxGw.innerHTML = "&nbsp;";
+
     var inputTxtGateway = document.createElement("input");
     inputTxtGateway.type = "text";
-    inputTxtGateway.className = "span12";
+    inputTxtGateway.className = "span9";
     inputTxtGateway.setAttribute("placeholder", "Gateway");
     inputTxtGateway.setAttribute("id",element+"_"+id+"_txtGateway");
     inputTxtGateway.setAttribute("title", "xxx.xxx.xxx.xxx");
     var divIPGateway = document.createElement("div");
     divIPGateway.className = "span2";
+    divIPGateway.appendChild(chkGw);
+    divIPGateway.appendChild(spanInputcboxGw);
     divIPGateway.appendChild(inputTxtGateway);    
 
     //Only one subnet can be specified in case of vCenter
@@ -1133,12 +1149,19 @@ function createIPAMEntry(ipamBlock, id,element) {
     if (null !== ipamBlock && typeof ipamBlock !== "undefined") {
         $(inputTxtIPBlock).val(ipamBlock.IPBlock);
         $(inputTxtGateway).val(ipamBlock.Gateway);
+        if(ipamBlock.Gateway === "0.0.0.0") {
+            chkGw.checked = false;
+        }
+        else {
+            chkGw.checked = true;
+        }
         inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
         $(selectIpams).data("contrailDropdown").enable(false);
         $(inputcboxDhcp).attr("disabled", "disabled"); 
+        $(chkGw).attr("disabled", "disabled"); 
         $(inputTxtIPBlock).attr("disabled", "disabled"); 
         $(inputTxtIPBlock).addClass("textBackground");
         $(inputTxtGateway).attr("disabled", "disabled");  
@@ -1232,7 +1255,7 @@ function validateIPAMEntry() {
             //}
 
             if (isValidIP(gateway.trim())) {
-                if(gateway.split("/").length >= 2) {
+                if(gateway.split("/").length >= 2 && "0.0.0.0" !== gateway.trim()) {
                     showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
                     return false;
                 }
@@ -2503,6 +2526,20 @@ function toggleDHCP(){
         }
     }
 }
+
+function handleGw(me) {
+    var id = getID(String($(me)[0].id));
+    if($(me)[0].checked == true) {
+        $("#ipamTuples_" + id + "_txtGateway")[0].disabled = false;
+        //$("#ipamTuples_" + id + "_txtGateway").attr("placeholder", "Gateway");
+        $("#ipamTuples_" + id + "_txtCIDR").trigger('onblur');
+    } else {
+        $("#ipamTuples_" + id + "_txtGateway").val("0.0.0.0");
+        $("#ipamTuples_" + id + "_txtGateway")[0].disabled = true;
+        //$("#ipamTuples_" + id + "_txtGateway").attr("placeholder", "0.0.0.0");
+    }
+}
+
 function setHeaderDHCP(me){
     if($(me)[0].checked == true){
         var setFlag = true;
