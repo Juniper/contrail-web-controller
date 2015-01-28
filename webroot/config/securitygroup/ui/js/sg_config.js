@@ -3,7 +3,7 @@
  */
 
 sgConfigObj = new sgConfigObj();
-var  iconSG ='image-Security', iconSubnet ='image-subnet';
+var  iconSG ='icon-contrail-security-group', iconSubnet ='icon-contrail-network-ipam';
 function sgConfigObj() {
     //Variable definitions
     //Dropdowns
