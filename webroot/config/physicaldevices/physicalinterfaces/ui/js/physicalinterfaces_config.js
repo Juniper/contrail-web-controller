@@ -718,6 +718,14 @@ function physicalInterfacesConfig() {
         return '';
     }
         
+    function handleInterfaceName(name) {
+        var actName = name;
+        if(name.indexOf(':') != -1){
+            actName = name.replace(':','__');
+        }
+        return actName;
+    }
+
     function createUpdatePhysicalInterface() {
         var methodType = 'POST';
         var infType = $('#ddType').data('contrailDropdown').text();
@@ -727,12 +735,12 @@ function physicalInterfacesConfig() {
             url = '/api/tenants/config/physical-interface/' + currentUUID + '/' + gblSelRow.type + '/' + gblSelRow.uuid;
         }
         var type = $("#ddType").data('contrailDropdown').value();
-        var name = $("#txtPhysicalInterfaceName").val();
+        var name = $("#txtPhysicalInterfaceName").val().trim();
         var vlan =  $("#txtVlan").val() === '' ? 0 : parseInt($("#txtVlan").val());
         var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
         var postObject = {};
         gridPhysicalInterfaces._dataView.setData([]);
-        gridPhysicalInterfaces.showGridMessage('loading');    
+        gridPhysicalInterfaces.showGridMessage('loading');
         if(infType === 'Physical') {
             postObject["physical-interface"] = {};
             postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), name];
@@ -768,23 +776,28 @@ function physicalInterfacesConfig() {
                     postObject["logical-interface"]["uuid"] = gblSelRow.uuid;
                 }
             } else {
+                var piDispName = parent.text().trim();
+                var piName = handleInterfaceName(piDispName);
                 if(!isItemExists(parent.text(), dsSrcDest)) {
                     doubleCreation = true;
                     postObject["physical-interface"] = {};
-                    postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), parent.text()];
+                    postObject["physical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), piName];
                     postObject["physical-interface"]["parent_type"] = "physical-router";
-                    postObject["physical-interface"]["name"] = parent.text();
+                    postObject["physical-interface"]["name"] = piName;
+                    postObject["physical-interface"]["display_name"] = piDispName;
                     if(mode === 'edit') {
                         postObject["physical-interface"]["uuid"] = gblSelRow.uuid;
                     }
                     url = '/api/tenants/config/physical-interfaces/' + currentUUID + '/Physical';                 
                 } else {
+                    var liName = handleInterfaceName(name);
                     doubleCreation = false;
                     postObject["logical-interface"] = {};
-                    postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), parent.text() , name];
+                    postObject["logical-interface"]["fq_name"] = ["default-global-system-config", pRouterDD.text(), piName, liName];
                     postObject["logical-interface"]["parent_type"] = "physical-interface";
                     postObject["logical-interface"]["parent_uuid"] = parent.value();
-                    postObject["logical-interface"]["name"] = name;  
+                    postObject["logical-interface"]["name"] = liName;
+                    postObject["logical-interface"]["display_name"] = name;
                     postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
                     if(vmiData != 'none') {
                         postObject["logical-interface"]['virtual_machine_interface_refs'] = [{"to" : [vmiData[0], vmiData[1], vmiData[2]]}];
@@ -1046,10 +1059,11 @@ function physicalInterfacesConfig() {
                     pInterface = pInterfaces[i]['logical-interface'];
                     infType = "Logical";
                     liDetails = getLogicalInterfaceDetails(pInterface);                     
-                }    
+                }
+                var piName = pInterface.display_name != null ? pInterface.display_name : pInterface.name;
                 gridDS.push({
                     uuid : pInterface.uuid,
-                    name : pInterface.name,
+                    name : piName,
                     type : infType,
                     parent : pInterface.fq_name[1],
                     vlan : liDetails.vlanTag != null ? liDetails.vlanTag : '-',
@@ -1067,18 +1081,19 @@ function physicalInterfacesConfig() {
                 if(lInterfaces != null && lInterfaces.length > 0) {
                     for(var j = 0; j < lInterfaces.length; j++) {
                         var lInterface = lInterfaces[j]['logical-interface'];
-                        var lInterfaceName = lInterface.fq_name[3];
+                        var lInterfaceName = lInterface.display_name ? lInterface.display_name : lInterface.name;
                         if(lInterfaceNames === ''){
                             lInterfaceNames = lInterfaceName;
                         } else {
                             lInterfaceNames += ',' + lInterfaceName;
                         }
-                        liDetails = getLogicalInterfaceDetails(lInterface); 
+                        liDetails = getLogicalInterfaceDetails(lInterface);
+                        var liName = lInterface.display_name ? lInterface.display_name : lInterface.name;
                         infDS.push({
                             uuid : lInterface.uuid,
-                            name : lInterface.name,
+                            name : liName,
                             type : "Logical",
-                            parent : lInterface.fq_name[2],
+                            parent : piName,
                             vlan : liDetails.vlanTag,
                             server : liDetails.vmiDetails,
                             vn : liDetails.vnRefs,
