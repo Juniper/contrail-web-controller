@@ -431,6 +431,51 @@ function initActions() {
     });
 }
 
+function setSGinAddress(e){
+    var sGRuleTuples = $("#sGRuleTuples")[0].children;
+    if (sGRuleTuples && sGRuleTuples.length > 0) {
+        for(i = 0 ; i< sGRuleTuples.length ; i++){
+            var sGRuleTuples = $("#sGRuleTuples")[0].children;
+            var divid = sGRuleTuples[i].id;
+            var id = getID(divid);
+            addCurrentSG(id);
+        }
+    }
+}
+
+function addCurrentSG(id){
+    var currentSG = $("#txtRuleName").val();
+    if(currentSG.trim() != ""){
+        var remoteAddValue = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").getAllData();
+        var allSecurietyGroup = remoteAddValue[1].children;
+        var isAvailable = false;
+        var sgLen = allSecurietyGroup.length;
+        for(var i=0; i < sgLen;i++){
+            var tempLoopSGVal = allSecurietyGroup[i].value;
+            if(tempLoopSGVal.split(":").length > 1){
+                if(currentSG == tempLoopSGVal || currentSG == tempLoopSGVal.split(":")[2]) {
+                    isAvailable = true;
+                    break;
+                }
+            } else {
+                allSecurietyGroup.splice(i , 1);
+                sgLen--;
+            }
+        }
+        if(isAvailable ==  false){
+            allSecurietyGroup.unshift({"id":currentSG,"parent": "SecurityGroup","text":currentSG+" (Current)","value":currentSG});
+            remoteAddValue[1].children = allSecurietyGroup;
+            var val = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").value();
+            var text = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").text();
+            var selectedRemoteAddrType = getSelectedGroupName($("#sGRuleTuples_"+id+"_remoteAddr"));
+            $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").setData(remoteAddValue);
+            $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown").value(val);
+            var ra = $("#sGRuleTuples_"+id+"_remoteAddr").data("contrailDropdown");
+            verifyRASelectedItem(text,ra,"",selectedRemoteAddrType);
+        }
+    }
+}
+
 function appendSGRuleEntry(who, defaultRow) {
     dynamicID += 1;
     var ruleEntry = createSGRuleEntry(null, dynamicID, "sGRuleTuples",window.sgData);
@@ -440,6 +485,7 @@ function appendSGRuleEntry(who, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(ruleEntry, parentEl.nextSibling);
     }
+    addCurrentSG(dynamicID);
     scrollUp("#windowCreateSG",ruleEntry,false);
 }
 
@@ -453,7 +499,13 @@ function addNewItemMainDataSource(txt, data, selector, grpType) {
     var display = txt.split(':');
     if(grpName != "CIDR"){
         if(display.length === 3) {
-            display = display[2] + ' (' + display[0] + ':' + display[1] + ')';
+            var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
+            var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
+            if(display[0] == selectedDomain && display[1] == selectedProject){
+                display = display[2];
+            } else {
+                display = display[2] + ' (' + display[0] + ':' + display[1] + ')';
+            }
         } else {
             display = display[0];
         }
@@ -602,7 +654,11 @@ function createSGRuleEntry(rule, id, element,SGData) {
         var fqname = sg["fq_name"];
         var fqNameValue = sg["fq_name"][0] + ":" + sg["fq_name"][1] + ":" + sg["fq_name"][2];
         if(fqname[0] === selectedDomain && fqname[1] === selectedProject) {
-            allSG.push({text : sg["fq_name"][2], value : fqNameValue, parent : "SecurityGroup" });
+            if(sg["fq_name"][2] == $("#txtRuleName").val()){
+                allSG.push({text : sg["fq_name"][2]+" (Current)", value : fqNameValue, parent : "SecurityGroup" });
+            } else {
+                allSG.push({text : sg["fq_name"][2], value : fqNameValue, parent : "SecurityGroup" });
+            }
         }
     }
     //add other project Security Group at the end
@@ -1303,6 +1359,7 @@ function showsgEditWindow(mode, rowIndex) {
                     }
                 }
             }
+            addCurrentSG(dynamicID);
         },
         function () {
             //If atleast one api fails
