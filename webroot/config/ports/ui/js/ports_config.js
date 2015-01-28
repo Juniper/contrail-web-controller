@@ -1023,7 +1023,7 @@ function fetchDataForgridPorts() {
     gridPorts.showGridMessage('loading');
     var proid = $("#ddProjectSwitcher").data("contrailDropdown").value();
     ajaxParam = proid + "_" + polAjaxcount;
-    doAjaxCall("/api/admin/config/get-data?type=ports&count="+pageCount+"&fqnUUID="+proid,
+    doAjaxCall("/api/admin/config/get-data?type=virtual-machine-interface&count="+pageCount+"&fqnUUID="+proid,
         "GET", null, "successHandlerForgridPorts", "failureHandlerForgridPortsRow", null, ajaxParam);
 }
 
@@ -1032,7 +1032,7 @@ function successHandlerForgridPorts(result , cbparam) {
         return;
     }
     if(result.more == true || result.more == "true"){
-        doAjaxCall("/api/admin/config/get-data?type=ports&count="+pageCount+"&fqnUUID="+
+        doAjaxCall("/api/admin/config/get-data?type=virtual-machine-interface&count="+pageCount+"&fqnUUID="+
             $("#ddProjectSwitcher").data("contrailDropdown").value() +"&lastKey="+result.lastKey,
             "GET", null, "successHandlerForgridPorts", "failureHandlerForgridPortsRow", null, cbparam);
     }
@@ -1500,7 +1500,7 @@ function showPortEditWindow(mode, rowIndex) {
         type:"GET"
     });
     getAjaxs[3] = $.ajax({
-        url:"/api/admin/config/get-data?type=ports&fqnUUID="+selectedProjectVal,
+        url:"/api/admin/config/get-data?type=virtual-machine-interface&fqnUUID="+selectedProjectVal,
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
