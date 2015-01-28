@@ -118,7 +118,10 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
                                             for(var j = 0; j < lInfDetails.length; j++) {
                                                 var lInterface = lInfDetails[j]['logical-interface'];
                                                 if('virtual_machine_interface_refs' in lInterface) {
-                                                    vmiList.push({li_uuid : lInterface.uuid, uuid : lInterface['virtual_machine_interface_refs'][0].uuid});
+                                                    var vmiRefs = lInterface['virtual_machine_interface_refs'];
+                                                    for(var k = 0 ; k < vmiRefs.length; k++){
+                                                        vmiList.push({li_uuid : lInterface.uuid, uuid : vmiRefs[k].uuid});
+                                                    }
                                                 }
                                             }
                                             if(vmiList.length > 0) {
@@ -130,9 +133,10 @@ function getPhysicalInterfacesDetails(error, data, response, appData)
                                                         }
                                                         for(var j = 0; j < lInfDetails.length; j++) {
                                                             var lInterface = lInfDetails[j]['logical-interface'];
+                                                            lInterface['vmi_details']  = [];
                                                             for(var k = 0; k < vmiList.length; k++) {
                                                                 if(vmiList[k].li_uuid === lInterface.uuid) {
-                                                                    lInterface['vmi_details'] = vmiList[k]['vmi_details']; 
+                                                                    lInterface['vmi_details'].push(vmiList[k]['vmi_details']); 
                                                                 } 
                                                             }    
                                                         }
@@ -317,6 +321,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
     async.map(dataObjArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, data) {
+//                console.log('VMI dump' + JSON.stringify(data));
                 if ((null != error) || (null == data) || (!data.length)) {
                     commonUtils.handleJSONResponse(error, response, null);
                     return;
@@ -334,32 +339,36 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                             "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
                             "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : [],
                             "subnet" : vmi['subnet_back_refs'] != null ? vmi['subnet_back_refs'][0].to[0] : '', "vmi_uuid" : vmi.uuid});
+                        var instIPBackRefs = vmi['instance_ip_back_refs'];
+                        //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
+                        if(instIPBackRefs != null && instIPBackRefs.length > 0) {
+                            for (var k = 0; k < instIPBackRefs.length ; k++) {
+                               var instIPUrl = '/instance-ip/' + instIPBackRefs[k]['uuid'];
+                               commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
+                                                        null, null, null, appData);
+                            }
+                        }
                     }
-                     var instIPBackRefs = vmi['instance_ip_back_refs'];
-                     //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
-                     if(instIPBackRefs != null && instIPBackRefs.length > 0) {
-                         for (var k = 0; k < instIPBackRefs.length ; k++) {
-                            var instIPUrl = '/instance-ip/' + instIPBackRefs[k]['uuid'];
-                            commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
-                                                     null, null, null, appData);
-                         }
-                     }
+                     
                  }
                  if(dataObjArr.length > 0) {
                      async.map(dataObjArr,
                          commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                          function(error, data) {
+//                         console.log('IP DATA ' + JSON.stringify(data)); 
                          if ((null != error) || (null == data) || (!data.length)) {
                              commonUtils.handleJSONResponse(error, response, null);
                              return;
                          }
                          var tempVMIResourceObjCnt = tempVMIResourceObj.length;
                          var total = 0;
+//                         console.log('tempRSRCBOJ' + JSON.stringify(tempVMIResourceObj));
                          for (var i = 0; i < tempVMIResourceObjCnt; i++) {
                              if(tempVMIResourceObj[i]['instance-ip'] != null && tempVMIResourceObj[i]['instance-ip'].length > 0) {
                                  var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
                                  var tempInstIPData = data.slice(total, total + instIpCnt);
                                  total += instIpCnt;
+                                 
                                  var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
                                  resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs,
                                                  "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
@@ -397,25 +406,83 @@ function updateVMIDetails(request, appData, postData, callback) {
      var infType = validateQueryParam(request, 'infType');
      if(infType === "Logical") {
          var vmiData = postData['logical-interface']['virtual_machine_interface_refs'];
-         var vmiID = vmiData != null && vmiData.length > 0 ? vmiData[0].to[2] : null;
-         if(vmiID != null) {
-             configApiServer.apiGet('/virtual-machine-interface/' + vmiID, appData,
-                 function(error, data) {
-                     if(data != null && data['virtual-machine-interface'] != null && data['virtual-machine-interface']['logical_interface_back_refs'] != null) {
-                          var liID = data['virtual-machine-interface']['logical_interface_back_refs'][0].uuid;
-                          configApiServer.apiGet('/logical-interface/' + liID, appData, function(err, liData) {
-                              liData['logical-interface']['virtual_machine_interface_refs'] =[];
-                              configApiServer.apiPut('/logical-interface/' + liID, liData, appData, function(error, result) {
-                                  callback();    
-                              });
-                          });
-                     } else {
-                        callback();
-                     }
-                 });
-         } else {
-             callback();
-        }             
+         var vmiDataObjArray = [];
+         var vmiIds = [];
+         for(var i = 0; i < vmiData.length ; i++){
+//             console.log('vmid = ' + vmiData[i].uuid);
+             var vmiReqUrl = '/virtual-machine-interface/' + vmiData[i].uuid;
+             vmiIds.push(vmiData[i]['uuid']);
+             commonUtils.createReqObj(vmiDataObjArray, vmiReqUrl, global.HTTP_REQUEST_GET,
+                 null, null, null, appData);
+         }
+         
+         if(vmiDataObjArray.length > 0) {
+             //get virtual machine interface details for post object's virtual machine interface refs 
+             async.map(vmiDataObjArray,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                     function(error,vmiDetails){                 
+                             if (error) {
+                                commonUtils.handleJSONResponse(error, response, null);
+                                return;
+                             }
+                            var liObjArray = [];
+                            var liIds = [];
+                            for(var j=0; j < vmiDetails.length; j++){
+                                var data = vmiDetails[j];
+                                // filter the virtual machine interfaces with logical_interface_back_refs
+                                 if(data != null && data['virtual-machine-interface'] != null && data['virtual-machine-interface']['logical_interface_back_refs'] != null) {
+                                     
+                                     var liReqUrl = '/logical-interface/' + data['virtual-machine-interface']['logical_interface_back_refs'][0].uuid;
+                                     liIds.push(data['virtual-machine-interface']['logical_interface_back_refs'][0].uuid);
+                                     commonUtils.createReqObj(liObjArray, liReqUrl, global.HTTP_REQUEST_GET,
+                                         null, null, null, appData);
+                                 }
+                             }
+                             if(liObjArray.length > 0) {
+                                 //get logical interface details
+                                 async.map(liObjArray,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                                         function(error,liDetails){                 
+                                                 if (error) {
+                                                    commonUtils.handleJSONResponse(error, response, null);
+                                                    return;
+                                                 }
+                                                var liPutObjArray = [];
+                                                for(var l = 0; l < liDetails.length; l++){
+                                                    var liPutURl= '/logical-interface/' + liDetails[l]['logical-interface'].uuid;
+                                                    var currLIVMIs = liDetails[l]['logical-interface']['virtual_machine_interface_refs'];
+                                                    for(var i =  currLIVMIs.length - 1; i >= 0 ;i--){
+                                                        for(var k=0; k < vmiIds.length; k++){
+                                                            if(currLIVMIs[i] != null && currLIVMIs[i]['uuid'] == vmiIds[k]){
+                                                                //remove the vmi_refs from the existing lis whose are part of new li
+                                                                currLIVMIs.splice(i,1);  
+                                                            }
+                                                        }
+                                                    }
+                                                    commonUtils.createReqObj(liPutObjArray, liPutURl, global.HTTP_REQUEST_PUT,
+                                                            commonUtils.cloneObj(liDetails[l]), null, null, appData);   
+                                                }
+                                                if(liPutObjArray.length >0) {
+                                                    async.map(liPutObjArray,commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
+                                                        function(err,liPutDetails){
+                                                            if(err){
+                                                                commonUtils.handleJSONResponse(err, response, null);
+                                                                return;  
+                                                            }
+                                                            callback();
+                                                        }
+                                                    );
+                                                } else {
+                                                    callback();
+                                                }
+                                                
+                                 });
+                             } else {
+                                 callback();
+                             }
+                  });          
+                    
+        } else {
+            callback();
+        }           
     } else {
         callback();
     }         
