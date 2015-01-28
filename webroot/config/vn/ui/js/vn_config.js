@@ -2468,10 +2468,6 @@ function validate() {
         showInfoWindow("Enter a valid display network name", "Input required");
         return false;
     }
-    if (typeof vnDisName === "undefined" || vnDisName === "") {
-        showInfoWindow("Enter a valid display network name", "Input required");
-        return false;
-    }
     if(validateRTEntry() === false || 
         validateFipEntry() === false ||
         validateSREntry() === false ||
