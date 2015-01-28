@@ -628,7 +628,8 @@ function createSGRuleEntry(rule, id, element,SGData) {
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
         minimumResultsForSearch:1,
-        dropdownCssClass: 'sgSelect2'
+        dropdownCssClass: 'sgSelect2',
+        selectOnBlur: true
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
