@@ -73,7 +73,21 @@ function physicalInterfacesConfig() {
                 {
                     id : 'server',
                     field : 'server',
-                    name : 'Server'                    
+                    name : 'Servers',
+                    formatter:function(r,c,v,cd,dc){
+                        var servers = v;
+                        var serverString = '';
+                        if(servers == '' || servers == '-' || servers.length < 1)
+                            return '-';
+                        $.each(servers,function(i,d){
+                            if(i == 0){
+                                serverString = d; 
+                            } else {
+                                serverString += '</br>' + d;
+                            }
+                        })
+                        return serverString;
+                    },
                 }]                
                                 
             },
@@ -209,10 +223,7 @@ function physicalInterfacesConfig() {
         flow = null;
         if(id != 'none') {
             $('#txtSubnet').removeAttr('disabled');
-            $("[id$=serverMac]").remove();
-            $("[id$=serverIp]").remove();
-            $(".rule-item").remove()
-            dynamicID = 0;
+            clearServerDetailsGrid();
             $('#btnAddServer').show();
         } else {
              var liType = $('#ddLIType').data('contrailDropdown').value();
@@ -263,6 +274,7 @@ function physicalInterfacesConfig() {
             $('#l2TypePanel').removeClass('show').addClass('hide');
             $('#l2ServerPanel').removeClass('show').addClass('hide');
             $('#l3SubnetPanel').removeClass('hide').addClass('show');
+            clearServerDetailsGrid();
         }
     }
     
@@ -991,11 +1003,16 @@ function physicalInterfacesConfig() {
         return macs;
     }
     
-    function isMacsRepeated(macs){
+
+    function isMacsRepeated(macs) {
         var isRepeated = false
-        $.each(macs,function(i,mac){
-            
-        });
+        var sorted_macs = macs.sort(); 
+        var results = [];
+        for ( var i = 0; i < sorted_macs.length - 1; i++) {
+            if (sorted_macs[i + 1] == sorted_macs[i]) {
+                isRepeated = true
+            }
+        }
         return isRepeated;
     }
 
@@ -1037,11 +1054,19 @@ function physicalInterfacesConfig() {
         $('#l2TypePanel').removeClass('hide').addClass('show');
         $('#l2ServerPanel').removeClass('hide').addClass('show'); 
         fetchVirtualNetworkInternals('none');
-        //Remove all the rows in the grid.
+        clearServerDetailsGrid();
+    }
+    
+    function clearServerDetailsGrid(){
+      //Remove all the rows in the grid.
         $("[id$=serverMac]").remove();
         $("[id$=serverIp]").remove();
         $(".rule-item").remove();
-        $('#btnAddServer').hide();
+        if($('#ddVN').data('contrailDropdown').value() == 'none'){
+            $('#btnAddServer').hide();
+        } else {
+            $('#btnAddServer').show();
+        }
         dynamicID = 0;
     }
     
@@ -1241,6 +1266,19 @@ function physicalInterfacesConfig() {
                     liDetails = getLogicalInterfaceDetails(pInterface);                     
                 }
                 var piName = pInterface.display_name != null ? pInterface.display_name : pInterface.name;
+                var serverString = '';
+                var vmiDetails = liDetails.vmiDetails;
+                if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
+                    serverString = '-'
+                } else {
+                    $.each(vmiDetails,function(i,d){
+                        if(i == 0){
+                            serverString = d; 
+                        } else {
+                            serverString += '</br>' + d;
+                        }
+                    });
+                }
                 gridDS.push({
                     uuid : pInterface.uuid,
                     name : piName,
@@ -1248,6 +1286,7 @@ function physicalInterfacesConfig() {
                     parent : pInterface.fq_name[1],
                     vlan : liDetails.vlanTag != null ? liDetails.vlanTag : '-',
                     server : liDetails.vmiDetails != null ? liDetails.vmiDetails : '-',
+                    servers_display : serverString,        
                     vn : liDetails.vnRefs != null ? liDetails.vnRefs : '-',
                     li_type : liDetails.liType != null ? liDetails.liType : '-' ,
                     vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-',
@@ -1268,6 +1307,19 @@ function physicalInterfacesConfig() {
                             lInterfaceNames += ',' + lInterfaceName;
                         }
                         liDetails = getLogicalInterfaceDetails(lInterface);
+                        var serverString = '';
+                        var vmiDetails = liDetails.vmiDetails;
+                        if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
+                            serverString = '-'
+                        } else {
+                            $.each(vmiDetails,function(i,d){
+                                if(i == 0){
+                                    serverString = d; 
+                                } else {
+                                    serverString += '</br>' + d;
+                                }
+                            });
+                        }
                         var liName = lInterface.display_name ? lInterface.display_name : lInterface.name;
                         infDS.push({
                             uuid : lInterface.uuid,
@@ -1275,7 +1327,8 @@ function physicalInterfacesConfig() {
                             type : "Logical",
                             parent : piName,
                             vlan : liDetails.vlanTag,
-                            server : liDetails.vmiDetails,
+                            server : vmiDetails,
+                            servers_display : serverString,
                             vn : liDetails.vnRefs,
                             li_type : liDetails.liType,
                             vmi_ip : liDetails.vmiIP,
@@ -1395,11 +1448,11 @@ function physicalInterfacesConfig() {
         var selVN = $('#ddVN').data('contrailDropdown').text();
         var subNetArry = selVN.split(' ');
         var isIPinRange = true;
-        var subNet = '';
+        var subNets = [];
         if(subNetArry.length > 2) {
             for(var i = 2; i < subNetArry.length; i++) {
                 if(subNetArry[i] != undefined) {
-                    subNet = subNetArry[i].replace('(', '').replace(')', '').replace(',','').trim();                    
+                    subNets.push(subNetArry[i].replace('(', '').replace(')', '').replace(',','').trim());                    
                 }
             }
         }
@@ -1412,9 +1465,16 @@ function physicalInterfacesConfig() {
                     showInfoWindow('Invald IP ' + ip , "Invalid input in Server Details");
                     return false;
                 }
-                if(!isIPBoundToRange(subNet, ip)){
-                    showInfoWindow(ip + ' is not in the CIDR ' + subNet, "Invalid input in Server Details");
-                    return false; 
+                var isInSubnetRange = false;
+                for(var j =0 ; j < subNets.length; j++){
+                    if(isIPBoundToRange(subNets[j], ip)){
+                        isInSubnetRange = true;
+                        break;
+                    }
+                }
+                if(!isInSubnetRange){
+                    showInfoWindow(ip + ' is not in the CIDR ' + subNets, "Invalid input in Server Details");
+                    return false;
                 }
             }
         }
@@ -1433,14 +1493,14 @@ function physicalInterfacesConfig() {
             //Check if the subnet given is valid in case of l3
             var subnet =  $('#txtSubnet').val().trim();
             if(selVN != 'none' && subnet.split("/").length != 2) {
-                showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx format", "Invalid input in Subnet");
+                showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx ", "Invalid input in Subnet");
                 return false;
             }
         } else if(liType === 'l2') {
             //Get all the macs in the grid an verify if they are valid
             var macAddresses = getMacsFromVMIDropdownsInGrid();
             if(isMacsRepeated(macAddresses)){
-                showInfoWindow("Enter a valid MAC Address", "Invalid input in Server Details");
+                showInfoWindow("Please enter different MAC Addresses", "Invalid input in Server Details");
                 return false;
             }
             if(selVN != 'none') {
@@ -1670,7 +1730,7 @@ function physicalInterfacesConfig() {
     function createServerEntry(rule, id, element,serverData) {
 
         var selectDivServerMac = document.createElement("div");
-        selectDivServerMac.className = "span6 pull-left";
+        selectDivServerMac.className = "span5 pull-left";
         var selectServerMac = document.createElement("input");
         selectServerMac.className = "span12";
         selectServerMac.setAttribute("id",element+"_"+id+"_"+"serverMac");
@@ -1686,6 +1746,8 @@ function physicalInterfacesConfig() {
         divRowFluidServerIp.className = "span5";
         divRowFluidServerIp.appendChild(inputIP);
 
+        var divPlusMinus =  document.createElement("div");
+        divPlusMinus.className = 'span2 pull-right';
         var iBtnAddRule = document.createElement("i");
         iBtnAddRule.className = "icon-plus";
         iBtnAddRule.setAttribute("title", "Add server details below");
@@ -1708,10 +1770,14 @@ function physicalInterfacesConfig() {
         divPullLeftMargin5Minus.className = "pull-right margin-5";
         divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
 
+//        divPlusMinus.appendChild(divPullLeftMargin5Plus);
+//        divPlusMinus.appendChild(divPullLeftMargin5Minus);
+        
         var divRowFluidMargin10 = document.createElement("div");
         divRowFluidMargin10.className = "row-fluid margin-0-0-5";
         divRowFluidMargin10.appendChild(selectDivServerMac);
         divRowFluidMargin10.appendChild(divRowFluidServerIp);
+//        divRowFluidMargin10.appendChild(divPlusMinus);
         divRowFluidMargin10.appendChild(divPullLeftMargin5Plus);
         divRowFluidMargin10.appendChild(divPullLeftMargin5Minus);
 
