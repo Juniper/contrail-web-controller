@@ -13,9 +13,15 @@ var commonUtils = require(process.mainModule.exports["corePath"] +
     jsonPath = require('JSONPath').eval,
     assert = require('assert'),
     request = require('request'),
+    proxyApi = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/proxy.api'),
     appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
+    redisUtils = require(process.mainModule.exports["corePath"] +
+                         '/src/serverroot/utils/redis.utils'),
     async = require('async');
+
+var redisInfraClient = null;
 
 function getModuleType (modName)
 {
@@ -932,6 +938,32 @@ function getReachableIP (req, res, appData)
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
 }
+
+function saveNodesHostIPToRedis (data, nodeType, callback)
+{
+    var hash = 'node-hash';
+    var portList = proxyApi.getAllowedProxyPortListByNodeType(nodeType);
+    for (key in data['hosts']) {
+        data['hosts'][key] = portList;
+    }
+    for (key in data['ips']) {
+        data['ips'][key] = portList;
+    }
+    data = JSON.stringify(data);
+    if (null == redisInfraClient) {
+        redisUtils.createDefRedisClientAndWait(function(redisClient) {
+            redisInfraClient = redisClient;
+            redisInfraClient.hset(hash, nodeType, data, function(err) {
+                callback(err);
+            });
+        });
+    } else {
+        redisInfraClient.hset(hash, nodeType, data, function(err) {
+            callback(err);
+        });
+    }
+}
+
 exports.dovRouterListProcess = dovRouterListProcess;
 exports.checkAndGetSummaryJSON = checkAndGetSummaryJSON;
 exports.getvRouterList = getvRouterList;
@@ -950,4 +982,5 @@ exports.filterOutGeneratorInfoFromGenerators =
 exports.getBulkUVEUrl = getBulkUVEUrl;
 exports.getReachableIP = getReachableIP;
 exports.getSandeshData = getSandeshData;
+exports.saveNodesHostIPToRedis = saveNodesHostIPToRedis;
 

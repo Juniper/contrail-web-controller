@@ -64,6 +64,7 @@ function getConfigNodeDetails (req, res, appData)
 
 function getConfigNodesSummary (req, res, appData)
 {
+    var nodesHostIp = {'hosts': {}, 'ips': {}};
     var addGen = req.param('addGen');
     var dataObjArr = [];
 
@@ -93,6 +94,36 @@ function getConfigNodesSummary (req, res, appData)
             return;
         }
         resultJSON = postProcessConfigNodeSummary(results);
+        var nodeCnt = 0;
+        try {
+            nodeCnt = resultJSON.length;
+        } catch(e) {
+            nodeCnt = 0;
+        }
+        for (var i = 0; i < nodeCnt; i++) {
+            try {
+                nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+            } catch(e) {
+            }
+            var nodeIpsCnt = 0;
+            try {
+                var nodeIps =
+                    resultJSON[i]['value']['configNode']['ModuleCpuState']['config_node_ip'];
+                nodeIpsCnt = nodeIps.length;
+            } catch(e) {
+                logutils.logger.error("Config UVE IP parse error: " + e);
+                nodeIpsCnt = 0;
+            }
+            for (var j = 0; j < nodeIpsCnt; j++) {
+                nodesHostIp['ips'][nodeIps[j]] = [];
+            }
+        }
+        if (nodeCnt > 0) {
+            infraCmn.saveNodesHostIPToRedis(nodesHostIp,
+                                            global.label.API_SERVER,
+                                            function(err) {
+            });
+        }
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
 }
