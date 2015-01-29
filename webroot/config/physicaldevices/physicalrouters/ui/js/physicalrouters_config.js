@@ -748,27 +748,42 @@ function physicalRoutersConfig() {
         var ddTorAgentName = $('#ddTorAgentName').data('contrailCombobox');
         var ddTsnName = $('#ddTsnName').data('contrailCombobox');
         if(ddVirtualRoutersType.value() == "tor-agent") {
-            if(ddTorAgentName.text() == ddTsnName.text()){
-                showInfoWindow("ToR Agent Name and TSN Name cannot be same");
+            if(ddTorAgentName.text() == ''){
+                showInfoWindow("ToR Agent Name cannot be empty","Input required Virtual Router");
+                return false;
+            }
+            if(ddTsnName.text() == ''){
+                showInfoWindow("TSN Name cannot be empty","Input required Virtual Router");
+                return false;
+            }
+            if(ddTorAgentName.text() != '' && ddTsnName.text() != ''){
+                if(ddTorAgentName.text() == ddTsnName.text()){
+                    showInfoWindow("ToR Agent Name and TSN Name cannot be same","Input error Virtual Router");
+                    return false;
+                }
+            }
+            if($('#txtTorAgentIp').val() != '') {
+                var dataIpAddress = $('#txtTorAgentIp').val().trim();
+                if(!validateIPAddress(dataIpAddress)){
+                    showInfoWindow("Enter a valid ToR Agent IP address in xxx.xxx.xxx.xxx format","Input error Virtual Router");
+                    return false;
+                }
+            } else {
+                showInfoWindow("Enter a valid ToR Agent IP address in xxx.xxx.xxx.xxx format","Input required Virtual Router");
+                return false;
+            }
+            if($('#txtTsnIp').val() != '') {
+                var dataIpAddress = $('#txtTsnIp').val().trim();
+                if(!validateIPAddress(dataIpAddress)){
+                    showInfoWindow("Enter a valid TSN IP address in xxx.xxx.xxx.xxx format","Input error Virtual Router");
+                    return false;
+                }
+            } else {
+                showInfoWindow("Enter a valid TSN IP address in xxx.xxx.xxx.xxx format","Input required Virtual Router");
                 return false;
             }
         }
         
-        if($('#txtTorAgentIp').val() != '') {
-            var dataIpAddress = $('#txtTorAgentIp').val().trim();
-            if(!validateIPAddress(dataIpAddress)){
-                showInfoWindow("Enter a valid ToR Agent IP address in xxx.xxx.xxx.xxx format","Input required");
-                return false;
-            }
-        }
-        
-        if($('#txtTsnIp').val() != '') {
-            var dataIpAddress = $('#txtTsnIp').val().trim();
-            if(!validateIPAddress(dataIpAddress)){
-                showInfoWindow("Enter a valid TSN IP address in xxx.xxx.xxx.xxx format","Input required");
-                return false;
-            }
-        }
         return true;         
     }
     
