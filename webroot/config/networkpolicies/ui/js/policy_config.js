@@ -1116,6 +1116,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         query : select2Query,
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
+        selectOnBlur: true
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
@@ -1128,6 +1129,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         query : select2Query,
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
+        selectOnBlur: true
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
