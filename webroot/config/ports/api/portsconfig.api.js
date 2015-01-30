@@ -237,7 +237,7 @@ function createPortsValidate(request, data, response, appData, callback){
         delete portPostData['virtual-machine-interface']['logical_router_back_refs'];
     }
     if (('virtual_machine_interface_device_owner' in portPostData['virtual-machine-interface']) && 
-        portPostData['virtual-machine-interface']["virtual_machine_interface_device_owner"] == "compute:nova"){
+        (portPostData['virtual-machine-interface']["virtual_machine_interface_device_owner"]).substring(0,7) == "compute"){
         portPostData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
     }
     
@@ -508,8 +508,7 @@ function portSendResponse(error, req, portConfig, orginalPortData, apiLogicalRou
     }
 
     if("virtual_machine_interface_device_owner" in orginalPortData["virtual-machine-interface"] &&
-       orginalPortData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
-        portConfig["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute:nova";
+       (orginalPortData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
         body = {};
         body.portID = portConfig["virtual-machine-interface"]["uuid"];
         body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
@@ -777,13 +776,17 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
     if ("virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"] &&
         "virtual_machine_interface_device_owner" in portPutData["virtual-machine-interface"]) {
         if(vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] ==
-           portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]) {
-            if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
+            portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] || 
+            (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) ==
+            (portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7)) {
+            if ((vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
                 if ("virtual_machine_refs" in vmiData["virtual-machine-interface"] &&
                     "virtual_machine_refs" in portPutData["virtual-machine-interface"]) {
                     if (vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"] ==
                         portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"]) {
-                        boolDeviceOwnerChange = false; 
+                        portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = 
+                        vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"];
+                        boolDeviceOwnerChange = false;
                     }
                 }
             } else if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == 
@@ -801,7 +804,7 @@ function compareUpdateVMI(error, request, portPutData, vmiData, appData, callbac
             }
         }
     }
-    
+    console.log("boolDeviceOwnerChange"+boolDeviceOwnerChange);
     processDataObjects(error, DataObjectArr, DataObjectDelArr, DataSRObjectArr, vmiData, portPutData, DataObjectLenDetail, boolDeviceOwnerChange, request, appData,
     function(error, result){
         callback(error, result)
@@ -957,7 +960,7 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
                 callback(error, data);
                 return;
             }
-            if(DataObjectArr.length > 0){
+            if(DataObjectArr != null && DataObjectArr.length > 0){
                 async.map(DataObjectArr,
                 commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
                 function(error, results) {
@@ -980,15 +983,25 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
 }
 
 function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, callback){
+    if("virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"] && 
+        (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute"){
+        if("virtual_machine_refs" in vmiData["virtual-machine-interface"]){
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "compute";
+        } else if("logical_router_back_refs" in vmiData["virtual-machine-interface"]){
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "network:router_interface";
+        } else {
+            vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+        }
+    }
     if("virtual_machine_interface_device_owner" in portPutData["virtual-machine-interface"] &&
             "virtual_machine_interface_device_owner" in vmiData["virtual-machine-interface"]){
         var serverIndex = DataObjectLenDetail["LogicalRouterServerStartIndex"];
         var serverCount = DataObjectLenDetail["LogicalRouterServerCount"];
         var uiIndex = DataObjectLenDetail["LogicalRouterUIStartIndex"];
         var uiCount = DataObjectLenDetail["LogicalRouterUICount"];
-        if(vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
-            if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] != "compute:nova") ||
-               ((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") && 
+        if((vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
+            if(((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) != "compute") ||
+               (((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") && 
                (vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"] != portPutData["virtual-machine-interface"][ "virtual_machine_refs"][0]["uuid"]))){
                 //detach compute nova
                 var body = {};
@@ -1001,7 +1014,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                         return;
                     }
                     //Add new Compute nova entrey
-                    if(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova"){
+                    if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute"){
                         body = {};
                         body.portID = portPutData["virtual-machine-interface"]["uuid"];
                         body.netID = portPutData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
@@ -1088,7 +1101,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                             appData);
                                         callback(error, result, DataObjectArr);
                                         return;
-                                    } else if(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
+                                    } else if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
                                         //Attach the new compute Nova
                                         body = {};
                                         body.portID = portPutData["virtual-machine-interface"]["uuid"];
@@ -1145,7 +1158,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                     appData);
                 callback(error, result, DataObjectArr);
                 return;
-            } else if(portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
+            } else if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
                 //Attach the new compute Nova
                 body = {};
                 body.portID = portPutData["virtual-machine-interface"]["uuid"];
@@ -1458,7 +1471,7 @@ function deletePortAsync (dataObj, callback)
     } else if (dataObj['type'] == 'vmi') {
         var vmiData = dataObj['vmiData'];
         var request = dataObj['request'];
-        if(vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
+        if((vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
             //detach compute nova
             var body = {};
             body.portID = vmiData["virtual-machine-interface"]["uuid"];
