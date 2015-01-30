@@ -3,7 +3,7 @@
  */
 
 networkpolicyConfigObj = new networkPolicyConfigObj();
-var iconNetwork ='image-network', iconPolicy ='image-policy', iconSubnet ='image-subnet';
+var iconNetwork ='icon-contrail-virtual-network', iconPolicy ='icon-contrail-network-policy', iconSubnet ='icon-contrail-network-ipam';
 function networkPolicyConfigObj() {
     //Variable definitions
     //Dropdowns
