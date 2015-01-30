@@ -1304,7 +1304,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             deviceOwnerUUIDValue = JSON.stringify(deviceUUIDArr);
             deviceOwnerUUID = portData["logical_router_back_refs"][0]["to"][2] + " (" + portData["logical_router_back_refs"][0]["uuid"] +")";
         }
-    } else  if(devOwner == "compute:nova"){
+    } else  if("compute" == devOwner.substring(0,7)){
         if("virtual_machine_refs" in portData && portData["virtual_machine_refs"].length >= 0 ){
             deviceOwnerValue = "compute";
             //devOwnerName = "Nova";
