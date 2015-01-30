@@ -2660,6 +2660,19 @@ function getInstanceDetails (req, res, appData)
     }
 }
 /*
+ * This function list all the virtualmachines in the UVE
+ */
+function getAllVirtualMachines(request, response, appData) {
+    var url = '/analytics/uves/virtual-machines';
+    opApiServer.apiGet(url, appData, function(error, data) {
+        if (error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+         }
+         commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+/*
  * This function fetch the virtual machines for the Admin role
  */
 function getInstanceDetailsForAdmin(req,appData,callback) {
@@ -2848,7 +2861,23 @@ function getvnStatsPerVrouter (req, res, appData)
                                              urlKey, reqUrl,
                                              0, 1, 0, -1, true, req.query);
 }
-
+/*
+ * This function returns the list of all the Virtual machines from the
+ * config server
+ */
+function getVirtualMachinesFromConfig(request, response, appData) {
+    
+    var vmListURL = '/virtual-machines',dataObjArr = [];
+    configApiServer.apiGet(vmListURL, appData,function(error, data) {
+        var configVMArr = commonUtils.ifNull(data['virtual-machines'],[]);
+        if(error || null == configVMArr) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        logutils.logger.debug("config vm data data is "+JSON.stringify(configVMArr));
+        commonUtils.handleJSONResponse(error, response, configVMArr);
+     });
+}
 /* List all public functions */
 exports.getTopNetworkDetailsByDomain = getTopNetworkDetailsByDomain;
 exports.getTopNetworkDetailsByProject = getTopNetworkDetailsByProject;
@@ -2881,4 +2910,5 @@ exports.getVNListByProject = getVNListByProject;
 exports.getOpServerPagedResponseByLastKey = getOpServerPagedResponseByLastKey;
 exports.getStats = getStats;
 exports.getvnStatsPerVrouter = getvnStatsPerVrouter;
-
+exports.getAllVirtualMachines = getAllVirtualMachines;
+exports.getVirtualMachinesFromConfig = getVirtualMachinesFromConfig;
