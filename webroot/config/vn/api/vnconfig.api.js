@@ -2202,4 +2202,3 @@ exports.updateVNRouteTargets         = updateVNRouteTargets;
 exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
 exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
-
