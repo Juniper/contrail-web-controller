@@ -88,7 +88,7 @@
             </div>-->
             <div class="row-fluid {{{showDeviceOwner}}}">
                 <div>
-                    <span class="span2"><label>Device Owner</label> </span>
+                    <span class="span2"><label>Device</label> </span>
                     <span class="span10">: {{devOwnerName}} </span>
                 </div>
             </div>
@@ -98,6 +98,37 @@
                     <span class="span10">: {{deviceID}} </span>
                 </div>
             </div>
+            {{#if chiled}}
+                <label><h6><b>Sub Interface Properties</b></h6></label>
+
+                <!--div class="row-fluid">
+                    <div>
+                        <span class="span2"><label>Sub Interface</label> </span>
+                        <span class="span10">: {{subInterfaceFlag}} </span>
+                    </div>
+                </div-->
+                <div class="row-fluid">
+                    <div>
+                        <span class="span2"><label>VLAN</label> </span>
+                        <span class="span10">: {{subInterfaceVlan}} </span>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div>
+                        <span class="span2"><label>Parent Port</label> </span>
+                        <span class="span10">: {{subinterfaceUUID}} </span>
+                    </div>
+                </div>
+            {{/if}}
+            {{#if parent}}
+                <div class="row-fluid">
+                    <div>
+                        <span class="span2"><label>Sub Interfaces</label> </span>
+                        <span class="span10">: {{{childrensUUID}}} </span>
+                    </div>
+                </div>
+            {{/if}}
+
         </div>
     </div>
 </script>
@@ -120,7 +151,7 @@
                                     <div id="ddVN" class = "span12 pull-right" ></div>
                                 </div>
                                 <div class="span5">
-                                    <label class="control-label span5">Admin State</label>
+                                    <label class="padding-top-5 span5">Admin State</label>
                                     <div id="ddVNState" class="span7" ></div>
                                 </div>
                             </div>
@@ -291,21 +322,46 @@
                                                 </div>
                                             </div>
                                             <br>
-                                            <div class="row-fluid">
+                                            <div class="control-group">
                                                 <label class="control-label">Device Owner</label>
                                                 <div class="controls">
-                                                    <div class="row-fluid margin-0-0-10">
-                                                        <div class="span10">
-                                                            <div class="span5">
-                                                                <div id="ddDeviceOwnerName" class="span11"></div>
-                                                            </div>
-                                                            <div class="span6">
-                                                                <div id="ddDeviceOwnerUUID" class="span11"></div>
-                                                            </div>
-                                                        </div>
+                                                    <div class="span5">
+                                                        <div id="ddDeviceOwnerName" class="span12"></div>
+                                                    </div>
+                                                    <div class="span5">
+                                                        <div id="ddDeviceOwnerUUID" class="span12""></div>
                                                     </div>
                                                 </div>
                                             </div>
+                                            
+                        <div class="control-group">
+                            <label class="control-label">Sub Interface</label>
+                            <div class="controls">
+                                <div class="span10">
+                                    <input class="ace-input" type="checkbox" id="is_subInterface" onclick="enableSubInterface(this);"><span class="ace-lbl"/>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group subInterface hide">
+                            <label class="control-label">VLAN</label>
+                            <div class="controls">
+                                <div class="span10">
+                                    <input type="text" id="txtVlan" placeholder="Specify VLAN" class="span12 pull-right" />
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="control-group subInterface hide">
+                            <label class="control-label">Primary Interface</label>
+                            <div class="controls">
+                                <div class="span10">
+                                    <div id="ddSubInterfaceParent" class="span12" ></div>
+                                </div>
+                            </div>
+                        </div>
+
+                                            
                                            <!-- <div class="row-fluid">
                                                 <label class="control-label">Tenant ID</label>
                                                 <div class="controls">
