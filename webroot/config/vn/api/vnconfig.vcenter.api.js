@@ -50,7 +50,10 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     var networkListURL = '/project/' + projUUID;
     configApiServer.apiGet(networkListURL,appData,function(err,data) {
         var networkUUIDs = [],reqUrl = '';
-        data = data['project']['virtual_networks'];
+        if(data['project'] != null && data['project']['virtual_networks'] != null) 
+            data = data['project']['virtual_networks'];
+        else
+            return;
         var nwURLsArr = [],nwNames = [];
         for(var i=0;i<data.length;i++) {
             var nwUUID = data[i]['uuid'];
