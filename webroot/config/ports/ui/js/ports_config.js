@@ -93,6 +93,21 @@ function fetchData() {
     fetchDomains("populateDomains", "failureHandlerForgridPorts");
 }
 
+function groupBy( array , f )
+{
+  var groups = {};
+  array.forEach( function( o )
+  {
+    var group = JSON.stringify( f(o) );
+    groups[group] = groups[group] || [];
+    groups[group].push( o );  
+  });
+  return Object.keys(groups).map( function( group )
+  {
+    return groups[group]; 
+  })
+}
+
 function initComponents() {
     var columnsToBeAddedDynamically = [];
     var ownerColumn = {
@@ -545,14 +560,40 @@ function initActions() {
         portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"] = {};
         if (allDHCPTuples && allDHCPTuples.length > 0) {
             portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"] = [];
+            var unGroupedDHCPOptionsList = [];
             for(i = 0 ; i< allDHCPTuples.length ; i++){
                 var divid = allDHCPTuples[i].id;
                 var id = getID(divid);
                 var dhcpCode = $("#"+dhcpElement+"_"+id+"_txtDHCPCode").val();
                 var dhcpValue = $("#"+dhcpElement+"_"+id+"_txtDHCPValue").val();
-                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i] = {};
-                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_name"] = dhcpCode.trim();
-                portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"][i]["dhcp_option_value"] = dhcpValue.trim();
+                unGroupedDHCPOptionsList[i] = {};
+                unGroupedDHCPOptionsList[i]["dhcp_option_name"] = dhcpCode.trim();
+                unGroupedDHCPOptionsList[i]["dhcp_option_value"] = dhcpValue.trim();
+
+            }
+            if(unGroupedDHCPOptionsList.length > 0) {
+                var groupedDHCPOptionsList = groupBy(unGroupedDHCPOptionsList, function(item) {
+                    return [item.dhcp_option_name];
+                });
+                if (groupedDHCPOptionsList && groupedDHCPOptionsList != "" && groupedDHCPOptionsList.length > 0) {
+                    returnDHCPOptionsList = [];
+                    for (var i = 0; i < groupedDHCPOptionsList.length; i++) {
+                        var dhcpOptionsOfSameValue = jsonPath(groupedDHCPOptionsList[i], "$.*.dhcp_option_value");
+                        if(dhcpOptionsOfSameValue === false)
+                            dhcpOptionsOfSameValue = "";
+                        else {
+                            dhcpOptionsOfSameValue = dhcpOptionsOfSameValue.join(" ");
+                        }
+                        if(typeof dhcpOptionsOfSameValue === "string" && dhcpOptionsOfSameValue.trim() !== "") {
+                            returnDHCPOptionsList.push({
+                                "dhcp_option_name": groupedDHCPOptionsList[i][0]['dhcp_option_name'],
+                                "dhcp_option_value": dhcpOptionsOfSameValue
+                                });
+                        }
+                    }
+                    if(returnDHCPOptionsList.length > 0)
+                        portConfig["virtual-machine-interface"]["virtual_machine_interface_dhcp_option_list"]["dhcp_option"] = returnDHCPOptionsList;
+                }
             }
         }
         
@@ -1148,9 +1189,12 @@ function mapVMIData(portData,selectedDomain,selectedProject){
         var DHCP = portData["virtual_machine_interface_dhcp_option_list"]["dhcp_option"];
         var DHCPLen = DHCP.length;
             for(var i = 0;i< DHCPLen;i++){
-                if(DHCPOption != "") DHCPOption += ", ";
-                DHCPOption += DHCP[i]["dhcp_option_name"] +":"+ DHCP[i]["dhcp_option_value"];
-                DHCPOptionValue.push({"code":(DHCP[i]["dhcp_option_name"]).trim(),"value":(DHCP[i]["dhcp_option_value"]).trim()});
+                var spaceSeperatedDhcpOptionValue = DHCP[i]["dhcp_option_value"].split(" ");
+                for(var j=0; j<spaceSeperatedDhcpOptionValue.length; j++) {
+                    if(DHCPOption != "") DHCPOption += ", ";
+                    DHCPOption += DHCP[i]["dhcp_option_name"].trim() +":"+ spaceSeperatedDhcpOptionValue[j].trim();
+                    DHCPOptionValue.push({"code":(DHCP[i]["dhcp_option_name"]).trim(),"value":spaceSeperatedDhcpOptionValue[j].trim()});
+                }
             }
         }
     }
@@ -1690,7 +1734,7 @@ function showPortEditWindow(mode, rowIndex) {
                 
                 element = "DHCPTuples";
                 if(mapedData.DHCPOption != null && mapedData.DHCPOption != ""){
-                    var dhcpOption = mapedData.DHCPOption.split(",");
+                    var dhcpOption = mapedData.DHCPOption.split(", ");
                     for(var localInc = 0; localInc < dhcpOption.length;localInc++){
                         var codeVal = dhcpOption[localInc].split(":");
                         dynamicID++;
