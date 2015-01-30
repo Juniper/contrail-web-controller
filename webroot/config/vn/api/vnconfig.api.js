@@ -905,7 +905,7 @@ function createVirtualNetwork (request, response, appData)
     var vnPostData     = request.body;
     var vnSeqPostData  = {};
     var vnConfigData   = null;
-
+    
     if (typeof(vnPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
         commonUtils.handleJSONResponse(error, response, null);
@@ -2202,4 +2202,3 @@ exports.updateVNRouteTargets         = updateVNRouteTargets;
 exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
 exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
-
