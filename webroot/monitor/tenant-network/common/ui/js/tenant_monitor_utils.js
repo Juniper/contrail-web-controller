@@ -1084,8 +1084,9 @@ var tenantNetworkMonitorUtils = {
         spanWidths = [235,145,35,160,110,100,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
         var spanWidthsForFip = [95,250,300,110];
+        if(rowData['status'] != null)
+            retArr.push({lbl:'Status',value:'<p class="error"><i class="icon-warning"></i>'+rowData['status']+'</p>'});
         retArr.push({lbl:'UUID',value:ifNull(rowData['name'],'-')});
-
         if(!isVCenter())
             retArr.push({lbl:'CPU',value:jsonPath(d,'$..cpu_one_min_avg')[0] != null ? jsonPath(d,'$..cpu_one_min_avg')[0].toFixed(2) : '-'});
         var usedMemory = ifNullOrEmptyObject(jsonPath(d,'$..rss')[0],'-');
@@ -1166,7 +1167,10 @@ var tenantNetworkMonitorUtils = {
                     addr += "<br/>"+wrapLabelValue('Mac',ifNull(obj['mac_address'],'-'));
                 }
             }
-            intfStr[idx] = [uuid, addr, ifNull(obj['label'],'-'),ifNull(tenantNetworkMonitorUtils.formatVN(obj['virtual_network']),'-'),
+            //Because of bug in analytics whereever label value is -1,UI is getting as 4294967295 (2 ^ 32 - 1,signed and unsigned datatype)
+            // as a hack we are validating 4294967295 and replacing it hypen('-')
+            var intfLbl = obj['label'] != null ? (obj['label'] != (Math.pow(2,32) - 1) ? obj['label'] : '-') : '-'; 
+            intfStr[idx] = [uuid, addr, intfLbl,ifNull(tenantNetworkMonitorUtils.formatVN(obj['virtual_network']),'-'),
                             formatBytes(intfInBytes) + '/' + formatBytes(intfOutBytes),
                             formatBytes(intfInBw) + '/' + formatBytes(intfOutBw),ifNull(obj['gateway'],"-"),intfStatus]; 
             interfaceDetails.push({lbl:'',value:intfStr[idx],span:spanWidths});
@@ -1396,14 +1400,56 @@ var instancePopulateFns = {
          * Getter for all Instances
          */
         getAllInstances: function (deferredObj,dataSource,dsObj) {
+            var configVMDefObj = $.Deferred();
+            //Getting instances from the config server and save in global object
+            $.ajax({
+                url:'/api/tenant/networking/config/virtual-machines-details'
+            }).done(function(response){
+                response = ifNull(response,[]);
+                var configVMuuid = [];
+                for(var i = 0; i < response.length; i++) {
+                    configVMuuid.push(response[i]['virtual-machine']['display_name']);
+                }
+                globalObj['configVM'] = configVMuuid;
+                configVMDefObj.resolve();
+            }).fail(function(){
+                configVMDefObj.reject();
+            });
+            dataSource['onDataUpdate'].subscribe(function(){
+                if(configVMDefObj.state() != 'pending'){
+                    var needUpdate = false;
+                    var opServerInst = dataSource.getItems();
+                    $.each(opServerInst,function(idx,instObj){
+                        if($.inArray(instObj['name'],ifNull(globalObj['configVM'],[])) == -1) {
+                            instObj['status'] = infraAlertMsgs['CONFIG_MISSING'];
+                        }
+                    });
+                }
+            });
+            /*
+             * deferredObj will be resolved once all the instances from the UVE are fetched
+             * after that we will compare with instances in config server and add to datasource 
+             * which are missing in UVE
+             */
+            $.when(deferredObj,configVMDefObj).done(function(uveData,configData){
+                var dataSource = uveData['dataSource'];
+                var opServerInst = dataSource.getItems(),opServerInstLen = opServerInst.length;
+                var configVMlist = ifNull(globalObj['configVM'],[]),missingInst = [],opServerUuids = [];
+                $.each(opServerInst,function(idx,instObj){
+                    opServerUuids.push(instObj['name']);
+                });
+                $.grep(configVMlist,function(uuid,idx){
+                    if($.inArray(uuid,opServerUuids) == -1)
+                        missingInst.push({name:uuid,status: infraAlertMsgs['UVE_MISSING'],error:true});
+                    });
+                dataSource.addData(missingInst);
+            });
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
                               'UveVirtualMachineAgent:fip_stats_list'];
             var obj = {};
             obj['transportCfg'] = { 
                     url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,
                     type:'POST',
-                    //  url:'/fakeData/instanceData.json',
-                    // type:'GET',
                    data:{data:[{"type":"virtual-machine", "cfilt":instCfilts.join(',')}]}
                 }
             getOutputByPagination(dataSource,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,loadedDeferredObj:deferredObj},dsObj);
@@ -1957,6 +2003,8 @@ function getProjectData(vnData,project){
 function getMultiValueStr(arr) {
     var retStr = '';
     var entriesToShow = 2;
+    if(arr == null)
+        return retStr;
     $.each(arr,function(idx,value) {
         if(idx == 0)
             retStr += value; 
@@ -1977,6 +2025,8 @@ function getMultiValueStr(arr) {
 function formatIPArr(arr) {
     var retStr = '';
     var entriesToShow = 2;
+    if(arr == null)
+        return retStr;
     $.each(arr,function(idx,value) {
         var lbl = 'IPv4',isIpv6 = false;
         isIpv6 = isIPv6(value);

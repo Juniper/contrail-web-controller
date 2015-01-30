@@ -8,7 +8,13 @@
 </script>
 
 <script type="text/x-handlebars-template" id="gridDetailTemplate">
+    {{#if error}}
     <div>
+        <p class="error"><i class="icon-warning"></i>{{status}}
+    </div>
+    {{/if}}
+    {{#IfCompare error null operator='=='}}
+        <div>
         <div class="inline row-fluid position-relative pull-right margin-0-5">
             <div class="dropdown-toggle pull-right" data-toggle="dropdown">
                 <i class="icon-cog icon-only bigger-110"></i>
@@ -43,7 +49,8 @@
                 {{/if}}
             {{/if}}
         </div>
-    </div>
+    </div>    
+    {{/IfCompare}}
 </script>
 
 <script type="text/x-handlebars-template" id="detailTemplate">
@@ -86,7 +93,7 @@
         {{else}}
             <div class="row-fluid">
                 <div class="span2" style="width:150px"><label>{{lbl}}</label></div>
-                <div class="span10" style="margin-left:0px">{{value}}</div>
+                <div class="span10" style="margin-left:0px">{{{value}}}</div>
             </div>
         {{/IfCompare}}
     {{/each}}
