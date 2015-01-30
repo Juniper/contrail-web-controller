@@ -503,11 +503,17 @@ function initActions() {
                         }
                     }
                     finalDNSServer = [];
-                    for(dnsInc = 0;dnsInc < DNSServer.length; dnsInc++){
+                    var IPv4DNSs = jsonPath(DNSServer, "$.[?(@.dhcp_option_name=='6')]");
+                    if(IPv4DNSs !== false && IPv4DNSs.length === 1) {
+                        IPv4DNSs = IPv4DNSs[0];
+                        finalDNSServer.push(IPv4DNSs);
+                    }
+                    /*for(dnsInc = 0;dnsInc < DNSServer.length; dnsInc++){
+
                         if(isIPv4(DNSServer[dnsInc].dhcp_option_value)){
                             finalDNSServer.push(DNSServer[dnsInc]);
                         }
-                    }
+                    }*/
                 }
                 if(ipamList.lastIndexOf(currentIpam) === -1) {
                     mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:finalHR,dNSServert:finalDNSServer});
@@ -942,9 +948,43 @@ function formatAllDNSServer(DNSServer){
     var returnDNSServer = [];
     if (DNSServer && DNSServer != "" && DNSServer.length > 0) {
         for (var i = 0; i < DNSServer.length; i++) {
-            returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "6"});
+            if(isIPv4(DNSServer[i]))
+                returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "6"});
+            else if(isIPv6(DNSServer[i]))
+                returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "v6-name-servers"});
         }
     }
+    var IPv4DNSs = jsonPath(returnDNSServer, "$.[?(@.dhcp_option_name=='6')]");
+    var spaceSeparatedIPv4DNSs = [];
+    if(IPv4DNSs !== false && IPv4DNSs.length > 1) {
+        for(var i=0; i<IPv4DNSs.length; i++) {
+            spaceSeparatedIPv4DNSs.push(IPv4DNSs[i].dhcp_option_value);
+        }
+        if(spaceSeparatedIPv4DNSs.length > 0) {
+            spaceSeparatedIPv4DNSs = spaceSeparatedIPv4DNSs.join(" ");
+        }
+    } else {
+        spaceSeparatedIPv4DNSs = "";
+    }
+
+    var IPv6DNSs = jsonPath(returnDNSServer, "$.[?(@.dhcp_option_name=='v6-name-servers')]");
+    var spaceSeparatedIPv6DNSs = [];
+    if(IPv6DNSs !== false && IPv6DNSs.length > 1) {
+        for(var i=0; i<IPv6DNSs.length; i++) {
+            spaceSeparatedIPv6DNSs.push(IPv6DNSs[i].dhcp_option_value);
+        }
+        if(spaceSeparatedIPv6DNSs.length > 0) {
+            spaceSeparatedIPv6DNSs = spaceSeparatedIPv6DNSs.join(" ");
+        }
+    } else {
+        spaceSeparatedIPv6DNSs = "";
+    }
+
+    returnDNSServer = [];
+    if(spaceSeparatedIPv4DNSs !== "")
+        returnDNSServer.push({"dhcp_option_value":spaceSeparatedIPv4DNSs,"dhcp_option_name": "6"});
+    if(spaceSeparatedIPv6DNSs !== "")
+        returnDNSServer.push({"dhcp_option_value":spaceSeparatedIPv6DNSs,"dhcp_option_name": "v6-name-servers"});
     return returnDNSServer;
 }
 
@@ -2036,14 +2076,12 @@ function createUniqueDNSServer(ipamRefs){
                 var DNSServertemp = ipamRefs[j]["subnet"]["dhcp_option_list"]["dhcp_option"];
                 if(DNSServertemp.length > 0) {
                     for(var inc = 0 ; inc < DNSServertemp.length ; inc++){
-                        if(DNSServertemp[inc]["dhcp_option_name"] == "6") {
-                            var available = true;
-                            for(var uni = 0; uni < allDNSServer.length ; uni++){ 
-                                if(allDNSServer[uni] == DNSServertemp[inc]["dhcp_option_value"])
-                                    available = false;
-                            }
-                            if(available == true){
-                                allDNSServer.push(DNSServertemp[inc]["dhcp_option_value"]);
+                        if(DNSServertemp[inc]["dhcp_option_name"] == "6" ||
+                            DNSServertemp[inc]["dhcp_option_name"] == "v6-name-servers") {
+                            var spaceSeparatedDNSs = DNSServertemp[inc]["dhcp_option_value"];
+                            var DNSs = spaceSeparatedDNSs.split(" ");
+                            for(var dnsCount = 0; dnsCount < DNSs.length; dnsCount++) {
+                                allDNSServer.push(DNSs[dnsCount]);
                             }
                         }
                     }
@@ -2051,6 +2089,8 @@ function createUniqueDNSServer(ipamRefs){
             }
         }
     }
+    if(allDNSServer.length > 1)
+        allDNSServer = allDNSServer.unique();
     return allDNSServer;
 }
 function reorderPolicies(policies){
