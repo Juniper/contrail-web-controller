@@ -38,7 +38,7 @@ if (!module.parent)
 }
 
 //No of times to retry to check for VN on API Server
-var maxRetryCnt = 10;
+var maxRetryCnt = 30;
 function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     if(retryCnt == null)
         retryCnt = 0;
@@ -50,21 +50,22 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     var networkListURL = '/project/' + projUUID;
     configApiServer.apiGet(networkListURL,appData,function(err,data) {
         var networkUUIDs = [],reqUrl = '';
-        data = data['project']['virtual_networks'];
-        var nwURLsArr = [],nwNames = [];
-        for(var i=0;i<data.length;i++) {
-            var nwUUID = data[i]['uuid'];
-            var nwName = data[i]['to'][2];
-            if(nwName == name) {
-                callback(nwUUID);
-                return;
+        if(data['project'] != null && data['project']['virtual_networks'] != null) {
+            data = data['project']['virtual_networks'];
+            var nwURLsArr = [],nwNames = [];
+            for(var i=0;i<data.length;i++) {
+                var nwUUID = data[i]['uuid'];
+                var nwName = data[i]['to'][2];
+                if(nwName == name) {
+                    callback(nwUUID);
+                    return;
+                }
             }
         }
         setTimeout(function() {
             ifNetworkExists(appData,projUUID,name,callback,retryCnt);
-        },10000);
-
-        });
+        },3000);
+    });
 }
 
 /**
