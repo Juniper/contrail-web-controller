@@ -38,7 +38,7 @@ if (!module.parent)
 }
 
 //No of times to retry to check for VN on API Server
-var maxRetryCnt = 10;
+var maxRetryCnt = 30;
 function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     if(retryCnt == null)
         retryCnt = 0;
@@ -47,27 +47,25 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
         callback(false);
     }
     retryCnt++;
-    var networkListURL = '/project/' + projUUID;
+    var networkListURL = '/project/' + projUUID + '?exclude_children=True&exclude_back_refs=True';
     configApiServer.apiGet(networkListURL,appData,function(err,data) {
         var networkUUIDs = [],reqUrl = '';
-        if(data['project'] != null && data['project']['virtual_networks'] != null) 
+        if(data['project'] != null && data['project']['virtual_networks'] != null) {
             data = data['project']['virtual_networks'];
-        else
-            return;
-        var nwURLsArr = [],nwNames = [];
-        for(var i=0;i<data.length;i++) {
-            var nwUUID = data[i]['uuid'];
-            var nwName = data[i]['to'][2];
-            if(nwName == name) {
-                callback(nwUUID);
-                return;
+            var nwURLsArr = [],nwNames = [];
+            for(var i=0;i<data.length;i++) {
+                var nwUUID = data[i]['uuid'];
+                var nwName = data[i]['to'][2];
+                if(nwName == name) {
+                    callback(nwUUID);
+                    return;
+                }
             }
         }
         setTimeout(function() {
             ifNetworkExists(appData,projUUID,name,callback,retryCnt);
-        },10000);
-
-        });
+        },3000);
+    });
 }
 
 /**
