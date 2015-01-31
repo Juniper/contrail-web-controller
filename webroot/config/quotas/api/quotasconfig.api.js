@@ -75,6 +75,10 @@ function readProjectQuotas (projectIdStr, appData, callback)
     }
     configApiServer.apiGet(quotasGetURL, appData,
                          function(error, data) {
+                             if (error) {
+                                 callback(error, null);
+                                 return;
+                             }
                              if(data["project"]["quota"] != undefined) {
                                  getProjectQuotasCb(error, data, appData, callback);
                              } else     {
@@ -112,13 +116,7 @@ function setProjectQuotas(projectIdStr, appData, data, callback) {
                                    "floating_ip_pool": null,
                                    "logical_router": -1
                                };
-    configApiServer.apiPut(url, data, appData, function(err, data){
-        if (err) {
-            commonUtils.handleJSONResponse(err, response, null);
-            return;
-        }
-        readProjectQuotas(projectIdStr, appData, callback);
-    });
+    getProjectQuotasCb(null, data, appData, callback);
 }
     
 /**
