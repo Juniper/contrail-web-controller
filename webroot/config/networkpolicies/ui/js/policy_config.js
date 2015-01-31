@@ -1116,6 +1116,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         query : select2Query,
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
+        selectOnBlur: true
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
@@ -1128,6 +1129,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         query : select2Query,
         formatResult : select2ResultFormat,
         formatSelection : select2Format,
+        selectOnBlur: true
     }).on('select2-close', function() {
         loadSelect2CloseActions();
     }).on('select2-open', function() {
@@ -1469,7 +1471,7 @@ function select2Query(query) {
     }
     query.callback(data);
     //set focus for a searched item
-    setFocusSelectedItem(grpName, query.term, data.results); 
+    setFocusSelectedItem(grpName, query.term, data.results);
     
     //hide inbuilt select2 search results for custom term 
     $('.select2-results > .select2-results-dept-0.select2-result-selectable').attr('style','display:none');            
