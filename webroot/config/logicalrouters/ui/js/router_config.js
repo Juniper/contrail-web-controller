@@ -1035,11 +1035,6 @@ function logRouterCreateWindow(mode,rowIndex) {
     });
     
     getAjaxs[2] = $.ajax({
-        url:"/api/admin/config/get-data?type=ports&fqnUUID="+selectedProject,
-        type:"GET"
-    });
-    
-    getAjaxs[3] = $.ajax({
         url:"/api/tenants/config/shared-virtual-networks",
         type:"GET"
     });
@@ -1108,35 +1103,10 @@ function logRouterCreateWindow(mode,rowIndex) {
             
             $(ddExtGateway).data("contrailDropdown").setData(externalNetworks);
             $(ddExtGateway).data("contrailDropdown").text("None");
-            //if(externalNetworks.length > 0) {
-            //    $(ddExtGateway).data("contrailDropdown").value(externalNetworks[0].value);
-            //}
-            /*var vmi = [];
-            var vmiArr = []
-            if(results[2][0] != null && results[2][0] != "" && results[2][0].data != null && results[2][0].data.length > 0) {
-                vmi = results[2][0].data;
-            }
-            for(var j=0;j < vmi.length;j++){
-                var val="";
-                if("virtual_network_refs" in vmi[j]["virtual-machine-interface"]){
-                    var localvmi = vmi[j]["virtual-machine-interface"]["virtual_network_refs"][0];
-                    val = String(vmi[j]["virtual-machine-interface"]["fq_name"].join(":")+"_"+vmi[j]["virtual-machine-interface"]["uuid"]);
-                    var networkText = "";
-                    if(localvmi["to"][1] != selectedProjectName){
-                        networkText = localvmi["to"][2] +" ("+localvmi["to"][0]+":"+localvmi["to"][1]+")";
-                    } else {
-                        networkText = localvmi["to"][2];
-                    }
-                    networkText += " (" +vmi[j]["virtual-machine-interface"]["uuid"] + ") ";
-                    vmiArr.push({'text':networkText,'value':val})
-                    //var subnet = localvmi["network_ipam_refs"];
-                    //network_subnet.push({"value" :val,"subnet":subnet})
-                }
-            }*/
-            
+
             var localNetworks = [];
-            if(results[3][0] != null && results[3][0] != "" && results[3][0].length > 0) {
-                localNetworks = results[3][0];
+            if(results[2][0] != null && results[2][0] != "" && results[2][0].length > 0) {
+                localNetworks = results[2][0];
             }
             for(var j=0;j < localNetworks.length;j++){
                 var val="";
