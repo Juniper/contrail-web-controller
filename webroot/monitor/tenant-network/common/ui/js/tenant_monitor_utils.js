@@ -867,6 +867,25 @@ var tenantNetworkMonitorUtils = {
         });
         return retArr;
     },
+    //If interface_list is reported from multiple sources 
+    getInstanceIntfList: function(response) {
+        var intfList = ifNull(response['UveVirtualMachineAgent'] != null ? response['UveVirtualMachineAgent']['interface_list'] : null,[]);
+        if(intfList[0] instanceof Array) {
+            var vrouterIndex = null;
+            //Loop through interface_list and pick the index for vrouteragent
+            for(var i=0;i<intfList.length;i++) {
+                if(intfList[i][1] != null) {
+                    if(intfList[i][1].match('Compute:contrail-vrouter-agent')) {
+                        vrouterIndex = i;
+                        break;
+                    }
+                }
+            }
+            if(vrouterIndex != null)
+                intfList = intfList[vrouterIndex][0];
+        }
+        return intfList;
+    },
     instanceParseFn: function(response) {
         var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
             var currObj = obj['value'];
@@ -884,22 +903,7 @@ var tenantNetworkMonitorUtils = {
             if(obj['vn'] != false)
                 obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
             obj['ip'] = [];
-            var intfList = ifNull(currObj['UveVirtualMachineAgent'] != null ? currObj['UveVirtualMachineAgent']['interface_list'] : null,[]);
-            //If interface_list is reported from multiple sources 
-            if(intfList[0] instanceof Array) {
-                var vrouterIndex = null;
-                //Loop through interface_list and pick the index for vrouteragent
-                for(var i=0;i<intfList.length;i++) {
-                    if(intfList[i][1] != null) {
-                        if(intfList[i][1].match('Compute:contrail-vrouter-agent')) {
-                            vrouterIndex = i;
-                            break;
-                        }
-                    }
-                }
-                if(vrouterIndex != null)
-                    intfList = intfList[vrouterIndex][0];
-            }
+            var intfList = tenantNetworkMonitorUtils.getInstanceIntfList(currObj);
             for(var i = 0; i < intfList.length; i++ ) {
                 if(intfList[i]['ip6_active'] == true) {
                     if(intfList[i]['ip_address'] != '0.0.0.0')
@@ -1068,7 +1072,7 @@ var tenantNetworkMonitorUtils = {
     },
     parseInstDetails: function(data,rowData) {
         var d = data;
-        var interfaces = ifNullOrEmptyObject(jsonPath(d,'$..interface_list')[0],[]);
+        var interfaces = tenantNetworkMonitorUtils.getInstanceIntfList(d);
         var intfStr = [];
         var retArr = [],interfaceDetails = [],fipDetails = [];
         var ifStatsList = getValueByJsonPath(d,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
@@ -1398,7 +1402,9 @@ var instancePopulateFns = {
             obj['transportCfg'] = { 
                     url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,
                     type:'POST',
-                    data:{data:[{"type":"virtual-machine", "cfilt":instCfilts.join(',')}]}
+                    //  url:'/fakeData/instanceData.json',
+                    // type:'GET',
+                   data:{data:[{"type":"virtual-machine", "cfilt":instCfilts.join(',')}]}
                 }
             getOutputByPagination(dataSource,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,loadedDeferredObj:deferredObj},dsObj);
             obj['dataSource'] = dataSource;
