@@ -321,7 +321,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
     async.map(dataObjArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, data) {
-                console.log('VMI dump' + JSON.stringify(data));
+//                console.log('VMI dump' + JSON.stringify(data));
                 if ((null != error) || (null == data) || (!data.length)) {
                     commonUtils.handleJSONResponse(error, response, null);
                     return;
@@ -355,14 +355,14 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                      async.map(dataObjArr,
                          commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                          function(error, data) {
-                         console.log('IP DATA ' + JSON.stringify(data)); 
+//                         console.log('IP DATA ' + JSON.stringify(data)); 
                          if ((null != error) || (null == data) || (!data.length)) {
                              commonUtils.handleJSONResponse(error, response, null);
                              return;
                          }
                          var tempVMIResourceObjCnt = tempVMIResourceObj.length;
                          var total = 0;
-                         console.log('tempRSRCBOJ' + JSON.stringify(tempVMIResourceObj));
+//                         console.log('tempRSRCBOJ' + JSON.stringify(tempVMIResourceObj));
                          for (var i = 0; i < tempVMIResourceObjCnt; i++) {
                              if(tempVMIResourceObj[i]['instance-ip'] != null && tempVMIResourceObj[i]['instance-ip'].length > 0) {
                                  var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
@@ -409,7 +409,7 @@ function updateVMIDetails(request, appData, postData, callback) {
          var vmiDataObjArray = [];
          var vmiIds = [];
          for(var i = 0; i < vmiData.length ; i++){
-             console.log('vmid = ' + vmiData[i].uuid);
+//             console.log('vmid = ' + vmiData[i].uuid);
              var vmiReqUrl = '/virtual-machine-interface/' + vmiData[i].uuid;
              vmiIds.push(vmiData[i]['uuid']);
              commonUtils.createReqObj(vmiDataObjArray, vmiReqUrl, global.HTTP_REQUEST_GET,
