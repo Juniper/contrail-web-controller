@@ -162,6 +162,13 @@ function initComponents() {
                         onClick: function(rowIndex){
                             logRouterCreateWindow('edit',rowIndex);
                         }
+                    },
+                    {
+                        title: 'Delete',
+                        iconClass: 'icon-trash',
+                        onClick: function(rowIndex){
+                            showRemoveWindow(rowIndex);
+                        }
                     }
                 ],
                 detail: {
@@ -268,22 +275,9 @@ function initActions() {
 
     btnCnfDelLRPopupOK.click(function (a) {
         //Release functions
-        $('#btnDeleteLogicalRouter').addClass('disabled-link');
-        //btnDeleteLogicalRouter.attr("disabled","disabled");
         var selected_rows = $("#gridLogRouter").data("contrailGrid").getCheckedRows();
-        var deleteAjaxs = [];
-        if (selected_rows && selected_rows.length > 0) {
-        var cbParams = {};
-            cbParams.selected_rows = selected_rows;
-            cbParams.url = "/api/tenants/config/logicalrouter/";
-            cbParams.urlField = "uuid";
-            cbParams.fetchDataFunction = "createLogicalRouterSuccessCb";
-            cbParams.errorTitle = "Error";
-               cbParams.errorShortMessage = "Error in deleting Router - ";
-            cbParams.errorField = "routerName";
-            deleteObject(cbParams);
-        }
-        confirmDelete.modal('hide');
+        deleteLR(selected_rows);
+        confirmDelete.modal('hide')
     });
 
     btnCreateLROK.click(function (a) {
@@ -483,6 +477,48 @@ function populateDomains(result) {
         emptyCookie('project');
     }
 }
+
+function showRemoveWindow(rowIndex) {
+$.contrailBootstrapModal({
+       id: 'confirmRemove',
+       title: 'Remove',
+       body: '<h6>Confirm router delete</h6>',
+       footer: [{
+           title: 'Cancel',
+           onclick: 'close',
+       },
+       {
+           id: 'btnRemovePopupOK',
+           title: 'Confirm',
+           rowIdentifier: rowIndex,
+           onclick: function(){
+               var rowNum = this.rowIdentifier;
+               var selected_row = $("#gridLogRouter").data("contrailGrid")._dataView.getItem(rowNum);
+               deleteLR([selected_row]);
+               $('#confirmRemove').modal('hide');
+           },
+           className: 'btn-primary'
+       }
+       ]
+   });
+}
+
+function deleteLR(selected_rows) {
+    btnDeleteLogicalRouter.attr("disabled","disabled");
+    var deleteAjaxs = [];
+    if (selected_rows && selected_rows.length > 0) {
+        var cbParams = {};
+        cbParams.selected_rows = selected_rows;
+        cbParams.url = "/api/tenants/config/logicalrouter/";
+        cbParams.urlField = "uuid";
+        cbParams.fetchDataFunction = "createLogicalRouterSuccessCb";
+        cbParams.errorTitle = "Error";
+        cbParams.errorShortMessage = "Error in deleting Router - ";
+        cbParams.errorField = "routerName";
+        deleteObject(cbParams);
+    }
+}
+
 /* istanbul ignore next */
 function handleDomains(e) {
     //fetchDataForGridLogRouter();
