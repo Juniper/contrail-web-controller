@@ -39,6 +39,7 @@ function portsConfigObj() {
     var computeUUID;
     var mac_address;
     var ip_address;
+    var selectedParentVMIObject;
             
     //Method definitions
     this.load = load;
@@ -67,6 +68,7 @@ function portsConfigObj() {
     this.allNetworkData = allNetworkData;
     this.mac_address = mac_address;
     this.ip_address = ip_address;
+    this.selectedParentVMIObject = selectedParentVMIObject;
     //this.appendPortsRuleEntry = appendPortsRuleEntry;
     //this.formatedRule = formatedRule;
     //this.getDirection = getDirection;
@@ -277,6 +279,7 @@ function initComponents() {
     polAjaxcount = 0;
     mac_address = [];
     ip_address = [];
+    selectedParentVMIObject = {};
 
     ddDomain = $("#ddDomainSwitcher").contrailDropdown({
         dataTextField:"text",
@@ -626,6 +629,10 @@ function initActions() {
             portConfig["virtual-machine-interface"]["virtual_machine_interface_properties"]["sub_interface_vlan_tag"] = Number($("#txtVlan").val().trim());
             portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"] = [];
             portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"][0] = JSON.parse($("#ddSubInterfaceParent").data("contrailDropdown").value());
+        } else {
+            if(selectedParentVMIObject != {} || selectedParentVMIObject != null){
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"] = selectedParentVMIObject;
+            }
         }
         
         
@@ -1306,6 +1313,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     var subInterfaceVlan = "-";
     var subInterfaceVMI = {};
     var subinterfaceUUID = "-";
+    var vmiChildrenInterfaceObject = {};
     if("virtual_machine_interface_properties" in portData && 
        "sub_interface_vlan_tag" in portData["virtual_machine_interface_properties"]){
         subInterfaceVlan = portData["virtual_machine_interface_properties"]["sub_interface_vlan_tag"];
@@ -1314,7 +1322,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             subInterfaceFlag =  "Enabled";
             chiled = true;
             subInterfaceVMI = {"uuid":portData["virtual_machine_interface_refs"][0]["uuid"],
-                               "fq_name":portData["virtual_machine_interface_refs"][0]["to"]};
+                               "to":portData["virtual_machine_interface_refs"][0]["to"]};
             subinterfaceUUID = portData["virtual_machine_interface_refs"][0]["uuid"];
         }
     }
@@ -1324,6 +1332,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
        !("sub_interface_vlan_tag" in portData["virtual_machine_interface_properties"] ))){
         parent = true;
         var len = portData["virtual_machine_interface_refs"].length-1;
+        vmiChildrenInterfaceObjectvmiChildrenInterfaceObject = portData["virtual_machine_interface_refs"];
         for(var i=0;i<=len;i++){
             if(childrensUUID != "") childrensUUID+="<br>&nbsp;&nbsp;";
             childrensUUID += portData["virtual_machine_interface_refs"][i]["uuid"];
@@ -1391,6 +1400,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     returnMapData.chiled = chiled;
     returnMapData.parent = parent;
     returnMapData.childrensUUID = childrensUUID;
+    returnMapData.vmiChildrenInterfaceObject = vmiChildrenInterfaceObject;
     returnMapData.subInterfaceVlan = subInterfaceVlan;
     returnMapData.subInterfaceVMI = subInterfaceVMI;
     returnMapData.subinterfaceUUID = subinterfaceUUID;
@@ -1727,7 +1737,7 @@ function showPortEditWindow(mode, rowIndex) {
 
                         subInterfaceParentValObj.virtual_network_refs = ip["virtual_network_refs"][0]["to"];
                         
-                        var value = {"uuid":ip["uuid"],"fq_name":ip["fq_name"]};
+                        var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
                         subInterfaceParentDatas.push({"text":subInterfaceParentText, "value":JSON.stringify(value)});
                         
                         /*if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
@@ -1817,6 +1827,7 @@ function showPortEditWindow(mode, rowIndex) {
                 } else {
                     $("#is_subInterface").attr("checked", false);
                     $(".subInterface").addClass("hide");
+                    selectedParentVMIObject = mapedData.vmiChildrenInterfaceObject;
                 }
                 
                 if(!isVCenter()) {
