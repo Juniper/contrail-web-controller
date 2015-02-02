@@ -1998,9 +1998,28 @@ function validate() {
             var mirrorTo = [];
             var srcGrpName = getSelectedGroupName($($($(ruleTuple[2]).find('a'))).find('i'));
             var destGrpName = getSelectedGroupName($($($(ruleTuple[5]).find('a'))).find('i'));
+            if(srcGrpName === 'CIDR') {
+                var srcDropDown = $($(ruleTuple).find('div[id*="selectSrcNetwork_"]')[1]).data('contrailDropdown')
+                var srcVN = srcDropDown.value().trim();
+                if("" === srcVN || !isValidIP(srcVN) || srcVN.split("/").length != 2) {
+                    showInfoWindow("Enter a valid CIDR in xxx.xxx.xxx.xxx/xx format for Source", "Invalid input in Source CIDR");
+                    return false;
+                }
+            }
+            if(destGrpName === 'CIDR') {
+                var destDropDown = $($(ruleTuple).find('div[id*="selectDestNetwork_"]')[1]).data("contrailDropdown");
+                var destVN = destDropDown.value().trim();
+                if("" === destVN || !isValidIP(destVN) || destVN.split("/").length != 2) {
+                    showInfoWindow("Enter a valid CIDR in xxx.xxx.xxx.xxx/xx format for Destination", "Invalid input in Destination CIDR");
+                    return false;
+                }
+            }
             if(srcGrpName === 'CIDR' && destGrpName === 'CIDR') {
-                showInfoWindow("Both Source and Destination cannot be CIDRs.", "Invalid Rule");
+                //Only when applying/mirroring services both src and dest cant be CIDRs.
+                if(applyServicesEnabled === true || mirrorServicesEnabled === true) {
+                showInfoWindow("Both Source and Destination cannot be CIDRs while applying/mirroring services.", "Invalid Rule");
                 return false;
+                }
             }
 
             if(applyServicesEnabled == true) {
