@@ -58,8 +58,10 @@ function addTabs() {
             var vnCount=0,intfCnt=0,instCnt=0,vns=[];
             var vRouterCF = crossfilter(data);
             $.each(data,function(idx,obj) {
-                intfCnt += obj['intfCnt'];
-                instCnt += obj['instCnt'];
+                if(obj['vRouterType'] != 'tor-agent') {
+                    intfCnt += obj['intfCnt'];
+                    instCnt += obj['instCnt'];
+                }
                 $.each(obj['vns'],function(idx,val) {
                     if($.inArray(val,vns) == -1)
                         vns.push(val);
