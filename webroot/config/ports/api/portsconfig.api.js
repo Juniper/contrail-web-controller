@@ -280,7 +280,7 @@ function putVMISubInterface (orginalPortData, currentVMIDetail, results, appData
 {
     if ('virtual_machine_interface_properties' in orginalPortData['virtual-machine-interface'] &&
         'virtual_machine_interface_refs' in orginalPortData['virtual-machine-interface'] &&
-        'fq_name' in currentVMIDetail['virtual-machine-interface']) {
+        'to' in currentVMIDetail['virtual-machine-interface']) {
         var subInterfaceUUID = orginalPortData['virtual-machine-interface']['virtual_machine_interface_refs'][0]['uuid'];
         readVMIwithUUID(subInterfaceUUID, appData, function(err, vmiData){
             var vmiSubInterfaceDetail = vmiData['virtual-machine-interface'];
@@ -310,7 +310,7 @@ function VMIJSONStructureSubInterface(vmiSubInterfaceDetail, currentVMIDetail){
     }
     primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex] = {};
     primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["uuid"] = currentVMIDetail['virtual-machine-interface']["uuid"];
-    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["to"] = currentVMIDetail['virtual-machine-interface']["fq_name"];
+    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["to"] = currentVMIDetail['virtual-machine-interface']["to"];
     return primaryInterfaceObject;
 }
 
@@ -1002,9 +1002,6 @@ function removeBackRef(portPutData){
     if("logical_router_back_refs" in portPutData["virtual-machine-interface"]){
         delete portPutData["virtual-machine-interface"]["logical_router_back_refs"];
     }
-    if ('virtual_machine_interface_refs' in portPutData['virtual-machine-interface']) {
-        delete portPutData['virtual-machine-interface']['virtual_machine_interface_refs'];
-    }
     return portPutData;
 }
 function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, boolDeviceOwnerChange, vmiData, request, appData, callback){
@@ -1394,14 +1391,15 @@ function filterVMISubInterface(error, portPutData, vmiData, callback)
     var VMISubInterfaceRef_put = [];
     var VMISubInterfaceRefs_putLen = 0;
 
+    var tempPortPutData = commonUtils.cloneObj(portPutData)
     if ( 'virtual-machine-interface' in vmiData &&
          'virtual_machine_interface_refs' in vmiData['virtual-machine-interface']) {
         VMISubInterfaceRef_server = vmiData['virtual-machine-interface']['virtual_machine_interface_refs'];
         VMISubInterfaceRefs_serverLen = VMISubInterfaceRef_server.length;
     }
-    if ( 'virtual-machine-interface' in portPutData &&
-         'virtual_machine_interface_refs' in portPutData['virtual-machine-interface']) {
-        VMISubInterfaceRef_put = portPutData['virtual-machine-interface']['virtual_machine_interface_refs'];
+    if ( 'virtual-machine-interface' in tempPortPutData &&
+         'virtual_machine_interface_refs' in tempPortPutData['virtual-machine-interface']) {
+        VMISubInterfaceRef_put = tempPortPutData['virtual-machine-interface']['virtual_machine_interface_refs'];
         VMISubInterfaceRefs_putLen = VMISubInterfaceRef_put.length;
     }
     if(VMISubInterfaceRefs_serverLen == 0) {
