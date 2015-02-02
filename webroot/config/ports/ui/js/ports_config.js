@@ -1517,10 +1517,13 @@ function showPortEditWindow(mode, rowIndex) {
         $('#ddDeviceOwnerName').parents('.controls').parent().show();
     } else
         $('#ddDeviceOwnerName').parents('.controls').parent().hide();
+    var selectedPortUUID = "";
     if (mode === "add") {
         windowCreatePorts.find('.modal-header-title').text('Create Port');
     } else {
         windowCreatePorts.find('.modal-header-title').text('Edit Port');
+        var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
+        selectedPortUUID = selectedRow["portUUID"];
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1697,7 +1700,8 @@ function showPortEditWindow(mode, rowIndex) {
                         ip.virtual_machine_interface_properties.sub_interface_vlan_tag == null)) &&
                         (ip["virtual_network_refs"] != undefined && 
                              ip["virtual_network_refs"] != null && 
-                             ip["virtual_network_refs"][0]["to"][1] == selectedProject)){
+                             ip["virtual_network_refs"][0]["to"][1] == selectedProject) &&
+                             selectedPortUUID != ip["uuid"]){
 
                         subInterfaceParentText += ip["uuid"] + "\xa0\xa0";
                         if(ip["instance_ip_back_refs"] != undefined &&
@@ -1773,8 +1777,6 @@ function showPortEditWindow(mode, rowIndex) {
                 windowCreatePorts.find('.modal-header-title').text('Create Port');
                 $(txtPortName).focus();
             } else if (mode === "edit") {
-                var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
-                var selectedPortUUID = selectedRow["portUUID"];
                 var selectedVMI = null;
                 for(var j=0;j < vmiArrayLen;j++){
                     var uuid = vmiArray[j]["virtual-machine-interface"]['uuid'];
