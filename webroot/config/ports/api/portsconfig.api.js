@@ -228,11 +228,7 @@ function createPortsValidate(request, data, response, appData, callback){
     }
     if ((('interface_route_table_refs' in portPostData['virtual-machine-interface']))){
         delete portPostData['virtual-machine-interface']['interface_route_table_refs'];
-    }
-    if ('virtual_machine_interface_refs' in portPostData['virtual-machine-interface']){
-        delete portPostData['virtual-machine-interface']['virtual_machine_interface_refs'];
-    }
-    
+    }    
     var lrUUID = "";
     if ((('logical_router_back_refs' in portPostData['virtual-machine-interface']))){
         if(portPostData['virtual-machine-interface']['logical_router_back_refs'].length === 1){
@@ -265,7 +261,7 @@ function createPortsValidate(request, data, response, appData, callback){
                 portSendResponse(error, request, vmiData, orginalPortData, apiLogicalRouterData, appData, function (err, results) {
                     if(err){
                         callback(err, results);
-                        return
+                        return;
                     }
                     putVMISubInterface(orginalPortData, vmiData, results, appData, function(err, results){
                         callback(err, results);
@@ -280,16 +276,45 @@ function putVMISubInterface (orginalPortData, currentVMIDetail, results, appData
 {
     if ('virtual_machine_interface_properties' in orginalPortData['virtual-machine-interface'] &&
         'virtual_machine_interface_refs' in orginalPortData['virtual-machine-interface'] &&
-        'to' in currentVMIDetail['virtual-machine-interface']) {
+        (orginalPortData['virtual-machine-interface']
+                        ['virtual_machine_interface_refs'].length > 0) &&
+        'fq_name' in currentVMIDetail['virtual-machine-interface']) {
         var subInterfaceUUID = orginalPortData['virtual-machine-interface']['virtual_machine_interface_refs'][0]['uuid'];
         readVMIwithUUID(subInterfaceUUID, appData, function(err, vmiData){
             var vmiSubInterfaceDetail = vmiData['virtual-machine-interface'];
             var vmiSubInterfaceJSON = VMIJSONStructureSubInterface(vmiSubInterfaceDetail, currentVMIDetail);
             var subInterfacePutURL = "/virtual-machine-interface/"+subInterfaceUUID;
-            configApiServer.apiPut(subInterfacePutURL, vmiSubInterfaceJSON, appData,
+            var vmiPutData = {};
+            vmiPutData['virtual-machine-interface'] = {
+                'fq_name':
+                    vmiSubInterfaceJSON['virtual-machine-interface']['fq_name'],
+                'uuid':
+                    vmiSubInterfaceJSON['virtual-machine-interface']['uuid'],
+                'virtual_machine_interface_refs':
+                    vmiSubInterfaceJSON['virtual-machine-interface']['virtual_machine_interface_refs']
+            };
+            configApiServer.apiPut(subInterfacePutURL, vmiPutData, appData,
                 function (error, data) {
-                    callback(error, data);
-                    return;
+                    var vmRefs =
+                        vmiData['virtual-machine-interface']['virtual_machine_refs'];
+                    if (null == vmRefs) {
+                        callback(error, data);
+                        return;
+                    }
+                    var putData = {};
+                    putData['virtual-machine-interface'] = {
+                        'fq_name':
+                            results['virtual-machine-interface']['fq_name'],
+                        'uuid': results['virtual-machine-interface']['uuid'],
+                        'virtual_machine_refs': commonUtils.cloneObj(vmRefs)
+                    };
+
+                    var vmiUrl = '/virtual-machine-interface/' +
+                        results['virtual-machine-interface']['uuid'];
+                    configApiServer.apiPut(vmiUrl, putData, appData,
+                                           function(error, data) {
+                        callback(error, data);
+                    });
                 });
         });
     } else {
@@ -310,7 +335,8 @@ function VMIJSONStructureSubInterface(vmiSubInterfaceDetail, currentVMIDetail){
     }
     primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex] = {};
     primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["uuid"] = currentVMIDetail['virtual-machine-interface']["uuid"];
-    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["to"] = currentVMIDetail['virtual-machine-interface']["to"];
+    primaryInterfaceObject['virtual-machine-interface']['virtual_machine_interface_refs'][vmirefIndex]["to"]
+        = currentVMIDetail['virtual-machine-interface']["fq_name"];
     return primaryInterfaceObject;
 }
 
@@ -562,7 +588,7 @@ function portSendResponse(error, req, portConfig, orginalPortData, apiLogicalRou
         body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
         attachVMICompute(req, body, function (error, results){
             if(error){
-                callback(error, result)
+                callback(error, results)
                 return;
             }
         });
@@ -907,14 +933,20 @@ function processDataObjects(error, DataObjectArr, DataObjectDelArr, DataSRObject
         commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(error, result) {
             linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, boolDeviceOwnerChange, vmiData, request, appData,
-            function(error, results){
-                if(error){
-                    callback(error, results);
-                    return;
-                }
-                deleteAllReference(DataObjectDelArr, DataSRObjectArr, portPutURL, portPutData, boolDeviceOwnerChange, appData, function(error, results){
-                    callback(error, results);
-                    return;
+            function(error, results, subIntfObjArr){
+                async.map(subIntfObjArr,
+                          commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
+                          function(err, results) {
+                    if(error){
+                        callback(error, results);
+                        return;
+                    }
+                    deleteAllReference(DataObjectDelArr, DataSRObjectArr, 
+                                       portPutURL, portPutData, boolDeviceOwnerChange,
+                                       appData, function(error, results){
+                        callback(error, results);
+                        return;
+                    });
                 });
             });
         });
@@ -1025,9 +1057,66 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
                 for(var j=0;j<vmiRefLen;j++){
                     if(vmiRef[j]['uuid'] == portPutData['virtual-machine-interface']['uuid']){
                         result[i]['floating-ip']['virtual_machine_interface_refs'].splice(j,1);
+                        commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                           global.HTTP_REQUEST_PUT, result[i], null, null,
+                           appData);
                         j--;
                         vmiRefLen--;
-                        commonUtils.createReqObj(DataObjectArr, floatingIPURL,
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    
+    var subIntfObjArr = [];
+    for(i = DataObjectLenDetail["VMISubnetInterfaceCreateStartIndex"];i<DataObjectLenDetail["VMISubnetInterfaceCreateStartIndex"]+DataObjectLenDetail["VMISubnetInterfaceCreateCount"];i++){
+        if(result[i] != null){
+            var vmiSubInterfaceURL = '/virtual-machine-interface/'+result[i]['virtual-machine-interface']['uuid'];
+            var responceData = VMIJSONStructureSubInterface(result[i], portPutData);
+            commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
+                                global.HTTP_REQUEST_PUT, commonUtils.cloneObj(responceData), null, null,
+                                appData);
+            var flag = false;
+            if ((false == flag) && 
+                (null != result[i]['virtual-machine-interface']
+                                  ['virtual_machine_refs'])) {
+                var vmiChildUrl = '/virtual-machine-interface/' +
+                    vmiData['virtual-machine-interface']['uuid'];
+                vmiData['virtual-machine-interface']['virtual_machine_refs'] =
+                    result[i]['virtual-machine-interface']['virtual_machine_refs'];
+                commonUtils.createReqObj(subIntfObjArr, vmiChildUrl,
+                                         global.HTTP_REQUEST_PUT, vmiData,
+                                         null, null, appData);
+                flag = true;
+            }
+        }
+    }
+
+    for(i = DataObjectLenDetail["VMISubnetInterfaceDeleteStartIndex"]; i < (DataObjectLenDetail["VMISubnetInterfaceDeleteStartIndex"]+DataObjectLenDetail["VMISubnetInterfaceDeleteCount"]);i++){
+        if(result[i] != null){
+            if( 'virtual-machine-interface' in result[i] && 'virtual_machine_interface_refs' in result[i]['virtual-machine-interface']){
+                var vmiSubInterfaceURL = '/virtual-machine-interface/'+result[i]['virtual-machine-interface']['uuid'];
+                var vmiRef = result[i]['virtual-machine-interface']['virtual_machine_interface_refs'];
+                var vmiRefLen = result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].length;
+                for(var j=0;j<vmiRefLen;j++){
+                    if(vmiRef[j]['uuid'] == portPutData['virtual-machine-interface']['uuid']){
+                        var vmRef =
+                            result[i]['virtual-machine-interface']['virtual_machine_refs'];
+                        result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                        if (vmiData['virtual-machine-interface']['virtual_machine_refs']) {
+                            var vmiChildUrl = '/virtual-machine-interface/' +
+                                vmiData['virtual-machine-interface']['uuid'];
+                            vmiData['virtual-machine-interface']['virtual_machine_refs']
+                                = [];
+                            commonUtils.createReqObj(subIntfObjArr, vmiChildUrl,
+                                                     global.HTTP_REQUEST_PUT,
+                                                     vmiData,
+                                                     null, null, appData);
+                        }
+                        j--;
+                        vmiRefLen--;
+                        commonUtils.createReqObj(DataObjectArr, vmiSubInterfaceURL,
                            global.HTTP_REQUEST_PUT, result[i], null, null,
                            appData);
                         break;
@@ -1070,18 +1159,18 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
     if(boolDeviceOwnerChange == true) {
         deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(error, data, DataObjectArr){
             if(error){
-                callback(error, data);
+                callback(error, data, subIntfObjArr);
                 return;
             }
             if(DataObjectArr != null && DataObjectArr.length > 0){
                 async.map(DataObjectArr,
                 commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
                 function(error, results) {
-                    callback(error, results);
+                    callback(error, results, subIntfObjArr);
                     return;
                 });
             } else {
-                callback(error, result);
+                callback(error, result, subIntfObjArr);
                 return;
             }
         });
@@ -1089,7 +1178,7 @@ function linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, bool
         async.map(DataObjectArr,
         commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
         function(error, results) {
-            callback(error, results);
+            callback(error, results, subIntfObjArr);
             return;
         });
     }
