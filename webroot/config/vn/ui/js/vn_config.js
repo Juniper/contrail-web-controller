@@ -17,7 +17,7 @@ function getConfigURL(url) {
 function VirtualNetworkConfig() {
     //Variable definitions
     //Dropdowns
-    var ddDomain, ddProject, ddFwdMode, ddAdminState;
+    var ddDomain, ddProject, ddAdminState;
 
     //Comboboxes
 
@@ -75,6 +75,8 @@ function VirtualNetworkConfig() {
     this.toggleDHCP = toggleDHCP;
     this.setHeaderDHCP = setHeaderDHCP;
     this.handleGw = handleGw;
+    this.handleDNS = handleDNS;
+    this.getDNSStatus = getDNSStatus;
     this.getAllDNSServer = getAllDNSServer;
     this.dynamicID = dynamicID;
     this.destroy = destroy;
@@ -268,10 +270,6 @@ function initComponents() {
     txtDisName = $("#txtDisName");
     txtVxLanId = $("#txtVxLanId");
     vnAjaxcount = 0;
-    
-    ddFwdMode = $("#ddFwdMode").contrailDropdown({
-        data: [{id:"l2_l3", text:'L2 and L3'}, {id:"l2", text:'L2 Only'}]
-    });
 
     ddAdminState = $("#ddAdminState").contrailDropdown({
         data: [{id:"true", text:'Up'}, {id:"false", text:'Down'}]
@@ -454,7 +452,6 @@ function initActions() {
         }
 
         var allDNSServerArr = getAllDNSServer();
-        var DNSServer = formatAllDNSServer(allDNSServerArr);
         var currentHostRout = [];
         var srTuples = $("#srTuples")[0].children;
         if (srTuples && srTuples.length > 0) {
@@ -477,11 +474,13 @@ function initActions() {
                 var currentIpam = $("#ipamTuples_"+id+"_ddSelIpam").data("contrailDropdown").value().trim();
                 var allocPoolVal = $("#ipamTuples_"+id+"_txtAllocPool").val().trim();
                 var enableDHCP = $("#ipamTuples_"+id+"_chkDHCP")[0].checked;
+                var enableDNS = $("#ipamTuples_"+id+"_chkDNS")[0].checked;
                 var currentGateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
                 var allocation_pools = [];
                 var addrFromStart = true;
                 var finalHR = [];
                 var finalSubnet = [];
+                var DNSServer = formatAllDNSServer(allDNSServerArr, enableDNS);
                 if( typeof  allocPoolVal !== null && allocPoolVal !== "") {
                     var tempAllocPools = allocPoolVal.split("\n");                    
                     for(var inc = 0; inc < tempAllocPools.length ; inc++){
@@ -492,6 +491,7 @@ function initActions() {
                             allocation_pools[inc] = {"start":ips[0].trim(),"end":ips[0].trim()};
                     }
                 }
+
                 if(isIPv6(cidr)){
                     finalHR = [];
                     finalDNSServer = DNSServer;
@@ -508,12 +508,6 @@ function initActions() {
                         IPv4DNSs = IPv4DNSs[0];
                         finalDNSServer.push(IPv4DNSs);
                     }
-                    /*for(dnsInc = 0;dnsInc < DNSServer.length; dnsInc++){
-
-                        if(isIPv4(DNSServer[dnsInc].dhcp_option_value)){
-                            finalDNSServer.push(DNSServer[dnsInc]);
-                        }
-                    }*/
                 }
                 if(ipamList.lastIndexOf(currentIpam) === -1) {
                     mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:finalHR,dNSServert:finalDNSServer});
@@ -564,7 +558,6 @@ function initActions() {
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["subnet"]["ip_prefix_len"] = 32;
 
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["enable_dhcp"] = enable_dhcp;
-                    vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dns_nameservers"] = [];
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dhcp_option_list"] = {};
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dhcp_option_list"]["dhcp_option"] = dnsServer;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["allocation_pools"] = allocation_pools;
@@ -597,7 +590,6 @@ function initActions() {
                         else
                             vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["subnet"]["ip_prefix_len"] = 32;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["enable_dhcp"] = enable_dhcp;
-                        vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dns_nameservers"] = [];
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dhcp_option_list"] = {};
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dhcp_option_list"]["dhcp_option"] = dnsServer;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["allocation_pools"] = allocation_pools;
@@ -686,7 +678,6 @@ function initActions() {
             }
         }
         
-        var fwdMode = $("#ddFwdMode").val();
         var gvrConfig = configObj["global-vrouter-config"];
         if(null !== gvrConfig && typeof gvrConfig !== "undefined" &&
             null !== gvrConfig["vxlan_network_identifier_mode"] &&
@@ -697,13 +688,9 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["vxlan_network_identifier"] = vxLanId;
         }
-        if(typeof fwdMode !== "undefined" && "" !== fwdMode) {
             if(null === vnConfig["virtual-network"]["virtual_network_properties"] ||
                 typeof vnConfig["virtual-network"]["virtual_network_properties"] === "undefined")
             vnConfig["virtual-network"]["virtual_network_properties"] = {};
-            vnConfig["virtual-network"]["virtual_network_properties"]
-                ["forwarding_mode"] = fwdMode;
-        }
         if($("#allow_transit")[0].checked === true)
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = true;
         else
@@ -865,11 +852,24 @@ function clearDNSServerEntry() {
 
 function validateDNSServer(){
     var ipamTuples = $("#ipamTuples")[0].children;
-    if (ipamTuples.length <= 0) {
+    var len = $("#DNSServerTuples").children().length;
+    if (ipamTuples.length <= 0 && len == 0) {
         showInfoWindow("Enter atleast one IPAM under Subnet", "Input required");
         return false;
     }
-    var len = $("#DNSServerTuples").children().length;
+
+    if (ipamTuples && ipamTuples.length > 0) {
+        var applyDNSList = [];
+        for (var i = 0; i < ipamTuples.length; i++) {
+            var id = getID(String($("#ipamTuples").children()[i].id));
+            applyDNSList.push($("#ipamTuples_"+id+"_chkDNS")[0].checked);
+        }
+        applyDNSList = applyDNSList.unique();
+        if(applyDNSList.length == 1 && applyDNSList[0] === false) {
+            showInfoWindow("Enable DNS on atleast one subnet", "Invalid Input");
+            return false;
+        }
+    }
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var DNSServer =
@@ -944,19 +944,26 @@ function getAllDNSServer(){
     }
     return allDNSServer;
 }
-function formatAllDNSServer(DNSServer){
+
+function formatAllDNSServer(DNSServer, enableDNS){
     var returnDNSServer = [];
+    if(enableDNS === false) {
+        returnDNSServer.push({"dhcp_option_value":"0.0.0.0","dhcp_option_name": "6"});
+    }
     if (DNSServer && DNSServer != "" && DNSServer.length > 0) {
         for (var i = 0; i < DNSServer.length; i++) {
-            if(isIPv4(DNSServer[i]))
-                returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "6"});
+            if(isIPv4(DNSServer[i])) {
+                if(enableDNS === true) {
+                    returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "6"});
+                }
+            }
             else if(isIPv6(DNSServer[i]))
                 returnDNSServer.push({"dhcp_option_value":DNSServer[i],"dhcp_option_name": "v6-name-servers"});
         }
     }
     var IPv4DNSs = jsonPath(returnDNSServer, "$.[?(@.dhcp_option_name=='6')]");
     var spaceSeparatedIPv4DNSs = [];
-    if(IPv4DNSs !== false && IPv4DNSs.length > 1) {
+    if(IPv4DNSs !== false && IPv4DNSs.length > 0) {
         for(var i=0; i<IPv4DNSs.length; i++) {
             spaceSeparatedIPv4DNSs.push(IPv4DNSs[i].dhcp_option_value);
         }
@@ -969,7 +976,7 @@ function formatAllDNSServer(DNSServer){
 
     var IPv6DNSs = jsonPath(returnDNSServer, "$.[?(@.dhcp_option_name=='v6-name-servers')]");
     var spaceSeparatedIPv6DNSs = [];
-    if(IPv6DNSs !== false && IPv6DNSs.length > 1) {
+    if(IPv6DNSs !== false && IPv6DNSs.length > 0) {
         for(var i=0; i<IPv6DNSs.length; i++) {
             spaceSeparatedIPv6DNSs.push(IPv6DNSs[i].dhcp_option_value);
         }
@@ -1076,7 +1083,7 @@ function createIPAMEntry(ipamBlock, id,element) {
     });
 
     var divAlocPool = document.createElement("div");
-    divAlocPool.className = "span3";
+    divAlocPool.className = "span2";
     divAlocPool.appendChild(inputTxtAlocPool);
     var inputcboxDhcp = document.createElement("input");
     inputcboxDhcp.type = "checkbox";
@@ -1122,6 +1129,24 @@ function createIPAMEntry(ipamBlock, id,element) {
     divIPGateway.appendChild(spanInputcboxGw);
     divIPGateway.appendChild(inputTxtGateway);    
 
+    var chkDNS = document.createElement("input");
+    chkDNS.type = "checkbox";
+    chkDNS.setAttribute("enabled", "enable");
+    chkDNS.className = "ace-input";
+    chkDNS.setAttribute("id",element+"_"+id+"_chkDNS");
+    chkDNS.setAttribute("title", "Enable/Disable DNS");
+    chkDNS.setAttribute("onchange", "handleDNS(this)");
+    chkDNS.checked = true;
+    var spanInputcboxDNS = document.createElement("span");
+    spanInputcboxDNS.className = "ace-lbl";
+    spanInputcboxDNS.innerHTML = "&nbsp;";
+
+    var divDNS = document.createElement("div");
+    divDNS.className = "span1";
+    divDNS.appendChild(chkDNS);
+    divDNS.appendChild(spanInputcboxDNS);
+
+
     //Only one subnet can be specified in case of vCenter
     if(!isVCenter()) {
         var iBtnAddRule = document.createElement("i");
@@ -1144,13 +1169,13 @@ function createIPAMEntry(ipamBlock, id,element) {
         divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
     }
 
-
     var divRowFluidMargin5 = document.createElement("div");
     divRowFluidMargin5.className = "row-fluid margin-0-0-5";
     divRowFluidMargin5.appendChild(divIpam);
     divRowFluidMargin5.appendChild(divIPBlock);
     divRowFluidMargin5.appendChild(divAlocPool);
     divRowFluidMargin5.appendChild(divIPGateway);
+    divRowFluidMargin5.appendChild(divDNS);
     divRowFluidMargin5.appendChild(divDHCP);
     
     if(!isVCenter()) {
@@ -1195,6 +1220,7 @@ function createIPAMEntry(ipamBlock, id,element) {
         else {
             chkGw.checked = true;
         }
+        chkDNS.checked = getDNSStatus(ipamBlock);
         inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
         var temp_ipam = ipamBlock.IPAM.split(":")
@@ -1202,6 +1228,7 @@ function createIPAMEntry(ipamBlock, id,element) {
         $(selectIpams).data("contrailDropdown").enable(false);
         $(inputcboxDhcp).attr("disabled", "disabled"); 
         $(chkGw).attr("disabled", "disabled"); 
+        $(chkDNS).attr("disabled", "disabled");
         $(inputTxtIPBlock).attr("disabled", "disabled"); 
         $(inputTxtIPBlock).addClass("textBackground");
         $(inputTxtGateway).attr("disabled", "disabled");  
@@ -1278,6 +1305,7 @@ function validateIPAMEntry() {
             var ipblock = $("#ipamTuples_"+id+"_txtCIDR").val().trim();
             var gateway = $("#ipamTuples_"+id+"_txtGateway").val().trim();
             var allocPool = $("#ipamTuples_"+id+"_txtAllocPool").val().trim();
+            var chkGw = $("#ipamTuples_"+id+"_chkGw")[0].checked;
 
             if ("" === ipblock.trim() || !isValidIP(ipblock.trim())) {
                 showInfoWindow("Enter a valid CIDR", "Invalid input in CIDR");
@@ -1294,14 +1322,12 @@ function validateIPAMEntry() {
             //    return false;
             //}
 
-            if (isValidIP(gateway.trim())) {
-                if(gateway.split("/").length >= 2 && "0.0.0.0" !== gateway.trim()) {
-                    showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
-                    return false;
-                }
+            if ("" === gateway || !isValidIP(gateway) || gateway.indexOf("/") !== -1)  {
+                showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
+                return false;
             } else {
-                if("" !== gateway.trim()) {
-                    showInfoWindow("Enter a valid Gateway IP address in xxx.xxx.xxx.xxx format", "Invalid input in Address Management");
+                if("0.0.0.0" === gateway && chkGw === true) {
+                    showInfoWindow("Default Gateway can be set to 0.0.0.0 only by unchecking default gateway checkbox of respective subnet.", "Invalid input in Address Management");
                     return false;
                 }
             }
@@ -1719,6 +1745,7 @@ function autoPopulateGW(me) {
     var ip = $(me).val();
     var id = getID($(me)[0].id);
     if(ip.indexOf("/") !== -1 && !isNaN(ip.split("/")[1])) {
+        if($("#ipamTuples_" + id +"_chkGw")[0].checked == true) {
         try {
             var default_gateway = genarateGateway(ip,"start");
             if(default_gateway != false){
@@ -1727,6 +1754,9 @@ function autoPopulateGW(me) {
 
         } catch (e) {
             $("#ipamTuples_"+id+"_txtGateway").val("");
+        }
+        } else {
+            $("#ipamTuples_"+id+"_txtGateway").val("0.0.0.0");
         }
     }
 }
@@ -1949,7 +1979,7 @@ function successHandlerForGridVNRow(result) {
             var default_gateway = vn["network_ipam_refs"][j]["subnet"]["default_gateway"];
             //Need to do
             var alocPools = vn["network_ipam_refs"][j]["subnet"]["allocation_pools"];
-            
+            var dnsServerAddress = vn["network_ipam_refs"][j]["subnet"]["dns_server_address"];
             var AllocationPool = formatAlcPoolObj(alocPools);
             AllocationPool = AllocationPool.replace(/\n/g,"<br>");
             AllocationPool = AllocationPool.replace(/-/g," - ");
@@ -1966,7 +1996,7 @@ function successHandlerForGridVNRow(result) {
             } else {
                 ipam = ipam[2] + " (" + ipam[0] + ":" + ipam[1] +")";
             }
-            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer})
+            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer, "DNSServerAddress":dnsServerAddress})
         }
         var gateways = jsonPath(vn, "$.network_ipam_refs[*].subnet.default_gateway");
         if (gateways === false) {
@@ -1998,23 +2028,6 @@ function successHandlerForGridVNRow(result) {
         else if(String(vn["id_perms"]["enable"]).toLowerCase() == "false")
             adminState = "Down";
 
-        
-        var fwdMode = jsonPath(vn, "$.virtual_network_properties.forwarding_mode");
-        if (fwdMode !== false && typeof fwdMode !== "undefined" && fwdMode.length > 0 && fwdMode[0] != null && fwdMode[0] != undefined) {
-            fwdMode = fwdMode[0];
-            if(fwdMode === "l2_l3") {
-                fwdMode = "L2 and L3";
-            } else if(fwdMode === "l2") {
-                fwdMode = "L2 Only";
-            }else if(fwdMode === "l3") {
-                fwdMode = "L3 Only";
-            } else {
-                fwdMode = "";
-            }
-        } else {
-            fwdMode = "L2 and L3";
-        }
-        
         var vxlanid = jsonPath(vn, "$.virtual_network_properties.vxlan_network_identifier");
         if (vxlanid !== false && typeof vxlanid !== "undefined" && vxlanid.length > 0) {
             vxlanid = vxlanid[0];
@@ -2028,12 +2041,11 @@ function successHandlerForGridVNRow(result) {
         if(($("#ddProjectSwitcher").data("contrailDropdown").value() != vn.parent_uuid) &&  Shared == "Enabled")
             enableControles = false;
             if(reorder_policiesTxt.trim() == "") reorder_policiesTxt = "-";
-            if(fwdMode.trim() == "") fwdMode = "-";
             if(String(vxlanid).trim() == "") vxlanid = "-";
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         //if(vn.fq_name[1] == selectedProject){
-            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer,  "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "AllowTransit": AllowTransit, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
+            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer, "VxLanId": vxlanid, "AllowTransit": AllowTransit, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
         //}
     }
     if(result.more == true || result.more == "true"){
@@ -2151,9 +2163,6 @@ function clearValuesFromDomElements() {
     txtVxLanId.val("");
     txtVNName[0].disabled = false;
     txtDisName.val("");
-    $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-    $("#ddFwdMode").data("contrailDropdown").enable(false);
-    $("#divFwdMode").removeClass("hide");
     $("#ddAdminState").data("contrailDropdown").value("true");
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
@@ -2223,11 +2232,6 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/tenants/config/global-vrouter-config",
         type:"GET"
     });
-
-    getAjaxs[3] = $.ajax({
-        url:"/api/admin/webconfig/network/L2_enable",
-        type:"GET"
-    });
    
     $.when.apply($, getAjaxs).then(
         function () {
@@ -2244,16 +2248,6 @@ function showVNEditWindow(mode, rowIndex) {
             }
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
-            var l2Mode = results[3][0].L2_enable;
-            if(l2Mode == false){
-                $("#ddFwdMode").data("contrailDropdown").enable(false);
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#divFwdMode").addClass("hide");
-            } else {
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#ddFwdMode").data("contrailDropdown").enable(true);
-                $("#divFwdMode").removeClass("hide");
-            }
             var nps = [];
             configObj["network-policys"] = [];
             var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
@@ -2355,8 +2349,9 @@ function showVNEditWindow(mode, rowIndex) {
                 var gateways = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.default_gateway");
                 //Need to do
                 var alocPools = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.allocation_pools");
-
                 var DHCPEnabled = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.enable_dhcp");;
+                var dnsServerAddresses = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.dns_server_address");
+                var dhcpOptionsList = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.dhcp_option_list");
                 if (ipams && ipams.length > 0) {
                     var existing = [];
                     for (var i = 0; i < ipams.length; i++) {
@@ -2366,7 +2361,13 @@ function showVNEditWindow(mode, rowIndex) {
                         var AlocPool="";
                         if(typeof alocPools[i] != null && typeof alocPools[i] != undefined && typeof alocPools[i] != "")
                             AlocPool = formatAlcPoolObj(alocPools[i]); 
-                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool});
+                        if(dnsServerAddresses[i] === false) {
+                            dnsServerAddresses[i] = "";
+                        }
+                        if(dhcpOptionsList[i] === false || (typeof dhcpOptionsList === "object" && dhcpOptionsList.length === 0)) {
+                            dhcpOptionsList[i] = [];
+                        }
+                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool, "DNSServerAddress":dnsServerAddresses[i], "DHCPOptionsList" : dhcpOptionsList[i]});
                     }
                     for(var k=0; k<existing.length; k++) {
                         dynamicID++;
@@ -2437,8 +2438,11 @@ function showVNEditWindow(mode, rowIndex) {
                 var DNSServer = createUniqueDNSServer(ipamRefs);
                 if (DNSServer && DNSServer.length > 0) {
                     for(var i=0; i<DNSServer.length; i++) {
-                        var DNSEntry = createDNSServerEntry(DNSServer[i], i);
-                        $("#DNSServerTuples").append(DNSEntry);
+                        //todo
+                        if(DNSServer[i].trim() !== "0.0.0.0"){
+                            var DNSEntry = createDNSServerEntry(DNSServer[i], i);
+                            $("#DNSServerTuples").append(DNSEntry);
+                        }
                     }
                 }
                 //place to add edid of AdminState, Extend/Shared,DNS Server
@@ -2456,11 +2460,6 @@ function showVNEditWindow(mode, rowIndex) {
                         typeof vnProps["vxlan_network_identifier"] && 
                         !isNaN(vnProps["vxlan_network_identifier"])) {
                         $(txtVxLanId).val(vnProps["vxlan_network_identifier"]); 
-                    }
-                    if(null !== vnProps["forwarding_mode"] &&
-                        typeof vnProps["forwarding_mode"] && 
-                        "" !== vnProps["forwarding_mode"].trim()) {
-                        $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
                     }
                     if(null !== vnProps["allow_transit"] && 
                         "" !==  vnProps["allow_transit"]) {
@@ -2563,6 +2562,62 @@ function toggleDHCP(){
     }
 }
 
+function getDNSStatus(ipamBlock) {
+    var dns_server_address = ipamBlock.DNSServerAddress;
+    var dhcp_option_list = ipamBlock.DHCPOptionsList;
+    var gw = ipamBlock.Gateway;
+    var valid_dns_server_address = true;
+    var valid_dhcp_option_list_dns = true;
+
+    if(null !== dhcp_option_list && false !== dhcp_option_list && dhcp_option_list.hasOwnProperty('dhcp_option') &&
+        dhcp_option_list.dhcp_option.length > 0) {
+        var only_dns_under_this_dhcp_option = jsonPath(dhcp_option_list, "$.[?(@.dhcp_option_name=='6')]");
+        var dnses = [];
+        if(false !== only_dns_under_this_dhcp_option && only_dns_under_this_dhcp_option.length > 0) {
+            for(var i=0; i<only_dns_under_this_dhcp_option.length; i++){
+                var splitted_dns = only_dns_under_this_dhcp_option[i]['dhcp_option_value'].split(" ");
+                for(var j=0; j<splitted_dns.length; j++)
+                    dnses.push(splitted_dns[j]);
+            }
+            dnses = dnses.unique();
+            if(dnses.indexOf("0.0.0.0") !== -1)
+                valid_dhcp_option_list_dns = false;
+        }
+
+    }
+    if((dns_server_address == "" || dns_server_address == "0.0.0.0") && gw == "0.0.0.0")
+        valid_dns_server_address = false;
+
+    /*if(null !== dns_server_address && false !== dns_server_address && "" !== dns_server_address.trim() &&
+        typeof dns_server_address === "string" && "0.0.0.0" !== dns_server_address.trim()) {
+        valid_dns_server_address = true;
+    }*/
+    //todo
+    //return valid_dns_server_address | valid_dhcp_option_list_dns;
+    return valid_dhcp_option_list_dns;
+}
+
+function handleDNS(me) {
+    var DNSServerTuples = $("#DNSServerTuples")[0].children;
+    var ipamTuples = $("#ipamTuples")[0].children;
+    if (DNSServerTuples && DNSServerTuples.length > 0) {
+        if (ipamTuples && ipamTuples.length > 0) {
+            var applyDNSList = [];
+            for (var i = 0; i < ipamTuples.length; i++) {
+                var ipam_id = getID(String($("#ipamTuples").children()[i].id));
+                applyDNSList.push($("#ipamTuples_"+ipam_id+"_chkDNS")[0].checked);
+            }
+            applyDNSList = applyDNSList.unique();
+            if(applyDNSList.length == 1 && applyDNSList[0] === false) {
+                $(me)[0].checked = true;
+                showInfoWindow("Remove all DNS Servers under 'Advanced Options' before disabling DNS.", "Invalid Input");
+                return false;
+            }
+        }
+
+    }
+}
+
 function handleGw(me) {
     var id = getID(String($(me)[0].id));
     if($(me)[0].checked == true) {
@@ -2634,12 +2689,6 @@ function destroy() {
     if(isSet(ddProject)) {
         ddProject.destroy();
         ddProject = $();
-    }
-
-    ddFwdMode = $("#ddFwdMode").data("contrailDropdown");
-    if(isSet(ddFwdMode)) {
-        ddFwdMode.destroy();
-        ddFwdMode = $();
     }
 
     ddAdminState = $("#ddAdminState").data("contrailDropdown");

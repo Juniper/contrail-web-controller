@@ -85,10 +85,6 @@
                 </div>
             </div>
             <div class="row-fluid">
-                <span class="span2"><label>Forwarding Mode</label></span>
-                <span class="span10">: {{ForwardingMode}} </span>
-            </div>
-            <div class="row-fluid">
                 <span class="span2"><label>VxLAN Identifier</label></span>
                 <span class="span10">: {{VxLanId}}</span>
             </div>
@@ -171,11 +167,14 @@
                                             <div class="span2">
                                                 <h6>CIDR</h6>
                                             </div>
-                                            <div class="span3">
+                                            <div class="span2">
                                                 <h6>Allocation Pools</h6>
                                             </div>
                                             <div class="span2">
                                                 <h6>Gateway</h6>
+                                            </div>
+                                            <div class="span1">
+                                                <h6>DNS</h6>
                                             </div>
                                             <div class="span1">
                                                 <h6><input type="checkbox" id="chk_headerDHCP" class="ace-input" checked onchange="toggleDHCP()"><span class="ace-lbl">DHCP</span></h6>
@@ -287,21 +286,6 @@
                                                 </div>
                                                 <div class="row-fluid">
                                                     <div id="DNSServerTuples" class="row-fluid"></div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                                                                    
-                                        <div class="control-group" id = "divFwdMode">
-
-                                            <label class="control-label">Forwarding Mode</label>
-                                            <div class="controls">
-                                                <div class="row-fluid">
-                                                    <div id="ddFwdMode" class="span5" ></div>
-                                                    <!-- <select id="ddFwdMode" class="span5">
-                                                        <option value="l2_l3">L2 and L3</option>
-                                                        <option value="l2">L2 Only</option>
-                                                    </select> -->
-                                                    <!-- See ddFwdMode definition in vnconfig.js -->
                                                 </div>
                                             </div>
                                         </div>

@@ -144,12 +144,12 @@ function parseVNSubnets (error, vnConfig, callback)
                     nwIpamRefsClone[k]['subnet']['enable_dhcp'] =
                     ipamSubnets[j]['enable_dhcp'];
 
-                if(null == ipamSubnets[j]['dns_nameservers'] ||
-                    typeof ipamSubnets[j]['dns_nameservers'] === "undefined")
-                    nwIpamRefsClone[k]['subnet']['dns_nameservers'] = "";
+                if(null == ipamSubnets[j]['dns_server_address'] ||
+                    typeof ipamSubnets[j]['dns_server_address'] === "undefined")
+                    nwIpamRefsClone[k]['subnet']['dns_server_address'] = "";
                 else
-                    nwIpamRefsClone[k]['subnet']['dns_nameservers'] =
-                    ipamSubnets[j]['dns_nameservers'];
+                    nwIpamRefsClone[k]['subnet']['dns_server_address'] =
+                    ipamSubnets[j]['dns_server_address'];
 
                 if(null == ipamSubnets[j]['allocation_pools'] ||
                     typeof ipamSubnets[j]['allocation_pools'] === "undefined")
@@ -171,6 +171,7 @@ function parseVNSubnets (error, vnConfig, callback)
                 else
                     nwIpamRefsClone[k]['subnet']['dhcp_option_list'] =
                     ipamSubnets[j]['dhcp_option_list'];
+
                 /*if(null !== nwIpamRefs[i]['attr']['host_routes'] &&
                     typeof nwIpamRefs[i]['attr']['host_routes'] !== "undefined" && !m) {
                     nwIpamRefsClone[k]["host_routes"] = {};
@@ -773,11 +774,6 @@ function updateVNPolicyRefs (vnConfig, response, appData)
         if ('virtual_network_properties' in vnPutData['virtual-network']) {
             vnConfig['virtual-network']['virtual_network_properties'] = {};
         }
-    }
-    if(null !== vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] &&
-        typeof vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] !== "undefined") {
-        vnConfig['virtual-network']['virtual_network_properties']['forwarding_mode'] =
-        vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'];
     }
     if(null !== vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] &&
         typeof vnPutData['virtual-network']['virtual_network_properties']['vxlan_network_identifier'] !== "undefined") {
