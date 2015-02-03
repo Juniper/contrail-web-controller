@@ -958,8 +958,8 @@ function getCores(data) {
     if(procCoreList){
         fileArrList = ifNull(procCoreList,[]);
     }
-    var allCoresList = ifNull(jsonPath(data,'$..NodeStatus.all_core_file_list')[0],[]);
-    fileArrList = fileArrList.concat([allCoresList]);
+    // var allCoresList = ifNull(jsonPath(data,'$..NodeStatus.all_core_file_list')[0],[]);
+    // fileArrList = fileArrList.concat([allCoresList]);
     for(var i=0;i<fileArrList.length;i++){
         var files=fileArrList[i];
        for(var j=0;j<files.length;j++)
