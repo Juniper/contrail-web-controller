@@ -294,6 +294,7 @@ function physicalInterfacesConfig() {
                 var serverTuples = $("#serverTuples")[0].children;
                 var selectedServerDetails = [];//Array of selected servers
                 var requireVMICreation = false;
+                var l2Type = $('input[name=l2Type]:checked').val();//Get selected radio button value for L2 Type
                 if (serverTuples && serverTuples.length > 0) {
                     for(i = 0 ; i< serverTuples.length ; i++){
                         var divid = serverTuples[i].id;
@@ -311,7 +312,8 @@ function physicalInterfacesConfig() {
                 
                 var isSubnetCreate = !$('#txtSubnet').is('[disabled]');//If subnet is disabled it means vmi exists
                 var postObject;
-                if(requireVMICreation){
+                if(requireVMICreation && l2Type != "l2Gateway"){
+                    //L2 Server type
                     var createPortsData= [];
                     for(var i=0; i < selectedServerDetails.length; i++){
                         if(selectedServerDetails[i].isVMICreate) {
@@ -321,6 +323,9 @@ function physicalInterfacesConfig() {
                         }
                     }
                     createPorts(createPortsData);
+                } else if (l2Type == 'l2Gateway'){
+                    //L2 Gateway type
+                    createPort({mac : '', ip : ''});
                 } else if(isSubnetCreate && $('#ddLIType').data('contrailDropdown').value() === 'l3') {
                     //Subnet creation flow
                     createPort({mac : '', ip : ''});
@@ -514,9 +519,10 @@ function physicalInterfacesConfig() {
         });
         $('input[type=radio][name=l2Type]').on('change', function(e){
             if(e.target.value === 'l2Server') {
-                $('#lblServer').text('Server');
+                $('#l2ServerPanel').removeClass('hide').addClass('show');
             } else if(e.target.value === 'l2Gateway') {
-                $('#lblServer').text('L2 Gateway');
+                clearServerDetailsGrid();
+                $('#l2ServerPanel').removeClass('show').addClass('hide');
             }
         }); 
         $('#btnAddServer').click(function() {
@@ -1450,6 +1456,7 @@ function physicalInterfacesConfig() {
         }
         var selVN = $('#ddVN').data('contrailDropdown').text();
         var subNetArry = selVN.split(' ');
+        var l2Type = $('input[name=l2Type]:checked').val();
         var isIPinRange = true;
         var subNets = [];
         if(subNetArry.length > 2) {
@@ -1495,7 +1502,7 @@ function physicalInterfacesConfig() {
         if(liType === 'l3') {
             //Check if the subnet given is valid in case of l3
             var subnet =  $('#txtSubnet').val().trim();
-            if(selVN != 'none' && subnet.split("/").length != 2) {
+            if(selVN != 'None' && subnet.split("/").length != 2) {
                 showInfoWindow("Enter a valid Subnet in xxx.xxx.xxx.xxx/xx ", "Invalid input in Subnet");
                 return false;
             }
@@ -1506,7 +1513,11 @@ function physicalInterfacesConfig() {
                 showInfoWindow("Please enter different MAC Addresses", "Invalid input in Server Details");
                 return false;
             }
-            if(selVN != 'none') {
+            if(selVN != 'None') {
+                if(l2Gateway == "l2Server" && macAddresses.length < 1){
+                    showInfoWindow("Enter a valid MAC Address", "Invalid input in Server Details");
+                    return false;
+                }
                 for(var i=0; i < macAddresses.length ;i++){
                     if(isValidMACAddress(macAddresses[i]) == false){
                         showInfoWindow("Enter a valid MAC Address", "Invalid input in Server Details");
