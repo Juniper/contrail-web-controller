@@ -867,24 +867,22 @@ var tenantNetworkMonitorUtils = {
         });
         return retArr;
     },
-    //If interface_list is reported from multiple sources 
-    getInstanceIntfList: function(response) {
-        var intfList = ifNull(response['UveVirtualMachineAgent'] != null ? response['UveVirtualMachineAgent']['interface_list'] : null,[]);
-        if(intfList[0] instanceof Array) {
-            var vrouterIndex = null;
-            //Loop through interface_list and pick the index for vrouteragent
-            for(var i=0;i<intfList.length;i++) {
-                if(intfList[i][1] != null) {
-                    if(intfList[i][1].match('Compute:contrail-vrouter-agent')) {
-                        vrouterIndex = i;
+    //If there is discrepancy in data sent from multiple sources
+    getDataBasedOnSource: function(data) {
+        if((data != null) && (data[0] instanceof Array)) {
+            var idx = 0;
+            //Loop through and pick the index for vrouteragent
+            for(var i=0;i<data.length;i++) {
+                if(data[i][1] != null) {
+                    if(data[i][1].match('Compute:contrail-vrouter-agent')) {
+                        idx = i;
                         break;
                     }
                 }
             }
-            if(vrouterIndex != null)
-                intfList = intfList[vrouterIndex][0];
+            data= data[idx][0];
         }
-        return intfList;
+        return data;
     },
     instanceParseFn: function(response) {
         var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
@@ -896,14 +894,15 @@ var tenantNetworkMonitorUtils = {
             // If we append * wildcard stats info are not there in response,so we changed it to flat
             obj['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['name'] + '?flat';
             obj['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
-            obj['vRouter'] = ifNull(jsonPath(currObj, '$..vrouter')[0], '-');
+            var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
+            obj['vRouter'] = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(vRouter), '-');
             obj['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
             obj['vn'] = ifNull(jsonPath(currObj, '$..interface_list[*].virtual_network'),[]);
             //Parse the VN only if it exists
             if(obj['vn'] != false)
                 obj['vn'] = tenantNetworkMonitorUtils.formatVN(obj['vn']);
             obj['ip'] = [];
-            var intfList = tenantNetworkMonitorUtils.getInstanceIntfList(currObj);
+            var intfList = tenantNetworkMonitorUtils.getDataBasedOnSource(getValueByJsonPath(currObj,'UveVirtualMachineAgent;interface_list',[]));
             for(var i = 0; i < intfList.length; i++ ) {
                 if(intfList[i]['ip6_active'] == true) {
                     if(intfList[i]['ip_address'] != '0.0.0.0')
@@ -915,7 +914,8 @@ var tenantNetworkMonitorUtils = {
                         obj['ip'].push(intfList[i]['ip_address']);
                 }
             }
-            var floatingIPs = ifNull(jsonPath(currObj, '$..fip_stats_list')[0], []);
+            var fipStatsList = getValueByJsonPath(currObj,'UveVirtualMachineAgent:fip_stats_list');
+            var floatingIPs = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(fipStatsList), []);
               obj['floatingIP'] = [];
             if(getValueByJsonPath(currObj,'VirtualMachineStats;if_stats') != null) {
                 obj['inBytes'] = 0;
@@ -1072,7 +1072,7 @@ var tenantNetworkMonitorUtils = {
     },
     parseInstDetails: function(data,rowData) {
         var d = data;
-        var interfaces = tenantNetworkMonitorUtils.getInstanceIntfList(d);
+        var interfaces = tenantNetworkMonitorUtils.getDataBasedOnSource(getValueByJsonPath(d,'UveVirtualMachineAgent;interface_list',[]));
         var intfStr = [];
         var retArr = [],interfaceDetails = [],fipDetails = [];
         var ifStatsList = getValueByJsonPath(d,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
@@ -1222,8 +1222,10 @@ var tenantNetworkMonitorUtils = {
         //retArr.push({lbl:'Flows',value:flowCnt});
         retArr.push({lbl:'Ingress Flows',value:ingressFlowCount});
         retArr.push({lbl:'Egress Flows',value:egressFlowCount});
-        retArr.push({lbl:'ACL',value:ifNullOrEmptyObject(jsonPath(d,'$..acl')[0],'')});
-        retArr.push({lbl:'ACL Rules',value:ifNullOrEmptyObject(jsonPath(d,'$..total_acl_rules')[0],0)});
+        var aclRules = getValueByJsonPath(d,'UveVirtualNetworkAgent;acl');
+        retArr.push({lbl:'ACL',value:ifNullOrEmptyObject(tenantNetworkMonitorUtils.getDataBasedOnSource(aclRules),'')});
+        var aclRuleCnt = getValueByJsonPath(d,'UveVirtualNetworkAgent;total_acl_rules');
+        retArr.push({lbl:'ACL Rules',value:ifNullOrEmptyObject(tenantNetworkMonitorUtils.getDataBasedOnSource(aclRuleCnt),0)});
         retArr.push({lbl:'Interfaces',value:ifNullOrEmptyObject(jsonPath(d,'$..interface_list')[0],[]).length});
         //retArr.push({lbl:'Instances',value:ifNull(jsonPath(d,'$..virtualmachine_list')[0],[]).length});
         retArr.push({lbl:'VRF',value:ifNullOrEmptyObject(jsonPath(d,'$..vrf_stats_list[0].name')[0],'')});
