@@ -327,6 +327,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                     return;
                 }
                 dataObjArr = [];
+                var subnetDataObjArr = [];
                 vmiCnt = data.length;
                 for(var j = 0; j < vmiCnt; j++) {
                     if ((null == data[j]) || (null == data[j]['virtual-machine-interface'])) {
@@ -338,13 +339,23 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                             ['virtual_machine_interface_mac_addresses']['mac_address'],
                             "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
                             "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : [],
-                            "subnet" : vmi['subnet_back_refs'] != null ? vmi['subnet_back_refs'][0].to[0] : '', "vmi_uuid" : vmi.uuid});
+                            "subnet" : vmi['subnet_back_refs'], "vmi_uuid" : vmi.uuid});
                         var instIPBackRefs = vmi['instance_ip_back_refs'];
+                        var subnetBackRefs = vmi['subnet_back_refs'];
                         //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
+                        //Prepare the instance-ip request obj
                         if(instIPBackRefs != null && instIPBackRefs.length > 0) {
                             for (var k = 0; k < instIPBackRefs.length ; k++) {
                                var instIPUrl = '/instance-ip/' + instIPBackRefs[k]['uuid'];
                                commonUtils.createReqObj(dataObjArr, instIPUrl, global.HTTP_REQUEST_GET,
+                                                        null, null, null, appData);
+                            }
+                        }
+                        //Prepare the subnet request obj
+                        if(subnetBackRefs != null && subnetBackRefs.length > 0) {
+                            for (var k = 0; k < subnetBackRefs.length ; k++) {
+                               var subnetUrl = '/subnet/' + subnetBackRefs[k]['uuid'];
+                               commonUtils.createReqObj(subnetDataObjArr, subnetUrl, global.HTTP_REQUEST_GET,
                                                         null, null, null, appData);
                             }
                         }
@@ -360,6 +371,7 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                              commonUtils.handleJSONResponse(error, response, null);
                              return;
                          }
+                       //No subnets case.. return with the instance_ip details
                          var tempVMIResourceObjCnt = tempVMIResourceObj.length;
                          var total = 0;
 //                         console.log('tempRSRCBOJ' + JSON.stringify(tempVMIResourceObj));
@@ -379,12 +391,48 @@ function processVirtualMachineInterfaceDetails(response, appData, result, callba
                                                  "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
                              }
                          }
-                         if(callback != null) {
-                             callback(resultJSON);
+                         if(subnetDataObjArr.length < 1){
+                             //There are no subnets so just return the response from here
+                             if(callback != null) {
+                                 callback(resultJSON);
+                             } else {
+                                 commonUtils.handleJSONResponse(null, response, resultJSON);
+                             } 
                          } else {
-                             commonUtils.handleJSONResponse(null, response, resultJSON);
-                         }    
-                     });
+                             //Get subnet details
+                             async.map(subnetDataObjArr,
+                                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                                     function(error,subnetData){
+                                         if ((null != error) || (null == data) || (!data.length)) {
+                                             commonUtils.handleJSONResponse(error, response, null);
+                                             return;
+                                         }
+                                         var tempVMIResourceObjCnt = tempVMIResourceObj.length;
+                                         var total = 0;
+                                         for (var i = 0; i < tempVMIResourceObjCnt; i++) {
+                                             if(tempVMIResourceObj[i]['subnet'] != null && tempVMIResourceObj[i]['subnet'].length > 0) {
+                                                 var subnetCnt =  tempVMIResourceObj[i]['subnet'].length;
+                                                 var tempSubnetData = subnetData.slice(total, total + subnetCnt);
+                                                 total += subnetCnt;
+                                                 var subnetDtls = [];
+                                                 for(var j = 0; j < tempSubnetData.length ; j++){
+                                                     var subnetIPPrefix = tempSubnetData[j]['subnet']['subnet_ip_prefix'];
+                                                     var subnetUUID = tempSubnetData[j]['subnet']['uuid'];
+                                                     subnetDtls.push({"subnetUUID" : subnetUUID, "subnetIPPrefix":subnetIPPrefix});
+                                                 }
+                                                 resultJSON[i]['subnet'] = subnetDtls;
+                                             } else {
+                                                 resultJSON[i]['subnet'] = [];
+                                             }
+                                         }
+                                         if(callback != null) {
+                                             callback(resultJSON);
+                                         } else {
+                                             commonUtils.handleJSONResponse(null, response, resultJSON);
+                                         } 
+                             });  //Async for subnet ends
+                         }
+                     });//Async for instance_ip ends
                  } else {
                      var tempVMIResourceObjCnt = tempVMIResourceObj.length;
                      for(var i = 0; i < tempVMIResourceObjCnt; i++) {
