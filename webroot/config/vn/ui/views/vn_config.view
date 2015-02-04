@@ -13,11 +13,14 @@
                         <label>IPAM</label>
                     </div>
                     <div class="span3">
-                        <div class="span6">
+                        <div class="span4">
                             <label>CIDR</label>
                         </div>
-                        <div class="span6">
+                        <div class="span4">
                             <label>Gateway</label>
+                        </div>
+                        <div class="span4">
+                            <label>DNS</label>
                         </div>
                     </div>
                     <div class="span4">

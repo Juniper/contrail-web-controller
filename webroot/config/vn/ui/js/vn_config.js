@@ -363,8 +363,9 @@ function initActions() {
                 returnHtml += '<div class="row-fluid">';
             }
             returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
-            returnHtml += '<div class="span3"><div class="span6">' +allSubnets[k]["CIDR"] +'</div>';
-            returnHtml += '<div class="span5">' +allSubnets[k]["default_gateway"] +'</div></div>';
+            returnHtml += '<div class="span3"><div class="span4">' +allSubnets[k]["CIDR"] +'</div>';
+            returnHtml += '<div class="span4">' +allSubnets[k]["default_gateway"] +'</div>';
+            returnHtml += '<div class="span4">' +allSubnets[k]["DNS"] +'</div></div>';
             returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["DHCPEnabled"] +'</div>';        
             returnHtml += '<div class="span7">' +allSubnets[k]["AllocationPool"] +'</div>';
             returnHtml += '</div></div>';
@@ -880,6 +881,9 @@ function validateDNSServer(){
             } else if(!isValidIP(DNSServer.trim())){
                 showInfoWindow("Enter a valid IP address", "Invalid input in DNS Server");
                 return false;
+            } else if(DNSServer.trim() === "0.0.0.0") {
+                showInfoWindow("DNS Server can be set to 0.0.0.0 by unchecking DNS checkbox of respective subnet.", "Invalid input in Address Management");
+                return false;
             }
         }
     }
@@ -890,7 +894,7 @@ function createDNSServerEntry(DNSNameServer, len) {
     var inputTxtDNSServerName = document.createElement("input");
     inputTxtDNSServerName.type = "text";
     inputTxtDNSServerName.className = "span12";
-    inputTxtDNSServerName.setAttribute("placeholder", "DNS Servers");
+    inputTxtDNSServerName.setAttribute("placeholder", "DNS Server");
     var divDNSServerName = document.createElement("div");
     divDNSServerName.className = "span10";
     divDNSServerName.appendChild(inputTxtDNSServerName);
@@ -1961,8 +1965,10 @@ function successHandlerForGridVNRow(result) {
         var DNSServer = "";
         var allDNSServer = [];
         allDNSServer = createUniqueDNSServer(ipamRefs);
+        if(allDNSServer.indexOf("0.0.0.0") !== -1) {
+            allDNSServer.splice(allDNSServer.indexOf("0.0.0.0"), 1);
+        }
         DNSServer =  allDNSServer.join("<br>&nbsp;&nbsp;");
-
         var hostRoutPrifix = "";
         var hostRoutPrifixArr = createUniqueHostRout(ipamRefs);
         for(var hrInc = 0;hrInc <hostRoutPrifixArr.length;hrInc++){
@@ -1977,9 +1983,18 @@ function successHandlerForGridVNRow(result) {
             var ipam = jsonPath(ipamRefs[j], "$..subnet.ipam[*]");
             var cidr = vn["network_ipam_refs"][j]["subnet"]["ipam_subnet"];
             var default_gateway = vn["network_ipam_refs"][j]["subnet"]["default_gateway"];
+            if(default_gateway === "0.0.0.0")
+                default_gateway = "Disabled";
             //Need to do
             var alocPools = vn["network_ipam_refs"][j]["subnet"]["allocation_pools"];
             var dnsServerAddress = vn["network_ipam_refs"][j]["subnet"]["dns_server_address"];
+            var DNSEnabled = getDNSStatus({
+                "DHCPOptionsList"  : vn["network_ipam_refs"][j]["subnet"]["dhcp_option_list"],
+                "DNSServerAddress" : vn["network_ipam_refs"][j]["subnet"]["dns_server_address"],
+                "Gateway" : vn["network_ipam_refs"][j]["subnet"]["default_gateway"]
+            });
+            DNSEnabled = (DNSEnabled === true) ? "Enabled" : "Disabled";
+
             var AllocationPool = formatAlcPoolObj(alocPools);
             AllocationPool = AllocationPool.replace(/\n/g,"<br>");
             AllocationPool = AllocationPool.replace(/-/g," - ");
@@ -1996,7 +2011,7 @@ function successHandlerForGridVNRow(result) {
             } else {
                 ipam = ipam[2] + " (" + ipam[0] + ":" + ipam[1] +")";
             }
-            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer, "DNSServerAddress":dnsServerAddress})
+            allSubnets.push({"ipam":ipam , "CIDR" : cidr,"AllocationPool":AllocationPool,"DHCPEnabled": dhcpEnabled,"default_gateway":default_gateway,"hostroute": hostRoutPrifix,"DNSServer":DNSServer, "DNSServerAddress":dnsServerAddress, "DNS":DNSEnabled});
         }
         var gateways = jsonPath(vn, "$.network_ipam_refs[*].subnet.default_gateway");
         if (gateways === false) {
@@ -2088,8 +2103,16 @@ function createUniqueDNSServer(ipamRefs){
                 var DNSServertemp = ipamRefs[j]["subnet"]["dhcp_option_list"]["dhcp_option"];
                 if(DNSServertemp.length > 0) {
                     for(var inc = 0 ; inc < DNSServertemp.length ; inc++){
-                        if(DNSServertemp[inc]["dhcp_option_name"] == "6" ||
-                            DNSServertemp[inc]["dhcp_option_name"] == "v6-name-servers") {
+                        if(DNSServertemp[inc]["dhcp_option_name"] == "6") {
+                            var spaceSeparatedDNSs = DNSServertemp[inc]["dhcp_option_value"];
+                            var DNSs = spaceSeparatedDNSs.split(" ");
+                            if(DNSs.indexOf("0.0.0.0") === -1) {
+                                for(var dnsCount = 0; dnsCount < DNSs.length; dnsCount++) {
+                                    allDNSServer.push(DNSs[dnsCount]);
+                                }
+                            }
+                        }
+                        if(DNSServertemp[inc]["dhcp_option_name"] == "v6-name-servers") {
                             var spaceSeparatedDNSs = DNSServertemp[inc]["dhcp_option_value"];
                             var DNSs = spaceSeparatedDNSs.split(" ");
                             for(var dnsCount = 0; dnsCount < DNSs.length; dnsCount++) {
@@ -2105,6 +2128,7 @@ function createUniqueDNSServer(ipamRefs){
         allDNSServer = allDNSServer.unique();
     return allDNSServer;
 }
+
 function reorderPolicies(policies){
     
     if(policies === false){
@@ -2535,6 +2559,10 @@ function validate() {
         validateSREntry() === false ||
         validateIPAMEntry() === false)
         return false;
+    var len = $("#DNSServerTuples").children().length;
+    if(len > 0 && validateDNSServer() === false)
+        return false;
+
 
     var vxlan = txtVxLanId.val().trim();
     var gvrConfig = configObj["global-vrouter-config"];
