@@ -279,7 +279,7 @@ function initComponents() {
     polAjaxcount = 0;
     mac_address = [];
     ip_address = [];
-    selectedParentVMIObject = {};
+    selectedParentVMIObject = [];
 
     ddDomain = $("#ddDomainSwitcher").contrailDropdown({
         dataTextField:"text",
@@ -625,12 +625,12 @@ function initActions() {
         
         //Subinterface
         portConfig["virtual-machine-interface"]["virtual_machine_interface_properties"] = {};
+        portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"] = [];
         if ($("#is_subInterface")[0].checked) {
             portConfig["virtual-machine-interface"]["virtual_machine_interface_properties"]["sub_interface_vlan_tag"] = Number($("#txtVlan").val().trim());
-            portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"] = [];
             portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"][0] = JSON.parse($("#ddSubInterfaceParent").data("contrailDropdown").value());
         } else {
-            if(selectedParentVMIObject != {} || selectedParentVMIObject != null){
+            if(selectedParentVMIObject.length > 0) {
                 portConfig["virtual-machine-interface"]["virtual_machine_interface_refs"] = selectedParentVMIObject;
             }
         }
@@ -1313,7 +1313,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     var subInterfaceVlan = "-";
     var subInterfaceVMI = {};
     var subinterfaceUUID = "-";
-    var vmiChildrenInterfaceObject = {};
+    var vmiChildrenInterfaceObject = [];
     if("virtual_machine_interface_properties" in portData && 
        "sub_interface_vlan_tag" in portData["virtual_machine_interface_properties"]){
         subInterfaceVlan = portData["virtual_machine_interface_properties"]["sub_interface_vlan_tag"];
@@ -1824,6 +1824,7 @@ function showPortEditWindow(mode, rowIndex) {
                     $("#ddSubInterfaceParent").data("contrailDropdown").value(JSON.stringify(mapedData.subInterfaceVMI));
                     $("#ddSubInterfaceParent").data('contrailDropdown').enable(false);
                     $(".subInterface").removeClass("hide");
+                    selectedParentVMIObject = [];
                 } else {
                     $("#is_subInterface").attr("checked", false);
                     $(".subInterface").addClass("hide");
@@ -1971,8 +1972,8 @@ function validate() {
             return false
         }
         var vlanVal = Number($("#txtVlan").val().trim());
-        if(vlanVal < 0 || vlanVal > 4094 ){
-            showInfoWindow("VLAN range has to be between 0 to 4094.", "Invalid Input");
+        if(vlanVal < 1 || vlanVal > 4094 ){
+            showInfoWindow("VLAN has to be between 1 to 4094", "Invalid Input");
             return false
         }
     }
