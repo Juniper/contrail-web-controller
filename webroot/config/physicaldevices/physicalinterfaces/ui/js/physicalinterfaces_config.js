@@ -898,15 +898,12 @@ function physicalInterfacesConfig() {
             //End of fetching the server tuples
             var vmiRefs = [];
             for(var j = 0; j < vmiDetails.length ; j++){
-                
-                var vmiData = 'none';
                 if(vmiDetails[j] != null) {
-                    vmiData = vmiDetails[j]['virtual-machine-interface']['fq_name'];
-                } 
-                vmiRefs.push({"to" : [vmiData[0], vmiData[1], vmiData[2]], "uuid": vmiDetails[j]['virtual-machine-interface']['uuid']});
+                    var vmiData = vmiDetails[j]['virtual-machine-interface']['fq_name'];
+                    vmiRefs.push({"to" : [vmiData[0], vmiData[1], vmiData[2]], "uuid": vmiDetails[j]['virtual-machine-interface']['uuid']});
+                }
             }
             for(var j = 0; j < selectedServerDetails.length ; j++){
-                
                 var vmiFqname = 'none';
                 vmiFqname = selectedServerDetails[j]['vmi_fq_name'];
                 vmiRefs.push({"to" : [vmiFqname[0], vmiFqname[1], vmiFqname[2]],"uuid": selectedServerDetails[j]['vmi_uuid']});
@@ -919,11 +916,7 @@ function physicalInterfacesConfig() {
                 postObject["logical-interface"]["name"] = actName;
                 postObject["logical-interface"]["display_name"] = name;
                 postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
-                if(selectedServerDetails.length > 0) {
-                    postObject["logical-interface"]['virtual_machine_interface_refs'] = vmiRefs;
-                } else {
-                    postObject["logical-interface"] ['virtual_machine_interface_refs'] = [];
-                }
+                postObject["logical-interface"]['virtual_machine_interface_refs'] = vmiRefs;
                 postObject["logical-interface"]["logical_interface_type"] = liType;
                 if(mode === 'edit') {
                     postObject["logical-interface"]["uuid"] = gblSelRow.uuid;
@@ -953,11 +946,7 @@ function physicalInterfacesConfig() {
                     postObject["logical-interface"]["name"] = actName;
                     postObject["logical-interface"]["display_name"] = name;
                     postObject["logical-interface"]["logical_interface_vlan_tag"] = vlan;
-                    if(vmiData != 'none') {
-                        postObject["logical-interface"]['virtual_machine_interface_refs'] = vmiRefs;
-                    } else {
-                        postObject["logical-interface"] ['virtual_machine_interface_refs'] = [];
-                    }
+                    postObject["logical-interface"]['virtual_machine_interface_refs'] = vmiRefs;
                     postObject["logical-interface"]["logical_interface_type"] = liType;
                     if(mode === 'edit') {
                         postObject["logical-interface"]["uuid"] = gblSelRow.uuid;
