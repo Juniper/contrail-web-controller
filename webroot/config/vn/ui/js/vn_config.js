@@ -363,11 +363,11 @@ function initActions() {
                 returnHtml += '<div class="row-fluid">';
             }
             returnHtml += '<div class="span5">' +allSubnets[k]["ipam"] +' </div>';
-            returnHtml += '<div class="span3"><div class="span4">' +allSubnets[k]["CIDR"] +'</div>';
+            returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["CIDR"] +'</div>';
             returnHtml += '<div class="span4">' +allSubnets[k]["default_gateway"] +'</div>';
-            returnHtml += '<div class="span4">' +allSubnets[k]["DNS"] +'</div></div>';
-            returnHtml += '<div class="span4"><div class="span5">' +allSubnets[k]["DHCPEnabled"] +'</div>';        
-            returnHtml += '<div class="span7">' +allSubnets[k]["AllocationPool"] +'</div>';
+            returnHtml += '<div class="span3">' +allSubnets[k]["DNS"] +'</div></div>';
+            returnHtml += '<div class="span3"><div class="span4">' +allSubnets[k]["DHCPEnabled"] +'</div>';
+            returnHtml += '<div class="span8">' +allSubnets[k]["AllocationPool"] +'</div>';
             returnHtml += '</div></div>';
         }
         return returnHtml;
