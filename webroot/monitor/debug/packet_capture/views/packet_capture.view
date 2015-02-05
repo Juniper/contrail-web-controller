@@ -108,7 +108,7 @@
         </div>
         <div class="modal-body">
             <div class="row-fluid">
-                <h6>Do you want to delete the record?</h6>
+                <h6>Do you want to delete the analyzer?</h6>
             </div>
         </div>
         <div class="modal-footer">
