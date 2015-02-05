@@ -12,22 +12,22 @@
                     <div class="span5">
                         <label>IPAM</label>
                     </div>
-                    <div class="span3">
-                        <div class="span4">
+                    <div class="span4">
+                        <div class="span5">
                             <label>CIDR</label>
                         </div>
                         <div class="span4">
                             <label>Gateway</label>
                         </div>
-                        <div class="span4">
+                        <div class="span3">
                             <label>DNS</label>
                         </div>
                     </div>
-                    <div class="span4">
-                        <div class="span5">
+                    <div class="span3">
+                        <div class="span4">
                             <label>DHCP</label>
                         </div>
-                        <div class="span7">
+                        <div class="span8">
                             <label>Allocation Pools</label> 
                         </div>
                         <!--<div class="span3">
