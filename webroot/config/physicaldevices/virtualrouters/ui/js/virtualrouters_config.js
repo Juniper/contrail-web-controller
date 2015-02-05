@@ -120,7 +120,7 @@ function virtualRoutersConfig() {
         }); 
 
         var msType =  $('#msType').data('contrailDropdown');
-        var msTypeDS = [{ text : 'None', value : 'none'},
+        var msTypeDS = [{ text : 'Hypervisor', value : 'hypervisor'},
             { text : 'Embedded', value : 'embedded'},
             //{ text : 'TOR Agent', value : 'tor-agent'},
             { text : 'TOR Service Node', value : 'tor-service-node'},
@@ -219,7 +219,7 @@ function virtualRoutersConfig() {
             $('#txtVirtualRouterName').attr('disabled','disabled');
             $('#txtIPAddress').val(gblSelRow.ip_address);
             if(gblSelRow.actualType == '' || gblSelRow.actualType == 'empty') {
-                $('#msType').data('contrailDropdown').value('none'); 
+                $('#msType').data('contrailDropdown').value('hypervisor');
             } else {
                 $('#msType').data('contrailDropdown').value(gblSelRow.actualType);              
             }    
@@ -247,7 +247,7 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["parent_type"] = "global-system-config";
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
-        if(type != 'none' && type != '' &&  type != 'empty') {
+        if(type != 'hypervisor' && type != '' &&  type != 'empty') {
             postObject["virtual-router"]["virtual_router_type"] = [type];
         } else {
             postObject["virtual-router"]["virtual_router_type"] = [];
@@ -267,7 +267,7 @@ function virtualRoutersConfig() {
         $("#txtVirtualRouterName").val('');
         $("#txtIPAddress").val('');
         var msType = $("#msType").data('contrailDropdown');  
-        msType.value('none');        
+        msType.value('hypervisor');
     }
         
     function fetchData() {
@@ -294,7 +294,7 @@ function virtualRoutersConfig() {
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
                     actualType : rowData.virtual_router_type != null ? rowData.virtual_router_type : '',
-                    type : rowData.virtual_router_type != null && rowData.virtual_router_type.length > 0 ? rowData.virtual_router_type : ['embedded'],
+                    type : rowData.virtual_router_type != null && rowData.virtual_router_type.length > 0 ? rowData.virtual_router_type : ['hypervisor'],
                     physical_routers : pRouters.length > 0 ? pRouters : '-'
                 });
             }
