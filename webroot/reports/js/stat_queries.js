@@ -488,7 +488,7 @@ statQuery['columnDisplay']  = {
         {select:"vn_stats.in_tpkts", display:{id:'vn_stats.in_tpkts', field:'vn_stats.in_tpkts', width:120, name:"In Packets", format:"{0:n0}", groupable:false}},
         {select:"SUM(vn_stats.in_tpkts)", display:{id:'SUM(vn_stats.in_tpkts)', field:'SUM(vn_stats.in_tpkts)', width:120, name:"SUM (In Packets)", format:"{0:n0}", groupable:false}},
         {select:"vn_stats.in_bytes", display:{id:'vn_stats.in_bytes', field:'vn_stats.in_bytes', width:120, name:"In Bytes", format:"{0:n0}", groupable:false}},
-        {select:"SUM(vn_stats.in_bytes)", display:{id:'SUM(vn_stats.in_name)', field:'SUM(vn_stats.in_name)', width:120, name:"SUM (In Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"SUM(vn_stats.in_bytes)", display:{id:'SUM(vn_stats.in_bytes)', field:'SUM(vn_stats.in_bytes)', width:120, name:"SUM (In Bytes)", format:"{0:n0}", groupable:false}},
         {select:"vn_stats.out_tpkts", display:{id:'vn_stats.out_tpkts', field:'vn_stats.out_tpkts', width:120, name:"Out Packets", format:"{0:n0}", groupable:false}},
         {select:"SUM(vn_stats.out_tpkts)", display:{id:'SUM(vn_stats.out_tpkts)', field:'SUM(vn_stats.out_tpkts)', width:120, name:"SUM (Out Packets)", format:"{0:n0}", groupable:false}},
         {select:"vn_stats.out_bytes", display:{id:'vn_stats.out_bytes', field:'vn_stats.out_bytes', width:120, name:"Out Bytes", format:"{0:n0}", groupable:false}},
