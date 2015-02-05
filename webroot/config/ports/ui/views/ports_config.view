@@ -151,7 +151,7 @@
                                     <div id="ddVN" class = "span12 pull-right" ></div>
                                 </div>
                                 <div class="span5">
-                                    <label class="control-label span5">Admin State</label>
+                                    <label class="padding-top-5 span5">Admin State</label>
                                     <div id="ddVNState" class="span7" ></div>
                                 </div>
                             </div>

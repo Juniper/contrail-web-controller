@@ -1754,7 +1754,9 @@ function showPortEditWindow(mode, rowIndex) {
                 }
             }
             $("#ddSubInterfaceParent").data("contrailDropdown").setData(subInterfaceParentDatas);
+            $("#is_subInterface").attr("disabled","disabled")
             if(subInterfaceParentDatas.length > 0) {
+                $("#is_subInterface").removeAttr("disabled","disabled")
                 $("#ddSubInterfaceParent").data("contrailDropdown").value(subInterfaceParentDatas[0].value);
             }
 
