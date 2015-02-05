@@ -24,6 +24,7 @@ opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
 
 function getControlNodesSummary (req, res, appData)
 {
+    var nodesHostIp = {'hosts': {}, 'ips': {}};
     var url = '/bgp-routers';
     var resultJSON = [];
     var configData = [], uveData = [];
@@ -49,6 +50,43 @@ function getControlNodesSummary (req, res, appData)
                 infraCmn.checkAndGetSummaryJSON(configData, uveData,
                     ['contrail-control']);
             commonUtils.handleJSONResponse(err, res, resultJSON);
+            var nodeCnt = 0;
+            try {
+                nodeCnt = resultJSON.length;
+            } catch(e) {
+                nodeCnt = 0;
+            }
+            for (var i = 0; i < nodeCnt; i++) {
+                nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+                try {
+                    var configIP =
+                    resultJSON[i]['value']['ConfigData']['bgp-router']
+                                 ['bgp_router_parameters']['address'];
+                    nodesHostIp['ips'][configIP] = [];
+                } catch(e) {
+                    logutils.logger.error("Control Node Config Data Parse " +
+                                          "error :" + e);
+                }
+                var bgpUVEIpsCnt = 0;
+                try {
+                    var bgpUVEIps =
+                        resultJSON[i]['value']['BgpRouterState']['bgp_router_ip_list'];
+                    bgpUVEIpsCnt = bgpUVEIps.length;
+                } catch(e) {
+                    logutils.logger.error("Control Node UVE Data Parse " +
+                                          "error :" + e);
+                    bgpUVEIpsCnt = 0;
+                }
+                for (var j = 0; j < bgpUVEIpsCnt; j++) {
+                    nodesHostIp['ips'][bgpUVEIps[j]] = [];
+                }
+            }
+            if (nodeCnt > 0) {
+                infraCmn.saveNodesHostIPToRedis(nodesHostIp,
+                                                global.label.CONTROL_NODE,
+                                                function(err) {
+                });
+            }
         });
     }, global.DEFAULT_CB_TIMEOUT));
 }

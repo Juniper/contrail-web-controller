@@ -24,6 +24,7 @@ opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
 
 function getAnalyticsNodeSummary (req, res, appData)
 {
+    var nodesHostIp = {'hosts': {}, 'ips': {}};
     var addGen = req.param('addGen');
     var resultJSON = [];
     var dataObjArr = [];
@@ -54,6 +55,33 @@ function getAnalyticsNodeSummary (req, res, appData)
             postProcessAnalyticsNodeSummaryJSON(results[0], results[1]);
         addAnalyticsQueryStatsToSummary(resultJSON, appData,
                                         function(data) {
+            var nodeCnt = 0;
+            try {
+                nodeCnt = data.length;
+            } catch(e) {
+                nodeCnt = 0;
+            } 
+            for (var i = 0; i < nodeCnt; i++) {
+                nodesHostIp['hosts'][data[i]['name']] = [];
+                var ipsCnt = 0;
+                try {
+                    var ips = data[i]['value']['CollectorState']['self_ip_list'];
+                    ipsCnt = ips.length;
+                } catch(e) {
+                    logutils.logger.error("Analytics Node UVE IP Parse error:" +
+                                          e);
+                    ipsCnt = 0;
+                }
+                for (var j = 0; j < ipsCnt; j++) {
+                    nodesHostIp['ips'][ips[j]] = [];
+                }
+            }
+            if (nodeCnt > 0) {
+                infraCmn.saveNodesHostIPToRedis(nodesHostIp,
+                                                global.label.OPS_API_SERVER,
+                                                function(err) {
+                });
+            }
             commonUtils.handleJSONResponse(err, res, data);
         });
     });

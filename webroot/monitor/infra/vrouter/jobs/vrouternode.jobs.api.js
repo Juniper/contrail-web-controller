@@ -567,6 +567,7 @@ function getvRouterList (pubChannel, saveChannelKey, jobData, done)
 
 function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
 {
+    var nodesHostIp = {'hosts': {}, 'ips': {}};
     var dataObj = {};
     var appData = jobData.taskData.appData;
     appData['addGen'] = null;
@@ -610,7 +611,41 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                     }
                 }
             }
-            dataObj['data'] = resultJSON;
+            var nodeCnt = 0;
+            try {
+                dataObj['data'] = resultJSON;
+                nodeCnt = resultJSON.length;
+            } catch(e) {
+                nodeCnt = 0;
+            }
+            for (var i = 0; i < nodeCnt; i++) {
+                nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+                try {
+                    var configIp =
+                        resultJSON[i]['value']['ConfigData']['virtual-router']['virtual_router_ip_address'];
+                    nodesHostIp['ips'][configIp] = [];
+                } catch(e) {
+                    logutils.logger.error("vRouter Config IP parse error:" + e);
+                }
+                var uveIpsCnt = 0;
+                try {
+                    var uveIps =
+                        resultJSON[i]['value']['VrouterAgent']['self_ip_list'];
+                    uveIpsCnt = uveIps.length;
+                } catch(e) {
+                    logutils.logger.error("vRouter UVE IP parse error:" + e);
+                    uveIpsCnt = 0;
+                }
+                for (var j = 0; j < uveIpsCnt; j++) {
+                    nodesHostIp['ips'][uveIps[j]] = [];
+                }
+            }
+            if (nodeCnt > 0) {
+                infraCmn.saveNodesHostIPToRedis(nodesHostIp,
+                                                global.label.VROUTER,
+                                                function(err) {
+                });
+            }
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                         global.HTTP_STATUS_RESP_OK,
                                         JSON.stringify(dataObj),
