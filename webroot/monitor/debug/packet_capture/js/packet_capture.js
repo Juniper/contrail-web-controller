@@ -273,8 +273,8 @@ function initComponents() {
 function showRemoveWindow(rowIndex) {
     $.contrailBootstrapModal({
        id: 'confirmRemove',
-       title: 'Remove',
-       body: '<h6>Confirm Removing record</h6>',
+       title: 'Delete Analyzer',
+       body: '<h6>Do you want to delete the analyzer?</h6>',
        footer: [{
            title: 'Cancel',
            onclick: 'close',
@@ -305,7 +305,7 @@ function deleteAnalyzers(selectedRows){
     	
     	var selectedRowIds = [];
     	$.each(selectedRows, function(key,val) {
-    		selectedRowIds.push(val.id);
+    		selectedRowIds.push(val.cgrid);
     	});
     	
     	gridAnalyzer._dataView.deleteDataByIds(selectedRowIds);
