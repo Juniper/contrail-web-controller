@@ -193,13 +193,13 @@ function getvRoutersSummaryByJob (req, res, appData)
     var url = '/virtual-routers';
     var forceRefresh = req.param('forceRefresh');
     var key = global.STR_GET_VROUTERS_SUMMARY;
-    var objData = {};
 
     if (null == forceRefresh) {
         forceRefresh = false;
     } else {
         forceRefresh = true;
     }
+    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE, key,
                                              url, 0, 0, 0,
@@ -212,11 +212,12 @@ function getvRouterGenerators (req, res, appData)
     var url = '/virtual-routers';
     var key = global.STR_GET_VROUTERS_GENERATORS;
     var forceRefresh = req.param['forceRefresh'];
+    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE, key,
                                              url, 0, 0, 0,
                                              global.VROUTER_SUMM_JOB_REFRESH_TIME,
-                                             forceRefresh, null);
+                                             forceRefresh, objData);
 }
 
 /* Function: getComputeNodesSummary
@@ -260,9 +261,9 @@ function getvRouterDetails (req, res, appData)
             });
         } else {
             var postData = {};
-            postData['kfilt'] = [host + ':*contrail-vrouter-agent*'];
+            postData['kfilt'] = [host + ':*contrail-vrouter-agent*',host + ':*TorAgent*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, host,
-                                  ['contrail-vrouter-agent'],
+                                  ['contrail-vrouter-agent', 'TorAgent'],
                                   function(err, data) {
                 infraCmn.getDataFromConfigNode('virtual-routers', host, appData,
                                                data, function(err, data) {
@@ -280,6 +281,7 @@ function getvRouterFlowsDetail (req, res, appData)
     var ip = queryData.query['ip'];
     var aclUUID = queryData.query['aclUUID'];
     var iterKey = queryData.query['iterKey'];
+    var introspectPort = queryData.query['introspectPort'];
     var resultJSON = [];
     var isFetchAll = false;
     var dataObjArr = [];
@@ -302,7 +304,8 @@ function getvRouterFlowsDetail (req, res, appData)
     }
 
     var vRouterRestApi =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_COMPUTE_NODE_PORT);
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
 
     commonUtils.createReqObj(dataObjArr, reqUrl);
     infraCmn.sendSandeshRequest(req, res, dataObjArr, vRouterRestApi);
@@ -414,10 +417,12 @@ function getComputeNodeVN (req, res, appData)
 {
     var queryData = urlMod.parse(req.url, true);
     var ip = queryData.query['ip'];
+    var introspectPort = queryData.query['introspectPort'];
     var dataObjArr = [];
 
     var vRouterRestAPI =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_COMPUTE_NODE_PORT);
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
     commonUtils.createReqObj(dataObjArr, '/Snh_VnListReq?name=');
 
     async.map(dataObjArr,
@@ -440,10 +445,11 @@ function getComputeNodeInterface (req, res, appData)
     } else {
         url = '/Snh_ItfReq?name=';
     }
+    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_INTERFACE,
-                                             url, 0, 1, 0, -1, true);
+                                             url, 0, 1, 0, -1, true, objData);
 }
 
 function getComputeNodeAcl (req, res, appData)
@@ -455,10 +461,11 @@ function getComputeNodeAcl (req, res, appData)
     } else {
         url = '/Snh_AclReq?uuid=';
     }
+    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_ACL,
-                                             url, 0, 1, 0, -1, true);
+                                             url, 0, 1, 0, -1, true, objData);
 }
 
 function getComputeNodeAclFlows (req, res, appData)
@@ -470,20 +477,21 @@ function getComputeNodeAclFlows (req, res, appData)
     } else {
         url = '/Snh_AclReq?uuid=';
     }
+    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_ACL_FLOWS,
-                                             url, 0, 1, 0, -1, true);
+                                             url, 0, 1, 0, -1, true, objData);
 }
 
-function getVrfIndexList (ip, callback)
+function getVrfIndexList (ip, introspectPort, callback)
 {
     var dataObjArr = [];
     var urlLists = [];
     var lastIndex = 0;
     var resultArr = [];
 
-    urlLists[0] = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
         '/Snh_VrfListReq?_x=';
     async.map(urlLists,
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
@@ -508,10 +516,12 @@ function getVrfIndexList (ip, callback)
 function getvRouterUCastRoutes (req, res) {
     var ip = req.param('ip');
     var ucIndex = req.param('vrfindex');
+    var introspectPort = req.param('introspectPort');
     var index = 0;
     var dataObjArr = [];
-    var vRouterRestAPI = commonUtils.getRestAPIServer(ip,
-                                                      global.SANDESH_COMPUTE_NODE_PORT);
+    var vRouterRestAPI =
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
 
     if (null != ucIndex) {
         commonUtils.createReqObj(dataObjArr, '/Snh_Inet4UcRouteReq?vrf_index=' +
@@ -520,7 +530,7 @@ function getvRouterUCastRoutes (req, res) {
         return;
     }
     /* First get the ucindex from VRF */
-    getVrfIndexList(ip, function(results) {
+    getVrfIndexList(ip, introspectPort, function(results) {
         if (null == results) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
@@ -548,10 +558,12 @@ function getvRouterL2Routes (req, res)
 {
     var ip = req.param('ip');
     var vrfIndex = req.param('vrfindex');
+    var introspectPort = req.param('introspectPort');
     var index = 0;
     var dataObjArr = [];
     var vRouterRestAPI =
-        commonUtils.getRestAPIServer(ip, global.SANDESH_COMPUTE_NODE_PORT);
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
 
     if (null != vrfIndex) {
         commonUtils.createReqObj(dataObjArr, '/Snh_Layer2RouteReq?x=' +
@@ -560,7 +572,7 @@ function getvRouterL2Routes (req, res)
         return;
     }
     /* First get the l2index from VRF List */
-    getVrfIndexList(ip, function(results) {
+    getVrfIndexList(ip, introspectPort, function(results) {
         if (null == results) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
@@ -587,11 +599,12 @@ function getvRouterL2Routes (req, res)
 function getvRouterUCast6Routes (req, res) {
     var ip = req.param('ip');
     var uc6index = req.param('vrfindex');
+    var introspectPort = req.param('introspectPort');
     var index = 0;
     var dataObjArr = [];
-    var vRouterRestAPI = commonUtils.getRestAPIServer(ip,
-                                                      global.SANDESH_COMPUTE_NODE_PORT);
-console.log("inside ipv6: " + uc6index + ' ' + ip );
+    var vRouterRestAPI =
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
     if (null != uc6index) {
         commonUtils.createReqObj(dataObjArr, '/Snh_Inet6UcRouteReq?vrf_index=' +
                                  uc6index);
@@ -599,7 +612,7 @@ console.log("inside ipv6: " + uc6index + ' ' + ip );
         return;
     }
     /* First get the uc6index from VRF */
-    getVrfIndexList(ip, function(results) {
+    getVrfIndexList(ip, introspectPort, function(results) {
         if (null == results) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
@@ -641,10 +654,12 @@ function getvRouterMCastRoutes (req, res) {
     var index = 0;
     var ip = req.param('ip');
     var vrfIndex = req.param('vrfindex');
+    var introspectPort = req.param('introspectPort');
 
     var dataObjArr = [];
-    var vRouterRestAPI = commonUtils.getRestAPIServer(ip,
-                                                      global.SANDESH_COMPUTE_NODE_PORT);
+    var vRouterRestAPI =
+        commonUtils.getRestAPIServer(ip,
+                                     infraCmn.getvRouetrIntrospectPort(introspectPort));
     if (null != vrfIndex) {
         commonUtils.createReqObj(dataObjArr, '/Snh_Inet4McRouteReq?vrf_index=' +
                                  vrfIndex);
@@ -652,7 +667,7 @@ function getvRouterMCastRoutes (req, res) {
         return;
     }
     /* First get the mcindex from VRF */
-    getVrfIndexList(ip, function(results) {
+    getVrfIndexList(ip, introspectPort, function(results) {
         if (null == results) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
@@ -679,11 +694,12 @@ function getvRouterMCastRoutes (req, res) {
 function getvRouterVrfList (req, res)
 {
     var ip = req.param('ip');
+    var introspectPort = req.param('introspectPort');
     var urlLists = [];
     var lastIndex = 0;
     var resultArr = [];
 
-    urlLists[0] = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
         '/Snh_VrfListReq?name=';
     async.map(urlLists,
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),

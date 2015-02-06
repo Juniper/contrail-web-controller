@@ -164,7 +164,7 @@ monitorInfraComputeInterfacesClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_INTERFACES'], getIPOrHostName(obj)),
+                                url: contrail.format(monitorInfraUrls['VROUTER_INTERFACES'], getIPOrHostName(obj),obj['introspectPort']),
                                 type: 'GET'
                             },
                             dataParser: self.parseInterfaceData

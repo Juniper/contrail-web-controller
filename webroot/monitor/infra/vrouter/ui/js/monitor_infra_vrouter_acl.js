@@ -231,7 +231,7 @@ monitorInfraComputeACLClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj)),
+                                url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
                                 type: 'GET'
                             },
                             dataParser: function(response) {
@@ -293,7 +293,7 @@ monitorInfraComputeACLClass = (function() {
             aclGrid.refreshView();
         }
         function getSGUUIDs(ip){
-            var postData = getSandeshPostData(ip,"8085","/Snh_SgListReq");
+            var postData = getSandeshPostData(ip, obj['introspectPort'], "/Snh_SgListReq");
             $.ajax({
                 url:SANDESH_DATA_URL,
                 type:'POST',

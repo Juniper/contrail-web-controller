@@ -327,8 +327,14 @@ function updatevRoutersCpuMemoryDataAndSendResp (res, vRouterJSON, cpuMemData)
 
 function getvRoutersCpuMemoryStats (vRouterJSON, ipList, res)
 {
+    var introspectPort = infraCmn.getvRouetrIntrospectPortByReq(res.req);
     var resultJSON = [];
-    async.map(ipList, getComputeNodeCpuMemJSON, function(err, cpuMemData) {
+    var ipObjs = [];
+    for (var i = 0; i < ipCnt; i++) {
+        ipObjs[i] = {};
+        ipObjs[i] = {'ip': ipList[i], 'introspectPort': introspectPort};
+    }
+    async.map(ipObjs, getComputeNodeCpuMemJSON, function(err, cpuMemData) {
         updatevRoutersCpuMemoryDataAndSendResp(res, vRouterJSON, cpuMemData);
     });
 }
@@ -377,11 +383,15 @@ function processAndSendVRSummaryResponse (vRouterJSON, res)
             ip = vRouter['name'];
             /* Why IP is not set? */
         }
-        vnUrlLists[j] = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+
+        vnUrlLists[j] = ip + '@' +
+            infraCmn.getvRouetrIntrospectPortByReq(res.req) + '@' +
             '/Snh_VnListReq?name=';
-        itfUrlLists[j] = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+        itfUrlLists[j] = ip + '@' +
+            infraCmn.getvRouetrIntrospectPortByReq(res.req) + '@' +
             '/Snh_ItfReq?name=';
-        vmUrlLists[j] = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + 
+        vmUrlLists[j] = ip + '@' +
+            infraCmn.getvRouetrIntrospectPortByReq(res.req) + '@' +
             '/Snh_VmListReq?uuid=';
         ipIndexMap[j] = i;
         ipList[i] = ip;
@@ -930,25 +940,28 @@ function parseIPCStatsResp (sandeshResp)
     return resultJSON;
 }
 
-function getComputeNodeCpuMemJSON (ip, callback)
+function getComputeNodeCpuMemJSON (ipObj, callback)
 {
     var url = null;
     var urlLists = [];
     var resultJSON = {};
     
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    ip = ipObj['ip'];
+    var introspectPort = ipObj['introspectPort'];
+
+    url = ip + '@' + introspectPort + '@' +
                 '/Snh_CpuLoadInfoReq?';
     urlLists[0] = [url];
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    url = ip + '@' + introspectPort + '@' +
                 '/Snh_CollectorInfoRequest?';
     urlLists[1] = [url];
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    url = ip + '@' + introspectPort + '@' +
                 '/Snh_SandeshGenStatsReq?';
     urlLists[2] = [url];
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    url = ip + '@' + introspectPort + '@' +
                 '/Snh_AgentXmppConnectionStatusReq?';
     urlLists[3] = [url];
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    url = ip + '@' + introspectPort + '@' +
                 '/Snh_AgentStatsReq?';
     urlLists[4] = url;
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
