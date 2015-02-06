@@ -283,7 +283,11 @@ var infraMonitorUtils = {
             obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(dValue,'ConfigData')) ? true : false;
             obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(dValue,'VrouterAgent')) && $.isEmptyObject(getValueByJsonPath(dValue,'VrouterStatsAgent'))) ? true : false;
             obj['configIP'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_ip_address','-');
-            obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type;0','');
+            obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
+            if(obj['vRouterType'] == ''){
+                obj['vRouterType'] = 'hypervisor';//set default to hypervisor 
+            }
+            obj['moduleId'] = getValueByJsonPath(dValue,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
             if(obj['ip'] == '-') {
                 obj['ip'] = obj['configIP'];
             }
@@ -652,13 +656,13 @@ var infraMonitorUtils = {
                     url: '/api/admin/table/values/MessageTable/Category',
                     parse:function (response) {
                         if (nodeType == 'control')
-                            return ifNull(response['contrail-control'], []);
+                            return ifNull(response[UVEModuleIds['CONTROLNODE']], []);
                         else if (nodeType == 'compute')
-                            return ifNull(response['contrail-vrouter-agent'], []);
+                            return ifNull(response[UVEModuleIds['VROUTER_AGENT']], []);
                         else if (nodeType == 'analytics')
-                            return ifNull(response['contrail-collector'], []);
+                            return ifNull(response[UVEModuleIds['COLLECTOR']], []);
                         else if (nodeType == 'config')
-                            return ifNull(response['contrail-api'], []);
+                            return ifNull(response[UVEModuleIds['APISERVER']], []);
                     }
                 },
                 placeholder:'All'
@@ -752,20 +756,24 @@ var infraMonitorUtils = {
         	var hostName = obj['name'];
         	if(nodeType == 'compute'){
         		type = 'vrouter';
-        		kfilt = hostName+":*:contrail-vrouter-agent:*";
+        		var moduleId = UVEModuleIds['VROUTER_AGENT'];
+        		if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
+        		    moduleId = obj['vrouterModuleId'];
+        		}
+        		kfilt = hostName+":*:" + moduleId + ":*";
         	} else if (nodeType == 'control'){
         		type = 'controlnode';
-        		kfilt = hostName+":*:contrail-control:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
         	} else if (nodeType == 'analytics'){
         		type = 'contrail-collector';
-        		kfilt = hostName+":*:contrail-collector:*,"+
-        		        hostName+":*:contrail-analytics-api:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
+        		        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
         	} else if (nodeType == 'config'){
         		type = 'confignode';
-        		kfilt = hostName+":*:contrail-api*,"+
-	                    hostName+":*:contrail-discovery:*,"+
-    	                hostName+":*:contrail-svc-monitor:*,"+
-    	                hostName+":*:contrail-schema:*";
+        		kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
+	                    hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+    	                hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
         	}
         	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
         	$.ajax({
@@ -870,13 +878,23 @@ var infraMonitorUtils = {
                 //messageType:'any'
             };
             if (nodeType == 'control') {
-                filterObj['moduleId'] = 'contrail-control';
+                filterObj['moduleId'] = UVEModuleIds['CONTROLNODE'];
             } else if (nodeType == 'compute') {
-                filterObj['moduleId'] = 'contrail-vrouter-agent';
+                var moduleId = UVEModuleIds['VROUTER_AGENT'];
+                if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
+                    moduleId = obj['vrouterModuleId'];
+                }
+                filterObj['moduleId'] = moduleId;
             } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId=contrail-schema AND Source='+obj['name']+') OR (ModuleId=contrail-api AND Source='+obj['name']+') OR (ModuleId=contrail-svc-monitor AND Source='+obj['name']+') OR (ModuleId=contrail-discovery AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['APISERVER'] 
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR'] 
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE'] 
+                                    + ' AND Source='+obj['name']+')';
             } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId=contrail-analytics-api AND Source='+obj['name']+') OR (ModuleId=contrail-collector AND Source='+obj['name']+')';
+                filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
+                                    + ' AND Source='+obj['name']+')';
             }
 
             if (cboMsgCategory.value() != '') {
@@ -1746,7 +1764,12 @@ function getLastLogTimestamp(d, nodeType){
         if(nodeType == "control"){
             procsList = controlProcsForLastTimeStamp;
         } else if (nodeType == "compute"){
-            procsList = computeProcsForLastTimeStamp;
+            var proces = getValueByJsonPath(d,'NodeStatus;process_status;0;module_id');
+            if(proces != null){
+                procsList = [proces];
+            } else {
+                procsList = computeProcsForLastTimeStamp;
+            }
         } else if (nodeType =="analytics") {
             procsList = analyticsProcsForLastTimeStamp;
         } else if (nodeType =="config"){
@@ -2032,7 +2055,20 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
         kfilts =  '*:' + UVEModuleIds['CONTROLNODE'] + '*';
         cfilts =  'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'computeNodeDS') {
-        kfilts = '*:' + UVEModuleIds['VROUTER_AGENT'] + '*';
+        //Handling the case module id will change for the TOR agent/ TSN 
+        //We need to send all the module ids if different
+        var items = dataSource.getItems();
+        var kfiltString = ""
+        var moduleIds = [];
+        $.each(items,function(i,d){
+            if(moduleIds.indexOf(d['moduleId']) == -1){
+                moduleIds.push(d['moduleId']);
+                if(kfiltString != '')
+                    kfiltString += ',';
+                kfiltString += '*:' + d['moduleId'] + '*';
+            }
+        });
+        kfilts =  kfiltString;
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'analyticsNodeDS') {
         kfilts = '*:' + UVEModuleIds['COLLECTOR'] + '*,*:' + UVEModuleIds['OPSERVER'] + '*,*:' + UVEModuleIds['QUERYENGINE'] + '*';

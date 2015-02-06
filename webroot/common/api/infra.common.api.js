@@ -21,6 +21,7 @@ function getModuleType (modName)
 {
     switch(modName){
     case 'contrail-vrouter-agent':
+    case 'TorAgent':
         return 'Compute';
     case 'contrail-control':
     case 'contrail-dns':
@@ -932,6 +933,48 @@ function getReachableIP (req, res, appData)
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
 }
+
+function getvRouetrIntrospectPortByReq (req)
+{
+    try {
+        var introspectPort = req.param('introspectPort');
+    } catch(e) {
+        logutils.logger.debug("We did not get introspectPort in req Obj");
+        return global.SANDESH_COMPUTE_NODE_PORT;
+    }
+    return getvRouetrIntrospectPort(introspectPort);
+}
+
+function getvRouetrIntrospectPort (introspectPort)
+{
+    if (null == introspectPort) {
+        introspectPort = global.SANDESH_COMPUTE_NODE_PORT;
+    }
+    return introspectPort;
+}
+
+function fillIntrospectPortInJobData (req, jobData)
+{
+    if (null == jobData) {
+        jobData = {};
+    }
+    var introspectPort = req.param('introspectPort');
+    if (null != introspectPort) {
+        jobData['introspectPort'] = introspectPort;
+    }
+    return jobData;
+}
+
+function getvRtrIntrospectPortByJobData (jobData)
+{
+    if ((null != jobData) && (null != jobData['taskData']) &&
+        (null != jobData['taskData']['appData']) &&
+        (null != jobData['taskData']['appData']['introspectPort'])) {
+        return jobData['taskData']['appData']['introspectPort'];
+    }
+    return global.SANDESH_COMPUTE_NODE_PORT;
+}
+
 exports.dovRouterListProcess = dovRouterListProcess;
 exports.checkAndGetSummaryJSON = checkAndGetSummaryJSON;
 exports.getvRouterList = getvRouterList;
@@ -950,4 +993,7 @@ exports.filterOutGeneratorInfoFromGenerators =
 exports.getBulkUVEUrl = getBulkUVEUrl;
 exports.getReachableIP = getReachableIP;
 exports.getSandeshData = getSandeshData;
-
+exports.getvRouetrIntrospectPort = getvRouetrIntrospectPort;
+exports.fillIntrospectPortInJobData = fillIntrospectPortInJobData;
+exports.getvRouetrIntrospectPortByReq = getvRouetrIntrospectPortByReq;
+exports.getvRtrIntrospectPortByJobData = getvRtrIntrospectPortByJobData;
