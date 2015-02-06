@@ -164,7 +164,7 @@ monitorInfraComputeRoutesClass = (function() {
             cboVRF = $('#comboVRF' + '_' + obj.name).contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(obj)),
+                     url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(obj), obj['introspectPort']),
                      parse:function(response){
                          var ret = [];
                          if(!(response instanceof Array)){
@@ -281,7 +281,10 @@ monitorInfraComputeRoutesClass = (function() {
                 index = getIndexForType(selectedVRF,selectedRadio);
             }
             var newAjaxConfig = {
-                url: monitorInfraUrls['VROUTER_BASE'] + selectedRadio +'-routes?ip=' + getIPOrHostName(obj) + '&vrfindex=' + index,
+                url: monitorInfraUrls['VROUTER_BASE'] + selectedRadio 
+                    +'-routes?ip=' + getIPOrHostName(obj) 
+                    + '&vrfindex=' + index  
+                    + '&introspectPort=' + obj['introspectPort'],
                 type:'Get'
             };
             routesGrid.setRemoteAjaxConfig(newAjaxConfig);
@@ -369,7 +372,7 @@ monitorInfraComputeRoutesClass = (function() {
                                             selectedVrf = initialSelection['value'];
                                         }
                                         var ucIndex = getIndexForType(selectedVrf,'ucast');
-                                        return contrail.format(monitorInfraUrls['VROUTER_UNICAST_ROUTES'] , getIPOrHostName(obj), ucIndex)
+                                        return contrail.format(monitorInfraUrls['VROUTER_UNICAST_ROUTES'] , getIPOrHostName(obj), ucIndex, obj['introspectPort'])
                                     }(),
                                     type: 'GET'
                                 },
@@ -451,7 +454,7 @@ monitorInfraComputeRoutesClass = (function() {
                                     url: function(){
                                         var selectedVrf = cboVRF.value();;
                                         var mcIndex = getIndexForType(selectedVrf,'mcast');
-                                        return contrail.format(monitorInfraUrls['VROUTER_MCAST_ROUTES'], getIPOrHostName(obj), mcIndex);
+                                        return contrail.format(monitorInfraUrls['VROUTER_MCAST_ROUTES'], getIPOrHostName(obj), mcIndex, obj['introspectPort']);
                                     }(),
                                     type: 'GET'
                                 },
@@ -533,7 +536,7 @@ monitorInfraComputeRoutesClass = (function() {
                                     url: function(){
                                         var selectedVrf = cboVRF.value();;
                                         var l2index = getIndexForType(selectedVrf,'l2');
-                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES'], getIPOrHostName(obj), l2index);
+                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES'], getIPOrHostName(obj), l2index, obj['introspectPort']);
                                     }(),
                                     type: 'GET'
                                 },
@@ -622,7 +625,7 @@ monitorInfraComputeRoutesClass = (function() {
                                             selectedVrf = initialSelection['value'];
                                         }
                                         var ucIndex = getIndexForType(selectedVrf,'ucast6');
-                                        return contrail.format(monitorInfraUrls['VROUTER_UCAST6_ROUTES'] , getIPOrHostName(obj), ucIndex)
+                                        return contrail.format(monitorInfraUrls['VROUTER_UCAST6_ROUTES'] , getIPOrHostName(obj), ucIndex, obj['introspectPort'])
                                     }(),
                                     type: 'GET'
                                 },

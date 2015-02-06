@@ -68,15 +68,21 @@ monitorInfraComputeDetailsClass = (function() {
                         return ifNullOrEmpty(getVrouterIpAddresses(computeNodeData,"details"),noDataStr);
                     })()},
                     {lbl:'Version', value:parsedData['version'] != '-' ? parsedData['version'] : noDataStr},
-                    {lbl:'Overall Node Status', value:overallStatus}
+                    {lbl:'Overall Node Status', value:overallStatus},
+                    {lbl:'Type', value:getDisplayNameForVRouterType(parsedData['vRouterType'])}
                     ];
                     //If node manager is not installed dont show the processes
                 computeNodeDashboardInfo = computeNodeDashboardInfo.concat((IS_NODE_MANAGER_INSTALLED)? 
                             ([
                               {lbl:'Processes', value:" "},
-                            {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
-                                return ifNull(vRouterProcessStatusList['contrail-vrouter-agent'],noDataStr);
-                            })()}
+                              //If contrail-tor-agent status is updated then this is a TOR agent and show the tor agent process status
+                              (vRouterProcessStatusList['contrail-tor-agent'] != null)? 
+                                {lbl:INDENT_RIGHT+'TOR Agent', value:(function(){
+                                    return ifNull(vRouterProcessStatusList['contrail-tor-agent'],noDataStr);
+                                })()} :
+                                {lbl:INDENT_RIGHT+'vRouter Agent', value:(function(){
+                                    return ifNull(vRouterProcessStatusList['contrail-vrouter-agent'],noDataStr);
+                                })()}    
                             /*{lbl:INDENT_RIGHT+'vRouter Node Manager', value:(function(){
                             try{
                                 return ifNull(vRouterProcessStatusList['contrail-vrouter-nodemgr'],noDataStr);
@@ -273,6 +279,8 @@ function getStatusesForAllvRouterProcesses(processStateList){
                 ret['openstack-nova-compute'] = getProcessUpTime(currProc);
             } else if (currProc.process_name == "contrail-vrouter-agent"){
                 ret['contrail-vrouter-agent'] = getProcessUpTime(currProc);
+            } else if (currProc.process_name.indexOf('contrail-tor-agent') != -1){
+                ret['contrail-tor-agent'] = getProcessUpTime(currProc);
             }
         }
     }

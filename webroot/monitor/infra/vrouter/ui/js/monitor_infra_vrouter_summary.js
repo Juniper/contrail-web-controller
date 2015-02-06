@@ -300,6 +300,17 @@ monitorInfraComputeSummaryClass = (function() {
             				}
             			},                    
             		},
+            		{
+                        field:"vRouterType",
+                        name:"Type",
+                        formatter: function(r,c,v,cd,dc) {
+                            return getDisplayNameForVRouterType(v);
+                        },
+                        searchFn: function(d) {
+                            return getDisplayNameForVRouterType(v);
+                        },
+                        minWidth:120
+                    },
                     {
                         field:"cpu",
                         name:"CPU (%)",
@@ -388,3 +399,4 @@ function getvRoutersDashboardDataForSummary(deferredObj,dataSource) {
         return([]);
     });
 }
+

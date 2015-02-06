@@ -38,13 +38,17 @@ computeNodeView = function () {
     this.load = function (obj) {
         pushBreadcrumb([obj['name']]);
         computeNodeInfo = obj;
-        if(computeNodeInfo == null || computeNodeInfo.ip ==  null ||  computeNodeInfo.ip == ''){
+        if(computeNodeInfo == null || computeNodeInfo.ip ==  null ||  computeNodeInfo.ip == '' || 
+                computeNodeInfo['introspectPort'] == null || computeNodeInfo['introspectPort'] == '' ||
+                computeNodeInfo['vrouterModuleId'] == null || computeNodeInfo['vrouterModuleId'] == ''){
             //issue details call and populate ip
             var computeNodeDeferredObj = $.Deferred();
             self.getComputeNodeDetails(computeNodeDeferredObj,computeNodeInfo);
             computeNodeDeferredObj.done(function(data) {
                 //If IP address is not available in UVE,pick it from ConfigData
                 computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
+                computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port','8085');
+                computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
                 self.populateComputeNode(computeNodeInfo);
             });
         } else {
@@ -122,6 +126,20 @@ computeNodeView = function () {
         } else {
             selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
         }
+    }
+}
+
+
+function getDisplayNameForVRouterType(type){
+    switch (type){
+        case 'tor-agent':
+            return 'TOR Agent';
+        case 'tor-service-node':
+            return 'TOR Service Node';
+        case 'embedded':
+            return 'Embedded';
+        case 'hypervisor':
+            return 'Hypervisor';
     }
 }
 

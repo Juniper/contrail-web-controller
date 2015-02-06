@@ -119,7 +119,7 @@ monitorInfraComputeNetworksClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(obj)),
+                                url: contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(obj),obj['introspectPort']),
                                 //timeout: timeout,
                                 type: 'GET'
                             },

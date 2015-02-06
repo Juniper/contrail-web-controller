@@ -317,7 +317,7 @@ function getComputeNodeInterface (pubChannel, saveChannelKey,
 
     var vRouterRestAPI = 
         commonUtils.getRestAPIServer(ip,
-                                     global.SANDESH_COMPUTE_NODE_PORT);
+                                     infraCmn.getvRtrIntrospectPortByJobData(jobData));
     commonUtils.createReqObj(dataObjArr, '/Snh_ItfReq?name=');
     
     async.map(dataObjArr,
@@ -338,7 +338,7 @@ function getComputeNodeInterface (pubChannel, saveChannelKey,
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
-function getFlowCountAndSendvRouterAclResponse (ip, results, pubChannel,
+function getFlowCountAndSendvRouterAclResponse (jobData, ip, results, pubChannel,
                                                 saveChannelKey, done)
 {
     var urlLists = [];
@@ -348,7 +348,7 @@ function getFlowCountAndSendvRouterAclResponse (ip, results, pubChannel,
         /* Initialize results->flow_count */
         results[i]['flow_count'] = 0;
         urlLists[i] = 
-            ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+            ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' +
             '/Snh_AclFlowReq?x=' + results[i]['uuid'];
     }
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
@@ -404,7 +404,7 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
         return;
     }
     /* Now send sandesh Message */
-    url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + '/Snh_AclReq?uuid=';
+    url = ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' + '/Snh_AclReq?uuid=';
     var urlLists = [];
     urlLists[0] = [url];
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
@@ -420,7 +420,8 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
         results = jsonPath(results, "$..AclSandeshData");
         results = parseComputeNodeAcl(results);
         /* Now update the flow count from ACL Flow */
-        getFlowCountAndSendvRouterAclResponse(ip, results, pubChannel, saveChannelKey, done);
+        getFlowCountAndSendvRouterAclResponse(jobData, ip, results, pubChannel,
+                                              saveChannelKey, done);
     });
 }
 
@@ -452,14 +453,14 @@ function processComputeNodeInterface (pubChannel, saveChannelKey,
     }
 }
 
-function getAclFlowByACLSandeshResponse (ip, aclSandeshResp, callback)
+function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
 {
     var resultJSON = [];
     var aclCnt = 0;
     var aclData = jsonPath(aclSandeshResp, "$..AclSandeshData");
     var urlLists = [];
     var objFlag = false;
-    var url = ip + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+    var url = ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' +
         '/Snh_AclFlowReq?x=';
 
     if (aclData.length == 0) {
@@ -530,7 +531,8 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
         return;
     }
     var vRouterRestAPI =
-        commonUtils.getRestAPIServer(nodeIp, global.SANDESH_COMPUTE_NODE_PORT);
+        commonUtils.getRestAPIServer(nodeIp,
+                                     infraCmn.getvRtrIntrospectPortByJobData(jobData));
     commonUtils.createReqObj(dataObjArr, '/Snh_AclReq?uuid=');
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
@@ -544,7 +546,7 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
                                         0, done);
             return;
         }
-        getAclFlowByACLSandeshResponse(nodeIp, data[0], function(result) {
+        getAclFlowByACLSandeshResponse(jobData, nodeIp, data[0], function(result) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                         global.HTTP_STATUS_RESP_OK,
                                         JSON.stringify(result),
@@ -655,7 +657,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
     }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
 }
 
-function processAclSandeshData (pubChannel, saveChannelKey, nodeIp, done, 
+function processAclSandeshData (jobData, pubChannel, saveChannelKey, nodeIp, done,
                                 aclResponse)
 {
     var idx = 0;
@@ -663,12 +665,13 @@ function processAclSandeshData (pubChannel, saveChannelKey, nodeIp, done,
     var urlLists = [];
     var uuidLists = [];
     try {        
-        var aclData = jsonPath(aclResponse, "$..AclSandeshData");
+        var aclData = jsonPath(aclResponse, "$..AclSandeshData")
         var aclDataLen = aclData.length;
         for (var i = 0; i < aclDataLen; i++) {
             var aclEntryCnt = aclData[i].length;
             for (var j = 0; j < aclEntryCnt; j++) {
-                urlLists[idx] = nodeIp + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' +
+                urlLists[idx] = nodeIp + '@' +
+                    infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' +
                     '/Snh_AclFlowReq?x=' + aclData[i][j]['uuid'][0]['_'];
                 uuidLists[idx] = aclData[i][j]['uuid'][0]['_'];
                 idx++;
@@ -702,10 +705,11 @@ function processAclSandeshData (pubChannel, saveChannelKey, nodeIp, done,
     }
 }
 
-function getComputeNodeAclFlows (pubChannel, saveChannelKey, nodeIp, done)
+function getComputeNodeAclFlows (jobData, pubChannel, saveChannelKey, nodeIp, done)
 {
     var urlLists = [];
-    urlLists[0] = nodeIp + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + '/Snh_AclReq?uuid=';
+    urlLists[0] = nodeIp + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) +
+        '@' + '/Snh_AclReq?uuid=';
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
               function(err, results) {
         if (null == results) {
@@ -716,7 +720,7 @@ function getComputeNodeAclFlows (pubChannel, saveChannelKey, nodeIp, done)
                                         0, done);
             return;
         }
-        processAclSandeshData(pubChannel, saveChannelKey, nodeIp, done, results[0]);
+        processAclSandeshData(jobData, pubChannel, saveChannelKey, nodeIp, done, results[0]);
     });
 }
 

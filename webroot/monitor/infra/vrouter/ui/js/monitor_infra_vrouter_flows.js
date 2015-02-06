@@ -113,7 +113,7 @@ monitorInfraComputeFlowsClass = (function() {
             $('#aclDropDown' + '_' + obj.name).contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj)),
+                     url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
                      parse:function(response){
                          var retArr = [{text:'All',value:'All'}];
                          response = jsonPath(response,'$..AclSandeshData')[0];
@@ -251,9 +251,9 @@ monitorInfraComputeFlowsClass = (function() {
                                     var aclFilter = '';
                                     if(selectedAcl != 'All'){
                                         aclFilter = '&aclUUID=' + selectedAcl;
-                                        return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + aclFilter;
+                                        return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + aclFilter + '&introspectPort=' + obj['introspectPort'];
                                     }
-                                    return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj);
+                                    return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + '&introspectPort=' + obj['introspectPort'];
                                 }(),
                                 type: 'GET'
                             },
@@ -289,7 +289,7 @@ monitorInfraComputeFlowsClass = (function() {
             if(selectedAcl != 'All'){
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                                                            + '&aclUUID=' + selectedAcl,
+                                                            + '&aclUUID=' + selectedAcl  + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
                 flowGrid.setRemoteAjaxConfig(newAjaxConfig);
@@ -351,12 +351,12 @@ monitorInfraComputeFlowsClass = (function() {
             if (acluuid != 'All') {
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                                                            + '&aclUUID=' + acluuid,
+                                                            + '&aclUUID=' + acluuid + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             } else {
                 newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             }
@@ -377,19 +377,19 @@ monitorInfraComputeFlowsClass = (function() {
             if(acluuid == 'All' && flowKeyStack.length > 0 && flowKeyStack[flowKeyStack.length - 1] != null){
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                                                            + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1],
+                                                            + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1] + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             }
             else if (acluuid != 'All' && aclIterKeyStack.length > 0 && aclIterKeyStack[aclIterKeyStack.length -1] != null){
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                        + '&iterKey=' + aclIterKeyStack[aclIterKeyStack.length -1],
+                        + '&iterKey=' + aclIterKeyStack[aclIterKeyStack.length -1] + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             } else if (acluuid == "All"){
                 newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             }
@@ -420,24 +420,28 @@ monitorInfraComputeFlowsClass = (function() {
             if(acluuid == 'All' && flowKeyStack.length > 0) {
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                            + '&flowKey=' + flowKeyStack.pop(),
+                            + '&flowKey=' + flowKeyStack.pop() 
+                            + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             } else if (acluuid == 'All' && flowKeyStack.length < 1){
                 newAjaxConfig = {
-                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj),
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
+                        + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             } else if(acluuid != 'All' && aclIterKeyStack.length > 0) {
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
-                        + '&iterKey=' + aclIterKeyStack.pop(),
+                        + '&iterKey=' + aclIterKeyStack.pop()
+                        + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             } else if(acluuid != 'All' && aclIterKeyStack.length < 1) {
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj)
-                            + '&aclUUID=' + acluuid,
+                            + '&aclUUID=' + acluuid
+                            + '&introspectPort=' + obj['introspectPort'],
                         type:'Get'
                     };
             }
