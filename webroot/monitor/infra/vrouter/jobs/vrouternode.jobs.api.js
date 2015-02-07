@@ -480,8 +480,13 @@ function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
         return;
     }
     for (var i = 0; i < aclCnt; i++) {
-        /* Initialize results->flow_count */
-        urlLists[i] = url + aclData[i]['uuid'];
+        if ((null != aclData[i]) && (null != aclData[i]['uuid'])) {
+            urlLists[i] = url + aclData[i]['uuid'];
+        }
+    }
+    if (!urlLists.length) {
+        callback(resultJSON);
+        return;
     }
     async.map(urlLists, 
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
