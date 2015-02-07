@@ -2070,10 +2070,10 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
         });
         kfilts =  kfiltString;
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
-    } else if(dsName == 'configNodeDS') {
+    } else if(dsName == 'analyticsNodeDS') {
         kfilts = '*:' + UVEModuleIds['COLLECTOR'] + '*,*:' + UVEModuleIds['OPSERVER'] + '*,*:' + UVEModuleIds['QUERYENGINE'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
-    } else if(dsName == 'analyticsNodeDS') {
+    } else if(dsName == 'configNodeDS') {
         kfilts = '*:' + UVEModuleIds['APISERVER'] + '*';
         cfilts = 'ModuleClientState:client_info,ModuleServerState:generator_info';
     }
