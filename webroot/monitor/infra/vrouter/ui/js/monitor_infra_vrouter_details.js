@@ -51,10 +51,10 @@ monitorInfraComputeDetailsClass = (function() {
                     endWidgetLoading('vrouter-sparklines' + '_' + obj.name);
                     $('#vrouter-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['system-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'vrouter-sparklines' + '_' + obj.name, showWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['system-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
                     $('#system-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, showWidgetIds: ['system-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
+                    }, parser: "parseSystemMemCPUData", plotOnLoad: false, lineChartId: 'system-sparklines' + '_' + obj.name, showWidgetIds: ['system-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var vRouterProcessStatusList = [];
