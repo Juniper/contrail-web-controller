@@ -43,11 +43,11 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     if(retryCnt == null)
         retryCnt = 0;
     if(retryCnt == maxRetryCnt) {
-        return;
         callback(false);
+        return;
     }
     retryCnt++;
-    var networkListURL = '/project/' + projUUID + '?exclude_children=True&exclude_back_refs=True';
+    var networkListURL = '/project/' + projUUID + '?exclude_back_refs=True';
     configApiServer.apiGet(networkListURL,appData,function(err,data) {
         var networkUUIDs = [],reqUrl = '';
         if(data['project'] != null && data['project']['virtual_networks'] != null) {
