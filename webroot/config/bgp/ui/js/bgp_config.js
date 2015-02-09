@@ -886,8 +886,7 @@ function initActions() {
     });
 
     $('#btnAutoMeshUpdatePopupCancel').click(function(a){
-        $('#chk_ibgp_auto_mesh')[0].checked = !$('#chk_ibgp_auto_mesh')[0].checked;
-        $('#confirmAutoMeshUpdate').modal('hide');
+        iBGPAutoMeshCacelActions();
     });
 
     $("#btnCnfRemoveMainPopupCancel").click(function (a) {
@@ -918,6 +917,11 @@ function initActions() {
         $('#confirmPeers').modal('hide');
         createUpdateBgp();
     });
+}
+
+function iBGPAutoMeshCacelActions() {
+    $('#chk_ibgp_auto_mesh')[0].checked = !$('#chk_ibgp_auto_mesh')[0].checked;
+    $('#confirmAutoMeshUpdate').modal('hide');
 }
 
 function createUpdateBgp() {
