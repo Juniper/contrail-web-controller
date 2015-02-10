@@ -44,7 +44,7 @@ monitorInfraControlDetailsClass = (function() {
                     endWidgetLoading('control-sparklines' + '_' + obj.name);
                     $('#control-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
                         return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines' + '_' + obj.name, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var controlProcessStatusList = [];
