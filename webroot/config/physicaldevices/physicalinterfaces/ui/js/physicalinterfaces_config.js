@@ -422,8 +422,16 @@ function physicalInterfacesConfig() {
                     },
                     function(){
                         //failure
+                        var r = arguments;
+                        showInfoWindow(r[0].responseText,r[2]);
+                        fetchData();
                     }
                 );
+            }).fail(function(){
+                 //failure
+                 var r = arguments;
+                 showInfoWindow(r[0].responseText,r[2]);
+                 fetchData();
             });
             
         }
@@ -566,7 +574,16 @@ function physicalInterfacesConfig() {
                             "subnet_uuid": input.subnetId
                         }
                     ],
-                    "virtual_machine_interface_device_owner" : ""
+                    "virtual_machine_interface_device_owner" : "",
+                    "security_group_refs" : [
+                        {
+                            "to" :[
+                                curDomain,
+                                curProject,
+                                "default"
+                            ]
+                        }
+                    ]
                 }
             };
         } else {
@@ -594,7 +611,16 @@ function physicalInterfacesConfig() {
                             "subnet_uuid": input.subnetId
                         }
                     ],
-                    "virtual_machine_interface_device_owner" : ""
+                    "virtual_machine_interface_device_owner" : "",
+                    "security_group_refs" : [
+                        {
+                            "to" :[
+                                curDomain,
+                                curProject,
+                                "default"
+                            ]
+                        }
+                    ]
                 }
             };
         }
