@@ -18,7 +18,11 @@
         {key : "network_ipam", name :"Network IPAMs"},      
         {key : "service_instance", name :"Service Instances"},
         {key : "security_group", name :"Security Groups"},
-        {key : "security_group_rule", name :"Security Group Rules"}
+        {key : "security_group_rule", name :"Security Group Rules"},
+        {key : "loadbalancer_pool", name :"Loadbalancer Pools"},
+        {key : "loadbalancer_member", name :"Loadbalancer Members"},
+        {key : "loadbalancer_healthmonitor", name :"Loadbalancer Health monitor"},
+        {key : "virtual_ip", name :"Virtual IPs"}
     ];    
     //Grids    
     var gridQuotas, updateData;
