@@ -114,7 +114,11 @@ function setProjectQuotas(projectIdStr, appData, data, callback) {
                                    "virtual_network": -1,
                                    "virtual_DNS": null,
                                    "floating_ip_pool": null,
-                                   "logical_router": -1
+                                   "logical_router": -1,
+                                   "loadbalancer_pool":-1,
+                                   "loadbalancer_member":-1,
+                                   "loadbalancer_healthmonitor":-1,
+                                   "virtual_ip":-1
                                };
     getProjectQuotasCb(null, data, appData, callback);
 }
@@ -187,7 +191,11 @@ function getProjectQuotaUsedInfo(request, response, appData)
         {key : 'virtual-machine-interfaces', value : 'virtual_machine_interface'},
         {key : 'access-control-lists', value : 'access_control_list'},
         {key : 'network-policys', value : 'network_policy'},
-        {key : 'logical-routers', value : 'logical_router'}
+        {key : 'logical-routers', value : 'logical_router'},
+        {key : 'loadbalancer-pools', value : 'loadbalancer_pool'},
+        {key : 'loadbalancer-members', value : 'loadbalancer_member'},
+        {key : 'loadbalancer-healthmonitors', value : 'loadbalancer_healthmonitor'},
+        {key : 'virtual-ips', value : 'virtual_ip'}
     ];
     var callObj = [];
     for(var featureCnt = 0; featureCnt < resources.length; featureCnt ++) {
