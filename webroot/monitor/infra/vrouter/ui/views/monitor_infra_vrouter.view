@@ -45,13 +45,13 @@
     <div class='contrail' >
         <div id="compute_tabstrip_{{name}}">
             <ul>
-                <li><a href="#mon-infra-compute-details-tab_{{name}}">Details</a></li>
-                <li><a href="#mon-infra-compute-interfaces-tab_{{name}}">Interfaces</a></li>
-                <li><a href="#mon-infra-compute-networks-tab_{{name}}">Networks</a></li>
-                <li><a href="#mon-infra-compute-acl-tab_{{name}}">ACL</a></li>
-                <li><a href="#mon-infra-compute-flows-tab_{{name}}">Flows</a></li>
-                <li><a href="#mon-infra-compute-routes-tab_{{name}}">Routes</a></li>
-                <li><a href="#mon-infra-compute-console-tab_{{name}}">Console</a></li>
+                <li id="mon-infra-vrouter-details-tab_{{name}}"><a href="#mon-infra-compute-details-tab_{{name}}">Details</a></li>
+                <li id="mon-infra-vrouter-interfaces-tab_{{name}}"><a href="#mon-infra-compute-interfaces-tab_{{name}}">Interfaces</a></li>
+                <li id="mon-infra-vrouter-networks-tab_{{name}}"><a href="#mon-infra-compute-networks-tab_{{name}}">Networks</a></li>
+                <li id="mon-infra-vrouter-acl-tab_{{name}}"><a href="#mon-infra-compute-acl-tab_{{name}}">ACL</a></li>
+                <li id="mon-infra-vrouter-flows-tab_{{name}}"><a href="#mon-infra-compute-flows-tab_{{name}}">Flows</a></li>
+                <li id="mon-infra-vrouter-routes-tab_{{name}}"><a href="#mon-infra-compute-routes-tab_{{name}}">Routes</a></li>
+                <li id="mon-infra-vrouter-console-tab_{{name}}"><a href="#mon-infra-compute-console-tab_{{name}}">Console</a></li>
             </ul>
             <div class="row-fluid" id="mon-infra-compute-details-tab_{{name}}">
                 <div id='computenode-dashboard_{{name}}'  class="span5"></div>
