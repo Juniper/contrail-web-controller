@@ -19,7 +19,7 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     ctrlGlobal = require('../../../common/api/global'),
     nwMonJobs = require('../jobs/network.mon.jobs.js'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
-    assert = require('assert'),
+    assert = require('assert');
     authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api'),
 
 nwMonApi = module.exports;
