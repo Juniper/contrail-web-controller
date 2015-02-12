@@ -1,7 +1,7 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
-
+var disabledTabsForTOR = ['acl','flows'];
 computeNodesView = function () {
     
     this.load = function (obj) {
@@ -49,6 +49,7 @@ computeNodeView = function () {
                 computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
                 computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port','8085');
                 computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
+                computeNodeInfo['vRouterType'] = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
                 self.populateComputeNode(computeNodeInfo);
             });
         } else {
@@ -85,6 +86,13 @@ computeNodeView = function () {
                 tabIdx = 0;
                 monitorInfraComputeDetailsClass.populateDetailsTab(computeNodeInfo);
             }
+           
+            //disable the tabs for TOR agent types
+            if(obj['vRouterType'] == 'tor-agent'){
+                $.each(disabledTabsForTOR, function(i,tab){
+                    $('#mon-infra-vrouter-' + tab + '-tab_' + obj.name).removeClass('show').addClass('hide');
+                });
+            } 
             $("#compute_tabstrip_" + obj.name).contrailTabs({
                  activate: function(e, ui) {
                     computeNodeInfo.name = e.target.id.split('_')[2];
@@ -95,8 +103,6 @@ computeNodeView = function () {
                     infraMonitorUtils.clearTimers();
                     //var selTab = $(e.item).text();
                     var selTab = $(ui.newTab.context).text();
-                    if (selTab != 'Console') {
-                    }
 
                     if (selTab == 'Interfaces') {
                         monitorInfraComputeInterfacesClass.populateInterfaceTab(computeNodeInfo);
