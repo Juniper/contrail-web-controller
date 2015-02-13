@@ -1002,6 +1002,7 @@ function physicalInterfacesConfig() {
     
     /** Assumes the mac to be in the form "aa:bb:cc:dd:ee:ff (1.1.1.1)" */
     function getMacFromText(mac){
+        mac = mac.trim();
         if(mac != null) {
             if(mac.indexOf('(') != -1) {
                 mac = mac.split(' ')[0];
@@ -1443,12 +1444,13 @@ function physicalInterfacesConfig() {
             for(var i =0; i < inf['vmi_details'].length ; i++){
                 var vmiDetail = inf['vmi_details'][i];
                 if(vmiDetail != null) {
+                    var macAddr = vmiDetail.mac[0] != null ? vmiDetail.mac[0].trim() : '';
                     if(vmiDetail.ip[0] != null) {
-                        vmiIP = vmiDetail.ip[0];
+                        vmiIP = vmiDetail.ip[0].trim();
                         vmiIPs.push(vmiIP);
-                        vmiDetails = vmiDetail.mac[0] +' ('+ vmiIP + ')';
+                        vmiDetails = macAddr +' ('+ vmiIP + ')';
                     } else {
-                        vmiDetails = vmiDetail.mac[0] ;
+                        vmiDetails = macAddr;
                     }
                     vmiDetailsArray.push(vmiDetails);
                     vmiUUID.push(vmiDetail['vmi_uuid']);
