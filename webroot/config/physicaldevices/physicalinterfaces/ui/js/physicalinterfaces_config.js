@@ -1208,7 +1208,7 @@ function physicalInterfacesConfig() {
                 $("[id$=serverMac]").data('contrailCombobox').enable(false);
             }
         } else {
-            doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null);
+            doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null, 300000);
         }
     }
     
@@ -1278,7 +1278,7 @@ function physicalInterfacesConfig() {
     function fetchData() {
         gridPhysicalInterfaces._dataView.setData([]);
         gridPhysicalInterfaces.showGridMessage('loading');
-        doAjaxCall('/api/tenants/config/physical-interfaces/' + currentUUID,'GET', null, 'successHandlerForPhysicalInterfaces', 'failureHandlerForPhysicalInterfaces', null, null);
+        doAjaxCall('/api/tenants/config/physical-interfaces/' + currentUUID,'GET', null, 'successHandlerForPhysicalInterfaces', 'failureHandlerForPhysicalInterfaces', null, null, 300000);
     }
     
     window.successHandlerForPhysicalInterfaces =  function(result) {
