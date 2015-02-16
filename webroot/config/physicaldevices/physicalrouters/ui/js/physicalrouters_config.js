@@ -355,7 +355,7 @@ function physicalRoutersConfig() {
                         $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
                         $('#txtTorAgentIp').val(dtl.ip);
                         $('#txtTorAgentIp').attr("disabled", "disabled");
-                    } else {
+                    } else if(dtl.type == 'tor-service-node'){
                         vrType = 'TOR Agent';
                         $('#ddTsnName').data('contrailCombobox').value(vrname);
                         $('#vRouterTorAgentFields').removeClass('hide').addClass('show');
@@ -636,6 +636,7 @@ function physicalRoutersConfig() {
             for(var i = 0; i < result.length;i++) {
                 var virtualRouter = result[i]['virtual-router'];
                 var vRouterType = (virtualRouter['virtual_router_type'])? virtualRouter['virtual_router_type'][0] : '';
+                vRouterType = (vRouterType != null && vRouterType != '')? vRouterType : 'hypervisor';
                 var vRouterIP = (virtualRouter['virtual_router_ip_address'])? virtualRouter['virtual_router_ip_address'] : '';
               //build a map with vrouter name and type to be used in createEditWindow
                 globalVRoutersMap[virtualRouter['name']] = {type:vRouterType,ip:vRouterIP};
@@ -780,6 +781,12 @@ function physicalRoutersConfig() {
                 }
             } else {
                 showInfoWindow("Enter a valid TSN IP address in xxx.xxx.xxx.xxx format","Input required Virtual Router");
+                return false;
+            }
+        } else if(ddVirtualRoutersType.value() == "embedded"){
+            var currVr = getVirtualRouterDetails(name);
+            if(currVr !=null && currVr !='' && currVr.type != 'embedded'){
+                showInfoWindow("Virtual Router with name " + name + " and type  " + currVr.type + " already exists. Cannot create embedded type Virtual Router.","Input required Virtual Router");
                 return false;
             }
         }
