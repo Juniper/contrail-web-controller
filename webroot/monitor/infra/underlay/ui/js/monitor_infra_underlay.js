@@ -9,9 +9,10 @@ var PROUTER_DBL_CLICK =  'config_net_vn';
 var PROUTER = 'physical-router';
 var VROUTER = 'virtual-router';
 var VIRTUALMACHINE = 'virtual-machine';
-var LEVEL_1_DIMENSION = {width: 0, height:0};
-var LEVEL_2_DIMENSION = {width: 0, height:0};
 var ZOOMED_OUT = 0;
+var timeout;
+var view ="cdg";
+var expanded = true;
 
 function underlayRenderer() {
     this.load = function(obj) {
@@ -50,27 +51,25 @@ function underlayRenderer() {
 var underlayModel = function(data) {
     this.nodes             = [];
     this.links             = [];
-    this.connectedElements = [];
     this.tors              = [];
     this.spines            = [];
     this.cores             = [];
     this.vrouters          = [];
     this.vms               = [];
     this.vns               = [];
-    this.elementMap        = {
-        nodes: {},
-        links: {}
-    };
-    if(data) {
+    this.tree              = {};
+    if(data && data.hasOwnProperty('nodes') && data.nodes.length>0) {
         this.setNodes(data.nodes);
         this.setLinks(data.links);
         this.updateChassisType(data.nodes);
         this.categorizeNodes(data.nodes);
+        this.formTree();
     } else {
         this.setNodes([]);
         this.setLinks([]);
     }
 }
+
 underlayModel.prototype.updateChassisType = function() {
     var nodes = this.getNodes();
     for(var i=0; i<nodes.length; i++) {
@@ -81,20 +80,63 @@ underlayModel.prototype.updateChassisType = function() {
     this.setNodes(nodes);
 }
 
+underlayModel.prototype.parseTree = function(parents, tree) {
+    if(null !== parents && false !== parents && 
+        typeof parents === "object" && parents.length > 0) {
+        var parent_chassis_type = parents[0].chassis_type;
+        var children_chassis_type = "";
+        switch (parent_chassis_type) {
+            case "core":
+                children_chassis_type = "spine";
+                break;
+            case "spine":
+                children_chassis_type = "tor";
+                break;
+            case "tor":
+                children_chassis_type = "virtual-router";
+                break;
+            case "virtual-router":
+                children_chassis_type = "virtual-machine";
+        }
+        for(var i=0; i<parents.length; i++) {
+            tree[parents[i].name] = parents[i];
+            var children = this.getChildren(parents[i].name, children_chassis_type)
+            tree[parents[i].name]["children"] = {};
+            this.parseTree(children, tree[parents[i].name]["children"]);
+        }
+    }
+    return tree;
+}
+
+underlayModel.prototype.formTree = function() {
+    var nodes = this.getNodes();
+    var links = this.getLinks();
+    var cores = this.getCores();
+    var tree = this.getTree();
+    var firstLevelNodes = [];
+    if(cores.length > 0) {
+        firstLevelNodes = cores;
+    } else {
+        var spines = this.getSpines();
+        if(spines.length > 0) {
+            firstLevelNodes = spines;
+        } else {
+            var tors = this.getTors();
+            if(tors.length > 0) {
+                firstLevelNodes = tors;
+            }
+        }
+    }
+    this.parseTree(firstLevelNodes, tree);
+    this.setTree(tree);
+}
+
 underlayModel.prototype.getNodes = function() {
     return this.nodes;
 }
 
 underlayModel.prototype.getLinks = function() {
     return this.links;
-}
-
-underlayModel.prototype.getConnectedElements = function() {
-    return this.connectedElements;
-}
-
-underlayModel.prototype.getElementMap = function() {
-    return this.elementMap;
 }
 
 underlayModel.prototype.getTors = function() {
@@ -119,6 +161,90 @@ underlayModel.prototype.getVMs = function() {
 
 underlayModel.prototype.getVNs = function() {
     return this.vns;
+}
+
+underlayModel.prototype.getTree = function() {
+    return this.tree;
+}
+
+underlayModel.prototype.getNodesOfType = function(type) {
+    var nodes = this.getNodes();
+    var nodesOfType = jsonPath(nodes, "$[?(@.chassis_type=='" + type + "')]");
+    return (nodesOfType === false ||
+        null === nodesOfType ||
+        typeof nodesOfType === "undefined" ) ? [] : nodesOfType;
+}
+
+underlayModel.prototype.getChildren = function(parent, child_type) {
+    if(null == parent || typeof parent === "undefined" || false == parent ||
+        typeof parent === "object")
+        return [];
+    if(typeof parent === "string" && "" === parent.trim())
+        return [];
+    if(null == child_type || typeof child_type === "undefined" || false == child_type ||
+        typeof child_type === "object")
+        return [];
+    if(typeof child_type === "string" && "" === child_type.trim())
+        return [];
+    parent = parent.trim();
+    child_type = child_type.trim();
+    var nodes = this.getNodes();
+    var links = this.getLinks();
+    var srcPoint = jsonPath(links, "$[?(@.endpoints[0]=='" + parent + "')]");
+    var dstPoint = jsonPath(links, "$[?(@.endpoints[1]=='" + parent + "')]");
+    var children = [], childNodes = [];
+    if(false !== srcPoint && srcPoint.length > 0) {
+        for(var i=0; i<srcPoint.length; i++) {
+            var sp = srcPoint[i].endpoints;
+            var otherEndNode =
+                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
+            if(false !== otherEndNode && otherEndNode.length == 1 &&
+                otherEndNode[0].chassis_type == child_type) {
+                children.push(otherEndNode[0].name);
+            }
+        }
+    }
+    if(false !== dstPoint && dstPoint.length > 0) {
+        for(var i=0; i<dstPoint.length; i++) {
+            var sp = dstPoint[i].endpoints;
+            var otherEndNode =
+                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
+            if(false !== otherEndNode && otherEndNode.length == 1 &&
+                otherEndNode[0].chassis_type == child_type) {
+                children.push(otherEndNode[0].name);
+            }
+        }
+    }
+    children = children.unique();
+    for(var i=0; i<children.length; i++) {
+        var childNode = jsonPath(nodes, "$[?(@.name=='" + children[i] + "')]");
+        if(null !== childNode  && false !== childNode && typeof childNode === "object" &&
+            childNode.length == 1) {
+            childNode = childNode[0];
+            childNodes.push(childNode);
+        }
+    }
+    return childNodes;
+}
+
+underlayModel.prototype.getSpinesUnderCore = function(core) {
+    return this.getChildren(core, "spine");
+}
+
+underlayModel.prototype.getTorsUnderSpine = function(spine) {
+    return this.getChildren(spine, "tor");
+}
+
+underlayModel.prototype.getVroutersUnderTor = function(tor) {
+    return this.getChildren(tor, "virtual-router");
+}
+
+underlayModel.prototype.getVMsUnderVrouter = function(vrouter) {
+    return this.getChildren(vrouter, "virtual-machine");
+}
+
+underlayModel.prototype.getVNsUnderVrouter = function(vrouter) {
+    return this.getChildren(vrouter, "virtual-network");
 }
 
 underlayModel.prototype.clearOtherNodes = function(nodeType) {
@@ -194,22 +320,6 @@ underlayModel.prototype.setVNs = function(vns) {
         this.vns = [];
     }
 }
-underlayModel.prototype.setConnectedElements = function(cEls) {
-    if(null !== cEls && typeof cEls !== "undefined" &&
-        cEls.length > 0) {
-        this.connectedElements = cEls;
-    } else {
-        this.connectedElements = [];
-    }
-}
-
-underlayModel.prototype.setElementMap = function(elMap) {
-    if(null !== elMap && typeof elMap !== "undefined") {
-        this.elementMap = elMap;
-    } else {
-        this.elementMap = [];
-    }
-}
 
 underlayModel.prototype.setNodes = function(nodes) {
     if(null !== nodes && typeof nodes !== "undefined" &&
@@ -229,7 +339,16 @@ underlayModel.prototype.setLinks = function(links) {
     }
 }
 
+underlayModel.prototype.setTree = function(t) {
+    if(null !== t && typeof t !== "undefined" && false !== t) {
+        this.tree = t;
+    } else {
+        this.tree = {};
+    }
+}
+
 underlayModel.prototype.getData = function(cfg) {
+
     var url = cfg.url;
     var _this = this;
     if(null !== url && "" !== url.trim()) {
@@ -240,12 +359,26 @@ underlayModel.prototype.getData = function(cfg) {
             data: cfg.data,
             success: function (response) {
                 cfg.callback(response);
+            },
+            failure: function (err) {
+                if(cfg.failureCallback != null && typeof cfg.failureCallback == 'function')
+                    cfg.failureCallback(err);
             }
         });
     }
 }
 
 underlayModel.prototype.categorizeNodes = function(nodes) {
+    if(null === nodes || typeof nodes === "undefined" ||
+        false === nodes || nodes.length <= 0) {
+        this.setTors([]);
+        this.setSpines([]);
+        this.setCores([]);
+        this.setVrouters([]);
+        this.setVMs([]);
+        this.setVNs([]);
+        return;
+    }
     var tors = jsonPath(nodes, "$[?(@.chassis_type=='tor')]");
     if(false !== tors)
         this.setTors(tors);
@@ -283,30 +416,29 @@ underlayModel.prototype.categorizeNodes = function(nodes) {
         this.setVNs([]);
 }
 
-underlayModel.prototype.appendNodes = function(nodes) {
-    for(var i=0; i<nodes.length; i++) {
-        this.nodes.push(nodes[i]);
+underlayModel.prototype.appendNodes = function(newNodes) {
+    var nodes = this.getNodes();
+    for(var i=0; i<newNodes.length; i++) {
+        nodes.push(newNodes[i]);
     };
+    this.setNodes(nodes);
 }
 
-underlayModel.prototype.appendLinks = function(links) {
-    for(var i=0; i<links.length; i++) {
-        this.links.push(links[i]);
+underlayModel.prototype.appendLinks = function(newLinks) {
+    var links = this.getLinks();
+    for(var i=0; i<newLinks.length; i++) {
+        links.push(newLinks[i]);
     };
+    this.setLinks(links);
 }
 
 underlayModel.prototype.reset = function() {
     this.nodes             = [];
     this.links             = [];
-    this.connectedElements = [];
     this.tors              = [];
     this.spines            = [];
     this.cores             = [];
     this.vrouters          = []
-    this.elementMap        = {
-        nodes: {},
-        links: {}
-    };
 }
 
 underlayModel.prototype.destroy = function() {
@@ -316,20 +448,28 @@ underlayModel.prototype.destroy = function() {
 
 
 
-var underlayView = function (model) {
-    LEVEL_1_DIMENSION.width = $("#topology_paper").innerWidth();
-    LEVEL_1_DIMENSION.height = $("#topology_paper").innerHeight();
 
+
+
+var underlayView = function (model) {
+    this.elementMap        = {
+        nodes: {},
+        links: {}
+    };
+    this.elementTree = {};
+    this.connectedElements = [];
     this.model = model || new underlayModel();
     this.graph = new joint.dia.Graph;
+    window.onresize = this.resizeTopology;
+    var topologySize = this.calculateDimensions(false);
+    this.setDimensions(topologySize);
     this.paper  = new joint.dia.Paper({
-        el: $("#paper"),
+        el: $("#topology-connected-elements"),
         model: this.graph,
-        height: LEVEL_1_DIMENSION.height,
-        width:  LEVEL_1_DIMENSION.width,
+        width: $("#topology-connected-elements").innerWidth(),
+        height: $("#topology-connected-elements").innerHeight(),
         linkView: joint.shapes.contrail.LinkView
     });
-
     this.initZoomControls();
     this.contextMenuConfig = {};
     this.tooltipConfig = {};
@@ -348,6 +488,99 @@ var underlayView = function (model) {
     this.renderFlowRecords();
 }
 
+underlayView.prototype.getConnectedElements = function() {
+    return this.connectedElements;
+}
+
+underlayView.prototype.getElementMap = function() {
+    return this.elementMap;
+}
+
+underlayView.prototype.getElementTree = function() {
+    return this.elementTree;
+}
+
+underlayView.prototype.calculateDimensions = function(expand) {
+    var viewArea = this.getViewArea();
+    var viewAreaHeight = viewArea.height;
+    var viewAreaWidth = viewArea.width;
+
+    var topologyHeight = (expand === true) ? viewAreaHeight*90/100 : viewAreaHeight*60/100;
+    var detailsTabHeight = (expand === true) ? viewAreaHeight*10/100 : viewAreaHeight*40/100;
+    return {
+        "underlay_topology": {
+            width: viewAreaWidth,
+            height: viewAreaHeight
+        },
+            "network_topology": {
+                width: viewAreaWidth,
+                height: topologyHeight
+            },
+                "topology": {
+                    width: viewAreaWidth*90/100,
+                    height: topologyHeight
+                },
+                    "topology-connected-elements": {
+                        width: viewAreaWidth*90/100,
+                        height: topologyHeight
+                    },
+                    "topology-controls": {
+                        width: viewAreaWidth*10/100,
+                        height: topologyHeight
+                    },
+            "details_tab": {
+                width: viewAreaWidth,
+                height: detailsTabHeight
+            }
+    };
+}
+
+underlayView.prototype.getViewArea = function() {
+    var viewAreaWidth = 980;
+    var viewAreaHeight = 725;
+    var windowHeight = $(window).height()-100; //less breadcrumb
+    var windowWidth = $(window).width();
+    if(windowHeight > viewAreaHeight )
+        viewAreaHeight = windowHeight;
+    if(windowWidth > viewAreaWidth)
+        viewAreaWidth = windowWidth - 200; //less menu
+    return {"width": viewAreaWidth, "height": viewAreaHeight};
+}
+
+underlayView.prototype.setDimensions = function(dimObj) {
+    var _this = this;
+    for(var prop in dimObj) {
+        if(dimObj.hasOwnProperty(prop)) {
+            $("#" + prop).innerWidth(dimObj[prop].width);
+            $("#" + prop).innerHeight(dimObj[prop].height);
+        }
+    }
+}
+
+underlayView.prototype.setElementTree = function(tree) {
+    if(null !== tree && typeof tree !== "undefined") {
+        this.elementTree = tree;
+    } else {
+        this.elementTree = {};
+    }
+}
+
+underlayView.prototype.setConnectedElements = function(cEls) {
+    if(null !== cEls && typeof cEls !== "undefined" &&
+        cEls.length > 0) {
+        this.connectedElements = cEls;
+    } else {
+        this.connectedElements = [];
+    }
+}
+
+underlayView.prototype.setElementMap = function(elMap) {
+    if(null !== elMap && typeof elMap !== "undefined") {
+        this.elementMap = elMap;
+    } else {
+        this.elementMap = [];
+    }
+}
 underlayView.prototype.getModel = function() {
     return this.model;
 }
@@ -360,10 +593,198 @@ underlayView.prototype.getPaper = function() {
     return this.paper;
 }
 
+underlayView.prototype.getNodeElementByName = function(name) {
+
+}
+
+underlayView.prototype.formElementTree = function(prop, propObj, elTree, elMap, conElements) {
+    if ( typeof prop === "undefined" || null === prop ||
+        {} === prop || false === prop)
+        return;
+    elTree[prop] = {};
+    var nodeElement = jsonPath(elMap, "$..nodes[" + prop + "]");
+    if(false !== nodeElement && null !== nodeElement && typeof nodeElement === "object" &&
+        nodeElement.length == 1) {
+        elTree[prop]["element_id"] = nodeElement[0];
+    }
+
+    if(propObj.hasOwnProperty("children")) {
+        elTree[prop]["children"] = {};
+        var children = propObj["children"];
+        for(var child in children) {
+            this.formElementTree(child, children[child], elTree[prop]["children"], elMap, conElements);
+        }
+    }
+
+}
+
 underlayView.prototype.createElements = function() {
     this.createNodes();
     this.createLinks();
+    this.createElementTree();
 }
+
+underlayView.prototype.createElementTree = function() {
+    var treeModel = this.getModel().getTree();
+    var elementTree = this.getElementTree();
+    var elementMap = this.getElementMap();
+    var conElements = this.getConnectedElements();
+    for(var prop in treeModel) {
+        if(treeModel.hasOwnProperty(prop)) {
+            this.formElementTree(prop, treeModel[prop], elementTree, elementMap, conElements);
+        }
+    }
+    this.setElementTree(elementTree);
+}
+//Try Directed Graph - Begin
+underlayView.prototype.DGPrepare = function(prop, propObj, adjList) {
+    if ( typeof prop === "undefined" || null === prop ||
+        {} === prop || false === prop)
+        return;
+    adjList[prop] = [];
+    if(propObj.hasOwnProperty("children")) {
+        var children = propObj["children"];
+        for(var child in children) {
+            adjList[prop][adjList[prop].length] = child;
+            this.DGPrepare(child, children[child], adjList);
+        }
+    }
+}
+
+underlayView.prototype.layout = function() {
+    if(view === "cdg") {
+        view = "dg";
+        var adjList = this.prepareData();
+        var elements = this.buildGraphFromAdjacencyList(adjList);
+        var graph = this.getGraph();
+        graph.clear();
+        $("#topology-connected-elements").find("div").remove();
+        graph.addCells(elements);
+        joint.layout.DirectedGraph.layout(graph, {
+            setLinkVertices: false
+        });
+        this.getPaper().fitToContent();
+    } else if(view === "dg") {
+        var graph = this.getGraph();
+        graph.clear();
+        $("#topology-connected-elements").find("div").remove();
+        this.renderTopology({nodes: this.getModel().getNodes(), links: this.getModel().getLinks()})
+        view = "cdg";
+    }
+}
+
+underlayView.prototype.prepareData = function() {
+    var treeModel = this.getModel().getTree();
+    var adjList = {};
+    for(var prop in treeModel) {
+        if(treeModel.hasOwnProperty(prop)) {
+            this.DGPrepare(prop, treeModel[prop], adjList);
+        }
+    }
+    return adjList;
+}
+
+underlayView.prototype.buildGraphFromAdjacencyList = function(adjacencyList) {
+
+    var elements = [];
+    var links = [];
+    var _this = this;
+    var i=0;
+    _.each(adjacencyList, function(edges, parentElementLabel) {
+        elements.push(_this.makeElement(parentElementLabel, i++));
+
+        _.each(edges, function(childElementLabel) {
+            links.push(_this.makeLink(parentElementLabel, childElementLabel));
+        });
+    });
+
+    // Links must be added after all the elements. This is because when the links
+    // are added to the graph, link source/target
+    // elements must be in the graph already.
+    return elements.concat(links);
+}
+
+underlayView.prototype.makeLink = function(parentElementLabel, childElementLabel) {
+
+    //var link = this.createLink({"endpoints" : [parentElementLabel, childElementLabel]}, this.getConnectedElements(), this.getElementMap(), 0);
+    //return link;
+    return new joint.dia.Link({
+        source: { id: parentElementLabel },
+        target: { id: childElementLabel },
+        attrs: {
+            '.marker-target': { d: 'M 4 0 L 0 2 L 4 4 z' }
+        },
+        smooth: true
+    });
+}
+
+underlayView.prototype.makeElement = function(label, i) {
+    var maxLineLength = _.max(label.split('\n'), function(l) {
+        return l.length;
+    }).length;
+
+    // Compute width/height of the rectangle based on the number
+    // of lines in the label and the letter size. 0.6 * letterSize is
+        // an approximation of the monospace font letter width.
+    var letterSize = 8;
+    var width = 100;//2 * (letterSize * (0.6 * maxLineLength + 1));
+    var height = 2 * ((label.split('\n').length + 1) * letterSize);
+    /*var nodes = this.getModel().getNodes();
+    var node = jsonPath(nodes, "$[?(@.name=='" + label + "')]");
+    var newElement = this.createNode(node[0], i);
+    return newElement;*/
+    return new joint.shapes.basic.Rect({
+        id: label,
+        size: { width: width, height: height },
+        attrs: {
+            text: { text: (label.length > 10) ? label.substr(0,8)+".." : label, 
+                'font-size': letterSize, 
+                'font-family': 'monospace' 
+            },
+            rect: {
+                width: width,
+                height: height,
+                rx: 5,
+                ry: 5,
+                stroke: '#555'
+            }
+        }
+    });
+}
+
+
+/*underlayView.prototype.createElementTree = function() {
+    var treeModel = this.getModel().getTree();
+    var elementTree = this.getElementTree();
+    var elementMap = this.getElementMap();
+    var conElements = this.getConnectedElements();
+    var i =0;
+    for(var prop in treeModel) {
+        if(treeModel.hasOwnProperty(prop)) {
+            this.formElementTree1(prop, treeModel[prop], elementMap, conElements, i);
+        }
+    }
+    this.setConnectedElements(conElements);
+    this.setElementMap(elementMap);
+    //this.setElementTree(elementTree);
+}
+
+underlayView.prototype.formElementTree1 = function(prop, propObj, elMap, conElements, i) {
+    if ( typeof prop === "undefined" || null === prop ||
+        {} === prop || false === prop)
+        return;
+    var el = this.createNode(propObj, i, 0);
+    conElements.push(el);
+    if(!elMap.hasOwnProperty('nodes'))
+        elMap.nodes = {};
+    elMap.nodes[prop] = el.id;
+    if(propObj.hasOwnProperty("children")) {
+        var children = propObj["children"];
+        for(var child in children) {
+            this.formElementTree1(child, children[child], elMap, conElements, i++);
+        }
+    }
+}*/
 
 underlayView.prototype.createNodes = function() {
         var newElement, nodeName;
@@ -378,18 +799,6 @@ underlayView.prototype.createNodes = function() {
             links: {}
         };
 
-        for (var i = 0; i < tors.length; i++) {
-            newElement = this.createNode(tors[i], i, tors.length);
-            nodeName = tors[i]['name'];
-            elements.push(newElement);
-            elementMap.nodes[nodeName] = newElement.id;
-        }
-        for (var i = 0; i < spines.length; i++) {
-            newElement = this.createNode(spines[i], i, spines.length);
-            nodeName = spines[i]['name'];
-            elements.push(newElement);
-            elementMap.nodes[nodeName] = newElement.id;
-        }
         for (var i = 0; i < cores.length; i++) {
             newElement = this.createNode(cores[i], i, cores.length);
             nodeName = cores[i]['name'];
@@ -397,28 +806,40 @@ underlayView.prototype.createNodes = function() {
             elementMap.nodes[nodeName] = newElement.id;
         }
 
-        for (var i = 0; i < vrouters.length; i++) {
-            newElement = this.createNode(vrouters[i], i, vrouters.length);
-            nodeName = vrouters[i]['name'];
+        for (var i = 0; i < spines.length; i++) {
+            newElement = this.createNode(spines[i], i, spines.length);
+            nodeName = spines[i]['name'];
             elements.push(newElement);
             elementMap.nodes[nodeName] = newElement.id;
-            var vms = 
-            jsonPath(globalObj.dataSources.instDS.dataSource.getItems(), "$[?(@.vRouter =='" + nodeName + "')]");
-            for (var j = 0; j < vms.length; j++) {
-                var vmObj = jsonPath(this.getModel().getVMs(), "$[?(@.name =='" + vms[j].name + "')]");
-                if(false == vmObj)
-                    continue;
-                newElement = this.createNode(vmObj[0], j, vms.length);
-                nodeName = vmObj[0]['name'];
-                elements.push(newElement);
-                elementMap.nodes[nodeName] = newElement.id;
+        }
+
+        for (var i = 0; i < tors.length; i++) {
+            newElement = this.createNode(tors[i], i, tors.length);
+            nodeName = tors[i]['name'];
+            elements.push(newElement);
+            elementMap.nodes[nodeName] = newElement.id;
+            var torPositionX = newElement.attributes.position.x;
+            var virtualRouters = this.getModel().getVroutersUnderTor(tors[i]['name']);
+            for (var j = 0; j < virtualRouters.length; j++) {
+                var newElementVR = this.createNode(virtualRouters[j], j, virtualRouters.length, torPositionX);
+                var nodeNameVR = virtualRouters[j]['name'];
+                elements.push(newElementVR);
+                elementMap.nodes[nodeNameVR] = newElementVR.id;
+                var vrPositionX = newElementVR.attributes.position.x;
+                var vms = this.getModel().getVMsUnderVrouter(virtualRouters[j]['name']);
+                for (var k = 0; k < vms.length; k++) {
+                    var newElementVM = this.createNode(vms[k], k, vms.length,vrPositionX);
+                    var nodeNameVM = vms[k]['name'];
+                    elements.push(newElementVM);
+                    elementMap.nodes[nodeNameVM] = newElementVM.id;
+                }
             }
         }
-        this.getModel().setConnectedElements(elements);
-        this.getModel().setElementMap(elementMap);
+        this.setConnectedElements(elements);
+        this.setElementMap(elementMap);
 }
 
-underlayView.prototype.createNode = function(node, i, cnt) {
+underlayView.prototype.createNode = function(node, i, cnt, offset) {
     var nodeName = node['name'],
         type = node.node_type,
         chassis_type = node.chassis_type,
@@ -426,32 +847,37 @@ underlayView.prototype.createNode = function(node, i, cnt) {
         height = 40,
         imageLink, element, options, imageName;
         var yPos = 0, xPos = 0;
+        if(typeof offset !== "number") {
+            offset = 0;
+            i = i+1;
+        }
+
         switch(chassis_type) {
-            case "tor":
-                chassis_type = 'switch';
-                xPos = (i+1)*275;
-                yPos = 220;
+            case "coreswitch":
+                //tbd - make it 'core' here and in backend
+                xPos = i*425 + offset;
+                yPos = 20;
                 break;
             case "spine":
                 chassis_type = 'router';
-                xPos = (i+1)*275;
+                xPos = i*275 + offset;
                 yPos = 120;
                 break;
-            case "coreswitch":
-                //tbd - make it 'core' here and in backend
-                xPos = (i+1)*425;
-                yPos = 20;
+            case "tor":
+                chassis_type = 'switch';
+                xPos = i*275 + offset;
+                yPos = 220;
                 break;
             case "virtual-router":
-                xPos = (i+1)*150;
+                xPos = i*150 + offset;
                 yPos = 320;
                 break;
             case "virtual-machine":
-                xPos = (i+1)*150;
+                xPos = i*150 + offset;
                 yPos = 420;
                 break;
             case "virtual-network":
-                xPos = (i+1)*150;
+                xPos = i*150 + offset;
                 yPos = 420;
                 break;
         }
@@ -487,8 +913,8 @@ underlayView.prototype.createNode = function(node, i, cnt) {
 
 underlayView.prototype.createLinks = function() {
     var links = this.getModel().getLinks();
-    var elementMap = this.getModel().getElementMap();
-    var elements = this.getModel().getConnectedElements();
+    var elementMap = this.getElementMap();
+    var elements = this.getConnectedElements();
 
     for (var i = 0; i < links.length; i++) {
         var link = this.createLink(links[i], elements, elementMap, 0);
@@ -497,8 +923,8 @@ underlayView.prototype.createLinks = function() {
         elementMap.links[link.attributes.linkDetails.endpoints[1] + '<->' + link.attributes.linkDetails.endpoints[0]] = link.id;
     }
 
-    this.getModel().setConnectedElements(elements);
-    this.getModel().setElementMap(elementMap);
+    this.setConnectedElements(elements);
+    this.setElementMap(elementMap);
 }
 
 underlayView.prototype.createLink = function(link, elements, elementMap, layer) {
@@ -532,11 +958,22 @@ underlayView.prototype.createLink = function(link, elements, elementMap, layer) 
 }
 
 underlayView.prototype.initZoomControls = function() {
-    $("#topology_paper").panzoom({
-        $zoomIn: $("#zoomcontrols").find(".zoom-in"),
-        $zoomOut: $("#zoomcontrols").find(".zoom-out"),
-        $reset: $("#zoomcontrols").find(".zoom-reset"),
-        disablePan: true
+    $("#topology-connected-elements").panzoom({
+        $zoomIn: $("#topology-controls").find(".zoom-in"),
+        $zoomOut: $("#topology-controls").find(".zoom-out"),
+        $reset: $("#topology-controls").find(".zoom-reset"),
+        cursor: "default"
+    });
+    var _this = this;
+    $('#topology-connected-elements').on('mousedown touchstart', function( e ) {
+        if(e.target.nodeName == 'svg') {
+            $('#topology-connected-elements').panzoom("enable");
+        } else{
+            $('#topology-connected-elements').panzoom("disable");
+        }
+    });
+    $('#topology-connected-elements').on('mouseup touchend', function( e ) {
+        $('#topology-connected-elements').panzoom("enable");
     });
 }
 
@@ -759,9 +1196,58 @@ underlayView.prototype.initContextMenuConfig = function() {
         }
     });
 }
+underlayView.prototype.addDimlightToConnectedElements = function() {
+    this.addDimlightToNodes();
+    this.addDimlightToLinks();
+}
+
+underlayView.prototype.addDimlightToNodes = function() {
+    $('div.font-element')
+        .removeClass('elementHighlighted')
+        .addClass('dimHighlighted');
+    $('g.element')
+        .removeClassSVG('elementHighlighted')
+        .addClassSVG('dimHighlighted');
+}
+
+underlayView.prototype.addDimlightToLinks = function() {
+    $('g.link')
+        .removeClassSVG('elementHighlighted')
+        .addClassSVG('dimHighlighted')
+        .css('')
+}
+
+underlayView.prototype.addHighlightToNode = function(node_model_id) {
+    $('div.font-element[font-element-model-id="' + node_model_id + '"]')
+        .addClass('elementHighlighted')
+        .removeClass('dimHighlighted');
+
+    $('g.element[model-id="' + node_model_id + '"]')
+        .addClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted');
+}
+
+underlayView.prototype.hideLink = function(link_model_id) {
+    $('g.link[model-id="' + link_model_id + '"]')
+        .removeClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted')
+        .addClassSVG('hidden');
+}
+
+underlayView.prototype.hideNode = function(node_model_id) {
+    $('g.element[model-id="' + node_model_id + '"]')
+        .removeClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted')
+        .addClassSVG('hidden');
+    $('div.font-element[font-element-model-id="' + node_model_id + '"]')
+        .removeClassSVG('elementHighlighted')
+        .removeClassSVG('dimHighlighted')
+        .addClassSVG('hidden');
+}
 
 underlayView.prototype.clearHighlightedConnectedElements = function() {
     var g = this.getGraph();
+
     $('div.font-element')
         .removeClass('elementHighlighted')
         .removeClass('dimHighlighted');
@@ -797,12 +1283,16 @@ underlayView.prototype.initGraphEvents = function() {
     var _this      = this;
 
     paper.on('blank:pointerclick', function (evt, x, y) {
-        evt.stopImmediatePropagation();
-        _this.resetTopology();
+        //evt.stopImmediatePropagation();
+        //_this.resetTopology();
     });
 
     paper.on("cell:pointerdblclick", function (cellView, evt, x, y) {
         evt.stopImmediatePropagation();
+        if (timeout) {
+            clearTimeout(timeout);
+            timeout = null;
+        }
         var dblClickedElement = cellView.model,
             elementType       = dblClickedElement['attributes']['type'];
 
@@ -811,149 +1301,26 @@ underlayView.prototype.initGraphEvents = function() {
                 var chassis_type    = dblClickedElement['attributes']['nodeDetails']['chassis_type'];
                 if(chassis_type === "tor") {
                     _this.resetTopology();
-                    _this.showVRouter(dblClickedElement, "virtual-router");
+                    _this.showChildrenOfType(dblClickedElement, "virtual-router");
                 }
                 $('g.PhysicalRouter').popover('hide');
                 break;
 
             case 'contrail.VirtualRouter':
-                if(LEVEL_2_DIMENSION.height == 0) {
-                    LEVEL_2_DIMENSION.height = LEVEL_1_DIMENSION.height + 200;
-                    LEVEL_2_DIMENSION.width = LEVEL_1_DIMENSION.width;
-                }
-
                 var model_id          = $(dblClickedElement).attr('id');
                 //Faint all
                 _this.clearHighlightedConnectedElements();
-                $('div.font-element')
-                    .removeClass('elementHighlighted')
-                    .addClass('dimHighlighted');
-                $('g.element')
-                    .removeClassSVG('elementHighlighted')
-                    .addClassSVG('dimHighlighted');
-                $('g.link')
-                    .removeClassSVG('elementHighlighted')
-                    .addClassSVG('dimHighlighted')
-                    .css('')
+                _this.addDimlightToConnectedElements();
 
                 //Highlight selected vrouter
-                $('div.font-element[font-element-model-id="' + model_id + '"]')
-                    .addClass('elementHighlighted')
-                    .removeClass('dimHighlighted');
-
-                $('g.element[model-id="' + model_id + '"]')
-                    .addClassSVG('elementHighlighted')
-                    .removeClassSVG('dimHighlighted');
-
-                _this.getPaper().setDimensions(LEVEL_2_DIMENSION.width,LEVEL_2_DIMENSION.height);
-                $('.viewport')
-                    .height(LEVEL_2_DIMENSION.width)
-                    .width(LEVEL_2_DIMENSION.height);
+                _this.addHighlightToNode(model_id);
 
                 if(ZOOMED_OUT == 0) {
-                    ZOOMED_OUT = 0.8;
-                    $("#topology_paper").panzoom("zoom", true, ZOOMED_OUT);
+                    ZOOMED_OUT = 0.9;
+                    $("#topology-connected-elements").panzoom("zoom",ZOOMED_OUT);
                 }
                 _this.hideVMs();
-                _this.showVRouter(dblClickedElement, "virtual-machine");
-                /*$.ajax({
-                    dataType: "json",
-                    url: "/api/tenant/get-data",
-                    type: "POST",
-                    data: {
-                        "data":
-                            [
-                                {
-                                    "kfilt" : dblClickedElement['attributes']['nodeDetails']['name'],
-                                    "cfilt" : "VrouterAgent:virtual_machine_list",
-                                    "type"  : "vrouter"
-                                }
-                            ]
-                    },
-                    success: function (response) {
-                        if(null !== response && typeof response !== undefined && response.length > 0 &&
-                            response[0].hasOwnProperty('value') && response[0].value.length > 0) {
-                            var vms        = response[0].value[0].value['VrouterAgent'].virtual_machine_list;
-                            if(vms.length <= 0) {
-                                showGridMessage('Error', 'No Virtual Machines found for ' + dblClickedElement['attributes']['nodeDetails']['name']);
-                                return;
-                            }
-                            _this.getPaper().setDimensions(LEVEL_2_DIMENSION.width,LEVEL_2_DIMENSION.height);
-                            $('.viewport')
-                                .height(LEVEL_2_DIMENSION.width)
-                                .width(LEVEL_2_DIMENSION.height);
-
-                            if(ZOOMED_OUT == 0) {
-                                ZOOMED_OUT = 0.8;
-                                $("#topology_paper").panzoom("zoom", true, ZOOMED_OUT);
-                            }
-                            var vrouterName= response[0].value[0].name;
-                            var elementMap = _this.getModel().getElementMap();
-                            var nodes      = _this.getModel().getNodes();
-                            var links      = _this.getModel().getLinks();
-                            var elements   = _this.getModel().getConnectedElements();
-
-                            var newElements = [];
-                            var vrouterToVMlinks = [];
-                            for (var i = 0; i < vms.length; i++) {
-                                var node = {
-                                    "name"          : vms[i],
-                                    "chassis_type"  : "virtual-machine",
-                                    "node_type"     : "virtual-machine"
-                                };
-                                var newElement = _this.createNode(node, i, vms.length);
-                                var nodeName = node['name'];
-                                newElements.push(newElement);
-                                elements.push(newElement);
-                                elementMap.nodes[nodeName] = newElement.id;
-                                nodes.push(node);
-                                vrouterToVMlinks.push({
-                                    "endpoints": [vrouterName, nodeName]
-                                });
-
-                            }
-                            if(newElements.length > 0) {
-                                _this.getGraph().addCells(newElements);
-                                for(var i=0; i<newElements.length; i++) {
-                                    $('g.element[model-id="' + newElements[i].id + '"]')
-                                        .find('text')
-                                        .css('stroke', "#498AB9")
-                                        .css('fill', "#498AB9");
-                                    $('div.font-element[font-element-model-id="' + newElements[i].id + '"]')
-                                        .find('i.icon-contrail-virtual-machine')
-                                        .css('color', "#498AB9");
-                                }
-                            }
-                            newElements = [];
-                            for (var i = 0; i < vrouterToVMlinks.length; i++) {
-                                var link = {
-                                    "connectionStroke" : "#637939",
-                                    "linkType" : 'logical',
-                                    "endpoints" : vrouterToVMlinks[i].endpoints
-                                };
-                                var newElement = _this.createLink(link, elements, elementMap);
-                                newElements.push(newElement);
-                                elements.push(newElement);
-                                elementMap.links[newElement.attributes.linkDetails.endpoints[0] + '<->' + newElement.attributes.linkDetails.endpoints[1]] = newElement.id;
-                                elementMap.links[newElement.attributes.linkDetails.endpoints[1] + '<->' + newElement.attributes.linkDetails.endpoints[0]] = newElement.id;
-                                links.push(link);
-
-                            }
-                            if(newElements.length > 0) {
-                                _this.getGraph().addCells(newElements);
-                            }
-                            _this.getModel().setNodes(nodes);
-                            _this.getModel().setLinks(links);
-                            _this.getModel().setConnectedElements(elements);
-                            _this.getModel().setElementMap(elementMap);
-                            _this.initTooltipConfig();
-                        }
-                        else {
-                            showInfoWindow("No Virtual Machines found for " + dblClickedElement['attributes']['nodeDetails']['name'], "Info");
-                            return false;
-                        }
-                    }
-                });*/
+                _this.showChildrenOfType(dblClickedElement, "virtual-machine");
                 break;
             case 'link':
                 var modelId = dblClickedElement.id;
@@ -965,69 +1332,107 @@ underlayView.prototype.initGraphEvents = function() {
 
     paper.on('cell:pointerclick', function (cellView, evt, x, y) {
         evt.stopImmediatePropagation();
-        var clickedElement = cellView.model,
-            elementType    = clickedElement['attributes']['type'],
-            data           = {};
+        timeout = setTimeout(function() {
+            // This inner function is called after the delay
+            // to handle the 'click-only' event.
+            var clickedElement = cellView.model,
+                elementType    = clickedElement['attributes']['type'],
+                data           = {};
 
-        switch(elementType) {
-            case 'contrail.PhysicalRouter':
-                var nodeDetails = clickedElement['attributes']['nodeDetails'];
-                if(nodeDetails['more_attributes']['ifTable'] == '-')
-                    nodeDetails['more_attributes']['ifTable'] = [];
-                data = {
-                    host_name : ifNull(nodeDetails['name'],'-'),
-                    description: ifNull(nodeDetails['more_attributes']['lldpLocSysDesc'],'-'),
-                    intfCnt   : nodeDetails['more_attributes']['ifTable'].length,
-                };
-                data['type'] = PROUTER;
-                data['response'] = nodeDetails;
-                _this.populateDetailsTab(data);
-                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
-                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
-                break;
-            case 'contrail.VirtualRouter':
-                var nodeDetails = clickedElement['attributes']['nodeDetails'];
-                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
-                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
-                _this.updateWhereClause();
-                break;
-            case 'contrail.VirtualMachine':
-                var nodeDetails = clickedElement['attributes']['nodeDetails'];
-                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
-                var ip = [],vnList = [];
-                for(var i = 0; i < instances.length; i++) {
-                    if(instances[i]['name'] == nodeDetails['name']) {
-                        var intfList = ifNull(instances[i]['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
-                        if (intfList.length > 1) {
-                            for(var j = 0; j < intfList.length; j++) {
-                                ip.push(intfList['ip_address']);
-                                vnList.push(intfList['virtual_network']);
+            switch(elementType) {
+                case 'contrail.PhysicalRouter':
+                    var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                    if(nodeDetails['more_attributes']['ifTable'] == '-')
+                        nodeDetails['more_attributes']['ifTable'] = [];
+                    data = {
+                        host_name : ifNull(nodeDetails['name'],'-'),
+                        description: ifNull(nodeDetails['more_attributes']['lldpLocSysDesc'],'-'),
+                        intfCnt   : nodeDetails['more_attributes']['ifTable'].length,
+                    };
+                    data['type'] = PROUTER;
+                    data['response'] = nodeDetails;
+                    _this.populateDetailsTab(data);
+                    $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                    $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                    break;
+                case 'contrail.VirtualRouter':
+                    var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                    $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                    $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                    _this.updateWhereClause();
+                    var vRouterDetails = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems();
+                    var selVrouterDetails = $.grep(vRouterDetails,function(item,idx){
+                        return (item['name'] == nodeDetails['name']); 
+                    });
+                    var name = selVrouterDetails.length > 0 ? selVrouterDetails[0]['name'] : '-';
+                    var hostNameIp =  selVrouterDetails.length > 0 ? (selVrouterDetails[0]['name'] + ' ('+selVrouterDetails[0]['ip']+')') : '-';
+                    data['type'] = VROUTER,
+                    data['version'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['version'] : '-';
+                    data['interfaceCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['intfCnt'] : '-';
+                    data['hostName'] = hostNameIp;
+                    data['virtualNetworkCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['vnCnt'] : '-';
+                    data['instanceCount'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['instCnt']: '-';
+                    data['memory'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['memory']: '-';
+                    data['link'] = {p:'mon_infra_vrouter',q:{node:name,tab:''}};
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.VirtualMachine':
+                    var nodeDetails = clickedElement['attributes']['nodeDetails'];
+                    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                    var ip = [],vnList = [],intfLen = 0,vmName,srcVN = "",instDetails = {};
+                    for(var i = 0; i < instances.length; i++) {
+                        if(instances[i]['name'] == nodeDetails['name']) {
+                            var intfList = ifNull(instances[i]['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+                            intfLen = intfList.length;
+                            instDetails = instances[i];
+                            vmName = instances[i]['vmName'];
+                            if (intfLen > 1) {
+                                for(var j = 0; j < intfLen; j++) {
+                                    ip.push(intfList[j]['ip_address']);
+                                    vnList.push(intfList[j]['virtual_network']);
+                                }
+                            } else {
+                               ip[0] =  intfList[0]['ip_address'];
+                               vnList[0] = intfList[0]['virtual_network'];
                             }
-                        } else {
-                           ip[0] =  intfList[0]['ip_address'];
-                           vnList[0] = intfList[0]['virtual_network'];
+                            var networkName = vnList[0].split(':')[2];
+                            var projectName = '('+vnList[0].split(':')[1]+')';
+                            srcVN += networkName +" "+ projectName;
+                            break;
                         }
-                        break;
                     }
-                }
-                $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
-                $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
-                $("#underlay_topology").data('nodeIp',ip);
-                $("#underlay_topology").data('vnList',vnList);
-                _this.updateWhereClause();
-                break;
-            case 'link':
-                var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
-                    sourceElement = graph.getCell(clickedElement['attributes']['source']['id']);
-                var endpoints = [sourceElement['attributes']['nodeDetails']['name'],
-                                 targetElement['attributes']['nodeDetails']['name']];
-                data['endpoints'] = endpoints;
-                data['type'] = 'link';
-                data['sourceElement'] = sourceElement;
-                data['targetElement'] = targetElement;
-                _this.populateDetailsTab(data);
-                break;
-        }
+                    $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
+                    $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
+                    $("#underlay_topology").data('nodeIp',ip);
+                    $("#underlay_topology").data('vnList',vnList);
+                    _this.updateWhereClause();
+                    data = {
+                            type: VIRTUALMACHINE,
+                            name: ifNull(instDetails['vmName'],'-'),
+                            uuid: ifNull(nodeDetails['name'],'-'),
+                            ipAddr: ip.length > 0 ? ip.join(',') : '-',
+                            virtualNetwork: vnList.length > 0 ? vnList.join(',') : '-',
+                            interfaceCount : intfLen,
+                            stats: formatBytes(ifNull(instDetails['inBytes'],'-'))+"/"+ifNull(formatBytes(instDetails['outBytes'],'-')),
+                            link:{p:'mon_net_instances',q:{vmName:vmName,fqName:nodeDetails['name'],srcVN:srcVN}}
+                    };
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'link':
+                    var targetElement = graph.getCell(clickedElement['attributes']['target']['id']),
+                        sourceElement = graph.getCell(clickedElement['attributes']['source']['id']);
+                    var endpoints = [sourceElement['attributes']['nodeDetails']['name'],
+                                     targetElement['attributes']['nodeDetails']['name']];
+                    data['endpoints'] = endpoints;
+                    data['type'] = 'link';
+                    data['sourceElement'] = sourceElement;
+                    data['targetElement'] = targetElement;
+                    _this.populateDetailsTab(data);
+                    break;
+
+                timeout = null;
+            }
+        }, 500);
     });
 
     $(selectorId + " text").on('mousedown touchstart', function (e) {
@@ -1069,71 +1474,25 @@ underlayView.prototype.hideVNs = function() {
 underlayView.prototype.hideNodesOfType = function(type) {
     var link_type = type.split('-');
     link_type = link_type[0][0] + link_type[1][0];
-    var elements = this.getModel().getConnectedElements();
+    var elements = this.getConnectedElements();
     var _this = this;
     $.each(elements, function(key, value){
         if(value.attributes && value.attributes.linkDetails && value.attributes.linkDetails.link_type &&
             value.attributes.linkDetails.link_type.indexOf(link_type) !== -1) {
-            $('g.link[model-id="' + value.id + '"]')
-                .removeClassSVG('elementHighlighted')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('hidden');
+            _this.hideLink(value.id);
         }
     });
     $.each(elements, function(key, value) {
         if(value.attributes && value.attributes.nodeDetails && value.attributes.nodeDetails.chassis_type &&
             value.attributes.nodeDetails.chassis_type == type) {
-            $('g.element[model-id="' + value.id + '"]')
-                .removeClassSVG('elementHighlighted')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('hidden');
-            $('div.font-element[font-element-model-id="' + value.id + '"]')
-                .removeClassSVG('elementHighlighted')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('hidden');
-            if(type == 'virtual-machine' && value.hasOwnProperty('old_position') &&
-                null !== value.old_position &&
-                typeof value.old_position !== 'undefined') {
-                var old_position = value.old_position;
-                _this.getGraph().getCell(value.id).transition('position/x', old_position.x);
-                _this.getGraph().getCell(value.id).transition('position/y', old_position.y);
-                delete value.old_position;
-            }
-        }/* else {
-            $('g.element[model-id="' + value.id + '"]')
-                .addClassSVG('elementHighlighted')
-                .removeClassSVG('hidden');
-            $('div.font-element[font-element-model-id="' + value.id + '"]')
-                .removeClass('hidden');
-        }*/
-    });
-    /*var elements = this.getModel().getConnectedElements();
-    var elementMap = this.getModel().getElementMap();
-    var delElements = [];
-    for(var i=0; i<elements.length; i++) {
-        var element = elements[i];
-        if(element.attributes && element.attributes.hasOwnProperty('nodeDetails') &&
-            element.attributes.nodeDetails.chassis_type == type) {
-            delElements.push(element);
-            $('div.font-element[font-element-model-id="' + element.id + '"]').remove();
-            $('svg').find('g.element[model-id="' + element.id + '"]').remove();
-            delete elementMap.nodes[element.attributes.nodeDetails.name];
-            $.each(elementMap.links, function(linkKey, linkValue) {
-                if(linkKey.indexOf(element.attributes.nodeDetails.name) !== -1) {
-                    $('svg').find('g.link[model-id="' + linkValue + '"]').remove();
-                    delete elementMap.links[linkKey];
-                }
-            });
-            elements.splice(i,1);
+            _this.hideNode(value.id);
         }
-    }
-    this.getModel().clearOtherNodes(type);*/
-
+    });
 }
 
 underlayView.prototype.resetTopology = function() {
     this.clearHighlightedConnectedElements();
-    $("#topology_paper").panzoom("reset");
+    $("#topology-connected-elements").panzoom("reset");
     ZOOMED_OUT = 0;
     this.hideVRouters();
     this.hideVMs();
@@ -1146,7 +1505,6 @@ underlayView.prototype.renderTopology = function(response) {
     this.renderUnderlayViz();
     this.hideVRouters();
     this.hideVMs();
-
     var data = this.getPostDataFromHashParams();
     var _this = this;
     if(JSON.stringify(data) !== '{"data":{}}') {
@@ -1186,8 +1544,8 @@ underlayView.prototype.highlightPath = function(response, data) {
         nodes: [],
         links: []
     };
-    var elementMap = _this.getModel().getElementMap();
-    var conElements = _this.getModel().getConnectedElements();
+    var elementMap = _this.getElementMap();
+    var conElements = _this.getConnectedElements();
     var graph      = _this.getGraph();
     var nodes      = response.nodes;
     var links      = response.links;
@@ -1201,18 +1559,9 @@ underlayView.prototype.highlightPath = function(response, data) {
     }
 
     if(highlightedElements.nodes.length > 0) {
-        if(LEVEL_2_DIMENSION.height == 0) {
-            LEVEL_2_DIMENSION.height = LEVEL_1_DIMENSION.height + 200;
-            LEVEL_2_DIMENSION.width = LEVEL_1_DIMENSION.width;
-        }
-        _this.getPaper().setDimensions(LEVEL_2_DIMENSION.width,LEVEL_2_DIMENSION.height);
-        $('.viewport')
-            .height(LEVEL_2_DIMENSION.width)
-            .width(LEVEL_2_DIMENSION.height);
-
         if(ZOOMED_OUT == 0) {
-            ZOOMED_OUT = 0.8;
-            $("#topology_paper").panzoom("zoom", true, ZOOMED_OUT);
+            ZOOMED_OUT = 0.9;
+            $("#topology-connected-elements").panzoom("zoom", ZOOMED_OUT);
         }
     }
     highlightedElements.nodes = $.unique(highlightedElements.nodes);
@@ -1259,7 +1608,7 @@ underlayView.prototype.highlightPath = function(response, data) {
                 associatedVRouter.length > 0 ) {
                 associatedVRouter = associatedVRouter[0].vRouter;
                 if(null !== associatedVRouter && typeof associatedVRouter !== "undefined") {
-                    associatedVRouterUID = _this.getModel().getElementMap().nodes[associatedVRouter];
+                    associatedVRouterUID = _this.getElementMap().nodes[associatedVRouter];
                 }
             }
             if(hlNode.name == srcVM) {
@@ -1302,160 +1651,61 @@ underlayView.prototype.highlightPath = function(response, data) {
                     _this.getGraph().getCell(model_id).transition('position/y', vrouterPosition.y + 80);
                 }
             }
-            _this.getModel().setConnectedElements(conElements);
+            _this.setConnectedElements(conElements);
         }
     }
 };
 
-underlayView.prototype.showVRouter = function(dblClickedElement, type) {
-    var elMap  = this.getModel().getElementMap();
-    var clickedNodeName = dblClickedElement['attributes']['nodeDetails']['name'];
-    var vrouters = [];
-    var linkToVrouters = [];
-    var links = this.getModel().getLinks();
-    var nodes = this.getModel().getNodes();
-    var graph = this.getGraph();
-    var srcPoint = jsonPath(links, "$[?(@.endpoints[0]=='" + clickedNodeName + "')]");
-    var dstPoint = jsonPath(links, "$[?(@.endpoints[1]=='" + clickedNodeName + "')]");
-    if(false !== srcPoint && srcPoint.length > 0) {
-        for(var i=0; i<srcPoint.length; i++) {
-            var sp = srcPoint[i].endpoints;
-            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[0]]);
-                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
-                }
-            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[0]]);
-                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
-                }
-            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[1]]);
-                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
-                }
-            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[1]]);
-                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
+underlayView.prototype.showChildrenOfType = function(parent, child_type) {
+    var elMap  = this.getElementMap();
+    var clickedNodeName = parent['attributes']['nodeDetails']['name'];
+    var children = parent['attributes']['nodeDetails']['children'];
+    if(null !== children && typeof children === "object" && {} !== children) {
+        for(var child in children) {
+            var childName = children[child]["name"];
+            var node_model_id = elMap["nodes"][childName];
+            if($('g.element[model-id="' + node_model_id + '"]').hasClassSVG('hidden')){
+                $('div[font-element-model-id="'+ parent.id  + '"]')
+                    .removeClass('dimHighlighted')
+                    .addClass('elementHighlighted');
+                $('g.element[model-id="' + parent.id + '"]')
+                    .removeClassSVG('dimHighlighted')
+                    .addClassSVG('elementHighlighted');
+                $('div[font-element-model-id="'+ node_model_id  + '"]')
+                    .removeClass('hidden')
+                    .removeClass('dimHighlighted')
+                    .addClass('elementHighlighted');
+                $('g.element[model-id="' + node_model_id + '"]')
+                    .removeClassSVG('hidden')
+                    .removeClassSVG('dimHighlighted')
+                    .addClassSVG('elementHighlighted');
+            }
+            var link_model_id = elMap["links"][clickedNodeName + "<->" + childName];
+            if(null !== link_model_id && typeof link_model_id !== "undefined") {
+                if($('g.link[model-id="' + link_model_id + '"]').hasClassSVG('hidden')) {
+                    $('g.link[model-id="' + link_model_id + '"]')
+                        .removeClassSVG('hidden')
+                        .removeClassSVG('dimHighlighted')
+                        .addClassSVG('elementHighlighted');
+
+                    $('g.link[model-id="' + link_model_id + '"]')
+                        .find('path.connection')
+                            .css("stroke", "#498AB9");
+                    $('g.link[model-id="' + link_model_id + '"]')
+                        .find('path.marker-source')
+                            .css("fill", "#498AB9")
+                            .css("stroke", "#498AB9");
+                    $('g.link[model-id="' + link_model_id + '"]')
+                        .find('path.marker-target')
+                            .css("fill", "#498AB9")
+                            .css("stroke", "#498AB9");
+                    $('g.link[model-id="' + link_model_id + '"]')
+                        .find('path.connection-wrap')
+                            .css("opacity", "")
+                            .css("fill", "")
+                            .css("stroke", "");
                 }
             }
-        }
-    }
-    if(false !== dstPoint && dstPoint.length > 0) {
-        for(var i=0; i<dstPoint.length; i++) {
-            var sp = dstPoint[i].endpoints;
-            if(elMap.links.hasOwnProperty(sp[0] + "<->" + clickedNodeName)) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[0]]);
-                    linkToVrouters.push(elMap.links[sp[0] + "<->" + clickedNodeName]);
-                }
-            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[0])) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[0] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[0]]);
-                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[0]]);
-                }
-            } else if(elMap.links.hasOwnProperty(sp[1] + "<->" + clickedNodeName)) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[1]]);
-                    linkToVrouters.push(elMap.links[sp[1] + "<->" + clickedNodeName]);
-                }
-            } else if(elMap.links.hasOwnProperty(clickedNodeName + "<->" + sp[1])) {
-                var otherEndNode =
-                jsonPath(nodes, "$[?(@.name=='" + sp[1] + "')]");
-                if(false !== otherEndNode && otherEndNode.length == 1 &&
-                    otherEndNode[0].chassis_type == type) {
-                    vrouters.push(elMap.nodes[sp[1]]);
-                    linkToVrouters.push(elMap.links[clickedNodeName + "<->" + sp[1]]);
-                }
-            }
-        }
-    }
-
-    if(vrouters.length > 0) {
-        if($('g.element[model-id="' + vrouters[0] + '"]').hasClassSVG('hidden')) {
-            $('div.font-element').removeClass('elementHighlighted').addClass('dimHighlighted');
-            $('g.element').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
-            $('g.link').removeClassSVG('elementHighlighted').addClassSVG('dimHighlighted');
-            this.hideNodesOfType(type);
-        } else {
-            $('div.font-element').removeClass('elementHighlighted').removeClass('dimHighlighted');
-            $('g.element').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-            $('g.link').removeClassSVG('elementHighlighted').removeClassSVG('dimHighlighted');
-            this.hideNodesOfType(type);
-            return;
-        }
-    }
-
-    for(var i=0; i<vrouters.length; i++) {
-        var vrouter_model_id = vrouters[i];
-        if($('g.element[model-id="' + vrouter_model_id + '"]').hasClassSVG('hidden')){
-            $('div[font-element-model-id="'+ dblClickedElement.id  + '"]')
-                .removeClass('dimHighlighted')
-                .addClass('elementHighlighted');
-            $('g.element[model-id="' + dblClickedElement.id + '"]')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('elementHighlighted');
-            $('g.element[model-id="' + vrouter_model_id + '"]')
-                .removeClassSVG('hidden')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('elementHighlighted');
-        }
-
-        if($('div.font-element[font-element-model-id="' + vrouter_model_id + '"]').hasClass('hidden')) {
-            $('div.font-element[font-element-model-id="' + vrouter_model_id + '"]')
-                .removeClass('hidden')
-                .removeClass('dimHighlighted')
-                .addClass('elementHighlighted');
-        }
-    }
-
-    for(var i=0; i<linkToVrouters.length; i++) {
-        var link_model_id = linkToVrouters[i];
-        if($('g.link[model-id="' + link_model_id + '"]').hasClassSVG('hidden')) {
-            $('g.link[model-id="' + link_model_id + '"]')
-                .removeClassSVG('hidden')
-                .removeClassSVG('dimHighlighted')
-                .addClassSVG('elementHighlighted');
-
-            $('g.link[model-id="' + link_model_id + '"]')
-                .find('path.connection')
-                    .css("stroke", "#498AB9");
-            $('g.link[model-id="' + link_model_id + '"]')
-                .find('path.marker-source')
-                    .css("fill", "#498AB9")
-                    .css("stroke", "#498AB9");
-            $('g.link[model-id="' + link_model_id + '"]')
-                .find('path.marker-target')
-                    .css("fill", "#498AB9")
-                    .css("stroke", "#498AB9");
-            $('g.link[model-id="' + link_model_id + '"]')
-                .find('path.connection-wrap')
-                    .css("opacity", "")
-                    .css("fill", "")
-                    .css("stroke", "");
         }
     }
 }
@@ -1465,9 +1715,10 @@ underlayView.prototype.hideVRouters = function() {
 }
 
 underlayView.prototype.renderUnderlayViz = function() {
-    var elements = this.getModel().getConnectedElements();
+    var elements = this.getConnectedElements();
     //this.initContextMenuConfig();
     this.graph.addCells(elements);
+    this.getPaper().fitToContent();
     this.initGraphEvents();
     this.initTooltipConfig();
 }
@@ -1516,16 +1767,17 @@ underlayView.prototype.updateWhereClause = function () {
     }
     $('#fr-where').val(whereClauseStr);
 }
-underlayView.prototype.renderTracePath = function(options) {
-    
-}
+
 underlayView.prototype.renderTracePath = function(options) {
     var _this = this;
     var nodeType = $("#underlay_topology").data('nodeType');
     var nodeName = $("#underlay_topology").data('nodeName');
     var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())();
     var defaultValue = '',ip = '';
-    var isAllPrevFirstTimeClicked = true;
+    var isAllPrevFirstTimeClicked = true,vrouterflowsGrid;
+    // Global variable need to reset to empty array because it is commonly used
+    // in monitor infra vrouter details page flows tab
+    flowKeyStack = [];
     $("#traceFlow").html(tracePathTemplate);
     var computeNodes = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
     if(nodeType == VROUTER && nodeName != null) {
@@ -1542,20 +1794,229 @@ underlayView.prototype.renderTracePath = function(options) {
             value:computeNodes[i]['name']
         });
     }
+    var computeNodeInfo = {name:defaultValue};
+    var deferredObj = $.Deferred();
+    cmpNodeView.getComputeNodeDetails(deferredObj,computeNodeInfo);
+    $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').show();
+    deferredObj.done(function(data){
+        $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide();
+        computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
+        computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
+        renderVrouterFlowsGrid(computeNodeInfo);
+    });    
+    function renderVrouterFlowsGrid(computeNodeInfo){
+        flowKeyStack = [];
+        var vRouterFlowsColumns = [
+                                      {
+                                          field:'peer_vrouter',
+                                          name:"Other Vrouter",
+                                          minWidth:100,
+                                      },
+                                      {
+                                          field:"protocol",
+                                          name:"Protocol",
+                                          minWidth:60,
+                                          formatter:function(r,c,v,cd,dc){
+                                              return formatProtocol(dc['protocol']);
+                                          }
+                                      },
+                                      {
+                                          field:"src_vn",
+                                          name:"Source Network",
+                                          minWidth:195
+                                      },
+                                      {
+                                          field:"sip",
+                                          name:"Src IP",
+                                          minWidth:70,
+                                          formatter:function(r,c,v,cd,dc) {
+                                              if(validateIPAddress(dc['sip']))
+                                                  return dc['sip']
+                                              else
+                                                  noDataStr;
+                                          }
+                                      },
+                                      {
+                                          field:"src_port",
+                                          name:"Source Port",
+                                          minWidth:50
+                                      },
+                                      {
+                                          field:"dst_vn",
+                                          name:"Destination Network",
+                                          minWidth:195
+                                      },
+                                      {
+                                          field:"dip",
+                                          name:"Destination IP",
+                                          minWidth:70,
+                                          formatter:function(r,c,v,cd,dc) {
+                                              if(validateIPAddress(dc['dip']))
+                                                  return dc['dip']
+                                              else
+                                                  noDataStr;
+                                          }
+                                      },
+                                      {
+                                          field:"dst_port",
+                                          name:"Destination Port",
+                                          minWidth:50
+                                      },
+                                      {
+                                          field:"stats_bytes",
+                                          name:"Bytes/Pkts",
+                                          minWidth:80,
+                                          formatter:function(r,c,v,cd,dc){
+                                              return contrail.format("{0}/{1}",formatBytes(dc['stats_bytes']),dc['stats_packets']);
+                                          },
+                                          searchFn:function(d){
+                                              return d['stats_bytes']+ '/ ' +d['stats_packets'];
+                                          }
+                                      }
+                              ];
+        var gridRenderDefObj = $.Deferred();
+        var prevClicked = false;
+        gridRenderDefObj.done(function(){
+            if(flowKeyStack.length > 0)
+                $("#btnNextFlows").removeAttr('disabled'); 
+        });
+        $("#vrouterflows").contrailGrid({
+            header : {
+                title : {
+                    text : 'Flows'
+                },
+                customControls: [
+                                  '<button id="btnNextFlows" disabled="disabled" class="btn btn-primary btn-mini">Next >></button>',
+                                  '<button id="btnPrevFlows" disabled="disabled" class="btn btn-primary btn-mini"><< Prev</button>',
+                                  '<button id="revTraceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Reverse Trace Flow">Reverse Trace Flow</button>',
+                                  '<button id="traceFlowBtn" class="btn btn-primary btn-mini" disabled="disabled" title="Trace Flow">Trace Flow</button>',
+                           ],
+            },
+            columnHeader : {
+                columns: vRouterFlowsColumns
+            },
+            body : {
+                options : {
+                    forceFitColumns: true,
+                    sortable : false,
+                    checkboxSelectable: {
+                        enableRowCheckbox: true,
+                        onNothingChecked: function(e){
+                            $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
+                            $("#mapflow").attr('disabled','disabled');
+                            $("#traceFlowBtn").attr('disabled','disabled');
+                            $("#revTraceFlowBtn").attr('disabled','disabled');
+                        },
+                        onSomethingChecked: function(e){
+                            $("div.slick-cell-checkboxsel > input").attr('checked',false);
+                            $("#mapflow").removeAttr('disabled');
+                            $("#traceFlowBtn").removeAttr('disabled');
+                            $("#revTraceFlowBtn").removeAttr('disabled');
+                            $(e['currentTarget']).attr('checked',true);
+                        }
+                    },
+                },
+                dataSource : {
+                    remote: {
+                        ajaxConfig: {
+                            url: function () {
+                                return monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) + '&introspectPort=' + computeNodeInfo['introspectPort'];
+                            }(),
+                            type: 'GET'
+                        },
+                        dataParser: function(response) {
+                            //Need to diasable the next button if there are no more records
+                            if(response != null && response[0]['FlowRecordsResp'] != null && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
+                                $("#btnNextFlows").attr('disabled','disabled'); 
+                            return monitorInfraComputeFlowsClass.parseFlowsData(response,gridRenderDefObj);
+                        },
+                    }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Flows..',
+                    },
+                    empty: {
+                        text: 'No Flows to display'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
+                }
+            },
+            footer : false,
+        });
+        vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
+        vrouterflowsGrid.showGridMessage('loading');
+        var newAjaxConfig = {};
+        $("#btnNextFlows").click(function(){
+            if(flowKeyStack.length > 0 && flowKeyStack[flowKeyStack.length - 1] != null){
+                nextClicked = true;
+                newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
+                                                            + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1] + '&introspectPort=' + computeNodeInfo['introspectPort'],
+                        type:'Get'
+                    };
+                $("#btnPrevFlows").removeAttr('disabled');
+                vrouterflowsGrid.setRemoteAjaxConfig(newAjaxConfig);
+                reloadGrid(vrouterflowsGrid);
+            }
+        });
+        $("#btnPrevFlows").click(function(){
+            if(nextClicked)
+                flowKeyStack.pop();
+            nextClicked = false;
+            if(flowKeyStack.length > 0) {
+                newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
+                            + '&flowKey=' + flowKeyStack.pop() 
+                            + '&introspectPort=' + computeNodeInfo['introspectPort'],
+                        type:'Get'
+                    };
+            } else if (flowKeyStack.length < 1){
+                newAjaxConfig = {
+                        url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) 
+                            + '&introspectPort=' + computeNodeInfo['introspectPort'],
+                        type:'Get'
+                    };
+                //Need to disable the prev button because flowKeystack < 1 which means first set of records call
+                $("#btnPrevFlows").attr('disabled','disabled');
+            } 
+            vrouterflowsGrid.setRemoteAjaxConfig(newAjaxConfig);
+            reloadGrid(vrouterflowsGrid);
+            $("#btnNextFlows").removeAttr('disabled');
+        });
+    }
+
     $("#tracePathDropdown").contrailDropdown({
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
-            var ajaxConfig = {};
             if($('#vrouterRadiobtn').is(':checked') == true) {
-                ajaxConfig = getInstFlowsUrl(e['val'],VROUTER);
-                
+                $("#prevNextBtns").toggleClass('show hide');
+                var deferredObj = $.Deferred(),vRouterData = {name:e['val']};
+                updateVrouterFlowsGrid(deferredObj,vRouterData);
             } else if($('#instRadiobtn').is(':checked') == true) {
+                $("#prevNextBtns").toggleClass('show hide');
+                var ajaxConfig = {};
                 ajaxConfig = getInstFlowsUrl(e['val'],VIRTUALMACHINE);
+                reloadFlowsGrid(ajaxConfig);
             }
-            reloadFlowsGrid(ajaxConfig);
         }
     });
+    function updateVrouterFlowsGrid(deferredObj,vRouterData) {
+        cmpNodeView.getComputeNodeDetails(deferredObj,vRouterData);
+        vrouterflowsGrid.showGridMessage('loading');
+        $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').show()
+        deferredObj.done(function(data){
+            $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide()
+            vRouterData['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
+            vRouterData['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
+            renderVrouterFlowsGrid(vRouterData);
+        });
+    }
     var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
     tracePathDropdown.setData(computeNodeCombobox);
     tracePathDropdown.text(defaultValue);
@@ -1571,28 +2032,30 @@ underlayView.prototype.renderTracePath = function(options) {
         });
         instMap[instances[i]['name']] = instances[i];
     }
-    var vRouterAjaxReq = getInstFlowsUrl(defaultValue,VROUTER);
-    var options = getFRDefaultOptions();
-    options['elementId'] = 'vrouterflows';
-    var selectArray = parseStringToArray(vRouterAjaxReq['data']['select'], ',');
-    selectArray = selectArray.concat(queries['fr']['defaultColumns']);
-    var columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
-    loadFlowResultsForUnderlay(options,vRouterAjaxReq['data'],columnDisplay,null,true);
+    //Todo when changing the VM flows to introspect need to merge this function
     function reloadFlowsGrid(newAjaxConfig) {
+        var selectArray = parseStringToArray(newAjaxConfig['data']['select'], ',');
+        selectArray = selectArray.concat(queries['fr']['defaultColumns']);
+        var options = getFRDefaultOptions();
+        options['elementId'] = 'vrouterflows';
+        var columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
         loadFlowResultsForUnderlay(options,newAjaxConfig['data'],columnDisplay,null,true);
     }
     $('input[name="flowtype"]').change(function(){
         var ajaxConfig = {},selItem = {};
         if($('#vrouterRadiobtn').is(':checked') == true) {
+            $("#prevNextBtns").toggleClass('show hide');
             tracePathDropdown.setData(computeNodeCombobox);
             selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            ajaxConfig = getInstFlowsUrl(selItem['id'],VROUTER);
+            var deferredObj = $.Deferred(),vRouterData = {name:selItem['value']};
+            updateVrouterFlowsGrid(deferredObj,vRouterData);
         } else if($('#instRadiobtn').is(':checked') == true) {
+            $("#prevNextBtns").toggleClass('show hide');
             tracePathDropdown.setData(instComboboxData);
             selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
             ajaxConfig = getInstFlowsUrl(selItem['value'],VIRTUALMACHINE);
+            reloadFlowsGrid(ajaxConfig);
         }
-        reloadFlowsGrid(ajaxConfig);
     });
     
     $("#traceFlowBtn").die('click').live('click',function(e){
@@ -1604,30 +2067,44 @@ underlayView.prototype.renderTracePath = function(options) {
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
          */
-        var postData = {};
+        var postData = {},nwFqName = '';
         var postData = {
-                srcIP: dataItem['sourceip'],
-                destIP: dataItem['destip'],
-                srcPort: dataItem['sport'],
-                destPort: dataItem['dport'],
+                srcIP: dataItem['sourceip'] != null ? dataItem['sourceip'] : dataItem['sip'],
+                destIP: dataItem['destip'] != null ? dataItem['destip'] : dataItem['dip'],
+                srcPort: dataItem['sport'] != null ? dataItem['sport'] : dataItem['src_port'],
+                destPort: dataItem['dport'] != null ? dataItem['dport'] : dataItem['dst_port'],
                 protocol: dataItem['protocol'],
          };
-        if(dataItem['direction_ing'] == 1) {
+        if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
             postData['nodeIP'] = dataItem['vrouter_ip'];
-            postData['vrfName'] = (dataItem['sourcevn'] +":"+ dataItem['sourcevn'].split(':')[2]);
-        } else if(dataItem['direction_ing'] == 0) {
+            nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
+            //postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
+        } else if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'];
-            postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
+            nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
+            //postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
         }
         $.ajax({
-            url:'/api/tenant/networking/trace-flow',
-            type:'POST',
-            data:{
-                data: postData
-            }
-        }).success(function(response){
-            _this.highlightPath(response, {data: postData});
-        }).always(function(response){
+            url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
+        }).always(function(networkDetails){
+            if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
+                var vrfList = ifNull(networkDetails['value'][0]['value']['UveVirtualNetworkConfig']['routing_instance_list'],[]);
+                if(vrfList[0] != null)
+                    nwFqName += vrfList[0];
+            } else 
+                // if there is no vrf name in the response then just constructing it in general format
+                nwFqName += nwFqName.split(':')[2];
+            postData['vrfName'] = '('+nwFqName+')';
+            $.ajax({
+                url:'/api/tenant/networking/trace-flow',
+                type:'POST',
+                data:{
+                    data: postData
+                }
+            }).success(function(response){
+                _this.highlightPath(response, {data: postData});
+            }).always(function(response){
+            });
         });
     });
     $("#revTraceFlowBtn").die('click').live('click',function(e){
@@ -1756,12 +2233,13 @@ underlayView.prototype.getPostDataFromHashParams = function() {
 }
 
 underlayView.prototype.populateDetailsTab = function(data) {
-    var type = data['type'],details,content;
+    var type = data['type'],details,content = {};
     $("#detailsLink").show();
     $("#underlay_tabstrip").tabs({active:2});
     if(type == PROUTER) {
         content = {
-            host_name : ifNull(data['host_name'],'-'),
+            type      : PROUTER,
+            hostName : ifNull(data['host_name'],'-'),
             description: ifNull(data['description'],'-'),
             intfCnt   : data['intfCnt']
         };
@@ -1835,6 +2313,14 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 }
             }
         });
+    } else if (type == VROUTER) {
+        content = data;
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+    } else if(type == VIRTUALMACHINE) {
+        content = data;
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
         var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
@@ -1865,11 +2351,9 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     useServerTime: true,
                     vrouter:vrouter
             };
-            //url ='/vrouterifstats.json';
             var title = contrail.format('Traffic Statistics of {0}',vrouter);
             details = Handlebars.compile($("#link-summary-template").html())({link:link,title:title});
             $("#detailsTab").html(details);
-            //$("#detailsTab").find('.icon-spinner').show();
         }
         $.ajax({
             url:url,
@@ -1906,6 +2390,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 }
                 initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
             } else if (link == 'prouter') {
+                response[1] = response[0];
                 details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
                 $("#detailsTab").html(details);
                 for(var i = 0; i < response.length; i++) {
@@ -1953,7 +2438,23 @@ underlayView.prototype.populateDetailsTab = function(data) {
     }
 }
 
+underlayView.prototype.resizeTopology = function() {
+    var topologySize = underlayRenderer.getView().calculateDimensions(false);
+    underlayRenderer.getView().setDimensions(topologySize);
+}
+
+underlayView.prototype.expandTopology = function() {
+    var topologySize = this.calculateDimensions(expanded);
+    this.setDimensions(topologySize);
+    expanded = !expanded;
+}
+
 underlayView.prototype.destroy = function() {
+    this.connectedElements = [];
+    this.elementMap        = {
+        nodes: {},
+        links: {}
+    };
     var vizTemplate = $("#visualization-template");
     if(isSet(vizTemplate)) {
         vizTemplate.remove();
@@ -1978,20 +2479,52 @@ underlayController.prototype.getView = function() {
 
 underlayController.prototype.getModelData = function(cfg) {
     var data   = this.getView().getPostDataFromHashParams();
-    var _this  = this;
+    var _this  = this,url = '/api/tenant/networking/underlay-topology';
+    $("#underlay_topology").find('.topology-visualization-loading').show();
+    //Force refresh call config
+    var forceCallCfg = {
+            url     : url+'?forceRefresh',
+            //url     : '/underlayResponse.json',
+            type    : "GET",
+            data    : data,
+            callback: function (forceResponse) {
+                //removing the progress bar
+                var graph = _this.getView().getGraph();
+                graph.clear();
+                $("#topology-connected-elements").find('div').remove();
+                $("#underlay_topology").find('.topology-visualization-loading').hide();
+                topologyCallback(forceResponse);
+            },
+            failureCallback : function (err) {
+                $("#underlay_topology").html('Error in fetching details');
+            }
+        }
+    //Cache call config
     var tmpCfg = {
-        url      : "/api/tenant/networking/underlay-topology",
+        url      : url,
         type     : "GET",
         data     : data,
         callback : function (response) {
-            _this.getView().resetTopology();
-            _this.getModel().setNodes(response['nodes']);
-            _this.getModel().setLinks(response['links']);
-            _this.getModel().updateChassisType(response['nodes']);
-            _this.getModel().categorizeNodes(response['nodes']);
-            _this.getView().renderTopology(response);
+            //removing the progress bar
+            $("#underlay_topology").find('.topology-visualization-loading').hide();
+            topologyCallback(response);
+            _this.getModel().getData(forceCallCfg);
+        },
+        //Calling the force refresh call on failure of the cache call
+        failureCallback : function (err) {
+            $("#underlay_topology").find('.topology-visualization-loading').hide();
+            _this.getModel().getData(forceCallCfg);
         }
     };
+    function topologyCallback(response){
+        _this.getView().resetTopology();
+        _this.getModel().setNodes(response['nodes']);
+        _this.getModel().setLinks(response['links']);
+        _this.getModel().updateChassisType(response['nodes']);
+        _this.getModel().categorizeNodes(response['nodes']);
+        _this.getModel().formTree();
+        _this.getView().renderTopology(response);
+    }
     if(null !== cfg && typeof cfg !== "undefined")
         this.getModel().getData(cfg);
     else
@@ -2000,4 +2533,13 @@ underlayController.prototype.getModelData = function(cfg) {
 
 underlayController.prototype.destroy = function() {
     //tbd
+}
+
+underlayView.prototype.launchVMPage = function(jsonObj) {
+    if(null !== jsonObj && typeof jsonObj !== "undefined" &&
+        jsonObj.hasOwnProperty('q') &&
+        jsonObj['q'].hasOwnProperty('srcVN'))
+        jsonObj['q']['srcVN'] = decodeURIComponent(jsonObj['q']['srcVN']);
+
+    layoutHandler.setURLHashObj(jsonObj);
 }

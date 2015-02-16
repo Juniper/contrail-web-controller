@@ -41,24 +41,19 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
-    {select:"setup_time", display:{id:"setup_time", field:"setup_time", width:180, minWidth:180, name:"Setup Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.setup_time); }, filterable:false, groupable:false}},
-    {select:"teardown_time", display:{id:"teardown_time", field:"teardown_time", width:210, name:"Teardown Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.teardown_time); }, filterable:false, groupable:false}},
-    {select:"vrouter", display:{id:"vrouter", field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
-    {select:"vrouter_ip", display:{id:'vrouter_ip', field:'vrouter_ip', width:120, name:"Vrouter IP", groupable:false,formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter_ip);}}},
-    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other Vrouter IP", groupable:false,formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.other_vrouter_ip);}}},
-    {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:250, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
-    {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
-    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:120, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
-    {select:"destip", display:{id:"destip", field:"destip", width:120, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
-    {select:"sport", display:{id:"sport", field:"sport", width:120, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
-    {select:"dport", display:{id:"dport", field:"dport", width:120, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
-    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:120, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
-    {select:"protocol", display:{id:"protocol", field:"protocol", width:120, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"agg-bytes", display:{id:'agg-bytes', field:'agg-bytes', width:120, name:"Aggregate Bytes", groupable:false,formatter: function(r, c, v, cd, dc){ return formatBytes(dc['agg-bytes'],'-');}}},
-    {select:"agg-packets", display:{id:'agg-packets', field:'agg-packets', width:120, name:"Aggregate Packets", format:"{0:n0}", groupable:false}},
+    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other Vrouter", groupable:false,formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['other_vrouter_ip']) == true ? dc['other_vrouter_ip'] : noDataStr);}}},
+    {select:"protocol", display:{id:"protocol", field:"protocol", width:80, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
+    {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:200, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
+    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:100, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['sourceip']) == true ? dc['sourceip'] : noDataStr)}}},
+    {select:"sport", display:{id:"sport", field:"sport", width:70, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
+    {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:90, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
+    {select:"destvn", display:{id:"destvn", field:"destvn", width:200, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
+    {select:"destip", display:{id:"destip", field:"destip", width:100, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['destip']) == true ? dc['destip'] : noDataStr)}}},
+    {select:"dport", display:{id:"dport", field:"dport", width:70, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
+    {select:"agg-bytes", display:{id:'agg-bytes', field:'agg-bytes', width:120, name:"Bytes/Packets", groupable:false,formatter: function(r, c, v, cd, dc) {return contrail.format("{0}/{1}",formatBytes(dc['agg-bytes'],'-'),dc['agg-packets']);}}},
 ];
 
-frQuery['defaultColumns'] = ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'];
+frQuery['defaultColumns'] = ['sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing'];
 fsQuery['defaultColumns'] = ['flow_class_id', 'direction_ing'];
 
 function getDirName(dirId) {
@@ -709,12 +704,12 @@ function runFRQuery() {
         //validator = initValidateDate("fr"),
         queryPrefix = 'fr',
         options = getFRDefaultOptions(),
-        select = "setup_time, teardown_time, agg-bytes, agg-packets",
+        select = "other_vrouter_ip,agg-bytes",
         columnDisplay, selectArray, queryId;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
-        reqQueryObj.select = select;
         queryId = randomUUID();
+        collapseWidget('#fr-query-widget');
         var option = {};
         reqQueryObj = setUTCTimeObj('fr', reqQueryObj, option);
         reqQueryObj.table = 'FlowRecordTable';
@@ -730,6 +725,7 @@ function runFRQuery() {
             $("#"+queryPrefix+"-results").data('endTimeUTC', option['toTime']);
             $("#"+queryPrefix+"-results").data('startTimeUTC',option['fromTime']);
         }
+        reqQueryObj.select = "other_vrouter_ip,agg-bytes,agg-packets",
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}

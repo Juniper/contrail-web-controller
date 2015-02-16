@@ -7,7 +7,7 @@
  */
 monitorInfraComputeFlowsClass = (function() {
     var nodeObj;
-    this.parseFlowsData = function(response){
+    this.parseFlowsData = function(response,deferredObj){
 
         var origResponse = response;
         var isFromACLFlows = false;
@@ -50,6 +50,8 @@ monitorInfraComputeFlowsClass = (function() {
                         dip:ifNullOrEmptyObject(obj['dst'],noDataStr),
                         stats_bytes:ifNullOrEmptyObject(obj['bytes'],noDataStr),
                         stats_packets:ifNullOrEmptyObject(obj['packets'],noDataStr),
+                        direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
+                        peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
                         raw_json:rawJson});
                 });
             } else {
@@ -65,6 +67,8 @@ monitorInfraComputeFlowsClass = (function() {
                         setup_time_utc:ifNullOrEmptyObject(obj['setup_time_utc'],noDataStr),
                         stats_bytes:ifNullOrEmptyObject(obj['stats_bytes'],noDataStr),
                         stats_packets:ifNullOrEmptyObject(obj['stats_packets'],noDataStr),
+                        direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
+                        peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
                         raw_json:rawJson});
                 });
             }
@@ -85,6 +89,8 @@ monitorInfraComputeFlowsClass = (function() {
                 aclIterKeyStack.push(iterationKey);
         }
         //$('#flowCnt').text(response.flowData.length);
+        if(deferredObj != null)
+            deferredObj.resolve();
         return ret;
     
     }
@@ -102,6 +108,7 @@ monitorInfraComputeFlowsClass = (function() {
         if (filters != null){
             selectedAcl = filters[0]['aclUUID'];
         }
+        //flowkeystack is global variable used in underlay/overlay vrouter flows
         flowKeyStack = [];
         aclIterKeyStack = [];
         $('#btnNextFlows' + '_' + obj.name).unbind("click").click(onNextClick);

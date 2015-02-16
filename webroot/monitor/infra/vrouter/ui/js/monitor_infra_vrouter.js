@@ -47,7 +47,7 @@ computeNodeView = function () {
             computeNodeDeferredObj.done(function(data) {
                 //If IP address is not available in UVE,pick it from ConfigData
                 computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
-                computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port','8085');
+                computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
                 computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
                 computeNodeInfo['vRouterType'] = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
                 self.populateComputeNode(computeNodeInfo);

@@ -75,6 +75,7 @@ and need to add the iconClass tag wherever we need to show some icons
                 </resource>
                 <resource>
                   <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                  <js>monitor_infra_vrouter.js</js>
                   <js>monitor_infra_vrouter_flows.js</js>
                 </resource>
                 <resource>

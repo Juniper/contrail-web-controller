@@ -75,3 +75,4 @@ var controlProcsForLastTimeStamp = [UVEModuleIds['CONTROLNODE']];
 var computeProcsForLastTimeStamp = [UVEModuleIds['VROUTER_AGENT']];
 var analyticsProcsForLastTimeStamp = [UVEModuleIds['COLLECTOR'],UVEModuleIds['OPSERVER']];
 var configProcsForLastTimeStamp = [UVEModuleIds['APISERVER'],UVEModuleIds['DISCOVERY_SERVICE'],UVEModuleIds['SERVICE_MONITOR'],UVEModuleIds['SCHEMA']];
+var defaultIntrospectPort = '8085';
