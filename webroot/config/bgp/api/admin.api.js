@@ -31,6 +31,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     sgConfig = require('../../securitygroup/api/securitygroupconfig.api'),
     logicalRouterConfig = require('../../logicalrouters/api/logicalroutersconfig.api'),
     portsConfig = require('../../ports/api/portsconfig.api'),
+    infConfig = require('../../physicaldevices/physicalinterfaces/api/physicalinterfacesconfig.api.js'),
     ipamConfig = require('../../ipaddressmanagement/api/ipamconfig.api'),
     vdnsConfig = require('../../dns/api/virtualdnsconfig.api'),
     svcTempl = require('../../services/template/api/servicetemplateconfig.api'),
@@ -1353,6 +1354,16 @@ function getMatchStrByType (type)
         return 'security_groups';
     case 'floating-ip':
         return 'floating_ip_back_refs'
+    case 'physical-interface':
+        return 'physical_interfaces'
+    case 'logical-interface':
+        return 'logical_interfaces'
+    case 'virtual-DNS':
+        return 'virtual_DNSs';
+    case 'service-template':
+        return 'service_templates';
+    case 'virtual-DNS-record':
+	return 'virtual-DNS-record';
     default:
         return null;
     }
@@ -1390,6 +1401,7 @@ function createReqArrByType (dataObjArr, type, obj)
     case 'virtual-machine-interface':
     case 'network-ipam':
     case 'virtual-DNS':
+    case 'logical-interface':
     case 'virtual-DNS-record':
         dataObjArr.push({uuid: obj['uuid'], appData: obj['appData']});
         break;
@@ -1409,7 +1421,8 @@ var configCBList =
     'virtual-DNS': vdnsConfig.readVirtualDNSs,
     'virtual-DNS-record': vdnsConfig.readVirtualDNSRecords,
     'service-template': svcTempl.getServiceTemplates,
-    'floating-ip': fipConfig.listFloatingIpsAsync
+    'floating-ip': fipConfig.listFloatingIpsAsync,
+    'logical-interface': infConfig.readLIDetails
 }
 
 function getConfigCallbackByType (type)
@@ -1433,6 +1446,7 @@ function getApiServerDataByPage (req, res, appData)
     var lastKey = req.query['lastKey'];
     var type = req.query['type'];
     var fqnUUID = req.query['fqnUUID'];
+    var parent = req.query['parent'];
     var resultJSON = [];
     var retLastKey = null;
     var found = false;
@@ -1449,22 +1463,27 @@ function getApiServerDataByPage (req, res, appData)
     } else {
         count = parseInt(count);
     }
+
     if (null != fqnUUID) {
-        switch (type) {
-        case 'virtual-DNS-record':
-            url = '/virtual-DNS/' + fqnUUID;
-            break;
-        case 'service-template':
-            url = '/domain/' + fqnUUID;
-            matchStr = 'service_templates';
-            break;
-        case 'virtual-DNS':
-            url = '/domain/' + fqnUUID;
-            matchStr = 'virtual_DNSs';
-            break;
-        default:
-            url = '/project/' + fqnUUID;
-            break;
+        if(null != parent) {
+            url = '/' + parent + '/' + fqnUUID;
+        } else {
+            switch (type) {
+            case 'virtual-DNS-record':
+                url = '/virtual-DNS/' + fqnUUID;
+                break;
+            case 'service-template':
+                url = '/domain/' + fqnUUID;
+                matchStr = 'service_templates';
+                break;
+            case 'virtual-DNS':
+                url = '/domain/' + fqnUUID;
+                matchStr = 'virtual_DNSs';
+                break;
+            default:
+                url = '/project/' + fqnUUID;
+                break;
+            }
         }
     }
     configApiServer.apiGet(url, appData, function(err, configList) {
@@ -1472,8 +1491,14 @@ function getApiServerDataByPage (req, res, appData)
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
-        if ((null != fqnUUID) && (isParentProject(type))) {
-            configList = configList['project'];
+        if(null != fqnUUID) {
+            if(parent != null) {
+               configList = configList[parent];
+            } else {
+                if(isParentProject(type)){
+                    configList = configList['project'];
+                }
+            }
             matchStr = getMatchStrByType(type);
             if (null == matchStr) {
                 err = new appErrors.RESTServerError('type not supported');
@@ -1481,6 +1506,7 @@ function getApiServerDataByPage (req, res, appData)
                 return;
             }
         }
+
         switch (type) {
         case 'virtual-DNS-record':
             try {
@@ -1556,6 +1582,7 @@ function getApiServerDataByPage (req, res, appData)
             dataObj['configData'] = configList;
             dataObj['reqDataArr'] = reqDataObjArr;
             dataObj['dataObjArr'] = dataObjArr;
+            dataObj['appData'] = appData;
             callback(dataObj, function(err, result) {
                 sendConfigPagedResponse(err, result, res, retLastKey);
             });
