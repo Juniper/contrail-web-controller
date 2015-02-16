@@ -223,12 +223,9 @@ function ObjectListView() {
 		        getOutputByPagination(networkDS,{transportCfg:obj['transportCfg'],
 		        	parseFn:tenantNetworkMonitorUtils.networkParseFn,loadedDeferredObj:networkDeferredObj});
 
-                getOutputByPagination(instanceDS,{transportCfg:obj['transportCfg'],parseFn:tenantNetworkMonitorUtils.instanceParseFn,deferredObj:instDeferredObj,
-                    loadedDeferredObj:loadedDeferredObj});
-		        
 		        obj['dataSource'] = networkDS;
 		        obj['loadedDeferredObj'] = networkDeferredObj;
-		        obj['isAsyncLoad'] = true;
+		        obj['isAsyncLoad'] = false;
 		        //Passing the deferredObj to initGrid such that is hides loading icon in Grid/displays error message if ajax call fails
 		        obj['deferredObj'] = loadedDeferredObj;
         	} else {
