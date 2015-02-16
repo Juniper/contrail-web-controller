@@ -162,7 +162,19 @@
                                                         <input type="text" id="txtSubnet" title="Enter Subnet" name="txtSubnet" class="span10"/>
                                                     </div>
                                                 </div>                       
-                                            </div>                                         
+                                            </div>
+                                            <div id="panel_clear_ports" class="control-group hide">
+                                                <label class="control-label"></label>
+                                                <div class="controls">
+                                                    <div class="row-fluid">
+                                                        <div>
+                                                            <input class="ace-input" type="checkbox" id="chk_clear_ports"/>
+                                                            <span class="ace-lbl pull-left">Clear Port(s)</span>
+                                                            <i class="icon-info-sign clear-ports-icon pull-left" title="Remove unreferred Port(s)"></i>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
