@@ -1631,7 +1631,8 @@ function deletePortAsync (dataObj, callback)
     } else if (dataObj['type'] == 'vmi') {
         var vmiData = dataObj['vmiData'];
         var request = dataObj['request'];
-        if (vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
+        if (('virtual_machine_interface_device_owner' in vmiData['virtual-machine-interface'])
+            && vmiData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] == "compute:nova") {
             //detach compute nova
             var body = {};
             body.portID = vmiData["virtual-machine-interface"]["uuid"];
