@@ -454,6 +454,7 @@ function updateVMIDetails(request, appData, postData, callback) {
      var infType = validateQueryParam(request, 'infType');
      if(infType === "Logical") {
          var vmiData = postData['logical-interface']['virtual_machine_interface_refs'];
+         var liUUID = postData['logical-interface']['uuid'];
          var vmiDataObjArray = [];
          var vmiIds = [];
          for(var i = 0; i < vmiData.length ; i++){
@@ -495,18 +496,21 @@ function updateVMIDetails(request, appData, postData, callback) {
                                                  }
                                                 var liPutObjArray = [];
                                                 for(var l = 0; l < liDetails.length; l++){
-                                                    var liPutURl= '/logical-interface/' + liDetails[l]['logical-interface'].uuid;
-                                                    var currLIVMIs = liDetails[l]['logical-interface']['virtual_machine_interface_refs'];
-                                                    for(var i =  currLIVMIs.length - 1; i >= 0 ;i--){
-                                                        for(var k=0; k < vmiIds.length; k++){
-                                                            if(currLIVMIs[i] != null && currLIVMIs[i]['uuid'] == vmiIds[k]){
-                                                                //remove the vmi_refs from the existing lis whose are part of new li
-                                                                currLIVMIs.splice(i,1);  
+                                                    //Check if the li is not itself and proceed to remove the vmis for the other li
+                                                    if(liUUID !=  liDetails[l]['logical-interface'].uuid){
+                                                        var liPutURl= '/logical-interface/' + liDetails[l]['logical-interface'].uuid;
+                                                        var currLIVMIs = liDetails[l]['logical-interface']['virtual_machine_interface_refs'];
+                                                        for(var i =  currLIVMIs.length - 1; i >= 0 ;i--){
+                                                            for(var k=0; k < vmiIds.length; k++){
+                                                                if(currLIVMIs[i] != null && currLIVMIs[i]['uuid'] == vmiIds[k]){
+                                                                    //remove the vmi_refs from the existing lis whose are part of new li
+                                                                    currLIVMIs.splice(i,1);  
+                                                                }
                                                             }
                                                         }
+                                                        commonUtils.createReqObj(liPutObjArray, liPutURl, global.HTTP_REQUEST_PUT,
+                                                                commonUtils.cloneObj(liDetails[l]), null, null, appData);
                                                     }
-                                                    commonUtils.createReqObj(liPutObjArray, liPutURl, global.HTTP_REQUEST_PUT,
-                                                            commonUtils.cloneObj(liDetails[l]), null, null, appData);   
                                                 }
                                                 if(liPutObjArray.length >0) {
                                                     async.map(liPutObjArray,commonUtils.getAPIServerResponse(configApiServer.apiPut, true),
