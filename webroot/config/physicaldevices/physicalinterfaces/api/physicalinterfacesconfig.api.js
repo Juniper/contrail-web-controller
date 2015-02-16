@@ -216,7 +216,7 @@ function createPhysicalInterfaces (request, response, appData)
                    commonUtils.handleJSONResponse(error, response, null);
                    return;               
                 }         
-                getPhysicalInterfaces(request, response, appData);
+                commonUtils.handleJSONResponse(error, response, data);
              });             
      });    
 }
@@ -239,7 +239,7 @@ function updatePhysicalInterfaces (request, response, appData)
                    commonUtils.handleJSONResponse(error, response, null);
                    return;               
                 }         
-                getPhysicalInterfaces(request, response, appData);
+                commonUtils.handleJSONResponse(error, response, data);
              });             
      });    
 } 
@@ -261,7 +261,7 @@ function deletePhysicalInterfaces (request, response, appData)
                commonUtils.handleJSONResponse(error, response, null);
                return;               
             }         
-            getPhysicalInterfaces(request, response, appData);
+            commonUtils.handleJSONResponse(error, response, data);
          });             
 } 
 
