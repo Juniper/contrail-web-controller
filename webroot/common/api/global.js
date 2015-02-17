@@ -14,6 +14,7 @@ global.STR_GET_QE_CPU_FLOW_SERIES = 'getQECPULoadFlowSeries';
 global.STR_GET_OPS_CPU_FLOW_SERIES = 'getOpServerCPULoadFlowSeries';
 global.FlOW_SERIES_STAT_TYPE = 'oracleStats'
 global.STR_GET_VN_STATS_PER_VROUTER = 'vnStatsPerVRouter';
+global.STR_GET_UNDERLAY_TOPOLOGY = 'underlayTopology';
 
 global.QUERY_JSON = {
     'StatTable.UFlowData.flow': {"table": 'StatTable.UFlowData.flow', "start_time": "",
@@ -39,6 +40,7 @@ global.NODE_CHASSIS_TYPE_SPINE = 'spine';
 global.NODE_CHASSIS_TYPE_CORE = 'coreswitch';
 global.NODE_CHASSIS_TYPE_NONE = '-';
 
+global.UNDERLAY_TOPO_JOB_REFRESH_TIME = 5 * 60 * 1000; /* 5 Minutes */
 
 module.exports = global;
 

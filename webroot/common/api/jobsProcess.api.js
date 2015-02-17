@@ -7,6 +7,8 @@ var topoCache = require('../../monitor/tenant-network/jobs/topoCache.api')
     , computeNode = require('../../monitor/infra/vrouter/jobs/vrouternode.jobs.api')
     , nwMonJobsApi = require('../../monitor/tenant-network/jobs/network.mon.jobs')
     , tpoCache     = require('../../monitor/tenant-network/jobs/tpoCache.api')
+    , underlay     =
+        require('../../monitor/infra/underlay/jobs/underlay_overlay.jobs.api')
     ;
 
 var jobsProcess = module.exports;
@@ -268,6 +270,13 @@ function processVNStatsPerVRouter (pubChannel, saveChannelKey,
                                          done)
 }
 
+function processUnderlayTopology (pubChannel, saveChannelKey,
+                                  jobData, done)
+{
+    underlay.processUnderlayTopology(pubChannel, saveChannelKey, jobData,
+                                     done)
+}
+
 jobsProcess.mainJobprocessControlNodesSummaryRequestByJob = 
     function(pubChannel, saveChannelKey, dependData, storedData, jobData, done) {
     bgpNode.getControlNodesSummary(pubChannel, saveChannelKey, JSON.parse(dependData), 
@@ -310,4 +319,5 @@ jobsProcess.processcRouterAclFlowsRequestByJob =
 exports.processvRoutersSummaryRequestByJob = processvRoutersSummaryRequestByJob;
 exports.processvRoutersGenRequestByJob = processvRoutersGenRequestByJob;
 exports.processVNStatsPerVRouter = processVNStatsPerVRouter;
+exports.processUnderlayTopology = processUnderlayTopology;
 

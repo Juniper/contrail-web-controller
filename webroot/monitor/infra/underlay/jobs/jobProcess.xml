@@ -1,0 +1,22 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<jobLists>
+  <!-- Define module name here which is being referenced in the generated 
+       file
+   -->
+  <require>
+      <define>parseJobsReq</define>
+      <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseJobsRequire'</path>
+  </require>
+  <require>
+      <define>jobsProcess</define>
+      <path>../../../../common/api/jobsProcess.api</path>
+  </require>
+  <item>
+    <jobName>underlayTopology</jobName>
+    <callback>processUnderlayTopology</callback>
+  </item>
+</jobLists>
+
