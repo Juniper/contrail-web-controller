@@ -79,8 +79,9 @@ function buildvRouterVMTopology (nodeList, appData, callback)
     });
 }
 
-function buildTopology (prouter, appData, callback)
+function buildTopology (req, appData, callback)
 {
+    var prouter = req.param('prouter');
     var topoData = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
@@ -107,9 +108,11 @@ function buildTopology (prouter, appData, callback)
  */
 function getUnderlayTopology (req, res, appData)
 {
-    var prouter = req.param('prouter');
 
-    buildTopology(prouter, appData, function(err, topology) {
+    var url = '/analytics/uves/prouter';
+    var key = global.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
+    redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req, appData,
+                                         function(err, topology) {
         commonUtils.handleJSONResponse(err, res, topology); 
     });
 }

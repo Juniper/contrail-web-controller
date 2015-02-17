@@ -14,6 +14,7 @@ global.STR_GET_QE_CPU_FLOW_SERIES = 'getQECPULoadFlowSeries';
 global.STR_GET_OPS_CPU_FLOW_SERIES = 'getOpServerCPULoadFlowSeries';
 global.FlOW_SERIES_STAT_TYPE = 'oracleStats'
 global.STR_GET_VN_STATS_PER_VROUTER = 'vnStatsPerVRouter';
+global.STR_GET_UNDERLAY_TOPOLOGY = 'getUnderlayTopology';
 
 global.QUERY_JSON = {
     'StatTable.UFlowData.flow': {"table": 'StatTable.UFlowData.flow', "start_time": "",
