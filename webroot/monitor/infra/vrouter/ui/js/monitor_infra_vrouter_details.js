@@ -102,7 +102,7 @@ monitorInfraComputeDetailsClass = (function() {
                             //anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
                             anlNode = jsonPath(computeNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
                             status = jsonPath(computeNodeData,"$..ModuleClientState..status")[0];
-                            secondaryAnlNode = jsonPath(computeNodeData,"$..ModuleClientState..secondary")[0].split(':')[0];
+                            secondaryAnlNode = ifNull(jsonPath(computeNodeData,"$..ModuleClientState..secondary")[0],'').split(':')[0];
                         }catch(e){
                             anlNode = noDataStr;
                         }
@@ -115,7 +115,7 @@ monitorInfraComputeDetailsClass = (function() {
                             }
                         }
                         if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
-                            anlNode.concat(', ' + secondaryAnlNode);
+                            anlNode = anlNode.concat(', ' + secondaryAnlNode);
                         }
                         return ifNull(anlNode,noDataStr);
                     })()},

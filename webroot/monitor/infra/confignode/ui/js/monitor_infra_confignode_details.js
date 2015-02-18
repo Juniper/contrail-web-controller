@@ -131,10 +131,11 @@ monitorInfraConfigDetailsClass = (function() {
                      var anlNode = noDataStr; 
                      var secondaryAnlNode, status;
                      try{
-                        //anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
-                        anlNode = jsonPath(confNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
-                        status = jsonPath(confNodeData,"$..ModuleClientState..status")[0];
-                        secondaryAnlNode = ifNull(jsonPath(confNodeData,"$..ModuleClientState..secondary")[0],"").split(':')[0];
+                        var contrailApiDetails = jsonPath(confNodeData,"$..Config:contrail-api:0")[0];
+                        
+                        anlNode = jsonPath(contrailApiDetails,"$..ModuleClientState..primary")[0].split(':')[0];
+                        status = jsonPath(contrailApiDetails,"$..ModuleClientState..status")[0];
+                        secondaryAnlNode = ifNull(jsonPath(contrailApiDetails,"$..ModuleClientState..secondary")[0],"").split(':')[0];
                      }catch(e){
                         anlNode = "--";
                      }
