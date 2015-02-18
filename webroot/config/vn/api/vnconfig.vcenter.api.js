@@ -38,7 +38,7 @@ if (!module.parent)
 }
 
 //No of times to retry to check for VN on API Server
-var maxRetryCnt = 30;
+var maxRetryCnt = 100;
 function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
     if(retryCnt == null)
         retryCnt = 0;
@@ -64,7 +64,7 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
         }
         setTimeout(function() {
             ifNetworkExists(appData,projUUID,name,callback,retryCnt);
-        },3000);
+        },500);
     });
 }
 
