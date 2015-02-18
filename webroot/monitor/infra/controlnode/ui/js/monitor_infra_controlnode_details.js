@@ -116,12 +116,12 @@ monitorInfraControlDetailsClass = (function() {
                     })()},
                     {lbl:'Analytics Node', value:(function(){
                      var anlNode = noDataStr; 
-                     var secondaryAnlNode, status;
+                     var secondaryAnlNodes, status;
                      try{
-                        //anlNode = ifNull(computeNodeData.VrouterAgent.collector,noDataStr);
                         anlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
                         status = jsonPath(ctrlNodeData,"$..ModuleClientState..status")[0];
-                        secondaryAnlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..secondary")[0].split(':')[0];
+                        secondaryAnlNodes =  jsonPath(ctrlNodeData,"$..ModuleClientState..secondary");
+                        secondaryAnlNodes = secondaryAnlNodes ? secondaryAnlNodes : [];
                      }catch(e){
                         anlNode = "--";
                      }
@@ -133,9 +133,14 @@ monitorInfraControlDetailsClass = (function() {
                            anlNode = anlNode.concat(' (Down)');
                         }
                      }
-                     if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
-                        anlNode.concat(', ' + secondaryAnlNode);
-                     }
+                     $.each(secondaryAnlNodes,function(i,secondaryAnlNode){
+                         if(secondaryAnlNode != null && secondaryAnlNode != ""){
+                             secondaryAnlNode = secondaryAnlNode.split(':')[0];
+                             if(secondaryAnlNode != "0.0.0.0"){
+                                 anlNode = anlNode.concat(', ' + secondaryAnlNode);
+                             }
+                          }
+                     });
                      return ifNull(anlNode,noDataStr);
                     })()},
                     //TODO{lbl:'Config Messages', value:ctrlNodeData['configMessagesIn'] + ' In, ' + ctrlNodeData['configMessagesOut'] + ' Out'},
