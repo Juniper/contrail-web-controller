@@ -633,6 +633,7 @@ function successHandlerForGridStatusUpdate(result) {
         }
     }
     $("#gridsvcInstances").data("contrailGrid")._dataView.updateData(svcDS);
+    $("#gridsvcInstances").data("contrailGrid").refreshDetailView(true)
     refreshSvcInstances(reload);
 }
 
