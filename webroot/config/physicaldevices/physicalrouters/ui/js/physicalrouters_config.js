@@ -589,7 +589,7 @@ function physicalRoutersConfig() {
                 var vns = ifNull(rowData['virtual_network_refs'],[]);
                 var vnsString = [];
                 $.each(vns, function(i,d){
-                    vnsString.push(d.to[2]);
+                    vnsString.push(d.to[2] + ' (' + d.to[0] + ':' + d.to[1] + ')');
                 });
                 
                 var credentials = rowData['physical_router_user_credentials'];
@@ -711,7 +711,7 @@ function physicalRoutersConfig() {
                 var fqname = vn.fq_name;
                 var data = fqname;
                 var val = vn.uuid;
-                vnDS.push({text : fqname[2], value : val, data : data});
+                vnDS.push({text : fqname[2] + ' (' + fqname[0] + ':' + fqname[1] + ')', value : val, data : data});
             } 
         
         } else {
