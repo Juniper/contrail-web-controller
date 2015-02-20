@@ -1845,6 +1845,19 @@ function deletePortAsync (dataObj, callback)
                 });
         });
         return;
+    } else if (dataObj['type'] == 'subnet') {
+        async.map(dataObj['dataObjArr'],
+            function(item,callback) {
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, false,item,callback)
+            },
+            function(error, results) {
+                delSubnet(error, results, dataObj['vmiData'], dataObj['appData'],
+                    function(err, data){
+                        callback(error, results);
+                        //return;
+                });
+        });
+        return;
     } else if (dataObj['type'] == 'vm') {
         async.map(dataObj['dataObjArr'],
             function(item,callback) {
@@ -1913,6 +1926,10 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
     var vmiRef               = null;
     var vmiRefLen            = 0;
     var vmiRefObjArr         = [];
+    var subnetRef               = null;
+    var subnetRefLen            = 0;
+    var subnetRefObjArr         = [];
+
 
     var uuid = vmiData['virtual-machine-interface']['uuid'];
 
@@ -2001,6 +2018,28 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
         vmiSubInterfaceObj['vmiData'] = vmiData;
         vmiSubInterfaceObj['appData'] = appData;
         allDataObj.push(vmiSubInterfaceObj);
+    }
+    
+    //subnet
+    if ('virtual-machine-interface' in vmiData &&
+        'subnet_back_refs' in vmiData['virtual-machine-interface']) {
+        subnetRef = vmiData['virtual-machine-interface']['subnet_back_refs'];
+        subnetRefLen = subnetRef.length;
+    }
+    if (subnetRefLen == 1) {
+        reqUrl = '/subnet/' + subnetRef[0]['uuid'];
+        commonUtils.createReqObj(subnetRefObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
+    }
+
+    if (subnetRefObjArr.length > 0) {
+        var subnetObj = {};
+        subnetObj['type'] = "subnet";
+        subnetObj['vmiData'] = vmiData;
+        subnetObj['dataObjArr'] = subnetRefObjArr;
+        subnetObj['appData'] = appData;
+        allDataObj.push(subnetObj);
     }
 
     //Instance IP
@@ -2099,6 +2138,52 @@ function delVm(error, results, appData, callback){
         });
     } else {
         callback(error, results);
+    }
+}
+/**
+ * @delSubnet
+ * private function
+ * 1. Callback for delete create
+ * 2. call back for deletePortAsync.
+ * 3. Delete Subnet.
+ */
+function delSubnet (error, results, vmiData, appData, callback)
+{
+    if (error) {
+        callback(error, results);
+        return;
+    }
+    var linkedvmi2subnetLength = 0;
+    if ('subnet' in results[0] && 'virtual_machine_interface_refs' in results[0]['subnet']) {
+        linkedvmi2subnetLength = results[0]['subnet']['virtual_machine_interface_refs'].length;
+    }
+
+    if (linkedvmi2subnetLength == 1 &&  
+        results[0]['subnet']['virtual_machine_interface_refs'][0]["uuid"] == 
+        vmiData["virtual-machine-interface"]["uuid"]) {
+        var subnetDelURL = "/subnet/"+results[0]['subnet']["uuid"];
+        configApiServer.apiDelete(subnetDelURL, appData,
+        function(error, data) {
+            callback(error, data);
+            return;
+        });
+    } else {
+        if(linkedvmi2subnetLength >= 1){
+            for (var i=0; i < linkedvmi2subnetLength; i++) {
+                if(results[0]['subnet']['virtual_machine_interface_refs'][i]["uuid"] == 
+                    vmiData["virtual-machine-interface"]["uuid"]){
+                    results[0]['subnet']['virtual_machine_interface_refs'].splice(i,1);
+                    break;
+                }
+            }
+            var subnetUpdateURL = "/subnet/"+results[0]['subnet']["uuid"];
+            configApiServer.apiPut(subnetUpdateURL, results[0], appData,
+            function (error, data) {
+                callback(error, data);
+            });
+        } else {
+            callback(error, results);
+        }
     }
 }
 
