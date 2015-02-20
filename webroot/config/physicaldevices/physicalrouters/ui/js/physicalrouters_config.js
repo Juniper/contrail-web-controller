@@ -318,6 +318,12 @@ function physicalRoutersConfig() {
             $('#txtPhysicalRouterName').val(gblSelRow.name);
             if(gblSelRow.vendor != '-')
                 $('#txtVendor').val(gblSelRow.vendor);
+            if(gblSelRow.model != '-') {
+                $('#txtModel').val(gblSelRow.model);
+            }
+            if(gblSelRow.auto_config != '-') {
+                $('#chkAutoConfig')[0].checked = gblSelRow.auto_config == 'Enabled' ? true : false;
+            }
             $('#txtPhysicalRouterName').attr('disabled','disabled');
             if(gblSelRow.mgmt_ip_address != '-')
                 $('#txtMgmtIPAddress').val(gblSelRow.mgmt_ip_address);
@@ -403,6 +409,8 @@ function physicalRoutersConfig() {
         var password = $("#txtPassword").val();
         var bgpRouter = $("#ddBgpRouter").data('contrailDropdown').text();
         var vRoutersType = $("#ddVirtualRoutersType").data('contrailDropdown').text();
+        var model = $("#txtModel").val().trim();
+        var autoConfig = $('#chkAutoConfig')[0].checked;
         
         gridPhysicalRouters._dataView.setData([]);
         gridPhysicalRouters.showGridMessage('loading');  
@@ -422,7 +430,8 @@ function physicalRoutersConfig() {
         } else {
             postObject["physical-router"]["bgp_router_refs"] = [];
         }
- 
+        postObject["physical-router"]["physical_router_product_name"] = model;
+        postObject["physical-router"]["physical_router_vnc_managed"] = autoConfig;
         var vns = $("#msVN").data('contrailMultiselect').getSelectedData();
         if(vns.length > 0){
             var vnRefs = [];
@@ -549,6 +558,8 @@ function physicalRoutersConfig() {
         $("#ddTsnName").data('contrailCombobox').text('');
         $("#txtTorAgentIp").val('');
         $("#txtTsnIp").val('');
+        $("#txtModel").val('');
+        $('#chkAutoConfig')[0].checked = true;
     }
         
     function fetchData() {
@@ -609,7 +620,9 @@ function physicalRoutersConfig() {
                     interfaces : interfaces.length,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
                     virtual_networks : vnsString.length > 0 ? vnsString : '-',       
-                    virtual_router : (virtualRouterString == '')? '-' : virtualRouterString
+                    virtual_router : (virtualRouterString == '')? '-' : virtualRouterString,
+                    model : rowData['physical_router_product_name'] != null ? rowData['physical_router_product_name'] : '-',
+                    auto_config : rowData['physical_router_vnc_managed'] != null ? (rowData['physical_router_vnc_managed'] ? 'Enabled' : 'Disabled') : '-',
                 });
             }
         
