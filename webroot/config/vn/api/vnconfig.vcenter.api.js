@@ -135,9 +135,10 @@ function deleteVirtualNetwork (request, response, appData)
                 return;
             }
             vCenterApi.queryIpPools(appData).done(function(data) {
-                if(data['Fault'] != null)
+                if(data['Fault'] != null) {
                     commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
-                else {
+                    return;
+                } else {
                     var ipPoolsArr = data['QueryIpPoolsResponse'][0]['_value']['returnval'];
                     var poolId = '';
                     for(var i=0;i<ipPoolsArr.length;i++) {
@@ -185,13 +186,16 @@ function createVirtualNetwork(req,res,appData) {
             }
         };
     vCenterApi.createNetwork(userData,appData,function(err,data) {
-        if(data['Fault'] != null)
+        if(data['Fault'] != null) {
             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},res,null);
+            return;
+        }
         //Check if network synced on Api Server
         ifNetworkExists(appData,vnPostData['virtual-network']['parent_uuid'],userData['name'],function(vnUUID) {
             //If VN is not synced up with API Server
             if(vnUUID == false) {
                 commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'VN ' + userData['name'] + " doesn't exist on config server"},res,null);
+                return;
             }
             appData['vnUUID'] =vnUUID;
             //Update network synced on Api Server 
