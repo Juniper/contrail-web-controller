@@ -122,7 +122,7 @@ function virtualRoutersConfig() {
         var msType =  $('#msType').data('contrailDropdown');
         var msTypeDS = [{ text : 'Hypervisor', value : 'hypervisor'},
             { text : 'Embedded', value : 'embedded'},
-            //{ text : 'TOR Agent', value : 'tor-agent'},
+            { text : 'TOR Agent', value : 'tor-agent'},
             { text : 'TOR Service Node', value : 'tor-service-node'},
         ];
         msType.setData(msTypeDS);
