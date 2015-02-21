@@ -216,6 +216,9 @@ function ObjectListView() {
                     data:{data:[{"type":"virtual-network", "cfilt":vnCfilts.join(',')}]}
                 };
 		        networkDS = new ContrailDataView();
+                networkDS.onDataUpdate.subscribe(function(e,args){
+                    networkPopulateFns.networkDSChangeHandler(obj['dataSource'],args,$.Deferred());
+                });
 		        //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
 		        var networkDeferredObj = $.Deferred();
 		        //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
