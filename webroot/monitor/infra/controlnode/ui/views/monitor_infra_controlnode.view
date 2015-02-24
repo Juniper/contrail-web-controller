@@ -38,7 +38,7 @@
                 <li><a href="#mon-infra-ctrl-routes-tab_{{name}}">Routes</a></li>
                 <li><a href="#mon-infra-ctrl-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-ctrl-details-tab_{{name}}">
+            <div id="mon-infra-ctrl-details-tab_{{name}}">
                 <div id='controlnode-dashboard_{{name}}' class='span5'></div>
 				<div id='control-detail-charts_{{name}}' class="span7">
 	                <div class="row-fluid">

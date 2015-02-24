@@ -38,7 +38,7 @@
                 <li><a href="#mon-infra-analytics-qequeries-tab_{{name}}">QE Queries</a></li>
                 <li><a href="#mon-infra-analytics-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-analytics-details-tab_{{name}}">
+            <div id="mon-infra-analytics-details-tab_{{name}}">
                 <div id='analyticsnode-dashboard_{{name}}' class='span5'></div>
                 <div id='analytics-detail-charts_{{name}}' class="span7">
 	                <div class="row-fluid">

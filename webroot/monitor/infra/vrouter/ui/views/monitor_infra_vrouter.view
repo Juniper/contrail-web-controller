@@ -53,7 +53,7 @@
                 <li id="mon-infra-vrouter-routes-tab_{{name}}"><a href="#mon-infra-compute-routes-tab_{{name}}">Routes</a></li>
                 <li id="mon-infra-vrouter-console-tab_{{name}}"><a href="#mon-infra-compute-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-compute-details-tab_{{name}}">
+            <div id="mon-infra-compute-details-tab_{{name}}">
                 <div id='computenode-dashboard_{{name}}'  class="span5"></div>
                 
                 <div id='vrouter-detail-charts_{{name}}' class="span7">

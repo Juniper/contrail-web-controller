@@ -34,7 +34,7 @@
                 <li><a href="#mon-infra-config-details-tab_{{name}}">Details</a></li>
                 <li><a href="#mon-infra-config-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-config-details-tab_{{name}}">
+            <div id="mon-infra-config-details-tab_{{name}}">
                 <div id='confignode-dashboard_{{name}}' class='span5'></div>
                 <div id='config-detail-charts{{name}}' class="span7">
                     <div class="widget-box transparent" id="config-sparklines-box">
