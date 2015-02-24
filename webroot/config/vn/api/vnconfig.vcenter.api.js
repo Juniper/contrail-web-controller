@@ -83,7 +83,7 @@ function waitForNetworkDelete(appData,vnUUID,callback,retryCnt) {
             return;
         }
         setTimeout(function() {
-            ifNetworkExists(appData,projUUID,name,callback,retryCnt);
+            waitForNetworkDelete(appData,vnUUID,callback,retryCnt);
         },500);
     });
 }
