@@ -351,6 +351,18 @@ function validate() {
         showInfoWindow("Enter a valid Image Name", "Input required");
         return false;
     }
+    selectedImage = selectedImage.text().trim();
+    var allImage = $("#ddImageName").data("contrailDropdown").getAllData();
+    var imageCount = 0;
+    for (i = 0; i < allImage.length; i++){
+        if(allImage[i].text == selectedImage) {
+            imageCount++
+            if(imageCount >= 2){
+                showInfoWindow("Selected Image "+selectedImage+" has duplicate reference.", "Input required");
+                return false;
+            }
+        }
+    }
     var selectedImage = $("#ddFlavors").data("contrailDropdown");
     if (selectedImage.text().trim() === "") {
         showInfoWindow("Enter a valid Flavour", "Input required");

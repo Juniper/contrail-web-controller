@@ -738,14 +738,21 @@ function getTemplateDetail(templateName){
 }
 function checkServiceImage(servicetemplateImage){
     var imageAvailable = false;
+    var count = 0;
     for(var inc =0 ;inc< templateImages.length;inc++){
         if(servicetemplateImage == templateImages[inc]){
             imageAvailable = true;
-            break;
+            count++;
+            if(count >= 2)
+                break;
         }
     }
     if(imageAvailable == false){
         showInfoWindow(servicetemplateImage+" image is missing.", "Image missing");
+        return false;
+    }
+    if(count >= 2){
+        showInfoWindow(servicetemplateImage+" has duplicate reference.", "Image duplicate");
         return false;
     }
     return true;
