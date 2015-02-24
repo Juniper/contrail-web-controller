@@ -103,7 +103,7 @@ function readLIDetails(liObj, callback) {
 function createPhysicalInterfaces (request, response, appData)
 {
      var postData     =  request.body;
-     var url = getInterfaceUrl(request, 'create');
+     var url = getInterfaceUrl(request, 'create1');
      updateVMIDetails(request, appData, postData, function() {
          configApiServer.apiPost(url, postData, appData,
              function(error, data) {
