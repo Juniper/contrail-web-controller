@@ -239,10 +239,9 @@ function processVMIDetails(appData, result, callback)
                             ['virtual_machine_interface_mac_addresses']['mac_address'],
                             "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
                             "vm_refs" : vmi['virtual_machine_refs'] != null ? vmi['virtual_machine_refs'] : [],
-                            "subnet" : vmi['subnet_back_refs'], "vmi_uuid" : vmi.uuid});
+                            "subnet" : vmi['subnet_back_refs'] != null ? vmi['subnet_back_refs'] : [] , "vmi_uuid" : vmi.uuid});
                         var instIPBackRefs = vmi['instance_ip_back_refs'];
                         var subnetBackRefs = vmi['subnet_back_refs'];
-                        //var instIPBackRefsCnt = instIPBackRefsCntinstIPBackRefs.length;
                         //Prepare the instance-ip request obj
                         if(instIPBackRefs != null && instIPBackRefs.length > 0) {
                             for (var k = 0; k < instIPBackRefs.length ; k++) {
@@ -260,76 +259,63 @@ function processVMIDetails(appData, result, callback)
                             }
                         }
                     }
-                 }
-                 if(dataObjArr.length > 0) {
-                     async.map(dataObjArr,
-                         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                         function(error, data) {
-                         if ((null != error) || (null == data) || (!data.length)) {
-                             callback(error,null);
-                             return;
-                         }
-                       //No subnets case.. return with the instance_ip details
-                         var tempVMIResourceObjCnt = tempVMIResourceObj.length;
-                         var total = 0;
-                         for (var i = 0; i < tempVMIResourceObjCnt; i++) {
-                             if(tempVMIResourceObj[i]['instance-ip'] != null && tempVMIResourceObj[i]['instance-ip'].length > 0) {
-                                 var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
-                                 var tempInstIPData = data.slice(total, total + instIpCnt);
-                                 total += instIpCnt;
-                                 var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
-                                 resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs,
-                                                 "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                                 "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
-                             } else {
-                                 resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [],
-                                                 "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                                 "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
-                             }
-                         }
-                         if(subnetDataObjArr.length < 1){
-                             //There are no subnets so just return the response from here
-                             callback(null,resultJSON);
-                         } else {
-                             //Get subnet details
-                             async.map(subnetDataObjArr,
-                                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                                     function(error,subnetData){
-                                         if ((null != error) || (null == data) || (!data.length)) {
-                                             callback(error,null);
-                                             return;
-                                         }
-                                         var tempVMIResourceObjCnt = tempVMIResourceObj.length;
-                                         var total = 0;
-                                         for (var i = 0; i < tempVMIResourceObjCnt; i++) {
-                                             if(tempVMIResourceObj[i]['subnet'] != null && tempVMIResourceObj[i]['subnet'].length > 0) {
-                                                 var subnetCnt =  tempVMIResourceObj[i]['subnet'].length;
-                                                 var tempSubnetData = subnetData.slice(total, total + subnetCnt);
-                                                 total += subnetCnt;
-                                                 var subnetDtls = [];
-                                                 for(var j = 0; j < tempSubnetData.length ; j++){
-                                                     var subnetIPPrefix = tempSubnetData[j]['subnet']['subnet_ip_prefix'];
-                                                     var subnetUUID = tempSubnetData[j]['subnet']['uuid'];
-                                                     subnetDtls.push({"subnetUUID" : subnetUUID, "subnetIPPrefix":subnetIPPrefix});
-                                                 }
-                                                 resultJSON[i]['subnet'] = subnetDtls;
-                                             } else {
-                                                 resultJSON[i]['subnet'] = [];
-                                             }
-                                         }
-                                         callback(null,resultJSON);
-                             });  //Async for subnet ends
-                         }
-                     });//Async for instance_ip ends
-                 } else {
-                     var tempVMIResourceObjCnt = tempVMIResourceObj.length;
-                     for(var i = 0; i < tempVMIResourceObjCnt; i++) {
-                         resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [],
-                                         "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
-                                         "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
-                     }
-                     callback(null,resultJSON);
-                 }
+                }
+                async.map(dataObjArr,
+                    commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                    function(error, data) {
+                        //No subnets case.. return with the instance_ip details
+                        var tempVMIResourceObjCnt = tempVMIResourceObj.length;
+                        var total = 0;
+                        for (var i = 0; i < tempVMIResourceObjCnt; i++) {
+                            if(error == null && data != null && data.length > 0
+                                && tempVMIResourceObj[i]['instance-ip'] != null && tempVMIResourceObj[i]['instance-ip'].length > 0) {
+                                var instIpCnt =  tempVMIResourceObj[i]['instance-ip'].length;
+                                var tempInstIPData = data.slice(total, total + instIpCnt);
+                                total += instIpCnt;
+                                var ipAddrs = jsonPath(tempInstIPData, "$..instance_ip_address");
+                                resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": ipAddrs,
+                                                "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
+                                                "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
+                            } else {
+                                resultJSON.push({"mac": tempVMIResourceObj[i]['mac'], "ip": [],
+                                                "vmi_fq_name": tempVMIResourceObj[i]['fq_name'], "vn_refs" : tempVMIResourceObj[i]["vn_refs"],
+                                                "vm_refs" : tempVMIResourceObj[i]["vm_refs"], "subnet" : tempVMIResourceObj[i]['subnet'],"vmi_uuid" : tempVMIResourceObj[i]['vmi_uuid']});
+                            }
+                        }
+                        if(subnetDataObjArr.length < 1){
+                            //There are no subnets so just return the response from here
+                            callback(null,resultJSON);
+                        } else {
+                            //Get subnet details
+                            async.map(subnetDataObjArr,
+                                    commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                                    function(error,subnetData){
+                                        if ((null != error) || (null == subnetData) || (!subnetData.length)) {
+                                            callback(error,null);
+                                            return;
+                                        }
+                                        var tempVMIResourceObjCnt = tempVMIResourceObj.length;
+                                        var total = 0;
+                                        for (var i = 0; i < tempVMIResourceObjCnt; i++) {
+                                            if(tempVMIResourceObj[i]['subnet'] != null && tempVMIResourceObj[i]['subnet'].length > 0) {
+                                                var subnetCnt =  tempVMIResourceObj[i]['subnet'].length;
+                                                var tempSubnetData = subnetData.slice(total, total + subnetCnt);
+                                                total += subnetCnt;
+                                                var subnetDtls = [];
+                                                for(var j = 0; j < tempSubnetData.length ; j++){
+                                                    var subnetIPPrefix = tempSubnetData[j]['subnet']['subnet_ip_prefix'];
+                                                    var subnetUUID = tempSubnetData[j]['subnet']['uuid'];
+                                                    subnetDtls.push({"subnetUUID" : subnetUUID, "subnetIPPrefix":subnetIPPrefix});
+                                                }
+                                                resultJSON[i]['subnet'] = subnetDtls;
+                                            } else {
+                                                resultJSON[i]['subnet'] = [];
+                                            }
+                                        }
+                                        callback(null,resultJSON);
+                            });  //Async for subnet ends
+                        }
+                });//Async for instance_ip ends
             }
     );
 }
