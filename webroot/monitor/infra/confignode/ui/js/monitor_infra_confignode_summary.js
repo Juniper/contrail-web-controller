@@ -29,9 +29,8 @@ monitorInfraConfigSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true,
                     /*detail:{
-                        template: $("#confignode-template").html(),
+                     template: $("#confignode-template").html(),
                         onExpand: function (e,dc) {
                             $('#config_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
                             confNodeView.populateConfigNode({name:dc['name'], ip:dc['ip'], detailView : true});
