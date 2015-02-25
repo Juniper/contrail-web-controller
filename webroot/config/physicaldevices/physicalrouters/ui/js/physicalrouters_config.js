@@ -441,8 +441,8 @@ function physicalRoutersConfig() {
                 var virtualRouters = [];
                 postObject["physical-router"]["virtual-routers"] = [];
                 var currVr = getVirtualRouterDetails(name);
-                if(currVr != null && currVr.type == 'embedded'){
-                    if(currVr.ip != mgmtIpAddress){
+                if(currVr != null && (currVr.type == 'embedded' || currVr.type == 'hypervisor')){
+                    if(currVr.ip != mgmtIpAddress || currVr.type == 'hypervisor'){
                         //If the ip is changed we now need to change the ip address for the virtual router as well.
                         //add a flag to indicate edit of vrouter is required
                         postObject["physical-router"]["isVirtualRouterEdit"] = true;
@@ -785,8 +785,8 @@ function physicalRoutersConfig() {
             }
         } else if(ddVirtualRoutersType.value() == "embedded"){
             var currVr = getVirtualRouterDetails(name);
-            if(currVr !=null && currVr !='' && currVr.type != 'embedded'){
-                showInfoWindow("Virtual Router with name " + name + " and type  " + currVr.type + " already exists. Cannot create embedded type Virtual Router.","Input required Virtual Router");
+            if(currVr !=null && currVr !='' && currVr.type != 'embedded' && currVr.type != 'hypervisor'){
+                showInfoWindow("Virtual Router " + name + " (" + currVr.type + ") already exists.","Input required Virtual Router");
                 return false;
             }
         }
