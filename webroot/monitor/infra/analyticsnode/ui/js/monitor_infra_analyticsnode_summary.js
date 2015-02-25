@@ -29,7 +29,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender: true,
                     forceFitColumns:true,
-                    lazyLoading:true,
                     detail:{
                         template: $("#analyticsnode-template").html(),
                         onExpand: function (e,dc) {

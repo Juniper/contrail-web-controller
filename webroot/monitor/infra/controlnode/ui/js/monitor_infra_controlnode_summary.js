@@ -33,7 +33,6 @@ monitorInfraControlSummaryClass = (function() {
                     autoHeight : true,
                     forceFitColumns:true,
                     enableAsyncPostRender: true,
-                    lazyLoading:true,
                     detail:{
                         template: $("#controlnode-template").html(),
                         onExpand: function (e,dc) {

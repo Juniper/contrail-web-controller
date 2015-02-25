@@ -29,7 +29,6 @@ monitorInfraConfigSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true,
                     detail:{
                         template: $("#confignode-template").html(),
                         onExpand: function (e,dc) {
