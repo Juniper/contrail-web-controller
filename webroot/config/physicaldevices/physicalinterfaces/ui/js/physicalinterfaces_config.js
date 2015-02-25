@@ -437,6 +437,9 @@ function physicalInterfacesConfig() {
                  var r = arguments;
                  showInfoWindow(r[0].responseText,r[2]);
                  fetchPhysicalInterfaces();
+                 if(vmiDetails.length > 0) {
+                    deleteVirtulMachineInterfaces(prepareDeletePortListForFailedLI(), []);
+                 }
             });
             
         }
@@ -1106,6 +1109,9 @@ function physicalInterfacesConfig() {
 
     window.failureHandlerForCreatePhysicalInterfaces = function(error) {
         fetchPhysicalInterfaces();
+        if(vmiDetails.length > 0) {
+           deleteVirtulMachineInterfaces(prepareDeletePortListForFailedLI(), []);
+        }
     }
 
     function prepareDeletePortListForEdit() {
@@ -1138,6 +1144,17 @@ function physicalInterfacesConfig() {
         return deleteVMIList;
     }
     
+    function prepareDeletePortListForFailedLI() {
+        var deleteVMIList = [];
+            for(var j = 0; j < vmiDetails.length ; j++){
+                if(vmiDetails[j] != null && vmiDetails[j]['virtual-machine-interface'] != null
+                    && vmiDetails[j]['virtual-machine-interface']['uuid'] != null) {
+                    deleteVMIList.push(vmiDetails[j]['virtual-machine-interface']['uuid']);
+                }
+            }
+        return deleteVMIList;
+    }
+
     function clearCreateEditWindow() {
         $('#ddType').data('contrailDropdown').value('logical');
         $('#txtPhysicalInterfaceName').removeAttr('disabled');
