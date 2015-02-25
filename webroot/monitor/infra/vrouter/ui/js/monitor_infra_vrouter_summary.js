@@ -210,7 +210,6 @@ monitorInfraComputeSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    lazyLoading:true,
                     detail:{
                         template: $("#computenode-template").html(),
                         onExpand: function (e,dc) {
