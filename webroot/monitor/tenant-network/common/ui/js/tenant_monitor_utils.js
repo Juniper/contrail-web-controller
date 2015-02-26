@@ -206,32 +206,32 @@ function ObjectListView() {
         obj['context'] = context;
         obj['objectType'] = objectType;
         if(objectType == 'network') {
-        	if(contrail.checkIfExist(obj['fqn'])){
-        		var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
-        		                'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
-        		                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
-        		obj['transportCfg'] = { 
+            if(contrail.checkIfExist(obj['fqn'])){
+                var vnCfilts = ['UveVirtualNetworkAgent:interface_list','UveVirtualNetworkAgent:in_bandwidth_usage','UveVirtualNetworkAgent:out_bandwidth_usage',
+                                'UveVirtualNetworkAgent:in_bytes','UveVirtualNetworkAgent:out_bytes',//'UveVirtualNetworkAgent:in_stats','UveVirtualNetworkAgent:out_stats',
+                                'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list'];
+                obj['transportCfg'] = { 
                     url:'/api/tenant/networking/virtual-networks/details?fqn=' + obj['fqn'],
                     type:'POST',
                     data:{data:[{"type":"virtual-network", "cfilt":vnCfilts.join(',')}]}
                 };
-		        networkDS = new ContrailDataView();
+                networkDS = new ContrailDataView();
                 networkDS.onDataUpdate.subscribe(function(e,args){
                     networkPopulateFns.networkDSChangeHandler(obj['dataSource'],args,$.Deferred());
                 });
-		        //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
-		        var networkDeferredObj = $.Deferred();
-		        //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
-		        var loadedDeferredObj = $.Deferred();
-		        getOutputByPagination(networkDS,{transportCfg:obj['transportCfg'],
-		        	parseFn:tenantNetworkMonitorUtils.networkParseFn,loadedDeferredObj:networkDeferredObj});
+                //instDeferredObj is resolved when the instances tab of projects and the networks is clicked 
+                var networkDeferredObj = $.Deferred();
+                //deferredObj is resolved when all instances are loaded, rejected if any ajax call fails
+                var loadedDeferredObj = $.Deferred();
+                getOutputByPagination(networkDS,{transportCfg:obj['transportCfg'],
+                    parseFn:tenantNetworkMonitorUtils.networkParseFn,loadedDeferredObj:networkDeferredObj});
 
-		        obj['dataSource'] = networkDS;
-		        obj['loadedDeferredObj'] = networkDeferredObj;
-		        obj['isAsyncLoad'] = false;
-		        //Passing the deferredObj to initGrid such that is hides loading icon in Grid/displays error message if ajax call fails
-		        obj['deferredObj'] = loadedDeferredObj;
-        	} else {
+                obj['dataSource'] = networkDS;
+                obj['loadedDeferredObj'] = networkDeferredObj;
+                obj['isAsyncLoad'] = false;
+                //Passing the deferredObj to initGrid such that is hides loading icon in Grid/displays error message if ajax call fails
+                obj['deferredObj'] = loadedDeferredObj;
+            } else {
                 var networkDS = new SingleDataSource('networkDS');
                 var result = networkDS.getDataSourceObj();
                 obj['dataSource'] = result['dataSource'];
@@ -249,7 +249,7 @@ function ObjectListView() {
                     if(grid != null)
                         grid.removeGridLoading();
                 });
-        	}
+            }
         } else if(objectType == 'project') {
             $.ajax({
                 url:networkPopulateFns.getProjectsURL('default-domain'),
@@ -1085,9 +1085,11 @@ var tenantNetworkMonitorUtils = {
         var allSamples = 0,inBytes = 0,outBytes = 0;
         spanWidths = [235,145,35,160,110,100,95,55]
         //retArr.push({lbl:'vRouter',value:ifNull(jsonPath(d,'$..vrouter')[0],'-')});
-        var spanWidthsForFip = [95,250,300,110];
-        if(rowData['status'] != null)
-            retArr.push({lbl:null,value:'<p class="error"><i class="icon-warning"></i>'+rowData['status']+'</p>'});
+        var spanWidthsForFip = [95,250,300,110];    
+        if(!isVCenter()) {
+            if(rowData['status'] != null)
+                retArr.push({lbl:null,value:'<p class="error"><i class="icon-warning"></i>'+rowData['status']+'</p>'});
+        }   
         retArr.push({lbl:'UUID',value:ifNull(rowData['name'],'-')});
         if(!isVCenter())
             retArr.push({lbl:'CPU',value:jsonPath(d,'$..cpu_one_min_avg')[0] != null ? jsonPath(d,'$..cpu_one_min_avg')[0].toFixed(2) : '-'});
@@ -1333,10 +1335,10 @@ var networkPopulateFns = {
             //If the role is admin then we will display all the projects else the projects which has access
             var url = '/api/tenants/projects/' + domain 
             var role = globalObj['webServerInfo']['role'];
-            var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode']; 	
+            var activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode'];  
             if(activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1){
                 url = '/api/tenants/config/projects'; 
-            }	
+            }   
             return url;
         },
         /*
@@ -1351,7 +1353,7 @@ var networkPopulateFns = {
                         'UveVirtualNetworkConfig:connected_networks','UveVirtualNetworkAgent:virtualmachine_list']//,'UveVirtualNetworkAgent:vn_stats'];
             var obj = {};
             var url = networkPopulateFns.getProjectsURL('default-domain');
-	    $.when($.ajax({
+        $.when($.ajax({
                         url:url,
                         abortOnNavigate:enableHardRefresh == true ? false : true
                     }), $.ajax({
@@ -1444,7 +1446,9 @@ var instancePopulateFns = {
                     if($.inArray(uuid,opServerUuids) == -1)
                         missingInst.push({name:uuid,status: infraAlertMsgs['UVE_MISSING'],error:true});
                     });
-                dataSource.addData(missingInst);
+                if(!isVCenter()) {
+                    dataSource.addData(missingInst);
+                }
             });
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
                               'UveVirtualMachineAgent:fip_stats_list'];
