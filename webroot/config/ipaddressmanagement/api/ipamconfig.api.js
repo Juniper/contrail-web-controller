@@ -25,8 +25,11 @@ var appErrors     = require(process.mainModule.exports["corePath"] +
                             '/src/serverroot/errors/app.errors');
 var util          = require('util');
 var url           = require('url');
+var jsonDiff      = require(process.mainModule.exports["corePath"] +
+                            '/src/serverroot/common/jsondiff');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+
 
 /**
  * Bail out if called directly as "nodejs ipamconfig.api.js"
@@ -140,7 +143,6 @@ function getIpamAsync (ipamObj, callback)
 function readIpams (ipamObj, callback)
 {
     var dataObjArr = ipamObj['reqDataArr'];
-    console.log("Getting dataObjs:", dataObjArr);
     async.map(dataObjArr, getIpamAsync, function(err, data) {
         callback(err, data);
     });
@@ -408,7 +410,7 @@ function createIpam (request, response, appData)
  * 1. Callback for updateIpam
  * 2. Updates the Ipam Mgmt Object, right now only dhcp options
  */
-function setIpamOptions(error, ipamConfig, ipamPostData, ipamId, response,
+function setIpamOptions(error, ipamPostData, ipamId, response,
                         appData) 
 {
     var ipamPostURL = '/network-ipam/' + ipamId;
@@ -418,6 +420,7 @@ function setIpamOptions(error, ipamConfig, ipamPostData, ipamId, response,
        return;
     }
 
+    /*
     if (!('network_ipam_mgmt' in ipamPostData['network-ipam'])) {
         ipamPostData['network-ipam']['network_ipam_mgmt'] = [];
     }
@@ -446,8 +449,8 @@ function setIpamOptions(error, ipamConfig, ipamPostData, ipamId, response,
     		}
     	}
     }
-
-    configApiServer.apiPut(ipamPostURL, ipamConfig, appData, 
+    */
+    configApiServer.apiPut(ipamPostURL, ipamPostData, appData,
                          function(error, data) {
                              readVNForIpams(error, data, ipamPostData, response, appData);
                          });
@@ -534,11 +537,10 @@ function updateIpam (request, response, appData)
     	}
     }
     
-    configApiServer.apiGet(ipamGetURL, appData,
-                        function(error, data) {
-                        setIpamOptions(error, data, ipamPostData,
-                                       ipamId, response, appData);
-                        });
+    jsonDiff.getJSONDiffByConfigUrl(ipamGetURL, appData, ipamPostData,
+                                    function(err, ipamDeltaConfig) {
+        setIpamOptions(err, ipamDeltaConfig, ipamId, response, appData);
+    });
 }
 
 /**
@@ -695,10 +697,8 @@ function updateIpamInVDNSCb(error, result, ipamConfig, response, ipamId, appData
     	}
     }
     //delete result['virtual-DNS']['network_ipam_back_refs'];
-    console.log(vdnsURL)
     configApiServer.apiPut(vdnsURL, result, appData, 
             function(error, data) {
-    			console.log(data['virtual-DNS']['parent_href']);
     			setIpamRead(error, ipamConfig, response, appData);
             });
 }
