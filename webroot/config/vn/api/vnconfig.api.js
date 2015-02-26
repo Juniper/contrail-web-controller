@@ -25,6 +25,8 @@ var appErrors   = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/errors/app.errors');
 var util        = require('util');
 var url         = require('url');
+var jsonDiff    = require(process.mainModule.exports['corePath'] +
+                          '/src/serverroot/common/jsondiff');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 
@@ -761,10 +763,17 @@ function updateFloatingIpList (vnId, vnPutData, appData, response, callback)
     });
 }
 
+var optFields = ['virtual_network_properties', 'access_control_lists',
+    'network_ipam_refs', 'network_policy_refs', 'routing_instances',
+    'virtual_network_properties', 'route_target_list', 'floating_ip_pools'];
+var mandateFields = ['fq_name', 'uuid'];
+
 function updateVNPolicyRefs (vnConfig, response, appData)
 {
     var vnPutData = response.req.body;
     var vnId = response.req.param('id');
+    var configVN = commonUtils.cloneObj(vnConfig);
+
     if(vnId == null)
         vnId = appData['vnUUID'];
     var vnPutURL = '/virtual-network/' + vnId;
@@ -807,16 +816,9 @@ function updateVNPolicyRefs (vnConfig, response, appData)
     }
 
     vnPutData['virtual-network']['uuid'] = vnId;
-    if (null !=
-        vnSeqConfig['virtual-network']['virtual_machine_interface_back_refs']) {
-        delete
-            vnSeqConfig['virtual-network']['virtual_machine_interface_back_refs'];
-    }
-    if (null !=
-        vnSeqConfig['virtual-network']['instance_ip_back_refs']) {
-        delete vnSeqConfig['virtual-network']['instance_ip_back_refs'];
-    }
-    configApiServer.apiPut(vnPutURL, vnSeqConfig, appData, function(err, data) {
+    var delta = jsonDiff.getConfigJSONDiff('virtual-network', configVN,
+                                           vnSeqConfig);
+    configApiServer.apiPut(vnPutURL, delta, appData, function(err, data) {
         if (err) {
             commonUtils.handleJSONResponse(err, response, null);
             return;
@@ -825,7 +827,7 @@ function updateVNPolicyRefs (vnConfig, response, appData)
                                 function(err, data) {
             commonUtils.handleJSONResponse(err, response, data);
         });
-    }); 
+    });
 }
 
 function updateVirtualNetwork (request, response, appData)
