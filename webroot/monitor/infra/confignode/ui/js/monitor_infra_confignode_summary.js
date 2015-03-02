@@ -7,6 +7,8 @@
  */
 monitorInfraConfigSummaryClass = (function() {
     var ctrlNodesGrid;
+    var disabledFeat = globalObj['webServerInfo']['disabledFeatures'].disabled;
+    var showDetails = disabledFeat != null && disabledFeat.indexOf('disable_expand_details') !== -1 ? false : true;
     this.populateConfigNodes = function() {
         infraMonitorUtils.clearTimers();
         var confNodesTemplate = contrail.getTemplate4Id("confignodes-template");
@@ -29,17 +31,19 @@ monitorInfraConfigSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    detail:{
+                    detail: (showDetails ? {
                         template: $("#confignode-template").html(),
                         onExpand: function (e,dc) {
-                            $('#config_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
-                            confNodeView.populateConfigNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#config_tabstrip_' + dc['name']).attr('style', 'margin:10px 10% 10px 10%');
+                            //confNodeView.populateConfigNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            dc.detailView = true;
+                            onConfigNodeRowSelChange(dc);
                             $('#config-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
                             $('#config-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
                         },
                         onCollapse:function (e,dc) {
                         }
-                    }
+                    } : false)
                 },
                 dataSource: {
                     dataView: configNodesDataSource,
@@ -64,22 +68,23 @@ monitorInfraConfigSummaryClass = (function() {
                         field:"hostName",
                         name:"Host name",
                         formatter:function(r,c,v,cd,dc) {
-                           return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
+                           return cellTemplateLinks({cellText:'displayName',name:'displayName',statusBubble:true,rowData:dc});
                         },
                         events: {
                            onClick: function(e,dc){
+                              dc.detailView = undefined;
                               onConfigNodeRowSelChange(dc);
                            }
                         },
                         cssClass: 'cell-hyperlink-blue',
                         searchFn:function(d) {
-                            return d['name'];
+                            return d['displayName'];
                         },
                         minWidth:90,
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
-            					return dc.name;
+            					return dc.displayName;
             				}
             			},
                     },
@@ -155,6 +160,12 @@ monitorInfraConfigSummaryClass = (function() {
         });
 
         $(configNodeDS).on("change",function(){
+            //add display name
+            var rowItems = configNodesDataSource.getItems();
+            for(var i = 0; i < rowItems.length;i++) {
+                 rowItems[i].displayName = rowItems[i].displayName != null ? rowItems[i].displayName : rowItems[i].name;
+                 rowItems[i].name = constructValidDOMId(rowItems[i].name);
+            }
             updateChartsForSummary(configNodesDataSource.getItems(),"config");
         });
         if(configNodesResult['lastUpdated'] != null && (configNodesResult['error'] == null || configNodesResult['error']['errTxt'] == 'abort')){
@@ -167,5 +178,5 @@ monitorInfraConfigSummaryClass = (function() {
 })();
 
 function onConfigNodeRowSelChange(dc) {
-    confNodeView.load({name:dc['name'], ip:dc['ip']});
+    confNodeView.load({name:dc['name'], ip:dc['ip'], displayName : dc['displayName'], detailView : dc['detailView']});
 }
