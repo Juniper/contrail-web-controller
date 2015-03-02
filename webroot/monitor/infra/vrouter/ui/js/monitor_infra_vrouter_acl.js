@@ -115,7 +115,7 @@ monitorInfraComputeACLClass = (function() {
     
     this.populateACLTab = function (obj) {
         if(obj.detailView === undefined && obj.page == null) {
-            layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'acl',node: obj['displayName']},{triggerHashChange:false});
         }    
         var selectedAcl = 'All';
         if(obj['filters'] != null){
@@ -261,6 +261,11 @@ monitorInfraComputeACLClass = (function() {
             aclGrid = $('#gridComputeACL' + '_' + obj.name).data('contrailGrid');
             aclGrid.showGridMessage('loading');
         } else {
+            aclGrid = $('#gridComputeACL' + '_' + obj.name).data('contrailGrid');
+            aclGrid.setRemoteAjaxConfig({
+                                url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
+                                type: 'GET'
+                            });
             reloadGrid(aclGrid);
         }
         function mergeACLAndSGData(sgData){

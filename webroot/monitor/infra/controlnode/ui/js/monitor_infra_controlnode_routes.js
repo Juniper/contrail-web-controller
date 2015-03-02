@@ -117,7 +117,7 @@ monitorInfraControlRoutesClass = (function() {
     
     this.populateRoutesTab = function(obj) {
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'routes',node: obj['displayName']},{triggerHashChange:false});
         }    
          var  txtPrefixSearch = $('#txtPrefixSearch' + '_' + obj.name).contrailAutoComplete({
            source:[]

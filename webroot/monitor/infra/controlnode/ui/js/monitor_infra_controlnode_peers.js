@@ -110,16 +110,16 @@ monitorInfraControlPeersClass = (function() {
     
     this.populatePeersTab = function(obj) {
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'peers',node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'peers',node: obj['displayName']},{triggerHashChange:false});
         }    
         hostname = obj['name']
         var transportCfg = {
-                url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], obj['name'], 40)
+                url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], encodeURIComponent(obj['displayName']), 40)
             };
             var peersDS;
         //Intialize the grid only for the first time
         if (!isGridInitialized('#gridPeers' + '_' + obj.name)) {
-         peersDS = new ContrailDataView();
+            peersDS = new ContrailDataView();
             getOutputByPagination(peersDS,{transportCfg:transportCfg,parseFn:self.processPeerInfo});
             $("#gridPeers" + '_' + obj.name).contrailGrid({
                 header : {
@@ -212,7 +212,7 @@ monitorInfraControlPeersClass = (function() {
             peersGrid = $("#gridPeers" + '_' + obj.name).data("contrailGrid");
             peersGrid.showGridMessage('loading');
         } else {
-            reloadGrid(peersGrid);
+            //reloadGrid(peersGrid);
         }
 
         function initGridSparkline(data) {

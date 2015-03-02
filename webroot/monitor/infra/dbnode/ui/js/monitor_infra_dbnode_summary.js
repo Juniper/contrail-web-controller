@@ -7,6 +7,8 @@
  */
 monitorInfraDatabaseSummaryClass = (function() {
     var dbNodesGrid;
+    var disabledFeat = globalObj['webServerInfo']['disabledFeatures'].disabled;
+    var showDetails = disabledFeat != null && disabledFeat.indexOf('disable_expand_details') !== -1 ? false : true;
     this.populateDbNodes = function() {
         infraMonitorUtils.clearTimers();
         var dbNodesTemplate = contrail.getTemplate4Id("dbnodes-template");
@@ -30,7 +32,7 @@ monitorInfraDatabaseSummaryClass = (function() {
                     autoHeight : true,
                     enableAsyncPostRender:true,
                     forceFitColumns:true,
-                    detail:{
+                    detail: (showDetails ? {
                         template: $("#dbnode-template").html(),
                         onExpand: function (e,dc) {
                             $('#db_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
@@ -40,7 +42,7 @@ monitorInfraDatabaseSummaryClass = (function() {
                         },
                         onCollapse:function (e,dc) {
                         }
-                    }
+                    } : false)
                 },
                 dataSource: {
                     dataView: dbNodesDataSource,

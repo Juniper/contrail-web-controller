@@ -11,7 +11,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'',ip:obj['ip'], node: obj['displayName']},{triggerHashChange:false});
         }    
         //showProgressMask('#analyticsnode-dashboard', true);
         //Destroy chart if it exists
@@ -22,10 +22,10 @@ monitorInfraAnalyticsDetailsClass = (function() {
         startWidgetLoading('dashboard' + '_' + obj.name);
 
         $.ajax({
-            url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name'])
+            url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], encodeURIComponent(obj['displayName']))
         }).done(function (result) {
                 aNodeData = result;
-                var parsedData = infraMonitorUtils.parseAnalyticNodesDashboardData([{name:obj['name'],value:result}])[0];
+                var parsedData = infraMonitorUtils.parseAnalyticNodesDashboardData([{name:obj['displayName'],value:result}])[0];
                 var noDataStr = "--";
                 var cpu = "N/A", memory = "N/A", aNodeDashboardInfo;
                 var endTime, startTime;
@@ -80,7 +80,7 @@ monitorInfraAnalyticsDetailsClass = (function() {
                 procStateList = getValueByJsonPath(aNodeData,"NodeStatus;process_info",[]);
                 analyticsProcessStatusList = getStatusesForAllAnalyticsProcesses(procStateList);
                 aNodeDashboardInfo = [
-                    {lbl:'Hostname', value:obj['name']},
+                    {lbl:'Hostname', value:obj['displayName']},
                     {lbl:'IP Address', value:(function(){
                         var ips = '';
                         iplist = getValueByJsonPath(aNodeData,"CollectorState;self_ip_list",[]);
