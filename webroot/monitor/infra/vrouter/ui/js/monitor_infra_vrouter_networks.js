@@ -38,7 +38,7 @@ monitorInfraComputeNetworksClass = (function() {
     
     this.populateVNTab = function (obj) {
         if(obj.detailView === undefined && obj.page == null) {
-            layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'networks',node: obj['displayName']},{triggerHashChange:false});
         }    
         if (!isGridInitialized('#gridComputeVN' + '_' + obj.name)) {
             $("#gridComputeVN" + '_' + obj.name).contrailGrid({
@@ -144,6 +144,12 @@ monitorInfraComputeNetworksClass = (function() {
             vnGrid = $('#gridComputeVN' + '_' + obj.name).data('contrailGrid');
             vnGrid.showGridMessage('loading');
         } else {
+            vnGrid = $('#gridComputeVN' + '_' + obj.name).data('contrailGrid');
+            vnGrid.setRemoteAjaxConfig( {
+                                url: contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(obj),obj['introspectPort']),
+                                //timeout: timeout,
+                                type: 'GET'
+                            });
             reloadGrid(vnGrid);
         }
         function onVNChange() {
