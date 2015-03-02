@@ -10,7 +10,7 @@ analyticsNodesView = function () {
         if(hashParams['node'] == null)
             monitorInfraAnalyticsSummaryClass.populateAnalyticsNodes();
         else
-            aNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
+            aNodeView.load({displayName : hashParams['node'], tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
     	//layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -41,7 +41,9 @@ analyticsNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        pushBreadcrumb([obj['name']]);
+        if(obj['detailView'] === undefined) {
+            pushBreadcrumb([obj['displayName']]);
+        }
         aNodeInfo = obj;
     	if((aNodeInfo == null || aNodeInfo.ip ==  null ||  aNodeInfo.ip == '') && aNodeInfo.tab != null){
 			//issue details call and populate ip
@@ -84,7 +86,8 @@ analyticsNodeView = function () {
             }
             $("#analytics_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
-                    aNodeInfo.name = e.target.id.split('_')[2];
+                    aNodeInfo.name = e.target.id.replace('analytics_tabstrip_','');
+                    aNodeInfo.displayName = getDisplayNameforHostName(aNodeInfo.name, 'analyticsNodeDS');
                     var newIP = getIPforHostName(aNodeInfo.name, 'analyticsNodeDS');
                     if(newIP != null) {
                         aNodeInfo.ip = newIP;

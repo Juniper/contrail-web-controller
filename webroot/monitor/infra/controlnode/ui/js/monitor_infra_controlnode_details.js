@@ -13,7 +13,7 @@ monitorInfraControlDetailsClass = (function() {
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'', node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'', node: obj['displayName']},{triggerHashChange:false});
         }
         //showProgressMask('#controlnode-dashboard', true);
         startWidgetLoading('control-sparklines' + '_' + obj.name);
@@ -21,10 +21,10 @@ monitorInfraControlDetailsClass = (function() {
         $('#controlnode-dashboard' + '_' + obj.name).html(dashboardTemplate({title:'Control Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
         startWidgetLoading('dashboard' + '_' + obj.name);   
         $.ajax({
-            url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], obj['name'])
+            url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], encodeURIComponent(obj['displayName']))
         }).done(function (result) {
                 ctrlNodeData = result;
-                var parsedData = infraMonitorUtils.parseControlNodesDashboardData([{name:obj['name'],value:result}])[0];
+                var parsedData = infraMonitorUtils.parseControlNodesDashboardData([{name:obj['displayName'],value:result}])[0];
                 var noDataStr = "--";
                 var cpu = "N/A", memory = "N/A", ctrlNodeDashboardInfo;
                 $.ajax({
@@ -57,7 +57,7 @@ monitorInfraControlDetailsClass = (function() {
                   controlProcessStatusList = getStatusesForAllControlProcesses(procStateList);
                 }catch(e){}
                 ctrlNodeDashboardInfo = [
-                  {lbl:'Hostname', value:obj['name']},
+                  {lbl:'Hostname', value:obj['displayName']},
                     {lbl:'IP Address',value:(function(){
                         var ip = ifNullOrEmpty(getControlIpAddresses(ctrlNodeData,"details"),noDataStr);
                         return ip;
