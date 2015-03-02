@@ -174,9 +174,15 @@ monitorInfraComputeSummaryClass = (function() {
         $(vRouterDS).on('change',function() {
             //TODO dono why its required will need to take a look later by removing it
             var filteredNodes = [];
-            $.each(vRoutersDataSource.getItems(),function(i,item){
-                filteredNodes.push(item);
-            });
+            //$.each(vRoutersDataSource.getItems(),function(i,item){
+              //  filteredNodes.push(item);
+            //});
+            var rowItems = vRoutersDataSource.getItems();
+            for(var i=0;i<rowItems.length;i++) {
+                rowItems[i].displayName = rowItems[i].displayName != null ? rowItems[i].displayName : rowItems[i].name; 
+                rowItems[i].name = constructValidDOMId(rowItems[i].name);
+                filteredNodes.push(rowItems[i]);
+            }
             setTimeout(function () {
                 var cgrid = $('#divcomputesgrid').data('contrailGrid');
                 if(cgrid != null) {
@@ -234,9 +240,10 @@ monitorInfraComputeSummaryClass = (function() {
                     detail:{
                         template: $("#computenode-template").html(),
                         onExpand: function (e,dc) {
-                            //scaling down the content
-                            $('#compute_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
-                            cmpNodeView.populateComputeNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#compute_tabstrip_' + dc['name']).attr('style', 'margin:10px 10% 10px 10%');
+                            //cmpNodeView.populateComputeNode({name:dc['name'], ip:dc['ip'], detailView : true, displayName : dc['displayName']});
+                            dc.detailView = true;
+                            onComputeNodeChange(dc);
                             $('#divcomputesgrid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
                             $('#divcomputesgrid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
                         },
@@ -265,20 +272,21 @@ monitorInfraComputeSummaryClass = (function() {
             columnHeader: {
                 columns:[
                     {
-                        field:"name",
+                        field:"displayName",
                         name:"Host name",
                         minWidth:110,
                         formatter:function(r,c,v,cd,dc) {
-                           return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
+                           return cellTemplateLinks({cellText:'displayName',name:'displayName',statusBubble:true,rowData:dc});
                         },
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
-            					return dc.name;
+            					return dc.displayName;
             				}
             			},
                         events: {
                            onClick: function(e,dc){
+                              dc.detailView = undefined;
                               onComputeNodeChange(dc);
                            }
                         },

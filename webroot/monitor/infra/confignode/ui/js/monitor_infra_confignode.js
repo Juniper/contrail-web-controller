@@ -10,7 +10,7 @@ configNodesView = function () {
       if(hashParams['node'] == null)
           monitorInfraConfigSummaryClass.populateConfigNodes();
       else
-         confNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
+         confNodeView.load({displayName:hashParams['node'], tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
       //layoutHandler.setURLHashParams({node:'Config Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -45,7 +45,9 @@ configNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        pushBreadcrumb([obj['name']]);
+        if(obj['detailView'] === undefined) {
+            pushBreadcrumb([obj['displayName']]);
+        }
         /*confNodeInfo = obj;
         //Select tab
         self.populateConfigNode(obj);
@@ -93,7 +95,8 @@ configNodeView = function () {
             }
             $("#config_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
-                    confNodeInfo.name = e.target.id.split('_')[2];
+                    confNodeInfo.name = e.target.id.replace('config_tabstrip_','');
+                    confNodeInfo.displayName = getDisplayNameforHostName(confNodeInfo.name, 'configNodeDS');
                     var newIP = getIPforHostName(confNodeInfo.name, 'configNodeDS');
                     if(newIP != null) {
                         confNodeInfo.ip = newIP;

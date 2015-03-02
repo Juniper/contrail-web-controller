@@ -840,7 +840,7 @@ var infraMonitorUtils = {
         var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;  
         var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
         if(obj.detailView === undefined && obj.page === null) {
-            layoutHandler.setURLHashParams({tab:'console', node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'console', node: obj['displayName']},{triggerHashChange:false});
         }    
         if (nodeType == 'control') {
             $('#ctrlNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
@@ -2595,8 +2595,9 @@ function fetchCPUStats(deferredObj,primaryDS,dsName){
 
 //Default tooltip contents to show for infra nodes
 function getNodeTooltipContents(currObj,formatType) {
+    var displayName = currObj['displayName'] != null ? currObj['displayName'] : currObj['name'];
     var tooltipContents = [
-        {label:'Host Name', value: currObj['name']},
+        {label:'Host Name', value: displayName},
         {label:'Version', value:currObj['version']},
         {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
         {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
