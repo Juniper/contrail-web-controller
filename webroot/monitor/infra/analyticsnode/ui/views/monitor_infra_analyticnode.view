@@ -31,7 +31,8 @@
 
 <script type="text/x-handlebars-template" id="analyticsnode-template">
     <div class="contrail">
-        <div id="analytics_tabstrip_{{name}}">
+        <h3 id="detail-title" class="smaller">Analytic Node Details</h3>
+        <div id="analytics_tabstrip_{{name}}" class="contrail-widget-tabs">
             <ul>
                 <li><a href="#mon-infra-analytics-details-tab_{{name}}">Details</a></li>
                 <li><a href="#mon-infra-analytics-generators-tab_{{name}}">Generators</a></li>

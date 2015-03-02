@@ -24,7 +24,7 @@
                             </div>
                         </div>
                     </div>
-                    <div>
+                    <div class="row-fluid">
                         <div id="epTuples" class="row-fluid"></div>
                     </div>
                 </div>

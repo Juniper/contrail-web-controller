@@ -43,7 +43,7 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
     
     this.populateQEQueriesTab = function (obj) {
         if(obj.detailView === undefined) { 
-            layoutHandler.setURLHashParams({tab:'qequeries', node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'qequeries', node: obj['displayName']},{triggerHashChange:false});
         }    
         //Intialize the grid only for the first time
         if (!isGridInitialized('#gridQEQueries' + '_' + obj.name)) {
@@ -89,7 +89,7 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'], obj['name']),
+                                url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'],  encodeURIComponent(obj['displayName'])),
                                 //timeout: timeout,
                                 type: 'GET'
                             },
@@ -114,6 +114,12 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
             qequeriesGrid = $("#gridQEQueries" + '_' + obj.name).data("contrailGrid");
             qequeriesGrid.showGridMessage('loading');
         } else {
+            qequeriesGrid = $("#gridQEQueries" + '_' + obj.name).data("contrailGrid");
+            qequeriesGrid.setRemoteAjaxConfig({
+                                url: contrail.format(monitorInfraUrls['ANALYTICS_DETAILS'],  encodeURIComponent(obj['displayName'])),
+                                //timeout: timeout,
+                                type: 'GET'
+                            });
             reloadGrid(qequeriesGrid);
         }
         function onGeneratorRowSelChange() {

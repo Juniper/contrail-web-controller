@@ -29,7 +29,8 @@
 
 <script type="text/x-handlebars-template" id="dbnode-template">
     <div class="contrail">
-        <div id="db_tabstrip_{{name}}">
+        <h3 id="detail-title" class="smaller">Database Node Details</h3>
+        <div id="db_tabstrip_{{name}}" class="contrail-widget-tabs">
             <ul>
                 <li><a href="#mon-infra-db-details-tab_{{name}}">Details</a></li>
             </ul>

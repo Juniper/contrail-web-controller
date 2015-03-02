@@ -45,10 +45,10 @@ monitorInfraAnalyticsGeneratorsClass = (function() {
     }
     this.populateGeneratorsTab = function(obj) {
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'generators',ip:obj['ip'], node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'generators',ip:obj['ip'], node: obj['displayName']},{triggerHashChange:false});
         }    
         var transportCfg = {
-            url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], obj['name'], 50),
+            url:contrail.format(monitorInfraUrls['ANALYTICS_GENERATORS'], encodeURIComponent(obj['displayName']), 50),
         };
         var generatorDS; 
         //Intialize the grid only for the first time
