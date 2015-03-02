@@ -338,7 +338,7 @@ function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
 
     postData['kfilt'] = [];
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
+        'PRouterEntry:lldpTable:lldpLocalSystemData'];
 
     tempNodeObjs[prouter] = prouter;
     for (var i = 0; i < linksCnt; i++) {
@@ -400,7 +400,7 @@ function buildPhysicalTopology (prouter, appData, callback)
     var tempLinkObjs = {};
     var postData = {};
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
+        'PRouterEntry:lldpTable:lldpLocalSystemData'];
     var url = '/analytics/uves/prouter';
     if (null != prouter) {
         postData['kfilt'] = [];
@@ -923,8 +923,7 @@ function getUnderlayStats (req, res, appData)
     var prPostData = {};
     var vrPostData = {};
     prPostData['kfilt'] = [node1, node2];
-    prPostData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
-        'PRouterEntry:ifXTable'];
+    prPostData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                              prPostData, null, null, null);
     vrPostData['kfilt'] = [node1, node2];
