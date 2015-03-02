@@ -1345,6 +1345,11 @@ function showsgEditWindow(mode, rowIndex) {
                 var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv4"}');
                 var ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
                 $("#sGRuleTuples").append(ruleEntry);
+                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
+                ruleEntry = "";
+                dynamicID++;
+                ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
+                $("#sGRuleTuples").append(ruleEntry);
             } else if (mode === "edit") {
                 var selectedRow = $("#gridSG").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreateSG.find('.modal-header-title').text('Edit Security Group ' + selectedRow.sgName);
