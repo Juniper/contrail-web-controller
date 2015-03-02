@@ -11,7 +11,7 @@ controlNodesView = function () {
         if(hashParams['node'] == null)
             monitorInfraControlSummaryClass.populateControlNodes();
         else
-            ctrlNodeView.load({name:hashParams['node'],tab:hashParams['tab']});
+            ctrlNodeView.load({displayName:hashParams['node'],tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
         //layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -49,7 +49,9 @@ controlNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        pushBreadcrumb([obj['name']]);
+        if(obj['detailView'] === undefined) {
+            pushBreadcrumb([obj['displayName']]);
+        }
     	ctrlNodeInfo = obj;
     	if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
 			//issue details call and populate ip
@@ -93,7 +95,8 @@ controlNodeView = function () {
             }
             $("#control_tabstrip" + '_' + obj.name).contrailTabs({
                 activate:function (e, ui) {
-                    ctrlNodeInfo.name = e.target.id.split('_')[2];
+                    ctrlNodeInfo.name = e.target.id.replace('control_tabstrip_','');
+                    ctrlNodeInfo.displayName = getDisplayNameforHostName(ctrlNodeInfo.name, 'controlNodeDS');
                     var newIP = getIPforHostName(ctrlNodeInfo.name, 'controlNodeDS');
                     if(newIP != null) {
                         ctrlNodeInfo.ip = newIP;

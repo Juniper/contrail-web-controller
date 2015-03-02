@@ -9,7 +9,7 @@ monitorInfraComputeDetailsClass = (function() {
     this.populateDetailsTab = function (obj) {
         var nodeIp; 
         if(obj.detailView === undefined && obj.page == null) {
-            layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'',node: obj['displayName']},{triggerHashChange:false});
         }    
         //showProgressMask('#computenode-dashboard', true);
         startWidgetLoading('vrouter-sparklines' + '_' + obj.name);
@@ -21,10 +21,10 @@ monitorInfraComputeDetailsClass = (function() {
         startWidgetLoading('dashboard'+ '_' + obj.name);   
 
         $.ajax({
-            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
+            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], encodeURIComponent(obj['displayName']))
         }).done(function (result) {
                     computeNodeData = result;
-                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result,detailView:true}])[0];
+                    var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['displayName'],value:result}])[0];
                     var noDataStr = '--',
                     cpu = "N/A",
                     memory = "N/A",
@@ -80,7 +80,7 @@ monitorInfraComputeDetailsClass = (function() {
                 procStateList = getValueByJsonPath(computeNodeData,"NodeStatus;process_info");
                 vRouterProcessStatusList = getStatusesForAllvRouterProcesses(procStateList);
                 computeNodeDashboardInfo = [
-                    {lbl:'Hostname', value:obj['name']},
+                    {lbl:'Hostname', value:obj['displayName']},
                     {lbl:'IP Address', value:(function(){
                         return ifNullOrEmpty(getVrouterIpAddresses(computeNodeData,"details"),noDataStr);
                     })()},

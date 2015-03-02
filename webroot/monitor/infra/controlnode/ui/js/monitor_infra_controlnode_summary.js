@@ -6,6 +6,8 @@
  * Control Nodes Summary Page
  */
 monitorInfraControlSummaryClass = (function() {
+    var disabledFeat = globalObj['webServerInfo']['disabledFeatures'].disabled;
+    var showDetails = disabledFeat != null && disabledFeat.indexOf('disable_expand_details') !== -1 ? false : true;
     this.populateControlNodes = function() {
         infraMonitorUtils.clearTimers();
         var ctrlNodesTemplate = contrail.getTemplate4Id("controlnodes-template");
@@ -17,6 +19,12 @@ monitorInfraControlSummaryClass = (function() {
         //Initialize widget header
         $('#controlNodes-header').initWidgetHeader({title:'Control Nodes',widgetBoxId :'recent'});
         $(controlNodeDS).on('change',function() {
+            //add display name
+            var rowItems = controlNodesDataSource.getItems();
+            for(var i = 0; i < rowItems.length;i++) {
+                 rowItems[i].displayName = rowItems[i].displayName != null ? rowItems[i].displayName : rowItems[i].name;
+                 rowItems[i].name = constructValidDOMId(rowItems[i].name);
+            }
             updateChartsForSummary(controlNodesDataSource.getItems(),'control');
         });
         
@@ -33,17 +41,24 @@ monitorInfraControlSummaryClass = (function() {
                     autoHeight : true,
                     forceFitColumns:true,
                     enableAsyncPostRender: true,
-                    detail:{
+                    detail: (showDetails ? {
                         template: $("#controlnode-template").html(),
                         onExpand: function (e,dc) {
-                            $('#control_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
-                            ctrlNodeView.populateControlNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            $('#control_tabstrip_' + dc['name']).attr('style', 'margin:10px 10% 10px 10%');
+                            //zoom out detail content
+                           /* $('#control_tabstrip_' + dc['name']).panzoom({
+                                increment: 0.15
+                            });
+                            $('#control_tabstrip_' + dc['name']).panzoom("zoom",true);*/
+                            //ctrlNodeView.populateControlNode({name:dc['name'], ip:dc['ip'], detailView : true});
+                            dc.detailView = true;
+                            onCtrlNodeRowSelChange(dc);
                             $('#gridControlNodes > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
                             $('#gridControlNodes > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
                         },
                         onCollapse:function (e,dc) {
                         }
-                    },
+                    } : false)
                 },
                 dataSource: {
                     dataView: controlNodesDataSource,
@@ -65,13 +80,14 @@ monitorInfraControlSummaryClass = (function() {
             columnHeader: {
                 columns:[
                     {
-                        field:"name",
+                        field:"displayName",
                         name:"Host name",
                         formatter:function(r,c,v,cd,dc) {
-                           return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
+                           return cellTemplateLinks({cellText:'displayName',name:'displayName',statusBubble:true,rowData:dc});
                         },
                         events: {
                            onClick: function(e,dc){
+                              dc.detailView = undefined;
                               onCtrlNodeRowSelChange(dc);
                            }
                         },
@@ -80,7 +96,7 @@ monitorInfraControlSummaryClass = (function() {
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
-            					return dc.name;
+            					return dc.displayName;
             				}
             			}
                     },
@@ -177,5 +193,5 @@ monitorInfraControlSummaryClass = (function() {
 
 function onCtrlNodeRowSelChange(dc) {
     ctrlNodesGrid = $('#gridControlNodes').data('contrailGrid');
-    ctrlNodeView.load({name:dc['name'], ip:dc['ip']});
+    ctrlNodeView.load({name:dc['name'], ip:dc['ip'], displayName : dc['displayName'], detailView : dc['detailView']});
  }

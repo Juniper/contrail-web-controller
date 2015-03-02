@@ -51,7 +51,7 @@ monitorInfraComputeInterfacesClass = (function() {
     this.populateInterfaceTab = function (obj) {
         //Push only tab & node parameter in URL
         if(obj.detailView === undefined && obj.page == null) {
-            layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'interfaces',node:obj['displayName']},{triggerHashChange:false});
         }    
         
         if (!isGridInitialized('#gridComputeInterfaces' + '_' + obj.name)) {
@@ -191,6 +191,11 @@ monitorInfraComputeInterfacesClass = (function() {
             intfGrid.showGridMessage('loading');
             //applyGridDefHandlers(intfGrid, {noMsg:'No interfaces to display'});
         } else {
+            intfGrid = $('#gridComputeInterfaces' + '_' + obj.name).data('contrailGrid');
+            intfGrid.setRemoteAjaxConfig({
+                                url: contrail.format(monitorInfraUrls['VROUTER_INTERFACES'], getIPOrHostName(obj),obj['introspectPort']),
+                                type: 'GET'
+                            });
             reloadGrid(intfGrid);
         }
     }
