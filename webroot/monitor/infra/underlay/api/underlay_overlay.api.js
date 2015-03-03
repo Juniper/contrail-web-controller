@@ -14,11 +14,18 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
   util = require('util'),
   ctrlGlobal = require('../../../../common/api/global'),
   jsonPath = require('JSONPath').eval,
+  _ = require('underscore'),
   nwMonUtils = require('../../../../common/api/nwMon.utils'),
   opApiServer = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/common/opServer.api'),
+  configApiServer = require(process.mainModule.exports["corePath"] +
+                            '/src/serverroot/common/configServer.api'),
   queries = require(process.mainModule.exports["corePath"] +
                     '/src/serverroot/common/queries.api');
+
+var CONFIG_UVE_FOUND = 0;
+var CONFIG_NOT_FOUND = 1;
+var CONFIG_UVE_NOT_FOUND = 2;
 
 function buildvRouterVMTopology (nodeList, appData, callback)
 {
@@ -98,6 +105,11 @@ function buildTopology (req, appData, callback)
             }
             topoData['nodes'] = phyTopo['nodes'].concat(vrTopo['nodes']);
             topoData['links'] = phyTopo['links'].concat(vrTopo['links']);
+            topoData['errors'] = {};
+            topoData['errors']['configNotFound'] = _.uniq(phyTopo['errors']['configNotFound']);
+            topoData['errors']['uveNotFound'] =
+                _.uniq(phyTopo['errors']['uveNotFound']);
+
             callback(null, topoData);
         });
     });
@@ -167,15 +179,18 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
                 break;
             }
         }
-        if (j == linkDataLen) {
-            /* pRouters's link is not known */
-            return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+        if (j != linkDataLen) {
+            break;
         }
-        var isLinkvRouter =
-            isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
-        if (true == isLinkvRouter) {
-            return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
-        }
+    }
+    if (i == linksCnt) {
+        /* pRouters's link is not known */
+        return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+    }
+    var isLinkvRouter =
+        isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
+    if (true == isLinkvRouter) {
+        return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
     }
     return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
 }
@@ -250,12 +265,13 @@ function getPRouterEntryByName (prouterName, prouterData)
     return null;
 }
 
-function buildPhysicalTopologyByPRouter (prouter, pRouterData)
+function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
 {
     data = pRouterData['value'];
     var topoData = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
+    topoData['errors'] = {'configNotFound': [], 'uveNotFound': []};
     var tempNodeObjs = {};
     var tempLinkObjs = {};
     var prouterCnt = data.length;
@@ -270,8 +286,18 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
     }
     nodeObj = createNodeObj(data[i]['name'], ctrlGlobal.NODE_TYPE_PROUTER,
                             data[i]);
-    topoData['nodes'].push(nodeObj);
-    tempNodeObjs[data[i]['name']] = data[i]['name'];
+    var found = isProuterExists(data[i]['name'], prConfigData,
+                                pRouterData);
+    if (CONFIG_NOT_FOUND == found) {
+        topoData['errors']['configNotFound'].push(data[i]['name']);
+        return topoData;
+    } else if (CONFIG_UVE_NOT_FOUND == found) {
+        topoData['errors']['uveNotFound'].push(data[i]['name']);
+        return topoData;
+    } else {
+        topoData['nodes'].push(nodeObj);
+        tempNodeObjs[data[i]['name']] = data[i]['name'];
+    }
     try {
         var pRouterLinkTable =
             data[i]['value']['PRouterLinkEntry']['link_table'];
@@ -283,11 +309,26 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
     var index = 0;
     for (var j = 0; j < linkCnt; j++) {
         if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
+            var prLinkType =
+                getpRouterLinkType(pRouterLinkTable[j]['type']);
             nodeObj =
                 createNodeObj(pRouterLinkTable[j]['remote_system_name'], 
-                              getpRouterLinkType(pRouterLinkTable[j]['type']),
+                              prLinkType,
                               getPRouterEntryByName(pRouterLinkTable[j]['remote_system_name'],
                                                     data));
+            if (ctrlGlobal.NODE_TYPE_PROUTER == prLinkType) {
+                var found =
+                    isProuterExists(pRouterLinkTable[j]['remote_system_name'],
+                                    prConfigData, pRouterData);
+                if (CONFIG_NOT_FOUND == found) {
+                    topoData['errors']['configNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                    continue;
+                }
+                if (CONFIG_UVE_NOT_FOUND == found) {
+                    topoData['errors']['uveNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                    continue;
+                }
+            }
             topoData['nodes'].push(nodeObj);
             tempNodeObjs[pRouterLinkTable[j]['remote_system_name']] =
                 pRouterLinkTable[j]['remote_system_name'];
@@ -316,7 +357,8 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData)
     return topoData;
 }
 
-function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
+function getPhysicalTopologyByPRouter (prouter, appData, pRouterData,
+                                       prConfigData, callback)
 {
     var topoData = {};
     topoData['nodes'] = [];
@@ -379,7 +421,8 @@ function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
         opApiServer.apiPost(url, postData, appData, function(err, pData) {
             if ((null != err) || (null == pData) ||
                 (null == pData['value']) || (!pData['value'].length)) {
-                topoData = buildPhysicalTopologyByPRouter(prouter, data);
+                topoData = buildPhysicalTopologyByPRouter(prouter, data,
+                                                          prConfigData);
                 callback(err, topoData);
                 return;
             }
@@ -389,7 +432,7 @@ function getPhysicalTopologyByPRouter (prouter, appData, pRouterData, callback)
                 data['value'].push(pData[i]);
             }
         });
-        topoData = buildPhysicalTopologyByPRouter(prouter, data);
+        topoData = buildPhysicalTopologyByPRouter(prouter, data, prConfigData);
         callback(null, topoData);
     });
 }
@@ -402,28 +445,78 @@ function buildPhysicalTopology (prouter, appData, callback)
     var tempNodeObjs = {};
     var tempLinkObjs = {};
     var postData = {};
+    var dataObjArr = [];
     postData['cfilt'] = ['PRouterLinkEntry', 'PRouterEntry:ifTable',
         'PRouterEntry:ifXTable', 'PRouterEntry:lldpTable:lldpLocalSystemData'];
-    var url = '/analytics/uves/prouter';
     if (null != prouter) {
         postData['kfilt'] = [];
         postData['kfilt'] = [prouter];
     }
-
-    opApiServer.apiPost(url, postData, appData, function(err, pRouterData) {
+    var url = '/analytics/uves/prouter';
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
+                             postData, opApiServer, null, appData);
+    var url = '/physical-routers';
+    commonUtils.createReqObj(dataObjArr, url, null, null, configApiServer, null,
+                             appData);
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(err, results) {
+        var pRouterData = results[0];
+        var prConfigData = results[1];
         if ((null != err) || (null == pRouterData)) {
             callback(err, null);
             return;
         }
         if (null != prouter) {
-            getPhysicalTopologyByPRouter(prouter, appData, pRouterData, callback);
+            getPhysicalTopologyByPRouter(prouter, appData, pRouterData,
+                                         prConfigData, callback);
         } else {
-            getCompletePhysicalTopology(appData, pRouterData, callback);
+            getCompletePhysicalTopology(appData, pRouterData, prConfigData,
+                                        callback);
         }
     });
 }
 
-function getCompletePhysicalTopology (appData, pRouterData, callback)
+function isProuterExists (node, prConfigData, prUVEData)
+{
+    var prCnt = 0;
+    try {
+        var prConfig = prConfigData['physical-routers'];
+        prCnt = prConfig.length;
+    } catch(e) {
+        prCnt = 0;
+    }
+
+    for (var i = 0; i < prCnt; i++) {
+        try {
+            if (node == prConfig[i]['fq_name'][1]) {
+                break;
+            }
+        } catch(e) {
+            continue;
+        }
+    }
+    if (i == prCnt) {
+        /* No Config */
+        return CONFIG_NOT_FOUND;
+    }
+    var prUVECnt = 0;
+    try {
+        var prUVE = prUVEData['value'];
+        prUVECnt = prUVE.length;
+    } catch(e) {
+        prUVECnt = 0;
+    }
+    for (var i = 0; i < prUVECnt; i++) {
+        if (node == prUVE[i]['name']) {
+            return CONFIG_UVE_FOUND;
+        }
+    }
+    /* No UVE for this, though config we have */
+    return CONFIG_UVE_NOT_FOUND;
+}
+
+function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callback)
 {
     var index = 0;
     var data = pRouterData['value'];
@@ -431,6 +524,7 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
     var topoData = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
+    topoData['errors'] = {'configNotFound': [], 'uveNotFound': []};
     var tempNodeObjs = {};
     var tempLinkObjs = {};
 
@@ -441,6 +535,16 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
             nodeObj = createNodeObj(data[i]['name'],
                                     ctrlGlobal.NODE_TYPE_PROUTER,
                                     data[i]);
+            var found = isProuterExists(data[i]['name'], prConfigData,
+                                        pRouterData);
+            if (CONFIG_NOT_FOUND == found) {
+                topoData['errors']['configNotFound'].push(data[i]['name']);
+                continue;
+            }
+            if (CONFIG_UVE_NOT_FOUND == found) {
+                topoData['errors']['uveNotFound'].push(data[i]['name']);
+                continue;
+            }
             topoData['nodes'].push(nodeObj);
             tempNodeObjs[data[i]['name']] = data[i]['name'];
         }
@@ -454,12 +558,26 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
         linkCnt = pRouterLinkTable.length;
         for (var j = 0; j < linkCnt; j++) {
             if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
+                var prLinkType =
+                    getpRouterLinkType(pRouterLinkTable[j]['type']);
                 nodeObj =
                     createNodeObj(pRouterLinkTable[j]['remote_system_name'],
-                                  getpRouterLinkType(pRouterLinkTable[j]['type']),
+                                  prLinkType,
                                   getPRouterEntryByName(pRouterLinkTable[j]['remote_system_name'],
                                                         data));
-
+                if (ctrlGlobal.NODE_TYPE_PROUTER == prLinkType) {
+                    var found =
+                        isProuterExists(pRouterLinkTable[j]['remote_system_name'],
+                                        prConfigData, pRouterData);
+                    if (CONFIG_NOT_FOUND == found) {
+                        topoData['errors']['configNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                        continue;
+                    }
+                    if (CONFIG_UVE_NOT_FOUND == found) {
+                        topoData['errors']['uveNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                        continue;
+                    }
+                }
                 topoData['nodes'].push(nodeObj);
                 tempNodeObjs[pRouterLinkTable[j]['remote_system_name']] = 
                     pRouterLinkTable[j]['remote_system_name'];
@@ -498,12 +616,6 @@ function getCompletePhysicalTopology (appData, pRouterData, callback)
     }
     topoData['nodes'] = buildNodeChassisType(topoData['nodes'], pRouterData);
     callback(null, topoData);
-}
-
-function getPhysicalTopology (prouter, appData, callback)
-{
-        var topoData = buildPhysicalTopology(prouter, appData, prouterData);
-        callback(err, topoData);
 }
 
 function getUnderlayPathByNodelist (topoData, appData, callback)
