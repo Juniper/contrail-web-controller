@@ -1205,6 +1205,9 @@ underlayView.prototype.addDimlightToNodes = function() {
     $('div.font-element')
         .removeClass('elementHighlighted')
         .addClass('dimHighlighted');
+    $('div.font-element')
+        .find('i')
+            .css("color", "#555");
     $('g.element')
         .removeClassSVG('elementHighlighted')
         .addClassSVG('dimHighlighted');
@@ -1220,11 +1223,18 @@ underlayView.prototype.addDimlightToLinks = function() {
 underlayView.prototype.addHighlightToNode = function(node_model_id) {
     $('div.font-element[font-element-model-id="' + node_model_id + '"]')
         .addClass('elementHighlighted')
-        .removeClass('dimHighlighted');
+        .removeClass('dimHighlighted')
+        .removeClass('hidden');
 
     $('g.element[model-id="' + node_model_id + '"]')
         .addClassSVG('elementHighlighted')
-        .removeClassSVG('dimHighlighted');
+        .removeClassSVG('dimHighlighted')
+        .removeClassSVG('hidden');
+
+    $('div.font-element[font-element-model-id="' + node_model_id + '"]')
+        .find('i')
+            .css("color", "#498AB9");
+
 }
 
 underlayView.prototype.hideLink = function(link_model_id) {
@@ -1240,9 +1250,33 @@ underlayView.prototype.hideNode = function(node_model_id) {
         .removeClassSVG('dimHighlighted')
         .addClassSVG('hidden');
     $('div.font-element[font-element-model-id="' + node_model_id + '"]')
-        .removeClassSVG('elementHighlighted')
+        .removeClass('elementHighlighted')
+        .removeClass('dimHighlighted')
+        .addClass('hidden');
+}
+
+underlayView.prototype.addHighlightToLink = function(link_model_id) {
+    $('g.link[model-id="' + link_model_id + '"]')
+        .removeClassSVG('hidden')
         .removeClassSVG('dimHighlighted')
-        .addClassSVG('hidden');
+        .addClassSVG('elementHighlighted');
+
+    $('g.link[model-id="' + link_model_id + '"]')
+        .find('path.connection')
+            .css("stroke", "#498AB9");
+    $('g.link[model-id="' + link_model_id + '"]')
+        .find('path.marker-source')
+            .css("fill", "#498AB9")
+            .css("stroke", "#498AB9");
+    $('g.link[model-id="' + link_model_id + '"]')
+        .find('path.marker-target')
+            .css("fill", "#498AB9")
+            .css("stroke", "#498AB9");
+    $('g.link[model-id="' + link_model_id + '"]')
+        .find('path.connection-wrap')
+            .css("opacity", "")
+            .css("fill", "")
+            .css("stroke", "");
 }
 
 underlayView.prototype.clearHighlightedConnectedElements = function() {
@@ -1660,50 +1694,19 @@ underlayView.prototype.showChildrenOfType = function(parent, child_type) {
     var elMap  = this.getElementMap();
     var clickedNodeName = parent['attributes']['nodeDetails']['name'];
     var children = parent['attributes']['nodeDetails']['children'];
+    this.addHighlightToNode(parent.id);
+    var _this = this;
     if(null !== children && typeof children === "object" && {} !== children) {
         for(var child in children) {
             var childName = children[child]["name"];
             var node_model_id = elMap["nodes"][childName];
             if($('g.element[model-id="' + node_model_id + '"]').hasClassSVG('hidden')){
-                $('div[font-element-model-id="'+ parent.id  + '"]')
-                    .removeClass('dimHighlighted')
-                    .addClass('elementHighlighted');
-                $('g.element[model-id="' + parent.id + '"]')
-                    .removeClassSVG('dimHighlighted')
-                    .addClassSVG('elementHighlighted');
-                $('div[font-element-model-id="'+ node_model_id  + '"]')
-                    .removeClass('hidden')
-                    .removeClass('dimHighlighted')
-                    .addClass('elementHighlighted');
-                $('g.element[model-id="' + node_model_id + '"]')
-                    .removeClassSVG('hidden')
-                    .removeClassSVG('dimHighlighted')
-                    .addClassSVG('elementHighlighted');
+                _this.addHighlightToNode(node_model_id);
             }
             var link_model_id = elMap["links"][clickedNodeName + "<->" + childName];
             if(null !== link_model_id && typeof link_model_id !== "undefined") {
                 if($('g.link[model-id="' + link_model_id + '"]').hasClassSVG('hidden')) {
-                    $('g.link[model-id="' + link_model_id + '"]')
-                        .removeClassSVG('hidden')
-                        .removeClassSVG('dimHighlighted')
-                        .addClassSVG('elementHighlighted');
-
-                    $('g.link[model-id="' + link_model_id + '"]')
-                        .find('path.connection')
-                            .css("stroke", "#498AB9");
-                    $('g.link[model-id="' + link_model_id + '"]')
-                        .find('path.marker-source')
-                            .css("fill", "#498AB9")
-                            .css("stroke", "#498AB9");
-                    $('g.link[model-id="' + link_model_id + '"]')
-                        .find('path.marker-target')
-                            .css("fill", "#498AB9")
-                            .css("stroke", "#498AB9");
-                    $('g.link[model-id="' + link_model_id + '"]')
-                        .find('path.connection-wrap')
-                            .css("opacity", "")
-                            .css("fill", "")
-                            .css("stroke", "");
+                    _this.addHighlightToLink(link_model_id);
                 }
             }
         }
@@ -1717,7 +1720,7 @@ underlayView.prototype.hideVRouters = function() {
 underlayView.prototype.renderUnderlayViz = function() {
     var elements = this.getConnectedElements();
     //this.initContextMenuConfig();
-    this.graph.addCells(elements);
+    this.getGraph().addCells(elements);
     this.getPaper().fitToContent();
     this.initGraphEvents();
     this.initTooltipConfig();
