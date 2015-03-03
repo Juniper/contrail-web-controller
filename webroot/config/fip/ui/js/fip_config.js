@@ -306,6 +306,29 @@ function initActions() {
         ajaxCompleated = 0;
         ajaxCount = 0;
         var selectedPool = $(ddFipPool).val();
+        var ip = $('#txtSpecificIP').val().trim();
+        if(selectedPool == "Floating IPs not allocated for the project.") {
+            showInfoWindow('Select a valid Floating IP Pool' , "Invalid input in Floating IP Pool");
+            return;
+        }
+        if(!$("#specificIPPanel").hasClass('hide')) {
+            var subNets = JSON.parse(selectedPool).subnets.split(',');
+            if(!isValidIP(ip)){
+                showInfoWindow('Invald IP ' + ip , "Invalid input in IP Address");
+                return;
+            }
+            var isInSubnetRange = false;
+            for(var j =0 ; j < subNets.length; j++){
+                if(isIPBoundToRange(subNets[j], ip)){
+                    isInSubnetRange = true;
+                    break;
+                }
+            }
+            if(!isInSubnetRange){
+                showInfoWindow(ip + ' is not in the CIDR ' + subNets, "Invalid input in IP Address");
+                return;
+            }
+        }
         if($(txtCount).val().trim() != ""){
             if (!isNaN($(txtCount).val())) {
                 if($(txtCount).val() > 50){
@@ -336,7 +359,7 @@ function initActions() {
         fip["floating-ip"]["project_refs"][0] = {};
         fip["floating-ip"]["project_refs"][0]["to"] = [selectedDomain, selectedProject];
         if(!$("#specificIPPanel").hasClass('hide')) {
-            fip["floating-ip"]["floating_ip_address"] = $('#txtSpecificIP').val();
+            fip["floating-ip"]["floating_ip_address"] = ip;
         }
         doAjaxCall("/api/tenants/config/floating-ips", "POST", JSON.stringify(fip),
                 "createFIPSuccessMultiple", "createFFIPailureAllocate");
