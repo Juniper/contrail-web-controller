@@ -744,17 +744,21 @@ function getUnderlayPath (req, res, appData)
                                        ctrlGlobal.NODE_TYPE_VROUTER});
             }
             getUnderlayPathByNodelist(topoData, appData, function(err, endpoints) {
-                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
                 topoData['links'] = endpoints;
-                topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'], 
-                                       srcVrouter['vrouter']]});
-                topoData['links'].push({'endpoints': [destVrouter['vm_uuid'], 
-                                       destVrouter['vrouter']]});
+                if (null != srcVrouter) {
+                    topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
+                                           "node_type":
+                                           ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+                    topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'],
+                                           srcVrouter['vrouter']]});
+                }
+                if (null != destVrouter) {
+                    topoData['nodes'].push({"name": destVrouter['vm_uuid'],
+                                           "node_type":
+                                           ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+                    topoData['links'].push({'endpoints': [destVrouter['vm_uuid'],
+                                           destVrouter['vrouter']]});
+                }
                 commonUtils.handleJSONResponse(err, res, topoData);
             });
         });
