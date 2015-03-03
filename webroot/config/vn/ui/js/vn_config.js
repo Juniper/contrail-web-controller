@@ -1352,6 +1352,17 @@ function validateIPAMEntry() {
                         showInfoWindow("Enter a valid Allocation Pool address in the CIDR range", "Invalid input in Allocation Pool");
                         return false;
                     }
+                    if(gateway != ""){
+                        var errorCode = isIPBoundToIPRange(ips[0].trim(), ips[1].trim(), gateway);
+                        if(errorCode == 0){
+                            showInfoWindow("Gateway should be outside Allocation Pool(s)", "Invalid Data");
+                            return false;
+                        }
+                        if(errorCode == 1){
+                            showInfoWindow("Enter a valid Allocation Pool address xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt; xxx.xxx.xxx.xxx-xxx.xxx.xxx.xxx &lt;enter&gt;... format. <br>eg : 192.168.1.20-192.168.1.40<br>192.168.1.50-192.168.1.70", "Invalid input in Allocation Pool");
+                            return false;
+                        }
+                    }
                 }
             }
         }
