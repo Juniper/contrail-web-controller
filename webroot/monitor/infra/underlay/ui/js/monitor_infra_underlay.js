@@ -2390,7 +2390,6 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 }
                 initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
             } else if (link == 'prouter') {
-                response[1] = response[0];
                 details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
                 $("#detailsTab").html(details);
                 for(var i = 0; i < response.length; i++) {
