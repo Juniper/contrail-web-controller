@@ -1779,7 +1779,12 @@ underlayView.prototype.renderTracePath = function(options) {
     // in monitor infra vrouter details page flows tab
     flowKeyStack = [];
     $("#traceFlow").html(tracePathTemplate);
-    var computeNodes = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
+    var computeNodesDS = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
+    var computeNodes = []
+    $.each(computeNodesDS,function(idx,value){
+        if(value['vRouterType'] == 'hypervisor')
+            computeNodes.push(value);
+    });
     if(nodeType == VROUTER && nodeName != null) {
         defaultValue = nodeName;
     } else {
@@ -2076,11 +2081,11 @@ underlayView.prototype.renderTracePath = function(options) {
                 protocol: dataItem['protocol'],
          };
         if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
-            postData['nodeIP'] = dataItem['vrouter_ip'];
+            postData['nodeIP'] = dataItem['vrouter_ip'] != null ? dataItem['vrouter_ip'] : computeNodeInfo['ip'];
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
             //postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
         } else if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
-            postData['nodeIP'] = dataItem['other_vrouter_ip'];
+            postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
             //postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
         }
@@ -2090,11 +2095,11 @@ underlayView.prototype.renderTracePath = function(options) {
             if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
                 var vrfList = ifNull(networkDetails['value'][0]['value']['UveVirtualNetworkConfig']['routing_instance_list'],[]);
                 if(vrfList[0] != null)
-                    nwFqName += vrfList[0];
+                    nwFqName += ":"+vrfList[0];
             } else 
                 // if there is no vrf name in the response then just constructing it in general format
-                nwFqName += nwFqName.split(':')[2];
-            postData['vrfName'] = '('+nwFqName+')';
+                nwFqName += ":"+nwFqName.split(':')[2];
+            postData['vrfName'] = nwFqName;
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
@@ -2145,7 +2150,7 @@ underlayView.prototype.renderTracePath = function(options) {
         var ajaxData = {
                 pageSize: 50,
                 timeRange: 300,
-                select: 'setup_time, teardown_time, agg-bytes, agg-packets,vrouter_ip,other_vrouter_ip',
+                select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
                 fromTimeUTC: 'now-300s',
                 toTimeUTC: 'now',
                 queryId: randomUUID(),
@@ -2390,7 +2395,6 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 }
                 initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
             } else if (link == 'prouter') {
-                response[1] = response[0];
                 details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
                 $("#detailsTab").html(details);
                 for(var i = 0; i < response.length; i++) {
