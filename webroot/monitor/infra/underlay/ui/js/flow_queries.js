@@ -41,7 +41,7 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
-    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other Vrouter", groupable:false,formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['other_vrouter_ip']) == true ? dc['other_vrouter_ip'] : noDataStr);}}},
+    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other vRouter", groupable:false,formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['other_vrouter_ip']) == true ? dc['other_vrouter_ip'] : noDataStr);}}},
     {select:"protocol", display:{id:"protocol", field:"protocol", width:80, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
     {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:200, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
     {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:100, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(dc['sourceip']) == true ? dc['sourceip'] : noDataStr)}}},
