@@ -7,7 +7,8 @@ function physicalRoutersConfig() {
     //Variable Definitions
     var gridPhysicalRouters;
     var globalVRoutersMap = {};
-    
+    var SNMP_AUTH = 'auth';
+    var SNMP_AUTHPRIV = 'authpriv';
     //Method Definitions 
     this.load = load;
     this.destroy = destroy; 
@@ -176,7 +177,45 @@ function physicalRoutersConfig() {
         //deleteRecordWindowObj.find(".modal-header-title").text('Confirm');
                
         $('#confirmMainDelete').modal({backdrop:'static',keyboard:false,show:false});
-        $('#confirmMainDelete').find(".modal-header-title").text('Confirm');            
+        $('#confirmMainDelete').find(".modal-header-title").text('Confirm');  
+        
+        //On changing the snmp version
+        $('input[name="snmpVersion"]').change(onSNMPVersionChange);
+        $('#ddSnmpSecurityLevel').contrailDropdown({
+            dataTextField:'text',
+            dataValueField:'value',
+            change:onSnmpSecurityLevelChange
+        });
+        var snmpLevelDS = [{ text : 'None', value : 'none'},
+                        { text : 'Auth', value : SNMP_AUTH},
+                        { text : 'AuthPriv', value : SNMP_AUTHPRIV}
+                        ];
+        var ddSnmpSecurityLevel = $('#ddSnmpSecurityLevel').data('contrailDropdown');
+        ddSnmpSecurityLevel.setData(snmpLevelDS);
+    }
+    
+    function onSNMPVersionChange(e){
+        if($('#snmpVersion2').is(':checked') == true){
+            $('#snmpv2div').removeClass('hide').addClass('show');
+            $('#snmpv3div').removeClass('show').addClass('hide');
+        } else {
+            $('#snmpv3div').removeClass('hide').addClass('show');
+            $('#snmpv2div').removeClass('show').addClass('hide');
+        }
+    }
+    
+    function onSnmpSecurityLevelChange(e){
+        var level = e.added.value;
+        if(level === "auth") {//Show only auth 
+            $('#snmpAuthDiv').removeClass('hide').addClass('show');
+            $('#snmpPrivDiv').removeClass('show').addClass('hide');  
+        } else if(level == "authpriv"){//Show both
+            $('#snmpAuthDiv').removeClass('hide').addClass('show');   
+            $('#snmpPrivDiv').removeClass('hide').addClass('show');   
+        } else {//None hide both
+            $('#snmpAuthDiv').removeClass('show').addClass('hide');
+            $('#snmpPrivDiv').removeClass('show').addClass('hide');
+        }
     }
     
     function onVrouterTypeChange(e){
@@ -370,9 +409,62 @@ function physicalRoutersConfig() {
                 $('#ddVirtualRoutersType').data('contrailDropdown').text('None');
                 $('#vRouterTorAgentFields').removeClass('show').addClass('hide');
             }
+            if(gblSelRow.snmpVersion == '-' || gblSelRow.snmpVersion == '2'){
+                $('#snmpVersion2').prop('checked', true);
+                onSNMPVersionChange();//to enable the corresponding fields for v2 or v3
+                if(gblSelRow.snmpV2Community != '-'){
+                    $("#txtCommunity").val(gblSelRow.snmpV2Community);
+                }
+            } else {
+                $('#snmpVersion3').prop('checked', true);
+                onSNMPVersionChange();//to enable the corresponding fields for v2 or v3
+                
+                if(gblSelRow.snmpV3SecurityEngineId != '-'){
+                    $("#txtSecurityEngineId").val(gblSelRow.snmpV3SecurityEngineId);
+                }
+                if(gblSelRow.snmpV3SecurityName != '-'){
+                    $("#txtSecurityName").val(gblSelRow.snmpV3SecurityName);
+                }
+                if(gblSelRow.snmpV3SecurityLevel != '-'){
+                    $("#ddSnmpSecurityLevel").data('contrailDropdown').value(gblSelRow.snmpV3SecurityLevel);
+                }
+                if(gblSelRow.snmpv3AuthProtocol != '-'){
+                    $("#txtSnmpAuthProtocol").val(gblSelRow.snmpv3AuthProtocol);
+                }
+                if(gblSelRow.snmpv3PrivProtocol != '-'){
+                    $("#txtSnmpPrivProtocol").val(gblSelRow.snmpv3PrivProtocol);
+                }
+                if(gblSelRow.snmpv3Context != '-'){
+                    $("#txtContext").val(gblSelRow.snmpv3Context);
+                }
+                if(gblSelRow.snmpv3ContextEngineId != '-'){
+                    $("#txtContextEngineId").val(gblSelRow.snmpv3ContextEngineId);
+                }
+                if(gblSelRow.snmpv3EngineId != '-'){
+                    $("#txtV3EngineId").val(gblSelRow.snmpv3EngineId);
+                }
+                if(gblSelRow.snmpv3EngineBoots != '-'){
+                    $("#txtV3EngineBoots").val(gblSelRow.snmpv3EngineBoots);
+                }
+                if(gblSelRow.snmpv3EngineTime != '-'){
+                    $("#txtV3EngineTime").val(gblSelRow.snmpv3EngineTime);
+                }
+            }
+            
+            if(gblSelRow.snmpLocalPort != '-'){
+                $("#txtLocalPort").val(gblSelRow.snmpLocalPort);
+            }
+            if(gblSelRow.snmpRetries != '-'){
+                $("#txtRetries").val(gblSelRow.snmpRetries);
+            }
+            if(gblSelRow.snmpTimeout != '-'){
+                $("#txtTimeout").val(gblSelRow.snmpTimeout);
+            }
+            
         } else {
             $('#ddBgpRouter').data('contrailDropdown').value('None');
             $('#ddVirtualRoutersType').data('contrailDropdown').value('none');
+            $('#ddSnmpSecurityLevel').data('contrailDropdown').value('none');
         }
         $('#addPhysicalRouterWindow').modal('show');       
     }
@@ -526,6 +618,40 @@ function physicalRoutersConfig() {
         } else {
             postObject["physical-router"]["virtual_router_refs"] = [];
         }
+        
+        //SNMP Credentials
+        var snmpVersion = ($('#snmpVersion2').is(':checked') == true)? 2 : 3;
+        var snmpLocalPort = ($("#txtLocalPort").val() != '')? parseInt($("#txtLocalPort").val()) : 0;
+        var snmpRetries = ($("#txtRetries").val() != '')? parseInt($("#txtRetries").val()) : 0;
+        var snmpTimeOut = ($("#txtTimeout").val() != '')? parseInt($("#txtTimeout").val()) : 0;
+        postObject["physical-router"]['physical_router_snmp_credentials'] = {};
+        postObject["physical-router"]['physical_router_snmp_credentials']['version'] = snmpVersion;
+        postObject["physical-router"]['physical_router_snmp_credentials']['local-port'] = snmpLocalPort;
+        postObject["physical-router"]['physical_router_snmp_credentials']['retries'] = snmpRetries;
+        postObject["physical-router"]['physical_router_snmp_credentials']['timeout'] = snmpTimeOut;
+        
+        if(snmpVersion == 2){//version is 2
+            postObject["physical-router"]['physical_router_snmp_credentials']['v2-community'] = $("#txtCommunity").val();
+        } else { //version is 3
+            var securityLevel = $("#ddSnmpSecurityLevel").data('contrailDropdown').value();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-name'] = $("#txtSecurityName").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-level'] = securityLevel;
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-engine-id'] = $("#txtSecurityEngineId").val();
+            if (securityLevel == SNMP_AUTH) {
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3-authentication-protocol'] = $("#txtSnmpAuthProtocol").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3-authentication-password'] = $("#txtSnmpAuthPassword").val();
+            } 
+            if (securityLevel == SNMP_AUTHPRIV) {
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3-privacy-protocol'] = $("#txtSnmpPrivProtocol").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3-privacy-password'] = $("#txtSnmpPrivPassword").val();
+            }
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-context'] = $("#txtContext").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-context-engine-id'] = $("#txtContextEngineId").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-id'] = $("#txtV3EngineId").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-boots'] = parseInt($("#txtV3EngineBoots").val());
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-time'] = parseInt($("#txtV3EngineTime").val());
+        }
+        
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForCreateEditRouters', null, null);
     }
     window.failureHandlerForCreateEditRouters =  function(error) {
@@ -549,6 +675,24 @@ function physicalRoutersConfig() {
         $("#ddTsnName").data('contrailCombobox').text('');
         $("#txtTorAgentIp").val('');
         $("#txtTsnIp").val('');
+        $("#txtLocalPort").val('');
+        $("#txtRetries").val('');
+        $("#txtTimeout").val('');
+        $("#txtCommunity").val('');
+        $("#txtSecurityName").val('');
+        $("#ddSnmpSecurityLevel").data('contrailDropdown').value('none');
+        $('#snmpAuthDiv').removeClass('show').addClass('hide');
+        $('#snmpPrivDiv').removeClass('show').addClass('hide');
+        $("#txtSnmpAuthProtocol").val('');
+        $("#txtSnmpAuthPassword").val('');
+        $("#txtSnmpPrivProtocol").val('');
+        $("#txtSnmpPrivPassword").val('');
+        $("#txtSecurityEngineId").val('');
+        $("#txtContext").val('');
+        $("#txtContextEngineId").val('');
+        $("#txtV3EngineId").val('');
+        $("#txtV3EngineBoots").val('');
+        $("#txtV3EngineTime").val('');
     }
         
     function fetchData() {
@@ -558,8 +702,8 @@ function physicalRoutersConfig() {
     }
     
     window.successHandlerForPhysicalRouters =  function(result) {
+        var gridDS = [];
         if(result.length > 0) {
-            var gridDS = [];
             for(var i = 0; i < result.length;i++) {
                 var rowData = result[i]['physical-router'];
                 var pinterfaces = ifNull(rowData['physical_interfaces'],[]);
@@ -598,6 +742,53 @@ function physicalRoutersConfig() {
                     username = credentials['username'];
                     password = credentials['password'];
                 }
+                var snmpCredentials = rowData['physical_router_snmp_credentials'];
+                var snmpVersion = '-';
+                var snmpLocalPort = '-';
+                var snmpRetries = '-';
+                var snmpTimeout = '-';
+                var snmpV2Community = '-';
+                var snmpV3SecurityEngineId = '-';
+                var snmpV3SecurityName = '-';
+                var snmpV3SecurityLevel = '-';
+                var snmpV3SecurityEngineId = '-';
+                var snmpv3AuthProtocol = '-';
+                var snmpv3AuthPasswd = '-';
+                var snmpv3PrivProtocol = '-';
+                var snmpv3PrivPasswd = '-';
+                var snmpv3Context = '-';
+                var snmpv3ContextEngineId = '-';
+                var snmpv3EngineId = '-';
+                var snmpv3EngineBoots = '-';
+                var snmpv3EngineTime = '-';
+                
+                if(snmpCredentials != null) {
+                    snmpVersion = snmpCredentials['version'];
+                    snmpLocalPort = snmpCredentials['local-port'];
+                    snmpRetries = snmpCredentials['retries'];
+                    snmpTimeout = snmpCredentials['timeout'];
+                    if(snmpVersion == 2){
+                        snmpV2Community = snmpCredentials['v2-community'] ? snmpCredentials['v2-community'] : '-';
+                    } else if (snmpVersion == 3) {
+                        snmpV3SecurityEngineId = snmpCredentials['v3-security-engine-id'] ? snmpCredentials['v3-security-engine-id'] : '-';
+                        snmpV3SecurityName = snmpCredentials['v3-security-name'] ? snmpCredentials['v3-security-name'] : '-';
+                        snmpV3SecurityLevel = snmpCredentials['v3-security-level']  ? snmpCredentials['v3-security-level'] : '-';
+                        snmpV3SecurityEngineId = snmpCredentials['v3-security-engine-id'] ? snmpCredentials['v3-security-engine-id'] : '-';
+                        if (snmpV3SecurityLevel == SNMP_AUTH) {
+                            snmpv3AuthProtocol = snmpCredentials['v3-authentication-protocol'] ? snmpCredentials['v3-authentication-protocol'] : '-';
+                            snmpv3AuthPasswd = snmpCredentials['v3-authentication-password'] ? snmpCredentials['v3-authentication-password'] : '-'
+                        }
+                        if (snmpV3SecurityLevel == SNMP_AUTHPRIV) {
+                            snmpv3PrivProtocol = snmpCredentials['v3-privacy-protocol'] ? snmpCredentials['v3-privacy-protocol'] : '-';
+                            snmpv3PrivPasswd = snmpCredentials['v3-privacy-password'] ? snmpCredentials['v3-privacy-password'] :'-';
+                        }
+                        snmpv3Context = snmpCredentials['v3-context'] ? snmpCredentials['v3-context'] :'-';
+                        snmpv3ContextEngineId = snmpCredentials['v3-context-engine-id'] ? snmpCredentials['v3-context-engine-id'] : '-';
+                        snmpv3EngineId = snmpCredentials['v3-engine-id'] ? snmpCredentials['v3-engine-id'] : '-';
+                        snmpv3EngineBoots = snmpCredentials['v3-engine-boots'] ? snmpCredentials['v3-engine-boots'] : '-';
+                        snmpv3EngineTime = snmpCredentials['v3-engine-time'] ? snmpCredentials['v3-engine-time'] : '-';
+                    }
+                }
                 gridDS.push({
                     uuid : rowData.uuid,
                     name : rowData.name,
@@ -609,7 +800,24 @@ function physicalRoutersConfig() {
                     interfaces : interfaces.length,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
                     virtual_networks : vnsString.length > 0 ? vnsString : '-',       
-                    virtual_router : (virtualRouterString == '')? '-' : virtualRouterString
+                    virtual_router : (virtualRouterString == '')? '-' : virtualRouterString,
+                    snmpVersion : snmpVersion,
+                    snmpLocalPort : snmpLocalPort,
+                    snmpRetries : snmpRetries,
+                    snmpTimeout : snmpTimeout,
+                    snmpV2Community : snmpV2Community,
+                    snmpV3SecurityEngineId : snmpV3SecurityEngineId,
+                    snmpV3SecurityName : snmpV3SecurityName,
+                    snmpV3SecurityLevel : snmpV3SecurityLevel,
+                    snmpv3AuthProtocol : snmpv3AuthProtocol,
+                    snmpv3AuthPasswd : snmpv3AuthPasswd,
+                    snmpv3PrivProtocol : snmpv3PrivProtocol,
+                    snmpv3PrivPasswd : snmpv3PrivPasswd,
+                    snmpv3Context : snmpv3Context,
+                    snmpv3ContextEngineId : snmpv3ContextEngineId,
+                    snmpv3EngineId : snmpv3EngineId,
+                    snmpv3EngineBoots : snmpv3EngineBoots,
+                    snmpv3EngineTime : snmpv3EngineTime
                 });
             }
         
@@ -789,6 +997,22 @@ function physicalRoutersConfig() {
                 showInfoWindow("Virtual Router " + name + " (" + currVr.type + ") already exists.","Input required Virtual Router");
                 return false;
             }
+        }
+        if($('#txtRetries').val() != '' && !$.isNumeric($('#txtRetries').val())) {
+            showInfoWindow("Retries should be a number","Input error SNMP Credentials");
+            return false;
+        }
+        if($('#txtTimeout').val() != '' && !$.isNumeric($('#txtTimeout').val())) {
+            showInfoWindow("Timeout should be a number","Input error SNMP Credentials");
+            return false;
+        }
+        if($('#txtV3EngineBoots').val() != '' && !$.isNumeric($('#txtV3EngineBoots').val())) {
+            showInfoWindow("Engine Boots should be a number","Input error SNMP Credentials");
+            return false;
+        }
+        if($('#txtV3EngineTime').val() != '' && !$.isNumeric($('#txtV3EngineTime').val())) {
+            showInfoWindow("Engine Time should be a number","Input error SNMP Credentials");
+            return false;
         }
         
         return true;         

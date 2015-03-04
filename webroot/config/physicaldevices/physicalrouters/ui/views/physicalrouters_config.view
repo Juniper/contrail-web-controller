@@ -1,6 +1,7 @@
 <script type="text/x-handlebars-template" id="gridPhysicalRoutersDetailTemplate">
     <div>
         <div class="row-fluid">
+            <label><h6><b>Physical Router Properties</b></h6></label>
             <div class="row-fluid">
                 <div class="span2"><label>Name</label></div>
                 <div class="span10"> {{name}}</div>
@@ -37,6 +38,71 @@
                 <div class="span2"><label>Virtual Networks</label></div>
                 <div class="span10">{{virtual_networks}}</div>
             </div>
+            <label><h6><b>SNMP Credentials</b></h6></label>
+            <div class="row-fluid">
+                <div class="span2"><label>Version</label></div>
+                <div class="span10">{{snmpVersion}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Local Port</label></div>
+                <div class="span10">{{snmpLocalPort}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Retries</label></div>
+                <div class="span10">{{snmpRetries}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Timeout</label></div>
+                <div class="span10">{{snmpTimeout}}</div>
+            </div>
+            {{#IfCompare snmpVersion '2' operator='=='}}
+                <div class="row-fluid">
+                    <div class="span2"><label>Community</label></div>
+                    <div class="span10">{{snmpV2Community}}</div>
+                </div>
+            {{/IfCompare}}
+            {{#IfCompare snmpVersion '3' operator='=='}}
+                <div class="row-fluid">
+                    <div class="span2"><label>Security Engine Id</label></div>
+                    <div class="span10">{{snmpV3SecurityEngineId}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Security Name</label></div>
+                    <div class="span10">{{snmpV3SecurityName}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Security Level</label></div>
+                    <div class="span10">{{snmpV3SecurityLevel}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Authrorization Protocol</label></div>
+                    <div class="span10">{{snmpv3AuthProtocol}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Privacy Protocol</label></div>
+                    <div class="span10">{{snmpv3PrivProtocol}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Context</label></div>
+                    <div class="span10">{{snmpv3Context}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Context Engine Id</label></div>
+                    <div class="span10">{{snmpv3ContextEngineId}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Engine Id</label></div>
+                    <div class="span10">{{snmpv3EngineId}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Engine Boots</label></div>
+                    <div class="span10">{{snmpv3EngineBoots}}</div>
+                </div>
+                <div class="row-fluid">
+                    <div class="span2"><label>Engine Time</label></div>
+                    <div class="span10">{{snmpv3EngineTime}}</div>
+                </div>
+            {{/IfCompare}}
         </div>
     </div>
 </script>
@@ -90,7 +156,7 @@
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#credWidget');">
                             <i class="icon-caret-right grey"></i>
-                            <span>Credentials</span>
+                            <span>User Credentials</span>
                         </h4>
                     </div>
                     <div id="credWidget" class="widget-body collapsed">
@@ -115,11 +181,11 @@
                                            </div>                                
                                       </div>  
                                   </div>
-                            </div>
+                             </div>
                         </div>
-                      </div> 
+                     </div> 
                   </div>
-                </div>
+                </div><!-- user crendentials div ends -->
                 <div class="widget-box transparent collapsed">
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#vrWidget');">
@@ -189,7 +255,7 @@
                         </div>
                     </div>
                 </div>
-                </div>
+                </div><!-- Virtual router widget ends -->
                  <div class="widget-box transparent collapsed">
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#bgpRouterWidget');">
@@ -219,7 +285,169 @@
                             </div>
                         </div>
                     </div>
-                </div> 
+                </div>
+                <div class="widget-box transparent collapsed">
+                    <div class="widget-header">
+                        <h4 class="smaller" onclick="collapseElement(this,'#snmpCredWidget');">
+                            <i class="icon-caret-right grey"></i>
+                            <span>SNMP Credentials</span>
+                        </h4>
+                    </div>
+                    <div id="snmpCredWidget" class="widget-body collapsed">
+                        <div class="row-fluid widget-main">
+                            <div class="control-group">
+                                <label class="control-label" for='snmpVersion'>Version</label>
+                                <div class="controls">
+                                    <input type='radio' name='snmpVersion' id='snmpVersion2' checked='checked' class="ace-input"  value='2' tabindex=0/></input><span class="ace-lbl margin-right-10">2</span>
+                                    <input type='radio' name='snmpVersion' id='snmpVersion3' class="ace-input"  value='3' tabindex=0/><span class="ace-lbl margin-right-10">3</span>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                  <label  class="control-label ">Local Port</label>
+                                  <div class="controls">
+                                    <div class="row-fluid">
+                                        <input type="text" id="txtLocalPort" class="span11"/>
+                                    </div>
+                                  </div>
+                             </div>
+                             <div class="control-group">
+                                  <label  class="control-label ">Retries</label>
+                                  <div class="controls">
+                                    <div class="row-fluid">
+                                        <input type="text" id="txtRetries" class="span11"/>
+                                    </div>
+                                  </div>
+                             </div>
+                             <div class="control-group">
+                                  <label  class="control-label ">Timeout</label>
+                                  <div class="controls">
+                                    <div class="row-fluid">
+                                        <input type="text" id="txtTimeout" class="span11"/>
+                                    </div>
+                                  </div>
+                             </div>
+                             <div id="snmpv2div">
+                                 <div class="control-group">
+                                      <label  class="control-label ">Community</label>
+                                      <div class="controls">
+                                        <div class="row-fluid">
+                                            <input type="text" id="txtCommunity" class="span11"/>
+                                        </div>
+                                      </div>
+                                 </div>
+                             </div><!-- snmpv2div ENDS -->
+                             <div id="snmpv3div" class="hide">
+                                 <div class="control-group">
+                                      <label  class="control-label ">Security Name</label>
+                                      <div class="controls">
+                                        <div class="row-fluid">
+                                            <input type="text" id="txtSecurityName" class="span11"/>
+                                        </div>
+                                      </div>
+                                 </div>
+                                 <div class="control-group">
+                                     <label  class="control-label ">Security Level</label>
+                                     <div class="controls">
+                                         <div class="row-fluid">
+                                             <input type="text" id="ddSnmpSecurityLevel" class="span11"/>
+                                         </div>
+                                     </div>
+                                 </div>
+                                 <div id="snmpAuthDiv" class="row-fluid margin-0-0-10 hide">
+                                     <div class="control-group">
+                                         <label class="control-label">Authentication Protocol</label>  
+                                         <div class="controls">                       
+                                             <div class="row-fluid">
+                                                  <div class="pull-left">
+                                                      <input type="text" id="txtSnmpAuthProtocol" name="txtSnmpAuthProtocol" title="Protocol" class="span12 pull-left"/>
+                                                  </div>
+                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  Password
+                                                  </label>
+                                                  <div class ="pull-left">
+                                                      <input title="txtSnmpAuthPassword"
+                                                            id="txtSnmpAuthPassword" class="span12" type="password" name="txtSnmpAuthPassword"
+                                                            value="">
+                                                      </input> 
+                                                  </div>                                
+                                              </div>  
+                                          </div>
+                                     </div>
+                                 </div>
+                                 <div id="snmpPrivDiv" class="row-fluid margin-0-0-10 hide">
+                                     <div class="control-group">
+                                         <label class="control-label">Privacy Protocol</label>  
+                                         <div class="controls">                       
+                                             <div class="row-fluid">
+                                                  <div class="pull-left">
+                                                      <input type="text" id="txtSnmpPrivProtocol" name="txtSnmpPrivProtocol" title="Protocol" class="span12 pull-left"/>
+                                                  </div>
+                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  Password
+                                                  </label>
+                                                  <div class ="pull-left">
+                                                      <input title="txtSnmpPrivPassword"
+                                                            id="txtSnmpPrivPassword" class="span12" type="password" name="txtSnmpPrivPassword"
+                                                            value="">
+                                                      </input> 
+                                                  </div>                                
+                                              </div>  
+                                          </div>
+                                     </div>
+                                 </div>
+                                 <div class="control-group">
+                                      <label  class="control-label ">Security Engine Id</label>
+                                      <div class="controls">
+                                        <div class="row-fluid">
+                                            <input type="text" id="txtSecurityEngineId" class="span11"/>
+                                        </div>
+                                      </div>
+                                 </div>
+                                 <div class="control-group">
+                                     <label  class="control-label ">Context</label>
+                                     <div class="controls">
+                                       <div class="row-fluid">
+                                           <input type="text" id="txtContext" class="span11"/>
+                                       </div>
+                                     </div>
+                                 </div>
+                                 <div class="control-group">
+                                      <label  class="control-label ">Context Engine Id</label>
+                                      <div class="controls">
+                                        <div class="row-fluid">
+                                            <input type="text" id="txtContextEngineId" class="span11"/>
+                                        </div>
+                                      </div>
+                                </div>
+                                <div class="control-group">
+                                    <label  class="control-label ">Engine Id</label>
+                                    <div class="controls">
+                                      <div class="row-fluid">
+                                          <input type="text" id="txtV3EngineId" class="span11"/>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="control-group">
+                                     <label  class="control-label ">Engine Boots</label>
+                                     <div class="controls">
+                                       <div class="row-fluid">
+                                           <input type="text" id="txtV3EngineBoots" class="span11"/>
+                                       </div>
+                                     </div>
+                               </div>
+                               <div class="control-group">
+                                   <label  class="control-label ">Engine Time</label>
+                                   <div class="controls">
+                                     <div class="row-fluid">
+                                         <input type="text" id="txtV3EngineTime" class="span11"/>
+                                     </div>
+                                   </div>
+                               </div>
+                            </div><!-- snmpv3div ENDS -->
+                        </div>
+                    </div>
+                </div><!-- SNMP crendentials div ends --> 
+                            
             </form>
         </div>
         <div class="modal-footer">
