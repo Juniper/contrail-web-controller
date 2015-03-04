@@ -22,21 +22,71 @@ opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,
                              port:config.analytics.server_port });
 
-function getAnalyticsNodeSummary (req, res, appData)
+function postProcessAndAddQueryStats (collUVEData, genUVEData, configData,
+                                      appData, isSummaryReq, callback)
 {
     var nodesHostIp = {'hosts': {}, 'ips': {}};
+    var resultJSON =
+        postProcessAnalyticsNodeSummaryJSON(collUVEData, genUVEData,
+                                            configData);
+    var statQueryCB = null;
+    if (isSummaryReq) {
+        statQueryCB = addAnalyticsQueryStatsToSummary;
+    } else {
+        statQueryCB = addAnalyticsQueryStatsToDetails;
+    }
+    statQueryCB(resultJSON, appData, function(data) {
+        if (false == isSummaryReq) {
+            callback(null, data);
+            return;
+        }
+        var nodeCnt = 0;
+        try {
+            nodeCnt = data.length;
+        } catch(e) {
+            nodeCnt = 0;
+        }
+        for (var i = 0; i < nodeCnt; i++) {
+            nodesHostIp['hosts'][data[i]['name']] = [];
+            var ipsCnt = 0;
+            try {
+                var ips = data[i]['value']['CollectorState']['self_ip_list'];
+                ipsCnt = ips.length;
+            } catch(e) {
+                logutils.logger.error("Analytics Node UVE IP Parse error:" +
+                                      e);
+                ipsCnt = 0;
+            }
+            for (var j = 0; j < ipsCnt; j++) {
+                nodesHostIp['ips'][ips[j]] = [];
+            }
+        }
+        if (nodeCnt > 0) {
+            infraCmn.saveNodesHostIPToRedis(nodesHostIp,
+                                            global.label.OPS_API_SERVER,
+                                            function(err) {
+                                            });
+        }
+        callback(null, data);
+    });
+}
+
+function getAnalyticsNodeSummary (req, res, appData)
+{
     var addGen = req.param('addGen');
     var resultJSON = [];
     var dataObjArr = [];
 
-    reqUrl = '/analytics/uves/analytics-node';
+    var reqUrl = '/analytics/uves/analytics-node';
     var collPostData = {};
     collPostData['cfilt'] = ['ModuleCpuState', 'CollectorState:self_ip_list',
         'CollectorState:build_info', 'CollectorState:tx_socket_stats',
         'CollectorState:rx_socket_stats','NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              collPostData, opApiServer, null, appData);
-
+    reqUrl = '/analytics-nodes';
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                             null, configApiServer, null, appData);
     if (null != addGen) {
         reqUrl = '/analytics/uves/generator';
         var postData = {};
@@ -47,44 +97,47 @@ function getAnalyticsNodeSummary (req, res, appData)
         commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                                  postData, opApiServer, null, appData);
     }
-
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
-        var resultJSON =
-            postProcessAnalyticsNodeSummaryJSON(results[0], results[1]);
-        addAnalyticsQueryStatsToSummary(resultJSON, appData,
-                                        function(data) {
-            var nodeCnt = 0;
-            try {
-                nodeCnt = data.length;
-            } catch(e) {
-                nodeCnt = 0;
-            } 
-            for (var i = 0; i < nodeCnt; i++) {
-                nodesHostIp['hosts'][data[i]['name']] = [];
-                var ipsCnt = 0;
-                try {
-                    var ips = data[i]['value']['CollectorState']['self_ip_list'];
-                    ipsCnt = ips.length;
-                } catch(e) {
-                    logutils.logger.error("Analytics Node UVE IP Parse error:" +
-                                          e);
-                    ipsCnt = 0;
-                }
-                for (var j = 0; j < ipsCnt; j++) {
-                    nodesHostIp['ips'][ips[j]] = [];
-                }
-            }
-            if (nodeCnt > 0) {
-                infraCmn.saveNodesHostIPToRedis(nodesHostIp,
-                                                global.label.OPS_API_SERVER,
-                                                function(err) {
-                });
-            }
+        processConfigDetailsAndAddQueryStats(results[0], results[2], results[1],
+                                             appData, true,
+                                             function(err, data) {
             commonUtils.handleJSONResponse(err, res, data);
         });
     });
+}
+
+function processConfigDetailsAndAddQueryStats (collUVEData, genData, configList,
+                                               appData, isSummaryReq, callback)
+{
+    if ((null == configList) || (null == configList['analytics-nodes']) ||
+        (!configList['analytics-nodes'].length)) {
+        postProcessAndAddQueryStats(collUVEData, genData, null, appData,
+                                        function(err, data) {
+                callback(err, data);
+                });
+    } else {
+        var configCnt = configList['analytics-nodes'].length;
+        dataObjArr = [];
+        for (var i = 0; i < configCnt; i++) {
+            reqUrl = '/analytics-node/' +
+                configList['analytics-nodes'][i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_GET, null,
+                                     configApiServer, null, appData);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         true),
+                  function(err, configDetails) {
+            postProcessAndAddQueryStats(collUVEData, genData,
+                                        configDetails, appData, isSummaryReq,
+                                        function(err, data) {
+                callback(err, data);
+            });
+        });
+    }
 }
 
 function getAnalyticsNodeGenerators (req, res, appData)
@@ -99,29 +152,39 @@ function getAnalyticsNodeGenerators (req, res, appData)
     getAnalyticsGenPagedSummary(req, res, appData);
 }
 
-function processAnalyticsNodeDetailJSON (hostName, genUVEData, callback)
+function processAnalyticsNodeDetailJSON (hostName, genUVEData, appData, callback)
 {
     var data = null;
     var resultJSON = [];
     var lastIndex = 0;
-    var url = '/analytics/uves/analytics-node/' + hostName + '?flat';
-    opServer.api.get(url, function (err, collUVEData) {
-        if (err || (collUVEData == null)) {
-            callback(genUVEData);
-            return;
-        }
+    var reqUrl = '/analytics/uves/analytics-node/' + hostName + '?flat';
+    var dataObjArr = [];
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                             null, opApiServer, null, appData);
+    reqUrl = '/analytics-nodes';
+    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                             null, configApiServer, null, appData);
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(opApiServer, true),
+              function(err, results) {
+    var collUVEData = results[0];
+    var configData = results[1];
         var collData = {};
         collData['value'] = [];
         collData['value'][0] = {};
         collData['value'][0]['name'] = hostName;
         collData['value'][0]['value'] = collUVEData;
-        var resultJSON =
-            postProcessAnalyticsNodeSummaryJSON(collData, genUVEData);
-        result = resultJSON[0];
-        if (result) {
-            result = resultJSON[0]['value'];
-        }
-        callback(result);
+        processConfigDetailsAndAddQueryStats(collData, genUVEData, configData,
+                                             appData, false,
+                                             function(err, resultJSON) {
+            var result;
+            try {
+                result = resultJSON[0][0]['value'];
+            } catch(e) {
+                result = {};
+            }
+            callback(result);
+        });
     });
 }
 
@@ -142,7 +205,28 @@ function addAnalyticsQueryStatsToDetails(data, appData, callback)
     });
 }
 
-function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData)
+function fillAnalyticsConfigData (anaData, configData)
+{
+    var nodeName = anaData['name'];
+    var configCnt = 0;
+    try {
+        configCnt = configData.length;
+    } catch(e) {
+        configCnt = 0;
+    }
+    anaData['value']['ConfigData'] = {};
+    for (var i = 0; i < configCnt; i++) {
+        configData[i]['analytics-node']['fq_name'][1]);
+        if (nodeName == configData[i]['analytics-node']['fq_name'][1]) {
+            anaData['value']['ConfigData'] =
+                commonUtils.cloneObj(configData[i]);
+        }
+    }
+    return anaData;
+}
+
+function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
+                                              configData)
 {
     var moduleNames = ['contrail-query-engine',
                        'contrail-analytics-api', 'contrail-collector'];
@@ -151,24 +235,20 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData)
     var resultJSON = [];
     var result = [];
     var lastIndex = 0;
+    var collDataLen = 0;
+    var genDataLen = 0;
     try {
         try {
             var genData = genUVEData['value'];
             var genDataLen = genData.length;
         } catch(e) {
-            if (collUVEData && collUVEData['value']) {
-                return collUVEData['value'];
-            }
-            return resultJSON;
+                genDataLen = 0;
         }
         try {
             var collData = collUVEData['value'];
             var collDataLen = collData.length;
         } catch(e) {
-            if (genUVEData && genUVEData['value']) {
-                return genUVEData['value'];
-            }
-            return resultJSON;
+            collDataLen = 0;
         }
         for (var i = 0, l = 0; i < collDataLen; i++) {
           try {
@@ -178,6 +258,9 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData)
             resultJSON[lastIndex]['value'] =
                 commonUtils.copyObject(resultJSON[lastIndex]['value'],
                                        collData[i]['value']);
+                resultJSON[lastIndex] =
+                    fillAnalyticsConfigData(resultJSON[lastIndex],
+                                            configData);
             for (var j = 0; j < genDataLen; j++) {
                 try {
                     if (false ==
@@ -203,6 +286,8 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData)
           }
         }
     } catch(e) {
+        logutils.logger.error("In postProcessAnalyticsNodeSummaryJSON: " +
+                              "JSON Parse error:" + e);
     }
     return resultJSON;
 }
@@ -222,14 +307,12 @@ function getAnalyticsNodeDetails (req, res, appData)
         if (err || (null == genData)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
         } else {
-            processAnalyticsNodeDetailJSON(hostName, genData, function(resultJSON) {
-                addAnalyticsQueryStatsToDetails(resultJSON, appData,
-                                                function(data) {
-                    resultJSON =
-                        infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
-                                                                      resultJSON);
-                    commonUtils.handleJSONResponse(null, res, resultJSON);
-                });
+            processAnalyticsNodeDetailJSON(hostName, genData, appData,
+                                           function(resultJSON) {
+                resultJSON =
+                    infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
+                                                                  resultJSON);
+                commonUtils.handleJSONResponse(null, res, resultJSON);
             });
         }
     });
