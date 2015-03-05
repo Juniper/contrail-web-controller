@@ -985,7 +985,7 @@ underlayView.prototype.initTooltipConfig = function() {
                 return 'Physical Router';
             },
             content: function(element, graph) {
-                var viewElement = graph.getCell(element.attr('model-id'));
+                var viewElement = _this.getGraph().getCell(element.attr('model-id'));
                 var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
 
                 var ifLength = 0;
@@ -1559,10 +1559,12 @@ underlayView.prototype.highlightPath = function(response, data) {
     if(null !== response && typeof response !== "undefined" &&
         null !== response.nodes && typeof response.nodes !== "undefined"){
 
-    } else if(response.nodes <=0){
+    }
+    if(response.nodes <=0 ){
         showInfoWindow("No Underlay paths found for the selected flow.", "Info");
         return false;
-    } else if("" !== response && typeof response === "string") {
+    }
+    if(typeof response === "string") {
         showInfoWindow(response, "Info");
         return false;
     }
@@ -1611,6 +1613,8 @@ underlayView.prototype.highlightPath = function(response, data) {
     var linkEl = [];
     $.each(highlightedElements.links, function(linkKey, linkValue) {
         var nodeElement = graph.getCell(elementMap.links[linkValue]);
+        if(typeof nodeElement === "undefined")
+            return;
         $("g.link[model-id='" + nodeElement.id + "']").removeClassSVG('hidden');
         $("g.link[model-id='" + nodeElement.id + "']")
             .find('path.connection-wrap')
@@ -1648,12 +1652,8 @@ underlayView.prototype.highlightPath = function(response, data) {
             if(hlNode.name == srcVM) {
                 //Plot green
                 $('div.font-element[font-element-model-id="' + model_id + '"]')
-                    .css('stroke', "green")
-                    .css('fill', "green");
-
-                $('g.element[model-id="' + model_id + '"]')
-                    .css('stroke', "green")
-                    .css('fill', "green");
+                    .find('i')
+                    .css("color", "green");
 
                 if(associatedVRouterUID !== "") {
                     var cell = _this.getGraph().getCell(associatedVRouterUID);
@@ -1668,12 +1668,9 @@ underlayView.prototype.highlightPath = function(response, data) {
             } else if(hlNode.name == destVM) {
                 //Plot red
                 $('div.font-element[font-element-model-id="' + model_id + '"]')
-                    .css('stroke', "red")
-                    .css('fill', "red");
+                    .find('i')
+                    .css("color", "red");
 
-                $('g.element[model-id="' + model_id + '"]')
-                    .css('stroke', "red")
-                    .css('fill', "red");
                 if(associatedVRouterUID !== "") {
                     var cell = _this.getGraph().getCell(associatedVRouterUID);
                     var vrouterPosition = cell.attributes.position;
@@ -1798,7 +1795,7 @@ underlayView.prototype.renderTracePath = function(options) {
         if(computeNodes[i]['name'] == defaultValue)
             ip = computeNodes[i]['ip'];
         computeNodeCombobox.push({
-            text:computeNodes[i]['name'],
+            text:contrail.format('{0} ({1})',computeNodes[i]['name'],computeNodes[i]['ip']),
             value:computeNodes[i]['name']
         });
     }
@@ -1817,13 +1814,19 @@ underlayView.prototype.renderTracePath = function(options) {
         var vRouterFlowsColumns = [
                                       {
                                           field:'peer_vrouter',
-                                          name:"Other Vrouter",
-                                          minWidth:100,
+                                          name:"Other vRouter",
+                                          minWidth:120,
+                                          formatter: function(r,c,v,cd,dc){
+                                              var name = $.grep(computeNodes,function(value,idx){
+                                                              return (value['ip'] == dc['peer_vrouter']);
+                                                         });
+                                              return contrail.format('{0} ({1})',ifNull(name[0]['name'],'-'),dc['peer_vrouter']);
+                                          }
                                       },
                                       {
                                           field:"protocol",
                                           name:"Protocol",
-                                          minWidth:60,
+                                          minWidth:40,
                                           formatter:function(r,c,v,cd,dc){
                                               return formatProtocol(dc['protocol']);
                                           }
@@ -1831,11 +1834,15 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"src_vn",
                                           name:"Source Network",
-                                          minWidth:195
+                                          minWidth:150,
+                                          /*formatter: function (r,c,v,cd,dc) {
+                                              var srcVN = dc['src_vn'].split(":");
+                                              return contrail.format('{0} ({1})',ifNull(srcVN[2],'-'),ifNull(srcVN[1],'-'));
+                                          }*/
                                       },
                                       {
                                           field:"sip",
-                                          name:"Src IP",
+                                          name:"Source IP",
                                           minWidth:70,
                                           formatter:function(r,c,v,cd,dc) {
                                               if(validateIPAddress(dc['sip']))
@@ -1850,9 +1857,26 @@ underlayView.prototype.renderTracePath = function(options) {
                                           minWidth:50
                                       },
                                       {
+                                          field:"direction",
+                                          name:"Direction",
+                                          minWidth:50,
+                                          formatter: function(r,c,v,cd,dc) {
+                                              if (dc['direction'] == 'ingress')
+                                                  return 'INGRESS'
+                                              else if (dc['direction'] == 'egress')
+                                                  return 'EGRESS'
+                                              else
+                                                  return '-';
+                                          }
+                                      },
+                                      {
                                           field:"dst_vn",
                                           name:"Destination Network",
-                                          minWidth:195
+                                          minWidth:150,
+                                          /*formatter: function (r,c,v,cd,dc) {
+                                              var srcVN = dc['src_vn'].split(":");
+                                              return contrail.format('{0} ({1})',ifNull(srcVN[2],'-'),ifNull(srcVN[1],'-'));
+                                          }*/
                                       },
                                       {
                                           field:"dip",
@@ -2027,26 +2051,28 @@ underlayView.prototype.renderTracePath = function(options) {
     }
     var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
     tracePathDropdown.setData(computeNodeCombobox);
-    tracePathDropdown.text(defaultValue);
+    tracePathDropdown.text(contrail.format('{0} ({1})',defaultValue,ip));
     
     $("#vrouterRadiobtn").prop('checked',true);
     var instances = globalObj['dataSources']['instDS']['dataSource'].getItems(),instComboboxData = [];
     var instMap = {};
     for(var i = 0; i < instances.length; i++) {
         var instObj = instances[i];
+        var instAttributes = ifNull(instObj['more_attributes'],{});
         instComboboxData.push({
             text: instObj['vmName']+' ('+instObj['name']+')',
-            value: instances[i]['name'],
+            value: instances[i]['name']
         });
         instMap[instances[i]['name']] = instances[i];
     }
     //Todo when changing the VM flows to introspect need to merge this function
     function reloadFlowsGrid(newAjaxConfig) {
-        var selectArray = parseStringToArray(newAjaxConfig['data']['select'], ',');
+        var selectArray = parseStringToArray("other_vrouter_ip,agg-bytes", ',');
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         var options = getFRDefaultOptions();
         options['elementId'] = 'vrouterflows';
         var columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
+        selectArray = selectArray.concat(newAjaxConfig['data']['select']);
         loadFlowResultsForUnderlay(options,newAjaxConfig['data'],columnDisplay,null,true);
     }
     $('input[name="flowtype"]').change(function(){
@@ -2491,11 +2517,10 @@ underlayController.prototype.getModelData = function(cfg) {
     //Force refresh call config
     var forceCallCfg = {
             url     : url+'?forceRefresh',
-            //url     : '/underlayResponse.json',
             type    : "GET",
             data    : data,
             callback: function (forceResponse) {
-                //removing the progress bar
+                //removing the progress bar and clearing the graph
                 var graph = _this.getView().getGraph();
                 graph.clear();
                 $("#topology-connected-elements").find('div').remove();
@@ -2503,6 +2528,7 @@ underlayController.prototype.getModelData = function(cfg) {
                 topologyCallback(forceResponse);
             },
             failureCallback : function (err) {
+                $("#underlay_topology").find('.topology-visualization-loading').hide();
                 $("#underlay_topology").html('Error in fetching details');
             }
         }
@@ -2524,6 +2550,7 @@ underlayController.prototype.getModelData = function(cfg) {
         }
     };
     function topologyCallback(response){
+        globalObj.topologyResponse = response;
         _this.getView().resetTopology();
         _this.getModel().setNodes(response['nodes']);
         _this.getModel().setLinks(response['links']);
