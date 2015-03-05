@@ -393,6 +393,9 @@ function createFixedIPDataObject (response,portConfig, fixedip)
             fixedIpObj["instance-ip"]["instance_ip_address"] = fixedip['instance_ip_address'][0]["fixedIp"];
         }
         fixedIpObj["instance-ip"]["subnet_uuid"] = fixedip["subnet_uuid"];
+        if("instance_ip_family" in fixedip) {
+            fixedIpObj["instance-ip"]["instance_ip_family"] = fixedip["instance_ip_family"];
+        }
         fixedIpObj["instance-ip"]["virtual_machine_interface_refs"] = [];
         fixedIpObj["instance-ip"]["virtual_machine_interface_refs"][0] = {};
         fixedIpObj["instance-ip"]["virtual_machine_interface_refs"][0]["to"] = portConfig['virtual-machine-interface']["fq_name"];
