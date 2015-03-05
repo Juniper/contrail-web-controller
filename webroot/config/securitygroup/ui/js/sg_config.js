@@ -376,10 +376,21 @@ function initActions() {
                         }
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"] = {};
-                        if(remoteAddr == null || remoteAddr == "" || remoteAddr == "Enter a CIDR")
-                            remoteAddr = "0.0.0.0/0";
+                        if(remoteAddr == null || remoteAddr == "" || remoteAddr == "Enter a CIDR" || remoteAddr == "0.0.0.0/0"){
+                            if(etherType == "IPv4"){
+                                remoteAddr = "0.0.0.0/0";
+                            } else if(etherType == "IPv6"){
+                                remoteAddr = "::/0";
+                            }
+                        }
                         var subnetAdd = remoteAddr.split("/")
-                        if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
+                        if(subnetAdd[0] == ""){
+                            if(etherType == "IPv4"){
+                                subnetAdd[0] = "0.0.0.0";
+                            } else if(etherType == "IPv6"){
+                                subnetAdd[0] = "::";
+                            }
+                        }
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
                         if(subnetAdd.length == 1){
                             sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["src_addresses"][0]["subnet"]["ip_prefix_len"] = 32;
@@ -397,10 +408,21 @@ function initActions() {
                         }
                     } else if(selectedRemoteAddrType == "CIDR"){
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"] = {};
-                        if(remoteAddr == null || remoteAddr == "" || remoteAddr == "Enter a CIDR")
-                            remoteAddr = "0.0.0.0/0";
+                        if(remoteAddr == null || remoteAddr == "" || remoteAddr == "Enter a CIDR" || remoteAddr == "0.0.0.0/0") {
+                            if(etherType == "IPv4"){
+                                remoteAddr = "0.0.0.0/0";
+                            } else if(etherType == "IPv6"){
+                                remoteAddr = "::/0";
+                            }
+                        }
                         var subnetAdd = remoteAddr.split("/")
-                        if(subnetAdd[0] == "") subnetAdd[0] = "0.0.0.0";
+                        if(subnetAdd[0] == ""){
+                            if(etherType == "IPv4"){
+                                subnetAdd[0] = "0.0.0.0";
+                            } else if(etherType == "IPv6"){
+                                subnetAdd[0] = "::";
+                            }
+                        }
                         sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"]["ip_prefix"] = subnetAdd[0];
                         if(subnetAdd.length == 1){
                             sgConfig["security-group"]["security_group_entries"]["policy_rule"][i]["dst_addresses"][0]["subnet"]["ip_prefix_len"] = 32;
@@ -702,6 +724,9 @@ function createSGRuleEntry(rule, id, element,SGData) {
         $(selectProtocol).data("contrailDropdown").value(formatedRuleData.protocol);
         $(selectEther).data("contrailDropdown").value(formatedRuleData.etherType);
         var ra = $(remoteAddr).data("contrailDropdown");
+        if(formatedRuleData.remoteAddress == "::/0") {
+            formatedRuleData.remoteAddress = "0.0.0.0/0";
+        }
         verifyRASelectedItem(formatedRuleData.remoteAddress,ra,"",formatedRuleData.remoteType);
         $(inputTxtRemotePorts).val(formatedRuleData.remotePort);
     }
@@ -1345,6 +1370,11 @@ function showsgEditWindow(mode, rowIndex) {
                 var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv4"}');
                 var ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
                 $("#sGRuleTuples").append(ruleEntry);
+                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
+                ruleEntry = "";
+                dynamicID++;
+                ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
+                $("#sGRuleTuples").append(ruleEntry);
             } else if (mode === "edit") {
                 var selectedRow = $("#gridSG").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreateSG.find('.modal-header-title').text('Edit Security Group ' + selectedRow.sgName);
@@ -1421,7 +1451,7 @@ function validate() {
                                 return false;
                             }
                         }
-                        if (etherType == "IPv6") {
+                        if (etherType == "IPv6" && remoteAddr.trim() != "0.0.0.0/0") {
                             if(!(isIPv6(remoteAddr.trim()))){
                                 showInfoWindow("Enter a valid IPv6 Address", "Invalid CIDR");
                                 return false;
