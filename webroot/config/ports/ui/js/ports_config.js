@@ -513,6 +513,13 @@ function initActions() {
                 portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["instance_ip_address"][0]["domain"] = vnVal[0];
                 portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["instance_ip_address"][0]["project"] = vnVal[1];
                 portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["subnet_uuid"] = cidrValue["subnetUUID"];
+                var subnetIP = cidrValue["subnetCIDR"].split("/")[0];
+                if(isIPv4(subnetIP)){
+                    portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["instance_ip_family"] = "v4";
+                } else if(isIPv6(subnetIP)){
+                    portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["instance_ip_family"] = "v6";
+                }
+                
                 if(mode == "edit"){
                     portConfig["virtual-machine-interface"]["instance_ip_back_refs"][i]["uuid"] = cidrValue["fixedipuuid"];
                 }
@@ -1420,7 +1427,7 @@ function setSubInterfaceProperties(e){
     
 }
 
-function updateSubnet(){
+function updateSubnet(createFlag){
         var selectedFqname = $("#ddVN").data("contrailDropdown").value();
         var fqname;
         $("#FixedIPTuples").empty();
@@ -1430,10 +1437,12 @@ function updateSubnet(){
                 var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
                 if(subnet.length > 0){
                     $("#fixedipContainer").find('div.pull-left').removeClass('hide');
-                    var element = "FixedIPTuples";
-                    var FixedIPEntry = createFixedIPEntry(null, dynamicID++,element);
-                    if(FixedIPEntry !== false)
-                    $("#"+element).append(FixedIPEntry);
+                    if(createFlag != false){
+                        var element = "FixedIPTuples";
+                        var FixedIPEntry = createFixedIPEntry(null, dynamicID++,element);
+                        if(FixedIPEntry !== false)
+                        $("#"+element).append(FixedIPEntry);
+                    }
                 } else {
                     $("#fixedipContainer").find('div.pull-left').addClass('hide');
                 }
@@ -1814,6 +1823,7 @@ function showPortEditWindow(mode, rowIndex) {
                 $("#txtPortName").val(mapedData.portName);
                 $("#txtMacAddress").val(mapedData.macAddress);
                 $("#ddVN").data("contrailDropdown").value(mapedData.vnValues[0]["values"]);
+
                 if(mapedData.status == "Up"){
                     $("#ddVNState").data("contrailDropdown").value("true");
                 } else {
@@ -1849,10 +1859,8 @@ function showPortEditWindow(mode, rowIndex) {
                 }
                 
                 var element = "FixedIPTuples";
+                updateSubnet(false);
                 $("#"+element).empty();
-                if(mapedData.fixedIPValue.length <= 0){
-                    $("#fixedipContainer").find('div.pull-left').removeClass('hide');
-                } else {
                     for(var localInc = 0; localInc < mapedData.fixedIPValue.length;localInc++){
                         dynamicID++;
                         var FixedIPEntry = createFixedIPEntry(mapedData.fixedIPValue[localInc], dynamicID,element);
@@ -1860,7 +1868,6 @@ function showPortEditWindow(mode, rowIndex) {
                         $("#"+element).append(FixedIPEntry);
                         
                     }
-                }
                 var floatingIPArr = [];
                 //element = "FloatingIPTuples";
                 for(var localInc = 0; localInc < mapedData.floatingIPValue.length;localInc++){
@@ -2172,6 +2179,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
                     var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
                     var SubnetVal = {};
                     SubnetVal.Gateway = subnetGateway;
+                    SubnetVal.subnetCIDR = subnetCIDR;
                     SubnetVal.subnetUUID = subnetUUID;
                     subnetData.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
                 }
@@ -2228,6 +2236,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
         SubnetVal.Gateway = "";
         SubnetVal.subnetUUID = FixedIPData.subnetUUID;
         SubnetVal.fixedipuuid = FixedIPData.fixedipuuid;
+        SubnetVal.subnetCIDR = FixedIPData.fixedipuuid;
         subnetData.push({"text" : FixedIPData.fixedip , "value":JSON.stringify(SubnetVal)});
         $(divFixedIPcontainer).addClass("hide");
         $(inputTxtFixedIPValue).val(FixedIPData.fixedip);
@@ -2269,8 +2278,7 @@ function validateFixedIP(element){
                     showInfoWindow("Enter a fixed IP within the selected subnet range", "Invalid input in Fixed IP");
                     return false;
                 }
-                var ciderValue = new v4.Address(fixedIPText);
-                if(fixedIP.trim() == ciderValue.endAddress().address || fixedIP.trim() == ciderValue.startAddress().address){
+                if(isStartAddress(fixedIPText, fixedIP.trim()) == true || isEndAddress(fixedIPText, fixedIP.trim()) == true) {
                     showInfoWindow("Fixed IP cannot be same as broadcast/start address", "Invalid input in Fixed IP");
                     return false;
                 }
