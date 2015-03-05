@@ -2183,23 +2183,51 @@ var bgpMonitor = {
         var nhType = bgpMonitor.getNextHopType(data);
         //var nhData = jsonPath(data,'$..PathSandeshData').pop();
         var nhData = data['path'];
+        var peer = nhData['peer'];
         //nhData['nh'] = nhData['nh']['NhSandeshData'];
         var nextHopData = nhData['nh']['NhSandeshData'];
         var intf = nextHopData['itf'], mac = nextHopData['mac'], destVN = nhData['dest_vn'], source = nhData['peer'], policy = nextHopData['policy'], lbl = nhData['label'];
         var sip = nextHopData['sip'], dip = nextHopData['dip'], tunnelType = nextHopData['tunnel_type'], valid = nextHopData['valid'], vrf = nextHopData['vrf'];
         if (nhType == 'arp') {
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + wrapLabelValue('Mac', nextHopData['mac']) + wrapLabelValue('IP', nextHopData['sip']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
+                    wrapLabelValue('Mac', nextHopData['mac']) + 
+                    wrapLabelValue('IP', nextHopData['sip']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve' || nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Destination VN', nhData['dest_vn'])  + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Destination VN', nhData['dest_vn'])  + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Interface', intf) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Source IP', sip) +  wrapLabelValue('Destination IP', dip) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Label', lbl) +
-            		 wrapLabelValue('Tunnel type', tunnelType) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source IP', sip) +  
+                    wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Label', lbl) +
+            		wrapLabelValue('Tunnel type', tunnelType) + 
+            		wrapLabelValue('Policy', policy) + 
+            		wrapLabelValue('Peer', peer) +
+            		wrapLabelValue('Valid', valid));
         } else if (nhType == 'vlan') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Label', lbl) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Label', lbl) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'discard') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType.toLowerCase() == 'composite' || nhType.toLowerCase().search('l3 composite') != -1) {
             var vrf = nextHopData['vrf'];
             var refCount = nextHopData['ref_count'];
@@ -2229,18 +2257,32 @@ var bgpMonitor = {
                     mcDataString = mcDataString.concat("}");
                 }
             }
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + wrapLabelValue('Destination IP', dip) + wrapLabelValue('vrf', vrf) + wrapLabelValue('Ref count', refCount) +
-                wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid) + wrapLabelValue('Label', label) + wrapLabelValue('Multicast Data', mcDataString));
+            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
+                    wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('vrf', vrf) + 
+                    wrapLabelValue('Ref count', refCount) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Multicast Data', mcDataString));
             return x;
         } else {
-        	var x = contrail.format(wrapLabelValue('Source IP', sip) + wrapLabelValue('Destination IP', dip) + wrapLabelValue('vrf', vrf) + wrapLabelValue('Ref count', refCount) +
-                    wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid) + wrapLabelValue('Label', lbl));
+        	var x = contrail.format(wrapLabelValue('Source IP', sip) + 
+        	        wrapLabelValue('Destination IP', dip) + 
+        	        wrapLabelValue('vrf', vrf) + 
+        	        wrapLabelValue('Ref count', refCount) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Label', lbl));
                 return x;
         }
     },
     getNextHopDetailsForMulticast:function (data) {
         var nhType = bgpMonitor.getNextHopType(data);
         var nhData = data['path'];
+        var peer = nhData['peer'];
         var nextHopData = nhData['nh']['NhSandeshData'];
         var refCount = nextHopData['ref_count'];
         var valid = nextHopData['valid'];
@@ -2273,18 +2315,46 @@ var bgpMonitor = {
             }
         }
         if (nhType == 'arp') {
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + wrapLabelValue('Mac', nextHopData['mac']) + wrapLabelValue('Source IP', nextHopData['sip']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
+                    wrapLabelValue('Mac', nextHopData['mac']) + 
+                    wrapLabelValue('Source IP', nextHopData['sip']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Destination VN', nhData['dest_vn']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Destination VN', nhData['dest_vn']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Reference Count', refCount) + wrapLabelValue('Valid', valid) + wrapLabelValue('Policy', policy));
+            return contrail.format(wrapLabelValue('Reference Count', refCount) + 
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Policy', policy));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Interface', intf) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Destination IP', dip) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Label', lbl) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Label', lbl) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else {
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + wrapLabelValue('Destination IP', dip) + wrapLabelValue('vrf', vrf) + wrapLabelValue('Ref count', refCount) +
-                wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid) + wrapLabelValue('Label', label) + wrapLabelValue('Multicast Data', mcDataString));
+            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
+                    wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('vrf', vrf) + 
+                    wrapLabelValue('Ref count', refCount) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Multicast Data', mcDataString));
             return x;
         } 
     },
@@ -2292,22 +2362,46 @@ var bgpMonitor = {
         var nhType = bgpMonitor.getNextHopType(data);
         //var nhData = jsonPath(data,'$..PathSandeshData').pop();
         var nhData = data['path'];
+        var peer = nhData['peer'];
         //nhData['nh'] = nhData['nh']['NhSandeshData'];
         var nextHopData = nhData['nh']['NhSandeshData'];
         var intf = nextHopData['itf'], mac = nextHopData['mac'], destVN = nhData['dest_vn'], source = nhData['peer'], policy = nextHopData['policy'], lbl = nhData['label'];
         var sip = nextHopData['sip'], dip = nextHopData['dip'], valid = nextHopData['valid'], vrf = nextHopData['vrf'], tunnelType = nextHopData['tunnel_type'];
         if (nhType == 'arp') {
             //return contrail.format('Intf: {0} VRF: {1} Mac: {2} Source IP: {3}',nextHopData['itf'],nextHopData['vrf'],nextHopData['mac'],nextHopData['sip']);
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + wrapLabelValue('Mac', nextHopData['mac']) + wrapLabelValue('IP', nextHopData['sip']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
+                    wrapLabelValue('Mac', nextHopData['mac']) + 
+                    wrapLabelValue('IP', nextHopData['sip']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve' || nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Destination VN', nhData['dest_vn']) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Destination VN', nhData['dest_vn']) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + wrapLabelValue('Valid', valid) + wrapLabelValue('Policy', policy));
+            return contrail.format(wrapLabelValue('Interface', intf) + 
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Policy', policy));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Source IP', sip) +  wrapLabelValue('Destination IP', dip) + wrapLabelValue('Valid', valid) + wrapLabelValue('Policy', policy) + wrapLabelValue('Vrf', vrf) 
-            		+ wrapLabelValue('Label', lbl) + wrapLabelValue('Tunnel type', tunnelType));
+            return contrail.format(wrapLabelValue('Source IP', sip) +  
+                    wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Vrf', vrf) +
+            		wrapLabelValue('Label', lbl) + 
+            		wrapLabelValue('Tunnel type', tunnelType));
         } else if (nhType == 'vlan') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + wrapLabelValue('Destination VN', destVN) + wrapLabelValue('Label', lbl) + wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid));
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
+                    wrapLabelValue('Destination VN', destVN) + 
+                    wrapLabelValue('Label', lbl) + 
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid));
         } else if (nhType == 'discard') {
             return contrail.format(wrapLabelValue('Source', nhData['peer']));
         } else if (nhType.toLowerCase() == 'composite'  || nhType.toLowerCase().search('l2 composite') != -1) {
@@ -2339,12 +2433,24 @@ var bgpMonitor = {
                     mcDataString = mcDataString.concat("}");
                 }
             }
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + wrapLabelValue('Destination IP', dip) + wrapLabelValue('vrf', vrf) + wrapLabelValue('Ref count', refCount) +
-                wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid) + wrapLabelValue('Label', label) + wrapLabelValue('Multicast Data', mcDataString));
+            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
+                    wrapLabelValue('Destination IP', dip) + 
+                    wrapLabelValue('vrf', vrf) + 
+                    wrapLabelValue('Ref count', refCount) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Multicast Data', mcDataString));
             return x;
         } else {
-        	var x = contrail.format(wrapLabelValue('Source IP', sip) + wrapLabelValue('Destination IP', dip) + wrapLabelValue('vrf', vrf) +
-                    wrapLabelValue('Policy', policy) + wrapLabelValue('Valid', valid) + wrapLabelValue('Label', lbl));
+        	var x = contrail.format(wrapLabelValue('Source IP', sip) + 
+        	        wrapLabelValue('Destination IP', dip) + 
+        	        wrapLabelValue('vrf', vrf) +
+                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Peer', peer) +
+                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Label', lbl));
                 return x;
         }
     },
