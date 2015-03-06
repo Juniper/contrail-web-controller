@@ -134,6 +134,9 @@ monitorInfraComputeACLClass = (function() {
                        {
                            field:"dispuuid",
                            name:"UUID",
+                           searchFn:function(d){
+                               return d['uuid'];
+                           },
                            minWidth:200,
                        },
                        {

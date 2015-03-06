@@ -26,9 +26,9 @@ monitorInfraComputeRoutesClass = (function() {
             $.each(obj,function(i,currPath) {
                 var rawJson = currPath;
                 if(i == 0)
-                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
                 else
-                    paths.push({dispPrefix:'',path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:'',prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
 
             });
         });
@@ -62,9 +62,9 @@ monitorInfraComputeRoutesClass = (function() {
             $.each(obj,function(i,currPath) {
                 var rawJson = currPath;
                 if(i == 0)
-                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],raw_json:rawJson});
                 else
-                    paths.push({dispPrefix:'',path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:'',prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],raw_json:rawJson});
 
             });
         });
@@ -97,9 +97,9 @@ monitorInfraComputeRoutesClass = (function() {
                 $.each(pathSandeshData,function(j,currPath){
                     var rawJson = currPath;
                     if(j == 0)
-                        paths.push({mac:mac,path:currPath,src_vrf:srcVRF,raw_json:rawJson});
+                        paths.push({mac:mac,searchMac:mac,path:currPath,src_vrf:srcVRF,raw_json:rawJson});
                     else 
-                        paths.push({mac:'',path:currPath,src_vrf:srcVRF,raw_json:rawJson});
+                        paths.push({mac:'',searchMac:mac,path:currPath,src_vrf:srcVRF,raw_json:rawJson});
                 });
             });
         }
@@ -127,9 +127,9 @@ monitorInfraComputeRoutesClass = (function() {
             $.each(obj,function(i,currPath) {
                 var rawJson = currPath;
                 if(i == 0)
-                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
                 else
-                    paths.push({dispPrefix:'',path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
+                    paths.push({dispPrefix:'',prefix:srcIPs[idx] + ' / ' + srcPrefixLens[idx],path:currPath,src_ip:srcIPs[idx],src_plen:srcPrefixLens[idx],src_vrf:srcVRFs[idx],raw_json:rawJson});
 
             });
         });
@@ -328,7 +328,10 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"dispPrefix",
                                  id:"Prefix",
                                  name:"Prefix",
-                                 minWidth:50
+                                 minWidth:50,
+                                 searchFn:function(d){
+                                     return d['prefix'];
+                                 },
                              },
                              {
                                  field:"next_hop",
@@ -417,6 +420,9 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"dispPrefix",
                                  id:"Prefix",
                                  name:"Source / Group",
+                                 searchFn:function(d){
+                                     return d['prefix'];
+                                 },
                                  minWidth:5
                              },
                              {
@@ -499,6 +505,9 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"mac",
                                  id:"Mac",
                                  name:"Mac",
+                                 searchFn:function(d){
+                                     return d['searchMac'];
+                                 },
                                  minWidth:5
                              },
                              {
@@ -585,6 +594,9 @@ monitorInfraComputeRoutesClass = (function() {
                                  field:"dispPrefix",
                                  id:"Prefix",
                                  name:"Prefix",
+                                 searchFn:function(d){
+                                     return d['prefix'];
+                                 },
                                  minWidth:50
                              },
                              {
