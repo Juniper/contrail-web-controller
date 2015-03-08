@@ -1,0 +1,38 @@
+<!-- Copyright (c) 2014 Juniper Networks, Inc. All rights reserved. -->
+
+<urlLists>
+    <!-- Define module name here which is being referenced in the generated file -->
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>netGraphApi</define>
+        <path>./networking.graph.api.js</path>
+    </require>
+    <item>
+        <url>/api/tenant/monitoring/network-connected-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getNetworkConnectedGraph</callback>
+    </item>
+    <item>
+        <url>/api/tenant/monitoring/network-config-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getNetworkConfigGraph</callback>
+    </item>
+    <item>
+        <url>/api/tenant/monitoring/project-connected-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getProjectConnectedGraph</callback>
+    </item>
+    <item>
+        <url>/api/tenant/monitoring/project-config-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getProjectConfigGraph</callback>
+    </item>
+</urlLists>
+
