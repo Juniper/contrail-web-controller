@@ -2118,6 +2118,9 @@ underlayView.prototype.renderTracePath = function(options) {
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
             //postData['vrfName'] = (dataItem['destvn'] +":"+ dataItem['destvn'].split(':')[2]);
         }
+        var progressBar = $("#network_topology").find('.topology-visualization-loading');
+        $(progressBar).show();
+        $(progressBar).css('margin-bottom',$(progressBar).parent().height());
         $.ajax({
             url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
         }).always(function(networkDetails){
@@ -2138,6 +2141,7 @@ underlayView.prototype.renderTracePath = function(options) {
             }).success(function(response){
                 _this.highlightPath(response, {data: postData});
             }).always(function(response){
+                $("#network_topology").find('.topology-visualization-loading').hide();
             });
         });
     });
@@ -2524,11 +2528,11 @@ underlayController.prototype.getModelData = function(cfg) {
                 var graph = _this.getView().getGraph();
                 graph.clear();
                 $("#topology-connected-elements").find('div').remove();
-                $("#underlay_topology").find('.topology-visualization-loading').hide();
+                $("#network_topology").find('.topology-visualization-loading').hide();
                 topologyCallback(forceResponse);
             },
             failureCallback : function (err) {
-                $("#underlay_topology").find('.topology-visualization-loading').hide();
+                $("#network_topology").find('.topology-visualization-loading').hide();
                 $("#underlay_topology").html('Error in fetching details');
             }
         }
@@ -2539,13 +2543,13 @@ underlayController.prototype.getModelData = function(cfg) {
         data     : data,
         callback : function (response) {
             //removing the progress bar
-            $("#underlay_topology").find('.topology-visualization-loading').hide();
+            $("#network_topology").find('.topology-visualization-loading').hide();
             topologyCallback(response);
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
         failureCallback : function (err) {
-            $("#underlay_topology").find('.topology-visualization-loading').hide();
+            $("#network_topology").find('.topology-visualization-loading').hide();
             _this.getModel().getData(forceCallCfg);
         }
     };

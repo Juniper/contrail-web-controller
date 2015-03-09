@@ -138,10 +138,10 @@ body > svg {
 <script type="text/x-handlebars-template" id="visualization-template">
     <div id="underlay_topology">
         <div id="network_topology" class="topology-visualization" style="overflow:hidden">
-            <div class="topology-visualization-loading progress progress-striped active hide">
-                <div class="bar" style="width: 100%;"></div>
-            </div>
             <div id="topology" style="display:inline-block; overflow:hidden;">
+                <div class="topology-visualization-loading progress progress-striped active hide">
+                    <div class="bar" style="width: 100%;"></div>
+                </div>
                 <div style="overflow:hidden">
                     <div id="topology-connected-elements">
                     </div>
