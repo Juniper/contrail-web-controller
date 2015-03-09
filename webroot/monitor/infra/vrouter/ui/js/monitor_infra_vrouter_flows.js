@@ -36,10 +36,9 @@ monitorInfraComputeFlowsClass = (function() {
                 var aclUUID = $('#aclDropDown' + '_' + nodeObj.name).data('contrailDropdown').value();
                 $.each(response,function(idx,obj) {
                     var rawJson = obj;
-                    if(idx != 0){
-                        aclUUID = '';
-                    }
-                    ret.push({acl_uuid:aclUUID,
+                    
+                    ret.push({acl_uuid:(idx != 0)? '' : aclUUID,
+                        searchUUID:aclUUID,
                         src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
                         dst_vn:ifNullOrEmptyObject(obj['dest_vn'],noDataStr),
                         sip:ifNullOrEmptyObject(obj['src'],noDataStr),
@@ -162,10 +161,10 @@ monitorInfraComputeFlowsClass = (function() {
                                     field:"acl_uuid",
                                     name:"ACL UUID",
                                     formatter:function(r,c,v,cd,dc){
-                                        return getAclSgUuuidString(dc);
+                                        return getAclSgUuuidString(dc,false);
                                     },
                                     searchFn: function(data) {
-                                       return getAclSgUuuidString(data);
+                                       return getAclSgUuuidString(data,true);
                                     },
                                     minWidth:280
                                     },
@@ -303,10 +302,14 @@ monitorInfraComputeFlowsClass = (function() {
             } 
             reloadGrid(flowGrid);
         }
-        function getAclSgUuuidString (data){
+        function getAclSgUuuidString (data,isSearch){
             //if the request is based on a particular acl return the uuid
             if(data['acl_uuid'] != null && data['acl_uuid'] != 'All'){
-                return data['acl_uuid'];
+                if(isSearch){
+                    return data['searchUUID'];
+                } else {
+                    return data['acl_uuid'];
+                }
             }
             var aclUuidList = ifNull(jsonPath(data,"$..policy..FlowAclUuid..uuid"),noDataStr);
             var outPolicyAclUuidList = ifNull(jsonPath(data,"$..out_policy..FlowAclUuid..uuid"),noDataStr);
