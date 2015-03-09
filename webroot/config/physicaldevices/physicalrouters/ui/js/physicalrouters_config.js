@@ -635,30 +635,30 @@ function physicalRoutersConfig() {
         var snmpTimeOut = ($("#txtTimeout").val() != '')? parseInt($("#txtTimeout").val()) : 0;
         postObject["physical-router"]['physical_router_snmp_credentials'] = {};
         postObject["physical-router"]['physical_router_snmp_credentials']['version'] = snmpVersion;
-        postObject["physical-router"]['physical_router_snmp_credentials']['local-port'] = snmpLocalPort;
+        postObject["physical-router"]['physical_router_snmp_credentials']['local_port'] = snmpLocalPort;
         postObject["physical-router"]['physical_router_snmp_credentials']['retries'] = snmpRetries;
         postObject["physical-router"]['physical_router_snmp_credentials']['timeout'] = snmpTimeOut;
         
         if(snmpVersion == 2){//version is 2
-            postObject["physical-router"]['physical_router_snmp_credentials']['v2-community'] = $("#txtCommunity").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v2_community'] = $("#txtCommunity").val();
         } else { //version is 3
             var securityLevel = $("#ddSnmpSecurityLevel").data('contrailDropdown').value();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-name'] = $("#txtSecurityName").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-level'] = securityLevel;
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-security-engine-id'] = $("#txtSecurityEngineId").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_name'] = $("#txtSecurityName").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_level'] = securityLevel;
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId").val();
             if (securityLevel == SNMP_AUTH) {
-                postObject["physical-router"]['physical_router_snmp_credentials']['v3-authentication-protocol'] = $("#txtSnmpAuthProtocol").val();
-                postObject["physical-router"]['physical_router_snmp_credentials']['v3-authentication-password'] = $("#txtSnmpAuthPassword").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_protocol'] = $("#txtSnmpAuthProtocol").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_password'] = $("#txtSnmpAuthPassword").val();
             } 
             if (securityLevel == SNMP_AUTHPRIV) {
-                postObject["physical-router"]['physical_router_snmp_credentials']['v3-privacy-protocol'] = $("#txtSnmpPrivProtocol").val();
-                postObject["physical-router"]['physical_router_snmp_credentials']['v3-privacy-password'] = $("#txtSnmpPrivPassword").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_protocol'] = $("#txtSnmpPrivProtocol").val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_password'] = $("#txtSnmpPrivPassword").val();
             }
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-context'] = $("#txtContext").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-context-engine-id'] = $("#txtContextEngineId").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-id'] = $("#txtV3EngineId").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-boots'] = parseInt($("#txtV3EngineBoots").val());
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3-engine-time'] = parseInt($("#txtV3EngineTime").val());
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_context'] = $("#txtContext").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_context_engine_id'] = $("#txtContextEngineId").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_id'] = $("#txtV3EngineId").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots").val());
+            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime").val());
         }
         
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForCreateEditRouters', null, null);
@@ -775,29 +775,29 @@ function physicalRoutersConfig() {
                 
                 if(snmpCredentials != null) {
                     snmpVersion = snmpCredentials['version'];
-                    snmpLocalPort = snmpCredentials['local-port'];
+                    snmpLocalPort = snmpCredentials['local_port'];
                     snmpRetries = snmpCredentials['retries'];
                     snmpTimeout = snmpCredentials['timeout'];
                     if(snmpVersion == 2){
-                        snmpV2Community = snmpCredentials['v2-community'] ? snmpCredentials['v2-community'] : '-';
+                        snmpV2Community = snmpCredentials['v2_community'] ? snmpCredentials['v2_community'] : '-';
                     } else if (snmpVersion == 3) {
-                        snmpV3SecurityEngineId = snmpCredentials['v3-security-engine-id'] ? snmpCredentials['v3-security-engine-id'] : '-';
-                        snmpV3SecurityName = snmpCredentials['v3-security-name'] ? snmpCredentials['v3-security-name'] : '-';
-                        snmpV3SecurityLevel = snmpCredentials['v3-security-level']  ? snmpCredentials['v3-security-level'] : '-';
-                        snmpV3SecurityEngineId = snmpCredentials['v3-security-engine-id'] ? snmpCredentials['v3-security-engine-id'] : '-';
+                        snmpV3SecurityEngineId = snmpCredentials['v3_security_engine_id'] ? snmpCredentials['v3_security_engine_id'] : '-';
+                        snmpV3SecurityName = snmpCredentials['v3_security_name'] ? snmpCredentials['v3_security_name'] : '-';
+                        snmpV3SecurityLevel = snmpCredentials['v3_security_level']  ? snmpCredentials['v3_security_level'] : '-';
+                        snmpV3SecurityEngineId = snmpCredentials['v3_security_engine_id'] ? snmpCredentials['v3_security_engine_id'] : '-';
                         if (snmpV3SecurityLevel == SNMP_AUTH) {
-                            snmpv3AuthProtocol = snmpCredentials['v3-authentication-protocol'] ? snmpCredentials['v3-authentication-protocol'] : '-';
-                            snmpv3AuthPasswd = snmpCredentials['v3-authentication-password'] ? snmpCredentials['v3-authentication-password'] : '-'
+                            snmpv3AuthProtocol = snmpCredentials['v3_authentication_protocol'] ? snmpCredentials['v3_authentication_protocol'] : '-';
+                            snmpv3AuthPasswd = snmpCredentials['v3_authentication_password'] ? snmpCredentials['v3_authentication_password'] : '-'
                         }
                         if (snmpV3SecurityLevel == SNMP_AUTHPRIV) {
-                            snmpv3PrivProtocol = snmpCredentials['v3-privacy-protocol'] ? snmpCredentials['v3-privacy-protocol'] : '-';
-                            snmpv3PrivPasswd = snmpCredentials['v3-privacy-password'] ? snmpCredentials['v3-privacy-password'] :'-';
+                            snmpv3PrivProtocol = snmpCredentials['v3_privacy_protocol'] ? snmpCredentials['v3_privacy_protocol'] : '-';
+                            snmpv3PrivPasswd = snmpCredentials['v3_privacy_password'] ? snmpCredentials['v3_privacy_password'] :'-';
                         }
-                        snmpv3Context = snmpCredentials['v3-context'] ? snmpCredentials['v3-context'] :'-';
-                        snmpv3ContextEngineId = snmpCredentials['v3-context-engine-id'] ? snmpCredentials['v3-context-engine-id'] : '-';
-                        snmpv3EngineId = snmpCredentials['v3-engine-id'] ? snmpCredentials['v3-engine-id'] : '-';
-                        snmpv3EngineBoots = snmpCredentials['v3-engine-boots'] ? snmpCredentials['v3-engine-boots'] : '-';
-                        snmpv3EngineTime = snmpCredentials['v3-engine-time'] ? snmpCredentials['v3-engine-time'] : '-';
+                        snmpv3Context = snmpCredentials['v3_context'] ? snmpCredentials['v3_context'] :'-';
+                        snmpv3ContextEngineId = snmpCredentials['v3_context_engine_id'] ? snmpCredentials['v3_context_engine_id'] : '-';
+                        snmpv3EngineId = snmpCredentials['v3_engine_id'] ? snmpCredentials['v3_engine_id'] : '-';
+                        snmpv3EngineBoots = snmpCredentials['v3_engine_boots'] ? snmpCredentials['v3_engine_boots'] : '-';
+                        snmpv3EngineTime = snmpCredentials['v3_engine_time'] ? snmpCredentials['v3_engine_time'] : '-';
                     }
                 }
                 gridDS.push({
