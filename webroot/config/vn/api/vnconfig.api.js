@@ -785,6 +785,12 @@ function updateVNPolicyRefs (vnConfig, response, appData)
         vnConfig['virtual-network']['virtual_network_properties']['allow_transit'] =
         vnPutData['virtual-network']['virtual_network_properties']['allow_transit'];
     }
+    if(null !== vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] &&
+        typeof vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] !== "undefined") {
+        vnConfig['virtual-network']['virtual_network_properties']['forwarding_mode'] =
+        vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'];
+    }
+
     vnConfig['virtual-network']['route_target_list'] = {};
     if ('route_target_list' in vnPutData['virtual-network']) {
         vnConfig['virtual-network']['route_target_list'] = 
