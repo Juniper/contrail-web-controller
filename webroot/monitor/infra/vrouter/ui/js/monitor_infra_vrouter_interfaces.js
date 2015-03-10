@@ -120,6 +120,10 @@ monitorInfraComputeInterfacesClass = (function() {
                                        ipColumnContent += getLabelValueForIP(dc['raw_json']['ip6_addr']);
                                }
                                return ipColumnContent;
+                           },
+                           sorter : function(val1,val2,sign){
+                               
+                               return comparatorIP(val1,val2,sign);
                            }
                        },
                        {

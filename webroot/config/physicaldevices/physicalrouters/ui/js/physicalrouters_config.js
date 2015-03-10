@@ -57,12 +57,14 @@ function physicalRoutersConfig() {
                 {
                     id : 'mgmt_ip_address',
                     field : 'mgmt_ip_address',
-                    name : 'Management IP'                    
+                    name : 'Management IP',
+                    sorter : comparatorIP
                 },
                 {
                     id : 'data_ip_address',
                     field : 'data_ip_address',
-                    name : 'Tunnel Source IP'                    
+                    name : 'Tunnel Source IP',
+                    sorter : comparatorIP
                 },                
                 {
                     id : 'interfaces',

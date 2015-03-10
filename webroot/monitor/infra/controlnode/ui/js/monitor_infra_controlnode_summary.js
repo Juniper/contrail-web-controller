@@ -96,7 +96,8 @@ monitorInfraControlSummaryClass = (function() {
             				advFormatter: function(dc) {
             					return dc.ip;
             				}
-            			}
+            			},
+            			sorter : comparatorIP
                     },
                     {
                         field:"version",

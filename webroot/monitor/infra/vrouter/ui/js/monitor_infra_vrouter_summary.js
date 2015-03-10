@@ -276,6 +276,7 @@ monitorInfraComputeSummaryClass = (function() {
             					return dc.ip;
             				}
             			},
+            			sorter : comparatorIP
                     },
                     {
                         field:"version",

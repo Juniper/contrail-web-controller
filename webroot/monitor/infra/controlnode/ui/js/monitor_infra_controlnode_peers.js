@@ -140,7 +140,8 @@ monitorInfraControlPeersClass = (function() {
                                     showObjLog(dc.name, dc.encoding + '_peer'); 
                                  }
                               },
-                              sortable:true
+                              sortable:true,
+                              sorter : comparatorIP
                              },
                              {
                                  field:"encoding",
