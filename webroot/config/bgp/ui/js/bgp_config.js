@@ -712,7 +712,8 @@ function initComponents() {
                     field:"ip",
                     id:"ip",
                     name:"IP Address",
-                    sortable: true
+                    sortable: true,
+                    sorter : comparatorIP
                 },
                 {
                     field:"role",

@@ -47,7 +47,8 @@ function virtualRoutersConfig() {
                 {
                     id : 'ip_address',
                     field : 'ip_address',
-                    name : 'IP Address'                    
+                    name : 'IP Address',
+                    sorter : comparatorIP                  
                 },
                 {
                     id : 'type',

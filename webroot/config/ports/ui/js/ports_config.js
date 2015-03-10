@@ -174,7 +174,8 @@ function initComponents() {
                     }
                     return returnString;
                 },
-                width:150
+                width:150,
+                sorter : comparatorIP
             },
             {
                 id: "floatingIPVal",
@@ -196,7 +197,8 @@ function initComponents() {
                     }
                     return returnString;
                 },
-                width:150
+                width:150,
+                sorter : comparatorIP
             }
             /*{
                 id: "AllowedAddressPair",
