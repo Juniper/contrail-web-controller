@@ -25,8 +25,6 @@ function underlayRenderer() {
         this.view  = new underlayView(this.model);
         this.controller = new underlayController(this.model, this.view);
         this.controller.getModelData();
-        var instanceDS = new SingleDataSource('instDS');
-        instanceDS.getDataSourceObj();
     }
 
     this.getModel = function() {
@@ -1014,7 +1012,7 @@ underlayView.prototype.initTooltipConfig = function() {
             content: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
                 var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
-                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var instances = globalObj['topologyResponse']['VMList'];
                 var instanceName = "";
                 var lbl = "UUID";
                 var instanceUUID = viewElement.attributes.nodeDetails['name'];
@@ -1022,14 +1020,22 @@ underlayView.prototype.initTooltipConfig = function() {
                 var vn = "";
                 for(var i=0; i<instances.length; i++) {
                     if(instances[i].name === instanceUUID) {
+                        var attributes = ifNull(instances[i]['more_attributes'],{}),ipArr = [],vnArr = [];
+                        var interfaceList = tenantNetworkMonitorUtils.getDataBasedOnSource(ifNull(attributes['interface_list'],[]));
                         lbl = "Name";
-                        instanceName = instances[i].vmName;
-                        if(instances[i].ip && instances[i].ip.length>0) {
-                            vmIp = instances[i].ip.join();
+                        instanceName = attributes['vm_name'];
+                        for(var j = 0; j < interfaceList.length; j++) {
+                            if(interfaceList[j]['virtual_network'] != null)
+                                vnArr.push(interfaceList[j]['virtual_network']);
+                            if(interfaceList[j]['ip6_active'] && interfaceList[j]['ip6_address'] != '0.0.0.0')
+                                ipArr.push(interfaceList[j]['ip6_address']);
+                            else if(interfaceList[j]['ip_address'] != '0.0.0.0')
+                                ipArr.push(interfaceList[j]['ip_address']);
                         }
-                        if(instances[i].vn && instances[i].vn.length>0) {
-                            vn = instances[i].vn.join();
-                        }
+                        if(ipArr.length > 0)
+                            vmIp = ipArr.join();
+                        if(vnArr.length > 0)
+                            vn = tenantNetworkMonitorUtils.formatVN(vnArr);
                         break;
                     }
                 }
@@ -1063,10 +1069,10 @@ underlayView.prototype.initTooltipConfig = function() {
             content: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
                 var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
-                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var instances = globalObj['topologyResponse']['VMList'];
                 var vms = 0;
                 for(var i=0; i<instances.length; i++) {
-                    if(instances[i].vRouter === viewElement.attributes.nodeDetails['name']) {
+                    if(instances[i]['more_attributes']['vrouter'] === viewElement.attributes.nodeDetails['name']) {
                         vms++;
                     }
                 }
@@ -1086,16 +1092,16 @@ underlayView.prototype.initTooltipConfig = function() {
         link: {
             title: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
-                var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
+                var instances = globalObj['topologyResponse']['VMList'];
                 var instanceName1 = "";
                 var instanceName2 = "";
                 var endpoint1 = viewElement.attributes.linkDetails.endpoints[0];
                 var endpoint2 = viewElement.attributes.linkDetails.endpoints[1];
                 for(var i=0; i<instances.length; i++) {
                     if(instances[i].name === endpoint1) {
-                        instanceName1 = instances[i].vmName;
+                        instanceName1 = instances[i]['more_attributes']['vm_name'];
                     } else if (instances[i].name === endpoint1) {
-                        instanceName2 = instances[i].vmName;
+                        instanceName2 = instances[i]['more_attributes']['vm_name'];
                     }
                 }
                 if("" == instanceName1)
@@ -1412,14 +1418,14 @@ underlayView.prototype.initGraphEvents = function() {
                     break;
                 case 'contrail.VirtualMachine':
                     var nodeDetails = clickedElement['attributes']['nodeDetails'];
-                    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
-                    var ip = [],vnList = [],intfLen = 0,vmName,srcVN = "",instDetails = {};
+                    var instances = globalObj['topologyResponse']['VMList'];
+                    var ip = [],vnList = [],intfLen = 0,vmName,srcVN = "",instDetails = {},inBytes = 0,outBytes = 0;
                     for(var i = 0; i < instances.length; i++) {
                         if(instances[i]['name'] == nodeDetails['name']) {
-                            var intfList = ifNull(instances[i]['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+                            var intfList = tenantNetworkMonitorUtils.getDataBasedOnSource(ifNull(instances[i]['more_attributes']['interface_list'],[]));
                             intfLen = intfList.length;
                             instDetails = instances[i];
-                            vmName = instances[i]['vmName'];
+                            vmName = instances[i]['more_attributes']['vm_name'];
                             if (intfLen > 1) {
                                 for(var j = 0; j < intfLen; j++) {
                                     ip.push(intfList[j]['ip_address']);
@@ -1442,7 +1448,7 @@ underlayView.prototype.initGraphEvents = function() {
                     _this.updateWhereClause();
                     data = {
                             type: VIRTUALMACHINE,
-                            name: ifNull(instDetails['vmName'],'-'),
+                            name: ifNull(instDetails['more_attributes']['vm_name'],'-'),
                             uuid: ifNull(nodeDetails['name'],'-'),
                             ipAddr: ip.length > 0 ? ip.join(',') : '-',
                             virtualNetwork: vnList.length > 0 ? vnList.join(',') : '-',
@@ -1625,26 +1631,29 @@ underlayView.prototype.highlightPath = function(response, data) {
 
     var srcIP = data.data['srcIP'];
     var destIP = data.data['destIP'];
-    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems();
-    var srcVM = jsonPath(instances, "$[?(@.ip=='" + srcIP + "')]");
-    if(false !== srcVM) {
-        srcVM = srcVM[0].name;
+    var instances = globalObj['topologyResponse']['VMList'],srcVM = [],destVM = [];
+    for(var i = 0; i < instances.length; i++) {
+        $.each(ifNull(instances[i]['more_attributes']['interface_list'],[]),function(idx,intfObj){
+           if((intfObj['ip_address'] == srcIP && intfObj['ip_address'] != '0.0.0.0') || 
+                   (intfObj['ip6_address'] == srcIP && intfObj['ip6_address'] != '0.0.0.0'))
+               srcVM = instances[i]['name'];
+           else if((intfObj['ip_address'] == destIP && intfObj['ip_address'] != '0.0.0.0') || 
+                   (intfObj['ip6_address'] == destIP && intfObj['ip6_address'] != '0.0.0.0'))
+               destVM = instances[i]['name'];
+        });
     }
-    var destVM = jsonPath(instances, "$[?(@.ip=='" + destIP + "')]");
-    if(false !== destVM) {
-        destVM = destVM[0].name;
-    }
+    
     for(var i=0; i<highlightedElements.nodes.length; i++) {
         var hlNode = highlightedElements.nodes[i];
         if(hlNode.node_type === 'virtual-machine') {
             var model_id = elementMap.nodes[hlNode.name];
             var associatedVRouter =
-            jsonPath(globalObj.dataSources.instDS.dataSource.getItems(), "$[?(@.name =='" + hlNode.name + "')]");
+            jsonPath(globalObj['topologyResponse']['VMList'], "$[?(@.name =='" + hlNode.name + "')]");
             var associatedVRouterUID = "";
             if(false !== associatedVRouter &&
                 "string" !== typeof associatedVRouter &&
                 associatedVRouter.length > 0 ) {
-                associatedVRouter = associatedVRouter[0].vRouter;
+                associatedVRouter = associatedVRouter[0]['more_attributes']['vrouter'];
                 if(null !== associatedVRouter && typeof associatedVRouter !== "undefined") {
                     associatedVRouterUID = _this.getElementMap().nodes[associatedVRouter];
                 }
@@ -2054,13 +2063,13 @@ underlayView.prototype.renderTracePath = function(options) {
     tracePathDropdown.text(contrail.format('{0} ({1})',defaultValue,ip));
     
     $("#vrouterRadiobtn").prop('checked',true);
-    var instances = globalObj['dataSources']['instDS']['dataSource'].getItems(),instComboboxData = [];
+    var instances = globalObj['topologyResponse']['VMList'],instComboboxData = [];
     var instMap = {};
     for(var i = 0; i < instances.length; i++) {
         var instObj = instances[i];
         var instAttributes = ifNull(instObj['more_attributes'],{});
         instComboboxData.push({
-            text: instObj['vmName']+' ('+instObj['name']+')',
+            text: instAttributes['vm_name']+' ('+instObj['name']+')',
             value: instances[i]['name']
         });
         instMap[instances[i]['name']] = instances[i];
@@ -2359,6 +2368,19 @@ underlayView.prototype.populateDetailsTab = function(data) {
         content = data;
         details = Handlebars.compile($("#device-summary-template").html())(content);
         $("#detailsTab").html(details);
+        $.ajax({
+            url:'/api/tenant/networking/stats',
+            type:'POST',
+            data:{data:{'type':'virtual-machine','uuids':content['uuid'], minSince:60,useServerTime:true}}
+        }).success(function(response){
+            if(response[0]['value'] != null){
+                var stats = response[0]['value'];
+                $("#VMstats").html(contrail.format('{0}/{1}',formatBytes(stats[0]['SUM(if_stats.in_bytes)'],'-'),
+                                    formatBytes(stats[0]['SUM(if_stats.out_bytes)'],'-')));
+            }
+        }).error(function(err){
+            $("#VMstats").html("Error in fetching details");
+        });
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
         var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
@@ -2525,11 +2547,13 @@ underlayController.prototype.getModelData = function(cfg) {
             data    : data,
             callback: function (forceResponse) {
                 //removing the progress bar and clearing the graph
-                var graph = _this.getView().getGraph();
-                graph.clear();
-                $("#topology-connected-elements").find('div').remove();
                 $("#network_topology").find('.topology-visualization-loading').hide();
-                topologyCallback(forceResponse);
+                if(forceResponse['topologyChanged']) {
+                    var graph = _this.getView().getGraph();
+                    graph.clear();
+                    $("#topology-connected-elements").find('div').remove();
+                    topologyCallback(forceResponse);
+                }
             },
             failureCallback : function (err) {
                 $("#network_topology").find('.topology-visualization-loading').hide();
@@ -2554,7 +2578,11 @@ underlayController.prototype.getModelData = function(cfg) {
         }
     };
     function topologyCallback(response){
-        globalObj.topologyResponse = response;
+        globalObj['topologyResponse'] = response;
+        var virtualMachineList = $.grep(ifNull(response['nodes'],[]),function(value,idx){
+            return value['node_type'] == 'virtual-machine';
+        });
+        globalObj.topologyResponse.VMList = virtualMachineList;
         _this.getView().resetTopology();
         _this.getModel().setNodes(response['nodes']);
         _this.getModel().setLinks(response['links']);
