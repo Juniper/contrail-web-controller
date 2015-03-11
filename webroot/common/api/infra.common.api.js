@@ -255,7 +255,7 @@ function checkAndGetSummaryJSON (configData, uves, moduleNames)
 function getvRouterAsyncResp (dataObj, callback)
 {
     if (true == dataObj['configData']) {
-        async.map(dataObj, 
+        async.map(dataObj,
                   commonUtils.getServerResponseByRestApi(configApiServer, true),
                   function(err, data) {
             callback(null, data);
@@ -276,7 +276,7 @@ function getvRouterAsyncResp (dataObj, callback)
     }
 }
 
-function getvRouterSummaryConfigUVEData (configData, uuidList, nodeList, addGen,
+function getvRouterSummaryConfigUVEData (configData, vrConf, nodeList, addGen,
                                          appData, callback)
 {
     var newResult = [];
@@ -284,6 +284,7 @@ function getvRouterSummaryConfigUVEData (configData, uuidList, nodeList, addGen,
     var dataObjArr = [];
     var configFound = true;
     var index;
+    var uuidList = null;
 
     if (null != uuidList) {
         len = uuidList.length;
@@ -305,7 +306,7 @@ function getvRouterSummaryConfigUVEData (configData, uuidList, nodeList, addGen,
         dataObjArr[0][i]['reqUrl'] = reqUrl;
         dataObjArr[0][i]['appData'] = appData;
         dataObjArr[0][i]['method'] = global.HTTP_REQUEST_GET;
-        dataObjArr[0]['configData'] = true;
+        //dataObjArr[0]['configData'] = true;
     }
     reqUrl = '/analytics/uves/vrouter';
     var cfilt = ['VrouterStatsAgent:cpu_info',
@@ -380,12 +381,12 @@ function getvRouterSummaryConfigUVEData (configData, uuidList, nodeList, addGen,
     });
 }
 
-function dovRouterListProcess (configData, uuidList, nodeList, addGen,
-                                   appData, callback)
+function dovRouterListProcess (configData, vrConf, nodeList, addGen,
+                               appData, callback)
 {
     var uveData = [];
     var confData = [];
-    getvRouterSummaryConfigUVEData(configData, uuidList, nodeList, addGen, appData,
+    getvRouterSummaryConfigUVEData(configData, vrConf, nodeList, addGen, appData,
                                   function(err, configUVEData,
                                            vRouterCnt) {
         if (null != err) {
@@ -400,7 +401,7 @@ function dovRouterListProcess (configData, uuidList, nodeList, addGen,
             uveData[i - vRouterCnt] = configUVEData[i];
         }
         resultJSON =
-            checkAndGetSummaryJSON(confData, uveData,
+            checkAndGetSummaryJSON(vrConf, uveData,
                                    ['contrail-vrouter-agent']);
         callback(null, resultJSON);
     });
@@ -458,7 +459,7 @@ function getvRouterList (appData, callback)
     var uuidList = [];
     var dataObjArr = [];
     var tmpInsertedList = {};
-    var url = '/virtual-routers';
+    var url = '/virtual-routers?detail=True';
     commonUtils.createReqObj(dataObjArr, url, null, null, configApiServer, null,
                              appData);
     url = '/analytics/uves/vrouters';
@@ -471,6 +472,8 @@ function getvRouterList (appData, callback)
             callback(err, results, null);
             return;
         }
+        var vrConf = results[0]['virtual-routers'];
+        /*
         try {
             var vrConf = results[0]['virtual-routers'];
             var vrCnt = vrConf.length;
@@ -491,6 +494,7 @@ function getvRouterList (appData, callback)
                                       "Error: " + e);
             }
         }
+        */
         try {
             var vrUVE = results[1];
             vrCnt = vrUVE.length;
@@ -511,7 +515,7 @@ function getvRouterList (appData, callback)
                                       "Error: " + e);
             }
         }
-        callback(null, resultJSON, uuidList);
+        callback(null, resultJSON, vrConf);
     });
 }
 

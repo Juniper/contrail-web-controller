@@ -588,7 +588,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
 
     infraCmn.getvRouterList(jobData,
                            commonUtils.doEnsureExecution(function(err, nodeList,
-                                                                  uuidList) {
+                                                                  vrConf) {
         if (null != err) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                         global.HTTP_STATUS_INTERNAL_ERROR, 
@@ -597,7 +597,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                                         0, 0, done, jobData);
             return;
         }
-        infraCmn.dovRouterListProcess(null, uuidList, nodeList, addGen, jobData,
+        infraCmn.dovRouterListProcess(null, vrConf, nodeList, addGen, jobData,
                                       function(err, resultJSON) {
             if (undefined == resultJSON) {
                 redisPub.publishDataToRedis(pubChannel, saveChannelKey,
