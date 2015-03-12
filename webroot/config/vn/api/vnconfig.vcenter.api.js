@@ -159,12 +159,7 @@ function deleteVirtualNetwork (request, response, appData)
                     commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
                     return;
                 } else {
-                    var ipPoolsArr = data['QueryIpPoolsResponse'][0]['_value']['returnval'];
-                    var poolId = '';
-                    for(var i=0;i<ipPoolsArr.length;i++) {
-                        if(ipPoolsArr[i]['name'] == ipPoolName)
-                            poolId = ipPoolsArr[i]['id'];
-                    }
+                    var poolId = data[ipPoolName];
                     vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
                         if(data['Fault'] != null) {
                             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
