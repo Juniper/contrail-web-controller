@@ -90,7 +90,8 @@ $("#gridfip").contrailGrid({
                 field:"ip_addr",
                 name:"IP Address",
                 sortable: true,
-                width: 100
+                width: 100,
+                sorter : comparatorIP
             },
             {
                 id:"instance",
