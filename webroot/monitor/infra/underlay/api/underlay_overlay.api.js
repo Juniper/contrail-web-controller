@@ -38,6 +38,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
     postData['cfilt'] = [];
     var nodeCnt = nodeList.length;
     var found = false;
+    var dataObjArr = [];
     for (var i = 0; i < nodeCnt; i++) {
         if (ctrlGlobal.NODE_TYPE_VROUTER == nodeList[i]['node_type']) {
             tempvRouterObjs[nodeList[i]['name']] = nodeList[i]['name'];
@@ -45,16 +46,27 @@ function buildvRouterVMTopology (nodeList, appData, callback)
         }
     }
     if (false == found) {
-        callback(null, null);
+        callback(null, null, null);
         return;
     }
     postData['cfilt'] = ['UveVirtualMachineAgent:interface_list',
         'UveVirtualMachineAgent:vrouter'];
     var url = '/analytics/uves/virtual-machine';
-    opApiServer.apiPost(url, postData, appData, function(err, vmData) {
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, postData,
+                             opApiServer, null, appData);
+    url = '/analytics/uves/vrouter';
+    var vrPostData = {};
+    vrPostData['cfilt'] = ['VrouterAgent:self_ip_list'];
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
+                             opApiServer, null, appData);
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
+              function(err, results) {
+        var vmData = results[0];
+        var vrData = results[1];
         if ((null != err) || (null == vmData) || (null == vmData['value']) ||
             (!vmData['value'].length)) {
-            callback(null, null);
+            callback(null, null, vrData);
             return;
         }
         var vmCnt = vmData['value'].length;
@@ -89,7 +101,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
             }
         }
         var topoData = {'nodes': vmList, 'links': links};
-        callback(null, topoData);
+        callback(null, topoData, vrData);
     });
 }
 
@@ -99,13 +111,38 @@ function buildTopology (req, appData, callback)
     var topoData = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
+    var tmpVRouterObjs = {};
     buildPhysicalTopology(prouter, appData, function(err, phyTopo) {
         if ((null != err) || (null == phyTopo)) {
             callback(err, phyTopo);
             return;
         }
         buildvRouterVMTopology(phyTopo['nodes'], appData, 
-                               function(err, vrTopo) {
+                               function(err, vrTopo, vrData) {
+            if ((null != vrData) && (null != vrData['value'])) {
+                vrData = vrData['value'];
+                vrCnt = vrData.length;
+                for (var i = 0; i < vrCnt; i++) {
+                    try {
+                        tmpVRouterObjs[vrData[i]['name']] =
+                            vrData[i]['value']['VrouterAgent']['self_ip_list'];
+                    } catch(e) {
+                        continue;
+                    }
+                }
+                var phyTopoNodesCnt = phyTopo['nodes'].length;
+                for (var i = 0; i < phyTopoNodesCnt; i++) {
+                    if (ctrlGlobal.NODE_TYPE_VROUTER ==
+                        phyTopo['nodes'][i]['node_type']) {
+                                    phyTopo['nodes'][i]['name'],
+                                    tmpVRouterObjs[phyTopo['nodes'][i]['name']]);
+                        if (null != tmpVRouterObjs[phyTopo['nodes'][i]['name']]) {
+                            phyTopo['nodes'][i]['more_attributes']['self_ip_list']
+                                = tmpVRouterObjs[phyTopo['nodes'][i]['name']];
+                        }
+                    }
+                }
+            }
             if ((null != err) || (null == vrTopo)) {
                 callback(err, phyTopo);
                 return;
