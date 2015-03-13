@@ -51,6 +51,12 @@
                 <div class="span2"><label>Version</label></div>
                 <div class="span10">{{snmpVersion}}</div>
             </div>
+            {{#IfCompare snmpVersion '2' operator='=='}}
+                <div class="row-fluid">
+                    <div class="span2"><label>Community</label></div>
+                    <div class="span10">{{snmpV2Community}}</div>
+                </div>
+            {{/IfCompare}}
             <div class="row-fluid">
                 <div class="span2"><label>Local Port</label></div>
                 <div class="span10">{{snmpLocalPort}}</div>
@@ -60,15 +66,9 @@
                 <div class="span10">{{snmpRetries}}</div>
             </div>
             <div class="row-fluid">
-                <div class="span2"><label>Timeout</label></div>
+                <div class="span2"><label>Timeout (secs)</label></div>
                 <div class="span10">{{snmpTimeout}}</div>
             </div>
-            {{#IfCompare snmpVersion '2' operator='=='}}
-                <div class="row-fluid">
-                    <div class="span2"><label>Community</label></div>
-                    <div class="span10">{{snmpV2Community}}</div>
-                </div>
-            {{/IfCompare}}
             {{#IfCompare snmpVersion '3' operator='=='}}
                 <div class="row-fluid">
                     <div class="span2"><label>Security Engine Id</label></div>
@@ -329,6 +329,16 @@
                                     <input type='radio' name='snmpVersion' id='snmpVersion3' class="ace-input"  value='3' tabindex=0/><span class="ace-lbl margin-right-10">3</span>
                                 </div>
                             </div>
+                            <div id="snmpv2div">
+                                <div class="control-group">
+                                     <label  class="control-label ">Community</label>
+                                     <div class="controls">
+                                       <div class="row-fluid">
+                                           <input type="text" id="txtCommunity" class="span11"/>
+                                       </div>
+                                     </div>
+                                </div>
+                            </div><!-- snmpv2div ENDS -->
                             <div class="control-group">
                                   <label  class="control-label ">Local Port</label>
                                   <div class="controls">
@@ -346,23 +356,13 @@
                                   </div>
                              </div>
                              <div class="control-group">
-                                  <label  class="control-label ">Timeout</label>
+                                  <label  class="control-label ">Timeout (secs)</label>
                                   <div class="controls">
                                     <div class="row-fluid">
                                         <input type="text" id="txtTimeout" class="span11"/>
                                     </div>
                                   </div>
                              </div>
-                             <div id="snmpv2div">
-                                 <div class="control-group">
-                                      <label  class="control-label ">Community</label>
-                                      <div class="controls">
-                                        <div class="row-fluid">
-                                            <input type="text" id="txtCommunity" class="span11"/>
-                                        </div>
-                                      </div>
-                                 </div>
-                             </div><!-- snmpv2div ENDS -->
                              <div id="snmpv3div" class="hide">
                                  <div class="control-group">
                                       <label  class="control-label ">Security Name</label>
