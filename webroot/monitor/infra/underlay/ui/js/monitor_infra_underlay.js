@@ -2192,7 +2192,7 @@ underlayView.prototype.renderTracePath = function(options) {
         };
         if(type == VIRTUALMACHINE) {
             var vmData = instMap[name];
-            var intfData = ifNull(vmData['rawData']['UveVirtualMachineAgent']['interface_list'],[]);
+            var intfData = ifNull(vmData['more_attributes']['interface_list'],[]);
             var where = '';
             for(var i = 0; i < intfData.length; i++) {
                 where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
@@ -2274,6 +2274,8 @@ underlayView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content = {};
     $("#detailsLink").show();
     $("#underlay_tabstrip").tabs({active:2});
+    if(type != 'link')
+        $("#detailsLink").find('a.ui-tabs-anchor').html("Details");
     if(type == PROUTER) {
         content = {
             type      : PROUTER,
@@ -2363,9 +2365,13 @@ underlayView.prototype.populateDetailsTab = function(data) {
         var endpoints = ifNull(data['endpoints'],[]);
         var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
         var targetType = data['targetElement']['attributes']['nodeDetails']['node_type'];
-        var url = '',link = 'vrouter';
+        var url = '',link = '';
         var type = 'GET';
         var ajaxData = {};
+        if(sourceType == VIRTUALMACHINE || targetType == VIRTUALMACHINE)
+            return;
+        //"Details" tab changing to "Traffic Statistics"
+        $("#detailsLink").find('a.ui-tabs-anchor').html("Traffic Statistics");
         if(sourceType == PROUTER && targetType == PROUTER) {
             url = '/api/tenant/networking/underlay/prouter-link-stats';
             type = 'POST';
@@ -2379,7 +2385,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
             link = 'prouter';
             details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:[{}]});
             $("#detailsTab").html(details);
-        } else if(sourceType == VROUTER || targetType == VROUTER) {
+        } else if(sourceType == PROUTER && targetType == VROUTER) {
             var vrouter = (sourceType == VROUTER) ? data['sourceElement']['attributes']['nodeDetails']['name']
                            : data['targetElement']['attributes']['nodeDetails']['name'];
             url = 'api/tenant/networking/vrouter/stats';
@@ -2390,6 +2396,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     vrouter:vrouter
             };
             var title = contrail.format('Traffic Statistics of {0}',vrouter);
+            link = 'vrouter';
             details = Handlebars.compile($("#link-summary-template").html())({link:link,title:title});
             $("#detailsTab").html(details);
         }
@@ -2398,13 +2405,17 @@ underlayView.prototype.populateDetailsTab = function(data) {
             type:type,
             data:ajaxData
         }).success(function(response){
-            var chartObj = {
-                    data:[]
-            };
-            var selector = '';
+            var chartData = {};
+            var selector = '',options = {
+                                            height:300,
+                                            yAxisLabel: 'Bytes per 30 secs',
+                                            y2AxisLabel: 'Bytes per min'
+                                        };
             if(link == 'vrouter') {
-                selector = 'vrouter-ifstats';
-                var flows = ifNull(response['flow-series'],[]);
+                selector = '#vrouter-ifstats';
+                chartData = parseTSChartData(response);
+                initTrafficTSChart(selector, chartData, options, null, "formatSumBytes", "formatSumBytes");
+                /*var flows = ifNull(response['flow-series'],[]);
                 var inBytes = [];
                 var outBytes = [];
                 for(var i = 0; i < flows.length; i++) {
@@ -2426,7 +2437,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         key:'OutBytes',
                         values:outBytes,
                 }
-                initMemoryLineChart('#'+selector,chartObj['data'],{height:300});
+                initMemoryLineChart('#'+selector,chartObj['data'],{height:300});*/
             } else if (link == 'prouter') {
                 details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
                 $("#detailsTab").html(details);
@@ -2437,36 +2448,34 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     var intfFlowData = [],lclInBytesData = [],lclOutBytesData = [],rmtInBytesData = [],rmtOutBytesData = [];
                     var lclFlows = ifNull(lclData['flow-series']['value'],[]);
                     var rmtFlows = ifNull(rmtData['flow-series']['value'],[]),chrtTitle;
-                    chrtTitle = contrail.format('Transmit statistics of link {0} ({1}) -- {2} ({3})',lclData['summary']['name'],
+                    chrtTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',lclData['summary']['name'],
                             lclData['summary']['if_name'],rmtData['summary']['name'],rmtData['summary']['if_name']);
+                    var inPacketsLocal = {key:contrail.format('{0} ({1})',lclData['summary']['name'],lclData['summary']['if_name']), values:[]}, 
+                        inPacketsRemote = {key:contrail.format('{0} ({1})',rmtData['summary']['name'],rmtData['summary']['if_name']), values:[]};
                     for(var j = 0; j < lclFlows.length; j++) {
                         var lclFlowObj = lclFlows[j];
-                        lclInBytesData.push({
-                            x: lclFlowObj['T='],
+                        inPacketsLocal['values'].push({
+                            x: Math.floor(lclFlowObj['T=']/1000),
                             y: ifNull(lclFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
                         });
                     }
                     for(var j = 0; j < rmtFlows.length; j++) {
                         var rmtFlowObj = rmtFlows[j];
-                        rmtInBytesData.push({
-                            x: rmtFlowObj['T='],
+                        inPacketsRemote['values'].push({
+                            x: Math.floor(rmtFlowObj['T=']/1000),
                             y: ifNull(rmtFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
                         });
                     }
-                    var chartObj = {
-                            title: chrtTitle,
-                            data:[{
-                                key:contrail.format('{0} ({1})',lclData['summary']['name'],lclData['summary']['if_name']),
-                                values:lclInBytesData,
-                            },{
-                                key:contrail.format('{0} ({1})',rmtData['summary']['name'],rmtData['summary']['if_name']),
-                                values:rmtInBytesData
-                            }]
-                    }
+                    var chartData = [inPacketsLocal,inPacketsRemote];
                     var icontag = "<i id='prouter-ifstats-loading-0' class='icon-spinner icon-spin blue bigger-125' " +
                             "style='display: none;'></i>";
                     $("#prouter-lclstats-widget-"+i).find('.widget-header > h4').html(icontag+chrtTitle);
-                    initMemoryLineChart('#prouter-lclstats-'+i,chartObj['data'],{height:300});
+                    options = {
+                            height:300,
+                            yAxisLabel: 'Packets per 72 secs',
+                            y2AxisLabel: 'Packets per 72 secs'
+                        };
+                    initTrafficTSChart('#prouter-lclstats-'+i, chartData, options, null, "formatSumPackets", "formatSumPackets");
                 }
             } 
         }).always(function(response){

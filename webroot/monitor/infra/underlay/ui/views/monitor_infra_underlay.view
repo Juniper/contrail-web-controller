@@ -139,8 +139,8 @@ body > svg {
     <div id="underlay_topology">
         <div id="network_topology" class="topology-visualization" style="overflow:hidden">
             <div id="topology" style="display:inline-block; overflow:hidden;">
-                <div class="topology-visualization-loading progress progress-striped active hide">
-                    <div class="bar" style="width: 100%;"></div>
+                <div class="topology-visualization-loading loading-spinner">
+                    <i class="icon-refresh icon-spin"></i>
                 </div>
                 <div style="overflow:hidden">
                     <div id="topology-connected-elements">
@@ -260,7 +260,7 @@ body > svg {
                     <div class="widget-header">
                         <h4 class="smaller">
                             <i id="prouter-lclstats-loading-{{@index}}" class="icon-spinner icon-spin blue bigger-125"></i>
-                            Transmit Statistics {{this.title}}
+                            Traffic Statistics {{this.title}}
                         </h4>
                     </div>
                     <div class="widget-body">
