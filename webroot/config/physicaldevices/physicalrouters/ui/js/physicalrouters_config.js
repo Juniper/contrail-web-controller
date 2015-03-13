@@ -632,22 +632,27 @@ function physicalRoutersConfig() {
         
         //SNMP Credentials
         var snmpVersion = ($('#snmpVersion2').is(':checked') == true)? 2 : 3;
-        var snmpLocalPort = ($("#txtLocalPort").val() != '')? parseInt($("#txtLocalPort").val()) : 0;
-        var snmpRetries = ($("#txtRetries").val() != '')? parseInt($("#txtRetries").val()) : 0;
-        var snmpTimeOut = ($("#txtTimeout").val() != '')? parseInt($("#txtTimeout").val()) : 0;
+        var snmpLocalPort = ($("#txtLocalPort").val() != '')? parseInt($("#txtLocalPort").val()) : '';
+        var snmpRetries = ($("#txtRetries").val() != '')? parseInt($("#txtRetries").val()) : '';
+        var snmpTimeOut = ($("#txtTimeout").val() != '')? parseInt($("#txtTimeout").val()) : '';
         postObject["physical-router"]['physical_router_snmp_credentials'] = {};
         postObject["physical-router"]['physical_router_snmp_credentials']['version'] = snmpVersion;
-        postObject["physical-router"]['physical_router_snmp_credentials']['local_port'] = snmpLocalPort;
-        postObject["physical-router"]['physical_router_snmp_credentials']['retries'] = snmpRetries;
-        postObject["physical-router"]['physical_router_snmp_credentials']['timeout'] = snmpTimeOut;
+        if(snmpLocalPort != '')
+            postObject["physical-router"]['physical_router_snmp_credentials']['local_port'] = snmpLocalPort;
+        if(snmpRetries != '')
+            postObject["physical-router"]['physical_router_snmp_credentials']['retries'] = snmpRetries;
+        if(snmpTimeOut != '')    
+            postObject["physical-router"]['physical_router_snmp_credentials']['timeout'] = snmpTimeOut;
         
         if(snmpVersion == 2){//version is 2
-            postObject["physical-router"]['physical_router_snmp_credentials']['v2_community'] = $("#txtCommunity").val();
+            postObject["physical-router"]['physical_router_snmp_credentials']['v2_community'] = ($("#txtCommunity").val() == '')? 'public' : $("#txtCommunity").val();
         } else { //version is 3
             var securityLevel = $("#ddSnmpSecurityLevel").data('contrailDropdown').value();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_name'] = $("#txtSecurityName").val();
+            if($("#txtSecurityName").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_name'] = $("#txtSecurityName").val();
             postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_level'] = securityLevel;
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId").val();
+            if($("#txtSecurityEngineId").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId").val();
             if (securityLevel == SNMP_AUTH) {
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_protocol'] = $("#txtSnmpAuthProtocol").val();
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_password'] = $("#txtSnmpAuthPassword").val();
@@ -656,11 +661,16 @@ function physicalRoutersConfig() {
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_protocol'] = $("#txtSnmpPrivProtocol").val();
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_password'] = $("#txtSnmpPrivPassword").val();
             }
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_context'] = $("#txtContext").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_context_engine_id'] = $("#txtContextEngineId").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_id'] = $("#txtV3EngineId").val();
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots").val());
-            postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime").val());
+            if($("#txtContext").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_context'] = $("#txtContext").val();
+            if($("#txtContextEngineId").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_context_engine_id'] = $("#txtContextEngineId").val();
+            if($("#txtV3EngineId").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_id'] = $("#txtV3EngineId").val();
+            if($("#txtV3EngineBoots").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots").val());
+            if($("#txtV3EngineTime").val() != '')
+                postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime").val());
         }
         
         doAjaxCall(url, methodType, JSON.stringify(postObject), 'successHandlerForPhysicalRouters', 'failureHandlerForCreateEditRouters', null, null);
@@ -688,10 +698,10 @@ function physicalRoutersConfig() {
         $("#txtTsnIp").val('');
         $("#txtModel").val('');
         $('#chkAutoConfig')[0].checked = true;
-        $("#txtLocalPort").val('');
+        $("#txtLocalPort").val('161');
         $("#txtRetries").val('');
         $("#txtTimeout").val('');
-        $("#txtCommunity").val('');
+        $("#txtCommunity").val('public');
         $("#txtSecurityName").val('');
         $("#ddSnmpSecurityLevel").data('contrailDropdown').value('none');
         $('#snmpAuthDiv').removeClass('show').addClass('hide');
@@ -777,9 +787,9 @@ function physicalRoutersConfig() {
                 
                 if(snmpCredentials != null) {
                     snmpVersion = snmpCredentials['version'];
-                    snmpLocalPort = snmpCredentials['local_port'];
-                    snmpRetries = snmpCredentials['retries'];
-                    snmpTimeout = snmpCredentials['timeout'];
+                    snmpLocalPort = snmpCredentials['local_port'] ? snmpCredentials['local_port'] : '-';
+                    snmpRetries = snmpCredentials['retries'] ? snmpCredentials['retries'] : '-';
+                    snmpTimeout = snmpCredentials['timeout'] ? snmpCredentials['timeout'] : '-';
                     if(snmpVersion == 2){
                         snmpV2Community = snmpCredentials['v2_community'] ? snmpCredentials['v2_community'] : '-';
                     } else if (snmpVersion == 3) {
