@@ -606,104 +606,46 @@ function physicalInterfacesConfig() {
             });
     }
     
-    function sortByLIThenByPI(selected_rows) {
+    function filterSelectedRowsByType(selected_rows, type) {
         var finalList = [];
         for(var i = 0; i < selected_rows.length; i++) {
-            if(selected_rows[i].type == 'Logical') {
-                finalList.push(selected_rows[i]);
-            }
-        }
-        for(var i = 0; i < selected_rows.length; i++) {
-            if(selected_rows[i].type == 'Physical') {
-                finalList.push(selected_rows[i]);
+            var row = selected_rows[i];
+            if(row.type == type) {
+                var vmiId = row.vmi_uuid != null && row.vmi_uuid.length > 0 ? row.vmi_uuid : null;
+                var subnetId = row.subnetUUIDArr != null && row.subnetUUIDArr != '-' && row.subnetUUIDArr.length > 0 ? row.subnetUUIDArr : null;
+                finalList.push({type : selected_rows[i].type, uuid : selected_rows[i].uuid, vmiId : vmiId, subnetId : subnetId });
             }
         }
         return finalList;
     }
     
     function deletePhysicalInterface(selected_rows) {
+        gridPhysicalInterfaces.showGridMessage('loading');
         $('#btnDeletePhysicalInterface').addClass('disabled-link');
-        selAllRows = sortByLIThenByPI(selected_rows);
-        var lastKey = 0;
-        deletePhysicalInterfaceChunk(lastKey);
+        selAllRows = selected_rows;
+        //delete logical interfaces
+        var selRowsByLI = filterSelectedRowsByType(selAllRows, 'Logical');
+        deleteInterface(selRowsByLI);
     }
-    
-    function deletePhysicalInterfaceChunk(lastKey) {
-        deleteInterface(selAllRows.slice(lastKey , lastKey + 20), lastKey);
-    }    
 
-    function deleteInterface(selected_rows, lastKey) {
-        $('#btnDeletePhysicalInterface').addClass('disabled-link');	
-        if(selected_rows && selected_rows.length > 0){
-            var deleteVMIs = [];
-            var deleteVMs = [];
-            var delSubnets = [];
-            var physicalIntfsDeleteAjaxs = [];
-            var logicalIntfsDeleteAjaxs = [];
-            for(var i = 0;i < selected_rows.length;i++){
-                lastKey++;
-                var sel_row_data = selected_rows[i];
-                if(sel_row_data['type'] == 'Logical'){
-                    logicalIntfsDeleteAjaxs.push($.ajax({
-                        url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
-                        type:'DELETE'
-                    }));
-                } 
-                if(sel_row_data.vmi_uuid != null && sel_row_data.vmi_uuid.length > 0) {
-                    deleteVMIs = deleteVMIs.concat(sel_row_data.vmi_uuid);
-                }
-                if(sel_row_data.vm_uuid != null && sel_row_data.vm_uuid.length > 0) {
-                    deleteVMs = deleteVMs.concat(sel_row_data.vm_uuid);
-                }
-                if(sel_row_data.subnetUUIDArr != null && sel_row_data.subnetUUIDArr != '-' && sel_row_data.subnetUUIDArr.length > 0) {
-                    delSubnets = sel_row_data.subnetUUIDArr;
-                }
-            }
-            //First delete logical interfaces
-            $.when.apply($,logicalIntfsDeleteAjaxs).then(
-                function(response){
-                    //now delete physical interfaces
-                    for(var i = 0;i < selected_rows.length;i++){
-                        var sel_row_data = selected_rows[i];
-                        if(sel_row_data['type'] == 'Physical'){
-                            physicalIntfsDeleteAjaxs.push($.ajax({
-                                    url:'/api/tenants/config/physical-interface/' + currentUUID + '/' + sel_row_data['type'] + '/' + sel_row_data['uuid'],
-                                    type:'DELETE'
-                                }));
-                        } 
-                    }
-                    $.when.apply($,physicalIntfsDeleteAjaxs).then(
-                            function(response){
-                                //all success
-                                if(deleteVMIs.length == 0 && lastKey < selAllRows.length) {
-                                    deletePhysicalInterfaceChunk(lastKey);
-                                }
-                                if(deleteVMIs.length > 0) {
-                                    deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs, lastKey);
-                                }
-                                if(delSubnets.length > 0) {
-                                    deleteSubnets(delSubnets);
-                                }
-                                if(lastKey == selAllRows.length) {
-                                    fetchPhysicalInterfaces();
-                                }
-                            },
-                            function(){
-                                //if at least one delete operation fails
-                                var r = arguments;
-                                showInfoWindow(r[0].responseText,r[2]);     
-                                fetchPhysicalInterfaces();
-                            }
-                        );
-                },
-                function(){
-                    //if at least one delete operation fails
-                    var r = arguments;
-                    showInfoWindow(r[0].responseText,r[2]);		
-                    fetchPhysicalInterfaces();
-                }
-            );
+    function deleteInterface(selRowsByType) {
+        doAjaxCall('/api/tenants/config/interfaces/delete', 'POST', JSON.stringify(selRowsByType), 'onDeleteInterfaceSuccess', 
+            'onDeleteInterfaceFailure', null, null, 300000);
+    }
+
+    window.onDeleteInterfaceSuccess = function(res) {
+        //delete physical interfaces
+        var selRowsByPI = filterSelectedRowsByType(selAllRows, 'Physical');
+        if(selRowsByPI.length > 0) {
+            deleteInterface(selRowsByPI);
+            selAllRows = [];
+        } else {
+            fetchPhysicalInterfaces();
         }
+    }
+
+    window.onDeleteInterfaceFailure = function(err) {
+        fetchPhysicalInterfaces();
     }
 
     function deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs, lastKey) {
@@ -716,10 +658,6 @@ function physicalInterfacesConfig() {
         }
         $.when.apply($,deleteAjaxs).then(
             function(response){
-                //delete all vms
-                // if(deleteVMs.length > 0) {
-                    // deleteVirtualMachines(deleteVMs);
-                // }
                 if(lastKey != null && lastKey < selAllRows.length) {
                     deletePhysicalInterfaceChunk(lastKey);
                 }
@@ -1483,143 +1421,7 @@ function physicalInterfacesConfig() {
         }    
     }
     /*end of pagination changes*/
-         
-    /*function fetchData() {
-        gridPhysicalInterfaces._dataView.setData([]);
-        gridPhysicalInterfaces.showGridMessage('loading');
-        doAjaxCall('/api/tenants/config/physical-interfaces/' + currentUUID,'GET', null, 'successHandlerForPhysicalInterfaces', 'failureHandlerForPhysicalInterfaces', null, null, 300000);
-    }
-    
-    window.successHandlerForPhysicalInterfaces =  function(result) {
-        var gridDS = [];
-        var mainDS = [];
-        var pRouterDS = [];
-        var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
-        var ddParent = $('#ddParent').data('contrailDropdown');
-        var pInterfaceDS = [{text : 'Enter or Select a Interface', value : 'dummy', disabled : true}];
-        pRouterDS.push({text : 'Select the Router', value : 'dummy', disabled : true},
-            {text : pRouterDD.text(), value : pRouterDD.value(), parent : 'physical_router'});
-        if(result && result.length > 0) {
-            var pInterfaces = result;
-            for(var i = 0; i < pInterfaces.length;i++) {
-                var pInterface , infType;
-                var liDetails = {};
-                if(pInterfaces[i]['physical-interface'] != null) { 
-                    pInterface = pInterfaces[i]['physical-interface'];
-                    infType = "Physical";
-                } else {
-                    pInterface = pInterfaces[i]['logical-interface'];
-                    infType = "Logical";
-                    liDetails = getLogicalInterfaceDetails(pInterface);                     
-                }
-                var piName = pInterface.display_name != null ? pInterface.display_name : pInterface.name;
-                var serverString = '';
-                var vmiDetails = liDetails.vmiDetails;
-                if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
-                    serverString = '-'
-                } else {
-                    $.each(vmiDetails,function(i,d){
-                        if(i == 0){
-                            serverString = d; 
-                        } else {
-                            serverString += '</br>' + d;
-                        }
-                    });
-                }
-                gridDS.push({
-                    uuid : pInterface.uuid,
-                    name : piName,
-                    type : infType,
-                    parent : pInterface.fq_name[1],
-                    vlan : liDetails.vlanTag != null ? liDetails.vlanTag : '-',
-                    server : (liDetails.liType == "L3")? '-' : vmiDetails != null ? vmiDetails : '-',
-                    servers_display : serverString,        
-                    vn : liDetails.vnRefs != null ? liDetails.vnRefs : '-',
-                    li_type : liDetails.liType != null ? liDetails.liType : '-' ,
-                    vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-',
-                    vmi_uuid : liDetails.vmiUUID,
-                    vm_uuid : liDetails.vmUUID,
-                    subnetUUIDArr : liDetails.subnetUUIDArr != null ? liDetails.subnetUUIDArr : '-',
-                    subnetCIDRArr : liDetails.subnetCIDRArr != null ? liDetails.subnetCIDRArr : '-'
-                });
-                var lInterfaces = pInterfaces[i]['physical-interface'] ? pInterfaces[i]['physical-interface']['logical_interfaces'] : null;
-                var lInterfaceNames = '';
-                var infDS = [];
-                if(lInterfaces != null && lInterfaces.length > 0) {
-                    for(var j = 0; j < lInterfaces.length; j++) {
-                        var lInterface = lInterfaces[j]['logical-interface'];
-                        var lInterfaceName = lInterface.display_name ? lInterface.display_name : lInterface.name;
-                        if(lInterfaceNames === ''){
-                            lInterfaceNames = lInterfaceName;
-                        } else {
-                            lInterfaceNames += ',' + lInterfaceName;
-                        }
-                        liDetails = getLogicalInterfaceDetails(lInterface);
-                        var serverString = '';
-                        var vmiDetails = liDetails.vmiDetails;
-                        if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
-                            serverString = '-'
-                        } else {
-                            $.each(vmiDetails,function(i,d){
-                                if(i == 0){
-                                    serverString = d; 
-                                } else {
-                                    serverString += '</br>' + d;
-                                }
-                            });
-                        }
-                        var liName = lInterface.display_name ? lInterface.display_name : lInterface.name;
-                        infDS.push({
-                            uuid : lInterface.uuid,
-                            name : liName,
-                            type : "Logical",
-                            parent : piName,
-                            vlan : liDetails.vlanTag,
-                            server : (liDetails.liType == "L3")? '-' : vmiDetails,
-                            servers_display : serverString,
-                            vn : liDetails.vnRefs,
-                            li_type : liDetails.liType,
-                            vmi_ip : liDetails.vmiIP,
-                            vmi_uuid : liDetails.vmiUUID,
-                            vm_uuid : liDetails.vmUUID,
-                            subnetUUIDArr : liDetails.subnetUUIDArr != null ? liDetails.subnetUUIDArr : '-',
-                            subnetCIDRArr : liDetails.subnetCIDRArr != null ? liDetails.subnetCIDRArr : '-'
-                        });                        
-                    }
-                    var currPhysicalInfRow = getCurrentPhysicalInfRow(gridDS, pInterface.uuid);
-                    if(currPhysicalInfRow != '') {
-                        currPhysicalInfRow['lInterfaces'] = lInterfaceNames;
-                    }                    
-                    gridDS = gridDS.concat(infDS);
-                }
-            }
-            
-            for(var i = 0; i < gridDS.length; i++) {
-                if(gridDS[i].type === 'Physical') {
-                    pInterfaceDS.push({text : gridDS[i].name, value : gridDS[i].uuid, parent : 'physical_interface'});
-                }
-            }
-            mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS},
-                {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS});
-            dsSrcDest = mainDS;
-            if(doubleCreation) {
-                createUpdatePhysicalInterface();
-            } else {    
-                //set parent drop down data here
-                ddParent.setData(mainDS);
-            }
-        } else {
-            mainDS.push({text : 'Physical Router', id : 'physical_router', children : pRouterDS}, 
-                {text : 'Physical Interface', id : 'physical_interface', children : pInterfaceDS
-                });
-            dsSrcDest = mainDS;
-            ddParent.setData(mainDS);    
-            ddParent.value(mainDS[0].children[0].value);
-            gridPhysicalInterfaces.showGridMessage("empty");
-        }
-        gridPhysicalInterfaces._dataView.setData(gridDS); 
-    }*/
-    
+
     function prepareAccordionData() {
         var mainDS = [];
         var pRouterDS = [];
