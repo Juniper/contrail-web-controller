@@ -157,8 +157,78 @@ function deletePhysicalInterfaces (request, response, appData)
                return;               
             }         
             commonUtils.handleJSONResponse(error, response, data);
-         });             
-} 
+         });
+}
+
+/**
+ * @deleteInterfaces
+ * public function
+ * 1. URL /api/tenants/config/interfaces/delete
+ * 2. delete interfaces in config api server
+ * 3. delete ports associated to interfaces in config api server
+ * 4. delete subnets associated to interfaces in config api server
+ * 5. expects selected rows data in request payload
+ */
+function deleteInterfaces(request, response, appData)
+{
+    var infDataObjArr = [];
+    var rows =  request.body;
+    var rowsCnt = rows.length;
+    for(var i = 0; i < rowsCnt; i++) {
+        var row = rows[i];
+        var infUrl = getInterfaceUrl(request, 'delete', row.type) + row.uuid;
+        commonUtils.createReqObj(infDataObjArr, infUrl, global.HTTP_REQUEST_DELETE,
+                                    row, null, null, appData);
+    }
+    async.mapLimit(infDataObjArr, 50, deleteInterfaceAsync, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function deleteInterfaceAsync(dataObj, callback)
+{
+    var url = dataObj.reqUrl;
+    var data  = dataObj.data;
+    var appData = dataObj.appData;
+    var request = appData.authObj.req;
+    var response = request.res;
+    if(data.vmiId != null) {
+        var portDataObjArry = [];
+        var vmiIdCnt = data.vmiId.length;
+        for(var i = 0; i < vmiIdCnt; i++) {
+            var vmiId = data.vmiId[i];
+            commonUtils.createReqObj(portDataObjArry, null, global.HTTP_REQUEST_DELETE,
+                                        vmiId, null, null, appData);
+        }
+        async.mapSeries(portDataObjArry, deletePortAsync, function(error, isPortDeleted){
+            if(error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            configApiServer.apiDelete(url, appData, function(err, isInfDeleted){
+                    callback(err, isInfDeleted);
+                }
+            );
+        });
+    } else {
+        configApiServer.apiDelete(url, appData, function(err, isInfDeleted){
+                callback(err, isInfDeleted);
+            }
+        );
+    }
+}
+
+function deletePortAsync(dataObj, callback)
+{
+    var vmiId =  dataObj.data;
+    var appData = dataObj.appData;
+    var request = appData.authObj.req;
+    ports.deletePortsCB({'appData' : appData, 'uuid' : vmiId, 'request' : request},
+        function(error, isPortDeleted) {
+            callback(error, isPortDeleted);
+        }
+    );
+}
 
 function validateQueryParam (request, key) 
 {
@@ -171,9 +241,9 @@ function validateQueryParam (request, key)
     return paramValue;
 }
 
-function getInterfaceUrl(request, operation) {
+function getInterfaceUrl(request, operation, type) {
      var infUrl = '';
-     var infType = validateQueryParam(request, 'infType');
+     var infType = type != null ? type : validateQueryParam(request, 'infType');
      if(infType === 'Physical') {
           infUrl =  operation === 'create' ? '/physical-interfaces' : '/physical-interface/';   
      } else if(infType === 'Logical') {
@@ -563,6 +633,7 @@ function deleteLISubnet (request, response, appData)
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
 exports.deletePhysicalInterfaces = deletePhysicalInterfaces;
+exports.deleteInterfaces = deleteInterfaces;
 exports.getVirtualNetworkInternals = getVirtualNetworkInternals;
 exports.mapVirtualMachineRefs = mapVirtualMachineRefs;
 exports.deleteLIVirtualMachines = deleteLIVirtualMachines;
