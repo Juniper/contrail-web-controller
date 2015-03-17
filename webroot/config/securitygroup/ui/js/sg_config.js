@@ -242,7 +242,7 @@ function initComponents() {
 
 function deleteSG(selected_rows) {
     btnDeleteSG.attr("disabled","disabled");
-    var deleteAjaxs = [];
+    /*var deleteAjaxs = [];
     if (selected_rows && selected_rows.length > 0) {
         var cbParams = {};
         cbParams.selected_rows = selected_rows;
@@ -253,7 +253,24 @@ function deleteSG(selected_rows) {
         cbParams.errorShortMessage = "Error in deleting Security Group - ";
         cbParams.errorField = "sgName";
         deleteObject(cbParams);
+    }*/
+    var delCountPerRequest = 100;
+    var deleteArr = [];
+    var deleteID = [];
+    var selectedRowCount = selected_rows.length
+    for(i = 0; i < selectedRowCount; i++){
+        deleteID.push(selected_rows[i].sgUUID);
+        if(((i+1) % delCountPerRequest) == 0 || (i+1) == selectedRowCount){
+            deleteArr.push([{"deleteIDs":deleteID,"type":"security-group"}]);
+            deleteID = [];
+       }
     }
+    var delArr = deleteArr[0];
+    deleteArr.splice(0, 1);
+    doAjaxCall("/api/tenants/config/delete", "POST", JSON.stringify(delArr),
+                "fetchDataForgridSG", "fetchDataForgridSG", null, deleteArr);
+
+
 }
 
 function initActions() {
