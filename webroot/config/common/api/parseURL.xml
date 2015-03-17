@@ -10,6 +10,10 @@
         <define>projectconfigapi</define>
         <path>./projectconfig.api</path>
     </require>
+    <require>
+        <define>configUtilapi</define>
+        <path>./configUtil.api</path>
+    </require>
     <!-- API / Feature definition for Projects configuration -->
     <!-- 1. List Projects - /api/tenants/config/projects,
                                                  listProjects
@@ -45,6 +49,12 @@
         <method>get</method>
         <feature>projectconfig</feature>
         <callback>projectconfigapi.listDomains</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/delete</url>
+        <method>post</method>
+        <feature>configUtil</feature>
+        <callback>configUtilapi.deleteMultiObject</callback>
     </item>
 </urlLists>
 
