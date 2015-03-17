@@ -51,6 +51,7 @@ monitorInfraComputeFlowsClass = (function() {
                         stats_packets:ifNullOrEmptyObject(obj['packets'],noDataStr),
                         direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
                         peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
+                        deny:ifNullOrEmptyObject(obj['implicit_deny'],noDataStr),
                         raw_json:rawJson});
                 });
             } else {
@@ -68,6 +69,7 @@ monitorInfraComputeFlowsClass = (function() {
                         stats_packets:ifNullOrEmptyObject(obj['stats_packets'],noDataStr),
                         direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
                         peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
+                        deny:ifNullOrEmptyObject(obj['implicit_deny'],noDataStr),
                         raw_json:rawJson});
                 });
             }
@@ -186,7 +188,7 @@ monitorInfraComputeFlowsClass = (function() {
                                                selectTab(computeNodeTabStrip + '_' + obj.name,tabIdx);
                                            }
                                         },
-                                       minWidth:195
+                                       minWidth:185
                                    },
                                    {
                                        field:"sip",
@@ -208,7 +210,12 @@ monitorInfraComputeFlowsClass = (function() {
                                                selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
                                            }
                                         },
-                                       minWidth:195
+                                       minWidth:185
+                                   },
+                                   {
+                                       field:"deny",
+                                       name:"Implicit Deny",
+                                       minWidth:60
                                    },
                                    {
                                        field:"dip",
@@ -237,7 +244,7 @@ monitorInfraComputeFlowsClass = (function() {
                                        formatter:function(r,c,v,cd,dc){
                                            return new XDate(dc['setup_time_utc']/1000).toLocaleString();
                                        },
-                                       minWidth:150
+                                       minWidth:85
                                    }
                                ]
                 },
