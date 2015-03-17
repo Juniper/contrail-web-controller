@@ -30,6 +30,7 @@ function portsConfigObj() {
 
     var idCount =0;
     var polAjaxcount = 0;
+    var delCountPerRequest;
     var ajaxParam;
     var dynamicID = 0;
     var pageCount;
@@ -279,6 +280,7 @@ function initComponents() {
     txtPortName = $("#txtPortName");
     txtMacAddress = $("#txtMacAddress");
     polAjaxcount = 0;
+    delCountPerRequest = 50;
     mac_address = [];
     ip_address = [];
     selectedParentVMIObject = [];
@@ -386,7 +388,7 @@ function enableSG(e){
 function deletePorts(selected_rows) {
     btnDeletePorts.attr("disabled","disabled");
     var deleteAjaxs = [];
-    if (selected_rows && selected_rows.length > 0) {
+    /*if (selected_rows && selected_rows.length > 0) {
         var cbParams = {};
         cbParams.selected_rows = selected_rows;
         cbParams.url = "/api/tenants/config/ports/";
@@ -396,6 +398,32 @@ function deletePorts(selected_rows) {
         cbParams.errorShortMessage = "Error in deleting Port - ";
         cbParams.errorField = "portName";
         deleteObject(cbParams);
+    }*/
+    var deleteArr = [];
+    var deleteID = [];
+    var selectedRowCount = selected_rows.length
+    for(i = 0; i < selectedRowCount; i++){
+        deleteID.push(selected_rows[i].portUUID);
+        //deleteID.push("asweflks");
+        if(((i+1) % delCountPerRequest) == 0 || (i+1) == selectedRowCount){
+            deleteArr.push([{"deleteIDs":deleteID,"type":"virtual-machine-interface"}]);
+            deleteID = [];
+       }
+    }
+    var delArr = deleteArr[0];
+    deleteArr.splice(0, 1);
+    doAjaxCall("/api/tenants/config/delete", "POST", JSON.stringify(delArr),
+                "loopDeletePort", "createPortsFailureCb", null, deleteArr);
+}
+
+function loopDeletePort(result , deleteArr) {
+    if(deleteArr.length >= 1){
+        var delArr = deleteArr[0];
+        deleteArr.splice(0, 1);
+        doAjaxCall("/api/tenants/config/delete", "POST", JSON.stringify(delArr),
+            "loopDeletePort", "createPortsFailureCb", null, deleteArr);
+    } else {
+        fetchDataForgridPorts();
     }
 }
 
@@ -1720,7 +1748,7 @@ function showPortEditWindow(mode, rowIndex) {
                         (ip.virtual_machine_interface_properties != null && 
                         ip.virtual_machine_interface_properties.sub_interface_vlan_tag == null)) &&
                         (ip["virtual_network_refs"] != undefined && 
-                             ip["virtual_network_refs"] != null && 
+                             ip["virtual_network_refs"] != null &&
                              ip["virtual_network_refs"][0]["to"][1] == selectedProject) &&
                              selectedPortUUID != ip["uuid"]){
 
@@ -1747,7 +1775,6 @@ function showPortEditWindow(mode, rowIndex) {
                             ip["virtual_network_refs"][0]["to"][2]; 
 
                         subInterfaceParentValObj.virtual_network_refs = ip["virtual_network_refs"][0]["to"];
-                        
                         var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
                         subInterfaceParentDatas.push({"text":subInterfaceParentText, "value":JSON.stringify(value)});
                         
