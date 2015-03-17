@@ -74,8 +74,15 @@ and need to add the iconClass tag wherever we need to show some icons
                 </resource>
                 <resource>
                   <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                  <view>monitor_infra_vrouter.view</view>
                   <js>monitor_infra_vrouter.js</js>
                   <js>monitor_infra_vrouter_flows.js</js>
+                  <js>monitor_infra_vrouter_details.js</js>
+                  <js>monitor_infra_vrouter_interfaces.js</js>
+                  <js>monitor_infra_vrouter_networks.js</js>
+                  <js>monitor_infra_vrouter_acl.js</js>
+                  <js>monitor_infra_vrouter_flows.js</js>
+                  <js>monitor_infra_vrouter_routes.js</js>
                 </resource>
                 <resource>
                   <rootDir>/monitor/tenant-network/common/ui</rootDir>

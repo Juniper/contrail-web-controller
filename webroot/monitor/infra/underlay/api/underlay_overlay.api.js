@@ -56,7 +56,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
                              opApiServer, null, appData);
     url = '/analytics/uves/vrouter';
     var vrPostData = {};
-    vrPostData['cfilt'] = ['VrouterAgent:self_ip_list'];
+    vrPostData['cfilt'] = ['VrouterAgent:self_ip_list','VrouterAgent:sandesh_http_port'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
                              opApiServer, null, appData);
     async.map(dataObjArr,
@@ -125,7 +125,7 @@ function buildTopology (req, appData, callback)
                 for (var i = 0; i < vrCnt; i++) {
                     try {
                         tmpVRouterObjs[vrData[i]['name']] =
-                            vrData[i]['value']['VrouterAgent']['self_ip_list'];
+                            vrData[i]['value']['VrouterAgent'];
                     } catch(e) {
                         continue;
                     }
@@ -135,7 +135,7 @@ function buildTopology (req, appData, callback)
                     if (ctrlGlobal.NODE_TYPE_VROUTER ==
                         phyTopo['nodes'][i]['node_type']) {
                         if (null != tmpVRouterObjs[phyTopo['nodes'][i]['name']]) {
-                            phyTopo['nodes'][i]['more_attributes']['self_ip_list']
+                            phyTopo['nodes'][i]['more_attributes']['VrouterAgent']
                                 = tmpVRouterObjs[phyTopo['nodes'][i]['name']];
                         }
                     }

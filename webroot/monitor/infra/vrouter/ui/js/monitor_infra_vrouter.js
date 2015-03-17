@@ -73,15 +73,15 @@ computeNodeView = function () {
         var tabIdx = $.inArray(obj['tab'], computeNodeTabs);
         
         if (!isInitialized('#compute_tabstrip_' + obj.name)) {
-            if(obj.detailView === undefined) {
+            if(obj.detailView == true || obj.page == 'underlay') {
+                computeNodeInfo = obj;
+            } else if(obj.detailView === undefined) {
             	var compNodeTemplate = Handlebars.compile($("#computenode-template").html());
                 $(pageContainer).html(compNodeTemplate(computeNodeInfo));
                
                 //Set the height of all tabstrip containers to viewheight - tabstrip
                 var tabContHeight = layoutHandler.getViewHeight() - 42;
-            } else if(obj.detailView === true) {
-                computeNodeInfo = obj;
-            }   
+            } 
             if (tabIdx == -1){
                 tabIdx = 0;
                 monitorInfraComputeDetailsClass.populateDetailsTab(computeNodeInfo);

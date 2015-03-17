@@ -114,7 +114,7 @@ monitorInfraComputeACLClass = (function() {
     }
     
     this.populateACLTab = function (obj) {
-        if(obj.detailView === undefined) {
+        if(obj.detailView === undefined && obj.page == null) {
             layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
         }    
         var selectedAcl = 'All';
