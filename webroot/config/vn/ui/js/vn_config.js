@@ -2079,14 +2079,21 @@ function successHandlerForGridVNRow(result) {
             fwdMode = "L2 and L3";
         }
 
+        var automaticVxlanID = vn.virtual_network_network_id;
         var vxlanid = jsonPath(vn, "$.virtual_network_properties.vxlan_network_identifier");
         if (vxlanid !== false && typeof vxlanid !== "undefined" && vxlanid.length > 0) {
             vxlanid = vxlanid[0];
             if(null === vxlanid) {
                 vxlanid = "Automatic";
+                if (automaticVxlanID != false && automaticVxlanID != null && automaticVxlanID != "undefined"){
+                    vxlanid += " ( " + automaticVxlanID + " )";
+                }
             } 
         } else {
             vxlanid = "Automatic";
+            if(automaticVxlanID != false && automaticVxlanID != null && automaticVxlanID != "undefined"){
+                vxlanid += " ( " + automaticVxlanID + " )";
+            }
         }
         var enableControles = true;
         if(($("#ddProjectSwitcher").data("contrailDropdown").value() != vn.parent_uuid) &&  Shared == "Enabled")
