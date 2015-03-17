@@ -114,8 +114,10 @@ body > svg {
                         </li>
                         <li>
                             <label class="inline">
-                                <span class="key"> Total Traffic </span>
-                                <span class="value"> {{stats}} </span>
+                                <span class="key"> Traffic (In/Out) (Last 1 hr) </span>
+                                <span id = "VMstats" class="value"> 
+                                    <i class="grid-header-icon-loading icon-spinner icon-spin"></i> 
+                                </span>
                             </label>
                         </li>
                         <li>
