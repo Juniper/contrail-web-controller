@@ -18,6 +18,7 @@ function underlayRenderer() {
     this.load = function(obj) {
         this.configTemplate = Handlebars.compile($("#visualization-template").html());
         Handlebars.registerPartial("deviceSummary", $("#device-summary-template").html());
+        Handlebars.registerPartial('underlayTabsHtml',$('#underlay-tabs').html());
         $("#content-container").html('');
         $("#content-container").html(this.configTemplate);
         currTab = 'mon_infra_underlay';
@@ -443,12 +444,6 @@ underlayModel.prototype.destroy = function() {
     this.reset();
 }
 
-
-
-
-
-
-
 var underlayView = function (model) {
     this.elementMap        = {
         nodes: {},
@@ -472,18 +467,9 @@ var underlayView = function (model) {
     this.contextMenuConfig = {};
     this.tooltipConfig = {};
     var _this = this;
-    $("#underlay_tabstrip").contrailTabs({
-        activate:function (e, ui) {
-            var selTab = $(ui.newTab.context).text();
-            if (selTab == 'Search Flows') {
-                _this.renderFlowRecords();
-            } else if (selTab == 'Trace Flows') {
-                _this.renderTracePath();
-            } else if (selTab == 'Details') {
-            }
-        }
-    });
-    this.renderFlowRecords();
+    _this.renderUnderlayTabs();
+    //Rendering the first search flows tab
+    _this.renderFlowRecords();
 }
 
 underlayView.prototype.getConnectedElements = function() {
@@ -1410,6 +1396,8 @@ underlayView.prototype.initGraphEvents = function() {
                     data['version'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['version'] : '-';
                     data['interfaceCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['intfCnt'] : '-';
                     data['hostName'] = hostNameIp;
+                    data['name'] = name;
+                    data['ip'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['ip'] : '-';
                     data['virtualNetworkCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['vnCnt'] : '-';
                     data['instanceCount'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['instCnt']: '-';
                     data['memory'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['memory']: '-';
@@ -2278,9 +2266,40 @@ underlayView.prototype.getPostDataFromHashParams = function() {
      }
      return data;
 }
+underlayView.prototype.addCommonTabs = function(tabDiv) {
+    var _this = this;
+    var tabObj = $("#"+tabDiv).data('contrailTabs');
+    tabObj.addTab('traceFlow','Trace Flows',{position: 'before'});
+    tabObj.addTab('flows-tab','Search Flows',{position: 'before'});
+    $("#"+tabDiv).on('tabsactivate',function(e,ui){
+        var selTab = $(ui.newTab.context).text();
+        if(selTab == 'Search Flows')
+            _this.renderFlowRecords();
+        else if(selTab == 'Trace Flows')
+            _this.renderTracePath();
+    });
+}
+
+underlayView.prototype.renderUnderlayTabs = function() {
+    var _this = this;
+    $("#underlayTabs").html(Handlebars.compile($("#underlay-tabs").html()));
+    $("#underlay_tabstrip").contrailTabs({
+        activate:function (e, ui) {
+            var selTab = $(ui.newTab.context).text();
+            if (selTab == 'Search Flows') {
+                _this.renderFlowRecords();
+            } else if (selTab == 'Trace Flows') {
+                _this.renderTracePath();
+            } else if (selTab == 'Details') {
+            }
+        }
+    });
+}
 
 underlayView.prototype.populateDetailsTab = function(data) {
-    var type = data['type'],details,content = {};
+    var type = data['type'],details,content = {},_this = this;
+    if(type == PROUTER || type == 'link' || type == VIRTUALMACHINE)
+        _this.renderUnderlayTabs();
     $("#detailsLink").show();
     $("#underlay_tabstrip").tabs({active:2});
     if(type != 'link')
@@ -2294,78 +2313,98 @@ underlayView.prototype.populateDetailsTab = function(data) {
         };
         details = Handlebars.compile($("#device-summary-template").html())(content);
         $("#detailsTab").html(details);
-        var intfDetails = [];
-        for(var i = 0; i < ifNull(data['response']['more_attributes']['ifTable'],[]).length; i++ ) {
-            var intfObj = data['response']['more_attributes']['ifTable'][i];
-            var rowObj = {
-                    ifDescr: ifNull(intfObj['ifDescr'],'-'),
-                    ifIndex: ifNull(intfObj['ifIndex'],'-'),
-                    ifInOctets: intfObj['ifInOctets'],
-                    ifOutOctets: intfObj['ifOutOctets'],
-                    ifPhysAddress: ifNull(intfObj['ifPhysAddress'],'-'),
-                    rawData: intfObj
-            };
-            intfDetails.push(rowObj);
-        }
-        var dataSource = new ContrailDataView();
-        dataSource.setData(intfDetails);
-        var columns = [{
-            field:'ifDescr',
-            name:'Name',
-            minWidth: 150,
-        },{
-            field:'ifIndex',
-            name:'Index',
-            minWidth: 150
-        },{
-            field:'bandwidth',
-            name:'Traffic (In/Out)',
-            minWidth:150,
-            formatter:function(r,c,v,cd,dc) {
-                return contrail.format("{0} / {1}",formatBytes(dc['ifInOctets']),formatBytes(dc['ifOutOctets']));
-            }
-        },{
-            field:'ifPhysAddress',
-            name:'Address',
-            minWidth:150,
-        }];
-        var selector = $("#detailsTab").find('div.contrail-grid')[0];
-        $(selector).contrailGrid({
-            header : {
-                title : {
-                    text : 'Interfaces'
+        var underlayTabObj = $("#underlay_tabstrip").data('contrailTabs');
+        underlayTabObj.addTab('pRouterInterfacesTab','Interfaces');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+            if(selTab == 'Interfaces'){
+                $("#pRouterInterfacesTab").html(Handlebars.compile($("#pRouterInterfaces").html()))
+                var intfDetails = [];
+                for(var i = 0; i < ifNull(data['response']['more_attributes']['ifTable'],[]).length; i++ ) {
+                    var intfObj = data['response']['more_attributes']['ifTable'][i];
+                    var rowObj = {
+                            ifDescr: ifNull(intfObj['ifDescr'],'-'),
+                            ifIndex: ifNull(intfObj['ifIndex'],'-'),
+                            ifInOctets: intfObj['ifInOctets'],
+                            ifOutOctets: intfObj['ifOutOctets'],
+                            ifPhysAddress: ifNull(intfObj['ifPhysAddress'],'-'),
+                            rawData: intfObj
+                    };
+                    intfDetails.push(rowObj);
                 }
-            },
-            columnHeader : {
-                columns:columns
-            },
-            body : {
-                options : {
-                    forceFitColumns: true,
-                    sortable : false
-                },
-                dataSource:{
-                    dataView:dataSource,
-                },
-                statusMessages: {
-                    loading: {
-                        text: 'Loading Interface ...',
-                    },
-                    empty: {
-                        text: 'No Interfaces to display'
-                    }, 
-                    errorGettingData: {
-                        type: 'error',
-                        iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                var dataSource = new ContrailDataView();
+                dataSource.setData(intfDetails);
+                var columns = [{
+                    field:'ifDescr',
+                    name:'Name',
+                    minWidth: 150,
+                },{
+                    field:'ifIndex',
+                    name:'Index',
+                    minWidth: 150
+                },{
+                    field:'bandwidth',
+                    name:'Traffic (In/Out)',
+                    minWidth:150,
+                    formatter:function(r,c,v,cd,dc) {
+                        return contrail.format("{0} / {1}",formatBytes(dc['ifInOctets']),formatBytes(dc['ifOutOctets']));
                     }
-                }
+                },{
+                    field:'ifPhysAddress',
+                    name:'Address',
+                    minWidth:150,
+                }];
+                var selector = $("#pRouterInterfacesTab").find('div.contrail-grid')[0];
+                $(selector).contrailGrid({
+                    header : {
+                        title : {
+                            text : 'Interfaces'
+                        }
+                    },
+                    columnHeader : {
+                        columns:columns
+                    },
+                    body : {
+                        options : {
+                            forceFitColumns: true,
+                            sortable : false
+                        },
+                        dataSource:{
+                            dataView:dataSource,
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Interface ...',
+                            },
+                            empty: {
+                                text: 'No Interfaces to display'
+                            }, 
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Data.'
+                            }
+                        }
+                    }
+                });
             }
         });
     } else if (type == VROUTER) {
         content = data;
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        content['page'] = 'underlay';
+        $("#underlayTabs").html(Handlebars.compile($("#computenode-template").html())(content));
+        var vRouterDetails = $.grep(globalObj['topologyResponse']['vRouterList'],function(value,idx){
+                                return value['name'] == content['name'];
+                             });
+        var introspectPort = defaultIntrospectPort;
+        try{
+            introspectPort = vRouterDetails[0]['more_attributes']['VrouterAgent']['sandesh_http_port'];
+        }catch(e){
+            introspectPort = defaultIntrospectPort;
+        }
+        cmpNodeView.populateComputeNode({name:content['name'], ip:content['ip'], page:'underlay',
+            introspectPort:introspectPort != null ? introspectPort : defaultIntrospectPort});
+        _this.addCommonTabs('compute_tabstrip_'+content['name']);
     } else if(type == VIRTUALMACHINE) {
         content = data;
         details = Handlebars.compile($("#device-summary-template").html())(content);
@@ -2437,29 +2476,6 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 selector = '#vrouter-ifstats';
                 chartData = parseTSChartData(response);
                 initTrafficTSChart(selector, chartData, options, null, "formatSumBytes", "formatSumBytes");
-                /*var flows = ifNull(response['flow-series'],[]);
-                var inBytes = [];
-                var outBytes = [];
-                for(var i = 0; i < flows.length; i++) {
-                    var flowObj = flows[i];
-                    inBytes.push({
-                        x:flowObj['time'],
-                        y:flowObj['inBytes']
-                    });
-                    outBytes.push({
-                        x:flowObj['time'],
-                        y:flowObj['outBytes']
-                    });
-                }
-                chartObj['data'][0] = {
-                                key:'InBytes',
-                                values:inBytes,
-                };
-                chartObj['data'][1] = {
-                        key:'OutBytes',
-                        values:outBytes,
-                }
-                initMemoryLineChart('#'+selector,chartObj['data'],{height:300});*/
             } else if (link == 'prouter') {
                 details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
                 $("#detailsTab").html(details);
@@ -2591,7 +2607,11 @@ underlayController.prototype.getModelData = function(cfg) {
         var virtualMachineList = $.grep(ifNull(response['nodes'],[]),function(value,idx){
             return value['node_type'] == 'virtual-machine';
         });
-        globalObj.topologyResponse.VMList = virtualMachineList;
+        var vRouterList = $.grep(ifNull(response['nodes'],[]),function(value,idx){
+           return value['node_type'] == 'virtual-router'; 
+        });
+        globalObj['topologyResponse']['VMList'] = virtualMachineList;
+        globalObj['topologyResponse']['vRouterList'] = vRouterList;
         _this.getView().resetTopology();
         _this.getModel().setNodes(response['nodes']);
         _this.getModel().setLinks(response['links']);

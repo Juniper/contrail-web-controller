@@ -112,7 +112,7 @@ monitorInfraComputeFlowsClass = (function() {
         aclIterKeyStack = [];
         $('#btnNextFlows' + '_' + obj.name).unbind("click").click(onNextClick);
         $('#btnPrevFlows' + '_' + obj.name).unbind("click").click(onPrevClick);
-        if(obj.detailView === undefined) {
+        if(obj.detailView === undefined || obj.page == null) {
             layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
         }    
         if (!isDropdownInitialized('aclDropDown' + '_' + obj.name)){
