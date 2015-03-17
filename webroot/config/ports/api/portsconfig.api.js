@@ -1717,8 +1717,12 @@ function deletePortsCB(dataObject, callback)
     var portId = dataObject.uuid;
     var request = dataObject.request;
     readVMIwithUUID(portId, appData, function(err, vmiData){
+        if(err){
+            callback(null, {'error': err, 'data': vmiData});
+            return;
+        }
         getReadDelVMICb(err, vmiData, request, appData, function(error, data){
-            callback(error, data);
+            callback(null, {'error': error, 'data': data});
             return;
         });
     });

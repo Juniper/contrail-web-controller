@@ -1,0 +1,12 @@
+<!--
+ Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+-->
+<featureLists>
+    <require>
+        <define>rbac</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/web/core/rbac.api'</path>
+    </require>
+    <item>
+         <feature>configUtil</feature>
+    </item>
+</featureLists>
