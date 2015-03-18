@@ -89,15 +89,25 @@
             <div class="row-fluid {{{showDeviceOwner}}}">
                 <div>
                     <span class="span2"><label>Device</label> </span>
-                    <span class="span10">: {{devOwnerName}} </span>
+                    <span class="span10">: {{displayOwnerName}} </span>
                 </div>
             </div>
+            {{#if logicalInterfaceName}}
+            <div class="row-fluid">
+                <div>
+                    <span class="span2"><label>logical Interface Name</label> </span>
+                    <span class="span10">: {{logicalInterfaceName}} </span>
+                </div>
+            </div>
+            {{/if}}
             <div class="row-fluid {{{showDeviceOwner}}}">
                 <div>
                     <span class="span2"><label>Device ID</label> </span>
                     <span class="span10">: {{deviceID}} </span>
                 </div>
             </div>
+
+            
             {{#if chiled}}
                 <label><h6><b>Sub Interface Properties</b></h6></label>
 
