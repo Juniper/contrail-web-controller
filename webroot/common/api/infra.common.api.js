@@ -472,7 +472,10 @@ function getvRouterList (appData, callback)
             callback(err, results, null);
             return;
         }
-        var vrConf = results[0]['virtual-routers'];
+        var vrConf = null;
+        if (null != results[0]) {
+            vrConf = results[0]['virtual-routers'];
+        }
         /*
         try {
             var vrConf = results[0]['virtual-routers'];
