@@ -1462,11 +1462,15 @@ function updateDevice(e){
             $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(routerUUID);
             if(routerUUID.length > 0){
                 $("#ddDeviceOwnerUUID").data("contrailDropdown").value(routerUUID[0].value);
+            } else {
+                $("#ddDeviceOwnerUUID").data("contrailDropdown").value([]);
             }
         } else if(selectedDeviceValue == "compute"){
             $("#ddDeviceOwnerUUID").data("contrailDropdown").setData(computeUUID);
             if(computeUUID.length > 0){
                 $("#ddDeviceOwnerUUID").data("contrailDropdown").value(computeUUID[0].value);
+            } else {
+                $("#ddDeviceOwnerUUID").data("contrailDropdown").value([]);
             }
         }
     }
@@ -1972,6 +1976,12 @@ function validate() {
     if (selectedFloatingIP && selectedFloatingIP.length > 0 && deviceName == "router"){
         showInfoWindow("Floating Ip cannot be assigned to Router port", "Invalid Input");
         return false;
+    }
+    
+    var deviceUUID = $("#ddDeviceOwnerUUID").data("contrailDropdown").value();
+    if(deviceName != "None" && ("" == deviceUUID ||  null == deviceUUID  || typeof deviceUUID == "undefined")){
+        showInfoWindow("Device Owner UUID cannot be empty.", "Invalid Input");
+        return false
     }
     if(deviceName == "compute" && $("#is_subInterface")[0].checked){
         showInfoWindow("Subinterface cannot be assigned along with Compute Device Owner.", "Invalid Input");
