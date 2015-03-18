@@ -684,38 +684,75 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
     callback(null, topoData);
 }
 
-function getUnderlayPathByNodelist (req, topoData, appData, callback)
+function computePathByNodeList (allPaths, topoData)
 {
     var endpoints = [];
+    var nodeList = [];
+    var pathList = JSON.parse(JSON.stringify(allPaths));
+    var nodeCnt = topoData['nodes'].length;
+    var endpoints = [];
+    for (var i = 0; i < nodeCnt; i++) {
+        nodeList.push(topoData['nodes'][i]['name']);
+    }
+    var allPathsCnt = allPaths.length;
+    for (var i = 0; i < allPathsCnt; i++) {
+        if (nodeList.length != allPaths[i].length) {
+            continue;
+        }
+        if (nodeList.sort().join(',') == (allPaths[i].sort().join(','))) {
+            var computedPath = pathList[i];
+            var nodesCnt = computedPath.length;
+            for (var i = 0; i < nodesCnt; i++) {
+                if (null != computedPath[i + 1]) {
+                    endpoints.push({"endpoints": [computedPath[i], computedPath[i + 1]]});
+                }
+            }
+            return endpoints;
+        }
+    }
+    var nodeBits = [];
+    /* We have not got the path, send the broken link */
+    for (var i = 0; i < allPathsCnt; i++) {
+        if (true == commonUtils.isSubArray(allPaths[i], nodeList)) {
+            break;
+        }
+    }
+    var resPath = [];
+    if (i == allPathsCnt) {
+        resPath = allPaths[0];
+    } else {
+        resPath = allPaths[i];
+    }
+    /* Now build the broken endpoints */
+    var resPathNodeCnt = resPath.length;
+    for (var i = 1; i < resPathNodeCnt; i++) {
+        if ((-1 != nodeList.indexOf(resPath[i - 1])) &&
+            (-1 != nodeList.indexOf(resPath[i]))) {
+            endpoints.push({'endpoints': [resPath[i - 1], resPath[i]]});
+        }
+    }
+    return endpoints;
+}
+
+function getUnderlayPathByNodelist (req, topoData, srcVM, destVM, appData, callback)
+{
+    var tempLinksObjArr = [];
     var url = '/analytics/uves/prouter';
     var key = global.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
     redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req, appData,
                                          function(err, topology) {
+        for (var i = 0; i < topology['links'].length; i++) {
+            delete topology['links'][i]['more_attributes'];
+        }
         var nodeCnt = topoData['nodes'].length;
         var links = topology['links'];
         var linksCnt = links.length;
-        var tempLinksObj = {};
         for (var i = 0; i < linksCnt; i++) {
-            tempLinksObj[links[i]['endpoints'][0] + ":" +
-                links[i]['endpoints'][1]] = true;
-            tempLinksObj[links[i]['endpoints'][1] + ":" +
-                links[i]['endpoints'][0]] = true;
+            tempLinksObjArr.push(links[i]['endpoints']);
         }
-        for (var i = 0; i < nodeCnt - 1; i++) {
-            for (var j = nodeCnt - 1; j >= 1; j--) {
-                var link1 = topoData['nodes'][i]['name'] + ":" +
-                    topoData['nodes'][j]['name'];
-                var link2 = topoData['nodes'][j]['name'] + ":" +
-                    topoData['nodes'][i]['name'];
-                if ((null != tempLinksObj[link1]) ||
-                    (null != tempLinksObj[link2])) {
-                    endpoints.push({"endpoints": [topoData['nodes'][i]['name'],
-                        topoData['nodes'][j]['name']]});
-                }
-            }
-        }
-        /* Get the VM data as well */
-
+        var nodes = 
+            commonUtils.findAllPathsInEdgeGraph(tempLinksObjArr, srcVM, destVM);
+        var endpoints = computePathByNodeList(nodes, topoData);
         callback(null, endpoints);
     });
 }
@@ -812,8 +849,22 @@ function getUnderlayPath (req, res, appData)
                                        "node_type":
                                        ctrlGlobal.NODE_TYPE_VROUTER});
             }
-            getUnderlayPathByNodelist(req, topoData, appData, function(err, endpoints) {
+            var srcVM = (null != srcVrouter) ? srcVrouter['vm_uuid'] : null;
+            var destVM = (null != destVrouter) ? destVrouter['vm_uuid'] : null;
+            if (null != srcVrouter) {
+                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
+                                       "node_type":
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            }
+            if (null != destVrouter) {
+                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
+                                       "node_type":
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            }
+            getUnderlayPathByNodelist(req, topoData, srcVM, destVM, 
+                                      appData, function(err, endpoints) {
                 topoData['links'] = endpoints;
+                /*
                 if (null != srcVrouter) {
                     topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
                                            "node_type":
@@ -828,6 +879,7 @@ function getUnderlayPath (req, res, appData)
                     topoData['links'].push({'endpoints': [destVrouter['vm_uuid'],
                                            destVrouter['vrouter']]});
                 }
+                */
                 commonUtils.handleJSONResponse(err, res, topoData);
             });
         });
