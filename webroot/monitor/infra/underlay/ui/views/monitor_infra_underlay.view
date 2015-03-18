@@ -131,11 +131,6 @@ body > svg {
 	        </div>
 	    </div>
 	</div>
-	{{#IfCompare type 'physical-router' operator='=='}}
-	   <div class="span12">
-            <div class="contrail-grid"></div>
-       </div>
-	{{/IfCompare}}
 </script>
 <script type="text/x-handlebars-template" id="visualization-template">
     <div id="underlay_topology">
@@ -162,9 +157,6 @@ body > svg {
                     </div>
                     <div title="Expand/Collapse Visualization" class="topology-control-item" onclick="underlayRenderer.getView().expandTopology();">
                         <i class="icon-resize-small"></i>
-                    </div>
-                    <div title="Directed Graph" onclick="underlayRenderer.getView().layout();" class="topology-control-item">
-                        <i class="icon-random"></i>
                     </div>
                 </div>
             </div>
@@ -225,7 +217,11 @@ body > svg {
         </div
     </div>
 </script>
-
+<script type="text/x-handlebars-template" id="pRouterInterfaces">
+    <div class="row-fluid">
+        <div class="contrail-grid"></div>
+    </div>
+ </script>
 <script type="text/x-handlebars-template" id="link-summary-template">
     {{#IfCompare this.link 'vrouter' operator='=='}}   
         <div class="row-fluid">
