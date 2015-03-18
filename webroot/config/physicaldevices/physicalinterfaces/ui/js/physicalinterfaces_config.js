@@ -19,6 +19,7 @@ function physicalInterfacesConfig() {
     this.dynamicID = dynamicID;
     var vmiDataSrc = [];
     var selAllRows;
+    var ajaxTimeout = 300000;
     //Method Definations
     this.load = load;
     this.destroy = destroy;	
@@ -630,7 +631,7 @@ function physicalInterfacesConfig() {
 
     function deleteInterface(selRowsByType) {
         doAjaxCall('/api/tenants/config/interfaces/delete', 'POST', JSON.stringify(selRowsByType), 'onDeleteInterfaceSuccess', 
-            'onDeleteInterfaceFailure', null, null, 300000);
+            'onDeleteInterfaceFailure', null, null, ajaxTimeout);
     }
 
     window.onDeleteInterfaceSuccess = function(res) {
@@ -1174,7 +1175,7 @@ function physicalInterfacesConfig() {
                 $("[id$=serverMac]").data('contrailCombobox').enable(false);
             }
         } else {
-            doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null, 300000);
+            doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null, ajaxTimeout);
         }
     }
     
@@ -1249,7 +1250,7 @@ function physicalInterfacesConfig() {
         pInterfaceDS = [];
         piUUIDList = [];
         doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID +'&parent=physical-router','GET', null,
-        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam);
+        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, ajaxTimeout);
     }
     
     window.successHandlerForPhysicalInterfacesNew = function(result, cbparam) {
@@ -1258,7 +1259,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, cbparam);            
+                'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, cbparam, ajaxTimeout);
         }
         preparePIData(result);
     }
@@ -1315,7 +1316,7 @@ function physicalInterfacesConfig() {
         var uuid = currentUUID;
         var parent = 'physical-router';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, ajaxParam);        
+        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, ajaxTimeout);
     }
      
     window.successHandlerForLI = function(result, cbparam) {
@@ -1324,7 +1325,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, cbparam);            
+                'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, cbparam, ajaxTimeout);
         }
         prepareLIWithProutersData(result);    
     }
@@ -1396,7 +1397,7 @@ function physicalInterfacesConfig() {
         var uuid = piUUID;
         var parent = 'physical-interface';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : ajaxParam, id : uuid});        
+        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : ajaxParam, id : uuid}, ajaxTimeout);
     }
      
     window.successHandlerForLIWithPI = function(result, cbparam) {
@@ -1405,7 +1406,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +'&parent=physical-interface','GET', null,
-                'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : cbparam.ajaxParam, id : cbparam.id});            
+                'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : cbparam.ajaxParam, id : cbparam.id}, ajaxTimeout);
         }
         prepareLIDataWithPI(result);
     }
