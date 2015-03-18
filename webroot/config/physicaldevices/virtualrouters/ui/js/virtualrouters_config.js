@@ -273,7 +273,7 @@ function virtualRoutersConfig() {
     function fetchData() {
         gridVirtualRouters._dataView.setData([]);
         gridVirtualRouters.showGridMessage('loading');
-        doAjaxCall('/api/tenants/config/virtual-routers','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);     
+        doAjaxCall('/api/tenants/config/virtual-routers','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null, 300000);
     }
     
     window.successHandlerForVirtualRouters =  function(result) {

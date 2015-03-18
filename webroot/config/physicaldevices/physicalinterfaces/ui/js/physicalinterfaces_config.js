@@ -1358,7 +1358,7 @@ function physicalInterfacesConfig() {
         pInterfaceDS = [];
         piUUIDList = [];
         doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID +'&parent=physical-router','GET', null,
-        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam);
+        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, 300000);
     }
     
     window.successHandlerForPhysicalInterfacesNew = function(result, cbparam) {
@@ -1367,7 +1367,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, cbparam);            
+                'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, cbparam, 300000);
         }
         preparePIData(result);
     }
@@ -1424,7 +1424,7 @@ function physicalInterfacesConfig() {
         var uuid = currentUUID;
         var parent = 'physical-router';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, ajaxParam);        
+        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, 300000);
     }
      
     window.successHandlerForLI = function(result, cbparam) {
@@ -1433,7 +1433,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, cbparam);            
+                'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, cbparam, 300000);
         }
         prepareLIWithProutersData(result);    
     }
@@ -1505,7 +1505,7 @@ function physicalInterfacesConfig() {
         var uuid = piUUID;
         var parent = 'physical-interface';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : ajaxParam, id : uuid});        
+        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : ajaxParam, id : uuid}, 300000);
     }
      
     window.successHandlerForLIWithPI = function(result, cbparam) {
@@ -1514,7 +1514,7 @@ function physicalInterfacesConfig() {
         }
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +'&parent=physical-interface','GET', null,
-                'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : cbparam.ajaxParam, id : cbparam.id});            
+                'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : cbparam.ajaxParam, id : cbparam.id}, 300000);
         }
         prepareLIDataWithPI(result);
     }
