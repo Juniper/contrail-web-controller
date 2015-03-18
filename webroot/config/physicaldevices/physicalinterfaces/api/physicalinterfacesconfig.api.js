@@ -234,7 +234,9 @@ function processVMIDetails(appData, result, callback)
                         continue;
                     }
                     var vmi =  data[j]['virtual-machine-interface'];
-                    if(vmi['virtual_machine_interface_device_owner'] == null || vmi['virtual_machine_interface_device_owner'] == "") {
+                    var owner = vmi['virtual_machine_interface_device_owner'];
+                    var subInf = vmi["virtual_machine_interface_properties"];
+                    if((owner == null || owner == "") && (subInf == null || (subInf != null && subInf["sub_interface_vlan_tag"] == null))) {
                         tempVMIResourceObj.push({"mac": vmi
                             ['virtual_machine_interface_mac_addresses']['mac_address'],
                             "instance-ip": vmi['instance_ip_back_refs'], "fq_name": vmi['fq_name'], "vn_refs" : vmi['virtual_network_refs'],
