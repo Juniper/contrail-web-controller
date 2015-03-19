@@ -169,3 +169,17 @@ define([
 
     return CTUtils;
 });
+
+function formatVN(vn){
+    var formattedValue;
+    if(!$.isArray(vn))
+        vn = [vn];
+    formattedValue = $.map(vn,function(value,idx) {
+                                var fqNameArr = value.split(':');
+                                if(fqNameArr.length == 3)
+                                    return fqNameArr[2] + ' (' + fqNameArr[1] + ')';
+                                else
+                                    return value;
+                              });
+    return formattedValue;
+}

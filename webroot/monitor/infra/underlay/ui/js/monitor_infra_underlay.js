@@ -11,7 +11,6 @@ var VROUTER = 'virtual-router';
 var VIRTUALMACHINE = 'virtual-machine';
 var ZOOMED_OUT = 0;
 var timeout;
-var view ="cdg";
 var expanded = true;
 
 function underlayRenderer() {
@@ -408,6 +407,7 @@ var underlayView = function (model) {
     this.connectedElements = [];
     this.adjacencyList = [];
     this.underlayAdjacencyList = [];
+    this.connectionWrapIds = [];
     this.model = model || new underlayModel();
     this.graph = new joint.dia.Graph;
     window.onresize = this.resizeTopology;
@@ -600,7 +600,16 @@ underlayView.prototype.addElementsToGraph = function(els) {
         graph.resetCells(els);
         var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"nodeSep" : 70, "rankSep" : 80});
         //var newGraphSize = joint.layout.DirectedGraph.layout(graph);
-        this.getPaper().fitToContent();
+        //this.getPaper().fitToContent();
+        this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
+        var offset = {
+            x: ($("#topology-connected-elements").width() - newGraphSize.width)/2,
+            y: ($("#topology-connected-elements").height() - newGraphSize.height)/2
+        };
+        $.each(els, function (elementKey, elementValue) {
+            elementValue.translate(offset.x, offset.y);
+        });
+        this.initTooltipConfig();
 }
 
 
@@ -1172,12 +1181,12 @@ underlayView.prototype.clearHighlightedConnectedElements = function() {
 underlayView.prototype.initGraphEvents = function() {
     var paper = this.getPaper();
     var graph = this.getGraph();
-    var selectorId = paper.el.id;
+    var selectorId = "#" + paper.el.id;
     var _this      = this;
 
-    paper.on('blank:pointerclick', function (evt, x, y) {
-        //evt.stopImmediatePropagation();
-        //_this.resetTopology();
+    paper.on('blank:pointerdblclick', function (evt, x, y) {
+        evt.stopImmediatePropagation();
+        _this.resetTopology();
     });
 
     paper.on("cell:pointerdblclick", function (cellView, evt, x, y) {
@@ -1234,6 +1243,10 @@ underlayView.prototype.initGraphEvents = function() {
                 var oldAdjList = _.clone(_this.getAdjacencyList());
                 var newAdjList = _.clone(_this.getAdjacencyList());
                 if(children.length > 0) {
+                    if(ZOOMED_OUT == 0) {
+                        ZOOMED_OUT = 0.9;
+                        $("#topology-connected-elements").panzoom("zoom",ZOOMED_OUT);
+                    }
                     var childrenName = [];
                     for(var i=0; i<children.length; i++) {
                         childrenName.push(children[i]["name"]);
@@ -1244,17 +1257,21 @@ underlayView.prototype.initGraphEvents = function() {
                     newAdjList = oldAdjList;
                 }
                 _this.setAdjacencyList(newAdjList);
-                var childElementsArray = _this.createElementsFromAdjacencyList();        
+                var childElementsArray = _this.createElementsFromAdjacencyList();
                 _this.setConnectedElements(childElementsArray);
                 _this.addElementsToGraph(childElementsArray);
+                _this.addDimlightToConnectedElements();
                 var thisNode = [dblClickedElement["attributes"]["nodeDetails"]];
                 _this.addHighlightToNodesAndLinks(thisNode.concat(children), childElementsArray);
                 _this.setAdjacencyList(oldAdjList);
+                $(".popover").popover().hide();
+
                 break;
             case 'link':
                 var modelId = dblClickedElement.id;
                 var targetElement = graph.getCell(dblClickedElement['attributes']['target']['id']),
                     sourceElement = graph.getCell(dblClickedElement['attributes']['source']['id']);
+                $(".popover").popover().hide();
                 break;
         }
     });
@@ -1376,6 +1393,12 @@ underlayView.prototype.initGraphEvents = function() {
         e.stopImmediatePropagation();
         paper.pointerdown(e);
     });
+    $(selectorId + " text").on('mouseup touchend', function (e) {
+        var ids = _this.getUnderlayPathIds();
+        _this.showPath(ids);
+        e.stopImmediatePropagation();
+        paper.pointerup(e);
+    });
 
     $(selectorId + " image").on('mousedown touchstart', function (e) {
         e.stopImmediatePropagation();
@@ -1386,17 +1409,34 @@ underlayView.prototype.initGraphEvents = function() {
         e.stopImmediatePropagation();
         paper.pointerdown(e);
     });
+
     $(selectorId + " path").on('mousedown touchstart', function (e) {
         e.stopImmediatePropagation();
         paper.pointerdown(e);
     });
+
     $(selectorId + " rect").on('mousedown touchstart', function (e) {
+        _this.removeUnderlayPathIds();
         e.stopImmediatePropagation();
         paper.pointerdown(e);
     });
+    $(selectorId + " rect").on('mouseup touchend', function (e) {
+        var ids = _this.getUnderlayPathIds();
+        _this.showPath(ids);
+        e.stopImmediatePropagation();
+        paper.pointerup(e);
+    });
+
     $(selectorId + " .font-element").on('mousedown touchstart', function (e) {
+        _this.removeUnderlayPathIds();
         e.stopImmediatePropagation();
         paper.pointerdown(e);
+    });
+    $(selectorId + " .font-element").on('mouseup touchend', function (e) {
+        var ids = _this.getUnderlayPathIds();
+        _this.showPath(ids);
+        e.stopImmediatePropagation();
+        paper.pointerup(e);
     });
 }
 
@@ -1428,14 +1468,43 @@ underlayView.prototype.hideNodesOfType = function(type) {
 }
 
 underlayView.prototype.resetTopology = function() {
+    $("#underlay_topology").data('nodeType',null);
+    $("#underlay_topology").data('nodeName',null);
+    this.renderUnderlayTabs();
+    this.renderFlowRecords();
+    this.removeUnderlayPathIds();
+    this.setUnderlayPathIds([]);
     this.clearHighlightedConnectedElements();
     $("#topology-connected-elements").panzoom("resetZoom");
     $("#topology-connected-elements").panzoom("reset");
     ZOOMED_OUT = 0;
-    this.hideVRouters();
-    this.hideVMs();
+    //this.hideVRouters();
+    //this.hideVMs();
+    var adjList = _.clone(this.getUnderlayAdjacencyList());
+    this.setAdjacencyList(adjList);
+    var childElementsArray = this.createElementsFromAdjacencyList();
+    this.setConnectedElements(childElementsArray);
+    this.addElementsToGraph(childElementsArray);
     $("#underlay_topology").removeData('nodeType');
     $("#underlay_topology").removeData('nodeName');
+}
+
+underlayView.prototype.removeUnderlayPathIds = function() {
+    $(".connection-wrap-up").remove();
+    $(".connection-wrap-down").remove();
+}
+
+underlayView.prototype.setUnderlayPathIds = function(connectionWrapIds) {
+    if(typeof connectionWrapIds === "object" &&
+        connectionWrapIds.length > 0) {
+        this.connection_wrap_ids = connectionWrapIds;
+    } else {
+        this.connection_wrap_ids = [];
+    }
+}
+
+underlayView.prototype.getUnderlayPathIds = function(connectionWrapIds) {
+    return this.connection_wrap_ids;
 }
 
 underlayView.prototype.renderTopology = function(response) {
@@ -1594,6 +1663,11 @@ underlayView.prototype.highlightPath = function(response, data) {
         }
     }
     if(connectionWrapIds.length > 0) {
+        if(ZOOMED_OUT == 0) {
+            ZOOMED_OUT = 0.9;
+            $("#topology-connected-elements").panzoom("zoom", ZOOMED_OUT);
+        }
+        this.setUnderlayPathIds(connectionWrapIds);
         this.showPath(connectionWrapIds);
     }
 
@@ -1714,8 +1788,8 @@ underlayView.prototype.getMarkers = function() {
     marker1.setAttribute('orient', 'auto');
     marker1.setAttribute('markerWidth', '30');
     marker1.setAttribute('markerHeight', '30');
-    marker1.setAttribute('refX', '3');
-    marker1.setAttribute('refY', '.5');
+    marker1.setAttribute('refX', '0');
+    marker1.setAttribute('refY', '0');
 
     var path1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path1.setAttribute('d', "M0,0 L3,3 L0,3");
@@ -1727,8 +1801,8 @@ underlayView.prototype.getMarkers = function() {
     marker2.setAttribute('orient', 'auto');
     marker2.setAttribute('markerWidth', '30');
     marker2.setAttribute('markerHeight', '30');
-    marker2.setAttribute('refX', '3');
-    marker2.setAttribute('refY', '.5');    
+    marker2.setAttribute('refX', '0');
+    marker2.setAttribute('refY', '0');    
 
     var path2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     path2.setAttribute('d', "M0,0 L3,3 L3,0");
@@ -1861,8 +1935,8 @@ underlayView.prototype.renderTracePath = function(options) {
         var vRouterFlowsColumns = [
                                       {
                                           field:'peer_vrouter',
-                                          name:"Other vRouter",
-                                          minWidth:120,
+                                          name:"Other Virtual Router",
+                                          minWidth:170,
                                           formatter: function(r,c,v,cd,dc){
                                               var name = $.grep(computeNodes,function(value,idx){
                                                               return (value['ip'] == dc['peer_vrouter']);
@@ -1881,11 +1955,11 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"src_vn",
                                           name:"Source Network",
-                                          minWidth:150,
-                                          /*formatter: function (r,c,v,cd,dc) {
-                                              var srcVN = dc['src_vn'].split(":");
-                                              return contrail.format('{0} ({1})',ifNull(srcVN[2],'-'),ifNull(srcVN[1],'-'));
-                                          }*/
+                                          minWidth:125,
+                                          formatter: function (r,c,v,cd,dc) {
+                                              var srcVN = dc['src_vn'] != null ? dc['src_vn'] : noDataStr;
+                                              return formatVN(srcVN);
+                                          }
                                       },
                                       {
                                           field:"sip",
@@ -1919,11 +1993,11 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"dst_vn",
                                           name:"Destination Network",
-                                          minWidth:150,
-                                          /*formatter: function (r,c,v,cd,dc) {
-                                              var srcVN = dc['src_vn'].split(":");
-                                              return contrail.format('{0} ({1})',ifNull(srcVN[2],'-'),ifNull(srcVN[1],'-'));
-                                          }*/
+                                          minWidth:125,
+                                          formatter: function (r,c,v,cd,dc) {
+                                              var destVN = dc['dst_vn'] != null ? dc['dst_vn'] : noDataStr;
+                                              return formatVN(destVN);
+                                          }
                                       },
                                       {
                                           field:"dip",
@@ -2088,7 +2162,7 @@ underlayView.prototype.renderTracePath = function(options) {
     function updateVrouterFlowsGrid(deferredObj,vRouterData) {
         cmpNodeView.getComputeNodeDetails(deferredObj,vRouterData);
         vrouterflowsGrid.showGridMessage('loading');
-        $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').show()
+        $("#vrouterflows").find('.icon-spinner').show()
         deferredObj.done(function(data){
             $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide()
             vRouterData['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
@@ -2106,8 +2180,22 @@ underlayView.prototype.renderTracePath = function(options) {
     for(var i = 0; i < instances.length; i++) {
         var instObj = instances[i];
         var instAttributes = ifNull(instObj['more_attributes'],{});
+        var interfaceList = ifNull(instAttributes['interface_list'],[])
+        var vmIp = '-',vmIpArr = [];
+        if(interfaceList.length > 0) {
+            for(var j = 0; j < interfaceList.length; j++) {
+                var intfObj = interfaceList[j];
+                if(intfObj['ip6_active']) {
+                    vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
+                } else {
+                    vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
+                }
+            }
+            if(vmIpArr.length > 0)
+                vmIp = vmIpArr.join(',');
+        }
         instComboboxData.push({
-            text: instAttributes['vm_name']+' ('+instObj['name']+')',
+            text: instAttributes['vm_name']+' ('+vmIp+')',
             value: instances[i]['name']
         });
         instMap[instances[i]['name']] = instances[i];
@@ -2271,7 +2359,28 @@ underlayView.prototype.renderTracePath = function(options) {
         return req;
     }
 }
-
+/*
+ * This is utility function which accepts value to compare and key to lookup 
+ * and type to check in globalObj and get the response where we lookup for the
+ * value and returns the matche value if nothing matches empty object will be
+ * returned.
+ */
+underlayView.prototype.getvRouterVMDetails = function(value,key,type){
+    var data = [],selectedNode = {},id;
+    if(type == VIRTUALMACHINE) 
+        data = globalObj['topologyResponse']['VMList'];
+    else if (type == VROUTER)
+        data = globalObj['topologyResponse']['vRouterList'];
+    $.each(data,function(idx,item){
+        var details = jsonPath(item,'$..'+key);
+        if($.isArray(details) && details.indexOf(value) > -1) {
+            selectedNode = item;
+        } else if (details == value) { 
+            selectedNode = item;
+        }
+    });
+    return selectedNode;
+}
 underlayView.prototype.runTracePath = function(context, obj, response) {
     var data = {};
     for(var i = 0; i < obj.length; i++) {
@@ -2595,7 +2704,103 @@ underlayView.prototype.resizeTopology = function() {
 underlayView.prototype.expandTopology = function() {
     var topologySize = this.calculateDimensions(expanded);
     this.setDimensions(topologySize);
+    this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
+    var graph = this.getGraph();
+    var newGraphSize = graph.getBBox(graph.getElements());
+    var offset = {
+        x: (($("#topology-connected-elements").width() - newGraphSize.width)/2) - newGraphSize.x,
+        y: (($("#topology-connected-elements").height() - newGraphSize.height)/2) - newGraphSize.y
+    };
+    $.each(graph.getElements(), function (elementKey, elementValue) {
+        elementValue.translate(offset.x, offset.y);
+    });
     expanded = !expanded;
+}
+
+underlayView.prototype.launchVMPage = function(jsonObj) {
+    if(null !== jsonObj && typeof jsonObj !== "undefined" &&
+        jsonObj.hasOwnProperty('q') &&
+        jsonObj['q'].hasOwnProperty('srcVN'))
+        jsonObj['q']['srcVN'] = decodeURIComponent(jsonObj['q']['srcVN']);
+
+    layoutHandler.setURLHashObj(jsonObj);
+}
+
+underlayView.prototype.showPath = function(connectionWrapIds, offsetWidth) {
+    if(offsetWidth == null)
+        offsetWidth = 5;
+    if(!(connectionWrapIds instanceof Array))
+        return;
+    var hopLength = connectionWrapIds.length;
+    for(var i=0;i<hopLength;i++) {
+        this.addOffsetPath(connectionWrapIds[i],offsetWidth);
+    }
+}
+
+underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth) {
+    var connectionWrapElem = $('#' + connectionWrapId);
+    if(connectionWrapElem.length > 0)
+        connectionWrapElem = $(connectionWrapElem[0]);
+    else
+        return;
+    var path = connectionWrapElem.attr('d');
+    var pathCoords;
+    if(typeof(path) == 'string') {
+        pathCoords = path.match(/M ([\d.]+) ([\d.]+) C ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/);
+        if((pathCoords instanceof Array) && pathCoords.length == 9) {
+            pathCoords.shift();
+            pathCoords = $.map(pathCoords,function(val) {
+                return parseFloat(val);
+            });
+            var offsetPath; 
+            if(offsetWidth < 0) {
+                offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_down');
+            } else {
+                offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_up');
+            }
+            var curve = new Bezier(pathCoords);
+            offsetPath.attr('marker-end',"url(#head)");
+            if(curve._linear != true) {
+                offsetPath.attr('d',this.getOffsetBezierPath(pathCoords,offsetWidth));
+            } else {
+                //Vertical line
+                if(pathCoords[0] == pathCoords[6]) {
+                    //Pointing upwards/downwards
+                    if(pathCoords[1] > pathCoords[7]) {
+                        offsetPath.attr('transform','translate(' + offsetWidth + ',0)');
+                        offsetPath.attr('marker-end',"url(#up)");
+                    } else {
+                        offsetPath.attr('transform','translate(-' + offsetWidth + ',0)');
+                        offsetPath.attr('marker-end',"url(#down)");
+                    }
+                }
+                //Horizontal line
+                if(pathCoords[1] == pathCoords[7]) {
+                    offsetPath.attr('transform','translate(0,' + offsetWidth + ')');
+                }
+            }
+            
+            if(offsetWidth < 0) {
+                offsetPath.attr('class','connection-wrap-down');
+            } else {
+                offsetPath.attr('class','connection-wrap-up');
+            }
+            offsetPath.insertAfter(connectionWrapElem);
+        }
+    }
+}
+
+underlayView.prototype.getOffsetBezierPath = function(pathCoords, offsetWidth) {
+    //var curve = new Bezier(315,225,431,225,431,141,547,141);
+    var curve = new Bezier(pathCoords);
+    if(curve._linear == true) {
+    }
+    var offsetCurve = curve.offset(offsetWidth);
+    var offsetCurvePath = "";
+    for(var i=0;i<offsetCurve.length;i++) {
+        offsetCurvePath += " " + offsetCurve[i].toSVG();
+    }
+    return offsetCurvePath;
 }
 
 underlayView.prototype.destroy = function() {
@@ -2695,88 +2900,3 @@ underlayController.prototype.destroy = function() {
     //tbd
 }
 
-underlayView.prototype.launchVMPage = function(jsonObj) {
-    if(null !== jsonObj && typeof jsonObj !== "undefined" &&
-        jsonObj.hasOwnProperty('q') &&
-        jsonObj['q'].hasOwnProperty('srcVN'))
-        jsonObj['q']['srcVN'] = decodeURIComponent(jsonObj['q']['srcVN']);
-
-    layoutHandler.setURLHashObj(jsonObj);
-}
-
-underlayView.prototype.showPath = function(connectionWrapIds, offsetWidth) {
-    if(offsetWidth == null)
-        offsetWidth = 5;
-    if(!(connectionWrapIds instanceof Array))
-        return;
-    var hopLength = connectionWrapIds.length;
-    for(var i=0;i<hopLength;i++) {
-        this.addOffsetPath(connectionWrapIds[i],offsetWidth);
-    }
-}
-
-underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth) {
-    var connectionWrapElem = $('#' + connectionWrapId);
-    if(connectionWrapElem.length > 0)
-        connectionWrapElem = $(connectionWrapElem[0]);
-    else
-        return;
-    var path = connectionWrapElem.attr('d');
-    var pathCoords;
-    if(typeof(path) == 'string') {
-        pathCoords = path.match(/M ([\d.]+) ([\d.]+) C ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/);
-        if((pathCoords instanceof Array) && pathCoords.length == 9) {
-            pathCoords.shift();
-            pathCoords = $.map(pathCoords,function(val) {
-                return parseFloat(val);
-            });
-            var offsetPath; 
-            if(offsetWidth < 0) {
-                offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_down');
-            } else {
-                offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_up');
-            }
-            var curve = new Bezier(pathCoords);
-            offsetPath.attr('marker-end',"url(#head)");
-            if(curve._linear != true) {
-                offsetPath.attr('d',this.getOffsetBezierPath(pathCoords,offsetWidth));
-            } else {
-                //Vertical line
-                if(pathCoords[0] == pathCoords[6]) {
-                    //Pointing upwards/downwards
-                    if(pathCoords[1] > pathCoords[7]) {
-                        offsetPath.attr('transform','translate(' + offsetWidth + ',0)');
-                        offsetPath.attr('marker-end',"url(#up)");
-                    } else {
-                        offsetPath.attr('transform','translate(-' + offsetWidth + ',0)');
-                        offsetPath.attr('marker-end',"url(#down)");
-                    }
-                }
-                //Horizontal line
-                if(pathCoords[1] == pathCoords[7]) {
-                    offsetPath.attr('transform','translate(0,' + offsetWidth + ')');
-                }
-            }
-            
-            if(offsetWidth < 0) {
-                offsetPath.attr('class','connection-wrap-down');
-            } else {
-                offsetPath.attr('class','connection-wrap-up');
-            }
-            offsetPath.insertAfter(connectionWrapElem);
-        }
-    }
-}
-
-underlayView.prototype.getOffsetBezierPath = function(pathCoords, offsetWidth) {
-    //var curve = new Bezier(315,225,431,225,431,141,547,141);
-    var curve = new Bezier(pathCoords);
-    if(curve._linear == true) {
-    }
-    var offsetCurve = curve.offset(offsetWidth);
-    var offsetCurvePath = "";
-    for(var i=0;i<offsetCurve.length;i++) {
-        offsetCurvePath += " " + offsetCurve[i].toSVG();
-    }
-    return offsetCurvePath;
-}

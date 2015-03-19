@@ -196,7 +196,7 @@ body > svg {
             </div>
             <div class="span4">
                 <div>
-                    <input type='radio' name='flowtype' id='vrouterRadiobtn' checked='checked' tabindex=0/><span class="ace-lbl" style="padding-left:5px;">vRouter&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    <input type='radio' name='flowtype' id='vrouterRadiobtn' checked='checked' tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Virtual Router&nbsp;&nbsp;&nbsp;&nbsp;</span>
                     <input type='radio' name='flowtype' id='instRadiobtn'  tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Instances&nbsp;&nbsp;&nbsp;&nbsp;</span>
                 </div>
             </div>

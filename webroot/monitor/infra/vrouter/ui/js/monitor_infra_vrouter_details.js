@@ -8,7 +8,7 @@
 monitorInfraComputeDetailsClass = (function() {
     this.populateDetailsTab = function (obj) {
         var nodeIp; 
-        if(obj.detailView === undefined || obj.page == null) {
+        if(obj.detailView === undefined && obj.page == null) {
             layoutHandler.setURLHashParams({tab:'',node: obj['name']},{triggerHashChange:false});
         }    
         //showProgressMask('#computenode-dashboard', true);

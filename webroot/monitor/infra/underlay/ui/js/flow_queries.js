@@ -41,15 +41,37 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
-    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:120, name:"Other vRouter", groupable:false,formatter: function(r, c, v, cd, dc){ return (
-                        validateIPAddress(handleNull4Grid(dc['other_vrouter_ip'])) == true ? handleNull4Grid(dc['other_vrouter_ip']) : noDataStr);}}},
+    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:170, name:"Other Virtual Router", groupable:false,formatter: 
+            function(r, c, v, cd, dc){
+                    var ip = validateIPAddress(handleNull4Grid(dc['other_vrouter_ip'])) == true ? handleNull4Grid(dc['other_vrouter_ip']) : noDataStr,
+                        retStr = '-';    
+                    if(ip != noDataStr) {
+                        var vRouterDetails = underlayView.prototype.getvRouterVMDetails(ip,'self_ip_list',VROUTER);
+                        retStr = contrail.format('{0} ({1})',vRouterDetails['name'], ip);
+                    }
+                return retStr;
+            }
+        }
+    },
     {select:"protocol", display:{id:"protocol", field:"protocol", width:80, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:200, name:"Source VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
+    {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:175, name:"Source VN", groupable:true, formatter: 
+            function(r, c, v, cd, dc){
+                    var vn = handleNull4Grid(dc.sourcevn);
+                    return formatVN(vn);
+            }
+        }
+    },
     {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:100, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (
                         validateIPAddress(handleNull4Grid(dc['sourceip'])) == true ? handleNull4Grid(dc['sourceip']) : noDataStr)}}},
     {select:"sport", display:{id:"sport", field:"sport", width:70, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
     {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:90, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
-    {select:"destvn", display:{id:"destvn", field:"destvn", width:200, name:"Destination VN", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
+    {select:"destvn", display:{id:"destvn", field:"destvn", width:175, name:"Destination VN", groupable:true, formatter: 
+            function(r, c, v, cd, dc){ 
+                var vn = handleNull4Grid(dc.destvn);
+                return formatVN(vn); 
+            }
+        }
+    },
     {select:"destip", display:{id:"destip", field:"destip", width:100, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(handleNull4Grid(dc['destip'])) == true ? handleNull4Grid(dc['destip']) : noDataStr)}}},
     {select:"dport", display:{id:"dport", field:"dport", width:70, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
     {select:"agg-bytes", display:{id:'agg-bytes', field:'agg-bytes', width:120, name:"Bytes/Packets", groupable:false,formatter: function(r, c, v, cd, dc) {return contrail.format("{0}/{1}",formatBytes(dc['agg-bytes'],'-'),dc['agg-packets']);}}},

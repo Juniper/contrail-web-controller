@@ -944,17 +944,7 @@ var tenantNetworkMonitorUtils = {
      * output:[ipv6test2 (demo)],ipv6test2 (demo)
      */
     formatVN: function(vn) {
-        var formattedValue
-        if(!$.isArray(vn))
-            vn = [vn];
-        formattedValue = $.map(vn,function(value,idx) {
-                                    var fqNameArr = value.split(':');
-                                    if(fqNameArr.length == 3)
-                                        return fqNameArr[2] + ' (' + fqNameArr[1] + ')';
-                                    else
-                                        return value;
-                                  });
-        return formattedValue;
+        return formatVN(vn);
     },
     statsOracleParseFn: function(response,type) {
         var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
