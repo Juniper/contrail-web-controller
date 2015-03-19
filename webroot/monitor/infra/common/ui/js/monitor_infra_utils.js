@@ -655,16 +655,26 @@ var infraMonitorUtils = {
                     type:'remote',
                     url: '/api/admin/table/values/MessageTable/Category',
                     parse:function (response) {
-                        if (nodeType == 'control')
-                            return ifNull(response[UVEModuleIds['CONTROLNODE']], []);
-                        else if (nodeType == 'compute')
-                            return ifNull(response[UVEModuleIds['VROUTER_AGENT']], []);
-                        else if (nodeType == 'analytics')
-                            return ifNull(response[UVEModuleIds['COLLECTOR']], []);
-                        else if (nodeType == 'config')
-                            return ifNull(response[UVEModuleIds['APISERVER']], []);
+                        var ret = [{text:'All',value:''}];
+                        var catList = [];
+                        if (nodeType == 'control'){
+                            catList = ifNull(response[UVEModuleIds['CONTROLNODE']], []);
+                        } else if (nodeType == 'compute') {
+                            catList = ifNull(response[UVEModuleIds['VROUTER_AGENT']], []);
+                        } else if (nodeType == 'analytics') {
+                            catList = ifNull(response[UVEModuleIds['COLLECTOR']], []);
+                        } else if (nodeType == 'config') {
+                            catList = ifNull(response[UVEModuleIds['APISERVER']], []);
+                        }
+                        $.each(catList, function (key, value) {
+                            if(key != '')
+                                ret.push({text:value, value:value});
+                        });
+                        return ret;
                     }
                 },
+                dataTextField:'text',
+                dataValueField:'value',
                 placeholder:'All'
             });
             $('#msgLevel' + '_' + obj.name).contrailDropdown({
