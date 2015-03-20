@@ -75,5 +75,11 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deleteLISubnet</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/interfaces/delete</url>
+        <method>post</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.deleteInterfaces</callback>
+    </item>
 </urlLists>
 
