@@ -21,7 +21,7 @@
         {key : "security_group_rule", name :"Security Group Rules"},
         {key : "loadbalancer_pool", name :"Loadbalancer Pools"},
         {key : "loadbalancer_member", name :"Loadbalancer Members"},
-        {key : "loadbalancer_healthmonitor", name :"Loadbalancer Health monitor"},
+        {key : "loadbalancer_healthmonitor", name :"Loadbalancer Health Monitors"},
         {key : "virtual_ip", name :"Virtual IPs"}
     ];    
     //Grids    
