@@ -698,7 +698,7 @@ function physicalRoutersConfig() {
         $("#txtTsnIp").val('');
         $("#txtModel").val('');
         $('#chkAutoConfig')[0].checked = true;
-        $("#txtLocalPort").val('161');
+        $("#txtLocalPort").val('');
         $("#txtRetries").val('');
         $("#txtTimeout").val('');
         $("#txtCommunity").val('public');
@@ -1022,6 +1022,10 @@ function physicalRoutersConfig() {
                 showInfoWindow("Virtual Router " + name + " (" + currVr.type + ") already exists.","Input required Virtual Router");
                 return false;
             }
+        }
+        if($('#snmpVersion2').is(':checked') == true && $('#txtCommunity').val() == '') {
+            showInfoWindow("Enter Community string","Input error SNMP Credentials");
+            return false;
         }
         if($('#txtRetries').val() != '' && !$.isNumeric($('#txtRetries').val())) {
             showInfoWindow("Retries should be a number","Input error SNMP Credentials");
