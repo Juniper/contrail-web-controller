@@ -802,11 +802,6 @@ function getUnderlayPath (req, res, appData)
     var queryJSON = queries.buildUnderlayQuery(data);
 
     queries.executeQueryString(queryJSON, function(err, result) {
-        if ((null != err) || (null == result) ||
-            (null == result['value']) || (!result['value'].length)) {
-            commonUtils.handleJSONResponse(err, res, topoData);
-            return;
-        }
         var flowPostData = {};
         flowPostData['cfilt'] = ['PRouterEntry:ipMib'];
         var url = '/analytics/uves/prouter';
@@ -825,6 +820,32 @@ function getUnderlayPath (req, res, appData)
 
             var srcVrouter = getvRouterByIntfIP(srcIP, results[1]);
             var destVrouter = getvRouterByIntfIP(destIP, results[1]);
+            if ((null != srcVrouter) && (null != destVrouter) &&
+                (srcVrouter['vrouter'] == destVrouter['vrouter'])) {
+                /* If both are on same vRouter, then directly send the link and
+                 * node details, no need to consult further topology
+                 */
+                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
+                                       'node_type':
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+                topoData['nodes'].push({"name": srcVrouter['vrouter'],
+                                       'node_type':
+                                       ctrlGlobal.NODE_TYPE_VROUTER});
+                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
+                                       'node_type':
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+                topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'],
+                                       srcVrouter['vrouter']]});
+                topoData['links'].push({'endpoints': [srcVrouter['vrouter'],
+                                       destVrouter['vm_uuid']]});
+                commonUtils.handleJSONResponse(null, res, topoData);
+                return;
+            }
+            if ((null != err) || (null == result) ||
+                (null == result['value']) || (!result['value'].length)) {
+                commonUtils.handleJSONResponse(err, res, topoData);
+                return;
+            }
             result = result['value'];
             var nodeCnt = result.length;
             for (var i = 0; i < nodeCnt; i++) {
