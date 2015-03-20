@@ -29,6 +29,31 @@ var CONFIG_UVE_FOUND = 0;
 var CONFIG_NOT_FOUND = 1;
 var CONFIG_UVE_NOT_FOUND = 2;
 
+function sortVMNames (vmNode1, vmNode2, sortKey)
+{
+    try {
+        vmAtrr1 = vmNode1['more_attributes'][sortKey];
+        vmAttr2 = vmNode2['more_attributes'][sortKey];
+    } catch(e) {
+        return 0;
+    }
+    if (vmAtrr1 < vmAttr2) {
+        return -1;
+    }
+    if (vmAtrr1 > vmAttr2) {
+        return 1;
+    }
+    return 0;
+}
+
+function sortTopologyVMListByVMName (vmTopoNodes, sortKey)
+{
+    vmTopoNodes.sort(function(vmNode1, vmNode2) {
+        return sortVMNames(vmNode1, vmNode2, sortKey);
+    });
+    return vmTopoNodes;
+}
+
 function buildvRouterVMTopology (nodeList, appData, callback)
 {
     var vmList = [];
@@ -100,6 +125,7 @@ function buildvRouterVMTopology (nodeList, appData, callback)
                                       "Parse error:" + e);
             }
         }
+        vmList = sortTopologyVMListByVMName(vmList, 'vm_name');
         var topoData = {'nodes': vmList, 'links': links};
         callback(null, topoData, vrData);
     });
