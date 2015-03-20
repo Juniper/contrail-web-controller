@@ -1941,7 +1941,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                               var name = $.grep(computeNodes,function(value,idx){
                                                               return (value['ip'] == dc['peer_vrouter']);
                                                          });
-                                              return contrail.format('{0} ({1})',ifNull(name[0]['name'],'-'),dc['peer_vrouter']);
+                                              return contrail.format('{0} ({1})',getValueByJsonPath(name,'0;name','-'),dc['peer_vrouter']);
                                           }
                                       },
                                       {
@@ -2249,7 +2249,7 @@ underlayView.prototype.renderTracePath = function(options) {
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         } else if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
-            nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
+            nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         }
         var progressBar = $("#network_topology").find('.topology-visualization-loading');
         $(progressBar).show();
@@ -2258,7 +2258,7 @@ underlayView.prototype.renderTracePath = function(options) {
             url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
         }).always(function(networkDetails){
             if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
-                var vrfList = ifNull(networkDetails['value'][0]['value']['UveVirtualNetworkConfig']['routing_instance_list'],[]);
+                var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                 if(vrfList[0] != null)
                     nwFqName += ":"+vrfList[0];
             } else 
@@ -2296,7 +2296,7 @@ underlayView.prototype.renderTracePath = function(options) {
         };
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
-            nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
+            nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
         } else if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
@@ -2308,7 +2308,7 @@ underlayView.prototype.renderTracePath = function(options) {
             url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
         }).always(function(networkDetails){
             if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
-                var vrfList = ifNull(networkDetails['value'][0]['value']['UveVirtualNetworkConfig']['routing_instance_list'],[]);
+                var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                 if(vrfList[0] != null)
                     nwFqName += ":"+vrfList[0];
             } else 
@@ -2342,7 +2342,7 @@ underlayView.prototype.renderTracePath = function(options) {
         };
         if(type == VIRTUALMACHINE) {
             var vmData = instMap[name];
-            var intfData = ifNull(vmData['more_attributes']['interface_list'],[]);
+            var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
             var where = '';
             for(var i = 0; i < intfData.length; i++) {
                 where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
@@ -2494,7 +2494,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
             if(selTab == 'Interfaces'){
                 $("#pRouterInterfacesTab").html(Handlebars.compile($("#pRouterInterfaces").html()))
                 var intfDetails = [];
-                for(var i = 0; i < ifNull(data['response']['more_attributes']['ifTable'],[]).length; i++ ) {
+                for(var i = 0; i < getValueByJsonPath(data,'response;more_attributes;ifTable',[]).length; i++ ) {
                     var intfObj = data['response']['more_attributes']['ifTable'][i];
                     var rowObj = {
                             ifDescr: ifNull(intfObj['ifDescr'],'-'),
@@ -2658,12 +2658,17 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     var lclData = ifNull(rawFlowData[0],{});
                     var rmtData = ifNull(rawFlowData[1],{});
                     var intfFlowData = [],lclInBytesData = [],lclOutBytesData = [],rmtInBytesData = [],rmtOutBytesData = [];
-                    var lclFlows = ifNull(lclData['flow-series']['value'],[]);
-                    var rmtFlows = ifNull(rmtData['flow-series']['value'],[]),chrtTitle;
-                    chrtTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',lclData['summary']['name'],
-                            lclData['summary']['if_name'],rmtData['summary']['name'],rmtData['summary']['if_name']);
-                    var inPacketsLocal = {key:contrail.format('{0} ({1})',lclData['summary']['name'],lclData['summary']['if_name']), values:[]}, 
-                        inPacketsRemote = {key:contrail.format('{0} ({1})',rmtData['summary']['name'],rmtData['summary']['if_name']), values:[]};
+                    var lclFlows = getValueByJsonPath(lclData,'flow-series;value',[]);
+                    var rmtFlows = getValueByJsonPath(rmtData,'flow-series;value',[]),chrtTitle,
+                        lclNodeName = getValueByJsonPath(lclData,'summary;name','-'),
+                        lclInfName = getValueByJsonPath(lclData,'summary;if_name','-'),
+                        rmtNodeName = getValueByJsonPath(rmtData,'summary;name','-'),
+                        rmtIntfName = getValueByJsonPath(rmtData,'summary;if_name','-');
+                    
+                    chrtTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',lclNodeName,
+                                                lclInfName,rmtNodeName,rmtIntfName);
+                    var inPacketsLocal = {key:contrail.format('{0} ({1})',lclNodeName,lclInfName), values:[]}, 
+                        inPacketsRemote = {key:contrail.format('{0} ({1})',rmtNodeName,rmtIntfName), values:[]};
                     for(var j = 0; j < lclFlows.length; j++) {
                         var lclFlowObj = lclFlows[j];
                         inPacketsLocal['values'].push({
