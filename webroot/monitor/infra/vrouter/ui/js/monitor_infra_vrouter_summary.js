@@ -129,7 +129,7 @@ monitorInfraComputeSummaryClass = (function() {
                .range([50,0]))
            ];
         
-         chart = d3.selectAll(".chart")
+         var chart = d3.selectAll(".chart")
              .data(charts)
              .each(function(currChart) { currChart.on("brushend", function(d) { 
                  manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
@@ -207,6 +207,8 @@ monitorInfraComputeSummaryClass = (function() {
                 //Add crossfilter dimensions for charts ie x and y
                 manageCrossFilters.addDimension('vRoutersCF','x');
                 manageCrossFilters.addDimension('vRoutersCF','y');
+                manageCrossFilters.addDimension('vRoutersCF','color');
+                manageCrossFilters.addDimension('vRoutersCF','name');
             }
             manageCrossFilters.fireCallBacks('vRoutersCF',{source:source});
         });
@@ -221,6 +223,7 @@ monitorInfraComputeSummaryClass = (function() {
                 title : {
                     text : 'Virtual Routers'
                 },
+                showFilteredCntInHeader: true,
                 customControls: []
             },
             body: {

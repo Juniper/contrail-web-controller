@@ -77,6 +77,7 @@ function addTabs() {
                     xPositive: true,
                     addDomainBuffer: true,
                     isBucketize: false,//(getCookie(DO_BUCKETIZE_COOKIE) == 'yes')? true : false,
+                    useSizeAsRadius: true,
                     bucketOptions:{
                         maxBucketizeLevel: defaultMaxBucketizeLevel,
                         bucketSizeParam: defaultBucketSizeParam,
