@@ -30,10 +30,7 @@ var opServer = rest.getAPIServer({
 function vnLinkListed(srcVN, dstVN, dir, vnNodeList) {
     var cnt = vnNodeList.length;
     for (var i = 0; i < cnt; i++) {
-        if (((vnNodeList[i]['src'] == srcVN) &&
-            (vnNodeList[i]['dst'] == dstVN)) ||
-            ((vnNodeList[i]['src'] == dstVN) &&
-            (vnNodeList[i]['dst'] == srcVN))) {
+        if (((vnNodeList[i]['src'] == srcVN) && (vnNodeList[i]['dst'] == dstVN)) || ((vnNodeList[i]['src'] == dstVN) && (vnNodeList[i]['dst'] == srcVN))) {
             if (dir != vnNodeList[i]['dir']) {
                 vnNodeList[i]['error'] =
                     'Other link marked as ' + dir +
@@ -567,8 +564,8 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
                 (true == isServiceVN(partConnNws[0][i]))) {
                 continue;
             }
-            var index = vnLinkListed(vnUVENode['name'], partConnNws[0][i],
-                'uni', resultJSON['links']);
+            var index = vnLinkListed(vnUVENode['name'], partConnNws[0][i], 'uni', resultJSON['links']);
+
             if (-1 != index) {
                 getLinkStats(resultJSON['links'][index]['more_attributes'],
                     vnUVENode, partConnNws[0][i],
@@ -581,11 +578,8 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
             resultJSON['links'][index]['dst'] = partConnNws[0][i];
             resultJSON['links'][index]['dir'] = 'uni';
             resultJSON['links'][index]['more_attributes'] = {};
-            getLinkStats(resultJSON['links'][index]['more_attributes'],
-                vnUVENode, partConnNws[0][i],
-                resultJSON['links'][index]);
-            resultJSON['links'][index]['error'] = 'Other link marked as ' +
-            'unidirectional, attach policy';
+            getLinkStats(resultJSON['links'][index]['more_attributes'], vnUVENode, partConnNws[0][i], resultJSON['links'][index]);
+            resultJSON['links'][index]['error'] = 'Other link marked as ' + 'unidirectional, attach policy';
             j++;
         }
     }
@@ -701,18 +695,18 @@ function updateVNNodeStatus(result, configVN, configSI, fqName) {
     var links = result['links'];
     var linkCnt = links.length;
     for (var i = 0; i < linkCnt; i++) {
-        if ((false == isAllowedVN(fqName, links[i]['src'])) &&
-            (false == isAllowedVN(fqName, links[i]['dst']))) {
+        if ((false == isAllowedVN(fqName, links[i]['src'])) && (false == isAllowedVN(fqName, links[i]['dst']))) {
             result['links'].splice(i, 1);
             i = -1;
             linkCnt--;
         }
-        if ((links[i]['more_attributes']['in_stats']) &&
-            (links[i]['more_attributes']['out_stats'])) {
+        /*
+        if ((links[i]['more_attributes']['in_stats']) && (links[i]['more_attributes']['out_stats'])) {
             result['links'][i]['dir'] = 'bi';
         } else {
             result['links'][i]['dir'] = 'uni';
         }
+        */
     }
 }
 
@@ -936,19 +930,18 @@ function processNetworkConfigGraph(fqName, networkData, appData, callback) {
         configPolicy = networkData[0]['network-policys'];
 
     networkConfigGraph['configData'] = {"network-policys": configPolicy};
-    //setAssociatedPolicys4Network(fqName, scResultJSON);
+    //setAssociatedPolicys4Network(fqName, networkConfigGraph);
 
-    callback(null, networkConfigGraph);
+    updatePolicyConfigData(networkConfigGraph, appData, function (resultJSON) {
+        callback(null, resultJSON);
+    });
 
     /*
-     updatePolicyConfigData(scResultJSON, appData, function (scResultJSON) {
-     callback(null, scResultJSON);
-     });
      updateServiceInstanceConfigData(scResultJSON, configSI, appData, function (scResultJSON) {
      callback(null, scResultJSON)
      });
      */
-}
+};
 
 function getProjectConnectedGraph(req, res, appData) {
     var fqName = req.query['fqName'],

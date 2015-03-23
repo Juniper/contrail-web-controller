@@ -129,6 +129,17 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
+                                                    templateGenerator: 'LinkGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'link',
+                                                        template: ctwc.URL_INSTANCE,
+                                                        params: {
+                                                            vn: 'name'
+                                                        }
+                                                    }
+                                                },
+                                                {
                                                     key: 'value.UveVirtualNetworkAgent.acl',
                                                     templateGenerator: 'TextGenerator'
                                                 },
@@ -142,17 +153,6 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'length'
                                                     }
-                                                },
-                                                {
-                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
-                                                    templateGenerator: 'LinkGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'link',
-                                                        template: ctwc.URL_INSTANCE,
-                                                        params: {
-                                                            vn: 'name'
-                                                        }
-                                                   }
                                                 }
                                             ]
                                         }
@@ -165,6 +165,13 @@ define([
                                             title: ctwl.TITLE_TRAFFIC_DETAILS,
                                             templateGenerator: 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
+                                                {
+                                                    key: 'throughput',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'throughput'
+                                                    }
+                                                },
                                                 {
                                                     key: 'value.UveVirtualNetworkAgent.ingress_flow_count',
                                                     templateGenerator: 'TextGenerator'
@@ -187,6 +194,14 @@ define([
                                                         formatter: 'byte'
                                                     }
                                                 },
+                                                {
+                                                    key: 'in_tpkts',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'out_tpkts',
+                                                    templateGenerator: 'TextGenerator'
+                                                }
                                             ]
                                         }
                                     ]

@@ -10,34 +10,7 @@ define([
     var BreadcrumbView = Backbone.View.extend({
 
         renderDomainBreadcrumbDropdown: function(fqName, initCB, changeCB) {
-
-            var ajaxConfig = {
-                url: ctwc.URL_ALL_DOMAINS
-            };
-
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: ajaxConfig,
-                    dataParser: function(response) {
-                        return  $.map(response.domains, function (n, i) {
-                            return {
-                                fq_name: n.fq_name.join(':'),
-                                name: n.fq_name[0],
-                                value: n.uuid
-                            };
-                        });
-                    },
-                    errorCallback: function() {
-                        //TODO
-                    }
-                },
-                cacheConfig : {
-                    ucid: ctwc.UCID_BC_ALL_DOMAINS,
-                    loadOnTimeout: false
-                }
-            };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
+            var contrailListModel = cowch.getAllDomains();
 
             if(contrailListModel.loadedFromCache || !(contrailListModel.isRequestInProgress())) {
                 populateDomainBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
@@ -46,39 +19,11 @@ define([
             contrailListModel.onAllRequestsComplete.subscribe(function() {
                 populateDomainBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
             });
-
         },
 
         renderProjectBreadcrumbDropdown: function(fqName, initCB, changeCB) {
-            var domain = getDomainFromFQN(fqName);
-
-            var ajaxConfig = {
-                url: networkPopulateFns.getProjectsURL(domain)
-            };
-
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: ajaxConfig,
-                    dataParser: function(response) {
-                        return  $.map(response.projects, function (n, i) {
-                            return {
-                                fq_name: n.fq_name.join(':'),
-                                name: n.fq_name[1],
-                                value: n.uuid
-                            };
-                        });
-                    },
-                    errorCallback: function() {
-                        //TODO
-                    }
-                },
-                cacheConfig : {
-                    ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, domain),
-                    loadOnTimeout: false
-                }
-            };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
+            var domain = getDomainFromFQN(fqName),
+                contrailListModel = cowch.getProjects4Domain(domain);
 
             if(contrailListModel != null) {
                 if(contrailListModel.loadedFromCache || !(contrailListModel.isRequestInProgress())) {
@@ -94,27 +39,8 @@ define([
         renderNetworkBreadcrumbDropdown: function(fqName, initCB, changeCB) {
             var domain = getDomainFromFQN(fqName),
                 project = getProjectFromFQN(fqName),
-                projectFQN = domain + ':' + project;
-
-            var ajaxConfig = {
-                url: ctwc.get(ctwc.URL_PROJECT_ALL_NETWORKS, projectFQN)
-            };
-
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: ajaxConfig,
-                    dataParser: ctwp.parseNetwork4Breadcrumb,
-                    errorCallback: function() {
-                        //TODO
-                    }
-                },
-                cacheConfig : {
-                    ucid: ctwc.get(ctwc.UCID_BC_PROJECT_ALL_NETWORKS, projectFQN),
-                    loadOnTimeout: false
-                }
-            };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
+                projectFQN = domain + ':' + project,
+                contrailListModel = cowch.getNetworks4Project(projectFQN);
 
             if(contrailListModel.loadedFromCache || !(contrailListModel.isRequestInProgress())) {
                 populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
@@ -213,12 +139,19 @@ define([
                     dataTextField: "name",
                     dataValueField: "value",
                     data: dropdownData,
+                    selecting: function (e) {
+                        var selectedValueData = {
+                            name: projectDropdownElement.data('contrailDropdown').text(),
+                            value: projectDropdownElement.data('contrailDropdown').value()
+                        };
+                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
+                        destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
+                    },
                     change: function (e) {
                         var selectedValueData = {
                             name: projectDropdownElement.data('contrailDropdown').text(),
                             value: projectDropdownElement.data('contrailDropdown').value()
                         };
-
                         (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     }

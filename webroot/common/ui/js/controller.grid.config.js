@@ -226,15 +226,17 @@ define([
                         var statDataList = tenantNetworkMonitorUtils.statsOracleParseFn(response[0], type),
                             dataItems = contrailListModel.getItems(),
                             statData;
-
-                        for (var j = 0; j < statDataList.length; j++) {
-                            statData = statDataList[j];
-                            for (var i = 0; i < dataItems.length; i++) {
-                                var dataItem = dataItems[i];
+                        for (var i = 0; i < dataItems.length; i++) {
+                            var dataItem = dataItems[i];
+                            for (var j = 0; j < statDataList.length; j++) {
+                                statData = statDataList[j];
                                 if (statData['name'] == dataItem['name']) {
                                     dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
                                     dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
                                     break;
+                                } else if(j == (statDataList.length - 1)) {
+                                    dataItem['inBytes60'] = 0;
+                                    dataItem['outBytes60'] = 0;
                                 }
                             }
                         }
@@ -361,18 +363,19 @@ define([
 
     function onClickGrid(e, selRowDataItem) {
         var name = $(e.target).attr('name'),
-            fqName, uuid, vn;
+            fqName, uuid;
         if ($.inArray(name, ['project']) > -1) {
             fqName = selRowDataItem['name'];
-            layoutHandler.setURLHashParams({ fqName: fqName, type: "project", view: "details" }, {p: "mon_networking_projects", merge: false});
+            ctwgrc.setProjectURLHashParams(null, fqName, true)
+
         } else if ($.inArray(name, ['network']) > -1) {
             fqName = selRowDataItem['name'];
-            uuid = selRowDataItem['uuid'];
-            layoutHandler.setURLHashParams({ fqName: fqName, uuid: uuid, type: "network", view: "details" }, {p: "mon_networking_networks", merge: false});
+            ctwgrc.setNetworkURLHashParams(null, fqName, true)
+
         } else if ($.inArray(name, ['instance']) > -1) {
-            vn = selRowDataItem['vnFQN'];
+            fqName = selRowDataItem['vnFQN'];
             uuid = selRowDataItem['name'];
-            layoutHandler.setURLHashParams({ uuid: uuid, vn: vn, type: "instance", view: "details" }, {p: "mon_networking_instances", merge: false});
+            ctwgrc.setInstanceURLHashParams(null, fqName, uuid, true)
         }
     };
 

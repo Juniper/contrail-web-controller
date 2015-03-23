@@ -92,16 +92,9 @@ define([
     };
 
     function onScatterChartClick(chartConfig) {
-        var obj = {
-            fqName: chartConfig['name'],
-            view: "details",
-            type: "project"
-        };
+        var projectFQN = chartConfig['name'];
 
-        layoutHandler.setURLHashParams(obj, {
-            p: "mon_networking_projects",
-            merge: false
-        });
+        ctwgrc.setProjectURLHashParams(null, projectFQN, true);
     };
 
     return ProjectListView;

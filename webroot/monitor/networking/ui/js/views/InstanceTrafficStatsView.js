@@ -10,12 +10,15 @@ define([
 ], function (_, Backbone, LineWithFocusChartView, ContrailListModel) {
     var InstanceTrafficStatsView = Backbone.View.extend({
         render: function () {
-            var instanceTrafficStatsTemplate = contrail.getTemplate4Id(ctwc.TMPL_INSTANCE_TRAFFIC_STATS),
+            var instanceTrafficStatsTemplate = contrail.getTemplate4Id(ctwc.TMPL_TRAFFIC_STATS_TAB),
                 viewConfig = this.attributes.viewConfig,
                 self = this, deferredObj = $.Deferred(),
                 selector = $(self.$el), modelMap = this.modelMap;
 
-            $(selector).append(instanceTrafficStatsTemplate);
+            $(selector).append(instanceTrafficStatsTemplate({
+                dropdownId: ctwl.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID,
+                chartId: ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID
+            }));
 
             var instanceTrafficStatsDropdown = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID),
                 instanceTrafficStatsChart = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID);

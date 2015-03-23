@@ -11,7 +11,7 @@
 			            <div class="col1wrap">
 			                <div class="col1">
 								<div id="graph-connected-elements" class="graph-connected-elements row-fluid">
-                                    <div class="graph-loading loading-spinner"><i class="icon-refresh icon-spin"></i></div>
+                                    <div id="graph-loading" class="graph-loading loading-spinner"><i class="icon-refresh icon-spin"></i></div>
                                     <div id="graph-connected-elements-empty" class="visualization-empty hide">
                                         <p class="">No Virtual Network Found.</p>
                                     </div>
@@ -21,21 +21,26 @@
 			            <div class="col2">
 							<div id="graph-config-elements" class="graph-config-elements row-fluid"></div>
 			            </div>
-			            <div class="col3">
-							<div id="graph-controls" class="graph-controls pull-right">
-                                <div class="graph-control-item zoom-in" title="Zoom In"><i class="icon-zoom-in"></i></div>
-								<div class="graph-control-item zoom-out" title="Zoom Out"><i class="icon-zoom-out"></i></div>
-								<div class="graph-control-item zoom-reset" title="Zoom Reset"><i class="icon-remove-circle"></i></div>
-								<div class="graph-control-item resize" title="Resize">
-                                    <i class="icon-resize-full"></i>
-                                </div>
-                            </div>
+			            <div id="graph-control-panel" class="col3">
 						</div>
 					</div>
 				</div>
 			</div>
 		</div>
 	</div>
+</script>
+
+<script type="text/x-handlebars-template" id="graph-control-panel-template">
+    <div id="graph-controls" class="graph-controls pull-right">
+        {{#IfCompare defaultConfig.panzoom.enable true}}
+            <div class="graph-control-item zoom-in" title="Zoom In"><i class="icon-zoom-in"></i></div>
+            <div class="graph-control-item zoom-out" title="Zoom Out"><i class="icon-zoom-out"></i></div>
+            <div class="graph-control-item zoom-reset" title="Zoom Reset"><i class="icon-remove-circle"></i></div>
+        {{/IfCompare}}
+        {{#each customConfig}}
+            <div class="graph-control-item {{@key}}" title="{{title}}"><i class="{{iconClass}}"></i></div>
+        {{/each}}
+    </div>
 </script>
 
 <script type="text/x-handlebars-template" id="core-tabs-template">
@@ -94,9 +99,9 @@
     </div>
 </script>
 
-<script type="text/x-handlebars-template" id="instance-traffic-stats-tab-template">
+<script type="text/x-handlebars-template" id="traffic-stats-tab-template">
     <div class="row-fluid center">
-        <div id="instance-traffic-stats-dropdown" class="select2-medium-width"></div>
+        <div id="{{dropdownId}}" class="traffic-stats-dropdown select2-medium-width"></div>
     </div>
-    <div id="instance-traffic-stats-chart" class="row-fluid"></div>
+    <div id="{{chartId}}" class="traffic-stats-chart row-fluid"></div>
 </script>
