@@ -93,16 +93,9 @@ define([
     };
 
     function onScatterChartClick(chartConfig) {
-        var obj = {
-            fqName: chartConfig['name'],
-            view: "details",
-            type: "network"
-        };
+        var networkFQN = chartConfig['name'];
 
-        layoutHandler.setURLHashParams(obj, {
-            p: "mon_networking_networks",
-            merge: false
-        });
+        ctwgrc.setNetworkURLHashParams(null, networkFQN, true);
     };
 
     return NetworkListView;

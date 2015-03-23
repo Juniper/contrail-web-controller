@@ -16,19 +16,20 @@ define([
 
         renderProject: function (viewConfig) {
             var self = this,
-                fqName = (contrail.checkIfExist(viewConfig.hashParams.fqName) ? viewConfig.hashParams.fqName : null),
+                hashParams = viewConfig.hashParams,
+                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 breadcrumbView = new BreadcrumbView();
 
             breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
 
                 breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (selectedValueData) {
-                    self.renderProjectCB(selectedValueData);
+                    self.renderProjectCB(hashParams, selectedValueData);
                 });
             });
        },
 
-        renderProjectCB: function (projectObj) {
+        renderProjectCB: function (hashParams, projectObj) {
             contrail.setCookie(cowc.COOKIE_PROJECT, projectObj.name);
 
             var self = this,
@@ -36,25 +37,15 @@ define([
                 projectFQN = domain + ':' + projectObj.name,
                 projectUUID = projectObj.value;
 
-            globalObj.hashUpdated = 1;
-            layoutHandler.setURLHashObj({
-                p: 'mon_networking_projects',
-                q: {
-                    fqName: projectFQN,
-                    view: 'details',
-                    type: 'project'
-                }
-            });
+            ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
 
-            var connectedGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_PROJECT_CONNECTED_GRAPH, projectFQN), {fqName: projectFQN}, ':connected', 'Project'),
-                configGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_PROJECT_CONFIG_GRAPH, projectFQN), {fqName: projectFQN}, ':config', 'Project');
-
-            cowu.renderView4Config(this.$el, null, getProjectConfig(connectedGraph, configGraph, projectFQN, projectUUID));
+            cowu.renderView4Config(this.$el, null, getProjectConfig(projectFQN, projectUUID));
         },
 
         renderNetwork: function (viewConfig) {
             var self = this,
-                fqName = (contrail.checkIfExist(viewConfig.hashParams.fqName) ? viewConfig.hashParams.fqName : null),
+                hashParams = viewConfig.hashParams,
+                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 breadcrumbView = new BreadcrumbView();
 
             breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData) {
@@ -64,15 +55,15 @@ define([
                     contrail.setCookie(cowc.COOKIE_PROJECT, projectSelectedValueData.name);
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName, function (networkSelectedValueData) {
-                        self.renderNetworkCB(networkSelectedValueData);
+                        self.renderNetworkCB(hashParams, networkSelectedValueData);
                     });
                 }, function (projectSelectedValueData) {
-                    self.renderProjectCB(projectSelectedValueData);
+                    self.renderProjectCB(hashParams, projectSelectedValueData);
                 });
             });
         },
 
-        renderNetworkCB: function(networkObj) {
+        renderNetworkCB: function(hashParams, networkObj) {
             var self = this,
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 project = contrail.getCookie(cowc.COOKIE_PROJECT),
@@ -81,20 +72,9 @@ define([
 
             contrail.setCookie(cowc.COOKIE_VIRTUAL_NETWORK, networkObj.name);
 
-            globalObj.hashUpdated = 1;
-            layoutHandler.setURLHashObj({
-                p: 'mon_networking_networks',
-                q: {
-                    fqName: networkFQN,
-                    view:'details',
-                    type: 'network'
-                }
-            });
+            ctwgrc.setNetworkURLHashParams(hashParams, networkFQN, false);
 
-            var connectedGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONNECTED_GRAPH, networkFQN), {fqName: networkFQN}, ':connected', 'Network'),
-                configGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONFIG_GRAPH, networkFQN), {fqName: networkFQN}, ':config', 'Network');
-
-            cowu.renderView4Config(this.$el, null, getNetworkConfig(connectedGraph, configGraph, networkFQN, networkUUID));
+            cowu.renderView4Config(this.$el, null, getNetworkConfig(networkFQN, networkUUID));
         },
 
         renderNetworkList: function (projectFQN) {
@@ -104,8 +84,9 @@ define([
         renderInstance: function (viewConfig) {
             var self = this,
                 breadcrumbView = new BreadcrumbView(),
-                fqName = (contrail.checkIfExist(viewConfig.hashParams.vn)) ? viewConfig.hashParams.vn : null,
-                instanceUUID = (contrail.checkIfExist(viewConfig.hashParams.uuid)) ? viewConfig.hashParams.uuid : null;
+                hashParams = viewConfig.hashParams,
+                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+                instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null;
 
             breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
@@ -115,24 +96,27 @@ define([
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
                         function (networkSelectedValueData) {
-                            self.renderInstanceCB(networkSelectedValueData, instanceUUID);
+                            self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
                         }, function (networkSelectedValueData) {
-                            self.renderNetworkCB(networkSelectedValueData);
+                            self.renderNetworkCB(hashParams, networkSelectedValueData);
                         }
                     );
                 }, function (projectSelectedValueData) {
-                    self.renderProjectCB(projectSelectedValueData);
+                    self.renderProjectCB(hashParams, projectSelectedValueData);
                 });
             });
         },
 
-        renderInstanceCB: function(networkObj, instanceUUID) {
+        renderInstanceCB: function(hashParams, networkObj, instanceUUID) {
             var self = this,
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 project = contrail.getCookie(cowc.COOKIE_PROJECT),
-                networkFQN = domain + ':' + project + ':' + networkObj.name;
+                networkFQN = domain + ':' + project + ':' + networkObj.name,
+                networkUUID = networkObj.value;
 
-            cowu.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, instanceUUID));
+            ctwgrc.setInstanceURLHashParams(hashParams, networkFQN, instanceUUID, false);
+
+            cowu.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, networkUUID, instanceUUID));
         },
 
         renderInstanceList: function (projectUUID) {
@@ -148,80 +132,36 @@ define([
         }
     });
 
-    function getProjectConfig(connectedGraph, configGraph, projectFQN, projectUUID) {
+    function getProjectConfig(projectFQN, projectUUID) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.PROJECT_GRAPH_ID,
-                                view: "NetworkingGraphView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.MONITOR_PROJECT_VIEW_ID,
-                                view: "ProjectTabView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID}
-                            }
-                        ]
-                    }
-                ]
-            }
+            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_PAGE_ID]),
+            view: "ProjectView",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID}
         }
     };
 
-    function getNetworkConfig(connectedGraph, configGraph, networkFQN, networkUUID) {
+    function getNetworkConfig(networkFQN, networkUUID) {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_ID]),
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.NETWORK_GRAPH_ID,
-                                view: "NetworkingGraphView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.MONITOR_NETWORK_VIEW_ID,
-                                view: "NetworkTabView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID}
-                            }
-                        ]
-                    }
-                ]
-            }
+            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_PAGE_ID]),
+            view: "NetworkView",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID}
         }
     };
 
-    function getInstanceConfig(networkFQN, instanceUUID) {
+    function getInstanceConfig(networkFQN, networkUUID, instanceUUID) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_PAGE_ID]),
             view: "InstanceView",
             app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: {networkFQN: networkFQN, instanceUUID: instanceUUID}
+            viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID, instanceUUID: instanceUUID}
         }
     };
 
     function getProjectListConfig() {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECTS_PAGE_ID]),
+            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_PAGE_ID]),
             view: "ProjectListView",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
@@ -230,7 +170,7 @@ define([
 
     function getNetworkListConfig() {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORKS_PAGE_ID]),
+            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_PAGE_ID]),
             view: "NetworkListView",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
@@ -239,7 +179,7 @@ define([
 
     function getInstanceListConfig() {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCES_PAGE_ID]),
+            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_PAGE_ID]),
             view: "InstanceListView",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}

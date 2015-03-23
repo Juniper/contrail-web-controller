@@ -4,43 +4,52 @@
 
 define([
     'underscore',
-    'backbone',
-    'contrail-view-model'
-], function (_, Backbone, ContrailViewModel) {
+    'backbone'
+], function (_, Backbone) {
     var InstanceView = Backbone.View.extend({
         el: $(contentContainer),
 
         render: function () {
-            var self = this, viewConfig = this.attributes.viewConfig,
+            var self = this,
+                graphTabsTemplate = contrail.getTemplate4Id(cowc.TMPL_2ROW_CONTENT_VIEW),
+                viewConfig = this.attributes.viewConfig,
                 networkFQN = viewConfig['networkFQN'],
-                instanceUUID = viewConfig['instanceUUID'],
-                modelMap = contrail.handleIfNull(this.modelMap, {}),
-                modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
+                networkUUID = viewConfig['networkUUID'],
+                instanceUUID = viewConfig['instanceUUID'];
 
-            var viewModelConfig = {
-                modelKey: modelKey,
-                remote: {
-                    ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
-                        type: 'GET'
-                    },
-                    dataParser: function(response) {
-                        return {name: instanceUUID, value: response};
-                    }
-                }
-            };
+            this.$el.html(graphTabsTemplate);
 
-            var contrailViewModel = new ContrailViewModel(viewModelConfig);
-            modelMap[viewModelConfig['modelKey']] = contrailViewModel;
+            self.renderInstanceGraph(networkFQN, instanceUUID);
+            self.renderInstanceTabs(networkFQN, instanceUUID);
+        },
 
-            var connectedGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONNECTED_GRAPH, networkFQN), {fqName: networkFQN, instanceUUID: instanceUUID}, ':connected', 'Instance'),
-                configGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONFIG_GRAPH, networkFQN), {fqName: networkFQN, instanceUUID: instanceUUID}, ':config', 'Instance');
+        renderInstanceGraph: function(networkFQN, instanceUUID) {
+            var topContainerElement = $('#' + ctwl.TOP_CONTENT_CONTAINER),
+                connectedGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONNECTED_GRAPH, networkFQN), {fqName: networkFQN, instanceUUID: instanceUUID}, ':connected', ctwc.GRAPH_ELEMENT_INSTANCE),
+                configGraph = ctwu.getNetworkingGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONFIG_GRAPH, networkFQN), {fqName: networkFQN, instanceUUID: instanceUUID}, ':config', ctwc.GRAPH_ELEMENT_INSTANCE);
 
-            cowu.renderView4Config(self.$el, null, getInstanceViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID), null, null, modelMap);
+            cowu.renderView4Config(topContainerElement, null, getInstanceGraphViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID), null, null, null);
+        },
+
+        renderInstanceTabs: function(networkFQN, instanceUUID) {
+            var bottomContainerElement = $('#' + ctwl.BOTTOM_CONTENT_CONTAINER),
+                currentHashParams = layoutHandler.getURLHashParams(),
+                tabConfig = {};
+
+            if (contrail.checkIfExist(currentHashParams.clickedElement)) {
+                tabConfig = ctwgrc.getTabsViewConfig(currentHashParams.clickedElement.type, currentHashParams.clickedElement);
+            } else {
+                tabConfig = ctwgrc.getTabsViewConfig(ctwc.GRAPH_ELEMENT_INSTANCE, {
+                    fqName: networkFQN,
+                    uuid: instanceUUID
+                });
+            }
+
+            cowu.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
         }
     });
 
-    function getInstanceViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID) {
+    function getInstanceGraphViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_ID]),
             view: "SectionView",
@@ -52,17 +61,10 @@ define([
                                 elementId: ctwl.INSTANCE_GRAPH_ID,
                                 view: "NetworkingGraphView",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
-                            }
-                        ]
-                    },
-                    {
-                        columns: [
-                            {
-                                elementId: ctwl.MONITOR_INSTANCE_VIEW_ID,
-                                view: "InstanceTabView",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {networkFQN: networkFQN, instanceUUID: instanceUUID}
+                                viewConfig: {
+                                    connectedGraph: connectedGraph, configGraph: configGraph,
+                                    networkFQN: networkFQN, instanceUUID: instanceUUID
+                                }
                             }
                         ]
                     }

@@ -4,14 +4,33 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
+    'backbone',
+    'contrail-view-model'
+], function (_, Backbone, ContrailViewModel) {
     var InstanceTabView = Backbone.View.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig,
-                modelMap = this.modelMap;
+                instanceUUID = viewConfig.instanceUUID,
+                modelMap = contrail.handleIfNull(this.modelMap, {}),
+                modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
+
+            var viewModelConfig = {
+                modelKey: modelKey,
+                remote: {
+                    ajaxConfig: {
+                        url: ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
+                        type: 'GET'
+                    },
+                    dataParser: function(response) {
+                        return {name: instanceUUID, value: response};
+                    }
+                }
+            };
+
+            var contrailViewModel = new ContrailViewModel(viewModelConfig);
+            modelMap[viewModelConfig['modelKey']] = contrailViewModel;
 
             cowu.renderView4Config(self.$el, null, getInstanceTabViewConfig(viewConfig), null, null, modelMap);
         }

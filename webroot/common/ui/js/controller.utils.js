@@ -17,10 +17,14 @@ define([
     'monitor/networking/ui/js/views/InstanceListView',
     'monitor/networking/ui/js/views/FlowListView',
     'monitor/networking/ui/js/views/InstanceView',
-    'monitor/networking/ui/js/views/InstanceTrafficStatsView'
+    'monitor/networking/ui/js/views/InstanceTrafficStatsView',
+    'monitor/networking/ui/js/views/ProjectView',
+    'monitor/networking/ui/js/views/NetworkView',
+    'monitor/networking/ui/js/views/ConnectedNetworkTabView',
+    'monitor/networking/ui/js/views/ConnectedNetworkTrafficStatsView'
 ], function (_, NetworkingGraphView, ProjectTabView, NetworkTabView, NetworkGridView, InstanceTabView, InstanceGridView,
              ProjectGridView, FlowGridView, NetworkListView, ProjectListView, InstanceListView, FlowListView, InstanceView,
-             InstanceTrafficStatsView) {
+             InstanceTrafficStatsView, ProjectView, NetworkView, ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView) {
 
     var CTUtils = function () {
         var self = this;
@@ -60,7 +64,7 @@ define([
             });
         };
 
-        self.getNetworkingGraphConfig = function(url, elementNameObject, keySuffix, focusedElement) {
+        self.getNetworkingGraphConfig = function (url, elementNameObject, keySuffix, type) {
             return {
                 remote: {
                     ajaxConfig: {
@@ -68,12 +72,54 @@ define([
                         type: 'GET'
                     }
                 },
-                elementNameObject: elementNameObject,
                 cacheConfig: {
                     ucid: ctwc.UCID_PREFIX_MN_GRAPHS + elementNameObject.fqName + keySuffix
                 },
-                focusedElement: focusedElement
+                focusedElement: {
+                    type: type,
+                    name: elementNameObject
+                }
             };
+        };
+
+        self.getUUIDByName = function (fqName) {
+            var fqArray = fqName.split(":"),
+                ucid, modeltems, cachedData;
+
+            if (fqArray.length == 1) {
+                ucid = ctwc.UCID_BC_ALL_DOMAINS;
+                cachedData = cowch.get(ucid);
+                if (cachedData == null) {
+                    cowch.getAllDomains();
+                    return null;
+                }
+            } else if (fqArray.length == 2) {
+                ucid = ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, fqArray[0]);
+                cachedData = cowch.get(ucid);
+                if (cachedData == null) {
+                    cowch.getProjects4Domain(fqArray[0]);
+                    return getUUIDByName(fqName);
+                }
+            } else if (fqArray.length == 3) {
+                ucid = ctwc.get(ctwc.UCID_BC_PROJECT_ALL_NETWORKS, fqArray[0] + ":" + fqArray[1]);
+                cachedData = cowch.get(ucid);
+                if (cachedData == null) {
+                    cowch.getNetworks4Project(fqArray[0] + ":" + fqArray[1]);
+                    return getUUIDByName(fqName);
+                }
+            }
+
+            if (cachedData != null) {
+                modeltems = cachedData['dataObject']['listModel'].getItems();
+                var cachedObject = _.find(modeltems, function (domainObj) {
+                    return domainObj['fq_name'] == fqName;
+                });
+                if (contrail.checkIfExist(cachedObject)) {
+                    return cachedObject['value'];
+                } else {
+                    return getUUIDByName(fqName);
+                }
+            }
         };
 
         self.renderView = function (viewName, parentElement, model, viewAttributes, modelMap) {
@@ -87,79 +133,103 @@ define([
                     break;
 
                 case "ProjectListView":
-                    elementView = new ProjectListView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new ProjectListView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "ProjectGridView":
-                    elementView = new ProjectGridView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new ProjectGridView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "ProjectTabView":
-                    elementView = new ProjectTabView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new ProjectTabView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "NetworkListView":
-                    elementView = new NetworkListView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new NetworkListView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "NetworkTabView":
-                    elementView = new NetworkTabView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new NetworkTabView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "NetworkGridView":
-                    elementView = new NetworkGridView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new NetworkGridView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "InstanceListView":
-                    elementView = new InstanceListView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new InstanceListView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "InstanceTabView":
-                    elementView = new InstanceTabView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new InstanceTabView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "InstanceGridView":
-                    elementView = new InstanceGridView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new InstanceGridView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "FlowListView":
-                    elementView = new FlowListView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new FlowListView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "FlowGridView":
-                    elementView = new FlowGridView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new FlowGridView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "InstanceView":
-                    elementView = new InstanceView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView = new InstanceView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
 
                 case "InstanceTrafficStatsView":
                     elementView = new InstanceTrafficStatsView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "ProjectView":
+                    elementView = new ProjectView({el: parentElement, model: model, attributes: viewAttributes});
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "NetworkView":
+                    elementView = new NetworkView({el: parentElement, model: model, attributes: viewAttributes});
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "ConnectedNetworkTabView":
+                    elementView = new ConnectedNetworkTabView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "ConnectedNetworkTrafficStatsView":
+                    elementView = new ConnectedNetworkTrafficStatsView({ el: parentElement, model: model, attributes: viewAttributes });
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
@@ -182,4 +252,4 @@ function formatVN(vn){
                                     return value;
                               });
     return formattedValue;
-}
+};

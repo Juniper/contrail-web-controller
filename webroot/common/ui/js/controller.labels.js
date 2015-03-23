@@ -50,11 +50,15 @@ define([
             acl: 'ACL',
             total_acl_rules: 'Total ACL Rules',
             interface_list: 'Interfaces',
-            in_bytes: 'Traffic In',
-            out_bytes: 'Traffic Out',
+            in_bytes: 'Total In Bytes',
+            out_bytes: 'Total Out bytes',
             virtualmachine_list: 'Instances',
             encaps: 'Encaps',
             l2_encaps: 'L2 Encaps',
+            out_tpkts: "Total Out packets",
+            in_tpkts: "Total In packets",
+            ingressFlowCount: "Ingress Flow Count",
+            egressFlowCount: "Egress Flow Count",
 
             /* Instance Details */
             cpu_one_min_avg: 'CPU',
@@ -65,28 +69,47 @@ define([
             /*Interface Details */
             uuid: 'UUID',
             mac_address: 'MAC Address',
-            ip_address: 'IPV4 Address',
+            ip_address: 'IP Address',
             ip6_address: 'IPV6 Address',
             gateway: 'Gateway',
             label: 'Label',
             active: 'Active',
-            l2_active: 'L2 Active'
+            l2_active: 'L2 Active',
 
+            /*Connected Network Details */
+            src: 'Source Network',
+            dst: 'Destination Network',
+            service_inst: 'Service Instances',
+            pkts: "Packets",
+
+            /*Project Details*/
+            intfCnt: "Interfaces",
+            vnCnt: "Virtual Networks",
+            inBytes: "Total In Bytes",
+            outBytes: "Total Out Bytes",
+            outTpkts: "Total Out Packets",
+            inTpkts: "Total In Packets",
+            throughput: "Total Throughput"
         };
+
+        this.TOP_CONTENT_CONTAINER = "top-content-container";
+        this.BOTTOM_CONTENT_CONTAINER = "bottom-content-container";
 
         this.MONITOR_PROJECT_LIST_ID = "monitor-project-list";
         this.MONITOR_PROJECT_ID = "monitor-project";
         this.MONITOR_PROJECT_VIEW_ID = "monitor-project-view";
-        this.MONITOR_PROJECTS_PAGE_ID = "monitor-projects-page";
+        this.MONITOR_PROJECT_PAGE_ID = "monitor-project-page";
+        this.MONITOR_PROJECT_LIST_PAGE_ID = "monitor-project-list-page";
         this.MONITOR_PROJECT_LIST_VIEW_ID = "monitor-project-list-view";
-        this.MONITOR_NETWORKS_PAGE_ID = "monitor-networks-page";
+        this.MONITOR_NETWORK_PAGE_ID = "monitor-network-page";
+        this.MONITOR_NETWORK_LIST_PAGE_ID = "monitor-network-list-page";
         this.MONITOR_NETWORK_LIST_ID = "monitor-network-list";
         this.MONITOR_NETWORK_LIST_VIEW_ID = "monitor-network-list-view";
         this.MONITOR_NETWORK_ID = "monitor-network";
         this.MONITOR_NETWORK_VIEW_ID = "monitor-network-view";
         this.MONITOR_INSTANCE_LIST_ID = "monitor-instance-list";
         this.MONITOR_INSTANCE_PAGE_ID = "monitor-instance-page";
-        this.MONITOR_INSTANCES_PAGE_ID = "monitor-instances-page";
+        this.MONITOR_INSTANCE_LIST_PAGE_ID = "monitor-instances-list-page";
         this.MONITOR_INSTANCE_LIST_VIEW_ID = "monitor-instance-list-view";
         this.MONITOR_INSTANCE_ID = "monitor-instance";
         this.MONITOR_INSTANCE_VIEW_ID = "monitor-instance-view";
@@ -96,9 +119,7 @@ define([
 
         this.DOMAINS_BREADCRUMB_DROPDOWN = "domains-breadcrumb-dropdown";
 
-        this.TITLE_PROJECTS = "Projects";
         this.PROJECTS_ID = "projects";
-        this.TITLE_PROJECTS_SUMMARY = "Projects Summary";
         this.PROJECT_GRAPH_ID = "project-graph";
         this.PROJECT_DETAILS_ID = "project-details";
         this.PROJECT_TABS_ID = "project-tabs";
@@ -131,8 +152,21 @@ define([
         this.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID = "instance-traffic-stats-dropdown";
         this.INSTANCE_TRAFFIC_STATS_CHART_ID = "instance-traffic-stats-chart";
 
+        this.MONITOR_CONNECTED_NETWORK_ID = "monitor-connected-network";
+        this.MONITOR_CONNECTED_NETWORK_VIEW_ID = "monitor-connected-network-view";
+        this.CONNECTED_NETWORK_TABS_ID = "connected-networks-tabs";
+        this.CONNECTED_NETWORK_DETAILS_ID = "connected-network-details";
+        this.CONNECTED_NETWORK_TRAFFIC_STATS_ID = "connected-network-traffic-stats";
+        this.CONNECTED_NETWORK_TRAFFIC_STATS_DROPDOWN_ID = "connected-network-traffic-stats-dropdown";
+        this.CONNECTED_NETWORK_TRAFFIC_STATS_CHART_ID = "connected-network-traffic-stats-chart";
+
         this.FLOWS_SCATTER_CHART_ID = "flows-scatter-chart";
         this.FLOWS_GRID_ID = "flows-grid";
+
+        this.TITLE_PROJECTS = "Projects";
+        this.TITLE_PROJECTS_SUMMARY = "Projects Summary";
+        this.TITLE_PROJECT_DETAILS = "Project Details";
+
 
         this.TITLE_NETWORKS = "Networks";
         this.TITLE_NETWORKS_SUMMARY = "Networks Summary";
@@ -141,6 +175,8 @@ define([
         this.TITLE_INSTANCES = "Instances";
         this.TITLE_INSTANCES_SUMMARY = "Instances Summary";
         this.TITLE_INSTANCE_DETAILS = "Instance Details";
+
+        this.TITLE_CONNECTED_NETWORK_DETAILS = "Connected Network Details";
 
         this.TITLE_FLOWS= "Flows";
         this.TITLE_FLOWS_SUMMARY = "Flows Summary";
@@ -153,6 +189,8 @@ define([
         this.TITLE_CPU_INFO = "CPU Info";
         this.TITLE_TRAFFIC_DETAILS = "Traffic Details";
         this.TITLE_TRAFFIC_STATISTICS = "Traffic Statistics";
+        this.TITLE_TRAFFIC_STATISTICS_IN = "Traffic Statistics In";
+        this.TITLE_TRAFFIC_STATISTICS_OUT = "Traffic Statistics Out";
         this.TITLE_PORT_DISTRIBUTION = "Port Distribution";
         this.TITLE_PORT_MAP = "Port Map";
 
@@ -161,6 +199,14 @@ define([
 
         this.SOURCE_PORT = "Source Port";
         this.DESTINATION_PORT = "Destination Port";
+
+        this.TITLE_GRAPH_ELEMENT_NETWORK_POLICY = 'network policy';
+        this.TITLE_GRAPH_ELEMENT_SECURITY_GROUP = 'security group';
+        this.TITLE_GRAPH_ELEMENT_NETWORK_IPAM = 'network ipam';
+        this.TITLE_GRAPH_ELEMENT_SERVICE_INSTANCE = 'service instance';
+        this.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK = 'virtual network';
+        this.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE = 'virtual machine';
+        this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
 
     };
     return CTLabels;
