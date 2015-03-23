@@ -2372,21 +2372,25 @@ function formatCPULoadXMLData (resultJSON, callback)
     try {
         resultJSON = resultJSON['value'];
         counter = resultJSON.length;
-        for (var i = 0; i < counter; i++) {
-            results[i] = {};
-            results[i]['MessageTS'] = resultJSON[i]['T'];
-            results[i]['cpuData'] = {"cpu_share": resultJSON[i]['cpu_info.cpu_share']};
-            if(resultJSON[i]['cpu_info.one_min_cpuload'])
-                results[i]['cpuData']['cpuLoadAvg'] = {one_min_avg: resultJSON[i]['cpu_info.one_min_cpuload']};
-            results[i]['memData'] = {"memInfo": {"virt": resultJSON[i]['cpu_info.mem_virt']}};
-            if(resultJSON[i]['cpu_info.used_sys_mem'])
-                results[i]['memData']['sysMemInfo'] = {used: resultJSON[i]['cpu_info.used_sys_mem']};
-        }
-        callback(null, results);
-    } catch (e) {
-        logutils.logger.error("In formatCPULoadXMLData(): JSON Parse error: " + e);
-        callback(null, '');
+    } catch(e) {
+        counter = 0;
     }
+    for (var i = 0; i < counter; i++) {
+        results[i] = {};
+        results[i]['MessageTS'] = resultJSON[i]['T'];
+        results[i]['cpuData'] = {"cpu_share": resultJSON[i]['cpu_info.cpu_share']};
+        if (resultJSON[i]['cpu_info.one_min_cpuload']) {
+            results[i]['cpuData']['cpuLoadAvg'] =
+                {one_min_avg: resultJSON[i]['cpu_info.one_min_cpuload']};
+        }
+        results[i]['memData'] = {"memInfo": {"virt":
+            resultJSON[i]['cpu_info.mem_virt'], "res":
+                resultJSON[i]['cpu_info.mem_res']}};
+        if (resultJSON[i]['cpu_info.used_sys_mem']) {
+            results[i]['memData']['sysMemInfo'] = {used: resultJSON[i]['cpu_info.used_sys_mem']};
+        }
+    }
+    callback(null, results);
 }
 
 function getCollectorCPUUve(uveData)
