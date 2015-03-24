@@ -12,7 +12,8 @@ var configJsonModifyObj = {
         },
         'optFields': ['virtual_network_properties',
             'network_ipam_refs', 'network_policy_refs',
-            'route_target_list', 'floating_ip_pools'],
+            'route_target_list', 'is_shared',
+            'router_external', 'display_name', 'id_perms:enable'],
         'mandateFields': ['fq_name', 'uuid']
     },
     'network-ipam': {
