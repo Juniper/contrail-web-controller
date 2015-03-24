@@ -307,6 +307,7 @@ function readVirtualNetwork (netIdStr, appData, callback)
         return;
     }
 
+    vnGetURL += '?exclude_back_refs=true';
     configApiServer.apiGet(vnGetURL, appData,
                          function(error, data) {
                          getVirtualNetworkCb(error, data, appData, callback);
