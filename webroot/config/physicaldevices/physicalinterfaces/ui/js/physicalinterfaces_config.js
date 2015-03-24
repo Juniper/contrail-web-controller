@@ -329,7 +329,7 @@ function physicalInterfacesConfig() {
                     createPorts(createPortsData);
                 } else if (liType == 'l2Gateway'){
                     //L2 Gateway type
-                    createPort({mac : '', ip : ''});
+                    createPort({mac : ''});
                 } else if(isSubnetCreate && liType === 'l3') {
                     //Subnet creation flow
                     createPort({mac : '', ip : ''});
@@ -549,87 +549,20 @@ function physicalInterfacesConfig() {
     function prepareVMIPostObject(input) {
         var curDomain = input.fqName[0];
         var curProject = input.fqName[1];
-        var postObj = '';
+        var postObj = {};
+        postObj["virtual-machine-interface"] = {};
+        postObj["virtual-machine-interface"]["parent_type"] = "project";
+        postObj["virtual-machine-interface"]["fq_name"] = [curDomain, curProject];
+        postObj["virtual-machine-interface"]["virtual_network_refs"] = [{ "to": input.fqName}];
         if(input.mac != undefined) {
-            postObj = {
-                "virtual-machine-interface": {
-                    "parent_type": "project",
-                    "fq_name": [
-                        curDomain,
-                        curProject
-                    ],
-                    "virtual_network_refs": [
-                        {
-                            "to": input.fqName
-                        }
-                    ],
-                    "virtual_machine_interface_mac_addresses": {
-                        "mac_address": [
-                            input.mac
-                        ]
-                    },
-                    "instance_ip_back_refs": [
-                        {
-                            "instance_ip_address": [
-                                {
-                                    "fixedIp": input.ip,
-                                    "domain": curDomain,
-                                    "project": curProject
-                                }
-                            ],
-                            "subnet_uuid": input.subnetId
-                        }
-                    ],
-                    "virtual_machine_interface_device_owner" : "",
-                    "security_group_refs" : [
-                        {
-                            "to" :[
-                                curDomain,
-                                curProject,
-                                "default"
-                            ]
-                        }
-                    ]
-                }
-            };
-        } else {
-            postObj = {
-                "virtual-machine-interface": {
-                    "parent_type": "project",
-                    "fq_name": [
-                        curDomain,
-                        curProject
-                    ],
-                    "virtual_network_refs": [
-                        {
-                            "to": input.fqName
-                        }
-                    ],
-                    "instance_ip_back_refs": [
-                        {
-                            "instance_ip_address": [
-                                {
-                                    "fixedIp": input.ip,
-                                    "domain": curDomain,
-                                    "project": curProject
-                                }
-                            ],
-                            "subnet_uuid": input.subnetId
-                        }
-                    ],
-                    "virtual_machine_interface_device_owner" : "",
-                    "security_group_refs" : [
-                        {
-                            "to" :[
-                                curDomain,
-                                curProject,
-                                "default"
-                            ]
-                        }
-                    ]
-                }
-            };
+            postObj["virtual-machine-interface"]["virtual_machine_interface_mac_addresses"] = {"mac_address": [input.mac]};
         }
+        if(input.ip != undefined) {
+            postObj["virtual-machine-interface"]["instance_ip_back_refs"]
+                = [{"instance_ip_address" : [{"fixedIp": input.ip,"domain": curDomain,"project": curProject}],"subnet_uuid": input.subnetId}];
+        }
+        postObj["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
+        postObj["virtual-machine-interface"]["security_group_refs"] = [{"to" :[curDomain,curProject,"default"]}];
         return postObj;
     }
 
