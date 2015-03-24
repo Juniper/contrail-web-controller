@@ -258,7 +258,10 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
         /* We did not get any link info */
         return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
     }
-    var linksCnt = links.length;
+    var linksCnt = 0;
+    if (null != links) {
+        linksCnt = links.length;
+    }
     for (var i = 0; i < linksCnt; i++) {
         /* First check any one of the link is vRouter or not */
         if (ctrlGlobal.NODE_TYPE_VROUTER == getpRouterLinkType(links[i]['type'])) {
@@ -649,7 +652,10 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
             logutils.logger.error("pRouterLinkEntry Parse error : " + e);
             continue;
         }
-        linkCnt = pRouterLinkTable.length;
+        var linkCnt = 0;
+        if (null != pRouterLinkTable) {
+            linkCnt = pRouterLinkTable.length;
+        }
         for (var j = 0; j < linkCnt; j++) {
             if (null == tempNodeObjs[pRouterLinkTable[j]['remote_system_name']]) {
                 var prLinkType =
