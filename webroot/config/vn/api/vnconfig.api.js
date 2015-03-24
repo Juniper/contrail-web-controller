@@ -436,12 +436,37 @@ function readVirtualNetworks (dataObj, callback)
     });
 }
 
+/**
+ * @readVirtualNetworkWOBackRefs
+ *  Retrieves virtual network data without any back_refs
+ * private function
+ * 1. Needs network uuid in string format
+ */
+function readVirtualNetworkWOBackRefs (netIdStr, appData, callback)
+{
+    var vnGetURL         = '/virtual-network/';
+
+    if (netIdStr.length) {
+        vnGetURL += netIdStr;
+    } else {
+        error = new appErrors.RESTServerError('Add Virtual Network id');
+        callback(error, null);
+        return;
+    }
+
+    vnGetURL += '?exclude_back_refs=true';
+    configApiServer.apiGet(vnGetURL, appData,
+                           function(error, data) {
+        getVirtualNetworkCb(error, data, appData, callback);
+    });
+}
+
 function readVirtualNetworkAsyncIgnoreError(vnObj, callback)
 {
     var vnID = vnObj['uuid'];
     var appData = vnObj['appData'];
 
-    readVirtualNetwork(vnID, appData, function(err, data) {
+    readVirtualNetworkWOBackRefs(vnID, appData, function(err, data) {
         callback(null, data);
     });
 }
