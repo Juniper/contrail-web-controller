@@ -115,7 +115,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                             return getNodeStatusContentForSummayPages(dc,'html');
                         },
                         searchFn:function(d) {
-                            return getNodeStatusContentForSummayPages(dc,'text');
+                            return getNodeStatusContentForSummayPages(d,'text');
                         },
                         minWidth:110,
                         exportConfig: {

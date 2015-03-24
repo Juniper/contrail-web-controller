@@ -6,6 +6,8 @@ computeNodesView = function () {
     
     this.load = function (obj) {
         var hashParams = ifNull(obj['hashParams'],{});
+        //Disable callbacks for DS
+        manageCrossFilters.removeAllCallBacks('vRoutersCF');
         if(hashParams['node'] == null)
             monitorInfraComputeSummaryClass.populateComputeNodes();
         else
