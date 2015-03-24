@@ -8,11 +8,12 @@ var configJsonModifyObj = {
     'virtual-network': {
         'isConfig': true,
         'preProcessCB': {
-            'applyOnOldJSON': modifyConfigData,
+            'applyOnOldJSON': modifyVirtualNetworkConfigData,
         },
         'optFields': ['virtual_network_properties',
             'network_ipam_refs', 'network_policy_refs',
-            'route_target_list', 'floating_ip_pools'],
+            'route_target_list', 'is_shared',
+            'router_external', 'display_name', 'id_perms:enable'],
         'mandateFields': ['fq_name', 'uuid']
     },
     'network-ipam': {
@@ -57,6 +58,33 @@ function configArrAttrFound (configObj)
         return true;
     }
     return false;
+}
+
+function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFields)
+{
+    /* Modify network ipam_refs in configData */
+    var ipamRefs = configData[type]['network_ipam_refs'];
+    if (null == ipamRefs) {
+        return modifyConfigData(type, configData, optFields, mandateFields);
+    }
+    var ipamRefsLen = ipamRefs.length;
+    for (var i = 0; i < ipamRefsLen; i++) {
+        var ipamSubnets = [];
+        var ipamSubnetsLen = 0;
+        try {
+            ipamSubnets = ipamRefs[i]['attr']['ipam_subnets'];
+            ipamSubnetsLen = ipamSubnets.length;
+        } catch(e) {
+            ipamSubnetsLen = 0;
+        }
+        if (null == ipamSubnets) {
+            ipamSubnetsLen = 0;
+        }
+        for (var j = 0; j < ipamSubnetsLen; j++) {
+            delete ipamSubnets[j]['dns_server_address'];
+        }
+    }
+    return modifyConfigData(type, configData, optFields, mandateFields);
 }
 
 function modifyConfigData (type, configData, optFields, mandateFields)
