@@ -217,8 +217,17 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'link',
                                                         template: ctwc.URL_NETWORK,
+                                                        params: {}
+                                                    }
+                                                },
+                                                {
+                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
+                                                    templateGenerator: 'LinkGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'link',
+                                                        template: ctwc.URL_INSTANCE,
                                                         params: {
-                                                            fqName: 'value.UveVirtualNetworkConfig.connected_networks'
+                                                            vn: 'name'
                                                         }
                                                     }
                                                 },
@@ -235,17 +244,6 @@ define([
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'length'
-                                                    }
-                                                },
-                                                {
-                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
-                                                    templateGenerator: 'LinkGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'link',
-                                                        template: ctwc.URL_INSTANCE,
-                                                        params: {
-                                                            vn: 'name'
-                                                        }
                                                     }
                                                 }
                                             ]

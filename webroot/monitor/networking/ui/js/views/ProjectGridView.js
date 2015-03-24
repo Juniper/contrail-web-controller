@@ -62,7 +62,10 @@ define([
             body: {
                 options: {
                     autoRefresh: false,
-                    checkboxSelectable: false
+                    checkboxSelectable: false,
+                    detail: {
+                        template: cowu.generateDetailTemplateHTML(getProjectDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER)
+                    }
                 },
                 dataSource: {
                     remote: {
@@ -83,6 +86,95 @@ define([
             }
         };
         return gridElementConfig;
+    };
+
+
+    function getProjectDetailsTemplateConfig() {
+        return {
+            templateGenerator: 'RowSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                rows: [
+                    {
+                        templateGenerator: 'ColumnSectionTemplateGenerator',
+                        templateGeneratorConfig: {
+                            columns: [
+                                {
+                                    class: 'span6',
+                                    rows: [
+                                        {
+                                            title: ctwl.TITLE_PROJECT_DETAILS,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'name',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'intfCnt',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'vnCnt',
+                                                    templateGenerator: 'TextGenerator'
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    class: 'span6',
+                                    rows: [
+                                        {
+                                            title: ctwl.TITLE_TRAFFIC_DETAILS,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'throughput',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'throughput'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'ingressFlowCount',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'egressFlowCount',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'inBytes',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'byte'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'outBytes',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'byte'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'inTpkts',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'outTpkts',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
     };
 
     return ProjectGridView;

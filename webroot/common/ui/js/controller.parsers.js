@@ -11,20 +11,14 @@ define([
                 if(!isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
                     currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
-                    currObject['outBytes'] = '-';
-                    currObject['inBytes'] = '-';
+                    currObject['outBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_bytes', 0);
+                    currObject['inBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_bytes', 0);
+                    currObject['out_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_tpkts', 0);
+                    currObject['in_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_tpkts', 0);
+                    currObject['egress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;egress_flow_count', 0);
+                    currObject['ingress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;ingress_flow_count', 0);
                     currObject['outBytes60'] = '-';
                     currObject['inBytes60'] = '-';
-                    var inBytes = 0, outBytes = 0;
-                    var statsObj = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;vn_stats;0;StatTable.UveVirtualNetworkAgent.vn_stats', []);
-                    for (var i = 0; i < statsObj.length; i++) {
-                        inBytes += ifNull(statsObj[i]['SUM(vn_stats.in_bytes)'], 0);
-                        outBytes += ifNull(statsObj[i]['SUM(vn_stats.out_bytes)'], 0);
-                    }
-                    if (getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;vn_stats') != null) {
-                        currObject['outBytes'] = outBytes;
-                        currObject['inBytes'] = inBytes;
-                    }
                     currObject['instCnt'] = ifNull(jsonPath(currObject, '$..virtualmachine_list')[0], []).length;
                     currObject['inThroughput'] = ifNull(jsonPath(currObject, '$..in_bandwidth_usage')[0], 0);
                     currObject['outThroughput'] = ifNull(jsonPath(currObject, '$..out_bandwidth_usage')[0], 0);
@@ -71,7 +65,11 @@ define([
                 inBytes: 0,
                 outBytes: 0,
                 inBytes60: 0,
-                outBytes60: 0
+                outBytes60: 0,
+                ingressFlowCount: 0,
+                egressFlowCount: 0,
+                inTpkts: 0,
+                outTpkts: 0
             };
 
             $.each(projectItems, function (idx, projObj) {
@@ -87,10 +85,14 @@ define([
                 }
                 project = projectMap[vn['project']];
 
-                project['outBytes'] = contrail.checkAndReplace(project['outBytes'], '-', 0) + vn['outBytes'];
-                project['inBytes'] = contrail.checkAndReplace(project['inBytes'], '-', 0) + vn['inBytes'];
-                project['outBytes60'] = contrail.checkAndReplace(project['outBytes60'], '-', 0) + vn['outBytes60'];
-                project['inBytes60'] = contrail.checkAndReplace(project['inBytes60'], '-', 0) + vn['inBytes60'];
+                project['outBytes'] += vn['outBytes'];
+                project['inBytes'] += vn['inBytes'];
+                project['inTpkts'] += vn['in_tpkts'];
+                project['outTpkts'] += vn['out_tpkts'];
+                project['ingressFlowCount'] += vn['ingress_flow_count'];
+                project['egressFlowCount'] += vn['egress_flow_count'];
+                project['outBytes60'] += contrail.checkAndReplace(vn['outBytes60'], '-', 0);
+                project['inBytes60']  += contrail.checkAndReplace(vn['inBytes60'], '-', 0);
 
                 project['inThroughput'] += vn['inThroughput'];
                 project['outThroughput'] += vn['outThroughput'];
@@ -128,10 +130,7 @@ define([
         this.instanceDataParser = function(response) {
             var retArr = $.map(ifNull(response['data']['value'],response), function (currObject, idx) {
                 var currObj = currObject['value'];
-                var intfStats = getValueByJsonPath(currObj,'VirtualMachineStats;if_stats;0;StatTable.VirtualMachineStats.if_stats',[]);
                 currObject['rawData'] = $.extend(true,{},currObj);
-                currObject['inBytes'] = '-';
-                currObject['outBytes'] = '-';
                 currObject['inBytes60'] = '-';
                 currObject['outBytes60'] = '-';
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
@@ -164,19 +163,9 @@ define([
                 var fipStatsList = getValueByJsonPath(currObj,'UveVirtualMachineAgent:fip_stats_list');
                 var floatingIPs = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(fipStatsList), []);
                 currObject['floatingIP'] = [];
-                if(getValueByJsonPath(currObj,'VirtualMachineStats;if_stats') != null) {
-                    currObject['inBytes'] = 0;
-                    currObject['outBytes'] = 0;
-                }
                 $.each(floatingIPs, function(idx, fipObj){
                     currObject['floatingIP'].push(contrail.format('{0}<br/> ({1}/{2})', fipObj['ip_address'],formatBytes(ifNull(fipObj['in_bytes'],'-')),
                         formatBytes(ifNull(fipObj['out_bytes'],'-'))));
-                });
-                $.each(intfStats, function (idx, value) {
-                    currObject['inBytes'] += ifNull(value['SUM(if_stats.in_bytes)'],0);
-                });
-                $.each(intfStats, function (idx, value) {
-                    currObject['outBytes'] += ifNull(value['SUM(if_stats.out_bytes)'],0);
                 });
                 return currObject;
             });

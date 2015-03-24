@@ -120,7 +120,11 @@ define([
                                                 },
                                                 {
                                                     key: 'vRouter',
-                                                    templateGenerator: 'TextGenerator'
+                                                    templateGenerator: 'LinkGenerator',
+                                                    templateGeneratorConfig: {
+                                                        template: ctwc.URL_VROUTER,
+                                                        params: {}
+                                                    }
                                                 }
                                             ]
                                         }
@@ -185,10 +189,6 @@ define([
                                                     },
                                                     {
                                                         key: 'ip_address',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'ip6_address',
                                                         templateGenerator: 'TextGenerator'
                                                     },
                                                     {

@@ -28,23 +28,30 @@ define([
         this.URL_INSTANCE_SUMMARY = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp={0}?flat';
         this.URL_INSTANCE_DETAILS_IN_CHUNKS = '/api/tenant/networking/virtual-machines/details?count={0}&startAt={1}';
         this.URL_INSTANCE_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vm?minsSince={0}&fqName={1}&sampleCnt={2}&ip={3}&vmName={4}&vmVnName={5}&useServerTime=true';
+        this.URL_CONNECTED_NETWORK_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vn?minsSince={0}&srcVN={1}&destVN={2}&sampleCnt={3}&useServerTime=true';
 
         this.URL_VM_VN_STATS = '/api/tenant/networking/stats';
         this.URL_PORT_DISTRIBUTION = '/api/tenant/networking/network/stats/top?minsSince=10&fqName={0}&useServerTime=true&type=port';
 
         this.FILTERS_COLUMN_VN = ['UveVirtualNetworkAgent:interface_list', 'UveVirtualNetworkAgent:in_bandwidth_usage', 'UveVirtualNetworkAgent:out_bandwidth_usage',
             'UveVirtualNetworkConfig:connected_networks', 'UveVirtualNetworkAgent:virtualmachine_list', 'UveVirtualNetworkAgent:acl', 'UveVirtualNetworkAgent:total_acl_rules',
-            //'UveVirtualNetworkAgent:ingress_flow_count', 'UveVirtualNetworkAgent:egress_flow_count', 'UveVirtualNetworkAgent:vrf_stats_list',
-            'UveVirtualNetworkAgent:in_bytes', 'UveVirtualNetworkAgent:out_bytes'];
+            'UveVirtualNetworkAgent:ingress_flow_count', 'UveVirtualNetworkAgent:egress_flow_count',
+            'UveVirtualNetworkAgent:in_tpkts', 'UveVirtualNetworkAgent:out_tpkts',
+            //'UveVirtualNetworkAgent:vrf_stats_list', 'UveVirtualNetworkAgent:vn_stats',
+            'UveVirtualNetworkAgent:in_bytes', 'UveVirtualNetworkAgent:out_bytes'
+         ];
 
         this.FILTERS_COLUMN_VM = ['UveVirtualMachineAgent:interface_list', 'UveVirtualMachineAgent:vrouter', 'UveVirtualMachineAgent:fip_stats_list',
-            'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:if_bmap_list'];
+            'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:if_bmap_list'
+            //'VirtualMachineStats:if_stats'
+        ];
 
         this.TYPE_VIRTUAL_NETWORK = "virtual-network";
         this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
 
-        this.URL_NETWORK = '/#p=mon_networking_networks&q[fqName]={{params.fqName}}&q[uuid]=&q[type]=network&q[view]=details';
-        this.URL_INSTANCE = '/#p=mon_networking_instances&q[uuid]={{key}}&q[vn]={{params.vn}}&q[type]=instance&q[view]=details';
+        this.URL_NETWORK = '/#p=mon_networking_networks&q[type]=network&q[view]=details&q[focusedElement][fqName]={{key}}&q[focusedElement][type]=virtual-network';
+        this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
+        this.URL_VROUTER = '/#p=mon_infra_vrouter&q[node]={{key}}';
 
         this.get = function () {
             var args = arguments;
@@ -52,7 +59,7 @@ define([
         };
 
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
-        this.TMPL_INSTANCE_TRAFFIC_STATS = "instance-traffic-stats-tab-template";
+        this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
 
         this.DEFAULT_DOMAIN = "default-domain";
         this.UCID_PREFIX_MN = "monitor-networking";
@@ -77,6 +84,14 @@ define([
         this.UCID_PROJECT_VN_PORT_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:port-stats";
         this.UCID_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:traffic-stats";
         this.UCID_INSTANCE_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:{2}:traffic-stats";
+        this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
+
+        this.GRAPH_DIR_LR = "LR";
+        this.GRAPH_DIR_TB = "TB";
+
+        this.DEFAULT_GRAPH_DIR = this.GRAPH_DIR_LR;
+
+        this.MAX_VM_TO_PLOT = 100;
 
         this.get = function () {
             var args = arguments;
@@ -86,6 +101,12 @@ define([
         this.UMID_INSTANCE_UVE = "uve:{0}";
         this.SERVICE_VN_EXCLUDE_LIST = ['svc-vn-left','svc-vn-right','svc-vn-mgmt'];
         this.PROTOCOL_MAP = [{'id': 6, 'text': 'TCP'}, {'id': 17, 'text': 'UDP'}, {'id': 1, 'text': 'ICMP'}];
+
+        this.GRAPH_ELEMENT_PROJECT = 'project';
+        this.GRAPH_ELEMENT_NETWORK = 'virtual-network';
+        this.GRAPH_ELEMENT_INSTANCE = 'virtual-machine';
+        this.GRAPH_ELEMENT_CONNECTED_NETWORK = 'connected-network';
+        this.GRAPH_ELEMENT_NETWORK_POLICY = 'network-policy';
     };
     return CTConstants;
 });
