@@ -925,6 +925,8 @@ function createVirtualNetwork (request, response, appData)
 
     vnConfigData = JSON.parse(JSON.stringify(vnPostData)); 
     delete vnPostData['virtual-network']['network_ipam_refs'];
+    //static_ip used only in case of vCenter
+    delete vnPostData['virtual-network']['static_ip'];
 
     if ('route_target_list' in vnPostData['virtual-network']) {
         if (!(vnPostData['virtual-network']['route_target_list']

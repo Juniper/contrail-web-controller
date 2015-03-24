@@ -273,6 +273,14 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="control-group" style="display:none">
+                                            <label class="control-label">Static IP Addressing</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <div><input class="ace-input" type="checkbox" id="static_ip"><span class="ace-lbl"></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <div class="control-group">
                                             <label class="control-label">DNS Servers</label>
