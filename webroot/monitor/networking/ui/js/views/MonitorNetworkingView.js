@@ -20,22 +20,27 @@ define([
                 fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 breadcrumbView = new BreadcrumbView();
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData) {
+            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
 
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (selectedValueData) {
-                    self.renderProjectCB(hashParams, selectedValueData);
+                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (selectedValueData, projectBreadcrumbChanged) {
+                    self.renderProjectCB(hashParams, selectedValueData, projectBreadcrumbChanged);
                 });
             });
        },
 
-        renderProjectCB: function (hashParams, projectObj) {
+        renderProjectCB: function (hashParams, projectObj, breadcrumbChanged) {
             contrail.setCookie(cowc.COOKIE_PROJECT, projectObj.name);
 
             var self = this,
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectFQN = domain + ':' + projectObj.name,
-                projectUUID = projectObj.value;
+                projectUUID = projectObj.value,
+                ignoreClickedElements = breadcrumbChanged;
+
+            if (ignoreClickedElements == true) {
+                delete hashParams.clickedElement;
+            }
 
             ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
 
@@ -48,27 +53,32 @@ define([
                 fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 breadcrumbView = new BreadcrumbView();
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData) {
+            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData, domainBreadcrumbChanged) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, domainSelectedValueData.name);
 
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData) {
+                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData, projectBreadcrumbChanged) {
                     contrail.setCookie(cowc.COOKIE_PROJECT, projectSelectedValueData.name);
 
-                    breadcrumbView.renderNetworkBreadcrumbDropdown(fqName, function (networkSelectedValueData) {
-                        self.renderNetworkCB(hashParams, networkSelectedValueData);
+                    breadcrumbView.renderNetworkBreadcrumbDropdown(fqName, function (networkSelectedValueData, networkBreadcrumbChanged) {
+                        self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                     });
-                }, function (projectSelectedValueData) {
-                    self.renderProjectCB(hashParams, projectSelectedValueData);
+                }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });
         },
 
-        renderNetworkCB: function(hashParams, networkObj) {
+        renderNetworkCB: function(hashParams, networkObj, breadcrumbChanged) {
             var self = this,
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 project = contrail.getCookie(cowc.COOKIE_PROJECT),
                 networkFQN = domain + ':' + project + ':' + networkObj.name,
-                networkUUID = networkObj.value;
+                networkUUID = networkObj.value,
+                ignoreClickedElements = breadcrumbChanged;
+
+            if (ignoreClickedElements == true) {
+                delete hashParams.clickedElement;
+            }
 
             contrail.setCookie(cowc.COOKIE_VIRTUAL_NETWORK, networkObj.name);
 
@@ -88,21 +98,21 @@ define([
                 fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
                 instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null;
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData) {
+            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
 
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData) {
+                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData, projectBreadcrumbChanged) {
                     contrail.setCookie(cowc.COOKIE_PROJECT, projectSelectedValueData.name);
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
-                        function (networkSelectedValueData) {
+                        function (networkSelectedValueData, networkBreadcrumbChanged) {
                             self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
-                        }, function (networkSelectedValueData) {
-                            self.renderNetworkCB(hashParams, networkSelectedValueData);
+                        }, function (networkSelectedValueData, networkBreadcrumbChanged) {
+                            self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                         }
                     );
-                }, function (projectSelectedValueData) {
-                    self.renderProjectCB(hashParams, projectSelectedValueData);
+                }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });
         },

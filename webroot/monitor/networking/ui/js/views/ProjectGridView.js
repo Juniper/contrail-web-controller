@@ -110,11 +110,15 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    key: 'intfCnt',
+                                                    key: 'vnCnt',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    key: 'vnCnt',
+                                                    key: 'instCnt',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'intfCnt',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

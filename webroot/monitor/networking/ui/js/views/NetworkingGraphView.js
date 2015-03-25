@@ -44,22 +44,23 @@ define([
                 controlPanel: getControlPanelConfig(graphConfig, selectorId, connectedSelectorId, configSelectorId),
                 successCallback: function (jointObject, directedGraphSize) {
                     var currentHashParams = layoutHandler.getURLHashParams(),
-                        connectedGraphView = jointObject.paper;
+                        connectedGraphView = jointObject.paper,
+                        focusedElement = graphConfig.focusedElement;
 
                     $(connectedSelectorId).data('graph-size', directedGraphSize);
                     $(connectedSelectorId).data('joint-object', jointObject);
 
                     adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId);
-                    panConnectedGraph2Center(graphConfig.focusedElement, connectedSelectorId);
+                    panConnectedGraph2Center(focusedElement, connectedSelectorId);
+
+                    highlightElement4ZoomedElement(connectedSelectorId, jointObject, graphConfig);
 
                     if (contrail.checkIfExist(currentHashParams.clickedElement)) {
                         highlightConnectedClickedElement(currentHashParams.clickedElement, connectedGraphView)
-                    } else {
+                    } else if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT){
                         removeFaint4AllElements();
                         removeHighlight4AllElements();
                     }
-
-                    highlightElement4ZoomedElement(connectedSelectorId, jointObject, graphConfig);
 
                     if (!$(selectorId).find('.refresh i').hasClass('icon-repeat')) {
                         setTimeout(function(){
@@ -792,10 +793,12 @@ define([
     };
 
     var highlightCurrentElement = function(elementNodeId) {
-        faintAllElements();
+        if ($('g[model-id="' + elementNodeId + '"]'). length != 0 && $('div.font-element[font-element-model-id="' + elementNodeId + '"]').length != 0) {
+            faintAllElements();
 
-        highlightElements([$('div.font-element[font-element-model-id="' + elementNodeId + '"]')]);
-        highlightSVGElements([$('g[model-id="' + elementNodeId + '"]')])
+            highlightElements([$('div.font-element[font-element-model-id="' + elementNodeId + '"]')]);
+            highlightSVGElements([$('g[model-id="' + elementNodeId + '"]')]);
+        }
     };
 
     var highlightLinkElement = function(jointObject, elementId) {

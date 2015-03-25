@@ -45,6 +45,7 @@ define([
             /* Network Details */
             name: 'Name',
             connected_networks: 'Connected Networks',
+            instCnt: "Instances",
             ingress_flow_count: 'Ingress Flow Count',
             egress_flow_count: 'Egress Flow Count',
             acl: 'ACL',

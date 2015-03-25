@@ -58,6 +58,7 @@ define([
 
             var defProjObj = {
                 intfCnt: 0,
+                instCnt: 0,
                 vnCnt: 0,
                 throughput: 0,
                 inThroughput: 0,
@@ -97,6 +98,7 @@ define([
                 project['inThroughput'] += vn['inThroughput'];
                 project['outThroughput'] += vn['outThroughput'];
                 project['intfCnt'] += vn['intfCnt'];
+                project['instCnt'] += vn['instCnt'];
                 project['throughput'] += vn['throughput'];
                 project['vnCnt']++;
             });

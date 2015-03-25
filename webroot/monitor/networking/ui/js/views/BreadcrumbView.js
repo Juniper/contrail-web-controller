@@ -90,14 +90,14 @@ define([
                             value: domainDropdownElement.data('contrailDropdown').value()
                         };
 
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
+                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         destroyBreadcrumbDropdownDOM(ctwl.PROJECTS_BREADCRUMB_DROPDOWN);
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     }
                 }).data('contrailDropdown');
 
                 domainDropdown.text(selectedValueData.name);
-                initCB(selectedValueData);
+                initCB(selectedValueData, false);
             }
 
 
@@ -144,7 +144,7 @@ define([
                             name: projectDropdownElement.data('contrailDropdown').text(),
                             value: projectDropdownElement.data('contrailDropdown').value()
                         };
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
+                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     },
                     change: function (e) {
@@ -152,13 +152,13 @@ define([
                             name: projectDropdownElement.data('contrailDropdown').text(),
                             value: projectDropdownElement.data('contrailDropdown').value()
                         };
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
+                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     }
                 }).data('contrailDropdown');
 
                 projectDropdown.text(selectedValueData.name);
-                initCB(selectedValueData);
+                initCB(selectedValueData, false);
             }
 
         } else {
@@ -205,12 +205,12 @@ define([
                             value: networkDropdownElement.data('contrailDropdown').value()
                         };
 
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData) : initCB(selectedValueData));
+                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                     }
                 }).data('contrailDropdown');
 
                 networkDropdown.text(selectedValueData.name);
-                initCB(selectedValueData);
+                initCB(selectedValueData, false);
             }
 
         } else {

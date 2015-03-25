@@ -125,6 +125,10 @@ define([
                                                         template: ctwc.URL_VROUTER,
                                                         params: {}
                                                     }
+                                                },
+                                                {
+                                                    key: 'intfCnt',
+                                                    templateGenerator: 'TextGenerator'
                                                 }
                                             ]
                                         }

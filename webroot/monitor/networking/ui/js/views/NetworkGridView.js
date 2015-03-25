@@ -148,11 +148,12 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    key: 'value.UveVirtualNetworkAgent.interface_list',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'length'
-                                                    }
+                                                    key: 'instCnt',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'intfCnt',
+                                                    templateGenerator: 'TextGenerator'
                                                 }
                                             ]
                                         }
