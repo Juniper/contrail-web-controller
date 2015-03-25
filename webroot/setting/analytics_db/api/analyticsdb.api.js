@@ -10,7 +10,7 @@ var analyticsdbapi = module.exports,
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api');
 
 analyticsdbapi.getDBUsage = function (req, res, appData) {
-    var url = '/analytics/uves/database/*';
+    var url = '/analytics/uves/database-node/*';
     opApiServer.apiGet(url, appData, function (error, resultJSON) {
         if(!error) {
             var resultsArray = resultJSON['value'],
