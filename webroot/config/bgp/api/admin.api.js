@@ -161,7 +161,7 @@ function parseConfigControlNodeData (configControlNodeData)
             resultJSON[i]["type"] = "bgp-router";
             try {
                 resultJSON[i]["bgp_refs"] =
-                    adminApiHelper.getBGPRefNames(bgpJSON["bgp-router"]["bgp_router_refs"]);
+                    adminApiHelper.getBGPRefDetails(bgpJSON["bgp-router"]["bgp_router_refs"]);
             } catch(e) {
                 resultJSON[i]["bgp_refs"] = [];
             }   
@@ -237,7 +237,13 @@ function parseConfigControlNodeData (configControlNodeData)
                      commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"]);
             } catch(e) {
                  resultJSON[i]["hold_time"] = global.RESP_DATA_NOT_AVAILABLE;
-            }            
+            }
+            try {
+                 resultJSON[i]["auth_data"] =
+                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"].auth_data);
+            } catch(e) {
+                 resultJSON[i]["auth_data"] = global.RESP_DATA_NOT_AVAILABLE;
+            }
         }
     } catch(e) {
     }
@@ -381,7 +387,8 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	bgpJSON["bgp-router"]["bgp_router_parameters"]["address_families"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"];
 	bgpJSON["bgp-router"]["bgp_router_parameters"].vendor = bgpUpdates["bgp-router"]["bgp_router_parameters"].vendor;
 	bgpJSON["bgp-router"]["bgp_router_parameters"].port = bgpUpdates["bgp-router"]["bgp_router_parameters"].port;
-	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold_time"];    
+	bgpJSON["bgp-router"]["bgp_router_parameters"]["hold_time"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["hold_time"];
+	bgpJSON["bgp-router"]["bgp_router_parameters"]["auth_data"] = bgpUpdates["bgp-router"]["bgp_router_parameters"]["auth_data"];
 	var bgpRefs = bgpJSON["bgp-router"]["bgp_router_refs"],
 		newBGPRefs = bgpUpdates["bgp-router"]["bgp_router_refs"];
 	if (newBGPRefs != null && newBGPRefs.length == 0) {
