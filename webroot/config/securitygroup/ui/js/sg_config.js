@@ -19,7 +19,7 @@ function sgConfigObj() {
     btnRemovePopupOK, btnRemovePopupCancel, btnCnfRemoveMainPopupOK, btnCnfRemoveMainPopupCancel;
 
     //Textboxes
-    var txtRuleName;
+    var txtRuleName, txtSGID;
 
 
     //Windows
@@ -217,6 +217,7 @@ function initComponents() {
     btnCnfRemoveMainPopupCancel = $("#btnCnfRemoveMainPopupCancel");
 
     txtRuleName = $("#txtRuleName");
+    txtSGID = $("#txtSGID");
     polAjaxcount = 0;
 
     ddDomain = $("#ddDomainSwitcher").contrailDropdown({
@@ -291,7 +292,7 @@ function initActions() {
             gridSG.showGridMessage('errorGettingData');
             return;
         }
-
+        var sgid = txtSGID.val().trim();
         var sgConfig = {};
         sgConfig["security-group"] = {};
         sgConfig["security-group"]["parent_type"] = "project";
@@ -301,6 +302,7 @@ function initActions() {
         sgConfig["security-group"]["fq_name"][2] = txtRuleName.val();
         sgConfig["security-group"]["display_name"] = txtRuleName.val();
         sgConfig["security-group"]["name"] = txtRuleName.val();
+        sgConfig["security-group"]["configured_security_group_id"] = sgid;
         sgConfig["security-group"]["security_group_entries"] = {};
         sgConfig["security-group"]["security_group_entries"]["policy_rule"] = [];
         var sGRuleTuples = $("#sGRuleTuples")[0].children;
@@ -1180,6 +1182,18 @@ function successHandlerForgridSGRow(result) {
         var eachSG = SG[i]["security-group"];
         var sgName = eachSG.fq_name[2];
         var sgDisplayName = eachSG.display_name;
+        var sgID = eachSG.configured_security_group_id;
+        var sgIDText = "";
+        if (sgID == null || typeof sgID === "undefined") {
+            sgID = "";
+        } 
+        sgIDText = sgID;
+        if (sgIDText == "") {
+            sgIDText =  "Auto Configure";
+            if(typeof eachSG.security_group_id != "undefined" && typeof eachSG.security_group_id != "undefined"){
+                sgIDText +=  " ("+ eachSG.security_group_id+")";
+            }
+        }
         var sgUUID = eachSG.uuid;
         var sgRule = [];
         if(eachSG.security_group_entries){
@@ -1189,7 +1203,7 @@ function successHandlerForgridSGRow(result) {
             }
         }
         configObj["security-group"].push(SG[i]);
-        SGData.push({"id":idCount++, "sgName":sgName,"sgDisplayName":sgDisplayName, "sgRules":sgRule, "sgUUID":sgUUID});
+        SGData.push({"id":idCount++, "sgName":sgName,"sgDisplayName":sgDisplayName, "sgRules":sgRule, "sgUUID":sgUUID, "sgID":sgID, "sgIDText":sgIDText});
     }
     }
     if(result.more == true || result.more == "true"){
@@ -1325,6 +1339,9 @@ function closeCreateSGWindow() {
 function clearValuesFromDomElements() {
     mode = "";
     txtRuleName.val("");
+    $("#is_auto")[0].checked = true;
+    txtSGID.addClass("hide")
+    txtSGID.val("");
     txtRuleName[0].disabled = false;
     clearRuleEntries();
 }
@@ -1347,6 +1364,7 @@ function showsgEditWindow(mode, rowIndex) {
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
+    txtSGID.addClass("hide")
     if(!isValidDomainAndProject(selectedDomain, selectedProject)) {
         gridSG.showGridMessage('errorGettingData');
         return;
@@ -1380,6 +1398,11 @@ function showsgEditWindow(mode, rowIndex) {
                 windowCreateSG.find('.modal-header-title').text('Edit Security Group ' + selectedRow.sgName);
                 txtRuleName.val(selectedRow.sgName);
                 txtRuleName[0].disabled = true;
+                txtSGID.val(selectedRow.sgID);
+                if(selectedRow.sgID != "") {
+                    $("#is_auto")[0].checked = false;
+                    txtSGID.removeClass("hide");
+                }
                 var rowId = selectedRow["id"];
                 var selectedSG = configObj["security-group"][rowId];
                 if (selectedSG["security-group"] && selectedSG["security-group"]["security_group_entries"]) {
@@ -1417,6 +1440,23 @@ function validate() {
     if (typeof SGName === "undefined" || SGName === "") {
         showInfoWindow("Enter a valid Security Group name", "Input required");
         return false;
+    }
+    
+    if($("#is_auto")[0].checked == false){
+        var SGID = txtSGID.val();
+        if (typeof SGID === "undefined" || SGID.trim() === "") {
+            showInfoWindow("Enter Security Group Id.", "Invalid Input");
+            return false
+        }
+        SGID = SGID.trim();
+        if(!isNumber(SGID)){
+            showInfoWindow("Security Group Id has to be a number.", "Invalid Input");
+            return false
+        }
+        if(Number(SGID) < 1 || Number(SGID) > 7999999) {
+            showInfoWindow("Security Group Id has to be between 1 to 7999999.", "Invalid Input");
+            return false
+        }
     }
     var ruleTuples = $("#sGRuleTuples")[0].children;
     if (ruleTuples && ruleTuples.length > 0) {
@@ -1463,6 +1503,15 @@ function validate() {
         }
     }
     return true;
+}
+
+function enableSGID(e){
+    txtSGID.val("");
+    if (e.checked == true){
+        txtSGID.addClass("hide")
+    } else {
+        txtSGID.removeClass("hide")
+    }
 }
 
 function destroy() {
@@ -1543,6 +1592,12 @@ function destroy() {
     if(isSet(txtRuleName)) {
         txtRuleName.remove();
         txtRuleName = $();
+    }
+    
+    txtSGID = $("#txtSGID");
+    if(isSet(txtSGID)) {
+        txtSGID.remove();
+        txtSGID = $();
     }
 
     var gridSGDetailTemplate = $("#gridSGDetailTemplate");
