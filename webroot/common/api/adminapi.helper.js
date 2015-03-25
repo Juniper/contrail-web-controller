@@ -185,6 +185,29 @@ function getBGPRefNames (routerRefs)
 }
 
 /**
+ * @param {Object} JSON containing BGP Router references
+ * @return {Array} Details of BGP Router references
+ */
+function getBGPRefDetails (routerRefs)
+{
+    var peerDetails = [],
+        i, peerList;
+    if (routerRefs) {
+        for (i = 0; i < routerRefs.length; i += 1) {
+            peerList = routerRefs[i].to;
+            var peerName;
+            if (peerList.length > 0) {
+                peerName = peerList[peerList.length - 1];
+            } else {
+                peerName = '';
+            }
+            peerDetails.push({name : peerName, attr : routerRefs[i]['attr']});
+        }
+    }
+    return peerDetails;
+}
+
+/**
  * Populate JSON containing all Virtual Routers.
  * @param {Object} JSON to contain an array of Virtual routers
  * @param {Array} Array of JSONs of Virtual Routers
@@ -1058,6 +1081,7 @@ exports.isContrailControlNode = isContrailControlNode;
 exports.processControlNodeRoutingInstanceList =
     processControlNodeRoutingInstanceList;
 exports.getBGPRefNames = getBGPRefNames;
+exports.getBGPRefDetails = getBGPRefDetails;
 exports.processVRJSON = processVRJSON;
 exports.processVirtualRouters = processVirtualRouters;
 exports.processAclFlowsSandeshData = processAclFlowsSandeshData;
