@@ -168,6 +168,13 @@ function clearBgpWindow() {
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData([]);
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
     $('#multifamily').data('contrailMultiselect').value(['inet-vpn','inet6-vpn','route-target','e-vpn']);
+    $('#ddAuthType').data('contrailDropdown').value('none');
+    disableAuthKeyTextbox();
+}
+
+function disableAuthKeyTextbox() {
+    $('#txtAuthKey').val(' ');
+    $('#txtAuthKey').attr('disabled', 'disabled');
 }
 
 function closeBgpWindow() {
@@ -185,7 +192,8 @@ function validate() {
     family = $("#txtfamily").val().trim();
     family = family.split("-");
     vendor = $("#txtvendor").val().trim();
-    holdTime = $("#txtholdtime").val().trim();
+    var holdTime = $("#txtholdtime").val().trim();
+    var authType = $("#ddAuthType").data('contrailDropdown').value();
     if ("" == name) {
         showInfoWindow("Enter a BGP router name", "Input required");
         return false;
@@ -205,7 +213,11 @@ function validate() {
         return false;
     }
     if ("" == addr || !validip(addr) || addr.indexOf("/") != -1) {
-        showInfoWindow("Enter a vaid BGP peer address in the format xxx.xxx.xxx.xxx", "Invalid input");
+        showInfoWindow("Enter a valid BGP peer address in the format xxx.xxx.xxx.xxx", "Invalid input");
+        return false;
+    }
+    if (authType != 'none' && $('#txtAuthKey').val().trim() == '') {
+        showInfoWindow("Enter a valid Authentication key", "Invalid input");
         return false;
     }
     try {
@@ -230,7 +242,7 @@ function validate() {
         showInfoWindow("Enter valid  hold time between 1-65535", "Invalid input");
         return false;
     }     
-    if ($(chkextern)[0].checked === true) {
+    if ($('#chkextern')[0].checked === true) {
         if ("" == vendor.trim()) {
             showInfoWindow("Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'.", "Input required");
             return false;
@@ -317,6 +329,15 @@ function getBGPJson() {
             }
         }
     // }
+    var authData = null;
+    var authType = $('#ddAuthType').data('contrailDropdown').value();
+    if(authType != 'none') {
+        var authKey = $('#txtAuthKey').val().trim();
+        authData = {};
+        authData['key-type'] = authType;
+        authData['key-items'] = [];
+        authData['key-items'].push({"key-id" : 0, "key" : authKey});
+    }
     if (!isiBGPAutoMesh || type === 'external') {
         if (mode == "add") {
             bgp_params = {
@@ -333,7 +354,8 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold_time":holdTime
+                        "hold_time":holdTime,
+                        "auth_data":authData
                     },
                     "bgp_router_refs":peers,
                     "name":name,
@@ -358,7 +380,8 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold_time":holdTime                        
+                        "hold_time":holdTime,
+                        "auth_data":authData
                     },
                     "bgp_router_refs":peers,
                     "name":name,
@@ -382,7 +405,8 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold_time":holdTime                        
+                        "hold_time":holdTime,
+                        "auth_data":authData
                     },
                     "name":name,
                     "display_name":display_name
@@ -407,7 +431,8 @@ function getBGPJson() {
                         "identifier":rid,
                         "port":port,
                         "vendor":vendor,
-                        "hold_time":holdTime                        
+                        "hold_time":holdTime,
+                        "auth_data":authData
                     },
                     "name":name,
                     "display_name":display_name
@@ -458,18 +483,26 @@ function addEditBgp(data) {
                 var holdTimeVal = detailStr[i].split("Hold Time")[1].trim();
                 holdTimeVal = holdTimeVal === "-" ? "" : holdTimeVal;              
                 $("#txtholdtime").val(holdTimeVal);
-            }            
-        }
-        data.details.forEach(function (d) {
-            if (d.name == "Peers" && d.value.trim() != '') {
-                peers = d.value.split(",");
-                peers.forEach(function (a) {
-                    bgpEditselectdata.push({"label":a, "value":a});
-                });
-                $('#msbgppeer').data('contrail2WayMultiselect').setRightData(bgpEditselectdata);
-                tmp_selectlist = clone(bgpEditselectdata);
+            } else if(detailStr[i].indexOf("Authentication Type") != -1) {
+               var authType = detailStr[i].split("Authentication Type")[1].trim();
+               authType = authType === "-" ? 'none' : authType;
+               $('#ddAuthType').data('contrailDropdown').value(authType);
+            } else if(detailStr[i].indexOf("Authentication Key") != -1) {
+               if($('#ddAuthType').data('contrailDropdown').value() != 'none') {
+                   var authKey = detailStr[i].split("Authentication Key")[1].trim();
+                   $('#txtAuthKey').removeAttr('disabled');
+                   $('#txtAuthKey').val(authKey);
+               }
             }
-        });
+        }
+        if(data.allPeers.length > 0) {
+            var peers = data.allPeers;
+            peers.forEach(function (a) {
+                bgpEditselectdata.push({"label":a.name, "value":a.name});
+            });
+            $('#msbgppeer').data('contrail2WayMultiselect').setRightData(bgpEditselectdata);
+            tmp_selectlist = clone(bgpEditselectdata);
+        }
         vendor = $("#txtvendor").val().trim();
         if (isJuniperControlNode(vendor)) {
             for (var j = 0; j < bgpData.length; j++) {
@@ -546,7 +579,7 @@ function fetchData() {
                 if (null != d) {
                     var type = (d.type) ? d.type : "",
                         append = "", role = "", roles, addr_families = [],
-                        peers = [], details = [], detailStr = "";
+                        allPeers = [], details = [], detailStr = "";
                     if (type.indexOf("bgp-router") != -1) {
                         globalData.push(d);
                         bgpavailabledata.push({"label":d.name, "value":d.name});
@@ -571,8 +604,20 @@ function fetchData() {
                         details.push({ "name":"Display Name", "value":d.display_name });
                         details.push({ "name":"UUID", "value":d.uuid});
                         if (d.bgp_refs) {
-                            peers = d.bgp_refs.toString();
-                            details.push({ "name":"Peers", "value":peers });
+                            var peerDetails = d.bgp_refs;
+                            for(var i = 0; i < peerDetails.length; i++) {
+                                var curPeer = peerDetails[i];
+                                var authType = '-', authKey = '-';
+                                if(curPeer.attr != null && curPeer.attr.session != null && curPeer.attr.session.length > 0
+                                    && curPeer.attr.session[0].attributes != null && curPeer.attr.session[0].attributes.length > 0
+                                    && curPeer.attr.session[0].attributes[0].auth_data != null) {
+                                    var authData = curPeer.attr.session[0].attributes[0].auth_data;
+                                    authType = authData['key-type'];
+                                    authKey = getAuthenticationItemStr(authData['key-items']);
+                                }
+                                allPeers.push({'name' : curPeer.name, 'authType' : authType, 'authKey' : authKey });
+                            }
+                            //details.push({ "name":"Peers", "value":peers });
                         }
                         if (type.indexOf("bgp-router") != -1) {
                             if (d.vendor && d.vendor.trim() != "") {
@@ -599,6 +644,20 @@ function fetchData() {
                                 detailStr += "Hold Time " + d["hold_time"] + "; ";
                                 details.push({ "name":"Hold Time", "value":d["hold_time"]});                                
                             }
+                            if(d["auth_data"]) {
+                                var authData = d["auth_data"];
+                                var authType, authKey;
+                                if(authData == '-') {
+                                    authType = authKey = '-';
+                                } else {
+                                    authType = authData['key-type'];
+                                    authKey = getAuthenticationItemStr(authData['key-items']);
+                                }
+                                detailStr += "Authentication Type " + authType + "; ";
+                                detailStr += "Authentication Key " + authKey + "; ";
+                                details.push({"name" : "Authentication Type", "value" : authType});
+                                details.push({"name" : "Authentication Key", "value" :authKey});
+                            }
                         }
                         if (d.address && "" != d.address) {
                             bgpData.push({
@@ -612,7 +671,8 @@ function fetchData() {
                                 "display_name":d.display_name,
                                 "vendor":(d.vendor == null) ? "-" : d.vendor,
                                 "details":details,
-                                "detailStr":detailStr
+                                "detailStr":detailStr,
+                                "allPeers":allPeers
                             });
                         } else if (d.ip_address && "" != d.ip_address) {
                             bgpData.push({
@@ -639,6 +699,18 @@ function fetchData() {
         });
 }
 
+function getAuthenticationItemStr(authItems) {
+    var authItemsStr = '';
+    for(var i = 0; i < authItems.length; i++) {
+        if(authItemsStr == '') {
+            authItemsStr = authItems[i].key;
+        } else {
+            authItemsStr += ', ' + authItems[i].key;
+        }
+    }
+    return authItemsStr == '' ? '-' : authItemsStr;
+}
+
 function setActions() {
     $("#gridBGP").data("contrailGrid")._dataView.setData(bgpData);
     mode = "";
@@ -652,6 +724,7 @@ function onActionChange(who, rowIndex) {
     _gid_perms = selectedRow.id_perms;
 
     if (who == "edit-control") {
+        disableAuthKeyTextbox();
         mode = "edit";
         addEditBgp(selectedRow);
         bgpwindow.modal('show');
@@ -818,6 +891,13 @@ function initComponents() {
     ]);
     cnFamily.value(['route-target', 'inet-vpn', 'inet6-vpn', 'e-vpn', 'erm-vpn']);
     cnFamily.enable(false);
+    $('#ddAuthType').contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        change:onAuthTypeChanged
+    });
+    var ddAuthType = $('#ddAuthType').data('contrailDropdown');
+    ddAuthType.setData([{text : 'None', value : 'none'},{text : 'md5', value : 'md5'}]);
     bgpwindow = $("#bgpwindow");
     bgpwindow.on("hide", clearBgpWindow);
     bgpwindow.modal({backdrop:'static', keyboard: 'false', show:false});
@@ -830,6 +910,16 @@ function initComponents() {
 
     $('#confirmAutoMeshUpdate').modal({backdrop:'static', keyboard: false, show:false});
     $('#confirmPeers').modal({backdrop:'static', keyboard: false, show:false});
+}
+
+function onAuthTypeChanged(e) {
+   if(e.added.value === 'none') {
+       $('#txtAuthKey').val(' ');
+       $('#txtAuthKey').attr('disabled', 'disabled');
+   } else {
+       $('#txtAuthKey').val('');
+       $('#txtAuthKey').removeAttr('disabled');
+   }
 }
 
 function toggleiBGPAutoMesh(e) {
@@ -855,8 +945,9 @@ function btnaddbgpClick() {
     $("#txtasn").val(ggasn);
     $("#txtport").val("179");
     $("#chkextern").click();
-    $("#txtname").focus();  
-    bgpwindow.find('.modal-body').scrollTop(0);    
+    $("#txtname").focus();
+    disableAuthKeyTextbox();
+    bgpwindow.find('.modal-body').scrollTop(0);
 }
 
 function initActions() {
@@ -918,6 +1009,21 @@ function initActions() {
     $('#btnPeersPopupOK').click(function(a){
         $('#confirmPeers').modal('hide');
         createUpdateBgp();
+    });
+    Handlebars.registerHelper("showPeer",function(allPeers,options) {
+        var returnHtml = '';
+        for(k=0;k<allPeers.length;k++){
+            if(k%2 == 1){
+                returnHtml += '<div class="row-fluid bgCol">';
+            } else {
+                returnHtml += '<div class="row-fluid">';
+            }
+            returnHtml += '<div class="span3">' +allPeers[k]["name"] +' </div>';
+            returnHtml += '<div class="span3">' +allPeers[k]["authType"] +'</div>';
+            returnHtml += '<div class="span3">' +allPeers[k]["authKey"] +'</div>';
+            returnHtml += '</div>';
+        }
+        return returnHtml;
     });
 }
 

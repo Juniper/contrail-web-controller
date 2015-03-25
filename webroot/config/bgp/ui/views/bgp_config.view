@@ -31,14 +31,14 @@
                       <label class="control-label">IP Address</label>  
                       <div class="controls">                       
                           <div class="row-fluid">
-                               <div class="pull-left">
+                               <div class="span4">
                                    <input type="text" id="txtaddr" name="txtaddr" title="Address" 
                                    class="span12 pull-left" onblur="copyToRouterID()" placeholder="xxx.xxx.xxx.xxx" />
                                </div>
-                               <label class="pull-left margin-left-23-right-10 padding-top-5">
+                               <label class="pull-left margin-left-23-right-10 padding-top-5" style="margin-left:19px">
                                    Router ID
                                </label>
-                               <div class ="pull-left">
+                               <div class ="span4">
                                    <input title="IP address in the format xxx.xxx.xxx.xxx"
                                        id="txtrid" class="span12" type="text" name="txtrid"
                                        value="" placeholder="xxx.xxx.xxx.xxx">
@@ -91,7 +91,23 @@
                               value="179" class="span10" placeholder="1 - 9999" />
                           </div>
                       </div>                       
-                  </div>  
+                  </div>
+                  <div class="control-group">
+                      <label class="control-label">Authentication Mode</label>
+                      <div class="controls">
+                          <div class="row-fluid">
+                               <div class="span3">
+                                   <input type="text" id="ddAuthType" name="ddAuthType" class="span12 pull-left" />
+                               </div>
+                               <label class="pull-left margin-left-23-right-10 padding-top-5" style="margin-left:20px">
+                                   Authentication Key
+                               </label>
+                               <div class ="span4">
+                                   <input type="text" id="txtAuthKey" name="txtAuthKey" class="span11 pull-left" placeholder="Enter a key"/>
+                               </div>
+                          </div>
+                      </div>
+                  </div>
                   <div class="control-group separator-top">
                       <label class="control-label">Peer Type</label>  
                       <div class="controls">                       
@@ -134,7 +150,7 @@
                   </div>                    
               </form>              
               <div id="peersdiv" class="margin-left-16-pct">
-                <div id="msbgppeer"></div>
+                <div id="msbgppeer" class="popup-accordion"></div>
               </div>
           </div>
           <div class="modal-footer">
@@ -254,18 +270,34 @@
 <script type="text/x-handlebars-template" id="gridBGPDetailTemplate">
     <div>
         <div class="row-fluid">
+            <label><h6><b>Peers</b></h6></label>
+            <div class="row-fluid">
+                <div class="row-fluid bgCol">
+                    <div class="span3">
+                        <label>Name</label>
+                    </div>
+                    <div class="span3">
+                        <label>Autentication Type</label>
+                    </div>
+                    <div class="span3">
+                        <label>Autentication Key</label>
+                    </div>
+                </div>
+            </div>
+            {{{showPeer allPeers}}}
+            <label><h6><b>BGP Peer Properties</b></h6></label>
             {{#each details}}
                 {{#IfCompare this.name null operator="!="}}
                     <div class="row-fluid">
                         <div class="span2"><label>{{this.name}}</label></div>
                         {{#IfCompare this.name  "Hold Time" operator="=="}}
                             {{#IfCompare this.value  "-" operator="=="}}
-                                <div class="span10">{{this.value}}</div>
+                                <div class="span10">: {{this.value}}</div>
                             {{else}}
-                                <div class="span10">{{this.value}} (seconds)</div>                          
+                                <div class="span10">: {{this.value}} (seconds)</div>
                             {{/IfCompare}}   
                         {{else}}
-                            <div class="span10">{{this.value}}</div>                         
+                            <div class="span10">: {{this.value}}</div>
                         {{/IfCompare}}
                     </div>
                 {{/IfCompare}}
