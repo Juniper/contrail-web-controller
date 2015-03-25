@@ -14,6 +14,16 @@
                             </div>
                         </div>
                 </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Security Group ID</label></div>
+                <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span11">
+                                {{sgIDText}}
+                            </div>
+                        </div>
+                </div>
             </div><br>
             <div class="row-fluid">
                 <div class="span2"><label>Rules</label></div>
@@ -43,14 +53,35 @@
         <div class="modal-body">
             <div>
                 <form>
-                    <div class="row-fluid margin-0-0-10">
-                        <div class="span6">
-                            <label class="control-label">Name</label>
-                            <input type="text" id="txtRuleName" placeholder="Security Group Name" onBlur="setSGinAddress(this)" class="span10"/>
+                    <div class="form-horizontal"> 
+                    <div class="row-fluid">
+                    <div class="control-group">
+                        <label class="control-label">Name</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class="span7">
+                                    <input type="text" id="txtRuleName" placeholder="Security Group Name" onBlur="setSGinAddress(this)" class="span12"/>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    
+                    <div class="control-group">
+                        <label class="control-label">Security Group ID</label>
+                        <div class="controls">
+                            <div class="row-fluid">
+                                <div class="span7">
+                                    <input checked class="ace-input" type="checkbox" id="is_auto" onclick="enableSGID(this);"><span class="ace-lbl"/>
+                                     Auto Configure
+                                    <input type="text" id="txtSGID" placeholder="Enter Security Group ID" class="span7 hide"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                    
+                    <div class="row-fluid"><label class="control-label">Security Group Rules </label></div>
                     <div class="row-fluid margin-0-0-10">
-                        <label class="control-label">Security Group Rules </label>
                         <div class="rule-item-header">
                             <div class="row-fluid">
                                 <div class="span2">
@@ -73,11 +104,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="controls">
-                            <div class="row-fluid">
-                                <div id="sGRuleTuples" class="row-fluid"></div>
-                            </div>
+                        <div>
+                            <div id="sGRuleTuples" class="row-fluid"></div>
                         </div>
+                    </div>
                     </div>
                 </form>
             </div>
