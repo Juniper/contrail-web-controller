@@ -3006,32 +3006,18 @@ function getvnStatsPerVrouter (req, res, appData)
                                              0, 1, 0, -1, true, req.query);
 }
 /*
- * This function returns the detail Objects of all the Virtual machines from the
+ * This function returns the list of all the Virtual machines from the
  * config server
  */
 function getVirtualMachinesFromConfig(request, response, appData) {
-    
     var vmListURL = '/virtual-machines',dataObjArr = [];
     configApiServer.apiGet(vmListURL, appData,function(error, data) {
-        var configVMObj = commonUtils.ifNull(data['virtual-machines'],[]);
-        var configVMObjLen = configVMObj.length;
-        for(var i = 0; i < configVMObjLen; i++) {
-            /*
-             * In this response we need only "display_name" field so need to exclude whatever possible
-             * fields in the response,so we appended exclude_back_refs
-             */
-            var detailUrl = '/virtual-machine/' + configVMObj[i]['uuid']+"?exclude_back_refs&exclude_children=true";
-            commonUtils.createReqObj(dataObjArr,detailUrl,global.HTTP_REQUEST_GET, null, null, null,
-                    appData);
+        var configVMArr = commonUtils.ifNull(data['virtual-machines'],[]);
+        if(error || null == configVMArr) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
         }
-        async.map(dataObjArr,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                function(error,vmObjects){
-                    if(error || null == vmObjects) {
-                        commonUtils.handleJSONResponse(error, response, vmObjects);
-                        return;
-                    }
-                    commonUtils.handleJSONResponse(error, response, vmObjects);
-                });
+        commonUtils.handleJSONResponse(error, response, configVMArr);
      });
 }
 /* List all public functions */
