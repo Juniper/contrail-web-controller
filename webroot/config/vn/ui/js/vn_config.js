@@ -1805,7 +1805,7 @@ function fetchDataForGridVN() {
     idCount = 0;
     vnAjaxcount = vnAjaxcount+1;
     ajaxParam = $("#ddProjectSwitcher").data("contrailDropdown").value()+"_"+vnAjaxcount;
-    doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=4&fqnUUID="+$("#ddProjectSwitcher").data("contrailDropdown").value(),
+    doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=20&fqnUUID="+$("#ddProjectSwitcher").data("contrailDropdown").value(),
         "GET", null, "successHandlerForGridVNLoop", "failureHandlerForGridVN", null, ajaxParam);
 }
 
@@ -1816,7 +1816,7 @@ function successHandlerForGridVNLoop(result,cbparam){
     }
     if(result.more == true || result.more == "true"){
         
-        doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=4&fqnUUID="+ 
+        doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=20&fqnUUID="+ 
             $("#ddProjectSwitcher").data("contrailDropdown").value() +"&lastKey="+result.lastKey, 
             "GET", null, "successHandlerForGridVNLoop", "failureHandlerForGridVN", null, cbparam); 
     } else {
