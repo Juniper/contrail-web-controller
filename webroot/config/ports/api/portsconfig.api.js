@@ -50,7 +50,7 @@ if (!module.parent)
 function readPorts (portsObj, callback)
 {
     var dataObjArr = portsObj['reqDataArr'];
-    async.map(dataObjArr, getPortsAsync, function(err, data) {
+    async.mapLimit(dataObjArr, global.ASYNC_MAP_LIMIT_COUNT, getPortsAsync, function(err, data) {
         callback(err, data);
     });
 }
@@ -68,7 +68,11 @@ function getPortsAsync (portsObj, callback)
     var appData = portsObj['appData'];
     var reqUrl = '/virtual-machine-interface/' + portId;
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
-        getVirtualMachineInterfaceCb(err, data, appData, callback);
+        if ((null != err) || (null == data)) {
+            callback(err, data);
+            return;
+        }
+        getVirtualIachineInterfaceCb(data, appData, callback);
     });
 }
  
@@ -81,7 +85,7 @@ function getPortsAsync (portsObj, callback)
  *    the mergeVMIResponse is called for formating the result object.
  * 3. The result is sent back to getPortsAsync.
  */
-function getVirtualMachineInterfaceCb (err, vmiData, appData, callback)
+function getVirtualIachineInterfaceCb(vmiData, appData, callback)
 {
     var dataObjArr            = [];
     var floatingipPoolRefsLen = 0;
@@ -130,7 +134,7 @@ function getVirtualMachineInterfaceCb (err, vmiData, appData, callback)
     }
 
     if (!dataObjArr.length) {
-        callback(err,vmiData);
+        callback(null, vmiData);
         return;
     }
 
