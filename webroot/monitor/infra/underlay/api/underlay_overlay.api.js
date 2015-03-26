@@ -195,31 +195,40 @@ function getUnderlayTopology (req, res, appData)
     var url = '/analytics/uves/prouter';
     var key = global.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
     var topologyChanged = true;
-    redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req, appData,
-                                         function(err, topology) {
-        var forceRefresh = req.param('forceRefresh');
-        if (null != forceRefresh) {
-            /* Check if we have same topology or there is any change */
-            process.mainModule.exports.redisClient.get(key,
-                                                       function(error, value) {
-                if ((null != error) || (null == value)) {
-                    topology['topologyChanged'] = true;
+    var forceRefresh = req.param('forceRefresh');
+    process.mainModule.exports.redisClient.get(key,
+                                               function(error, oldValue) {
+        if (null == forceRefresh) {
+            if ((null != error) || (null == oldValue)) {
+                redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req,
+                                                     appData,
+                                                     function(err, topology) {
                     commonUtils.handleJSONResponse(err, res, topology);
-                    return;
-                }
-                value = JSON.parse(value);
-                var delta = jsonDiff.getConfigJSONDiff('physical-topology',
-                                                       value, topology);
-                if (null == delta) {
-                    topology['topologyChanged'] = false;
-                } else {
-                    topology['topologyChanged'] = true;
-                }
-                commonUtils.handleJSONResponse(err, res, topology);
-            });
-        } else {
-            commonUtils.handleJSONResponse(err, res, topology);
+                });
+            } else {
+                oldValue = JSON.parse(oldValue);
+                commonUtils.handleJSONResponse(error, res, oldValue);
+            }
+            return;
         }
+        redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req,
+                                             appData,
+                                             function(err, topology) {
+            if ((null != error) || (null == oldValue)) {
+                topology['topologyChanged'] = true;
+                commonUtils.handleJSONResponse(err, res, topology);
+                return;
+            }
+            oldValue = JSON.parse(oldValue);
+            var delta = jsonDiff.getConfigJSONDiff('physical-topology',
+                                                   oldValue, topology);
+            if (null == delta) {
+                topology['topologyChanged'] = false;
+            } else {
+                topology['topologyChanged'] = true;
+            }
+            commonUtils.handleJSONResponse(err, res, topology);
+        });
     });
 }
 
