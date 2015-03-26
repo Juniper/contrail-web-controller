@@ -1440,6 +1440,20 @@ function filterConfigListApi (type)
     return filterCBList[type];
 }
 
+function computeConfigURLByType (url, type)
+{
+    var projPos = url.indexOf('/project/');
+    if (0 != projPos) {
+        return url;
+    }
+    var field = getMatchStrByType(type);
+    if (null == field) {
+        return url;
+    }
+    url += '?fields=' + field;
+    return url;
+}
+
 function getApiServerDataByPage (req, res, appData)
 {
     var count = req.query['count'];
@@ -1486,6 +1500,8 @@ function getApiServerDataByPage (req, res, appData)
             }
         }
     }
+    url = computeConfigURLByType(url, type);
+
     configApiServer.apiGet(url, appData, function(err, configList) {
         if (err || (null == configList)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
