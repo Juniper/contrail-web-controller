@@ -637,6 +637,12 @@ function initActions() {
             vnConfig["virtual-network"]["is_shared"] = true;
         else
             vnConfig["virtual-network"]["is_shared"] = false;
+        if(isVCenter()) {
+            if($("#static_ip")[0].checked === true)
+                vnConfig["virtual-network"]["static_ip"] = true;
+            else
+                vnConfig["virtual-network"]["static_ip"] = false;
+        }
 
         if (floatingIpPools && floatingIpPools.length > 0) {            
             vnConfig["virtual-network"]["floating_ip_pools"] = [];
@@ -2231,6 +2237,8 @@ function clearValuesFromDomElements() {
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
     $("#allow_transit")[0].checked = false;
+    $('#static_ip')[0].checked = false;
+    $('#static_ip').parents('.control-group').hide();
     msNetworkPolicies.data("contrailMultiselect").value("");
     $('#txtPVlanId').parents('.control-group').hide();
     $('#txtPVlanId').val('');
@@ -2313,6 +2321,7 @@ function showVNEditWindow(mode, rowIndex) {
                     $('#txtPVlanId').parents('.control-group').hide();
                     $('#txtSVlanId').parents('.control-group').hide();
                 }
+                $('#static_ip').parents('.control-group').show();
             }
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");

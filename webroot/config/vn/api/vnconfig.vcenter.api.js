@@ -213,6 +213,7 @@ function createVirtualNetwork(req,res,appData) {
     var userData = {
             name    : vnPostData['virtual-network']['display_name'],
             pVlanId : pVlanId,
+            static_ip : vnPostData['virtual-network']['static_ip'],
             subnet  : {
                 gateway  : subnets[0]['default_gateway'],
                 address  : subnets[0]['subnet']['ip_prefix'],
