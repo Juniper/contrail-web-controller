@@ -180,7 +180,8 @@ function physicalInterfacesConfig() {
         });  
         
         var ddLIType = $('#ddLIType').data('contrailDropdown');
-        ddLIType.setData([{text : 'L2 Gateway', value : 'l2Gateway'}, {text : 'L2 Server', value : 'l2Server'}, {text : 'L3', value : 'l3'}]);
+//        ddLIType.setData([{text : 'L2 Gateway', value : 'l2Gateway'}, {text : 'L2 Server', value : 'l2Server'}, {text : 'L3', value : 'l3'}]);
+        ddLIType.setData([{text : 'Server', value : 'l2Server'}, {text : 'L3', value : 'l3'}]);
         ddLIType.value('l2Server');
          
          $('#ddVN').contrailDropdown({
@@ -797,7 +798,7 @@ function physicalInterfacesConfig() {
                  }
                  if(gblSelRow.li_type != '-') {
                      if(gblSelRow.li_type == 'L2'){
-                         $('#ddLIType').data('contrailDropdown').text('L2 Server');
+                         $('#ddLIType').data('contrailDropdown').text('Server');
                      } else {
                          $('#ddLIType').data('contrailDropdown').text('L3');
                      }
