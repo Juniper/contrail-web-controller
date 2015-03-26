@@ -1571,7 +1571,7 @@ function getApiServerDataByPage (req, res, appData)
         }
         var callback = getConfigCallbackByType(type);
         if (null == callback) {
-            async.map(dataObjArr,
+            async.mapLimit(dataObjArr, 100,
                       commonUtils.getServerResponseByRestApi(configApiServer,
                                                              true),
                       function(err, result) {

@@ -51,7 +51,7 @@ if (!module.parent)
 function readPorts (portsObj, callback)
 {
     var dataObjArr = portsObj['reqDataArr'];
-    async.map(dataObjArr, getPortsAsync, function(err, data) {
+    async.mapLimit(dataObjArr, 100, getPortsAsync, function(err, data) {
         callback(err, data);
     });
 }
@@ -68,11 +68,15 @@ function getPortsAsync (portsObj, callback)
     var appData = portsObj['appData'];
     var reqUrl = '/virtual-machine-interface/' + portId;
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
-        getVirtualIachineInterfaceCb(err, data, appData, callback);
+        if ((null != err) || (null == data)) {
+            callback(err, data);
+            return;
+        }
+        getVirtualIachineInterfaceCb(data, appData, callback);
     });
 }
 
-function getVirtualIachineInterfaceCb(err, vmiData, appData, callback)
+function getVirtualIachineInterfaceCb(vmiData, appData, callback)
 {
     var dataObjArr            = [];
     var floatingipPoolRefsLen = 0;
@@ -121,7 +125,7 @@ function getVirtualIachineInterfaceCb(err, vmiData, appData, callback)
     }
 
     if (!dataObjArr.length) {
-        callback(err,vmiData);
+        callback(null, vmiData);
         return;
     }
 
