@@ -105,7 +105,7 @@ function ObjectListView() {
                 },
                 cssClass: 'cell-hyperlink-blue',
             },{
-                field:'name',
+                field:'uuid',
                 name:'UUID',
                 minWidth:250,
                 searchable: true
@@ -291,7 +291,7 @@ function ObjectListView() {
             });
         } else if(objectType == 'instance') {
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
-                              'UveVirtualMachineAgent:fip_stats_list'];
+                              'UveVirtualMachineAgent:fip_stats_list','UveVirtualMachineAgent:uuid'];
             if(ifNull(obj['fqName'],'') == '') {
                 var instDS = new SingleDataSource('instDS');
                 var result = instDS.getDataSourceObj('instDS');
@@ -557,7 +557,8 @@ function tenantNetworkMonitorClass() {
                         } else if(selectedTab == 3) {
                             //Instances tab
                             var obj = {};
-                            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter','UveVirtualMachineAgent:if_stats_list'];
+                            var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
+                                              'UveVirtualMachineAgent:if_stats_list','UveVirtualMachineAgent:uuid'];
                             obj['transportCfg'] = { 
                                     url:'/api/tenant/networking/virtual-machines/details?fqnUUID=' + hashObj['q']['uuid']  + '&count=' + INST_PAGINATION_CNT + '&type=vn',
                                     type:'POST',
@@ -895,6 +896,7 @@ var tenantNetworkMonitorUtils = {
             obj['rawData'] = $.extend(true,{},currObj);
             obj['inBytes'] = '-';
             obj['outBytes'] = '-';
+            obj['uuid'] = getValueByJsonPath(currObj,'UveVirtualMachineAgent;uuid','-');
             // If we append * wildcard stats info are not there in response,so we changed it to flat
             obj['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + obj['name'] + '?flat';
             obj['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
@@ -1090,7 +1092,7 @@ var tenantNetworkMonitorUtils = {
             if(rowData['status'] != null)
                 retArr.push({lbl:null,value:'<p class="error"><i class="icon-warning"></i>'+rowData['status']+'</p>'});
         }   
-        retArr.push({lbl:'UUID',value:ifNull(rowData['name'],'-')});
+        retArr.push({lbl:'UUID',value:ifNull(rowData['uuid'],'-')});
         if(!isVCenter())
             retArr.push({lbl:'CPU',value:jsonPath(d,'$..cpu_one_min_avg')[0] != null ? jsonPath(d,'$..cpu_one_min_avg')[0].toFixed(2) : '-'});
         var usedMemory = ifNullOrEmptyObject(jsonPath(d,'$..rss')[0],'-');
@@ -1407,12 +1409,12 @@ var instancePopulateFns = {
             var configVMDefObj = $.Deferred();
             //Getting instances from the config server and save in global object
             $.ajax({
-                url:'/api/tenant/networking/config/virtual-machines-details'
+                url:'/api/tenant/networking/config/virtual-machines'
             }).done(function(response){
                 response = ifNull(response,[]);
                 var configVMuuid = [];
                 for(var i = 0; i < response.length; i++) {
-                    configVMuuid.push(response[i]['virtual-machine']['display_name']);
+                    configVMuuid.push(response[i]['uuid']);
                 }
                 globalObj['configVM'] = configVMuuid;
                 configVMDefObj.resolve();
@@ -1424,7 +1426,7 @@ var instancePopulateFns = {
                     var needUpdate = false;
                     var opServerInst = dataSource.getItems();
                     $.each(opServerInst,function(idx,instObj){
-                        if($.inArray(instObj['name'],ifNull(globalObj['configVM'],[])) == -1) {
+                        if($.inArray(instObj['uuid'],ifNull(globalObj['configVM'],[])) == -1) {
                             instObj['status'] = infraAlertMsgs['CONFIG_MISSING'];
                         }
                     });
@@ -1440,18 +1442,18 @@ var instancePopulateFns = {
                 var opServerInst = dataSource.getItems(),opServerInstLen = opServerInst.length;
                 var configVMlist = ifNull(globalObj['configVM'],[]),missingInst = [],opServerUuids = [];
                 $.each(opServerInst,function(idx,instObj){
-                    opServerUuids.push(instObj['name']);
+                    opServerUuids.push(instObj['uuid']);
                 });
                 $.grep(configVMlist,function(uuid,idx){
                     if($.inArray(uuid,opServerUuids) == -1)
-                        missingInst.push({name:uuid,status: infraAlertMsgs['UVE_MISSING'],error:true});
+                        missingInst.push({uuid:uuid,status: infraAlertMsgs['UVE_MISSING'],error:true});
                     });
                 if(!isVCenter()) {
                     dataSource.addData(missingInst);
                 }
             });
             var instCfilts = ['UveVirtualMachineAgent:interface_list','UveVirtualMachineAgent:vrouter',
-                              'UveVirtualMachineAgent:fip_stats_list'];
+                              'UveVirtualMachineAgent:fip_stats_list','UveVirtualMachineAgent:uuid'];
             var obj = {};
             obj['transportCfg'] = { 
                     url:'/api/tenant/networking/virtual-machines/details?count=' + INST_PAGINATION_CNT,

@@ -293,7 +293,7 @@
         <callback>nwMonApi.getAllVirtualMachines</callback>
     </item>
     <item>
-        <url>/api/tenant/networking/config/virtual-machines-details</url>
+        <url>/api/tenant/networking/config/virtual-machines</url>
         <method>get</method>
         <feature>monitoring</feature>
         <callback>nwMonApi.getVirtualMachinesFromConfig</callback>
