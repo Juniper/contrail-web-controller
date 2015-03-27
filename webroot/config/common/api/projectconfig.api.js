@@ -108,29 +108,12 @@ function getDomainsFromIdentityManager (request, appData, callback)
 }
 
 /**
- * @getProjectByParameterCb
- * private function
- * 1. Callback for getProjectByParameter
- * 2. Reads the response of project get from config api server
- *    and sends it back to the client.
- */
-function getProjectByParameterCb(error, projectConfig, callback) 
-{
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-    callback(error, projectConfig);
-}
-
-/**
  * @getProjectByParameter
  * public function
  * 1. URL /api/tenants/config/project/:id
  * 2. Gets list of virtual networks from config api server
  * 3. Needs tenant id
- * 4. Calls getProjectByParameterCb that process data from config
- *    api server and sends back the http response.
+ *
  */
 function getProjectByParameter (request, response, appData) 
 {
@@ -166,7 +149,7 @@ function getProjectAsync (projectObj, callback)
     var reqUrl = '/project/' + projectId;
     reqUrl = getUrlWithParameters(reqUrl, params);
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
-        getProjectByParameterCb(err, data, callback);
+        callback(err, data);
     });
 }
 
