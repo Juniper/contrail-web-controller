@@ -27,6 +27,8 @@ var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonDiff    = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs vnconfig.api.js"
@@ -877,15 +879,23 @@ function updateVirtualNetwork (request, response, appData)
             commonUtils.handleJSONResponse(err, response, null);
             return;
         }
-        configApiServer.apiGet(reqUrl, appData, function(err, data) {
-            if (err || (null == data)) {
-                var error = new appErrors.RESTServerError('Virtual Network Id' +
-                                                          vnId + ' does not exist');
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }
-            updateRouterExternalFlag(data, vnPutData);
-            updateVNPolicyRefs(data, response, appData);
+        if ('network_policy_refs' in vnPutData['virtual-network']) {
+            vnPutData = setVNPolicySequence(vnPutData);
+        }
+
+        jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, vnPutData,
+                                         function(err, delta) {
+            configApiServer.apiPut(reqUrl, delta, appData,
+                                   function(err, data) {
+                if (err) {
+                    commonUtils.handleJSONResponse(err, response, null);
+                    return;
+                }
+                readVirtualNetworkAsync({uuid:vnId, appData:appData},
+                                        function(err, data) {
+                    commonUtils.handleJSONResponse(err, response, data);
+                });
+            });
         });
     });
 }
