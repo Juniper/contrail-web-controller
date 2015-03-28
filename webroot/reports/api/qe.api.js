@@ -646,7 +646,7 @@ function parseStatsQuery(reqQuery)
     if (select != "") {
         parseSelect(statQuery, select, tg, tgUnit);
     }
-    parseWhere(statQuery, where);
+    parseStatWhere(statQuery, where);
     if (filters != null && filters != '') {
         // splitting the filters and using parseFilter for the [name, value, operator] and parseFSFilter for
         // [sortfields, sortby, limit]
@@ -781,6 +781,25 @@ function parseWhere(query, where)
             whereORArray[i] = parseWhereANDClause(whereORArray[i]);
         }
         query['where'] = whereORArray;
+    }
+};
+
+function parseStatWhere(query, where)
+{
+    if (where != null && where.trim() != '') {
+        var whereORArray = where.split(' OR '),
+            whereORLength = whereORArray.length,
+            i;
+        for (i = 0; i < whereORLength; i += 1) {
+            whereORArray[i] = whereORArray[i].trim();
+            whereORArray[i] = parseWhereANDClause(whereORArray[i]);
+        }
+        query['where'] = whereORArray;
+    } else {
+        if(where == '' ) {
+            //set value to '' and op to 7 when a where * is entered
+            query['where'] = [ [ { name: 'name', value: '', op: 7 } ] ];
+        }
     }
 };
 function parseSLFilter (query, filters) {

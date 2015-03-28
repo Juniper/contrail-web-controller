@@ -274,9 +274,6 @@ function initStatQueryView(queryPrefix) {
         messages: {
             select: {
                 required: '<i class="icon-warning-sign"></i> Select Required'
-            },
-            where: {
-                required: '<i class="icon-warning-sign"></i> Where Required'
             }
         },
         errorPlacement: function(label, element) {
