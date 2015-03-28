@@ -279,7 +279,8 @@ define([
             }
         }
 
-        connectedGraphView.setDimensions((($(selectorId).width() > directedGraphSize.width) ? $(selectorId).width() : directedGraphSize.width) + GRAPH_MARGIN, directedGraphSize.height + GRAPH_MARGIN, 1);
+        connectedGraphView.setDimensions((($(selectorId).width() > directedGraphSize.width) ? $(selectorId).width() : directedGraphSize.width) + cowc.GRAPH_MARGIN_RIGHT,
+            directedGraphSize.height + cowc.GRAPH_MARGIN_BOTTOM, 1);
 
         $(selectorId).parent().height(adjustedHeight);
         $(selectorId).parent().css('width', '100%');
@@ -289,7 +290,6 @@ define([
 
         if(connectedGraphHeight < adjustedHeight) {
             $(connectedSelectorId + ' svg').attr('height', adjustedHeight);
-            //translateConnectedGraph2Center(selectorId, connectedSelectorId, connectedGraphView);
         }
 
         if(configGraphHeight < adjustedHeight) { //TODO - Needs to be tested with multiple config elements
@@ -305,8 +305,8 @@ define([
             panX = (availableGraphWidth - connectedGraphWidth) / 2,
             panY = (availableGraphHeight - connectedGraphHeight) / 2;
 
-        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT && connectedGraphHeight > availableGraphHeight) {
-            panY = 0;
+        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT && (connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP) > availableGraphHeight) {
+            panY = 35 - cowc.GRAPH_MARGIN_TOP;
         }
 
         $(connectedSelectorId).panzoom("resetPan");
@@ -484,7 +484,7 @@ define([
 
                 layoutHandler.setURLHashParams({ clickedElement: clickedElement }, { merge: true, triggerHashChange: false});
 
-                highlightCurrentElement(elementNodeId);
+                highlightCurrentNodeElement(elementNodeId);
                 tabConfig = ctwgrc.getTabsViewConfig(elementNodeType, clickedElement);
                 cowu.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
 
@@ -502,7 +502,7 @@ define([
 
                 layoutHandler.setURLHashParams({ clickedElement: clickedElement }, { merge: true, triggerHashChange: false});
 
-                highlightCurrentElement(elementNodeId);
+                highlightCurrentNodeElement(elementNodeId);
                 tabConfig = ctwgrc.getTabsViewConfig(elementNodeType, clickedElement);
                 cowu.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
 
@@ -518,7 +518,7 @@ define([
                     linkDetails: clickedElement.linkDetails
                 };
 
-                highlightCurrentElement(elementNodeId);
+                highlightCurrentLinkElement(elementNodeId);
                 tabConfig = ctwgrc.getTabsViewConfig(elementNodeType, clickedElement);
                 cowu.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
 
@@ -533,13 +533,13 @@ define([
         switch (elementNodeType) {
             case ctwc.GRAPH_ELEMENT_NETWORK:
                 var networkFQN = clickedElement.fqName;
-                highlightCurrentElement(elementMap.node[networkFQN]);
+                highlightCurrentNodeElement(elementMap.node[networkFQN]);
 
                 break;
 
             case ctwc.GRAPH_ELEMENT_INSTANCE:
                 var instanceUUID = clickedElement.uuid;
-                highlightCurrentElement(elementMap.node[instanceUUID]);
+                highlightCurrentNodeElement(elementMap.node[instanceUUID]);
 
                 break;
         };
@@ -719,7 +719,7 @@ define([
         var policyRules = (contrail.checkIfExist(cellAttributes.nodeDetails.network_policy_entries)) ? cellAttributes.nodeDetails.network_policy_entries.policy_rule : [],
             highlightedElements = { nodes: [], links: [] };
 
-        highlightCurrentElement(cellAttributes.id);
+        highlightCurrentNodeElement(cellAttributes.id);
 
         $.each(policyRules, function (policyRuleKey, policyRuleValue) {
             var sourceNode = policyRuleValue.src_addresses[0],
@@ -778,10 +778,10 @@ define([
                     $.each(highlightedElements.links, function (highlightedElementLinkKey, highlightedElementLinkValue) {
                         if (elementMap.link[highlightedElementLinkValue]) {
                             if (typeof elementMap.link[highlightedElementLinkValue] == 'string') {
-                                highlightLinkElement(jointObject, elementMap.link[highlightedElementLinkValue]);
+                                highlightLinkElementByName(jointObject, elementMap.link[highlightedElementLinkValue]);
                             } else {
                                 $.each(elementMap.link[highlightedElementLinkValue], function (linkKey, linkValue) {
-                                    highlightLinkElement(jointObject, linkValue)
+                                    highlightLinkElementByName(jointObject, linkValue)
                                 });
                             }
 
@@ -792,8 +792,8 @@ define([
         });
     };
 
-    var highlightCurrentElement = function(elementNodeId) {
-        if ($('g[model-id="' + elementNodeId + '"]'). length != 0 && $('div.font-element[font-element-model-id="' + elementNodeId + '"]').length != 0) {
+    var highlightCurrentNodeElement = function(elementNodeId) {
+        if ($('g[model-id="' + elementNodeId + '"]').length != 0 && $('div.font-element[font-element-model-id="' + elementNodeId + '"]').length != 0) {
             faintAllElements();
 
             highlightElements([$('div.font-element[font-element-model-id="' + elementNodeId + '"]')]);
@@ -801,7 +801,14 @@ define([
         }
     };
 
-    var highlightLinkElement = function(jointObject, elementId) {
+    var highlightCurrentLinkElement = function(elementNodeId) {
+        if ($('g[model-id="' + elementNodeId + '"]').length != 0) {
+            faintAllElements();
+            highlightSVGElements([$('g[model-id="' + elementNodeId + '"]')]);
+        }
+    };
+
+    var highlightLinkElementByName = function(jointObject, elementId) {
         var linkElement = jointObject.graph.getCell(elementId);
         if (linkElement) {
             highlightSVGElements([$('g[model-id="' + linkElement.id + '"]')]);
