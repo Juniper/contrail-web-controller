@@ -2614,6 +2614,73 @@ function listVirtualMachines (request, response, appData)
         });
 }
 
+function getVMIAndInstIPDetails (req, res, appData)
+{
+    var tmpVMIObjs = {};
+    var dataObjArr = [];
+    var projUUID = req.param('uuid');
+    var vmiURL = '/virtual-machine-interfaces?detail=true&parent_id=' +
+        projUUID + '&fields=instance_ip_back_refs';
+    configApiServer.apiGet(vmiURL, appData, function(err, data) {
+        if ((null != err) || (null == data) ||
+            (null == data['virtual-machine-interfaces'])) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var vmiData = data['virtual-machine-interfaces'];
+        var vmiCnt = vmiData.length;
+        var instCnt = 0;
+        for (var i = 0; i < vmiCnt; i++) {
+            var instIpBackRefs = vmiData[i]['virtual-machine-interface']
+                                        ['instance_ip_back_refs'];
+            if (null != instIpBackRefs) {
+                var instIpBackRefsCnt = instIpBackRefs.length;
+                tmpVMIObjs[vmiData[i]['virtual-machine-interface']['uuid']]
+                    = {'startIndex': instCnt, 'endIndex': instCnt +
+                        instIpBackRefsCnt};
+                instCnt = instCnt + instIpBackRefsCnt;
+                for (var j = 0; j < instIpBackRefsCnt; j++) {
+                    var reqUrl = '/instance-ip/' + instIpBackRefs[j]['uuid'];
+                    commonUtils.createReqObj(dataObjArr, reqUrl,
+                                             global.HTTP_REQUEST_GET, null,
+                                             null, null, appData);
+                }
+            }
+        }
+        async.mapLimit(dataObjArr, 200, //global.ASYNC_MAP_LIMIT_COUNT,
+                       commonUtils.getServerResponseByRestApi(configApiServer,
+                                                              true),
+                       function(err, results) {
+            var resCnt = results.length;
+            for (i = 0; i < vmiCnt; i++) {
+                var vmiUUID = vmiData[i]['virtual-machine-interface']['uuid'];
+                var indexObj = tmpVMIObjs[vmiUUID];
+                if (null != indexObj) {
+                    delete
+                        vmiData[i]['virtual-machine-interface']['instance_ip_back_refs'];
+                    vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
+                        = [];
+                    for (var j = indexObj['startIndex']; j <
+                         indexObj['endIndex']; j++) {
+                        if (null == results[j]) {
+                            continue;
+                        }
+                        vmiData[i]['virtual-machine-interface']
+                            ['instance_ip_back_refs'].push({'fixedip': {'ip':
+                                                           results[j]['instance-ip']
+                                                           ['instance_ip_address']}});
+                    }
+                }
+            }
+            var resultJSON = {};
+            resultJSON['data'] = vmiData;
+            resultJSON['lastKey'] = null;
+            resultJSON['more'] = false;
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+        });
+    });
+}
+
 exports.listVirtualMachines = listVirtualMachines;
 exports.readPorts = readPorts;
 exports.createPort = createPort;
@@ -2622,3 +2689,4 @@ exports.updatePorts = updatePorts;
 exports.updatePortsCB = updatePortsCB;
 exports.deletePorts = deletePorts;
 exports.deletePortsCB = deletePortsCB;
+exports.getVMIAndInstIPDetails = getVMIAndInstIPDetails;
