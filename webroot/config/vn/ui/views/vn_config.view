@@ -99,6 +99,7 @@
                 <span class="span2"><label>Allow Transit</label></span>
                 <span class="span10">: {{AllowTransit}}</span>
             </div>
+            {{{showStaticIPAddressing staticIPAddressing}}}
             <div class="row-fluid">
                 <div>
                     <span class="span2"><label>DNS Servers</label> </span>
