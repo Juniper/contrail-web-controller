@@ -2402,13 +2402,14 @@ underlayView.prototype.renderUnderlayTabs = function() {
 
 underlayView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content = {},_this = this;
-    if(type == PROUTER || type == 'link' || type == VIRTUALMACHINE)
-        _this.renderUnderlayTabs();
-    $("#detailsLink").show();
-    $("#underlay_tabstrip").tabs({active:2});
+    //$("#detailsLink").show();
+    //$("#underlay_tabstrip").tabs({active:2});
     if(type != 'link')
         $("#detailsLink").find('a.ui-tabs-anchor').html("Details");
     if(type == PROUTER) {
+        _this.renderUnderlayTabs();
+        $("#detailsLink").show();
+        $("#underlay_tabstrip").tabs({active:2});
         content = {
             type      : PROUTER,
             hostName : ifNull(data['host_name'],'-'),
@@ -2510,22 +2511,14 @@ underlayView.prototype.populateDetailsTab = function(data) {
             introspectPort:introspectPort != null ? introspectPort : defaultIntrospectPort});
         _this.addCommonTabs('compute_tabstrip_'+content['name']);
     } else if(type == VIRTUALMACHINE) {
+        _this.renderUnderlayTabs();
         content = data;
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
-        $.ajax({
-            url:'/api/tenant/networking/stats',
-            type:'POST',
-            data:{data:{'type':'virtual-machine','uuids':content['uuid'], minSince:60,useServerTime:true}}
-        }).success(function(response){
-            if(response[0]['value'] != null){
-                var stats = response[0]['value'];
-                $("#VMstats").html(contrail.format('{0}/{1}',formatBytes(stats[0]['SUM(if_stats.in_bytes)'],'-'),
-                                    formatBytes(stats[0]['SUM(if_stats.out_bytes)'],'-')));
-            }
-        }).error(function(err){
-            $("#VMstats").html("Error in fetching details");
+        var tabConfig = ctwgrc.getTabsViewConfig(ctwc.GRAPH_ELEMENT_INSTANCE, {
+            fqName: content['virtualNetwork'],
+            uuid: content['uuid']
         });
+        cowu.renderView4Config($('#underlay_tabstrip'), null, tabConfig, null, null, null);
+        _this.addCommonTabs('contrail-tabs');
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
         var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
@@ -2535,6 +2528,9 @@ underlayView.prototype.populateDetailsTab = function(data) {
         var ajaxData = {};
         if(sourceType == VIRTUALMACHINE || targetType == VIRTUALMACHINE)
             return;
+        _this.renderUnderlayTabs();
+        $("#detailsLink").show();
+        $("#underlay_tabstrip").tabs({active:2});
         //"Details" tab changing to "Traffic Statistics"
         $("#detailsLink").find('a.ui-tabs-anchor').html("Traffic Statistics");
         if(sourceType == PROUTER && targetType == PROUTER) {
@@ -2620,7 +2616,8 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     options = {
                             height:300,
                             yAxisLabel: 'Packets per 72 secs',
-                            y2AxisLabel: 'Packets per 72 secs'
+                            y2AxisLabel: 'Packets per 72 secs',
+                            defaultSelRange: 9 //(latest 9 samples)
                         };
                     initTrafficTSChart('#prouter-lclstats-'+i, chartData, options, null, "formatSumPackets", "formatSumPackets");
                 }

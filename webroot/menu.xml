@@ -16,6 +16,8 @@ and need to add the iconClass tag wherever we need to show some icons
       <resources>
            <resource>
              <rootDir>/common/ui</rootDir>
+             <js>controller.app.js</js>
+             <view>controller_common.view</view>
            </resource>
       </resources>
       <iconClass>icon-bar-chart</iconClass>

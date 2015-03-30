@@ -1,0 +1,6 @@
+<script type="text/x-handlebars-template" id="traffic-stats-tab-template">
+    <div class="row-fluid center">
+        <div id="{{dropdownId}}" class="traffic-stats-dropdown select2-medium-width"></div>
+    </div>
+    <div id="{{chartId}}" class="traffic-stats-chart row-fluid"></div>
+</script>

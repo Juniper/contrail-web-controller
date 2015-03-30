@@ -17,4 +17,9 @@ require.config({
         'controller-init': 'common/ui/js/controller.init'
     },
     waitSeconds: 0
-})
+});
+
+require(['controller-constants','controller-grid-config',
+         'controller-graph-config','controller-labels',
+         'controller-utils','controller-messages',
+         'controller-parsers','controller-init'],function(){})
