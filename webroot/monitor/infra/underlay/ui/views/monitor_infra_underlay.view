@@ -109,7 +109,7 @@ body > svg {
                         <li>
                             <label class="inline">
                                 <span class="key"> Virtual Networks </span>
-                                <span class="value"> {{virtualNetwork}} </span>
+                                <span class="value"> {{formattedVN}} </span>
                             </label>
                         </li>
                         <li>

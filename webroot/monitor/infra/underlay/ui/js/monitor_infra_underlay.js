@@ -80,7 +80,7 @@ underlayModel.prototype.updateChassisType = function() {
 
 underlayModel.prototype.getChildChassisType = function(parent_chassis_type) {
     switch (parent_chassis_type) {
-        case "core":
+        case "coreswitch":
             return "spine";
         case "spine":
             return "tor";
@@ -598,15 +598,37 @@ underlayView.prototype.addElementsToGraph = function(els) {
         $("#topology-connected-elements").find("div").remove();
         graph.clear();
         graph.resetCells(els);
-        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"nodeSep" : 70, "rankSep" : 80});
-        this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
+        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 70, "rankSep" : 80});
+        var svgHeight = newGraphSize.height;
+        var svgWidth = newGraphSize.width;
+        var viewAreaHeight = $("#topology-connected-elements").height();
+        var viewAreaWidth = $("#topology-connected-elements").width();
+        var paperHeight = 0;
+        var paperWidth = 0;
+        var offsetX = 0;
+        var offsetY = 0;
         var offset = {
-            x: ($("#topology-connected-elements").width() - newGraphSize.width)/2,
-            y: ($("#topology-connected-elements").height() - newGraphSize.height)/2
+            x: 0,
+            y: 0
+        };
+        if(svgHeight < viewAreaHeight) {
+            offsetY = (viewAreaHeight - svgHeight)/2;
+        }
+
+        if(svgWidth < viewAreaWidth) {
+            offsetX = (viewAreaWidth - svgWidth)/2;
+        }
+
+        offset = {
+            x: offsetX,
+            y: offsetY
         };
         $.each(els, function (elementKey, elementValue) {
             elementValue.translate(offset.x, offset.y);
         });
+        if(svgHeight > viewAreaHeight || svgWidth > viewAreaWidth) {
+            this.getPaper().fitToContent();
+        }
         this.initTooltipConfig();
 }
 
@@ -708,7 +730,7 @@ underlayView.prototype.createElementsFromAdjacencyList = function() {
                         childNodeType.split("-")[0][0] + childNodeType.split("-")[1][0];
                     for(var i=0; i<links.length; i++) {
                         var link = links[i];
-                        if(link.endpoints[0] === childElementLabel && link.endpoints[1] === parentElementLabel ||
+                        if((link.endpoints[0] === childElementLabel && link.endpoints[1] === parentElementLabel) ||
                             (link.endpoints[1] === childElementLabel && link.endpoints[0] === parentElementLabel)) {
                             var linkName = childElementLabel + "<->" + parentElementLabel;
                             var altLinkName = parentElementLabel + "<->" + childElementLabel;
@@ -728,6 +750,100 @@ underlayView.prototype.createElementsFromAdjacencyList = function() {
             });
         }
     });
+
+    for(var i=0; i<links.length; i++) {
+        var link = links[i];
+        var endpoints = link.endpoints;
+        var endpoint0 = endpoints[0];
+        var endpoint1 = endpoints[1];
+        var linkName = endpoint0 + "<->" + endpoint1;
+        var altLinkName = endpoint1 + "<->" + endpoint0;
+        if(null !== elMap["nodes"] && typeof elMap["nodes"] !== "undefined") {
+            if(null == elMap["nodes"][endpoint0] && typeof elMap["nodes"][endpoint0] == "undefined") {
+                var node = jsonPath(nodes, "$[?(@.name=='" + endpoint0 + "')]");
+                if(false !== node && node.length === 1) {
+                    node = node[0];
+                    var nodeName = node.name;
+                    var currentEl = _this.createNode(node);
+                    conElements.push(currentEl);
+                    var currentElId = currentEl.id;
+                    elMap.nodes[nodeName] = currentElId;
+                    if(adjacencyList.hasOwnProperty(nodeName)) {
+                        elements.push(currentEl);
+                    }
+                }
+            }
+            if(null == elMap["nodes"][endpoint1] && typeof elMap["nodes"][endpoint1] == "undefined") {
+                var node = jsonPath(nodes, "$[?(@.name=='" + endpoint1 + "')]");
+                if(false !== node && node.length === 1) {
+                    node = node[0];
+                    var nodeName = node.name;
+                    var currentEl = _this.createNode(node);
+                    conElements.push(currentEl);
+                    var currentElId = currentEl.id;
+                    elMap.nodes[nodeName] = currentElId;
+                    if(adjacencyList.hasOwnProperty(nodeName)) {
+                        elements.push(currentEl);
+                    }
+                }
+            }
+        }
+
+        if(null !== elMap["links"] && typeof elMap["links"] !== "undefined") {
+            if((null == elMap["links"][linkName] && typeof elMap["links"][linkName] == "undefined") ||
+                null == elMap["links"][altLinkName] && typeof elMap["links"][altLinkName] == "undefined") {
+                var parentNode = jsonPath(nodes, "$[?(@.name=='" + endpoint0 + "')]");
+                if(false !== parentNode && parentNode.length === 1) {
+                    parentNode = parentNode[0];
+                    var parentNodeType = parentNode.node_type;
+                    var parentId = elMap.nodes[parentNode.name];
+                    var childNode = jsonPath(nodes, "$[?(@.name=='" + endpoint1 + "')]");
+                    if(false !== childNode && childNode.length === 1) {
+                        childNode = childNode[0];
+                        var childNodeType = childNode.node_type;
+                        var childId = elMap.nodes[childNode.name];
+                        var link_type = parentNodeType.split("-")[0][0] + parentNodeType.split("-")[1][0] + '-' + 
+                            childNodeType.split("-")[0][0] + childNodeType.split("-")[1][0];
+                        var linkEl = _this.createLink(link, link_type, parentId, childId);
+                        conElements.push(linkEl);
+                        var currentLinkId = linkEl.id;
+                        elMap.links[linkName] = currentLinkId;
+                        elMap.links[altLinkName] = currentLinkId;
+                        if(adjacencyList.hasOwnProperty(endpoint0) &&
+                            adjacencyList.hasOwnProperty(endpoint1)) {
+                            linkElements.push(linkEl);
+                        }
+                    }
+                }
+            } else {
+                //Check if already added to linkElements to be rendered. If yes, do nothing.
+                linkEl = jsonPath(linkElements, "$[?(@.id=='" + elMap["links"][linkName] + "')]");
+                if(typeof linkEl === "object" && linkEl.length === 1) {
+                    //already exists, dont do anything.
+                } else {
+                    //Check in Graph. If available, add again to render.
+                    var linkEl = _this.getGraph().getCell(elMap["links"][linkName]);
+                    if(null !== linkEl && typeof linkEl !== "undefined") {
+                        if(adjacencyList.hasOwnProperty(endpoint0) &&
+                            adjacencyList.hasOwnProperty(endpoint1)) {
+                            linkElements.push(linkEl);
+                        }
+                    } else {
+                        //Check if this element already created. If yes, add to linkElements if this link
+                        // exists in adjList
+                        linkEl = jsonPath(conElements, "$[?(@.id=='" + elMap["links"][linkName] + "')]");
+                        if(typeof linkEl === "object" && linkEl.length === 1) {
+                            if(adjacencyList.hasOwnProperty(endpoint0) &&
+                                adjacencyList.hasOwnProperty(endpoint1)) {
+                                linkElements.push(linkEl[0]);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     this.setConnectedElements(conElements);
     // Links must be added after all the elements. This is because when the links
     // are added to the graph, link source/target
@@ -1363,6 +1479,7 @@ underlayView.prototype.initGraphEvents = function() {
                             name: ifNull(instDetails['more_attributes']['vm_name'],'-'),
                             uuid: ifNull(nodeDetails['name'],'-'),
                             ipAddr: ip.length > 0 ? ip.join(',') : '-',
+                            formattedVN: vnList.length > 0 ? formatVN(vnList).join(',') : '-',
                             virtualNetwork: vnList.length > 0 ? vnList.join(',') : '-',
                             interfaceCount : intfLen,
                             stats: formatBytes(ifNull(instDetails['inBytes'],'-'))+"/"+ifNull(formatBytes(instDetails['outBytes'],'-')),
@@ -1504,6 +1621,9 @@ underlayView.prototype.getUnderlayPathIds = function(connectionWrapIds) {
 }
 
 underlayView.prototype.renderTopology = function(response) {
+    var fullAdjList = this.prepareData();
+    this.setAdjacencyList(fullAdjList);
+    this.createElementsFromAdjacencyList();
     var adjList = this.prepareData("tor");
     this.setAdjacencyList(adjList);
     this.setUnderlayAdjacencyList(adjList);
@@ -2175,7 +2295,16 @@ underlayView.prototype.renderTracePath = function(options) {
                 protocol: dataItem['protocol'],
          };
         if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
-            postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+            if($("#vrouterRadiobtn").is(':checked')) {
+                postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+            } else if($("#instRadiobtn").is(':checked')) {
+                if (dataItem['vrouter_ip'] != null) {
+                    postData['nodeIP'] = dataItem['vrouter_ip'];
+                } else if (dataItem['vrouter'] != null){
+                    var vrouterDetails = underlayView.prototype.getvRouterVMDetails(dataItem['vrouter'],'name',VROUTER);
+                    postData['nodeIP'] = getValueByJsonPath(vrouterDetails,'more_attributes;VrouterAgent;self_ip_list;0','-');
+                }
+            }
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         } else if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
@@ -2225,7 +2354,16 @@ underlayView.prototype.renderTracePath = function(options) {
                protocol: dataItem['protocol'],
         };
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
-            postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+            if($("#vrouterRadiobtn").is(':checked')) {
+                postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+            } else if($("#instRadiobtn").is(':checked')) {
+                if (dataItem['vrouter_ip'] != null) {
+                    postData['nodeIP'] = dataItem['vrouter_ip'];
+                } else if (dataItem['vrouter'] != null){
+                    var vrouterDetails = underlayView.prototype.getvRouterVMDetails(dataItem['vrouter'],'name',VROUTER);
+                    postData['nodeIP'] = getValueByJsonPath(vrouterDetails,'more_attributes;VrouterAgent;self_ip_list;0','-');
+                }
+            }
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
         } else if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
@@ -2639,16 +2777,40 @@ underlayView.prototype.resizeTopology = function() {
 underlayView.prototype.expandTopology = function() {
     var topologySize = this.calculateDimensions(expanded);
     this.setDimensions(topologySize);
-    this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
+    //this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
     var graph = this.getGraph();
     var newGraphSize = graph.getBBox(graph.getElements());
+    var svgHeight = newGraphSize.height;
+    var svgWidth = newGraphSize.width;
+    var viewAreaHeight = $("#topology-connected-elements").height();
+    var viewAreaWidth = $("#topology-connected-elements").width();
+    var paperHeight = 0;
+    var paperWidth = 0;
+    var offsetX = 0;
+    var offsetY = 0;
     var offset = {
-        x: (($("#topology-connected-elements").width() - newGraphSize.width)/2) - newGraphSize.x,
-        y: (($("#topology-connected-elements").height() - newGraphSize.height)/2) - newGraphSize.y
+        x: 0,
+        y: 0
+    };
+    if(svgHeight < viewAreaHeight) {
+        offsetY = (viewAreaHeight - svgHeight)/2;
+    }
+
+    if(svgWidth < viewAreaWidth) {
+        offsetX = (viewAreaWidth - svgWidth)/2;
+    }
+
+    offset = {
+        x: offsetX,
+        y: offsetY
     };
     $.each(graph.getElements(), function (elementKey, elementValue) {
         elementValue.translate(offset.x, offset.y);
     });
+    if(svgHeight > viewAreaHeight || svgWidth > viewAreaWidth) {
+        this.getPaper().fitToContent();
+    }
+    this.initTooltipConfig();
     expanded = !expanded;
 }
 
@@ -2788,6 +2950,7 @@ underlayController.prototype.getModelData = function(cfg) {
                     var graph = _this.getView().getGraph();
                     graph.clear();
                     $("#topology-connected-elements").find('div').remove();
+                    _this.getModel().setTree({});
                     topologyCallback(forceResponse);
                 }
             },
@@ -2823,7 +2986,6 @@ underlayController.prototype.getModelData = function(cfg) {
         });
         globalObj['topologyResponse']['VMList'] = virtualMachineList;
         globalObj['topologyResponse']['vRouterList'] = vRouterList;
-        _this.getView().resetTopology();
         _this.getModel().setNodes(response['nodes']);
         _this.getModel().setLinks(response['links']);
         _this.getModel().updateChassisType(response['nodes']);
