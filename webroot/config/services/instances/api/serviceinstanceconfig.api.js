@@ -27,6 +27,8 @@ var crypto = require('crypto');
 var configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 var policyConfigApi = require('../../../networkpolicies/api/policyconfig.api');
 var jsonPath = require('JSONPath').eval;
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs serviceinstanceconfig.api.js"
@@ -710,10 +712,13 @@ function updateServiceInstance(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPut(siPutURL, siPostData, appData,
-        function (error, data) {
+    jsonDiff.getJSONDiffByConfigUrl(siPutURL, appData, siPostData,
+                                    function(err, delta) {
+        configApiServer.apiPut(siPutURL, delta, appData,
+                               function (error, data) {
             setSIRead(error, data, response, appData);
         });
+    });
 }
 
 /**

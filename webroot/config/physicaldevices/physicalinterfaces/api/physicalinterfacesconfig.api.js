@@ -30,6 +30,8 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var async = require('async');
 var ports  = require('../../../ports/api/portsconfig.api');
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 /**
  * @readLIDetails
@@ -138,7 +140,10 @@ function updatePhysicalInterfaces (request, response, appData)
      }
      var postData     =  request.body;
      updateVMIDetails(request, appData, postData, function() {
-         configApiServer.apiPut(url + pInterfaceId, postData, appData,
+         var reqUrl = url + pInterfaceId;
+         jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, postData,
+                                         function(err, delta) {
+         configApiServer.apiPut(reqUrl, delta, appData,
              function(error, data) {
                 if(error) {
                    commonUtils.handleJSONResponse(error, response, null);
@@ -146,7 +151,8 @@ function updatePhysicalInterfaces (request, response, appData)
                 }         
                 commonUtils.handleJSONResponse(error, response, data);
              });             
-     });    
+         });
+     });
 } 
 
 /**
@@ -327,7 +333,7 @@ function processVMIDetails(appData, result, callback)
         commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_GET,
                                     null, null, null, appData);
     }
-    async.map(dataObjArr,
+    async.mapLimit(dataObjArr, global.ASYNC_MAP_LIMIT_COUNT,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, data) {
                 if ((null != error) || (null == data) || (!data.length)) {
@@ -370,7 +376,7 @@ function processVMIDetails(appData, result, callback)
                         }
                     }
                 }
-                async.map(dataObjArr,
+                async.mapLimit(dataObjArr, global.ASYNC_MAP_LIMIT_COUNT,
                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                     function(error, data) {
                         //No subnets case.. return with the instance_ip details
@@ -397,7 +403,8 @@ function processVMIDetails(appData, result, callback)
                             callback(null,resultJSON);
                         } else {
                             //Get subnet details
-                            async.map(subnetDataObjArr,
+                            async.mapLimit(subnetDataObjArr,
+                                           global.ASYNC_MAP_LIMIT_COUNT,
                                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                                     function(error,subnetData){
                                         if ((null != error) || (null == subnetData) || (!subnetData.length)) {

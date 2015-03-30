@@ -32,6 +32,8 @@ var opApiServer     = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/opServer.api');
 var jsonPath    = require('JSONPath').eval;
 var infraCmn    = require('../../../common/api/infra.common.api');
+var jsonDiff    = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs virtualdnsconfig.api.js"
@@ -285,7 +287,9 @@ function updateVirtualDNS (request, response, appData)
         return;
     }
 
-    configApiServer.apiPut(vdnsURL, vdnsPutData, appData,
+    jsonDiff.getJSONDiffByConfigUrl(vdnsURL, appData, vdnsPutData,
+                                    function(err, delta) {
+      configApiServer.apiPut(vdnsURL, delta, appData,
                            function(err, data) {
         if (err) {
             commonUtils.handleJSONResponse(err, response, null);
@@ -302,6 +306,7 @@ function updateVirtualDNS (request, response, appData)
                 readVirtualDNS(response, vdnsId, appData);
             });
         });
+      });
     });
 }
 
@@ -620,9 +625,17 @@ function updateVDNSRecordUpdate (request, response, appData)
     }
     dnsRecURL += vdnsRecordId;
     configApiServer.apiGet(dnsRecURL, appData, function(err, configData) {
+        if ((null != err) || (null == configData)) {
+            commonUtils.handleJSONResponse(err, response, null);
+            return;
+        }
+        var oldConfigData = commonUtils.cloneObj(configData);
         configData['virtual-DNS-record']['virtual_DNS_record_data'] =
             vdnsRecData;
-        configApiServer.apiPut(dnsRecURL, configData, appData,
+        var delta =
+            jsonDiff.getConfigJSONDiff('virtual-DNS-record', oldConfigData,
+                                       configData);
+        configApiServer.apiPut(dnsRecURL, delta, appData,
                                function(err, data) {
             if (err) {
                 commonUtils.handleJSONResponse(err, response, null);
