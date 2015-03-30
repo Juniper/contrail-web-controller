@@ -170,7 +170,7 @@
                                 <label>Where</label>
                                 <div>
                                     <div class="input-append inset span12">
-                                        <textarea id="{{queryPrefix}}-where" name="where" class="span12 where-textarea" value="" rows="1" required="required" validationMessage="Where Required"></textarea>
+                                        <textarea id="{{queryPrefix}}-where" name="where" class="span12 where-textarea" value="" placeholder="*" rows="1"></textarea>
                                         <span class="add-on" data-bind="visible: !isCustomTableVisible()"><i class="icon-pencil" onclick="openWhere('{{queryPrefix}}');"></i></span>
                                     </div>
                                 </div>
