@@ -13,13 +13,21 @@ var configJsonModifyObj = {
         'optFields': ['virtual_network_properties',
             'network_ipam_refs', 'network_policy_refs',
             'route_target_list', 'is_shared',
-            'router_external', 'display_name', 'id_perms:enable'],
-        'mandateFields': ['fq_name', 'uuid']
+            'router_external', 'id_perms:enable'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'network-ipam': {
         'isConfig': true,
         'optFields': ['network_ipam_mgmt', 'virtual_DNS_refs'],
-        'mandateFields': ['fq_name', 'uuid']
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'security-group': {
+        'isConfig': true,
+        'preProcessCB': {
+            'applyOnOldJSON': modifySecurityGroupConfigData,
+        },
+        'optFields': ['security_group_entries'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-topology': {
         'preProcessCB': {
@@ -85,6 +93,26 @@ function modifyVirtualNetworkConfigData (type, configData, optFields, mandateFie
         }
     }
     return modifyConfigData(type, configData, optFields, mandateFields);
+}
+
+function modifySecurityGroupConfigData (type, configData, optFields,
+                                        mandateFields)
+{
+    var tmpConfigData = commonUtils.cloneObj(configData);
+    var policyRuleLen = 0;
+    try {
+        var policyRule =
+            tmpConfigData[type]['security_group_entries']['policy_rule'];
+        policyRuleLen = policyRule.length;
+    } catch(e) {
+        policyRuleLen = 0;
+    }
+    for (var i = 0; i < policyRuleLen; i++) {
+        if (null != policyRule[i]['rule_uuid']) {
+            delete policyRule[i]['rule_uuid'];
+        }
+    }
+    return tmpConfigData;
 }
 
 function modifyConfigData (type, configData, optFields, mandateFields)
