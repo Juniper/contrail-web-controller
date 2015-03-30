@@ -1566,7 +1566,8 @@ function showPortEditWindow(mode, rowIndex) {
         type:"GET"
     });
     getAjaxs[3] = $.ajax({
-        url:"/api/admin/config/get-data?type=virtual-machine-interface&fqnUUID="+selectedProjectVal,
+        //url:"/api/admin/config/get-data?type=virtual-machine-interface&fqnUUID="+selectedProjectVal,
+        url:"/api/tenants/config/get-virtual-machines-ips?uuid="+selectedProjectVal,
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
