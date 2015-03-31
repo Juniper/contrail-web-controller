@@ -159,11 +159,21 @@ and need to add the iconClass tag wherever we need to show some icons
               </resources>
               <searchStrings>Monitor Config Nodes</searchStrings>
             </item>
-            <!--
-                        <item>
-                            <label>Software Upgrade</label>
-                        </item>
-                        -->
+            <item>
+              <hash>mon_infra_database</hash>
+              <label>Database Nodes</label>
+              <resources>
+                <resource>
+                  <rootDir>/monitor/infra/dbnode/ui</rootDir>
+                  <view>monitor_infra_dbnode.view</view>
+                  <js>monitor_infra_dbnode.js</js>
+                  <js>monitor_infra_dbnode_summary.js</js>
+                  <js>monitor_infra_dbnode_details.js</js>
+                  <class>databaseNodesView</class>
+                </resource>
+              </resources>
+              <searchStrings>Monitor Database Nodes</searchStrings>
+            </item>
           </items>
         </item>
         <item>
