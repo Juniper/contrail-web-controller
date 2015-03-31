@@ -16,6 +16,16 @@
                 </div>
             </div><br>
             <div class="row-fluid">
+                <div class="span2"><label>UUID</label></div>
+                <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span11">
+                                {{PolicyUUID}}
+                            </div>
+                        </div>
+                </div>
+            </div><br>
+            <div class="row-fluid">
                 <div class="span2"><label>Associated Networks</label></div>
                 <div class="span10">
                     {{#if AssociatedNetworks.length}}
