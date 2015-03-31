@@ -721,7 +721,7 @@ function physicalRoutersConfig() {
     function fetchData() {
         gridPhysicalRouters._dataView.setData([]);
         gridPhysicalRouters.showGridMessage('loading');
-        doAjaxCall('/api/tenants/config/physical-routers','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null);     
+        doAjaxCall('/api/tenants/config/physical-routers','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null, 300000);
     }
     
     window.successHandlerForPhysicalRouters =  function(result) {
