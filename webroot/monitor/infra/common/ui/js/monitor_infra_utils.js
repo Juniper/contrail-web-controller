@@ -263,6 +263,19 @@ var infraMonitorAlertUtils = {
             });
         }
         return alertsList.sort(dashboardUtils.sortInfraAlerts);
+    },
+    processDbNodeAlerts : function(obj) {
+        var alertsList = [];
+        var infoObj = {name:obj['name'],type:'Database Node',ip:obj['ip'],link:obj['link']};
+        if(obj['isPartialUveMissing'] == true){
+            alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        }
+        if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
+            alertsList.push($.extend({},{sevLevel:sevLevels['WARNING'],msg:infraAlertMsgs['SPACE_USAGE_WARNING'].format('Database')},infoObj));
+        } else if(obj['usedPercentage'] >= 90){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['SPACE_THRESHOLD_EXCEEDED'].format('Database')},infoObj));
+        }
+        return alertsList.sort(dashboardUtils.sortInfraAlerts);
     }
 }
 
@@ -320,6 +333,14 @@ function getAanalyticNodeColor(d,obj) {
 }
     
 function getConfigNodeColor(d,obj) {
+    obj= ifNull(obj,{});
+    var nodeColor = getNodeColor(obj);
+    if(nodeColor != false)
+        return nodeColor;
+    return d3Colors['blue'];
+}
+
+function getDbNodeColor(d,obj) {
     obj= ifNull(obj,{});
     var nodeColor = getNodeColor(obj);
     if(nodeColor != false)
@@ -634,6 +655,62 @@ var infraMonitorUtils = {
         retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
+    
+    /**
+     * Parses database-node UVE data
+     */
+    parseDbNodesDashboardData : function(result) {
+        var retArr = [];
+        $.each(result,function(idx,d) {
+            var obj = {};
+            var dbSpaceAvailable = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.disk_space_available_1k')[0]);
+            var dbSpaceUsed = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.disk_space_used_1k')[0]);
+            var analyticsDbSize = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.analytics_db_size_1k')[0]);
+            
+            obj['x'] = $.isNumeric(dbSpaceAvailable)? dbSpaceAvailable / 1024 / 1024 : 0;
+            obj['y'] = $.isNumeric(dbSpaceUsed)? dbSpaceUsed / 1024 / 1024 : 0;
+            
+            obj['availableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
+            obj['usedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
+            obj['analyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
+            //Use the db usage percentage for bubble size
+            obj['usedPercentage'] = obj['y'] / obj['x'] * 100 ;
+            obj['size'] = obj['usedPercentage']  ;
+            obj['shape'] = 'circle';
+            obj['type'] = 'dbNode';
+            obj['display_type'] = 'Database Node';
+            obj['name'] = d['name'];
+            obj['link'] = {p:'mon_infra_database',q:{node:obj['name'],tab:''}};
+            obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
+            obj['isPartialUveMissing'] = false;
+            try{
+                obj['status'] = getOverallNodeStatus(d,"config");
+            }catch(e){
+                obj['status'] = 'Down';
+            }
+//            var iplist = jsonPath(d,'$..config_node_ip')[0];
+//             obj['ip'] = obj['summaryIps'] = noDataStr;
+//                if(iplist != null && iplist != noDataStr && iplist.length > 0){
+//                obj['ip'] = iplist[0];
+//                var ipString = "";
+//                $.each(iplist, function (idx, ip){
+//                    if(idx+1 == iplist.length) {
+//                        ipString = ipString + ip;
+//                       } else {
+//                        ipString = ipString + ip + ', ';
+//                       }
+//                });
+//                obj['summaryIps'] = ipString;
+//            }
+            obj['nodeAlerts'] = infraMonitorAlertUtils.processDbNodeAlerts(obj);
+            obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
+            obj['color'] = getDbNodeColor(d,obj);
+            retArr.push(obj);
+        });
+        retArr.sort(dashboardUtils.sortNodesByColor);
+        return retArr;
+    },
+    
     parseGeneratorsData : function(result){
         var retArr = [];
         if(result != null && result[0] != null){
@@ -1975,7 +2052,7 @@ function formatMemory(memory) {
 function updateChartsForSummary(dsData, nodeType) {
     var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter;
     var nodeData = dsData;
-    var showLegend;
+    var showLegend,xLbl,yLbl;
     var data = [],updateHeaderCount = false;
     data = dsData;
     if(nodeType == 'compute'){
@@ -2009,7 +2086,16 @@ function updateChartsForSummary(dsData, nodeType) {
         tooltipFn = bgpMonitor.configNodeTooltipFn;
         isBucketize = false;
         clickFn = bgpMonitor.onConfigNodeDrillDown;
-	}
+	} else if(nodeType == "db"){
+        title = 'Database Nodes';
+        key = 'dbNode';
+        chartId = 'dbNodes-bubble';
+        xLbl = 'Available Space (GB)';
+        yLbl = 'Used Space (GB)';
+        tooltipFn = bgpMonitor.dbNodeTooltipFn;
+        isBucketize = false;
+        clickFn = bgpMonitor.onDbNodeDrillDown;
+    }
 
     //Check if chart is already initialized and has chartOptions like currLevel
     var currChartOptions = {};
@@ -2024,6 +2110,8 @@ function updateChartsForSummary(dsData, nodeType) {
         title: title,
         d: splitNodesToSeriesByColor(data, chartsLegend),
         chartOptions: $.extend(true,{
+            xLbl:xLbl,
+            yLbl:yLbl,
             tooltipFn: tooltipFn,
             bucketTooltipFn: (isBucketize)? bucketTooltipFn : '',
             clickFn: clickFn,
@@ -2154,6 +2242,22 @@ function getAllConfigNodes(defferedObj,dataSource){
                         loadedDeferredObj:defferedObj});
 }
 
+/**
+ * populateFn for databaseDS
+ */
+function getAllDbNodes(defferedObj,dataSource){
+    var obj = {};
+    obj['transportCfg'] = { 
+//            url: monitorInfraUrls['DATABASE_SUMMARY'],
+            url:'dbnode_summary.json',
+            type:'GET'
+        }
+    getOutputByPagination(dataSource,
+                        {transportCfg:obj['transportCfg'],
+                        parseFn:infraMonitorUtils.parseDbNodesDashboardData,
+                        loadedDeferredObj:defferedObj});
+}
+
 function mergeGeneratorAndPrimaryData(genDS,primaryDS,options){
     var genDSData = genDS.getItems();
     var primaryData = primaryDS.getItems();
@@ -2240,6 +2344,19 @@ function getNodeTooltipContents(currObj) {
     return tooltipContents;
 }
 
+//Tooltip contents to show for database nodes
+function getDbNodeTooltipContents(currObj) {
+    var tooltipContents = [
+        {lbl:'Host Name', value: currObj['name']},
+//        {lbl:'Version', value:currObj['version']},
+        {lbl:'Available Space', value:currObj['availableSpace']},
+        {lbl:'Used Space', value:currObj['usedSpace']},
+        {lbl:'Analytics DB Size', value:currObj['analyticsDbSize']},
+        {lbl:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'}
+    ];
+    return tooltipContents;
+}
+
 //Default tooltip render function for buckets
 function getNodeTooltipContentsForBucket(currObj) {
     var nodes = currObj['children'];
@@ -2266,6 +2383,9 @@ var bgpMonitor = {
     onConfigNodeDrillDown:function(currObj) {
          layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
     },
+    onDbNodeDrillDown:function(currObj) {
+        layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
+    },
     vRouterTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
     },
@@ -2283,6 +2403,9 @@ var bgpMonitor = {
     },
     configNodeTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
+    },
+    dbNodeTooltipFn: function(currObj) {
+        return getDbNodeTooltipContents(currObj);
     },
     nodeTooltipFn:function (e,x,y,chart,tooltipFn) {
         var result = {};

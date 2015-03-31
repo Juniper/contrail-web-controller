@@ -327,4 +327,55 @@ function addTabs() {
                     tabId:'ConfigNode'
                 });
     }());
+    
+    /**
+     * Config Node Tab
+     */
+    //UNCOMMENT TO ENABLE DB NODE IN DASHBOARD
+   /* dbNodesDashboardTab = (function() {
+        
+        var DBNodesViewModel = function() {
+            var self = this;
+            self.data = ko.observableArray([]);
+            self.downCnt =  ko.computed(function() { return dashboardUtils.getDownNodeCnt(self.data());});
+            self.upCnt = ko.computed(function() { return self.data().length - self.downCnt();});
+            self.totalCnt = ko.computed(function() { return self.upCnt() === '' ? '' : self.upCnt() + self.downCnt();});
+        }
+
+        var viewModel = new DBNodesViewModel();
+        viewModel.data.subscribe(function(newValue) {
+            updateView(newValue);
+        })
+
+        var updateView = function(data) {
+            if(!isScatterChartInitialized('#dbNode-bubble')) {
+                $('#dbNodeStats-header').initWidgetHeader({title:'Database Nodes',link:{hashParams:{p:'mon_infra_database',q:{node:'Database Nodes'}}}});
+                var chartsData = {
+                    title : 'Database Nodes',
+                    chartOptions : {
+                        xLbl : 'Available Space (GB)',
+                        yLbl : 'Used Space (GB)',
+                        tooltipFn : bgpMonitor.dbNodeTooltipFn,
+                        clickFn : bgpMonitor.onDbNodeDrillDown,
+                        xPositive : true,
+                        addDomainBuffer : true
+                    },
+                    d : [ {
+                        key : 'Database Nodes',
+                        values : data
+                    } ]
+                };
+                $('#dbNode-bubble').initScatterChart(chartsData);
+            } else {
+            }
+        }
+
+        infraDashboardView.addInfoBox({
+                    title:'Database Nodes',
+                    template:'dbnode-dashboard-tab',
+                    dataSourceObj:'dbNodeDS',
+                    viewModel:viewModel,
+                    tabId:'DatabaseNode'
+                });
+    }());*/
 }
