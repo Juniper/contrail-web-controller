@@ -722,7 +722,8 @@ var infraMonitorUtils = {
             createNewDTPicker('console', 'console-to-time' + '_' + obj.name, showToTime, onSelectToDate, defaultToTime);
             $('#msgType' + '_' + obj.name).contrailCombobox({
                 dataSource:[],
-                placeholder:'Any'
+                dataTextField:'text',
+                dataValueField:'value'
             });
             $('#msgCategory' + '_' + obj.name).contrailDropdown({
                 dataSource:{
@@ -825,37 +826,69 @@ var infraMonitorUtils = {
             gridConsole.dataSource.page(lastPageNo);
             gridConsole.content.scrollTop(gridConsole.tbody.height());
         }
+        
+        function getPostDataForGeneratorType(cfilt){
+            var type,moduleType="",kfilt="";
+            var hostName = obj['name'];
+            if(nodeType == 'compute'){
+                type = 'vrouter';
+                var moduleId = UVEModuleIds['VROUTER_AGENT'];
+                if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
+                    moduleId = obj['vrouterModuleId'];
+                }
+                kfilt = hostName+":*:" + moduleId + ":*";
+            } else if (nodeType == 'control'){
+                type = 'controlnode';
+                kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
+            } else if (nodeType == 'analytics'){
+                type = 'contrail-collector';
+                kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
+                        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
+            } else if (nodeType == 'config'){
+                type = 'confignode';
+                kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
+                        hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+                        hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+                        hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
+            }
+            return getPostData("generator","","",cfilt,kfilt);
+        }
+        
+        function updateLogTypeCombobox (result){
+            var msgTypeStatsList = [{text:'Any',value:''}];
+            var msgStats = [];
+            try{
+                msgStats =  ifNullOrEmptyObject(jsonPath(result,"$..msgtype_stats"),[]);
+            }catch(e){}
+            if(msgStats instanceof Array){
+                for(var i = 0; i < msgStats.length;i++){
+                    if(!($.isEmptyObject(msgStats[i]))){
+                        if( msgStats[i] instanceof Array){
+                            $.each(msgStats[i],function(i,msgStat){
+                                var msgType = msgStat['message_type'];
+                                msgTypeStatsList.push({text:msgType,value:msgType});
+                            });
+                        } else {
+                            msgTypeStatsList.push({text:msgStats[i]['message_type'],value:msgStats[i]['message_type']});
+                        }
+                    }
+                }
+            }
+            var cbMsgType = $('#msgType' + '_' + obj.name).data('contrailCombobox');
+            cbMsgType.setData(msgTypeStatsList);
+            cbMsgType.value('');
+        }
+       
         function fetchLastLogtimeAndCallLoadLogs(timerId,nodeType){
-        	var type,moduleType="",kfilt="";
-        	var hostName = obj['name'];
-        	if(nodeType == 'compute'){
-        		type = 'vrouter';
-        		var moduleId = UVEModuleIds['VROUTER_AGENT'];
-        		if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
-        		    moduleId = obj['vrouterModuleId'];
-        		}
-        		kfilt = hostName+":*:" + moduleId + ":*";
-        	} else if (nodeType == 'control'){
-        		type = 'controlnode';
-        		kfilt = hostName+":*:" + UVEModuleIds['CONTROLNODE'] + ":*";
-        	} else if (nodeType == 'analytics'){
-        		type = 'contrail-collector';
-        		kfilt = hostName+":*:" + UVEModuleIds['COLLECTOR'] + ":*,"+
-        		        hostName+":*:" + UVEModuleIds['OPSERVER'] + ":*";
-        	} else if (nodeType == 'config'){
-        		type = 'confignode';
-        		kfilt = hostName+":*:" + UVEModuleIds['APISERVER'] + "*,"+
-	                    hostName+":*:" + UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
-    	                hostName+":*:" + UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
-    	                hostName+":*:" + UVEModuleIds['SCHEMA'] + ":*";
-        	}
-        	var postData = getPostData("generator","","","ModuleServerState:msg_stats",kfilt);
+        	var postData = getPostDataForGeneratorType("ModuleServerState:msg_stats");
         	$.ajax({
                 url:TENANT_API_URL,
                 type:'post',
                 data:postData,
                 dataType:'json'
             }).done(function (result) {
+                //Update the logtype combobox which is dependent on the same results.
+                updateLogTypeCombobox(result);
                 var logLevelStats = [], lastLog, lastTimeStamp,allStats = [];
                 try{
                     allStats =  ifNullOrEmptyObject(jsonPath(result,"$..log_level_stats"),[]);
@@ -949,26 +982,48 @@ var infraMonitorUtils = {
             var filterObj = {
                 table:'MessageTable',
                 source:options['source']
-                //messageType:'any'
             };
+            var msgType = cboMsgType.value();
             if (nodeType == 'control') {
-                filterObj['moduleId'] = UVEModuleIds['CONTROLNODE'];
+                if(msgType != ''){
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['CONTROLNODE'] + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
+                } else {
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['CONTROLNODE'] + ' AND Source='+ obj['name'] +')';
+                }
             } else if (nodeType == 'compute') {
                 var moduleId = UVEModuleIds['VROUTER_AGENT'];
                 if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
                     moduleId = obj['vrouterModuleId'];
                 }
-                filterObj['moduleId'] = moduleId;
+                if(msgType != ''){
+                    filterObj['where'] = '(ModuleId=' + moduleId + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
+                } else {
+                    filterObj['where'] = '(ModuleId=' + moduleId + ' AND Source='+ obj['name'] +')';
+                }
             } else if (nodeType == 'config') {
-                filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
+                if(msgType != ''){
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['APISERVER'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
+                } else {
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
                                     + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['APISERVER'] 
                                     + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR'] 
                                     + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE'] 
                                     + ' AND Source='+obj['name']+')';
+                }
             } else if (nodeType == 'analytics') {
-                filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
-                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
-                                    + ' AND Source='+obj['name']+')';
+                if(msgType != ''){
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
+                } else {
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
+                }
             }
 
             if (cboMsgCategory.value() != '') {
@@ -978,8 +1033,6 @@ var infraMonitorUtils = {
                 filterObj['level'] = cboMsgLevel.value();
             } else
                 filterObj['level'] = 5;
-            if (cboMsgType.value() != '')
-                filterObj['messageType'] = cboMsgType.value();
             if (cboMsgLimit.value() != '' && cboMsgLimit != 'All')
                 filterObj['limit'] = cboMsgLimit.value();
          /*   if(!userChangedQuery){
