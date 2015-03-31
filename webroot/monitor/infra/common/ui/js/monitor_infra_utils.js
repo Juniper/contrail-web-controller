@@ -255,8 +255,14 @@ var infraMonitorAlertUtils = {
     processAnalyticsNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Analytics Node',ip:obj['ip'],link:obj['link']};
-        if(obj['isPartialUveMissing'] == true)
-            alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        if(obj['isUveMissing'] == true){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
+        }
+        if(obj['isUveMissing'] == false) {
+            if(obj['isPartialUveMissing'] == true){
+                alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+            }
+        }
         if(obj['errorStrings'] != null && obj['errorStrings'].length > 0){
             $.each(obj['errorStrings'],function(idx,errorString){
                 alertsList.push($.extend({},{sevLevel:sevLevels['WARNING'],msg:errorString},infoObj));
@@ -563,9 +569,13 @@ var infraMonitorUtils = {
             obj['link'] = {p:'mon_infra_analytics',q:{node:obj['name'],tab:''}};
             obj['errorStrings'] = ifNull(jsonPath(d,"$.value.ModuleCpuState.error_strings")[0],[]);
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
+            var isConfigDataAvailable = $.isEmptyObject(jsonPath(d,'$..ConfigData')[0]) ? false : true;
+            obj['isUveMissing'] = ($.isEmptyObject(jsonPath(d,'$..CollectorState')[0]) && isConfigDataAvailable)? true : false;
             obj['isPartialUveMissing'] = false;
-            if(isEmptyObject(jsonPath(d,'$.value.ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.CollectorState.build_info')[0])) {
-                obj['isPartialUveMissing'] = true;
+            if(obj['isUveMissing'] == false) {
+                if(isEmptyObject(jsonPath(d,'$.value.ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")].cpu_info')[0]) || isEmptyObject(jsonPath(d,'$.value.CollectorState.build_info')[0])) {
+                    obj['isPartialUveMissing'] = true;
+                }
             }
           //get the cpu for analytics node
             var cpuInfo = jsonPath(d,'$..ModuleCpuState.module_cpu_info')[0];
