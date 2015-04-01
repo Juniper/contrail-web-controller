@@ -219,7 +219,7 @@ function processVMIDetails(appData, result, callback)
         commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_GET,
                                     null, null, null, appData);
     }
-    async.map(dataObjArr,
+    async.mapLimit(dataObjArr, 100,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
             function(error, data) {
                 if ((null != error) || (null == data) || (!data.length)) {
@@ -260,7 +260,7 @@ function processVMIDetails(appData, result, callback)
                         }
                     }
                 }
-                async.map(dataObjArr,
+                async.mapLimit(dataObjArr, 100,
                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                     function(error, data) {
                         //No subnets case.. return with the instance_ip details
@@ -287,7 +287,7 @@ function processVMIDetails(appData, result, callback)
                             callback(null,resultJSON);
                         } else {
                             //Get subnet details
-                            async.map(subnetDataObjArr,
+                            async.mapLimit(subnetDataObjArr, 100,
                                     commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                                     function(error,subnetData){
                                         if ((null != error) || (null == subnetData) || (!subnetData.length)) {
