@@ -185,7 +185,7 @@
                                                 <h6>DNS</h6>
                                             </div>
                                             <div class="span1">
-                                                <h6><input type="checkbox" id="chk_headerDHCP" class="ace-input" checked onchange="toggleDHCP()"><span class="ace-lbl">DHCP</span></h6>
+                                                <h6><span class="ace-lbl">DHCP</span></h6>
                                             </div>
                                             <div class="span1 pull-left">
                                                 <div title="Add IPAM below" class="margin-5 padding-10-0">

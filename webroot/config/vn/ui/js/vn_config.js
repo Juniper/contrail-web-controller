@@ -72,8 +72,6 @@ function VirtualNetworkConfig() {
     this.validateRTEntry = validateRTEntry;
     this.validateFipEntry = validateFipEntry;
     this.validate = validate;
-    this.toggleDHCP = toggleDHCP;
-    this.setHeaderDHCP = setHeaderDHCP;
     this.handleGw = handleGw;
     this.handleDNS = handleDNS;
     this.getDNSStatus = getDNSStatus;
@@ -1119,7 +1117,6 @@ function createIPAMEntry(ipamBlock, id,element) {
     inputcboxDhcp.setAttribute("enabled", "enable");
     inputcboxDhcp.className = "ace-input";
     inputcboxDhcp.setAttribute("id",element+"_"+id+"_chkDHCP");
-    inputcboxDhcp.setAttribute("onchange", "setHeaderDHCP(this)");
 //    if($("#chk_headerDHCP")[0].checked === true){
         inputcboxDhcp.checked = true;    
 //    } else {
@@ -2446,7 +2443,6 @@ function showVNEditWindow(mode, rowIndex) {
             }
             if (mode === "add") {
                 windowCreateVN.find('h6.modal-header-title').text('Create Network');
-                $("#chk_headerDHCP")[0].checked = true;
                 $(txtVNName).focus();
                 //Add one subnet row
                 if(isVCenter()) {
@@ -2700,17 +2696,6 @@ function validate() {
     }
     return true;
 }
-
-function toggleDHCP(){
-    var checkedval = $("#chk_headerDHCP")[0].checked;
-    for(var i=0; i<$("#ipamTuples").children().length; i++) {
-        var id = getID(String($("#ipamTuples").children()[i].id));
-        if($("#ipamTuples_"+id+"_chkDHCP")[0].disabled == false){
-            $("#ipamTuples_"+id+"_chkDHCP")[0].checked = checkedval;
-        }
-    }
-}
-
 function getDNSStatus(ipamBlock) {
     var dns_server_address = ipamBlock.DNSServerAddress;
     var dhcp_option_list = ipamBlock.DHCPOptionsList;
@@ -2777,26 +2762,6 @@ function handleGw(me) {
         $("#ipamTuples_" + id + "_txtGateway").val("0.0.0.0");
         $("#ipamTuples_" + id + "_txtGateway")[0].disabled = true;
         //$("#ipamTuples_" + id + "_txtGateway").attr("placeholder", "0.0.0.0");
-    }
-}
-
-function setHeaderDHCP(me){
-    if($(me)[0].checked == true){
-        var setFlag = true;
-        for(var i=0; i<$("#ipamTuples").children().length; i++) {
-            var id = getID(String($("#ipamTuples").children()[i].id));
-            if($("#ipamTuples_"+id+"_chkDHCP")[0].checked == false){
-                setFlag = false;
-                break;
-            }
-        }
-        if(setFlag == true){
-            $("#chk_headerDHCP")[0].checked = true;
-        } else {
-            $("#chk_headerDHCP")[0].checked = false;
-        }
-    } else {
-        $("#chk_headerDHCP")[0].checked = false;
     }
 }
 function formatAlcPoolObj(alocPools){
