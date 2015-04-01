@@ -52,6 +52,7 @@ define([
                                 elementId: ctwl.INSTANCE_TABS_ID,
                                 view: "TabsView",
                                 viewConfig: {
+                                    theme: 'classic',
                                     activate: function (e, ui) {
                                         var selTab = $(ui.newTab.context).text();
                                         if (selTab == ctwl.TITLE_TRAFFIC_STATISTICS) {
