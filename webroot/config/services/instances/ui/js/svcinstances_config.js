@@ -206,10 +206,23 @@ function initComponents() {
                                 onClick: function(rowIndex){
                                     svcInstancesCreateWindow('edit',rowIndex);
                                 }
-                            }
-                        ]
+                            },
+                            {
+                                title: 'Delete',
+                                iconClass: 'icon-trash',
+                                onClick: function(rowIndex){
+                                    showRemoveWindow(rowIndex);
+                                }
+                            }]
                     } else {
-                        return [];
+                        return [
+                        {
+                            title: 'Delete',
+                            iconClass: 'icon-trash',
+                            onClick: function(rowIndex){
+                                showRemoveWindow(rowIndex);
+                            }
+                        }];
                     }
                 },
                 detail: {
@@ -295,6 +308,50 @@ function initComponents() {
     windowCreateSvcInstances.modal({backdrop:'static', keyboard: false, show:false});
 }
 
+function showRemoveWindow(rowIndex) {
+$.contrailBootstrapModal({
+       id: 'confirmRemove',
+       title: 'Remove',
+       body: '<h6>Confirm Service Instance delete</h6>',
+       footer: [{
+           title: 'Cancel',
+           onclick: 'close',
+       },
+       {
+           id: 'btnCnfDelSInstPopupOK',
+           title: 'Confirm',
+           rowIdentifier: rowIndex,
+           onclick: function(){
+               var rowNum = this.rowIdentifier;
+               var selected_row = $("#gridsvcInstances").data("contrailGrid")._dataView.getItem(rowNum);
+               deleteSvcInstance([selected_row]);
+               $('#confirmRemove').modal('hide');
+           },
+           className: 'btn-primary'
+       }
+       ]
+   });
+}
+
+function deleteSvcInstance(selected_rows){
+    //Release functions
+    $('#btnDeletesvcInstances').addClass('disabled-link');
+    //btnDeletesvcInstances.attr("disabled","disabled");
+    var deleteAjaxs = [];
+    if (selected_rows && selected_rows.length > 0) {
+    var cbParams = {};
+        cbParams.selected_rows = selected_rows;
+        cbParams.url = "/api/tenants/config/service-instance/"; 
+        cbParams.urlField = "uuid";
+        cbParams.fetchDataFunction = "createSInstanceSuccessCb";
+        cbParams.errorTitle = "Error";
+           cbParams.errorShortMessage = "Error in deleting Service Instance - ";
+        cbParams.errorField = "Service_Instance";
+        deleteObject(cbParams);
+    }
+    confirmDelete.modal('hide');
+}
+
 function reloadSvcInstancePage(reload) {
     if($("#windowCreateSvcInstances").css('display') != 'block' && 
        $("#confirmDelete").css('display') != 'block') {
@@ -351,22 +408,8 @@ function initActions() {
 
     btnCnfDelSInstPopupOK.click(function (a) {
         //Release functions
-        $('#btnDeletesvcInstances').addClass('disabled-link');
-        //btnDeletesvcInstances.attr("disabled","disabled");
         var selected_rows = $("#gridsvcInstances").data("contrailGrid").getCheckedRows();
-        var deleteAjaxs = [];
-        if (selected_rows && selected_rows.length > 0) {
-        var cbParams = {};
-            cbParams.selected_rows = selected_rows;
-            cbParams.url = "/api/tenants/config/service-instance/"; 
-            cbParams.urlField = "uuid";
-            cbParams.fetchDataFunction = "createSInstanceSuccessCb";
-            cbParams.errorTitle = "Error";
-               cbParams.errorShortMessage = "Error in deleting Service Instance - ";
-            cbParams.errorField = "Service_Instance";
-            deleteObject(cbParams);
-        }
-        confirmDelete.modal('hide');
+        deleteSvcInstance(selected_rows);
     });
 
     btnCreatesvcInstencesOK.click(function (a) {

@@ -641,19 +641,24 @@ function successHandlerForGridsTempRow(result) {
         if (svcScaling === "true" || svcScaling === "True" ||
             svcScaling == true)
             svcScalingStr = "Enabled";
-
+        var az = svcTemplate.service_template_properties.availability_zone_enable;
+        var azStr = "Disabled";
+        if (az === "true" || az === "True" || az == true)
+            azStr = "Enabled";
+        
+        var imagename = svcTemplate.service_template_properties.image_name;
         svcTemplateData.push({"id":idCount++, "uuid":svcTemplate.uuid,
             "templateName":svcTemplate.name,
             "templateDN":svcTemplate.display_name,
             "Service_Mode":ucfirst(svcTemplate.service_template_properties.service_mode),
-            "availability_zone":svcTemplate.service_template_properties.availability_zone_enable,
+            "availability_zone":azStr,
             "service_Type":ucfirst(svcTemplate.service_template_properties.service_type),
             "service_Scaling":svcScalingStr,
             "interface_type":(svc_interfaces.length) ? svc_interfaces : "-",
-            "image_Name":svcTemplate.service_template_properties.image_name,
+            "image_Name": (imagename) ? imagename : "-",
             "Instances":(svc_instances.length) ? svc_instances : "-",
             "static_route_enable":static_route_enable,
-            "flavors":flavors
+            "flavors":(flavors) ?  flavors : "-"
         });
     }
     $("#gridsvcTemplate").data("contrailGrid")._dataView.setData(svcTemplateData);
