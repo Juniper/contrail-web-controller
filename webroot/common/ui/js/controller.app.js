@@ -2,7 +2,7 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctInitComplete = false;
+var ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp;
 
 require.config({
     baseUrl: '/',
