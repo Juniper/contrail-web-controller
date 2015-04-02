@@ -430,8 +430,9 @@ var underlayView = function (model) {
     this.tooltipConfig = {};
     var _this = this;
     _this.renderUnderlayTabs();
-    //Rendering the first search flows tab
-    _this.renderFlowRecords();
+    //Disabling the tabs on page load we are activating them 
+    //Once the topology ajax calls are successful.
+    $("#underlay_tabstrip").tabs('disable');
 }
 
 underlayView.prototype.getConnectedElements = function() {
@@ -1426,22 +1427,8 @@ underlayView.prototype.initGraphEvents = function() {
                     $("#underlay_topology").data('nodeType',ifNull(nodeDetails['node_type'],'-'));
                     $("#underlay_topology").data('nodeName',ifNull(nodeDetails['name'],'-'));
                     _this.updateWhereClause();
-                    var vRouterDetails = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems();
-                    var selVrouterDetails = $.grep(vRouterDetails,function(item,idx){
-                        return (item['name'] == nodeDetails['name']); 
-                    });
-                    var name = selVrouterDetails.length > 0 ? selVrouterDetails[0]['name'] : '-';
-                    var hostNameIp =  selVrouterDetails.length > 0 ? (selVrouterDetails[0]['name'] + ' ('+selVrouterDetails[0]['ip']+')') : '-';
-                    data['type'] = VROUTER,
-                    data['version'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['version'] : '-';
-                    data['interfaceCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['intfCnt'] : '-';
-                    data['hostName'] = hostNameIp;
-                    data['name'] = name;
-                    data['ip'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['ip'] : '-';
-                    data['virtualNetworkCnt'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['vnCnt'] : '-';
-                    data['instanceCount'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['instCnt']: '-';
-                    data['memory'] = selVrouterDetails.length > 0 ? selVrouterDetails[0]['memory']: '-';
-                    data['link'] = {p:'mon_infra_vrouter',q:{node:name,tab:''}};
+                    data['type'] = VROUTER;
+                    data['name'] = nodeDetails['name'];
                     _this.populateDetailsTab(data);
                     break;
                 case 'contrail.VirtualMachine':
@@ -1950,23 +1937,19 @@ underlayView.prototype.renderTracePath = function(options) {
     // in monitor infra vrouter details page flows tab
     flowKeyStack = [];
     $("#traceFlow").html(tracePathTemplate);
-    var computeNodesDS = globalObj['dataSources']['computeNodeDS']['dataSource'].getItems(),computeNodeCombobox = [];
-    var computeNodes = []
-    $.each(computeNodesDS,function(idx,value){
-        if(value['vRouterType'] == 'hypervisor')
-            computeNodes.push(value);
-    });
+    var computeNodes = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]),computeNodeCombobox = [];
     if(nodeType == VROUTER && nodeName != null) {
         defaultValue = nodeName;
     } else {
-        defaultValue = computeNodes[0]['name'];
-        ip = computeNodes[0]['ip'];
+        defaultValue = getValueByJsonPath(computeNodes,'0;name','-');
+        ip = getValueByJsonPath(computeNodes,'0;more_attributes;VrouterAgent;self_ip_list;0','-');
     }
     for(var i = 0; i < computeNodes.length; i++) {
         if(computeNodes[i]['name'] == defaultValue)
-            ip = computeNodes[i]['ip'];
+            ip = getValueByJsonPath(computeNodes[i],'more_attributes;VrouterAgent;self_ip_list;0','-');
         computeNodeCombobox.push({
-            text:contrail.format('{0} ({1})',computeNodes[i]['name'],computeNodes[i]['ip']),
+            text:contrail.format('{0} ({1})',computeNodes[i]['name'],
+                    getValueByJsonPath(computeNodes[i],'more_attributes;VrouterAgent;self_ip_list;0','-')),
             value:computeNodes[i]['name']
         });
     }
@@ -1989,7 +1972,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                           minWidth:170,
                                           formatter: function(r,c,v,cd,dc){
                                               var name = $.grep(computeNodes,function(value,idx){
-                                                              return (value['ip'] == dc['peer_vrouter']);
+                                                              return (getValueByJsonPath(value,'more_attributes;VrouterAgent;self_ip_list;0','-') == dc['peer_vrouter']);
                                                          });
                                               return contrail.format('{0} ({1})',getValueByJsonPath(name,'0;name','-'),dc['peer_vrouter']);
                                           }
@@ -2225,7 +2208,7 @@ underlayView.prototype.renderTracePath = function(options) {
     tracePathDropdown.text(contrail.format('{0} ({1})',defaultValue,ip));
     
     $("#vrouterRadiobtn").prop('checked',true);
-    var instances = globalObj['topologyResponse']['VMList'],instComboboxData = [];
+    var instances = getValueByJsonPath(globalObj,'topologyResponse;VMList',[]),instComboboxData = [];
     var instMap = {};
     for(var i = 0; i < instances.length; i++) {
         var instObj = instances[i];
@@ -2436,9 +2419,9 @@ underlayView.prototype.renderTracePath = function(options) {
 underlayView.prototype.getvRouterVMDetails = function(value,key,type){
     var data = [],selectedNode = {},id;
     if(type == VIRTUALMACHINE) 
-        data = globalObj['topologyResponse']['VMList'];
+        data = getValueByJsonPath(globalObj,'topologyResponse;VMList',[]);
     else if (type == VROUTER)
-        data = globalObj['topologyResponse']['vRouterList'];
+        data = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]);
     $.each(data,function(idx,item){
         var details = jsonPath(item,'$..'+key);
         if($.isArray(details) && details.indexOf(value) > -1) {
@@ -2944,6 +2927,10 @@ underlayController.prototype.getModelData = function(cfg) {
             type    : "GET",
             data    : data,
             callback: function (forceResponse) {
+                //Enabling the below tabs only on success of ajax calls.
+                $("#underlay_tabstrip").tabs('enable');
+                //Rendering the first search flows tab
+                underlayView.prototype.renderFlowRecords();
                 //removing the progress bar and clearing the graph
                 $("#network_topology").find('.topology-visualization-loading').hide();
                 if(forceResponse['topologyChanged']) {
@@ -2967,7 +2954,19 @@ underlayController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
-            topologyCallback(response);
+            //Enabling the below tabs only on success of ajax calls.
+            $("#underlay_tabstrip").tabs('enable');
+            //Rendering the first search flows tab
+            underlayView.prototype.renderFlowRecords();
+            if(getValueByJsonPath(response,'nodes',[]).length == 0 ) {
+                //Here we are appending the empty data message to 
+                //topology-connected-elements,which doesn't contain the controls
+                //because force refresh response 
+                //may have the data then we need the controls
+                showEmptyInfo('topology-connected-elements');
+            } else {
+                topologyCallback(response);
+            }
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
