@@ -569,6 +569,7 @@ function fetchData() {
                         addr_families = addr_families.toString();
                         //tbd bgp peers
                         details.push({ "name":"Display Name", "value":d.display_name });
+                        details.push({ "name":"UUID", "value":d.uuid});
                         if (d.bgp_refs) {
                             peers = d.bgp_refs.toString();
                             details.push({ "name":"Peers", "value":peers });
@@ -597,7 +598,7 @@ function fetchData() {
                             if(d["hold_time"]) { 
                                 detailStr += "Hold Time " + d["hold_time"] + "; ";
                                 details.push({ "name":"Hold Time", "value":d["hold_time"]});                                
-                            } 
+                            }
                         }
                         if (d.address && "" != d.address) {
                             bgpData.push({
