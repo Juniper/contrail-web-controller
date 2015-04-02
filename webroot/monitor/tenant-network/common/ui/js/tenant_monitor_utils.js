@@ -823,25 +823,6 @@ function constructReqURL(obj) {
     return url + '?' + $.param(reqParams);
 }
 
-/*
- * Onclick event handler for links within the grid cell
- */
-function onClickGridLink(e,selRowDataItem){
-    var name = $(e.target).attr('name');
-    var reqObj = {};
-    if ($.inArray(name, ['project']) > -1) {
-        layoutHandler.setURLHashParams({fqName:selRowDataItem['name']},{merge:false});
-    } else if($.inArray(name,['network']) > -1) {
-        layoutHandler.setURLHashParams({fqName:selRowDataItem['name']},{merge:false,p:'mon_net_networks'});
-    } else if($.inArray(name,['instance']) > -1) {
-        layoutHandler.setURLHashParams({vmName:selRowDataItem['vmName'],fqName:selRowDataItem['name'],srcVN:selRowDataItem['vn'][0]},{merge:false,p:'mon_net_instances'});
-    } else if($.inArray(name,['vRouter']) > -1) {
-        layoutHandler.setURLHashParams({node: selRowDataItem['vRouter'], tab:''}, {p:'mon_infra_vrouter',merge:false});
-    }
-}
-
-
-
 /**
  * Common utility functions for tenant network monitoring page
  */

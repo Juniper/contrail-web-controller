@@ -94,15 +94,3 @@ function MonitorNetworkingLoader() {
     this.destroy = function () {
     };
 };
-
-
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
-};
