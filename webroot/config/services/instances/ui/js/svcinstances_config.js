@@ -931,6 +931,11 @@ function successHandlerForGridsvcInstanceRow(result) {
                 showDetail = false;
                 svcScalingStr = "-";
             }
+            var tmplSvcScaling = templateDetail["service_template_properties"]["service_scaling"];
+            if (tmplSvcScaling == true ||
+                tmplSvcScaling === "True" || tmplSvcScaling === "true") {
+                enableControles = true;
+            }
             svc_ordered_interfaces = templateDetail["service_template_properties"]["ordered_interfaces"];
             svc_flavor = templateDetail["service_template_properties"]["flavor"]
             for(var tinc = 0;tinc < templateOrder.length;tinc++){
@@ -1707,7 +1712,6 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 if(svcTemplates != undefined && svcTemplates.length > 0)
                     svcTemplateChange();
                 windowCreateSvcInstances.find('.modal-header-title').text("Create Service Instance");
-                $("#txtMaximumInstances").removeAttr("disabled","disabled");
                 $("#txtsvcInstanceName").removeAttr("disabled","disabled");
                 $("#ddZoneHost").removeAttr("disabled","disabled");
                 $("#ddZone").removeAttr("disabled","disabled");
@@ -1800,7 +1804,6 @@ function editWindow(rowIndex){
     $("#ddsvcTemplate").data("contrailDropdown").enable(false);
     $("#txtsvcInstanceName").attr("disabled","disabled");
     $("#ddZone").attr("disabled","disabled");
-    $("#txtMaximumInstances").attr("disabled","disabled");
 }
 function ucfirst(str) {
     if (str == null)
