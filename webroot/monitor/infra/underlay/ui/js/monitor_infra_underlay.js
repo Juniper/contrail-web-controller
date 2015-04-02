@@ -2946,7 +2946,9 @@ underlayController.prototype.getModelData = function(cfg) {
             callback: function (forceResponse) {
                 //removing the progress bar and clearing the graph
                 $("#network_topology").find('.topology-visualization-loading').hide();
-                if(forceResponse['topologyChanged']) {
+                if(getValueByJsonPath(forceResponse,'nodes',[]).length == 0 ) {
+                    showEmptyInfo('network_topology');
+                } else if(forceResponse['topologyChanged']) {
                     var graph = _this.getView().getGraph();
                     graph.clear();
                     $("#topology-connected-elements").find('div').remove();
@@ -2967,7 +2969,11 @@ underlayController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
-            topologyCallback(response);
+            if(getValueByJsonPath(response,'nodes',[]).length == 0 ) {
+                showEmptyInfo('topology-connected-elements');
+            } else {
+                topologyCallback(response);
+            }
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
@@ -2992,6 +2998,9 @@ underlayController.prototype.getModelData = function(cfg) {
         _this.getModel().categorizeNodes(response['nodes']);
         _this.getModel().formTree();
         _this.getView().renderTopology(response);
+    }
+    function showEmptyInfo(container) {
+        $("#"+container).html('<div class="display-nonodes">No Physical Devices found</div>');
     }
     if(null !== cfg && typeof cfg !== "undefined")
         this.getModel().getData(cfg);
