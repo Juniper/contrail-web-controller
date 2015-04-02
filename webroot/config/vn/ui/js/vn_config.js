@@ -374,6 +374,16 @@ function initActions() {
         }
         return returnHtml;
     });
+    Handlebars.registerHelper("showStaticIPAddressing",function(staticIPAddressing,options) {
+        var returnHtml = '';
+        if(isVCenter()) {
+            returnHtml += '<div class="row-fluid">';
+            returnHtml += '<span class="span2"><label>Static IP Addressing</label></span>';
+            returnHtml += '<span class="span10">: ' +  staticIPAddressing + '</span>';
+            returnHtml += '</div>';
+        }
+        return returnHtml;
+    });
     btnDeleteVN.click(function (a) {
         if(!$(this).hasClass('disabled-link')) {
             confirmMainRemove.find('.modal-header-title').text("Confirm");
@@ -1930,6 +1940,15 @@ function successHandlerForGridVNRow(result) {
             at = "Disabled";
         }
         var AllowTransit = at;
+        var staticIPAddressing = jsonPath(vn, "$.external_ipam");
+        if (staticIPAddressing !== false && typeof staticIPAddressing !== "undefined" && staticIPAddressing.length > 0 && staticIPAddressing[0] != null && staticIPAddressing[0] != undefined) {
+            staticIPAddressing = staticIPAddressing[0];
+        }
+        if(String(staticIPAddressing) == "true") {
+            staticIPAddressing = "Enabled";
+        } else {
+            staticIPAddressing = "Disabled";
+        }
 
         var uuid = jsonPath(vn, "$.uuid");
         if (typeof uuid === "object" && uuid.length === 1)
@@ -2107,7 +2126,31 @@ function successHandlerForGridVNRow(result) {
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         //if(vn.fq_name[1] == selectedProject){
-            vnData.push({"id":idCount++, "Network":vnName, "displayName":displayName , "AttachedPolicies":reorder_policies,"AttachedPoliciesTxt":reorder_policiesTxt, "IPBlocks":subnets, "HostRoutes":hostRoutPrifix, "Ipams":ipams, "FloatingIPs":fips,"allSubnets":allSubnets, "FloatingIPPools":fipoolProjects, "RouteTargets":routeTargets,"adminState":adminState, "Shared" : Shared,"External" : External, "DNSServer": DNSServer, "ForwardingMode" : fwdMode, "VxLanId": vxlanid, "AllowTransit": AllowTransit, "NetworkUUID":uuid,"parent_uuid":parent_uuid,"enableControles":enableControles});
+            vnData.push({
+                "id": idCount++,
+                "Network": vnName,
+                "displayName": displayName,
+                "AttachedPolicies": reorder_policies,
+                "AttachedPoliciesTxt": reorder_policiesTxt,
+                "IPBlocks": subnets,
+                "HostRoutes": hostRoutPrifix,
+                "Ipams": ipams,
+                "FloatingIPs": fips,
+                "allSubnets": allSubnets,
+                "FloatingIPPools": fipoolProjects,
+                "RouteTargets": routeTargets,
+                "adminState": adminState,
+                "Shared": Shared,
+                "External": External,
+                "DNSServer": DNSServer,
+                "ForwardingMode": fwdMode,
+                "VxLanId": vxlanid,
+                "AllowTransit": AllowTransit,
+                "staticIPAddressing" : staticIPAddressing,
+                "NetworkUUID": uuid,
+                "parent_uuid": parent_uuid,
+                "enableControles": enableControles
+            });
         //}
     }
     if(result.more == true || result.more == "true"){
@@ -2241,6 +2284,7 @@ function clearValuesFromDomElements() {
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
     $("#allow_transit")[0].checked = false;
+    $('#static_ip').attr('disabled',false);
     $('#static_ip')[0].checked = false;
     $('#static_ip').parents('.control-group').hide();
     msNetworkPolicies.data("contrailMultiselect").value("");
@@ -2318,14 +2362,15 @@ function showVNEditWindow(mode, rowIndex) {
             //all success
             clearValuesFromDomElements();
             if(isVCenter()) {
+                $('#static_ip').parents('.control-group').show();
                 if(mode == 'add') {
                     $('#txtPVlanId').parents('.control-group').show();
                     $('#txtSVlanId').parents('.control-group').show();
                 } else {
+                    $('#static_ip').attr('disabled',true);
                     $('#txtPVlanId').parents('.control-group').hide();
                     $('#txtSVlanId').parents('.control-group').hide();
                 }
-                $('#static_ip').parents('.control-group').show();
             }
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
@@ -2562,6 +2607,14 @@ function showVNEditWindow(mode, rowIndex) {
                             $("#allow_transit")[0].checked = true;
                         else
                             $("#allow_transit")[0].checked = false;
+                    }
+                }
+                if(isVCenter()) {
+                    if(selectedVN['external_ipam'] != null) {
+                        if(String(selectedVN['external_ipam']) == "true")
+                            $('#static_ip')[0].checked = true;
+                        else
+                            $('#static_ip')[0].checked = false;
                     }
                 }
             }
