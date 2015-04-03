@@ -126,6 +126,11 @@
         <write-access>member</write-access>
     </item>
     <item>
+        <feature>alarms</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
+    <item>
         <feature>portconfig</feature>
     </item>
     <item>

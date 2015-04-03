@@ -320,6 +320,38 @@ and need to add the iconClass tag wherever we need to show some icons
                         -->
           </items>
         </item>
+        <!--<item>
+          <name>alarms</name>
+          <label>Alarms</label>
+          <iconClass>icon-bell-alt</iconClass>
+          <resources>
+              <resource>
+                  <rootDir>/common/ui</rootDir>
+                  <js>controller.app.js</js>
+                  <class>mnAlarmsPageLoader</class>
+              </resource>
+              <resource>
+                  <rootDir>/monitor/alarms/ui</rootDir>
+                  <js>alarms.main.js</js>
+                  <template>alarms.tmpl</template>
+                  <class>mnAlarmsPageLoader</class>
+              </resource>
+          </resources>
+          <items>
+              <item>
+                  <hash>mon_alarms_dashboard</hash>
+                  <label>Dashboard</label>
+                  <resources>
+                      <resource>
+                          <rootDir>/monitor/alarms/ui</rootDir>
+                          <class>mnAlarmsPageLoader</class>
+                          <function>renderAlarms</function>
+                      </resource>
+                  </resources>
+                  <searchStrings>Alarms Dashboard</searchStrings>
+              </item>
+          </items>
+        </item>-->
       </items>
     </item>
     <item>

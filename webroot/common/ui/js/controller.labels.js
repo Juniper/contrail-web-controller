@@ -211,6 +211,18 @@ define([
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE = 'virtual machine';
         this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
 
+        //Alarms labels
+        this.ALARMS_BREADCRUMB_DROPDOWN = "alarms-breadcrumb-dropdown";
+        this.MONITOR_ALARMS_PAGE_ID = "monitor-alarms-page";
+        this.ALARMS_GRID_ID = "monitor-alarms-grid";
+        this.TITLE_ALARMS = "Alarms Dashboard";
+        this.TITLE_ALARMS_SUMMARY = "Alarms";
+        this.MONITOR_ALARM_LIST_ID = "monitor-alarm-list";
+        this.MONITOR_ALARM_LIST_VIEW_ID = "monitor-alarm-list-view";
+        this.TITLE_ACKNOWLEDGE = 'Acknowledge';
+        this.TITLE_ALARM_HISTORY = 'Alarm History';
+        this.TITLE_ALARM_DETAILS = 'Alarm Details';
+
     };
     return CTLabels;
 });
