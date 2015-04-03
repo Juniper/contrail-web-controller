@@ -149,6 +149,46 @@ define([
             }
         ];
 
+        this.alarmsColumns = [
+            {
+                field: 'severity',
+                name: 'Severity',
+                minWidth: 100,
+                searchFn: function (d) {
+                    return d['severity'];
+                },
+                searchable: true,
+                formatter : function (r, c, v, cd, dc) {
+                    var formattedDiv;
+                    if(dc['ack']) {
+                        formattedDiv = '<div data-color="orange" class="circle orange" style="opacity:1"></div>';
+                    } else {
+                        if(dc['severity'] === 3) {
+                            formattedDiv = '<div data-color="red" class="circle red filled" style="opacity:1"></div>';
+                        } else if (dc['severity'] === 4) {
+                            formattedDiv = '<div data-color="orange" class="circle orange filled" style="opacity:1"></div>';
+                        }
+                    }
+                    return formattedDiv;
+                }
+            },
+            {
+                field: 'timestamp',
+                name: 'Time',
+                minWidth: 200
+            },
+            {
+                field: 'type',
+                name: 'Alert',
+                minWidth: 200
+            },
+            {
+                field: 'name',
+                name: 'Source',
+                minWidth: 200
+            }
+        ];
+
         this.getVNDetailsLazyRemoteConfig = function(type) {
             return [
                 {
@@ -357,6 +397,24 @@ define([
                 searchable: true
             }
         ];
+        this.getAcknowledgeAction = function (onClickFunction, divider) {
+            return {
+                title: ctwl.TITLE_ACKNOWLEDGE,
+                iconClass: 'icon-check-sign',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            };
+        };
+        this.getAlertHistoryAction = function (onClickFunction, divider) {
+            return {
+                title: ctwl.TITLE_ALARM_HISTORY,
+                iconClass: 'icon-th',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            };
+        };
     };
 
     function onClickGrid(e, selRowDataItem) {

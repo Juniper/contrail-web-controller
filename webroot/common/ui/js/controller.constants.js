@@ -113,6 +113,9 @@ define([
             href: '/#p=config_net_vn'
         }
 
+
+        //Alarm constants
+        this.URL_ALARM_DETAILS_IN_CHUNKS = '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
     };
     return CTConstants;
 });

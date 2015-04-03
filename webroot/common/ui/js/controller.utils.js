@@ -21,10 +21,14 @@ define([
     'monitor/networking/ui/js/views/ProjectView',
     'monitor/networking/ui/js/views/NetworkView',
     'monitor/networking/ui/js/views/ConnectedNetworkTabView',
-    'monitor/networking/ui/js/views/ConnectedNetworkTrafficStatsView'
+    'monitor/networking/ui/js/views/ConnectedNetworkTrafficStatsView',
+    'monitor/alarms/ui/js/views/AlarmListView',
+    'monitor/alarms/ui/js/views/AlarmGridView'
+
 ], function (_, NetworkingGraphView, ProjectTabView, NetworkTabView, NetworkGridView, InstanceTabView, InstanceGridView,
              ProjectGridView, FlowGridView, NetworkListView, ProjectListView, InstanceListView, FlowListView, InstanceView,
-             InstanceTrafficStatsView, ProjectView, NetworkView, ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView) {
+             InstanceTrafficStatsView, ProjectView, NetworkView, ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView,
+             AlarmListView, AlarmGridView) {
 
     var CTUtils = function () {
         var self = this;
@@ -230,6 +234,18 @@ define([
 
                 case "ConnectedNetworkTrafficStatsView":
                     elementView = new ConnectedNetworkTrafficStatsView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "AlarmListView":
+                    elementView = new AlarmListView({el: parentElement, model: model, attributes: viewAttributes});
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
+
+                case "AlarmGridView":
+                    elementView = new AlarmGridView({el: parentElement, model: model, attributes: viewAttributes});
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
