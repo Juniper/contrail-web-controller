@@ -8,6 +8,7 @@ var controlNodetabs = ['details', 'peers', 'routes', 'console','servicechaining'
 var computeNodeTabs = ['details', 'interfaces', 'networks', 'acl', 'flows','routes', 'console'];
 var analyticsNodeTabs = ['details', 'generators', 'qequeries', 'console'];
 var configNodeTabs = ['details', 'console', 'generators', 'qequeries'];
+var dbNodeTabs = ['details'];
 
 var excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr',
     'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel'];
@@ -19,6 +20,7 @@ var computeNodeTabStrip = "compute_tabstrip";
 var configNodeTabStrip = "config_tabstrip";
 var aNodeTabStrip = "analytics_tabstrip";
 var ctrlNodeTabStrip = "control_tabstrip";
+var dbNodeTabStrip = "db_tabstrip";
 
 var CONSOLE_LOGS_REFRESH_INTERVAL = 90000;//Auto refresh interval in console tab (ms)
 
@@ -51,6 +53,9 @@ var monitorInfraUrls = {
         
         CONFIG_SUMMARY              : '/api/admin/monitor/infrastructure/confignodes/summary',
         CONFIG_DETAILS              : '/api/admin/monitor/infrastructure/confignode/details?hostname={0}',
+        
+        DATABASE_SUMMARY            : '/api/admin/monitor/infrastructure/dbnodes/summary',
+        DATABASE_DETAILS            : '/api/admin/monitor/infrastructure/dbnode/details?hostname={0}',
         
         FLOWSERIES_CPU              : '/api/tenant/networking/flow-series/cpu?moduleId={0}&minsSince={1}&sampleCnt={2}&source={3}&endTime={4}',
         QUERY                       : '/api/admin/reports/query',

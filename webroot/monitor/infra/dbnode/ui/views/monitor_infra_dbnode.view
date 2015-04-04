@@ -1,0 +1,46 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="dbnodes-template">
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div class="widget-box transparent" id="recent-box">
+                    <div class="widget-header" id='dbNodes-header'></div>
+                    <div class="widget-body">
+                        <div class="widget-main padding-4">
+
+                            <div class="row-fluid">
+                                <div class="span12">
+                                    <div id="dbNodes-bubble" class="infra-node-chart" style="margin:-10px 0 0 0;height:290px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div id="db-nodes-grid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="dbnode-template">
+    <div class="contrail">
+        <div id="db_tabstrip_{{name}}">
+            <ul>
+                <li><a href="#mon-infra-db-details-tab_{{name}}">Details</a></li>
+            </ul>
+            <div class="row-fluid" id="mon-infra-db-details-tab_{{name}}">
+                <div id='dbnode-dashboard_{{name}}' class='span5'>
+                </div>
+                <div class='span7'>
+                </div>
+				<div class="footer-links">
+				</div>
+            </div>
+        </div>
+    </div>
+</script>
