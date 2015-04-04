@@ -510,16 +510,12 @@ function setFSValidValues() {
 };
 
 function setVrouterValues(viewModelKey, viewModel) {
-    var computeDS = new SingleDataSource('computeNodeDS');
-    var result = computeDS.getDataSourceObj();
-    $(computeDS).on('change',function(){
-        var items = result['dataSource'].getItems(),data = [];
-        for(var i = 0; i < items.length; i++){
-            data.push({name:items[i]['name'],value:items[i]['name']});
-        }
-        var validValueObservable = ko.observableArray(data);
-        viewModel[viewModelKey] = validValueObservable;
-    });
+    var items = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]),data = [];
+    for(var i = 0; i < items.length; i++){
+        data.push({name:items[i]['name'],value:items[i]['name']});
+    }
+    var validValueObservable = ko.observableArray(data);
+    viewModel[viewModelKey] = validValueObservable;
 }
 function setNetworkValues(url, viewModelKeys, viewModel) {
     $.ajax({
