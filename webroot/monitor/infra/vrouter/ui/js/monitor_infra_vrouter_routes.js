@@ -183,6 +183,7 @@ monitorInfraComputeRoutesClass = (function() {
                          return ret; 
                      }
                  },
+                dropdownCssClass: 'select2-large-width',
                 dataValueField:'value',
                 dataTextField:'name',
                 change:onVRFChange
