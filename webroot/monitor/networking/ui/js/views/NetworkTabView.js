@@ -113,23 +113,23 @@ define([
                                                     var retObj = {
                                                         d: [{
                                                             key: 'Source Port',
-                                                            values: tenantNetworkMonitorUtils.parsePortDistribution(ifNull(response['sport'], []), {
+                                                            values: response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
                                                                 startTime: response['startTime'],
                                                                 endTime: response['endTime'],
                                                                 bandwidthField: 'outBytes',
                                                                 flowCntField: 'outFlowCount',
                                                                 portField: 'sport'
-                                                            })
+                                                            }) : []
                                                         },
                                                             {
                                                                 key: 'Destination Port',
-                                                                values: tenantNetworkMonitorUtils.parsePortDistribution(ifNull(response['dport'], []), {
+                                                                values: response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
                                                                     startTime: response['startTime'],
                                                                     endTime: response['endTime'],
                                                                     bandwidthField: 'inBytes',
                                                                     flowCntField: 'inFlowCount',
                                                                     portField: 'dport'
-                                                                })
+                                                                }) : []
                                                             }],
                                                         forceX: [0, 1000],
                                                         xLblFormat: d3.format(''),
@@ -147,30 +147,12 @@ define([
                                                             }
                                                         },
                                                         chartOptions: {
-                                                            clickFn: function(chartConfig){
-                                                                var obj= {
-                                                                    fqName:chartConfig['fqName'],
-                                                                    port:chartConfig['range']
-                                                                };
-                                                                if(chartConfig['startTime'] != null && chartConfig['endTime'] != null) {
-                                                                    obj['startTime'] = chartConfig['startTime'];
-                                                                    obj['endTime'] = chartConfig['endTime'];
-                                                                }
-
-                                                                if(chartConfig['type'] == 'sport')
-                                                                    obj['portType']='src';
-                                                                else if(chartConfig['type'] == 'dport')
-                                                                    obj['portType']='dst';
-
-                                                                obj['type'] = "flow";
-                                                                obj['view'] = "list";
-                                                                layoutHandler.setURLHashParams(obj, {p:"mon_networking_networks", merge:false});
-                                                            },
-                                                            tooltipFn: tenantNetworkMonitor.portTooltipFn
+                                                            clickFn: onScatterChartClick,
+                                                            tooltipFn: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick)
                                                         },
                                                         title: ctwl.TITLE_PORT_DISTRIBUTION,
                                                         xLbl: ctwl.X_AXIS_TITLE_PORT
-                                                    }
+                                                    };
                                                     return retObj;
                                                 }
                                             }
@@ -183,7 +165,8 @@ define([
                                                 ajaxConfig: {
                                                     url: ctwc.get(ctwc.URL_NETWORK_SUMMARY, networkFQN),
                                                     type: 'GET'
-                                                }
+                                                },
+                                                chartOptions: {getClickFn: getHeatChartClickFn}
                                             }
                                         }
                                     ]
@@ -219,17 +202,6 @@ define([
                                                         formatter: 'link',
                                                         template: ctwc.URL_NETWORK,
                                                         params: {}
-                                                    }
-                                                },
-                                                {
-                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
-                                                    templateGenerator: 'LinkGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'link',
-                                                        template: ctwc.URL_INSTANCE,
-                                                        params: {
-                                                            vn: 'name'
-                                                        }
                                                     }
                                                 },
                                                 {
@@ -328,6 +300,46 @@ define([
                 ]
             }
         };
+    };
+
+    var onScatterChartClick = function(chartConfig) {
+        var obj= {
+            fqName:chartConfig['fqName'],
+            port:chartConfig['range']
+        };
+        if(chartConfig['startTime'] != null && chartConfig['endTime'] != null) {
+            obj['startTime'] = chartConfig['startTime'];
+            obj['endTime'] = chartConfig['endTime'];
+        }
+
+        if(chartConfig['type'] == 'sport')
+            obj['portType']='src';
+        else if(chartConfig['type'] == 'dport')
+            obj['portType']='dst';
+
+        obj['type'] = "flow";
+        obj['view'] = "list";
+        layoutHandler.setURLHashParams(obj, {p:"mon_networking_networks", merge:false});
+    };
+
+    function getHeatChartClickFn (selector, response) {
+        return function(clickData) {
+            var currHashObj = layoutHandler.getURLHashObj();
+            var startRange = ((64 * clickData.y) + clickData.x) * 256;
+            var endRange = startRange + 255;
+            var params = {};
+            var protocolMap = {'icmp': 1, 'tcp': 6, 'udp': 17};
+            var divId = $($(selector)[0]).attr('id');
+            params['fqName'] = currHashObj['q']['fqName'];
+            params['port'] = startRange + "-" + endRange;
+            params['startTime'] = new XDate().addMinutes(-10).getTime();
+            params['endTime'] = new XDate().getTime();
+            params['portType'] = response['type'];
+            params['protocol'] = protocolMap[response['pType']];
+            params['type'] = "flow";
+            params['view'] = "list";
+            layoutHandler.setURLHashParams(params, {p: 'mon_networking_networks'});
+        }
     };
 
     return NetworkTabView;

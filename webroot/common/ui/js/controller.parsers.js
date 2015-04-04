@@ -169,6 +169,18 @@ define([
                     currObject['floatingIP'].push(contrail.format('{0}<br/> ({1}/{2})', fipObj['ip_address'],formatBytes(ifNull(fipObj['in_bytes'],'-')),
                         formatBytes(ifNull(fipObj['out_bytes'],'-'))));
                 });
+
+                var cpuInfo = getValueByJsonPath(currObj,'UveVirtualMachineAgent;cpu_info');
+                if(contrail.checkIfExist(cpuInfo)) {
+                    currObject['x'] = cpuInfo['cpu_one_min_avg'];
+                    currObject['y'] = cpuInfo['rss'];
+                } else {
+                    currObject['x'] = 0;
+                    currObject['y'] = 0;
+                }
+
+                currObject['size'] = 0;
+
                 return currObject;
             });
             return retArr;
@@ -250,6 +262,9 @@ define([
         };
 
         this.parseLineChartData = function(responseArray) {
+            if (responseArray.length == 0) {
+                return [];
+            }
             var response = responseArray[0],
                 rawdata = response['flow-series'],
                 inBytes = {key: "In Bytes", values: [], color: d3_category5[0]}, outBytes = {
@@ -280,6 +295,71 @@ define([
                     };
                 }
             });
+        };
+
+        this.parsePortDistribution = function (result, cfg) {
+            var portCF = crossfilter(result);
+            var portField = ifNull(cfg['portField'], 'sport');
+            var portType = cfg['portType'];
+            if (portType == null)
+                portType = (portField == 'sport') ? 'src' : 'dst';
+            var flowCntField = ifNull(cfg['flowCntField'], 'outFlowCnt');
+            var bandwidthField = ifNull(cfg['bandwidthField'], 'outBytes');
+            var portDim = portCF.dimension(function (d) {
+                return d[cfg['portField']];
+            });
+            var PORT_LIMIT = 65536;
+            var PORT_STEP = 256;
+            var startPort = ifNull(cfg['startPort'], 0);
+            var endPort = ifNull(cfg['endPort'], PORT_LIMIT);
+            if (endPort - startPort == 255)
+                PORT_STEP = 1;
+            //var PORT_LIMIT = 33400;
+            var color;
+            if (portType == 'src') {
+                color = d3Colors['green'];
+                color = '#1f77b4';
+            } else {
+                color = d3Colors['blue'];
+                color = '#aec7e8';
+            }
+
+            var portArr = [];
+            //Have a fixed port bucket range of 256
+            for (var i = startPort; i <= endPort; i = i + PORT_STEP) {
+                var name, range;
+                if (PORT_STEP == 1) {
+                    portDim.filter(i);
+                    name = i;
+                    range = i;
+                } else {
+                    portDim.filter([i, Math.min(i + PORT_STEP - 1, 65536)]);
+                    name = i + ' - ' + Math.min(i + PORT_STEP - 1, 65536);
+                    range = i + '-' + Math.min(i + PORT_STEP - 1, 65536);
+                }
+                var totalBytes = 0;
+                var flowCnt = 0;
+                $.each(portDim.top(Infinity), function (idx, obj) {
+                    totalBytes += obj[bandwidthField];
+                    flowCnt += obj[flowCntField];
+                });
+                var x = Math.floor(i + Math.min(i + PORT_STEP - 1, 65536)) / 2
+                if (portDim.top(Infinity).length > 0)
+                    portArr.push({
+                        startTime: cfg['startTime'],
+                        endTime: cfg['endTime'],
+                        x: x,
+                        y: totalBytes,
+                        name: name,
+                        type: portType == 'src' ? 'sport' : 'dport',
+                        range: range,
+                        flowCnt: flowCnt,
+                        size: flowCnt + 1,
+                        color: color,
+                        //type:portField
+                    });
+            }
+            return portArr;
         };
     };
 

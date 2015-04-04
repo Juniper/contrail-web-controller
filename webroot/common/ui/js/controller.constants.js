@@ -42,7 +42,7 @@ define([
          ];
 
         this.FILTERS_COLUMN_VM = ['UveVirtualMachineAgent:interface_list', 'UveVirtualMachineAgent:vrouter', 'UveVirtualMachineAgent:fip_stats_list',
-            'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:if_bmap_list'
+            'UveVirtualMachineAgent:cpu_info', 'UveVirtualMachineAgent:if_bmap_list', 'UveVirtualMachineAgent:cpu_info'
             //'VirtualMachineStats:if_stats'
         ];
 
@@ -107,6 +107,12 @@ define([
         this.GRAPH_ELEMENT_INSTANCE = 'virtual-machine';
         this.GRAPH_ELEMENT_CONNECTED_NETWORK = 'connected-network';
         this.GRAPH_ELEMENT_NETWORK_POLICY = 'network-policy';
+
+        this.CONFIGURE_NETWORK_LINK_CONFIG = {
+            text: 'Go to configure network page',
+            href: '/#p=config_net_vn'
+        }
+
     };
     return CTConstants;
 });

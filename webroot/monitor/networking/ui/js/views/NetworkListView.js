@@ -62,13 +62,7 @@ define([
                                             yLbl: 'Connected Networks',
                                             forceX: [0, 5],
                                             forceY: [0, 10],
-                                            link: {
-                                                hashParams: {
-                                                    q: { view: 'list', type: 'network', fqName: 'default:domain', source: 'uve', context: 'domain' }
-                                                },
-                                                conf: {p: 'mon_networking_networks', merge: false}
-                                            },
-                                            chartOptions: {tooltipFn: tenantNetworkMonitor.networkTooltipFn, clickFn: onScatterChartClick},
+                                            chartOptions: {tooltipFn: getNetworkTooltipConfig, clickFn: onScatterChartClick},
                                             hideLoadingIcon: false
                                         }
                                     }
@@ -92,10 +86,40 @@ define([
         }
     };
 
-    function onScatterChartClick(chartConfig) {
+    var onScatterChartClick = function(chartConfig) {
         var networkFQN = chartConfig['name'];
-
         ctwgrc.setNetworkURLHashParams(null, networkFQN, true);
+    };
+
+    var getNetworkTooltipConfig = function(data) {
+        var networkFQNObj = data.name.split(':'),
+            info = [],
+            actions = [];
+
+        return {
+            title: {
+                name: networkFQNObj[2],
+                type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK
+            },
+            content: {
+                iconClass: 'icon-contrail-virtual-network',
+                info: [
+                    {label: 'Domain', value: networkFQNObj[0]},
+                    {label: 'Project', value: networkFQNObj[1]},
+                    {label:'Interfaces', value: data['x']},
+                    {label:'Instance', value: data.instCnt},
+                    {label:'Throughput', value:formatThroughput(data['throughput'])}
+                ],
+                actions: [
+                    {
+                        type: 'link',
+                        text: 'View',
+                        iconClass: 'icon-external-link',
+                        callback: onScatterChartClick
+                    }
+                ]
+            }
+        };
     };
 
     return NetworkListView;

@@ -57,17 +57,7 @@ define([
                                             yLbl: 'Networks',
                                             forceX: [0, 5],
                                             forceY: [0, 10],
-                                            link: {
-                                                hashParams: {
-                                                    q: {
-                                                        view: 'details',
-                                                        type: 'project',
-                                                        source: 'uve'
-                                                    }
-                                                },
-                                                conf: {p: 'mon_networking_project', merge: false}
-                                            },
-                                            chartOptions: {tooltipFn: tenantNetworkMonitor.projectTooltipFn, clickFn: onScatterChartClick},
+                                            chartOptions: {tooltipFn: getProjectTooltipConfig, clickFn: onScatterChartClick},
                                             hideLoadingIcon: false
                                         }
                                     }
@@ -91,10 +81,40 @@ define([
         }
     };
 
-    function onScatterChartClick(chartConfig) {
-        var projectFQN = chartConfig['name'];
-
+    var onScatterChartClick = function(chartConfig) {
+        var projectFQN = chartConfig.name;
         ctwgrc.setProjectURLHashParams(null, projectFQN, true);
+    };
+
+    var getProjectTooltipConfig = function(data) {
+        var projectFQNObj = data.name.split(':'),
+            info = [],
+            actions = [];
+
+        return {
+            title: {
+                name: projectFQNObj[1],
+                type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK
+            },
+            content: {
+                iconClass: 'icon-contrail-project',
+                info: [
+                    {label: 'Domain', value: projectFQNObj[0]},
+                    {label:'Interfaces', value: data['x']},
+                    {label:'Networks', value: data['y']},
+                    {label:'Instance', value: data.instCnt},
+                    {label:'Throughput', value:formatThroughput(data['throughput'])}
+                ],
+                actions: [
+                    {
+                        type: 'link',
+                        text: 'View',
+                        iconClass: 'icon-external-link',
+                        callback: onScatterChartClick
+                    }
+                ]
+            }
+        };
     };
 
     return ProjectListView;

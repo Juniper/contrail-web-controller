@@ -56,9 +56,7 @@ define([
         var dropdownData = contrailListModel.getItems();
 
         if (dropdownData.length > 0) {
-            var domainDropdownElementId = ctwl.DOMAINS_BREADCRUMB_DROPDOWN,
-                domainDropdownElement = constructBreadcrumbDropdownDOM(domainDropdownElementId),
-                selectedValueData = null,
+            var selectedValueData = null,
                 urlDomainFQN = ((contrail.checkIfExist(fqName)) ? fqName.split(':').splice(0,1).join(':') : null),
                 cookieDomainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 urlDataKey = null, cookieDataKey = null;
@@ -74,8 +72,14 @@ define([
             });
 
             if(urlDomainFQN != null && urlDataKey == null) {
-                $(contentContainer).html('<p id="content-container-error"><i class="icon-warning-sign"></i> &nbsp; ' + urlDomainFQN + ' is not a valid domain.</p>'); //TODO - Styles
+                var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                    notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {errorMessage: urlDomainFQN + ' was not found.'});
+
+                $(contentContainer).html(notFoundTemplate(notFoundConfig));
             } else {
+                var domainDropdownElementId = ctwl.DOMAINS_BREADCRUMB_DROPDOWN,
+                    domainDropdownElement = constructBreadcrumbDropdownDOM(domainDropdownElementId);
+
                 selectedValueData = (selectedValueData == null && urlDataKey != null) ? dropdownData[urlDataKey] : selectedValueData;
                 selectedValueData = (selectedValueData == null && cookieDataKey != null) ? dropdownData[cookieDataKey] : selectedValueData;
                 selectedValueData = (selectedValueData == null) ? dropdownData[0] : selectedValueData;
@@ -84,6 +88,7 @@ define([
                     dataTextField: "name",
                     dataValueField: "value",
                     data: dropdownData,
+                    dropdownCssClass: 'min-width-150',
                     change: function (e) {
                         var selectedValueData = {
                             name: domainDropdownElement.data('contrailDropdown').text(),
@@ -111,9 +116,7 @@ define([
         var dropdownData = contrailListModel.getItems();
 
         if (dropdownData.length > 0) {
-            var projectDropdownElementId = ctwl.PROJECTS_BREADCRUMB_DROPDOWN,
-                projectDropdownElement = constructBreadcrumbDropdownDOM(projectDropdownElementId),
-                selectedValueData = null,
+            var selectedValueData = null,
                 urlProjectFQN = ((contrail.checkIfExist(fqName)) ? fqName.split(':').splice(0,2).join(':') : null),
                 cookieProjectFQN = contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
                 urlDataKey = null, cookieDataKey = null;
@@ -129,8 +132,14 @@ define([
             });
 
             if(urlProjectFQN != null && urlDataKey == null) {
-                $(contentContainer).html('<p id="content-container-error"><i class="icon-warning-sign"></i> &nbsp; ' + urlProjectFQN + ' is not a valid project.</p>'); //TODO - Styles
+                var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                    notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {errorMessage: urlProjectFQN + ' was not found.'});
+
+                $(contentContainer).html(notFoundTemplate(notFoundConfig));
             } else {
+                var projectDropdownElementId = ctwl.PROJECTS_BREADCRUMB_DROPDOWN,
+                    projectDropdownElement = constructBreadcrumbDropdownDOM(projectDropdownElementId);
+
                 selectedValueData = (selectedValueData == null && urlDataKey != null) ? dropdownData[urlDataKey] : selectedValueData;
                 selectedValueData = (selectedValueData == null && cookieDataKey != null) ? dropdownData[cookieDataKey] : selectedValueData;
                 selectedValueData = (selectedValueData == null) ? dropdownData[0] : selectedValueData;
@@ -139,18 +148,11 @@ define([
                     dataTextField: "name",
                     dataValueField: "value",
                     data: dropdownData,
+                    dropdownCssClass: 'min-width-150',
                     selecting: function (e) {
                         var selectedValueData = {
-                            name: projectDropdownElement.data('contrailDropdown').text(),
-                            value: projectDropdownElement.data('contrailDropdown').value()
-                        };
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
-                        destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
-                    },
-                    change: function (e) {
-                        var selectedValueData = {
-                            name: projectDropdownElement.data('contrailDropdown').text(),
-                            value: projectDropdownElement.data('contrailDropdown').value()
+                            name: e.object['name'],
+                            value: e.object['value']
                         };
                         (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
@@ -170,9 +172,7 @@ define([
         var dropdownData = contrailListModel.getItems();
 
         if (dropdownData.length > 0) {
-            var networkDropdownElementId = ctwl.NETWORKS_BREADCRUMB_DROPDOWN,
-                networkDropdownElement = constructBreadcrumbDropdownDOM(networkDropdownElementId),
-                selectedValueData = null,
+            var selectedValueData = null,
                 urlNetworkFQN = ((contrail.checkIfExist(fqName)) ? fqName.split(':').splice(0,3).join(':') : null),
                 cookieNetworkFQN = contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' + contrail.getCookie(cowc.COOKIE_PROJECT) + ':' + contrail.getCookie(cowc.COOKIE_VIRTUAL_NETWORK),
                 urlDataKey = null, cookieDataKey = null;
@@ -188,8 +188,13 @@ define([
             });
 
             if(urlNetworkFQN != null && urlDataKey == null) {
-                $(contentContainer).html('<p id="content-container-error"><i class="icon-warning-sign"></i> &nbsp; ' + urlNetworkFQN + ' is not a valid Network.</p>'); //TODO - Styles
+                var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                    notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {errorMessage: urlNetworkFQN + ' was not found.'});
+
+                $(contentContainer).html(notFoundTemplate(notFoundConfig));
             } else {
+                var networkDropdownElementId = ctwl.NETWORKS_BREADCRUMB_DROPDOWN,
+                    networkDropdownElement = constructBreadcrumbDropdownDOM(networkDropdownElementId);
 
                 selectedValueData = (selectedValueData == null && urlDataKey != null) ? dropdownData[urlDataKey] : selectedValueData;
                 selectedValueData = (selectedValueData == null && cookieDataKey != null) ? dropdownData[cookieDataKey] : selectedValueData;
@@ -199,6 +204,7 @@ define([
                     dataTextField: "name",
                     dataValueField: "value",
                     data: dropdownData,
+                    dropdownCssClass: 'min-width-150',
                     change: function (e) {
                         var selectedValueData = {
                             name: networkDropdownElement.data('contrailDropdown').text(),

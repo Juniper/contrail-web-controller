@@ -53,7 +53,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
                 },
-                minWidth: 150,
+                minWidth: 250,
                 searchable: true,
                 events: {
                     onClick: onClickGrid
@@ -226,17 +226,15 @@ define([
                         var statDataList = tenantNetworkMonitorUtils.statsOracleParseFn(response[0], type),
                             dataItems = contrailListModel.getItems(),
                             statData;
-                        for (var i = 0; i < dataItems.length; i++) {
-                            var dataItem = dataItems[i];
-                            for (var j = 0; j < statDataList.length; j++) {
-                                statData = statDataList[j];
+                        for (var j = 0; j < statDataList.length; j++) {
+                            statData = statDataList[j];
+                            for (var i = 0; i < dataItems.length; i++) {
+                                var dataItem = dataItems[i];
                                 if (statData['name'] == dataItem['name']) {
                                     dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
                                     dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
+                                    dataItem['size'] = ifNull(statData['inBytes'], 0) + ifNull(statData['outBytes'], 0);
                                     break;
-                                } else if(j == (statDataList.length - 1)) {
-                                    dataItem['inBytes60'] = 0;
-                                    dataItem['outBytes60'] = 0;
                                 }
                             }
                         }

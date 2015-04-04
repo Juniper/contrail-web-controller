@@ -48,17 +48,83 @@ define([
                     {
                         columns: [
                             {
+                                elementId: ctwl.INSTANCES_CPU_MEM_CHART_ID,
+                                title: ctwl.TITLE_INSTANCES,
+                                view: "ScatterChartView",
+                                viewConfig: {
+                                    class: "port-distribution-chart",
+                                    loadChartInChunks: true,
+                                    parseFn: function (response) {
+                                        return {
+                                            d: [{key: 'Instances', values: response}],
+                                            yLbl: 'Memory',
+                                            xLbl: '% CPU Utilization',
+                                            forceY: [0, 1],
+                                            yLblFormat: function(yValue) {
+                                                var formattedValue = formatBytes(yValue * 1024, true);
+                                                return formattedValue;
+                                            },
+                                            chartOptions: {tooltipFn: getInstanceTooltipConfig, clickFn: onScatterChartClick},
+                                            hideLoadingIcon: false
+                                        }
+                                    }
+                                }
+                            },
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
                                 elementId: ctwl.PROJECT_INSTANCES_ID,
                                 title: ctwl.TITLE_INSTANCES,
                                 view: "InstanceGridView",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {pagerOptions: { options: { pageSize: 25, pageSizeSelect: [25, 50, 100] } }}
+                                viewConfig: {pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 25, 50, 100] } }}
                             }
                         ]
                     }
                 ]
             }
         }
+    };
+
+    function onScatterChartClick(chartConfig) {
+        var instanceUUID = chartConfig['name'],
+            networkFQN = chartConfig['vnFQN'];
+
+        ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, true);
+    };
+
+    var getInstanceTooltipConfig = function(data) {
+        var vmUUID = data.name;
+
+        return {
+            title: {
+                name: vmUUID,
+                type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE
+            },
+            content: {
+                iconClass: 'icon-contrail-virtual-machine font-size-30',
+                info: [
+                    {label: 'Network', value: data.vnFQN},
+                    {label: 'Name', value: data.vmName},
+                    {label: 'UUID', value: vmUUID},
+                    {label:'% CPU Utilization', value: d3.format('.02f')(data['x'])},
+                    {label:'Memory', value: formatBytes(data['y'] * 1024, false, null, 1)}
+                ],
+                actions: [
+                    {
+                        type: 'link',
+                        text: 'View',
+                        iconClass: 'icon-external-link',
+                        callback: onScatterChartClick
+                    }
+                ]
+            },
+            dimension: {
+                width: 350
+            }
+        };
     };
 
     return InstanceListView;

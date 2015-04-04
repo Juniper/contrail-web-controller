@@ -147,11 +147,13 @@ define([
         this.NETWORKS_BREADCRUMB_DROPDOWN = "networks-breadcrumb-dropdown";
 
         this.INSTANCE_GRAPH_ID = "instance-graph";
+        this.INSTANCES_CPU_MEM_CHART_ID = "instances-cpu-mem-chart";
         this.INSTANCE_TABS_ID = "instance-tabs";
         this.INSTANCE_DETAILS_ID = "instance-details";
         this.INSTANCE_TRAFFIC_STATS_ID = "instance-traffic-stats";
         this.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID = "instance-traffic-stats-dropdown";
         this.INSTANCE_TRAFFIC_STATS_CHART_ID = "instance-traffic-stats-chart";
+        this.INSTANCE_PORT_HEAT_CHART_ID = "instance-port-heat-chart";
 
         this.MONITOR_CONNECTED_NETWORK_ID = "monitor-connected-network";
         this.MONITOR_CONNECTED_NETWORK_VIEW_ID = "monitor-connected-network-view";

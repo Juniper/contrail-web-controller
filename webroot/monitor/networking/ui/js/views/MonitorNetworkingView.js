@@ -25,6 +25,12 @@ define([
 
                 breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (selectedValueData, projectBreadcrumbChanged) {
                     self.renderProjectCB(hashParams, selectedValueData, projectBreadcrumbChanged);
+                }, function (selectedValueData, projectBreadcrumbChanged) {
+                    var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                        projectFQN = domain + ':' + selectedValueData.name;
+
+                    ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
+                    self.renderProjectCB(hashParams, selectedValueData, projectBreadcrumbChanged);
                 });
             });
        },
@@ -41,8 +47,6 @@ define([
             if (ignoreClickedElements == true) {
                 delete hashParams.clickedElement;
             }
-
-            ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
 
             cowu.renderView4Config(this.$el, null, getProjectConfig(projectFQN, projectUUID));
         },

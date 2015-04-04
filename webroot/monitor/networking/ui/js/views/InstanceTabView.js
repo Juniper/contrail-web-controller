@@ -90,6 +90,18 @@ define([
                                                 instanceUUID: instanceUUID,
                                                 parseFn: ctwp.parseLineChartData
                                             }
+                                        },
+                                        {
+                                            elementId: ctwl.INSTANCE_PORT_HEAT_CHART_ID,
+                                            title: ctwl.TITLE_PORT_MAP,
+                                            view: "HeatChartView",
+                                            viewConfig: {
+                                                ajaxConfig: {
+                                                    url: ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
+                                                    type: 'GET'
+                                                },
+                                                chartOptions: {getClickFn: getHeatChartClickFn}
+                                            }
                                         }
                                     ]
                                 }
@@ -225,6 +237,11 @@ define([
                 ]
             }
         };
+    };
+
+    function getHeatChartClickFn (selector, response) {
+        // TODO: Implement click out function for instance port map
+        return function(clickData) {}
     };
 
     return InstanceTabView;

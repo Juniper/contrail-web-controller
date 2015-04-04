@@ -23,6 +23,8 @@ define([
 
         this.NO_TRAFFIC_STATS_FOUND = 'No Traffic Stats Found.';
 
+        this.NO_NETWORK_FOUND = 'Sorry, no virtual network is present in this project.'
+
         this.get = function () {
             var args = arguments;
             return cowu.getValueFromTemplate(args);
