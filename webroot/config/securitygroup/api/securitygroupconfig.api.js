@@ -23,6 +23,8 @@ var util = require('util');
 var url = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 
 /**
@@ -195,10 +197,14 @@ function updateSecurityGroup(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPut(securityGroupPutURL, securityGroupPostData, appData,
-        function (error, data) {
+    jsonDiff.getJSONDiffByConfigUrl(securityGroupPutURL, appData,
+                                    securityGroupPostData,
+                                    function(error, delta) {
+        configApiServer.apiPut(securityGroupPutURL, delta, appData,
+                               function(error, data) {
             setSecurityGroupRead(error, data, response, appData);
         });
+    });
 }
 
 /**

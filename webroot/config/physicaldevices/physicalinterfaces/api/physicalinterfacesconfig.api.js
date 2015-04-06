@@ -30,6 +30,8 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var async = require('async');
 var ports  = require('../../../ports/api/portsconfig.api');
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 /**
  * @readLIDetails
@@ -138,7 +140,10 @@ function updatePhysicalInterfaces (request, response, appData)
      }
      var postData     =  request.body;
      updateVMIDetails(request, appData, postData, function() {
-         configApiServer.apiPut(url + pInterfaceId, postData, appData,
+         var reqUrl = url + pInterfaceId;
+         jsonDiff.getJSONDiffByConfigUrl(reqUrl, appData, postData,
+                                         function(err, delta) {
+         configApiServer.apiPut(reqUrl, delta, appData,
              function(error, data) {
                 if(error) {
                    commonUtils.handleJSONResponse(error, response, null);
@@ -146,7 +151,8 @@ function updatePhysicalInterfaces (request, response, appData)
                 }         
                 commonUtils.handleJSONResponse(error, response, data);
              });             
-     });    
+         });
+     });
 } 
 
 /**
