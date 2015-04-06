@@ -767,7 +767,10 @@ function computePathByNodeList (allPaths, topoData)
         resPath = allPaths[i];
     }
     /* Now build the broken endpoints */
-    var resPathNodeCnt = resPath.length;
+    var resPathNodeCnt = 0;
+    if (null != resPath) {
+        resPathNodeCnt = resPath.length;
+    }
     for (var i = 1; i < resPathNodeCnt; i++) {
         if ((-1 != nodeList.indexOf(resPath[i - 1])) &&
             (-1 != nodeList.indexOf(resPath[i]))) {
@@ -800,7 +803,7 @@ function getUnderlayPathByNodelist (req, topoData, srcVM, destVM, appData, callb
     });
 }
 
-function getvRouterByIntfIP (intfIp, vmUVE)
+function getvRouterByIntfIP (intfIp, vmUVE, ipPrTable)
 {
     var intfList = null;
     var intfListCnt = 0;
@@ -822,9 +825,28 @@ function getvRouterByIntfIP (intfIp, vmUVE)
                 return {'vrouter':
                     vmUVE[i]['value']['UveVirtualMachineAgent']['vrouter'],
                         'vm_name': intfList[j]['vm_name'],
-                        'vm_uuid': vmUVE[i]['name']};
+                        'node': vmUVE[i]['name'],
+                        'node_type': ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE};
+            }
+            var fipList = intfList[j]['floating_ips'];
+            if (null != fipList) {
+                var fipListLen = fipList.length;
+                for (var k = 0; k < fipListLen; k++) {
+                    if (fipList[k]['ip_address'] == intfIp) {
+                        return {'vrouter':
+                            vmUVE[i]['value']['UveVirtualMachineAgent']['vrouter'],
+                                'vm_name': intfList[j]['vm_name'],
+                                'node': vmUVE[i]['name'],
+                                'node_type': ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE};
+                    }
+                }
             }
         }
+    }
+
+    if (null != ipPrTable[intfIp]) {
+        return {'node': ipPrTable[intfIp],
+            'node_type': ctrlGlobal.NODE_TYPE_PROUTER};
     }
     return null;
 }
@@ -841,6 +863,7 @@ function getUnderlayPath (req, res, appData)
     var srcIP = data['srcIP'];
     var destIP = data['destIP'];
     var nodeName = null;
+    var tmppRouterListObjs = {};
 
     var queryJSON = queries.buildUnderlayQuery(data);
 
@@ -861,26 +884,28 @@ function getUnderlayPath (req, res, appData)
                   function(err, results) {
             var ipPrTable = getIPToProuterMapTable(results[0]);
 
-            var srcVrouter = getvRouterByIntfIP(srcIP, results[1]);
-            var destVrouter = getvRouterByIntfIP(destIP, results[1]);
-            if ((null != srcVrouter) && (null != destVrouter) &&
-                (srcVrouter['vrouter'] == destVrouter['vrouter'])) {
+            var srcNode = getvRouterByIntfIP(srcIP, results[1], ipPrTable);
+            var destNode = getvRouterByIntfIP(destIP, results[1], ipPrTable);
+            if ((null != srcNode) && (null != destNode) &&
+                (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) &&
+                (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) &&
+                (srcNode['vrouter'] == destNode['vrouter'])) {
                 /* If both are on same vRouter, then directly send the link and
                  * node details, no need to consult further topology
                  */
-                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
+                topoData['nodes'].push({"name": srcNode['node'],
                                        'node_type':
                                        ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                topoData['nodes'].push({"name": srcVrouter['vrouter'],
+                topoData['nodes'].push({"name": srcNode['vrouter'],
                                        'node_type':
                                        ctrlGlobal.NODE_TYPE_VROUTER});
-                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
+                topoData['nodes'].push({"name": destNode['node'],
                                        'node_type':
                                        ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'],
-                                       srcVrouter['vrouter']]});
-                topoData['links'].push({'endpoints': [srcVrouter['vrouter'],
-                                       destVrouter['vm_uuid']]});
+                topoData['links'].push({'endpoints': [srcNode['node'],
+                                       srcNode['vrouter']]});
+                topoData['links'].push({'endpoints': [srcNode['vrouter'],
+                                       destNode['node']]});
                 commonUtils.handleJSONResponse(null, res, topoData);
                 return;
             }
@@ -899,51 +924,49 @@ function getUnderlayPath (req, res, appData)
                 } else {
                     nodeName = endPt1['nodeName'];
                 }
+                tmppRouterListObjs[nodeName] = nodeName;
                 topoData['nodes'].push({"name": nodeName,
                                        "node_type":
                                        ctrlGlobal.NODE_TYPE_PROUTER});
             }
-            if (null != srcVrouter) {
-                topoData['nodes'].push({"name": srcVrouter['vrouter'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VROUTER});
+            if ((null != srcNode) &&
+                (null == tmppRouterListObjs[srcNode['node']])) {
+                topoData['nodes'].push({"name": srcNode['node'],
+                                       "node_type": srcNode['node_type']});
+                tmppRouterListObjs[srcNode['node']] = srcNode['node'];
             }
-            if (null != destVrouter) {
-                topoData['nodes'].push({"name": destVrouter['vrouter'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VROUTER});
+            if ((null != destNode) &&
+                (null == tmppRouterListObjs[destNode['node']])) {
+                topoData['nodes'].push({"name": destNode['node'],
+                                       "node_type": destNode['node_type']});
+                tmppRouterListObjs[destNode['node']] = destNode['node'];
             }
-            var srcVM = (null != srcVrouter) ? srcVrouter['vm_uuid'] : null;
-            var destVM = (null != destVrouter) ? destVrouter['vm_uuid'] : null;
-            if (null != srcVrouter) {
-                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            var srcVM = null;
+            if (null != srcNode) {
+                srcVM = srcNode['node'];
+                if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
+                    topoData['nodes'].push({"name": srcNode['vrouter'],
+                                           "node_type":
+                                           ctrlGlobal.NODE_TYPE_VROUTER});
+                } else if (ctrlGlobal.NODE_TYPE_PROUTER ==
+                           srcNode['node_type']) {
+                    /* Already added in nodes array */
+                }
             }
-            if (null != destVrouter) {
-                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            if (null != destNode) {
+                destVM = destNode['node'];
+                if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
+                    topoData['nodes'].push({"name": destNode['vrouter'],
+                                           "node_type":
+                                           ctrlGlobal.NODE_TYPE_VROUTER});
+                } else if (ctrlGlobal.NODE_TYPE_PROUTER ==
+                           destNode['node_type']) {
+                    /* Already added in nodes array */
+                }
             }
-            getUnderlayPathByNodelist(req, topoData, srcVM, destVM, 
+            getUnderlayPathByNodelist(req, topoData, srcVM, destVM,
                                       appData, function(err, endpoints) {
                 topoData['links'] = endpoints;
-                /*
-                if (null != srcVrouter) {
-                    topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
-                                           "node_type":
-                                           ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                    topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'],
-                                           srcVrouter['vrouter']]});
-                }
-                if (null != destVrouter) {
-                    topoData['nodes'].push({"name": destVrouter['vm_uuid'],
-                                           "node_type":
-                                           ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                    topoData['links'].push({'endpoints': [destVrouter['vm_uuid'],
-                                           destVrouter['vrouter']]});
-                }
-                */
                 commonUtils.handleJSONResponse(err, res, topoData);
             });
         });
@@ -1370,26 +1393,32 @@ function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
                 }
             }
             topoData['links'] = [];
+            var srcNode = getvRouterByIntfIP(srcIP, results[2], ipPrTable);
+            var destNode = getvRouterByIntfIP(destIP, results[2], ipPrTable);
+            if (null != srcNode) {
+                if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE ==
+                    srcNode['node_type']) {
+                    topoData['links'].push({'endpoints': [srcNode['node'],
+                                       srcNode['vrouter']]});
+                }
+            }
             var nodeCnt = topoData['nodes'].length;
             for (var i = 0; i < nodeCnt - 1; i++) {
                 topoData['links'].push({'endpoints': [topoData['nodes'][i]['name'],
                                           topoData['nodes'][i + 1]['name']]});
             }
-            var srcVrouter = getvRouterByIntfIP(srcIP, results[2]);
-            var destVrouter = getvRouterByIntfIP(destIP, results[2]);
-            if (null != srcVrouter) {
-                topoData['nodes'].push({"name": srcVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                topoData['links'].push({'endpoints': [srcVrouter['vm_uuid'],
-                                       srcVrouter['vrouter']]});
+            if (null != srcNode) {
+                topoData['nodes'].push({"name": srcNode['node'],
+                                       "node_type": srcNode['node_type']});
             }
-            if (null != destVrouter) {
-                topoData['nodes'].push({"name": destVrouter['vm_uuid'],
-                                       "node_type":
-                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
-                topoData['links'].push({'endpoints': [destVrouter['vm_uuid'],
-                                       destVrouter['vrouter']]});
+            if (null != destNode) {
+                topoData['nodes'].push({"name": destNode['node'],
+                                       "node_type": destNode['node_type']});;
+                if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE ==
+                    destNode['node_type']) {
+                    topoData['links'].push({'endpoints': [destNode['vrouter'],
+                                       destNode['node']]});
+                }
             }
             callback(null, topoData);
         });
