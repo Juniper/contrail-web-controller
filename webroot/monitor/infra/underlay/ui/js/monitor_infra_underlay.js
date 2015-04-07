@@ -2926,10 +2926,6 @@ underlayController.prototype.getModelData = function(cfg) {
             type    : "GET",
             data    : data,
             callback: function (forceResponse) {
-                //Enabling the below tabs only on success of ajax calls.
-                $("#underlay_tabstrip").tabs('enable');
-                //Rendering the first search flows tab
-                underlayView.prototype.renderFlowRecords();
                 //removing the progress bar and clearing the graph
                 $("#network_topology").find('.topology-visualization-loading').hide();
                 if(getValueByJsonPath(forceResponse,'nodes',[]).length == 0 ) {
@@ -2940,6 +2936,10 @@ underlayController.prototype.getModelData = function(cfg) {
                     $("#topology-connected-elements").find('div').remove();
                     _this.getModel().setTree({});
                     topologyCallback(forceResponse);
+                    //Enabling the below tabs only on success of ajax calls.
+                    $("#underlay_tabstrip").tabs('enable');
+                    //Rendering the first search flows tab
+                    underlayView.prototype.renderFlowRecords();
                 }
             },
             failureCallback : function (err) {
@@ -2959,15 +2959,7 @@ underlayController.prototype.getModelData = function(cfg) {
             $("#underlay_tabstrip").tabs('enable');
             //Rendering the first search flows tab
             underlayView.prototype.renderFlowRecords();
-            if(getValueByJsonPath(response,'nodes',[]).length == 0 ) {
-                //Here we are appending the empty data message to 
-                //topology-connected-elements,which doesn't contain the controls
-                //because force refresh response 
-                //may have the data then we need the controls
-                showEmptyInfo('topology-connected-elements');
-            } else {
-                topologyCallback(response);
-            }
+            topologyCallback(response);
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
