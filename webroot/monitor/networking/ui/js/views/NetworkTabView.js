@@ -213,6 +213,13 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    key: 'value.UveVirtualNetworkAgent.virtualmachine_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'length'
+                                                    }
+                                                },
+                                                {
                                                     key: 'value.UveVirtualNetworkAgent.interface_list',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {

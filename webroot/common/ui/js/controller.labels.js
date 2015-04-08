@@ -62,9 +62,9 @@ define([
             egressFlowCount: "Egress Flow Count",
 
             /* Instance Details */
-            cpu_one_min_avg: 'CPU',
-            rss: 'Memory Used',
-            vm_memory_quota: 'Memory Total',
+            cpu_one_min_avg: '% CPU',
+            rss: 'Used Memory',
+            vm_memory_quota: 'Total Memory',
             vrouter: 'Virtual Router',
 
             /*Interface Details */
@@ -189,7 +189,7 @@ define([
         this.TITLE_DETAILS = "Details";
         this.TITLE_INTERFACES = "Interfaces";
         this.TITLE_VRF_STATS = "VRF Stats";
-        this.TITLE_CPU_INFO = "CPU Info";
+        this.TITLE_CPU_MEMORY_INFO = "CPU/Memory Information";
         this.TITLE_TRAFFIC_DETAILS = "Traffic Details";
         this.TITLE_TRAFFIC_STATISTICS = "Traffic Statistics";
         this.TITLE_TRAFFIC_STATISTICS_IN = "Traffic Statistics In";

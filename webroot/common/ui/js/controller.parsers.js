@@ -125,7 +125,11 @@ define([
             });
 
             for(var i = 0; i < projectModelList.length; i++) {
-                projectModelList[i].updateData(projectItems);
+                if(i == 0) {
+                    projectModelList[i].updateData(projectItems);
+                } else {
+                    projectModelList[i].setItems(projectItems);
+                }
             }
         };
 

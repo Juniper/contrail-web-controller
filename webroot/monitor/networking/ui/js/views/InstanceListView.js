@@ -59,11 +59,12 @@ define([
                                             d: [{key: 'Instances', values: response}],
                                             yLbl: 'Memory',
                                             xLbl: '% CPU Utilization',
-                                            forceY: [0, 1],
+                                            forceX: [0, 1],
                                             yLblFormat: function(yValue) {
                                                 var formattedValue = formatBytes(yValue * 1024, true);
                                                 return formattedValue;
                                             },
+                                            xLblFormat: d3.format(".01f"),
                                             chartOptions: {tooltipFn: getInstanceTooltipConfig, clickFn: onScatterChartClick},
                                             hideLoadingIcon: false
                                         }
@@ -122,7 +123,7 @@ define([
                 ]
             },
             dimension: {
-                width: 350
+                width: 370
             }
         };
     };

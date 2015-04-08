@@ -145,7 +145,7 @@ define([
                                     class: 'span6',
                                     rows: [
                                         {
-                                            title: ctwl.TITLE_CPU_INFO,
+                                            title: ctwl.TITLE_CPU_MEMORY_INFO,
                                             templateGenerator: 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
                                                 {
