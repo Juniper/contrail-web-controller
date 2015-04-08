@@ -904,16 +904,18 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                     $(e['currentTarget']).attr('checked',true);
                 }
             },
-            actionCell: [
-                {
-                    title: 'Start Packet Capture',
+            actionCell: []
+        };
+        if(getValueByJsonPath(globalObj['webServerInfo'],'disabledFeatures;disabled',[]).indexOf('mon_infra_underlay') == -1) {
+            gridConfig.body.options.actionCell.push({
+                    title: 'Show Underlay Paths',
                     iconClass: 'icon-edit',
                     onClick: function(rowIndex){
-                        startPacketCapture4Flow(options.elementId, rowIndex, 'parseAnalyzerRuleParams4FlowRecord');
+                        var dataItem = $('#' + options.elementId).data('contrailGrid')._grid.getDataItem(rowIndex);
+                        showUnderlayPaths(dataItem);
                     }
-                }
-            ]
-        };
+                });
+         }
         $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
             var endTime = $("#"+options.queryPrefix+"-results").data('endTimeUTC');
