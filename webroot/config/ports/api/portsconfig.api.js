@@ -620,7 +620,7 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
         body = {};
         body.portID = portConfig["virtual-machine-interface"]["uuid"];
         body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-        body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+        body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
         attachVMICompute(req, body, function (error, results){
             if(error){
                 callback(error, results)
@@ -1022,6 +1022,7 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, DataSRObjec
         deviceOwnerChange(error, [], DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(error, data, DataObjectArr){
             if (error) {
                 callback(error, data);
+                return;
             } else {
                 deleteAllReference(DataObjectDelArr, DataSRObjectArr, portPutURL, portPutData, boolDeviceOwnerChange, appData, function(error, results){
                     callback(error, data);
@@ -1340,7 +1341,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                 var body = {};
                 body.portID = vmiData["virtual-machine-interface"]["uuid"];
                 body.netID = vmiData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-                body.vmUUID = vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+                body.vmUUID = vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
                 detachVMICompute(request, body, function(error, results){
                     if (error) {
                         callback(error, result, DataObjectArr)
@@ -1351,7 +1352,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                         body = {};
                         body.portID = portPutData["virtual-machine-interface"]["uuid"];
                         body.netID = portPutData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-                        body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+                        body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"]["uuid"];
                         attachVMICompute(request, body, function(error, results){
                             callback(error, results, DataObjectArr);
                             return;
@@ -1372,11 +1373,11 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                 callback(error, result, DataObjectArr);
                                 return;
                             }
-                        } else {
-                            //No attach/edit
-                            callback(error, result, DataObjectArr);
-                            return;
                         }
+                    } else {
+                        //No attach/edit
+                        callback(error, result, DataObjectArr);
+                        return;
                     }
                 });
             } else {
@@ -1439,7 +1440,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                         body = {};
                                         body.portID = portPutData["virtual-machine-interface"]["uuid"];
                                         body.netID = portPutData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-                                        body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+                                        body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
                                         attachVMICompute(request, body, function(error, results){
                                             callback(error, result, DataObjectArr);
                                             return;
@@ -1496,7 +1497,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                 body = {};
                 body.portID = portPutData["virtual-machine-interface"]["uuid"];
                 body.netID = portPutData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-                body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+                body.vmUUID = portPutData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
                 attachVMICompute(request, body, function(error, results){
                     callback(error, results, DataObjectArr);
                     return;
@@ -1933,7 +1934,7 @@ function deletePortAsync (dataObj, callback)
             var body = {};
             body.portID = vmiData["virtual-machine-interface"]["uuid"];
             body.netID = vmiData["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
-            body.vmUUID = vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["to"][0];
+            body.vmUUID = vmiData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
             detachVMICompute(request, body, function(error, results){
                 if (error) {
                     callback(error, results)
