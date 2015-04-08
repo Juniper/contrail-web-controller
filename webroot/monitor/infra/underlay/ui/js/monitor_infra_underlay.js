@@ -1390,7 +1390,18 @@ underlayView.prototype.initGraphEvents = function() {
                 break;
         }
     });
-
+    
+    paper.on('cell:pointerdown', function (cellView, evt, x, y) {
+        evt.stopImmediatePropagation();
+        _this.removeUnderlayPathIds();
+    });
+        
+    paper.on('cell:pointerup', function (cellView, evt, x, y) {
+        evt.stopImmediatePropagation();
+        var ids = _this.getUnderlayPathIds();
+        _this.showPath(ids);
+    });
+        
     paper.on('cell:pointerclick', function (cellView, evt, x, y) {
         evt.stopImmediatePropagation();
         _this.clearHighlightedConnectedElements();
@@ -1491,56 +1502,6 @@ underlayView.prototype.initGraphEvents = function() {
         }, 500);
     });
 
-    $(selectorId + " text").on('mousedown touchstart', function (e) {
-        _this.removeUnderlayPathIds();
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-    $(selectorId + " text").on('mouseup touchend', function (e) {
-        var ids = _this.getUnderlayPathIds();
-        _this.showPath(ids);
-        e.stopImmediatePropagation();
-        paper.pointerup(e);
-    });
-
-    $(selectorId + " image").on('mousedown touchstart', function (e) {
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-
-    $(selectorId + " polygon").on('mousedown touchstart', function (e) {
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-
-    $(selectorId + " path").on('mousedown touchstart', function (e) {
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-
-    $(selectorId + " rect").on('mousedown touchstart', function (e) {
-        _this.removeUnderlayPathIds();
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-    $(selectorId + " rect").on('mouseup touchend', function (e) {
-        var ids = _this.getUnderlayPathIds();
-        _this.showPath(ids);
-        e.stopImmediatePropagation();
-        paper.pointerup(e);
-    });
-
-    $(selectorId + " .font-element").on('mousedown touchstart', function (e) {
-        _this.removeUnderlayPathIds();
-        e.stopImmediatePropagation();
-        paper.pointerdown(e);
-    });
-    $(selectorId + " .font-element").on('mouseup touchend', function (e) {
-        var ids = _this.getUnderlayPathIds();
-        _this.showPath(ids);
-        e.stopImmediatePropagation();
-        paper.pointerup(e);
-    });
 }
 
 underlayView.prototype.hideVMs = function() {
