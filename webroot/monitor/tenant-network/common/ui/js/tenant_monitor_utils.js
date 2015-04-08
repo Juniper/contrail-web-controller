@@ -1414,7 +1414,7 @@ var instancePopulateFns = {
                 response = ifNull(response,[]);
                 var configVMuuid = [];
                 for(var i = 0; i < response.length; i++) {
-                    configVMuuid.push(response[i]['uuid']);
+                    configVMuuid.push(ifNull(response[i]['uuid'],'-'));
                 }
                 globalObj['configVM'] = configVMuuid;
                 configVMDefObj.resolve();

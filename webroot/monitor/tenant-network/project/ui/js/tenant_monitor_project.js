@@ -45,7 +45,8 @@ function projSummaryRenderer() {
                 deferredObj.resolve(result);
             }
         }).always(function(result) {
-        	$('#project-tabs').data('contrailTabs').endLoading('#project-port-dist-tab-link');
+            if($('#project-tabs').data('contrailTabs') != null)
+                $('#project-tabs').data('contrailTabs').endLoading('#project-port-dist-tab-link');
         });
         data['charts']['id'] = 'project';
         data['charts']['chartType'] = 'bubble';
