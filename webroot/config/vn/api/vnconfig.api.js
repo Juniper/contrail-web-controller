@@ -2316,6 +2316,57 @@ function updateVNRouteTargets (request, response, appData)
                         });
 }
 
+function vnGetSubnetResponseAsync (vnObj, callback)
+{
+    VnGetSubnetResponse(null, vnObj, function(err, data) {
+        callback(err, data);
+    });
+}
+
+function getAllVirtualNetworksWFields (req, res, appData)
+{
+    var resultJSON = [];
+    var vnObjArr = [];
+    var projUUID = req.param('uuid');
+    var vnURL = '/virtual-networks?detail=true&fields=' +
+        'network_ipam_refs,is_shared';
+    var resultJSON = [];
+    var tmpVNUUIDs = {};
+    configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
+        if ((null != err) || (null == vnDetails) ||
+            (null == vnDetails['virtual-networks'])) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        var vns = vnDetails['virtual-networks'];
+        var vnCnt = vns.length;
+        var vnUUID = null;
+        for (var i = 0; i < vnCnt; i++) {
+            if (null != vns[i]['virtual-network']) {
+                vnUUID = vns[i]['virtual-network']['uuid'];
+                if ((null != vns[i]['virtual-network']['is_shared']) &&
+                    (true == vns[i]['virtual-network']['is_shared']) &&
+                    (null == tmpVNUUIDs[vnUUID])) {
+                    resultJSON.push(vns[i]);
+                    tmpVNUUIDs[vnUUID] = vnUUID;
+                } else if ((null == tmpVNUUIDs[vnUUID]) &&
+                           (projUUID ==
+                            vns[i]['virtual-network']['parent_uuid'])) {
+                    resultJSON.push(vns[i]);
+                    tmpVNUUIDs[vnUUID] = vnUUID;
+                }
+            }
+        }
+        if (!resultJSON.length) {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+            return;
+        }
+        async.map(resultJSON, vnGetSubnetResponseAsync, function(error, data) {
+            commonUtils.handleJSONResponse(error, res, data);
+        });
+    });
+}
+
 exports.listVirtualNetworks          = listVirtualNetworks;
 exports.getVirtualNetwork            = getVirtualNetwork;
 exports.readVirtualNetworks          = readVirtualNetworks;
@@ -2333,3 +2384,5 @@ exports.updateVNRouteTargets         = updateVNRouteTargets;
 exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
 exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
+exports.getAllVirtualNetworksWFields = getAllVirtualNetworksWFields;
+
