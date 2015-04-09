@@ -1157,6 +1157,7 @@ function successHandlerForgridPortsRow(result) {
                              "portUUID":mapedData.portUUID,
                              "sgString":mapedData.sgString,
                              "vnString":mapedData.vnString,
+                             "vnUUID":mapedData.vnUUID,
                              "status":mapedData.status,
                              "displayOwnerName": (mapedData.chiled === true) ?
                                  "Sub Interface" : mapedData.devOwnerName,
@@ -1226,6 +1227,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     var vn = portData["virtual_network_refs"];
     var vnLength = vn.length;
     var vnString = "";
+    var vnUUID = "";
     var vnValues = [];
     if(vnLength > 0){
         for(i = 0;i< vnLength;i++){
@@ -1239,6 +1241,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             vnValues.push({"text":vnStr ,"values":sgValue});
             if(vnString != "") vnString += ", ";
             vnString += vnStr;
+            vnUUID = vn[i]["uuid"];
         }
     }
     var fixedIPString = "";
@@ -1431,6 +1434,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     returnMapData.sgString = sgString;
     returnMapData.sgMSValues = sgMSValues;
     returnMapData.vnString = vnString;
+    returnMapData.vnUUID = vnUUID;
     returnMapData.vnValues = vnValues;
     returnMapData.fixedip = fixedIPString;
     returnMapData.fixedIPVal = fixedIPVal;
@@ -1585,6 +1589,7 @@ function showPortEditWindow(mode, rowIndex) {
         windowCreatePorts.find('.modal-header-title').text('Edit Port');
         var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
         selectedPortUUID = selectedRow["portUUID"];
+        vnUUID = selectedRow["vnUUID"];
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1599,10 +1604,18 @@ function showPortEditWindow(mode, rowIndex) {
     url:"/api/tenants/config/securitygroup",
     type:"GET"
     });
-    getAjaxs[1] = $.ajax({
-        url:"/api/admin/config/get-data?type=virtual-network&fqnUUID="+selectedProjectVal,
-        type:"GET"
-    });
+    if(mode === "add") {
+        getAjaxs[1] = $.ajax({
+            url:"/api/tenants/config/all-virtual-networks-fields?uuid="+selectedProjectVal,
+            type:"GET"
+        });
+    } else {
+        getAjaxs[1] = $.ajax({
+            url:"/api/tenants/config/all-virtual-networks-fields?vnuuid="+vnUUID,
+            type:"GET"
+        });
+    
+    }
     getAjaxs[2] = $.ajax({
         url:"/api/tenants/config/floating-ips/"+selectedProjectVal,
         type:"GET"
@@ -1614,10 +1627,6 @@ function showPortEditWindow(mode, rowIndex) {
     });
     getAjaxs[4] = $.ajax({
         url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
-        type:"GET"
-    });
-    getAjaxs[5] = $.ajax({
-        url:"/api/tenants/config/shared-virtual-networks",
         type:"GET"
     });
     getAjaxs[6] = $.ajax({
@@ -1667,9 +1676,9 @@ function showPortEditWindow(mode, rowIndex) {
             var allNetworks = [];
             allNetworkData = [];
             var localNetworks = [];
-            if(results[1][0] != null && results[1][0] != "" && results[1][0]["data"] && results[1][0]["data"].length > 0) {
-                localNetworks = results[1][0]["data"];
-                allNetworkData = results[1][0]["data"];
+            if(results[1][0] != null && results[1][0] != "") {
+                localNetworks = results[1][0];
+                allNetworkData = results[1][0];
             }
             for(var j=0;j < localNetworks.length;j++){
                 var val="";
@@ -1684,7 +1693,7 @@ function showPortEditWindow(mode, rowIndex) {
                 allNetworks.push({'text':networkText,'value':val})
             }
             
-            localNetworks = [];
+            /*localNetworks = [];
             if(results[5][0] != null && results[5][0] != "" && results[5][0].length > 0) {
                 localNetworks = results[5][0];
             }
@@ -1698,7 +1707,7 @@ function showPortEditWindow(mode, rowIndex) {
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                     allNetworks.push({'text':networkText,'value':val})
                 }
-            }
+            }*/
             $("#ddVN").data("contrailDropdown").setData(allNetworks);
 
             if(allNetworks.length > 0) {
