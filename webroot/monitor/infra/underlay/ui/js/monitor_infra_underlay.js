@@ -2722,14 +2722,14 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         var lclFlowObj = lclFlows[j];
                         inPacketsLocal['values'].push({
                             x: Math.floor(lclFlowObj['T=']/1000),
-                            y: ifNull(lclFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
+                            y: ifNull(lclFlowObj['SUM(ifStats.ifInPkts)'],0)
                         });
                     }
                     for(var j = 0; j < rmtFlows.length; j++) {
                         var rmtFlowObj = rmtFlows[j];
                         inPacketsRemote['values'].push({
                             x: Math.floor(rmtFlowObj['T=']/1000),
-                            y: ifNull(rmtFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
+                            y: ifNull(rmtFlowObj['SUM(ifStats.ifInPkts)'],0)
                         });
                     }
                     var chartData = [inPacketsLocal,inPacketsRemote];
