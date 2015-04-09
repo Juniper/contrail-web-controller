@@ -1156,16 +1156,22 @@ function successHandlerForgridPortsRow(result) {
                              "portName":mapedData.portName,
                              "portUUID":mapedData.portUUID,
                              "sgString":mapedData.sgString,
+                             "sgMSValues":mapedData.sgMSValues,
                              "vnString":mapedData.vnString,
+                             "vnValues":mapedData.vnValues,
                              "status":mapedData.status,
                              "displayOwnerName": (mapedData.chiled === true) ?
                                  "Sub Interface" : mapedData.devOwnerName,
                              "deviceOwner":mapedData.deviceOwner,
+                             "deviceOwnerUUIDValue":mapedData.deviceOwnerUUIDValue,
+                             "deviceOwnerValue":mapedData.deviceOwnerValue,
                              "devOwnerName":mapedData.devOwnerName,
                              "fixedip":mapedData.fixedip,
                              "fixedIPVal":mapedData.fixedIPVal,
+                             "fixedIPValue":mapedData.fixedIPValue,
                              "floatingIP":mapedData.floatingIP,
                              "floatingIPVal":mapedData.floatingIPVal,
+                             "floatingIPValue":mapedData.floatingIPValue,
                              "macAddress":mapedData.macAddress,
                              "AllowedAddressPair":mapedData.AllowedAddressPair,
                              "AllowedAddressPairValue":mapedData.AllowedAddressPairValue,
@@ -1173,12 +1179,14 @@ function successHandlerForgridPortsRow(result) {
                              "DHCPOptionValue":mapedData.DHCPOptionValue,
                              "staticIPString":mapedData.staticIPString,
                              "subInterfaceFlag":mapedData.subInterfaceFlag,
+                             "staticIPValue":mapedData.staticIPValue,
                              "chiled":mapedData.chiled,
                              "parent":mapedData.parent,
                              "childrensUUID":mapedData.childrensUUID,
                              "subInterfaceVlan":mapedData.subInterfaceVlan,
                              "subInterfaceVMI":mapedData.subInterfaceVMI,
                              "subinterfaceUUID":mapedData.subinterfaceUUID,
+                             "vmiChildrenInterfaceObject":mapedData.vmiChildrenInterfaceObject,
                              //"tenentID":mapedData.tenentID,
                              "deviceID":mapedData.deviceID
                            });
@@ -1853,7 +1861,8 @@ function showPortEditWindow(mode, rowIndex) {
                     //No VIP available.
                 }
                 
-                var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
+                //var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
+                var mapedData = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreatePorts.find('.modal-header-title').text('Edit Port ' + mapedData.portName);
 
                 // Not editable fields
