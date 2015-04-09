@@ -1151,15 +1151,23 @@ function successHandlerForgridPortsRow(result) {
                              "portName":mapedData.portName,
                              "portUUID":mapedData.portUUID,
                              "sgString":mapedData.sgString,
+                             "sgMSValues":mapedData.sgMSValues,
                              "vnString":mapedData.vnString,
+                             "vnValues":mapedData.vnValues,
+                             "vnUUID":mapedData.vnUUID,
                              "status":mapedData.status,
                              "displayOwnerName": (mapedData.chiled === true) ?
                                  "Sub Interface" : mapedData.displayOwnerName,
                              "deviceOwner":mapedData.deviceOwner,
+                             "deviceOwnerUUIDValue":mapedData.deviceOwnerUUIDValue,
+                             "deviceOwnerValue":mapedData.deviceOwnerValue,
+                             "devOwnerName":mapedData.devOwnerName,
                              "fixedip":mapedData.fixedip,
                              "fixedIPVal":mapedData.fixedIPVal,
+                             "fixedIPValue":mapedData.fixedIPValue,
                              "floatingIP":mapedData.floatingIP,
                              "floatingIPVal":mapedData.floatingIPVal,
+                             "floatingIPValue":mapedData.floatingIPValue,
                              "macAddress":mapedData.macAddress,
                              "AllowedAddressPair":mapedData.AllowedAddressPair,
                              "AllowedAddressPairValue":mapedData.AllowedAddressPairValue,
@@ -1167,6 +1175,7 @@ function successHandlerForgridPortsRow(result) {
                              "DHCPOptionValue":mapedData.DHCPOptionValue,
                              "staticIPString":mapedData.staticIPString,
                              "subInterfaceFlag":mapedData.subInterfaceFlag,
+                             "staticIPValue":mapedData.staticIPValue,
                              "chiled":mapedData.chiled,
                              "parent":mapedData.parent,
                              "childrensUUID":mapedData.childrensUUID,
@@ -1174,6 +1183,7 @@ function successHandlerForgridPortsRow(result) {
                              "subInterfaceVMI":mapedData.subInterfaceVMI,
                              "subinterfaceUUID":mapedData.subinterfaceUUID,
                              "logicalInterfaceName":mapedData.logicalInterfaceName,
+                             "vmiChildrenInterfaceObject":mapedData.vmiChildrenInterfaceObject,
                              //"tenentID":mapedData.tenentID,
                              "deviceID":mapedData.deviceID
                            });
@@ -1221,6 +1231,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     var vn = portData["virtual_network_refs"];
     var vnLength = vn.length;
     var vnString = "";
+    var vnUUID = "";
     var vnValues = [];
     if(vnLength > 0){
         for(i = 0;i< vnLength;i++){
@@ -1234,6 +1245,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
             vnValues.push({"text":vnStr ,"values":sgValue});
             if(vnString != "") vnString += ", ";
             vnString += vnStr;
+            vnUUID = vn[i]["uuid"];
         }
     }
     var fixedIPString = "";
@@ -1430,6 +1442,7 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     returnMapData.sgString = sgString;
     returnMapData.sgMSValues = sgMSValues;
     returnMapData.vnString = vnString;
+    returnMapData.vnUUID = vnUUID;
     returnMapData.vnValues = vnValues;
     returnMapData.fixedip = fixedIPString;
     returnMapData.fixedIPVal = fixedIPVal;
@@ -1591,6 +1604,7 @@ function showPortEditWindow(mode, rowIndex) {
         windowCreatePorts.find('.modal-header-title').text('Edit Port');
         var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
         selectedPortUUID = selectedRow["portUUID"];
+        vnUUID = selectedRow["vnUUID"];
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1603,31 +1617,44 @@ function showPortEditWindow(mode, rowIndex) {
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
     url:"/api/tenants/config/securitygroup",
+        timeout:300000,
     type:"GET"
     });
-    getAjaxs[1] = $.ajax({
-        url:"/api/admin/config/get-data?type=virtual-network&fqnUUID="+selectedProjectVal,
-        type:"GET"
-    });
+    if(mode === "add") {
+        getAjaxs[1] = $.ajax({
+            url:"/api/tenants/config/all-virtual-networks-fields?uuid="+selectedProjectVal,
+            timeout:300000,
+            type:"GET"
+            
+        });
+    } else {
+        getAjaxs[1] = $.ajax({
+            url:"/api/tenants/config/virtual-network/"+vnUUID,
+            //url:"/api/tenants/config/all-virtual-networks-fields?vnuuid="+vnUUID,
+            timeout:300000,
+            type:"GET"
+        });
+    
+    }
     getAjaxs[2] = $.ajax({
         url:"/api/tenants/config/floating-ips/"+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[3] = $.ajax({
         //url:"/api/admin/config/get-data?type=virtual-machine-interface&fqnUUID="+selectedProjectVal,
         url:"/api/tenants/config/get-virtual-machines-ips?uuid="+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
         url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
-        type:"GET"
-    });
-    getAjaxs[5] = $.ajax({
-        url:"/api/tenants/config/shared-virtual-networks",
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[6] = $.ajax({
         url:"/api/tenants/config/listVirtualMachines",
+        timeout:300000,
         type:"GET"
     });
 
@@ -1673,9 +1700,14 @@ function showPortEditWindow(mode, rowIndex) {
             var allNetworks = [];
             allNetworkData = [];
             var localNetworks = [];
-            if(results[1][0] != null && results[1][0] != "" && results[1][0]["data"] && results[1][0]["data"].length > 0) {
-                localNetworks = results[1][0]["data"];
-                allNetworkData = results[1][0]["data"];
+            if(typeof results[1][0].length == "undefined" && "virtual-network" in results[1][0]){
+                localNetworks.push(results[1][0]);
+                allNetworkData.push(results[1][0]);
+            } else {
+                if(results[1][0] != null && results[1][0] != "") {
+                    localNetworks = results[1][0];
+                    allNetworkData = results[1][0];
+                }
             }
             for(var j=0;j < localNetworks.length;j++){
                 var val="";
@@ -1690,7 +1722,7 @@ function showPortEditWindow(mode, rowIndex) {
                 allNetworks.push({'text':networkText,'value':val})
             }
             
-            localNetworks = [];
+            /*localNetworks = [];
             if(results[5][0] != null && results[5][0] != "" && results[5][0].length > 0) {
                 localNetworks = results[5][0];
             }
@@ -1704,7 +1736,7 @@ function showPortEditWindow(mode, rowIndex) {
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                     allNetworks.push({'text':networkText,'value':val})
                 }
-            }
+            }*/
             $("#ddVN").data("contrailDropdown").setData(allNetworks);
 
             if(allNetworks.length > 0) {
@@ -1859,7 +1891,8 @@ function showPortEditWindow(mode, rowIndex) {
                     //No VIP available.
                 }
                 
-                var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
+                //var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
+                var mapedData = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreatePorts.find('.modal-header-title').text('Edit Port ' + mapedData.portName);
 
                 // Not editable fields
@@ -2298,7 +2331,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
         var SubnetVal = {};
         SubnetVal.Gateway = "";
         SubnetVal.subnetUUID = FixedIPData.subnetid;
-        SubnetVal.fixedipuuid = FixedIPData.fixedip;
+        SubnetVal.fixedipuuid = FixedIPData.fixedipuuid;
         SubnetVal.subnetCIDR = "";
         subnetData.push({"text" : FixedIPData.fixedip , "value":JSON.stringify(SubnetVal)});
         $(divFixedIPcontainer).addClass("hide");
