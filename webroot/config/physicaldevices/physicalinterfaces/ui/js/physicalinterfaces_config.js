@@ -801,6 +801,14 @@ function physicalInterfacesConfig() {
         return actName;
     }
 
+    function getActInterfaceName(name) {
+        var actName = name;
+        if(name.indexOf('__') != -1){
+            actName = name.replace('__',':');
+        }
+        return actName;
+    }
+
     function createUpdatePhysicalInterface() {
         var methodType = 'POST';
         var infType = $('#ddType').data('contrailDropdown').text();
@@ -1276,7 +1284,7 @@ function physicalInterfacesConfig() {
                 if(lInfs != null) {
                     piUUIDList.push(pInterface.uuid);
                     for(var j = 0; j < lInfs.length;j++) {
-                        var lInterfaceName = lInfs[j].to[3]; 
+                        var lInterfaceName = getActInterfaceName(lInfs[j].to[3]);
                         if(lInterfaceNames === ''){
                             lInterfaceNames = lInterfaceName;
                         } else {
@@ -1357,7 +1365,7 @@ function physicalInterfacesConfig() {
                 var lInterface = result.data[i]['logical-interface'];
                 var liName = lInterface.display_name != null ? lInterface.display_name : lInterface.name;
                 var liDetails = getLogicalInterfaceDetails(lInterface);
-                var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : lInterface.fq_name[2];
+                var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : getActInterfaceName(lInterface.fq_name[2]);
                 var serverString = '';
                 var vmiDetails = liDetails.vmiDetails;
                 if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
