@@ -1597,31 +1597,38 @@ function showPortEditWindow(mode, rowIndex) {
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
     url:"/api/tenants/config/securitygroup",
+        timeout:300000,
     type:"GET"
     });
     getAjaxs[1] = $.ajax({
         url:"/api/admin/config/get-data?type=virtual-network&fqnUUID="+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[2] = $.ajax({
         url:"/api/tenants/config/floating-ips/"+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[3] = $.ajax({
         //url:"/api/admin/config/get-data?type=virtual-machine-interface&fqnUUID="+selectedProjectVal,
         url:"/api/tenants/config/get-virtual-machines-ips?uuid="+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
         url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[5] = $.ajax({
         url:"/api/tenants/config/shared-virtual-networks",
+        timeout:300000,
         type:"GET"
     });
     getAjaxs[6] = $.ajax({
         url:"/api/tenants/config/listVirtualMachines",
+        timeout:300000,
         type:"GET"
     });
 
