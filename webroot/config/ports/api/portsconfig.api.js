@@ -2439,7 +2439,15 @@ function getVMIAndInstIPDetails (req, res, appData)
     var dataObjArr = [];
     var projUUID = req.param('uuid');
     var vmiURL = '/virtual-machine-interfaces?detail=true&parent_id=' +
-        projUUID + '&fields=instance_ip_back_refs';
+        projUUID;
+    var resultJSON = {};
+    var getInstIpsFlag = req.param('getInstIps');
+    resultJSON['lastKey'] = null;
+    resultJSON['more'] = false;
+
+    if ((null != getInstIpsFlag) && ('true' == getInstIpsFlag)) {
+        vmiURL += '&fields=instance_ip_back_refs';
+    }
     configApiServer.apiGet(vmiURL, appData, function(err, data) {
         if ((null != err) || (null == data) ||
             (null == data['virtual-machine-interfaces'])) {
@@ -2466,6 +2474,11 @@ function getVMIAndInstIPDetails (req, res, appData)
                 }
             }
         }
+        if (!dataObjArr.length) {
+            resultJSON['data'] = vmiData;
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
         async.mapLimit(dataObjArr, 200, //global.ASYNC_MAP_LIMIT_COUNT,
                        commonUtils.getServerResponseByRestApi(configApiServer,
                                                               true),
@@ -2491,10 +2504,7 @@ function getVMIAndInstIPDetails (req, res, appData)
                     }
                 }
             }
-            var resultJSON = {};
             resultJSON['data'] = vmiData;
-            resultJSON['lastKey'] = null;
-            resultJSON['more'] = false;
             commonUtils.handleJSONResponse(err, res, resultJSON);
         });
     });
