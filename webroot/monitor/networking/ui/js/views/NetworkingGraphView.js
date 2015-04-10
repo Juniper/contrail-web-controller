@@ -113,8 +113,8 @@ define([
     var getControlPanelConfig = function(graphConfig, selectorId, connectedSelectorId, configSelectorId) {
         return {
             default: {
-                panzoom: {
-                    enable: true,
+                zoom: {
+                    enabled: true,
                     selectorId: connectedSelectorId,
                     config: {
                         onReset: function() {
@@ -129,7 +129,7 @@ define([
                     iconClass: 'icon-resize-full',
                     title: 'Resize',
                     events: {
-                        click: function(jointObject) {
+                        click: function() {
                             return function(event) {
                                 var focusedElement = graphConfig.focusedElement;
                                 $(this).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
@@ -146,9 +146,11 @@ define([
                     },
                     title: 'Change Direction',
                     events: {
-                        click: function(jointObject) {
-                            var connectedGraphView = jointObject.paper;
+                        click: function() {
                             return function (event) {
+                                var jointObject = $(connectedSelectorId).data('joint-object'),
+                                    connectedGraphView = jointObject.paper;
+
                                 if ($(this).find('i').hasClass('icon-align-left')) {
                                     connectedGraphView.model.reLayoutGraph(ctwc.GRAPH_DIR_LR);
                                 } else if ($(this).find('i').hasClass('icon-align-center')) {
@@ -162,9 +164,11 @@ define([
                     iconClass: 'icon-repeat',
                     title: 'Refresh',
                     events: {
-                        click: function(jointObject) {
-                            var connectedGraphView = jointObject.paper;
+                        click: function() {
                             return function (event) {
+                                var jointObject = $(connectedSelectorId).data('joint-object'),
+                                    connectedGraphView = jointObject.paper;
+
                                 if ($(this).find('i').hasClass('icon-repeat')) {
                                     $(this).find('i').removeClass('icon-repeat').toggleClass('icon-spin icon-spinner');
                                     connectedGraphView.refreshData();
