@@ -43,13 +43,23 @@ define([
                 },
                 controlPanel: getControlPanelConfig(graphConfig, selectorId, connectedSelectorId, configSelectorId),
                 successCallback: function (jointObject, directedGraphSize) {
-                    if (jointObject.graph.elementsDataObj.elements.length == 0) {
+                    if (jointObject.graph.attributes.focusedElement.type == 'project' && jointObject.graph.elementsDataObj.elements.length == 0) {
                         var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                             notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
                                 title: ctwm.NO_NETWORK_FOUND,
                                 iconClass: false,
                                 defaultErrorMessage: false,
                                 navLinks: [ctwc.CONFIGURE_NETWORK_LINK_CONFIG]
+                            });
+
+                        $(selectorId).html(notFoundTemplate(notFoundConfig));
+                        return;
+                    } else if (jointObject.graph.attributes.focusedElement.type == 'virtual-network' && jointObject.graph.elementsDataObj.zoomedElements.length == 0) {
+                        var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
+                                title: ctwm.NO_VM_FOUND,
+                                iconClass: false,
+                                defaultErrorMessage: false
                             });
 
                         $(selectorId).html(notFoundTemplate(notFoundConfig));
