@@ -22,10 +22,8 @@ global.QUERY_JSON = {
         "flow.sip", "flow.protocol", "flow.dport", "flow.sport"],
         "sort_fields": []},
     'StatTable.PRouterEntry.ifStats': {"table":"StatTable.PRouterEntry.ifStats",
-        "start_time":"","end_time":"","select_fields":["SUM(ifStats.ifInUcastPkts)",
-        "SUM(ifStats.ifInMulticastPkts)", "SUM(ifStats.ifInBroadcastPkts)",
-        "SUM(ifStats.ifOutUcastPkts)", "SUM(ifStats.ifOutMulticastPkts)",
-        "SUM(ifStats.ifOutBroadcastPkts)"],
+        "start_time":"","end_time":"","select_fields":["SUM(ifStats.ifInPkts)",
+        "SUM(ifStats.ifOutPkts)"],
         "where":[[{"name":"name","value":"","op":1,"value2":null,
             "suffix":{"name":"ifStats.ifIndex","value":"","suffix":null,"op":1,"value2":null}}]]}
 }
