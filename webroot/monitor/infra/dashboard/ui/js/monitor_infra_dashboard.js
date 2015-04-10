@@ -55,7 +55,7 @@ function addTabs() {
         this.updatevRouterInfoBoxes = function(){
             var data = viewModel.data();
             var instBuckets,vnBuckets,intfBuckets;
-            var vnCount=0,intfCnt=0,instCnt=0,vns=[];
+            var vnCount=0,intfCnt=0,instCnt=0,vns={};
             var vRouterCF = crossfilter(data);
             $.each(data,function(idx,obj) {
                 if(obj['vRouterType'] != 'tor-agent') {
@@ -63,11 +63,14 @@ function addTabs() {
                     instCnt += obj['instCnt'];
                 }
                 $.each(obj['vns'],function(idx,val) {
-                    if($.inArray(val,vns) == -1)
-                        vns.push(val);
+                    if(vns[val] == null)
+                        vns[val] = true;
                 });
             });
-            vnCnt = vns.length;
+            var vnCnt = 0;
+            $.each(vns,function(idx,val) {
+                vnCnt++;
+            });
             vnBuckets = bucketizeCFData(vRouterCF,function(d) { return d.vnCnt});
             instBuckets = bucketizeCFData(vRouterCF,function(d) { return d.instCnt});
             intfBuckets = bucketizeCFData(vRouterCF,function(d) { return d.intfCnt});
