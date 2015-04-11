@@ -207,10 +207,6 @@ define([
                                                         templateGenerator: 'TextGenerator'
                                                     },
                                                     {
-                                                        key: 'ip6_address',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
                                                         key: 'label',
                                                         templateGenerator: 'TextGenerator'
                                                     },
