@@ -27,19 +27,6 @@
 	</div>
 </script>
 
-<script type="text/x-handlebars-template" id="graph-control-panel-template">
-    <div id="graph-controls" class="graph-controls pull-right">
-        {{#IfCompare defaultConfig.panzoom.enable true}}
-            <div class="graph-control-item zoom-in" title="Zoom In"><i class="icon-zoom-in"></i></div>
-            <div class="graph-control-item zoom-out" title="Zoom Out"><i class="icon-zoom-out"></i></div>
-            <div class="graph-control-item zoom-reset" title="Zoom Reset"><i class="icon-remove-circle"></i></div>
-        {{/IfCompare}}
-        {{#each customConfig}}
-            <div class="graph-control-item {{@key}}" title="{{title}}"><i class="{{iconClass}}"></i></div>
-        {{/each}}
-    </div>
-</script>
-
 <script type="text/x-handlebars-template" id="core-chart-template">
     <div class="row-fluid">
         {{#each this.elementConfg}}
