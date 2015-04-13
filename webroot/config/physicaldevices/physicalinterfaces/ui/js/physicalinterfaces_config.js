@@ -858,8 +858,8 @@ function physicalInterfacesConfig() {
             }
             for(var j = 0; j < selectedServerDetails.length ; j++){
                 var vmiFqname = 'none';
-                vmiFqname = selectedServerDetails[j]['vmi_fq_name'];
-                vmiRefs.push({"to" : [vmiFqname[0], vmiFqname[1], vmiFqname[2]],"uuid": selectedServerDetails[j]['vmi_uuid']});
+                vmiFqname = selectedServerDetails[j]['fq_name'];
+                vmiRefs.push({"to" : [vmiFqname[0], vmiFqname[1], vmiFqname[2]],"uuid": selectedServerDetails[j]['uuid']});
             }
             //Logical interface directly under pRouter case
             if(pRouterDD.value() === parent.value()) {
@@ -1190,7 +1190,7 @@ function physicalInterfacesConfig() {
                 $("[id$=serverMac]").data('contrailCombobox').enable(false);
             }
         } else {
-            doAjaxCall('/api/tenants/config/virtual-network-internals/' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null, ajaxTimeout);
+            doAjaxCall('/api/tenants/config/get-virtual-machine-details/?vn_uuid=' + id,'GET', null, 'successHandlerForVNInternals', 'failureHandlerForVNInternals', null, null, ajaxTimeout);
         }
     }
     
@@ -1198,16 +1198,18 @@ function physicalInterfacesConfig() {
         vmiDataSrc = [];
         if(result != null && result.length > 0) {
             for(var i = 0; i < result.length; i++) {
-                var vmi = result[i];
-                var txt = vmi.mac[0]; //+ ' (' + vmi.ip[0] + ')';
-                var fixedIp = vmi.ip != null && vmi.ip.length > 0 ? vmi.ip[0] : '';
-                var txtVMI = '';
-                if(fixedIp != '') {
-                    txtVMI = txt + ' (' + fixedIp + ')';
-                } else {
-                    txtVMI = txt; 
+                if(result[i]['virtual-machine-interface'] != null) {
+                    var vmi = result[i]['virtual-machine-interface'];
+                    var txt = getMacAddress(vmi.virtual_machine_interface_mac_addresses);
+                    var fixedIp = vmi.instance_ip_address != null && vmi.instance_ip_address.length > 0 ? vmi.instance_ip_address[0] : '';
+                    var txtVMI = '';
+                    if(fixedIp != '') {
+                        txtVMI = txt + ' (' + fixedIp + ')';
+                    } else {
+                        txtVMI = txt;
+                    }
+                    vmiDataSrc.push({text : txtVMI, value : JSON.stringify(vmi.fq_name), ip : fixedIp, data:JSON.stringify(vmi)});
                 }
-                vmiDataSrc.push({text : txtVMI, value : JSON.stringify(vmi.vmi_fq_name), ip : fixedIp, data:JSON.stringify(vmi)});
             }
             if ($("[id$=serverMac]").length > 0){
                 $("[id$=serverMac]").data('contrailCombobox').setData(vmiDataSrc);
@@ -1238,6 +1240,14 @@ function physicalInterfacesConfig() {
         }       
     }
     
+    function getMacAddress(obj) {
+        var mac = '';
+        if(obj != null && obj.mac_address != null && obj.mac_address.length > 0) {
+           mac = obj.mac_address[0];
+        }
+        return mac;
+    }
+
     window.failureHandlerForVNInternals = function(error){
         var r = arguments;
         fetchVirtualNetworks();
