@@ -2889,6 +2889,12 @@ underlayController.prototype.getModelData = function(cfg) {
             callback: function (forceResponse) {
                 //removing the progress bar and clearing the graph
                 $("#network_topology").find('.topology-visualization-loading').hide();
+                if(getValueByJsonPath(forceResponse,'nodes',[]).length > 0) {
+                    //Enabling the below tabs only on success of ajax calls.
+                    $("#underlay_tabstrip").tabs('enable');
+                    //Rendering the first search flows tab
+                    underlayView.prototype.renderFlowRecords();
+                }
                 if(getValueByJsonPath(forceResponse,'nodes',[]).length == 0 ) {
                     showEmptyInfo('network_topology');
                 } else if(forceResponse['topologyChanged']) {
@@ -2897,10 +2903,6 @@ underlayController.prototype.getModelData = function(cfg) {
                     $("#topology-connected-elements").find('div').remove();
                     _this.getModel().setTree({});
                     topologyCallback(forceResponse);
-                    //Enabling the below tabs only on success of ajax calls.
-                    $("#underlay_tabstrip").tabs('enable');
-                    //Rendering the first search flows tab
-                    underlayView.prototype.renderFlowRecords();
                 }
             },
             failureCallback : function (err) {
@@ -2916,10 +2918,6 @@ underlayController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
-            //Enabling the below tabs only on success of ajax calls.
-            $("#underlay_tabstrip").tabs('enable');
-            //Rendering the first search flows tab
-            underlayView.prototype.renderFlowRecords();
             topologyCallback(response);
             _this.getModel().getData(forceCallCfg);
         },
