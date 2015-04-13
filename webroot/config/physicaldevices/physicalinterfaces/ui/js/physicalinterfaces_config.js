@@ -1351,10 +1351,8 @@ function physicalInterfacesConfig() {
 	       gridPhysicalInterfaces.showGridMessage('loading');
 	    } else {
             if(piUUIDList.length > 0) {
-                // get the logical interfaces under physical interfaces
-                for(var i = 0; i < piUUIDList.length; i++) { 
-                    fetchLIWithPI(piUUIDList[i]);
-                }
+                // get the logical interfaces under first physical interface
+                fetchLIWithPI(0);
             } else {
                 var gridData = gridPhysicalInterfaces._dataView.getItems();
                 if(gridData == null || (gridData != null && gridData.length == 0)) {
@@ -1407,12 +1405,13 @@ function physicalInterfacesConfig() {
         gridPhysicalInterfaces._dataView.addData(gridDS);
     }
     //fetches all logical interfaces under all physical interfaces
-    function fetchLIWithPI(piUUID) {
+    function fetchLIWithPI(piUUIDIndex) {
         ajaxParam = currentUUID;
-        var uuid = piUUID;
+        var uuid = piUUIDList[piUUIDIndex];
         var parent = 'physical-interface';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : ajaxParam, id : uuid}, ajaxTimeout);
+        'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
+            {ajaxParam : ajaxParam, id : uuid, index : piUUIDIndex}, ajaxTimeout);
     }
      
     window.successHandlerForLIWithPI = function(result, cbparam) {
@@ -1420,8 +1419,15 @@ function physicalInterfacesConfig() {
             return;
         }
         if(result.more == true || result.more == "true"){
-            doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +'&parent=physical-interface','GET', null,
-                'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null, {ajaxParam : cbparam.ajaxParam, id : cbparam.id}, ajaxTimeout);
+            doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +
+                '&parent=physical-interface','GET', null, 'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
+                    {ajaxParam : cbparam.ajaxParam, id : cbparam.id, index : cbparam.index}, ajaxTimeout);
+        } else {
+            //issue logical interfaces per physical interface call one at a time
+            var newIndex = cbparam.index + 1;
+            if(newIndex < piUUIDList.length) {
+                fetchLIWithPI(newIndex);
+            }
         }
         prepareLIDataWithPI(result);
     }
