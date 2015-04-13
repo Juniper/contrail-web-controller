@@ -259,7 +259,7 @@ function initActions() {
         fip["floating-ip"] = {};
         fip["floating-ip"]["virtual_machine_interface_refs"] = [];
         fip["floating-ip"]["virtual_machine_interface_refs"][0] = {};
-        fip["floating-ip"]["virtual_machine_interface_refs"][0]["to"] = JSON.parse(selectedInstance).to;
+        fip["floating-ip"]["virtual_machine_interface_refs"][0]["to"] = JSON.parse(selectedInstance).fq_name;
         doAjaxCall("/api/tenants/config/floating-ip/" + $('#btnAssociatePopupOK').data('uuid'), "PUT", JSON.stringify(fip),
             "createFIPSuccessCb", "createFFIPailureCb");
 
@@ -596,15 +596,14 @@ function fipAssociateWindow(rowIndex) {
     //Allocation code to be done in this place
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProjectdd = $("#ddProjectSwitcher").data("contrailDropdown");
-    var selectedProject = selectedProjectdd.text();
+    var selectedProject = selectedProjectdd.value();
     if(!isValidDomainAndProject(selectedDomain, selectedProject)){
         gridfip.showGridMessage("errorGettingData");
         return;
     }
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
-        url:"/api/tenants/config/virtual-machine-interfaces?tenant_id=" +
-            selectedDomain + ":" + selectedProject,
+        url:"/api/tenants/config/get-virtual-machine-details?proj_uuid=" + selectedProject,
         type:"GET"
     });
     $.when.apply($, getAjaxs).then(
@@ -612,14 +611,14 @@ function fipAssociateWindow(rowIndex) {
             //all success
             var results = arguments;
             var vmi = [];
-            for (var i = 0; i < results[0].virtual_machine_interface_back_refs.length; i++) {
-                var vmiObj = results[0].virtual_machine_interface_back_refs[i];
+            for (var i = 0; i < results[0].length; i++) {
+                var vmiObj = results[0][i]['virtual-machine-interface'];
                 var vmiName = "";
                 if ('instance_ip_address' in vmiObj) {
                     vmiName = "(" + vmiObj['instance_ip_address'] + ") ";
                 }
-                if(null !== vmiObj['vm_uuid'] && typeof vmiObj['vm_uuid'] === "string") {
-                    vmiName += vmiObj['vm_uuid'];
+                if(null !== vmiObj['uuid'] && typeof vmiObj['uuid'] === "string") {
+                    vmiName += vmiObj['uuid'];
                 } else {
                     vmiName += "";
                 }
