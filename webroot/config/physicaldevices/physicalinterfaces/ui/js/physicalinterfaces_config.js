@@ -1110,30 +1110,45 @@ function physicalInterfacesConfig() {
     }
     
     function fetchVirtualNetworks() {
-        doAjaxCall('/api/admin/config/get-data?type=virtual-network','GET', null, 'successHandlerForVN', 'failureHandlerForVN', null, null);
+        var postData = {};
+        postData.data = [];
+        postData.data.push({type : 'virtual-networks', fields : ['network_ipam_refs']});
+        doAjaxCall('/api/tenants/config/get-config-details','POST', JSON.stringify(postData), 'successHandlerForVN', 'failureHandlerForVN', null, null, 300000);
     }
     
     window.successHandlerForVN = function(result) {
          var vnDataSrc = [{text : 'None', value : 'none'}];
-         if(result != null && result['data'] != null && result['data'].length > 0) {
-             var vns =  result['data'];
+         if(result != null && result.length > 0 && result[0]['virtual-networks'] != null && result[0]['virtual-networks'].length > 0) {
+             var vns =  result[0]['virtual-networks'];
              for(var i = 0; i < vns.length; i++) {
                  var vn = vns[i]['virtual-network'];
                  var fqn = vn.fq_name;
                  var subnetStr = '';
                  var subnetUUID = '';
-                 if('network_ipam_refs' in vn && vn['network_ipam_refs'].length > 0) {
-                     var ipamRefs = vn['network_ipam_refs'];
-                     subnetUUID = ipamRefs[0].subnet.subnet_uuid;
-                     for(var j = 0; j < ipamRefs.length; j++) {
-                         if('subnet' in ipamRefs[j]) {
-                             if(subnetStr === '') {
-                                 subnetStr = ipamRefs[j].subnet.ipam_subnet;
-                             } else {
-                                 subnetStr += ', ' + ipamRefs[j].subnet.ipam_subnet;
-                             }
-                         }
-                     }
+                 var field = 'network_ipam_refs';
+                 if(field in vn && vn[field].length > 0) {
+                    if(vn[field][0].attr != null && vn[field][0].attr.ipam_subnets != null
+                        && vn[field][0].attr.ipam_subnets.length > 0) {
+                        subnetUUID = vn[field][0].attr.ipam_subnets[0].subnet_uuid;
+                    }
+                    for(var k = 0; k < vn[field].length; k++) {
+                        var ipam = vn[field][k];
+                        if(ipam.attr != null && ipam.attr.ipam_subnets != null
+                            && ipam.attr.ipam_subnets.length > 0) {
+                            var ipamRefs = ipam.attr.ipam_subnets;
+                            for(var j = 0; j < ipamRefs.length; j++) {
+                                if('subnet' in ipamRefs[j]) {
+                                    var subnet = ipamRefs[j].subnet;
+                                    var cidr = subnet.ip_prefix + '/' + subnet.ip_prefix_len;
+                                    if(subnetStr === '') {
+                                        subnetStr = cidr;
+                                    } else {
+                                        subnetStr += ', ' + cidr;
+                                    }
+                                }
+                            }
+                        }
+                    }
                  }
                  var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
                  if(subnetStr != '') {
