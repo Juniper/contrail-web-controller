@@ -51,6 +51,13 @@ function deleteMultiObject (request, response, appData)
 {
     var postBody = request.body;
     var found = false;
+    deleteMultiObjectCB(postBody, request, appData, function(err, data) {
+        sendBackDeleteResult(err, response, data);
+    });
+}
+
+function deleteMultiObjectCB (postBody, request, appData, callback)
+{
     var postBodyLen = postBody.length;
     var dataObj = [];
     for (var i = 0; i < postBodyLen; i++){
@@ -69,11 +76,11 @@ function deleteMultiObject (request, response, appData)
     }
     if (dataObj.length <= 0) {
         var error = new appErrors.RESTServerError('Invalid Data');
-        sendBackDeleteResult(error, response, null);
+        callback(error, null);
         return;
     } else {
         async.mapSeries(dataObj, deleteByType, function(err, data) {
-                sendBackDeleteResult(err, response, data);
+                callback(err, data);
                 return;
         });
     }
@@ -92,7 +99,7 @@ function deleteByType(dataObj, callback)
     if (null == delCB || "" == delCB) {
         delCB = defaultConfigDeleteHandler;
     }
-    async.mapLimit(dataObj, 250, delCB,
+    async.mapLimit(dataObj, 100, delCB,
       function(err, data) {
         var dataArrLen = data.length;
         var errorMsg = "";
@@ -191,4 +198,5 @@ function getConfigDetails (req, res, appData)
 
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
+exports.deleteMultiObjectCB = deleteMultiObjectCB;
 

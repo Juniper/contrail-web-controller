@@ -425,7 +425,7 @@
         </div>
         <div class="modal-body">
             <div class="row-fluid text-center">
-                <h6>Confirm Port(s) delete</h6>
+                <h6 id="txtConfirm">Confirm Port(s) delete</h6>
             </div>
         </div>
         <div class="modal-footer">
@@ -433,4 +433,22 @@
             <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
         </div>
     </div>
+</script>
+<script type="text/x-handlebars-template" id="delete-port-action-template">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+        <i class="icon-trash"></i>
+    </a>
+    <ul class="pull-right dropdown-menu dropdown-caret">
+        <li id='deletePort'>
+            <a id='btnDeletePorts'>
+                Delete
+            </a>
+            <div class="line-separator"></div>
+        </li>
+        <li id='deleteAllPorts'>
+            <a id='btnDeleteAllPorts'>
+                Delete All
+            </a>
+        </li>
+    </ul>
 </script>

@@ -20,6 +20,7 @@ function physicalInterfacesConfig() {
     var vmiDataSrc = [];
     var selAllRows;
     var ajaxTimeout = 300000;
+    var deleteMsg = 'Confirm to delete all Interface(s) for Physical Router (%s)';
     //Method Definations
     this.load = load;
     this.destroy = destroy;	
@@ -39,6 +40,7 @@ function physicalInterfacesConfig() {
     
     function initComponents() {
         //initializing the virtual routers Grid
+        var deleteInterfacesDropdownTemplate = contrail.getTemplate4Id('delete-interface-action-template');
         $("#gridPhysicalInterfaces").contrailGrid({
             header : {
                 title: {
@@ -47,7 +49,7 @@ function physicalInterfacesConfig() {
                     //icon : 'icon-list',
                     //iconCssClass : 'blue'                
                 },
-                customControls: ['<a id="btnDeletePhysicalInterface" class="disabled-link" title="Delete Interface(s)"><i class="icon-trash"></i></a>',
+                customControls: [deleteInterfacesDropdownTemplate(),
                     '<a id="btnCreatePhysicalInterface" title="Create Interface"><i class="icon-plus"></i></a>',
                     'Router: <div id="ddPhysicalRouters"/>',]
             }, 
@@ -509,14 +511,34 @@ function physicalInterfacesConfig() {
         
         $('#btnDeletePhysicalInterface').click(function(){
              if(!$(this).hasClass('disabled-link')) {
+                 $('#confirmMainDelete').find("#txtConfirm").text('Confirm Interface(s) delete');
                  $('#confirmMainDelete').modal('show');
              }
         });
+        $('#btnDeleteAllInterfaces').click(function(){
+            var pRouter = $('#ddPhysicalRouters').data('contrailDropdown');
+            var pRouterName = pRouter != null ? pRouter.text() : '';
+            deleteMsg = deleteMsg.replace('%s', pRouterName)
+            $('#confirmMainDelete').find("#txtConfirm").text(deleteMsg);
+            $('#confirmMainDelete').modal('show');
+        });
         $('#btnCnfDelMainPopupOK').click(function(args){
-            var selected_rows = gridPhysicalInterfaces.getCheckedRows();
             $('#confirmMainDelete').modal("hide");
-            deletePhysicalInterface(selected_rows);
-        });  
+            if($('#confirmMainDelete').find("#txtConfirm").text() == deleteMsg) {
+                $.allajax.abort();
+                doAjaxCall('/api/tenants/config/delete-all-interfaces?prUUID=' + currentUUID, 'DELETE', null,
+                    'successHandlerForDeleteAll', 'failureHandlerForDeleteAll', null, null, ajaxTimeout);
+            } else {
+                var selected_rows = gridPhysicalInterfaces.getCheckedRows();
+                deletePhysicalInterface(selected_rows);
+            }
+        });
+        window.successHandlerForDeleteAll =  function(result) {
+            fetchPhysicalInterfaces();
+        }
+        window.failureHandlerForDeleteAll =  function(error) {
+            fetchPhysicalInterfaces();
+        }
         $('#txtPhysicalInterfaceName').bind('blur', function(e) {
               if($('#ddType').data('contrailDropdown').value() === "logical") {
                   var infName = $('#txtPhysicalInterfaceName').val().trim();
@@ -1650,10 +1672,15 @@ function physicalInterfacesConfig() {
         	configDetailTemplate.remove();
         	configDetailTemplate = $();
         }
+        var configDetailTemplate = $("#delete-interface-action-template");
+        if(isSet(configDetailTemplate)) {
+            configDetailTemplate.remove();
+            configDetailTemplate = $();
+        }
         var ddPhysicalRouters = $("#ddPhysicalRouters").data("contrailDropdown");
         if(isSet(ddPhysicalRouters)) {
-           ddPhysicalRouters.destroy(); 
-           ddPhysicalRouters = $();
+            ddPhysicalRouters.destroy();
+            ddPhysicalRouters = $();
         }        
     }
     
