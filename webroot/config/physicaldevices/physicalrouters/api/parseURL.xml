@@ -38,6 +38,12 @@
     </item> 
     <item>    
         <url>/api/tenants/config/physical-router/:id</url>
+        <method>get</method>
+        <feature>physicalroutersconfig</feature>
+        <callback>physicalroutersapi.getPhysicalRouter</callback>
+    </item>
+    <item>    
+        <url>/api/tenants/config/physical-router/:id</url>
         <method>put</method>
         <feature>physicalroutersconfig</feature>
         <callback>physicalroutersapi.updatePhysicalRouters</callback>
