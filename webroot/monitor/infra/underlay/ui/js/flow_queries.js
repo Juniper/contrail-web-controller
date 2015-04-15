@@ -848,6 +848,16 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                             }
                             options.refreshChart = false;
                         }
+                        var gridObject = $('#' + options.elementId).data('contrailGrid');
+                        if(gridObject._grid.getData() != null){
+                            var dataItems = gridObject._grid.getData();
+                            var dataItemslen = dataItems.length;
+                            for(var i = 0; i < dataItemslen; i++) {
+                                if(dataItems[i]['other_vrouter_ip'] == null) {
+                                    $("[data-cgrid='"+dataItems[i]['cgrid']+"']").find('input.rowCheckbox').attr('disabled',true);
+                                }
+                            }
+                        }    
                     }
                 }
             },

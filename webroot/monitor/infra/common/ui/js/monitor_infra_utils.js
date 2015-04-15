@@ -755,7 +755,7 @@ var infraMonitorUtils = {
         var consoleTabTemplate = Handlebars.compile($('#console-tab-template').html());
         var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;  
         var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
-        if(obj.detailView === undefined) {
+        if(obj.detailView === undefined && obj.page === null) {
             layoutHandler.setURLHashParams({tab:'console', node: obj['name']},{triggerHashChange:false});
         }    
         if (nodeType == 'control') {
