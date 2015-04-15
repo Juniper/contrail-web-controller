@@ -6,7 +6,7 @@ bgpConfigObj = new bgpConfigObj();
 
 function bgpConfigObj() {
     var mode = "", guuid = "",
-    ghref = "", ggasn = "", ggasnObj = "",isiBGPAutoMesh = '';
+    ghref = "", ggasn = "", ggasnObj = "",isiBGPAutoMesh = '', gPRouter = '';
 
     var bgpGrid, bgpwindow, gasnwindow, selectedName, bgpData,
         bgp_details_data, bgpavailabledata, bgpselectdata, globalData;
@@ -443,8 +443,25 @@ function getBGPJson() {
     return bgp_params;
 }
 
+function getPhysicalRoutersJson(){
+    var prouterParams, oldProuter, newProuter;
+//    if(gPRouter != null){
+//        oldProuter = gPRouter;
+//    }
+    newProuter = $('#ddProuter').data('contrailDropdown').value();
+    if(oldProuter != newProuter){
+        prouterParams = {
+                "prouter-params":{
+//                    "oldProuter": oldProuter,
+                    "newProuter": newProuter
+                }            
+        };
+    }
+    return prouterParams;
+}
+
 function addEditBgp(data) {
-    var bgp_params, bgpEditselectdata = [];
+    var bgp_params, physicalRouterParams, bgpEditselectdata = [], bgp_physical_router_refs;
     if (mode == "edit") {
         var vendor, detailStr, peers = [],
             tmp_availablelist = [],
@@ -529,6 +546,18 @@ function addEditBgp(data) {
             }
         }
         $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(tmp_availablelist);
+        bgp_physical_router_refs = data.physical_routers;
+        if(bgp_physical_router_refs != '-' && bgp_physical_router_refs.length > 0){
+            var ddProuter = $('#ddProuter').data('contrailDropdown');
+            var prouterUUID = bgp_physical_router_refs[0]['uuid'];
+            var prouterName = bgp_physical_router_refs[0]['to'][1];
+            if(ddProuter.getAllData.length == 0){
+                ddProuter.setData([{text:prouterName,value:prouterUUID}]);
+            }
+            $('#ddProuter').data('contrailDropdown').value(prouterUUID);
+        } else {
+            $('#ddProuter').data('contrailDropdown').value('none');
+        }
     }
 }
 
@@ -659,7 +688,21 @@ function fetchData() {
                                 details.push({"name" : "Authentication Type", "value" : authType});
                                 details.push({"name" : "Authentication Key", "value" :authKey});
                             }
+                            if(d['physical_routers'] && d['physical_routers'] != '-') {
+                                var prouters = d['physical_routers'];
+                                var prouterString = '';
+                                for(var i= 0 ; i < prouters.length; i++) {
+                                    var prouter = prouters[i];
+                                    if(i ==0){
+                                        prouterString += prouter['to'][1];
+                                    } else {
+                                        prouterString += ', ' + prouter['to'][1];
+                                    }
+                                }
+                                details.push({"name":"Assoicated Physical Router", "value": prouterString});
+                            }
                         }
+                        
                         if (d.address && "" != d.address) {
                             bgpData.push({
                                 "id":counter++,
@@ -673,7 +716,8 @@ function fetchData() {
                                 "vendor":(d.vendor == null) ? "-" : d.vendor,
                                 "details":details,
                                 "detailStr":detailStr,
-                                "allPeers":allPeers
+                                "allPeers":allPeers,
+                                "physical_routers":d.physical_routers
                             });
                         } else if (d.ip_address && "" != d.ip_address) {
                             bgpData.push({
@@ -687,7 +731,8 @@ function fetchData() {
                                 "display_name":d.display_name,
                                 "vendor":(d.vendor == null) ? "-" : d.vendor,
                                 "details":details,
-                                "detailStr":detailStr
+                                "detailStr":detailStr,
+                                "physical_routers":d.physical_routers
                             });
                         }
                     }
@@ -724,11 +769,13 @@ function onActionChange(who, rowIndex) {
     var selectedRow = $("#gridBGP").data("contrailGrid")._dataView.getItem(rowIndex);
     guuid = selectedRow.uuid;
     ghref = selectedRow.href;
+    gPRouter = selectedRow.physical_routers[0]['uuid'];
     _gid_perms = selectedRow.id_perms;
 
     if (who == "edit-control") {
         disableAuthKeyTextbox();
         mode = "edit";
+        populatePhysicalRouters();
         addEditBgp(selectedRow);
     } else if (who == "debug-control") {
         $.bbq.pushState({p:"mon_bgp", q:{node:'Control Nodes:' + edit_data.name, tab:'console'}});
@@ -878,6 +925,12 @@ function initComponents() {
         {text : 'route-target', value : 'route-target'},
         {text : 'e-vpn', value : 'e-vpn'}
     ]);
+    
+    $('#ddProuter').contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value"        
+    });
+    
     msFamily.value(['inet-vpn', 'inet6-vpn', 'route-target', 'e-vpn']);
     $('#txtfamily').contrailMultiselect({
         dataTextField:"text",
@@ -941,6 +994,7 @@ function ibgpAutoMeshFailure() {
 function btnaddbgpClick() {
     //$('#msbgppeer').data('contrail2WayMultiselect').setLeftData(bgpavailabledata);
     mode = "add";
+    populatePhysicalRouters();
     bgpwindow.modal('show');
     bgpwindow.find('h6').text("Create BGP Peer");
     $("#txtasn").val(ggasn);
@@ -1036,6 +1090,10 @@ function iBGPAutoMeshCacelActions() {
 function createUpdateBgp() {
     //if (validate()) {
         bgp_params = getBGPJson();
+        physicalRouterParams = getPhysicalRoutersJson();
+        if(physicalRouterParams != null){
+            bgp_params = $.extend(bgp_params,physicalRouterParams);
+        }
         var params;
         if (window.JSON) {
             params = {"content":bgp_params}
@@ -1064,6 +1122,7 @@ function createUpdateBgp() {
                     bgp_details_data = [];
                     $("#gridBGP").data("contrailGrid")._dataView.setData([]);
                     $("#gridBGP").data("contrailGrid").showGridMessage('loading');
+//                    updatePhysicalRouter(msg['bgp-router']['name'],'none');
                     fetchData();
                 }).fail(function (msg) {
                     $("#gridBGP").data("contrailGrid")._dataView.setData([]);
@@ -1076,6 +1135,7 @@ function createUpdateBgp() {
         }
         else if (mode == "edit") {
             selectedName = $("#txtname").val().trim();
+            var selectedProuter = $("#ddProuter").data('contrailDropdown').value();
             bgpwindow.modal('hide');
             $.ajax({
                 type:"PUT",
@@ -1092,6 +1152,7 @@ function createUpdateBgp() {
                     mode = "edit";
                     bgpData = [];
                     bgp_details_data = [];
+//                    updatePhysicalRouter(selectedName,gPRouter);
                     fetchData();
                 }).fail(function (msg) {
                     $("#gridBGP").data("contrailGrid")._dataView.setData([]);
@@ -1161,6 +1222,33 @@ function populateMultiselect(who) {
     var all = externs.concat(jnprs);
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
     $('#msbgppeer').data('contrail2WayMultiselect').setLeftData(all);
+}
+
+function populatePhysicalRouters(){
+    //Fetch the physical routers and populate the dropdown in the window.
+    doAjaxCall('/api/tenants/config/physical-routers-list','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null, 300000);
+}
+
+window.successHandlerForPhysicalRouters =  function(result) {
+    if(result == null || (result != null && result['physical-routers'] == null) ){
+        return;
+    }
+    var prouters = result['physical-routers'];
+    var ddData = [{text:'None',value:'none'}];
+    if(prouters.length > 0) {
+        for(var i = 0; i < prouters.length; i++){
+            ddData.push({text:prouters[i]['fq_name'][1], value:prouters[i]['uuid']});
+        }
+    }
+    var ddProuter = $('#ddProuter').data('contrailDropdown');
+    var currentVal = ddProuter.value() == ""? "none" : ddProuter.value();
+    ddProuter.setData(ddData);
+    ddProuter.value(currentVal);
+}
+
+window.failureHandlerForPhysicalRouters =  function(error) {
+    var ddProuter = $('#ddProuter').data('contrailDropdown');
+    ddProuter.setData({text:'Error Getting Prouters', value:"Error"});
 }
 
 function selectExternal() {

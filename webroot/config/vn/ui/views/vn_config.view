@@ -106,6 +106,12 @@
                 <span class="span10">: {{AllowTransit}}</span>
             </div>
             {{{showStaticIPAddressing staticIPAddressing}}}
+            {{#IfCompare display_physical_routers '-' operator="!="}}
+                <div class="row-fluid">
+                    <span class="span2"><label>Extended to Physical Router(s)</label></span>
+                    <span class="span10">: {{display_physical_routers}}</span>
+                </div>
+            {{/IfCompare}}
             <div class="row-fluid">
                 <div>
                     <span class="span2"><label>DNS Servers</label> </span>
@@ -338,6 +344,21 @@
                                                 <div class="row-fluid">
                                                     <div><input class="ace-input" type="checkbox" id="allow_transit"><span class="ace-lbl">Allow Transit</span></div>
                                                 </div>
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
+                                            <label class="control-label"></label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <div><input class="ace-input" type="checkbox" id="extend_to_prouter" name="extend_to_prouter"><span class="ace-lbl">Extend To Physical Router(s)</span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="control-group" id="divPRouters" class="hide">
+                                            <label class="control-label">Physical Router(s)</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <div id="msPhysicalRouters" placeholder="Select Physical Routers..." class="span8" ></div>
                                             </div>
                                         </div>
                                     </div>

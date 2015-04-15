@@ -456,7 +456,8 @@ function readVirtualNetworkWOBackRefs (netIdStr, appData, callback)
         return;
     }
 
-    vnGetURL += '?exclude_back_refs=true';
+//    TODO this affects perforamce 
+    //vnGetURL += '?exclude_back_refs=false';
     configApiServer.apiGet(vnGetURL, appData,
                            function(error, data) {
         getVirtualNetworkCb(error, data, appData, callback);
@@ -499,6 +500,115 @@ function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData)
 
     response.req.body = vnPostData;
     updateVNFipPoolAdd(response.req, response, appData);
+}
+
+/**
+ * updatePhysicalRouters
+ * private function
+ * 1. Callback for CreateVirtualNetwork
+ */
+function updatePhysicalRouters (mode,newPRoutersUUIDS,error,newVnData,
+                                vnConfigData,request,response,appData,callback) 
+{
+    //Current physical routers
+    var currPRouters = [];
+    var currPRouterUUIDS = [];
+    var reqUrl;
+    var dataObjArr = [];
+    var allPRouters = [];
+    var newVnUUID = newVnData['virtual-network']['uuid'];
+    var newVNFQName = newVnData['virtual-network']['fq_name'];
+    var newVNRef = {"to":newVNFQName};
+    reqUrl = '/virtual-network/' + newVnUUID;
+    //First get the full details of the VN to fetch the physical routers back refs
+    configApiServer.apiGet(reqUrl, appData, function(err, newVnConfigData) {
+        if (err) {
+            callback(err, null);
+            return;
+        }
+        currPRouters = newVnConfigData['virtual-network']['physical_router_back_refs'];
+        newVnUUID = newVnConfigData['virtual-network']['uuid'];
+        newVNFQName = newVnConfigData['virtual-network']['fq_name'];
+        newVNRef = {"to":newVNFQName};
+        if(currPRouters != null){
+            for(var i=0; i < currPRouters.length; i++){
+                currPRouterUUIDS.push(currPRouters[i]['uuid']);
+            }
+        }
+        
+        //get only the changed prouters ie unique ones. If they are same then no need to modify them
+        var allPRouters1 = currPRouterUUIDS.filter(function(obj) { return newPRoutersUUIDS.indexOf(obj) == -1; });
+        var allPRouters2 = newPRoutersUUIDS.filter(function(obj) { return currPRouterUUIDS.indexOf(obj) == -1; });
+        allPRouters = allPRouters1.concat(allPRouters2);
+        
+        //If no prouters to update just return by calling the callback
+        if(allPRouters.length == 0){
+            callback(error, newVnData,
+                    vnConfigData, request, response,
+                    appData);
+            return;
+        }
+        
+        //Get the physical routers data for both current and new physical routers
+        for(i = 0; i < allPRouters.length; i++) {
+            reqUrl = '/physical-router/' +  allPRouters[i];
+            commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
+                                    null, null, null, appData);        
+        }
+        if(dataObjArr.length > 0) {
+            async.map(dataObjArr,
+                commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                function(error, results) {
+                    if (error) {
+                       commonUtils.handleJSONResponse(error, response, null);
+                       return;
+                    }
+                    //Remove the refs to this VN from the current Physical Routers
+                    //Add the refs to this VN for the new Physical Routers
+                    for(var i=0; i < results.length; i++){
+                        var currVns = results[i]['physical-router']['virtual_network_refs'];
+                        currVns = (currVns == null)? [] : currVns;
+                        
+                        if(currPRouterUUIDS.indexOf(results[i]['physical-router']['uuid']) != -1 && 
+                                newPRoutersUUIDS.indexOf(results[i]['physical-router']['uuid']) == -1){
+                            for(var j=0; j < currVns.length ;j++){
+                                if(currVns[j]['uuid'] == newVnUUID){
+                                    currVns.splice(j,1);//remove this vn from the current vn list
+                                }
+                            }
+                        } else if (currPRouterUUIDS.indexOf(results[i]['physical-router']['uuid']) == -1 &&
+                                newPRoutersUUIDS.indexOf(results[i]['physical-router']['uuid']) != -1){
+                            currVns.push(newVNRef);
+                        }
+                        
+                        results[i]['physical-router']['virtual_network_refs'] = currVns;
+                    }
+                    //Update the PRouters with the updated refs
+                    var reqUrl = null;
+                    var dataObjArr        = [];
+                    for(i = 0; i < results.length; i++) {
+                        reqUrl = '/physical-router/' +  results[i]['physical-router']['uuid'];
+                        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_PUT,
+                                results[i], null, null, appData);        
+                    }
+                    async.map(dataObjArr,
+                        commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
+                        function(error, results) {
+                            if (error) {
+                               commonUtils.handleJSONResponse(error, response, null);
+                               return;
+                            }
+                            callback(error, newVnData,
+                                    vnConfigData, request, response,
+                                    appData);
+                        }
+                    );
+                }
+            );
+        }
+    });
+    
+    
 }
 
 /**
@@ -871,7 +981,11 @@ function updateVirtualNetwork (request, response, appData)
         vnId = appData['vnUUID'];
 
     var reqUrl = '/virtual-network/' + vnId;
-
+    var physicalRouters = [];
+    
+    physicalRouters = vnPutData["virtual-network"]['physical-routers'];
+    delete vnPutData["virtual-network"]['physical-routers'];
+    
     vnPutData['virtual-network']['uuid'] = vnId;
     updateFloatingIpList(vnId, vnPutData, appData, response,
                          function(err, data) {
@@ -891,10 +1005,17 @@ function updateVirtualNetwork (request, response, appData)
                     commonUtils.handleJSONResponse(err, response, null);
                     return;
                 }
-                readVirtualNetworkAsync({uuid:vnId, appData:appData},
+                //Update the physical router
+                updatePhysicalRouters("edit",physicalRouters,err,data,
+                        vnPutData,request,response,appData,
+                        function(){
+                                readVirtualNetworkAsync({uuid:vnId, appData:appData},
                                         function(err, data) {
-                    commonUtils.handleJSONResponse(err, response, data);
-                });
+                                                commonUtils.handleJSONResponse(err, response, data);
+                                        });
+                        }
+                );
+                
             });
         });
     });
@@ -951,7 +1072,7 @@ function createVirtualNetwork (request, response, appData)
     var vnPostData     = request.body;
     var vnSeqPostData  = {};
     var vnConfigData   = null;
-
+    var physicalRouters= [];
     if (typeof(vnPostData) != 'object') {
         error = new appErrors.RESTServerError('Invalid Post Data');
         commonUtils.handleJSONResponse(error, response, null);
@@ -959,6 +1080,8 @@ function createVirtualNetwork (request, response, appData)
     }
 
     vnConfigData = JSON.parse(JSON.stringify(vnPostData)); 
+    physicalRouters = vnConfigData["virtual-network"]['physical-routers'];
+    delete vnConfigData["virtual-network"]['physical-routers'];
     delete vnPostData['virtual-network']['network_ipam_refs'];
 
     if ('route_target_list' in vnPostData['virtual-network']) {
@@ -972,9 +1095,16 @@ function createVirtualNetwork (request, response, appData)
     vnSeqPostData = setVNPolicySequence(vnPostData);
     configApiServer.apiPost(vnCreateURL, vnSeqPostData, appData,
                          function(error, data) {
-                         createVNSubnetAdd(error, data,
-                                           vnConfigData, request, response,
-                                           appData);
+                           updatePhysicalRouters("create",physicalRouters,error,data,
+                                   vnConfigData,request,response,appData,function(error,data){
+                                                                   createVNSubnetAdd(error, data,
+                                                                         vnConfigData, request, response,
+                                                                         appData);
+                                                               }
+                           );
+//                         createVNSubnetAdd(error, data,
+//                                           vnConfigData, request, response,
+//                                           appData);
     });
 }
 
