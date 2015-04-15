@@ -34,7 +34,7 @@ function VirtualNetworkConfig() {
     var txtVNName, txtVxLanId, txtDisName;
 
     //Multiselects
-    var msNetworkPolicies;
+    var msNetworkPolicies, msPhysicalRouters;
 
     //Windows
     var windowCreateVN, confirmRemove, confirmMainRemove;
@@ -47,6 +47,7 @@ function VirtualNetworkConfig() {
     var idCount = 0;
     var ajaxParam;
     var dynamicID;
+    var selectedProuters;
 
     //Method definitions
     this.load = load;
@@ -282,7 +283,14 @@ function initComponents() {
         dataTextField:"text",
         dataValueField:"value",
         dropdownCssClass: 'select2-medium-width'
-    });;
+    });
+    
+    msPhysicalRouters = $("#msPhysicalRouters").contrailMultiselect({
+        placeholder: "Select Physical Routers...",
+        dataTextField:"text",
+        dataValueField:"value",
+        dropdownCssClass: 'select2-medium-width'
+    });
 
     ddDomain = $("#ddDomainSwitcher").contrailDropdown({
         dataTextField:"text",
@@ -433,7 +441,7 @@ function initActions() {
         vnConfig["virtual-network"]["fq_name"][0] = selectedDomain;
         vnConfig["virtual-network"]["fq_name"][1] = selectedProject;
         vnConfig["virtual-network"]["fq_name"][2] = txtVNName.val();
-
+        
         vnConfig["virtual-network"]["display_name"] = $("#txtDisName").val();
 
         vnConfig["virtual-network"]["id_perms"] = {};
@@ -722,8 +730,9 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = false;
         //vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
 
-
-        console.log(JSON.stringify(vnConfig))
+        selectedProuters = $("#msPhysicalRouters").data('contrailMultiselect').value();
+        vnConfig["virtual-network"]['physical-routers'] = [];
+        vnConfig["virtual-network"]['physical-routers'] = selectedProuters;
         if (mode === "add") {
             if(isVCenter()) {
                 vnConfig['pVlanId'] = $('#txtSVlanId').val();
@@ -755,6 +764,18 @@ function initActions() {
         }
         windowCreateVN.modal("hide");
     });
+    
+    $('input[name="extend_to_prouter"]').change(onExtendToProuterCheckboxChange);
+}
+
+function onExtendToProuterCheckboxChange(e){
+    if($('#extend_to_prouter')[0].checked == true){
+        $('#divPRouters').removeClass('hide').addClass('show');
+    } else {
+        $('#divPRouters').removeClass('show').addClass('hide');
+        var msPhysicalRouters = $('#msPhysicalRouters').data('contrailMultiselect');
+        msPhysicalRouters.value('');
+    }
 }
 
 function createFipoolEntry(fipool, len) {
@@ -2125,6 +2146,22 @@ function successHandlerForGridVNRow(result) {
             if(fwdMode.trim() == "") fwdMode = "-";
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
+        var prouterBackRefs = vn['physical_router_back_refs'];
+        var physical_routers = "-";
+        var physical_router_names = '-';
+        if(prouterBackRefs != null){
+            physical_router_names = '';
+            physical_routers = prouterBackRefs;
+            for(var l=0; l < physical_routers.length; l++){
+                var prname = physical_routers[l]['to'][1];
+                
+                if(l==0){
+                    physical_router_names += prname;
+                } else {
+                    physical_router_names += ', ' + prname;
+                }
+            }
+        }
         //if(vn.fq_name[1] == selectedProject){
             vnData.push({
                 "id": idCount++,
@@ -2149,7 +2186,9 @@ function successHandlerForGridVNRow(result) {
                 "staticIPAddressing" : staticIPAddressing,
                 "NetworkUUID": uuid,
                 "parent_uuid": parent_uuid,
-                "enableControles": enableControles
+                "enableControles": enableControles,
+                "physical_routers":physical_routers,
+                "display_physical_routers":physical_router_names
             });
         //}
     }
@@ -2288,11 +2327,13 @@ function clearValuesFromDomElements() {
     $('#static_ip')[0].checked = false;
     $('#static_ip').parents('.control-group').hide();
     msNetworkPolicies.data("contrailMultiselect").value("");
+    msPhysicalRouters.data("contrailMultiselect").value("");
     $('#txtPVlanId').parents('.control-group').hide();
     $('#txtPVlanId').val('');
     $('#txtSVlanId').parents('.control-group').hide();
     $('#txtSVlanId').val('');
-
+    $('#extend_to_prouter')[0].checked = false;
+    $('#divPRouters').removeClass('show').addClass('hide');
     clearFipEntries();
     clearRTEntries();
     clearSREntries();
@@ -2319,7 +2360,7 @@ function showVNEditWindow(mode, rowIndex) {
         return;
     }
 
-
+    selectedProuters = [];
     $("#widgetFip").addClass("collapsed");
     $("#widgetRT").addClass("collapsed");
     $("#widgetStaticRoutes").addClass("collapsed");
@@ -2356,6 +2397,10 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/admin/webconfig/network/L2_enable",
         type:"GET"
     });
+    getAjaxs[4] = $.ajax({
+        url:"/api/tenants/config/physical-routers-list",
+        type:"GET"
+    });
 
     $.when.apply($, getAjaxs).then(
         function () {
@@ -2375,6 +2420,7 @@ function showVNEditWindow(mode, rowIndex) {
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
             var l2Mode = results[3][0].L2_enable;
+            var proutersResult = results[4][0];
             if(l2Mode == false){
                 $("#ddFwdMode").data("contrailDropdown").enable(false);
                 $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
@@ -2448,6 +2494,20 @@ function showVNEditWindow(mode, rowIndex) {
                         validIpams[validIpams.length] = ipam[0] + ":" + ipam[1] + ":" + ipam[2];
                 }
             }
+            
+            if(proutersResult == null || (proutersResult != null && proutersResult['physical-routers'] == null) ){
+                return;
+            }
+            var prouters = proutersResult['physical-routers'];
+            var data = [];
+            if(prouters.length > 0) {
+                for(var i = 0; i < prouters.length; i++){
+                    data.push({text:prouters[i]['fq_name'][1], value:prouters[i]['uuid']});
+                }
+            }
+            var msPhysicalRouters = $('#msPhysicalRouters').data('contrailMultiselect');
+            msPhysicalRouters.setData(data);
+            
             if (mode === "add") {
                 windowCreateVN.find('h6.modal-header-title').text('Create Network');
                 $(txtVNName).focus();
@@ -2617,6 +2677,21 @@ function showVNEditWindow(mode, rowIndex) {
                             $('#static_ip')[0].checked = false;
                     }
                 }
+                var prouters = selectedRow.physical_routers;
+                var prouterUuids = [];
+                if(prouters != '-'){
+                    $.each(prouters,function(i,d){
+                        prouterUuids.push(d['uuid']);
+                    });
+                }
+                var msPhysicalRouters = $('#msPhysicalRouters').data('contrailMultiselect');
+                if(prouterUuids.length > 0){
+                    $('#extend_to_prouter')[0].checked = true; 
+                    onExtendToProuterCheckboxChange();
+                    msPhysicalRouters.value(prouterUuids);
+                } else {
+                    msPhysicalRouters.value('none');
+                }
             }
         },
         function () {
@@ -2628,12 +2703,12 @@ function showVNEditWindow(mode, rowIndex) {
     windowCreateVN.find('.modal-body').scrollTop(0);
 }
 
-function createVNSuccessCb() {
-    gridVN.showGridMessage('loading');    
+function createVNSuccessCb(result) {
+    gridVN.showGridMessage('loading');   
     fetchDataForGridVN();
 }
 
-function createVNFailureCb() {
+function createVNFailureCb(result) {
     gridVN.showGridMessage('loading');
     fetchDataForGridVN();
 }
@@ -2826,6 +2901,12 @@ function destroy() {
     if(isSet(msNetworkPolicies)) {
         msNetworkPolicies.destroy();
         msNetworkPolicies = $();
+    }
+    
+    msPhysicalRouters = $("#msPhysicalRouters").data("contrailMultiselect");
+    if(isSet(msPhysicalRouters)) {
+        msPhysicalRouters.destroy();
+        msPhysicalRouters = $();
     }
 
     gridVN = $("#gridVN").data("contrailGrid");
