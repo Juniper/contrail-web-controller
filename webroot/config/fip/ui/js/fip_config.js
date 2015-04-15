@@ -131,7 +131,7 @@ $("#gridfip").contrailGrid({
                 },
                 actionCell: [
                     {
-                        title: ' &nbsp; Associate Instance',
+                        title: ' &nbsp; Associate Port',
                         iconClass: 'icon-edit',
                         onClick: function(rowIndex){
                             fipAssociateWindow(rowIndex);
