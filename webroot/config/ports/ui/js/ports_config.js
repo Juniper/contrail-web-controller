@@ -4,6 +4,7 @@
 
 portsConfigObj = new portsConfigObj();
 var  iconPorts ='image-Security', iconSubnet ='image-subnet';
+var deleteMsg = 'Confirm to delete all Port(s) for Project (%s)';
 function portsConfigObj() {
     //Variable definitions
     //Dropdowns
@@ -70,6 +71,8 @@ function portsConfigObj() {
     this.mac_address = mac_address;
     this.ip_address = ip_address;
     this.selectedParentVMIObject = selectedParentVMIObject;
+    this.successHandlerForDeleteAll = successHandlerForDeleteAll;
+    this.failureHandlerForDeleteAll = failureHandlerForDeleteAll;
     //this.appendPortsRuleEntry = appendPortsRuleEntry;
     //this.formatedRule = formatedRule;
     //this.getDirection = getDirection;
@@ -113,6 +116,7 @@ function groupBy( array , f )
 }
 
 function initComponents() {
+    var deletePortsDropdownTemplate = contrail.getTemplate4Id('delete-port-action-template');
     var columnsToBeAddedDynamically = [];
     var ownerColumn = {
                 id: "devOwnerName",
@@ -135,7 +139,7 @@ function initComponents() {
             title : {
                 text : 'Ports',
             },
-            customControls: ['<a id="btnDeletePorts" class="disabled-link" title="Delete Port(s)"><i class="icon-trash"></i></a>',
+            customControls: [deletePortsDropdownTemplate(),
                 '<a id="btnCreatePorts" onclick="showPortEditWindow(\'add\');return false;" title="Create Port"><i class="icon-plus"></i></a>',
                 'Project:<div id="ddProjectSwitcher" />',
                 'Domain: <div id="ddDomainSwitcher" />']
@@ -443,8 +447,18 @@ function initActions() {
     btnDeletePorts.click(function (a) {
         if(!$(this).hasClass('disabled-link')) {
             confirmMainRemove.find('.modal-header-title').text("Confirm");
+            confirmMainRemove.find("#txtConfirm").text('Confirm Port(s) delete');
             confirmMainRemove.modal('show');
         }
+    });
+
+    $('#btnDeleteAllPorts').click(function (a) {
+        confirmMainRemove.find('.modal-header-title').text("Confirm");
+        var proj = $("#ddProjectSwitcher").data("contrailDropdown");
+        var porjName = proj != null ? proj.text() : '';
+        deleteMsg = deleteMsg.replace('%s', porjName);
+        confirmMainRemove.find("#txtConfirm").text(deleteMsg);
+        confirmMainRemove.modal('show');
     });
 
     btnCnfRemoveMainPopupCancel.click(function (a) {
@@ -452,9 +466,17 @@ function initActions() {
     });
 
     btnCnfRemoveMainPopupOK.click(function (a) {
-        var selected_rows = $("#gridPorts").data("contrailGrid").getCheckedRows();
-        deletePorts(selected_rows);
         confirmMainRemove.modal('hide');
+        if(confirmMainRemove.find("#txtConfirm").text() == deleteMsg) {
+            $.allajax.abort();
+            var proj = $("#ddProjectSwitcher").data("contrailDropdown");
+            var uuid = proj != null ? proj.value() : '';
+            doAjaxCall('/api/tenants/config/delete-all-ports?uuid=' + uuid, 'DELETE', null,
+                'successHandlerForDeleteAll', 'failureHandlerForDeleteAll', null, null, 300000);
+        } else {
+            var selected_rows = $("#gridPorts").data("contrailGrid").getCheckedRows();
+            deletePorts(selected_rows);
+        }
     });
 
     btnCreatePortsCancel.click(function (a) {
@@ -2027,6 +2049,14 @@ function createPortsFailureCb() {
     fetchDataForgridPorts();
 }
 
+function successHandlerForDeleteAll(res) {
+    fetchDataForgridPorts();
+}
+
+function failureHandlerForDeleteAll(err) {
+    fetchDataForgridPorts();
+}
+
 function validate() {
     var macText = txtMacAddress.val().trim();
     if(macText != ""){
@@ -2858,6 +2888,13 @@ function destroy() {
         sgConfigTemplate.remove();
         sgConfigTemplate = $();
     }
+
+    var deletePortConfigTemplate = $("#delete-port-action-template");
+    if(isSet(deletePortConfigTemplate)) {
+        deletePortConfigTemplate.remove();
+        deletePortConfigTemplate = $();
+    }
+
     window.globalSubArry = [];
     window.ruleId = '';
 }

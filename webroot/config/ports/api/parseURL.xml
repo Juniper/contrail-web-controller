@@ -55,5 +55,11 @@
         <feature>portconfig</feature>
         <callback>portsconfigapi.getVMIDetails</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/delete-all-ports</url>
+        <method>delete</method>
+        <feature>portconfig</feature>
+        <callback>portsconfigapi.deleteAllPorts</callback>
+    </item>
 </urlLists>
 
