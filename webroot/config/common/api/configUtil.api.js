@@ -51,6 +51,13 @@ function deleteMultiObject (request, response, appData)
 {
     var postBody = request.body;
     var found = false;
+    deleteMultiObjectCB(postBody, request, appData, function(err, data) {
+        sendBackDeleteResult(err, response, data);
+    });
+}
+
+function deleteMultiObjectCB (postBody, request, appData, callback)
+{
     var postBodyLen = postBody.length;
     var dataObj = [];
     for (var i = 0; i < postBodyLen; i++){
@@ -69,11 +76,11 @@ function deleteMultiObject (request, response, appData)
     }
     if (dataObj.length <= 0) {
         var error = new appErrors.RESTServerError('Invalid Data');
-        sendBackDeleteResult(error, response, null);
+        callback(error, null);
         return;
     } else {
         async.mapSeries(dataObj, deleteByType, function(err, data) {
-                sendBackDeleteResult(err, response, data);
+                callback(err, data);
                 return;
         });
     }
@@ -92,7 +99,7 @@ function deleteByType(dataObj, callback)
     if (null == delCB || "" == delCB) {
         delCB = defaultConfigDeleteHandler;
     }
-    async.mapLimit(dataObj, 250, delCB,
+    async.mapLimit(dataObj, 100, delCB,
       function(err, data) {
         var dataArrLen = data.length;
         var errorMsg = "";
@@ -151,4 +158,45 @@ function getConfigDeleteCallbackByType (type)
     return configCBDelete[type];
 }
 
+function getConfigDetailsAsync (dataObj, callback)
+{
+    var appData = dataObj['appData'];
+    var url = '/' + dataObj['type'] +'' + '?detail=true';
+    if (null != dataObj['fields']) {
+        url += '&fields=' + dataObj['fields'];
+    }
+    if (null != dataObj['parent_uuid']) {
+        url += '&parent_uuid=' + dataObj['parent_uuid'];
+    }
+    configApiServer.apiGet(url, appData, function(err, data) {
+        callback(err, data);
+    });
+}
+
+function getConfigDetails (req, res, appData)
+{
+    var dataObjArr = [];
+    var postData = req.body;
+    postData = postData['data'];
+    var reqCnt = postData.length;
+    for (var i = 0; i < reqCnt; i++) {
+        var fields = postData[i]['fields'];
+        dataObjArr[i] = {};
+        dataObjArr[i]['type'] = postData[i]['type'];
+        dataObjArr[i]['appData'] = appData;
+        if ((null != fields) && (fields.length > 0)) {
+            dataObjArr[i]['fields'] = fields.join(',');
+        }
+        if (null != postData[i]['parent_uuid']) {
+            dataObjArr[i]['parent_uuid'] = postData[i]['parent_uuid'];
+        }
+    }
+    async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
+        commonUtils.handleJSONResponse(err, res, results);
+    });
+}
+
 exports.deleteMultiObject = deleteMultiObject;
+exports.getConfigDetails = getConfigDetails;
+exports.deleteMultiObjectCB = deleteMultiObjectCB;
+
