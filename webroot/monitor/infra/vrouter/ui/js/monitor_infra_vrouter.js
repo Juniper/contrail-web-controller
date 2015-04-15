@@ -96,6 +96,7 @@ computeNodeView = function () {
                 });
             } 
             $("#compute_tabstrip_" + obj.name).contrailTabs({
+                 theme:obj.page == 'underlay' ? 'classic' : '',
                  activate: function(e, ui) {
                     computeNodeInfo.name = e.target.id.split('_')[2];
                     var newIP = getIPforHostName(computeNodeInfo.name, 'computeNodeDS');

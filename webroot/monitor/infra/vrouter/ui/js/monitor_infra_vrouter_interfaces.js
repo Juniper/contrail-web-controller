@@ -50,7 +50,7 @@ monitorInfraComputeInterfacesClass = (function() {
     
     this.populateInterfaceTab = function (obj) {
         //Push only tab & node parameter in URL
-        if(obj.detailView === undefined || obj.page == null) {
+        if(obj.detailView === undefined && obj.page == null) {
             layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
         }    
         

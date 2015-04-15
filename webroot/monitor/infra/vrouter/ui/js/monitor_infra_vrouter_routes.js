@@ -138,7 +138,7 @@ monitorInfraComputeRoutesClass = (function() {
     }
     
     this.populateRoutesTab = function(obj){
-        if(obj.detailView === undefined || obj.page == null) {
+        if(obj.detailView === undefined && obj.page == null) {
             layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
         }    
         var routesGrid,ucIndex,mcIndex;

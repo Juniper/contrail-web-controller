@@ -43,12 +43,7 @@
 
 <script type="text/x-handlebars-template" id="computenode-template">
     <div class='contrail' >
-        {{#IfCompare page 'underlay' operator='=='}}
-            <div id="compute_tabstrip_{{name}}" class="contrail-widget-tabs">
-        {{/IfCompare}}
-        {{#IfCompare page 'underlay' operator='!='}}
-            <div id="compute_tabstrip_{{name}}">
-        {{/IfCompare}}
+        <div id="compute_tabstrip_{{name}}">
             <ul>
                 <li id="mon-infra-vrouter-details-tab_{{name}}"><a href="#mon-infra-compute-details-tab_{{name}}">Details</a></li>
                 <li id="mon-infra-vrouter-interfaces-tab_{{name}}"><a href="#mon-infra-compute-interfaces-tab_{{name}}">Interfaces</a></li>
@@ -58,7 +53,12 @@
                 <li id="mon-infra-vrouter-routes-tab_{{name}}"><a href="#mon-infra-compute-routes-tab_{{name}}">Routes</a></li>
                 <li id="mon-infra-vrouter-console-tab_{{name}}"><a href="#mon-infra-compute-console-tab_{{name}}">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-compute-details-tab_{{name}}">
+            {{#IfCompare page 'underlay' operator='=='}}
+            	<div id="mon-infra-compute-details-tab_{{name}}">
+            {{/IfCompare}}
+            {{#IfCompare page 'underlay' operator='!='}}
+            	<div class="row-fluid" id="mon-infra-compute-details-tab_{{name}}">
+            {{/IfCompare}}
                 <div id='computenode-dashboard_{{name}}'  class="span5"></div>
                 
                 <div id='vrouter-detail-charts_{{name}}' class="span7">

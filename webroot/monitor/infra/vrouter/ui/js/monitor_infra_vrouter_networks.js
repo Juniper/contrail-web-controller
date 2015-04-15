@@ -37,7 +37,7 @@ monitorInfraComputeNetworksClass = (function() {
     }
     
     this.populateVNTab = function (obj) {
-        if(obj.detailView === undefined || obj.page == null) {
+        if(obj.detailView === undefined && obj.page == null) {
             layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
         }    
         if (!isGridInitialized('#gridComputeVN' + '_' + obj.name)) {
