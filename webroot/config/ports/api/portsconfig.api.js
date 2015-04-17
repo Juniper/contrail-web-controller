@@ -2681,6 +2681,94 @@ function getVMIAndInstIPDetails (req, res, appData)
     });
 }
 
+function getVMIDetails  (req, res, appData)
+{
+    var vmiUUIDList = [];
+    var backRefID = req.param('vn_uuid');
+    var parentID = req.param('proj_uuid');
+    var vmiToIpMap = {};
+    var dataObjArr = [];
+    var vmiURL =
+        '/virtual-machine-interfaces?detail=true&fields=' +
+        'virtual_machine_refs,instance_ip_back_refs';
+    if (null != backRefID) {
+        vmiURL += '&back_ref_id=' + backRefID;
+    } else if (null != parentID) {
+        vmiURL += '&parent_id=' + parentID;
+    }
+    configApiServer.apiGet(vmiURL, appData, function(err, vmiData) {
+        if ((null != err) || (null == vmiData) ||
+            (null == vmiData['virtual-machine-interfaces']) ||
+            (!vmiData['virtual-machine-interfaces'].length)) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var vmiData = vmiData['virtual-machine-interfaces'];
+        var vmiCnt = vmiData.length;
+        for (var i = 0; i < vmiCnt; i++) {
+            vmiUUIDList.push(vmiData[i]['virtual-machine-interface']['uuid']);
+        }
+        if (!vmiUUIDList.length) {
+            commonUtils.handleJSONResponse(null, res, vmiData);
+            return;
+        }
+        var chunk = 200;
+        var uuidStrLists = [];
+        for (i = 0, j = vmiCnt; i < j; i += chunk) {
+            tempArray = vmiUUIDList.slice(i, i + chunk);
+            var instIPUrl = '/instance-ips?detail=true&back_ref_id=' +
+                tempArray.join(',');
+            commonUtils.createReqObj(dataObjArr, instIPUrl, null, null, null,
+                                     null, appData);
+        }
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   true),
+                  function(err, results) {
+            if ((null != err) || (null == results)) {
+                commonUtils.handleJSONResponse(null, res, vmiData);
+                return;
+            }
+            var instIpData = [];
+            var dataObjArrLen = dataObjArr.length;
+            for (i = 0; i < dataObjArrLen; i++) {
+                if (null != dataObjArr[i]) {
+                    instIpData = instIpData.concat(results[i]['instance-ips']);
+                }
+            }
+            var instIpCnt = instIpData.length;
+            for (i = 0; i < instIpCnt; i++) {
+                if ((null == instIpData[i]['instance-ip']) ||
+                    (null ==
+                        instIpData[i]['instance-ip']['virtual_machine_interface_refs'])) {
+                    continue;
+                }
+                var vmiRef =
+                    instIpData[i]['instance-ip']['virtual_machine_interface_refs'];
+                if (null == vmiToIpMap[vmiRef[0]['uuid']]) {
+                    vmiToIpMap[vmiRef[0]['uuid']] = [];
+                }
+                vmiToIpMap[vmiRef[0]['uuid']].push(
+                    instIpData[i]['instance-ip']['instance_ip_address']);
+            }
+            for (i = 0; i < vmiCnt; i++) {
+                if (null !=
+                    vmiToIpMap[vmiData[i]['virtual-machine-interface']['uuid']]) {
+                    if (null ==
+                        vmiData[i]['virtual-machine-interface']['instance_ip_address']) {
+                        vmiData[i]['virtual-machine-interface']['instance_ip_address'] =
+                            [];
+                    }
+                    vmiData[i]['virtual-machine-interface']['instance_ip_address']
+                        =
+                        vmiToIpMap[vmiData[i]['virtual-machine-interface']['uuid']];
+                }
+            }
+            commonUtils.handleJSONResponse(null, res, vmiData);
+        });
+    });
+}
+
 exports.listVirtualMachines = listVirtualMachines;
 exports.readPorts = readPorts;
 exports.createPort = createPort;
@@ -2690,3 +2778,4 @@ exports.updatePortsCB = updatePortsCB;
 exports.deletePorts = deletePorts;
 exports.deletePortsCB = deletePortsCB;
 exports.getVMIAndInstIPDetails = getVMIAndInstIPDetails;
+exports.getVMIDetails = getVMIDetails;
