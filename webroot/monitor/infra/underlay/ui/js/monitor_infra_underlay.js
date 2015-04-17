@@ -1452,17 +1452,18 @@ underlayView.prototype.initGraphEvents = function() {
                             intfLen = intfList.length;
                             instDetails = instances[i];
                             vmName = instances[i]['more_attributes']['vm_name'];
-                            if (intfLen > 1) {
-                                for(var j = 0; j < intfLen; j++) {
-                                    ip.push(intfList[j]['ip_address']);
-                                    vnList.push(intfList[j]['virtual_network']);
+                            for(var j = 0; j < intfLen; j++) {
+                                var intfObj = intfList[j];
+                                ip.push(ifNull(intfObj['ip_address'],'-'));
+                                vnList.push(ifNull(intfObj['virtual_network'],'-'));
+                                for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length > 0; k++) {
+                                    ip.push(ifNull(intfObj['floating_ips'][k]['ip_address'],'-'));
+                                    vnList.push(ifNull(intfObj['floating_ips'][k]['virtual_network'],'-'));
                                 }
-                            } else {
-                               ip[0] =  intfList[0]['ip_address'];
-                               vnList[0] = intfList[0]['virtual_network'];
                             }
-                            var networkName = vnList[0].split(':')[2];
-                            var projectName = '('+vnList[0].split(':')[1]+')';
+                            var vnNameArr = ifNull(vnList[0].split(':'),[]);
+                            var networkName = ifNull(vnNameArr[2],'-');
+                            var projectName = '('+ifNull(vnNameArr[2],'-')+')';
                             srcVN += networkName +" "+ projectName;
                             break;
                         }
@@ -1870,19 +1871,17 @@ underlayView.prototype.renderFlowRecords = function() {
 underlayView.prototype.updateWhereClause = function () {
     var nodeType = $("#underlay_topology").data('nodeType');
     var nodeName = $("#underlay_topology").data('nodeName');
-    var whereClauseStr;
+    var whereClauseStr = '';
     if(nodeType == VROUTER) {
         whereClauseStr = '(vrouter = '+nodeName+')';
     } else if(nodeType == VIRTUALMACHINE) {
         var nodeIp = ifNull($("#underlay_topology").data('nodeIp'),[]);
         var vnList = ifNull($("#underlay_topology").data('vnList'),[]);
-        whereClauseStr = '(';
         for(var i = 0; i < nodeIp.length; i++) {
-            whereClauseStr += 'sourcevn = '+vnList[i]+' AND sourceip = '+nodeIp[i];
+            whereClauseStr += '( sourcevn = '+vnList[i]+' AND sourceip = '+nodeIp[i]+' )';
             if((i+1) < nodeIp.length)
-                whereClauseStr += 'AND';
+                whereClauseStr += ' OR ';
         }
-        whereClauseStr += ')';
     }
     $('#fr-where').val(whereClauseStr);
 }
