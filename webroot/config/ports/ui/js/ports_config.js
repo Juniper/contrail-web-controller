@@ -2297,9 +2297,9 @@ function createFixedIPEntry(FixedIPData, id,element) {
     if (null !== FixedIPData && typeof FixedIPData !== "undefined") {
         var SubnetVal = {};
         SubnetVal.Gateway = "";
-        SubnetVal.subnetUUID = FixedIPData.subnetUUID;
-        SubnetVal.fixedipuuid = FixedIPData.fixedipuuid;
-        SubnetVal.subnetCIDR = FixedIPData.fixedipuuid;
+        SubnetVal.subnetUUID = FixedIPData.subnetid;
+        SubnetVal.fixedipuuid = FixedIPData.fixedip;
+        SubnetVal.subnetCIDR = "";
         subnetData.push({"text" : FixedIPData.fixedip , "value":JSON.stringify(SubnetVal)});
         $(divFixedIPcontainer).addClass("hide");
         $(inputTxtFixedIPValue).val(FixedIPData.fixedip);
