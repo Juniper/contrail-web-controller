@@ -2197,23 +2197,21 @@ underlayView.prototype.renderTracePath = function(options) {
         var instObj = instances[i];
         var instAttributes = ifNull(instObj['more_attributes'],{});
         var interfaceList = ifNull(instAttributes['interface_list'],[])
-        var vmIp = '-',vmIpArr = [];
+        var intfIp;
         if(interfaceList.length > 0) {
             for(var j = 0; j < interfaceList.length; j++) {
                 var intfObj = interfaceList[j];
                 if(intfObj['ip6_active']) {
-                    vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
+                    intfIp = isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-';
                 } else {
-                    vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
+                    intfIp = isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-';
                 }
+                instComboboxData.push({
+                    text: instAttributes['vm_name']+' ('+intfIp+')',
+                    value: instances[i]['name']
+                });
             }
-            if(vmIpArr.length > 0)
-                vmIp = vmIpArr.join(',');
         }
-        instComboboxData.push({
-            text: instAttributes['vm_name']+' ('+vmIp+')',
-            value: instances[i]['name']
-        });
         instMap[instances[i]['name']] = instances[i];
     }
     //Todo when changing the VM flows to introspect need to merge this function
@@ -2940,13 +2938,13 @@ underlayController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
+            topologyCallback(response);
             if(getValueByJsonPath(response,'nodes',[]).length > 0) {
                 //Enabling the below tabs only on success of ajax calls.
                 $("#underlay_tabstrip").tabs('enable');
                 //Rendering the first search flows tab
                 underlayView.prototype.renderFlowRecords();
             }
-            topologyCallback(response);
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
