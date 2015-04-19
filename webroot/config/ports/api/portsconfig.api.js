@@ -2769,6 +2769,33 @@ function getVMIDetails  (req, res, appData)
     });
 }
 
+function deleteAllPorts (req, res, appData)
+{
+    var configUtil = require('../../common/api/configUtil.api');
+    var projUUID = req.param('uuid');
+    var reqUrl = '/virtual-machine-interfaces?parent_id=' + projUUID;
+    var dataObjArr = [];
+
+    configApiServer.apiGet(reqUrl, appData, function(err, vmiData) {
+        if ((null != err) || (null == vmiData) ||
+            (!vmiData['virtual-machine-interfaces'].length)) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var vmiCnt = vmiData['virtual-machine-interfaces'].length;
+        dataObjArr[0] = {};
+        dataObjArr[0]['deleteIDs'] = [];
+        dataObjArr[0]['type'] = 'virtual-machine-interface';
+        for (var i = 0; i < vmiCnt; i++) {
+            dataObjArr[0]['deleteIDs'].push(vmiData['virtual-machine-interfaces'][i]['uuid']);
+        }
+        configUtil.deleteMultiObjectCB(dataObjArr, req, appData,
+                                       function(err, data) {
+            commonUtils.handleJSONResponse(err, res, data);
+        });
+    });
+}
+
 exports.listVirtualMachines = listVirtualMachines;
 exports.readPorts = readPorts;
 exports.createPort = createPort;
@@ -2779,3 +2806,5 @@ exports.deletePorts = deletePorts;
 exports.deletePortsCB = deletePortsCB;
 exports.getVMIAndInstIPDetails = getVMIAndInstIPDetails;
 exports.getVMIDetails = getVMIDetails;
+exports.deleteAllPorts = deleteAllPorts;
+
