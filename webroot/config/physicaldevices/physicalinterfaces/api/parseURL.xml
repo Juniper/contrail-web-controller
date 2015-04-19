@@ -81,5 +81,11 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deleteInterfaces</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/delete-all-interfaces</url>
+        <method>delete</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.deleteAllInterfaces</callback>
+    </item>
 </urlLists>
 

@@ -3,8 +3,8 @@
  */
  
  /**
- * @quotasconfig.api.js
- *     - Handlers for project quotas
+ * @physicalinterfacesconfig.api.js
+ *     - Handlers for interfaces
  *     - Interfaces with config api server
  */
 var rest        = require(process.mainModule.exports["corePath"] +
@@ -192,8 +192,15 @@ function deletePhysicalInterfaces (request, response, appData)
  */
 function deleteInterfaces(request, response, appData)
 {
-    var infDataObjArr = [];
     var rows =  request.body;
+    deleteInterfacesByUUIDList(rows, request, appData, function(err, data) {
+        commonUtils.handleJSONResponse(err, response, data);
+    });
+}
+
+function deleteInterfacesByUUIDList (rows, request, appData, callback)
+{
+    var infDataObjArr = [];
     var rowsCnt = rows.length;
     for(var i = 0; i < rowsCnt; i++) {
         var row = rows[i];
@@ -217,7 +224,7 @@ function deleteInterfaces(request, response, appData)
         if(errorMsg != "") {
             newError = new appErrors.RESTServerError(errorMsg);
         }
-        commonUtils.handleJSONResponse(newError, response, null);
+        callback(newError, data);
     });
 }
 
@@ -228,7 +235,7 @@ function deleteInterfaceAsync(dataObj, callback)
     var appData = dataObj.appData;
     var request = appData.authObj.req;
     var response = request.res;
-    if(data.vmiIdArr != null) {
+    if ((data.vmiIdArr != null) && (data.vmiIdArr.length > 0)) {
         var putObj = {
                          "logical-interface": {
                              "uuid" : data.uuid,
@@ -675,6 +682,148 @@ function deleteLISubnet (request, response, appData)
          });
 }
 
+function updatePhysicalRouterWithoutInterfaces (prUUID, appData, callback)
+{
+    var prUrl = '/physical-router/' + prUUID;
+    configApiServer.apiGet(prUrl, appData, function(err, data) {
+        if ((null != err) || (null == data) ||
+            (null == data['physical-router'])) {
+            callback(err, data);
+            return;
+        }
+        if (null != data['physical-router']['physical_interfaces']) {
+            data['physical-router']['physical_interfaces'] = [];
+        }
+        if (null != data['physical-router']['logical_interfaces']) {
+            data['physical-router']['logical_interfaces'] = [];
+        }
+        configApiServer.apiPut(prUrl, data, appData, function(err, data) {
+            callback(err, data);
+        });
+    });
+}
+
+function deleteAllInterfaces (req, res, appData)
+{
+    var dataObjDelArr = [];
+    var dataObjGetArr = [];
+    var dataObjPhyDelArr = [];
+    var entries = [];
+    var logUUIDs = [];
+    var i = 0, j = 0;
+    var pRouterID = req.param('prUUID');
+    var prUrl = '/physical-router/' + pRouterID +
+        '?fields=physical_interfaces,logical_interfaces';
+    configApiServer.apiGet(prUrl, appData, function(err, prConfig) {
+        if ((null != err) || (null == prConfig)) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var phyInterfaces = prConfig['physical-router']['physical_interfaces'];
+        var logInterfaces = prConfig['physical-router']['logical_interfaces'];
+        if (null != logInterfaces) {
+            var logInterfacesCnt = logInterfaces.length;
+            for (var i = 0; i < logInterfacesCnt; i++) {
+                logUUIDs.push(logInterfaces[i]['uuid']);
+            }
+        }
+        var chunk = 200;
+        var phyInterfacesCnt = 0;
+        var phyInterfacesUUIDList = [];
+        if (null != phyInterfaces) {
+            phyInterfacesCnt = phyInterfaces.length;
+            for (var i = 0; i < phyInterfacesCnt; i++) {
+                dataObjPhyDelArr.push({'type': 'Physical',
+                                      'uuid': phyInterfaces[i]['uuid'],
+                                      'vmiIdArr': null});
+                phyInterfacesUUIDList.push(phyInterfaces[i]['uuid']);
+            }
+        }
+        for (i = 0, j = phyInterfacesCnt; i < j; i += chunk) {
+            var tempArray = phyInterfacesUUIDList.slice(i, i + chunk);
+            var logUrl = '/logical-interfaces?parent_id=' + tempArray.join(',');
+            commonUtils.createReqObj(dataObjGetArr, logUrl, null, null, null,
+                                     null, appData);
+        }
+        async.mapLimit(dataObjGetArr, 100,
+                       commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                        true),
+                       function(err, logConfigData) {
+            var logConfigDataCnt = logConfigData.length;
+            for (var i = 0; i < logConfigDataCnt; i++) {
+                var logIntfCnt = 0;
+                try {
+                    var logIntf = logConfigData[i]['logical-interfaces'];
+                    logIntfCnt = logIntf.length;
+                } catch(e) {
+                    logIntfCnt = 0;
+                }
+                for (var j = 0; j < logIntfCnt; j++) {
+                    logUUIDs.push(logIntf[j]['uuid']);
+                }
+            }
+            dataObjGetArr = [];
+            var logUUIDsCnt = logUUIDs.length;
+            for (i = 0, j = logUUIDsCnt; i < j; i += chunk) {
+                var tempArray = logUUIDs.slice(i, i + chunk);
+                var logUrl =
+                    '/logical-interfaces?detail=true&fields=' +
+                    'virtual_machine_interface_refs' +
+                    '&obj_uuids=' + tempArray.join(',');
+                commonUtils.createReqObj(dataObjGetArr, logUrl, null, null,
+                                         null, null, appData);
+            }
+            async.map(dataObjGetArr,
+                           commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                            true),
+                           function(error, data) {
+                var chunkCnt = data.length;
+                for (var i = 0; i < chunkCnt; i++) {
+                    if (null != data[i]['logical-interfaces']) {
+                        var logIntf = data[i]['logical-interfaces'];
+                        var logIntfCnt = logIntf.length;
+                        for (j = 0; j < logIntfCnt; j++) {
+                            var vmiRefs =
+                                logIntf[j]['logical-interface']['virtual_machine_interface_refs'];
+                                var vmiIdArr = [];
+                            if (null != vmiRefs) {
+                                var vmiRefsCnt = vmiRefs.length;
+                                for (var k = 0; k < vmiRefsCnt; k++) {
+                                    vmiIdArr.push(vmiRefs[k]['uuid']);
+                                }
+                            }
+                            entries.push({'type': 'Logical', 'uuid':
+                                         logIntf[j]['logical-interface']['uuid'],
+                                         'vmiIdArr': vmiIdArr});
+                        }
+                    }
+                }
+		console.log("getting entries as :", entries);
+                deleteInterfacesByUUIDList(entries, req, appData,
+                                           function(err, data) {
+                    if (dataObjPhyDelArr.length > 0) {
+                        deleteInterfacesByUUIDList(dataObjPhyDelArr, req,
+                                                   appData,
+                                                   function(err, data) {
+                            updatePhysicalRouterWithoutInterfaces(pRouterID,
+                                                                  appData,
+                                                                  function(err,
+                                                                           data) {
+                                commonUtils.handleJSONResponse(err, res, data);
+                            });
+                        });
+                        return;
+                    }
+                    updatePhysicalRouterWithoutInterfaces(pRouterID, appData,
+                                                          function(err, data) {
+                        commonUtils.handleJSONResponse(error, res, data);
+                    });
+                });
+            });
+        });
+    });
+}
+
  /* List all public function here */
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
@@ -686,4 +835,4 @@ exports.deleteLIVirtualMachines = deleteLIVirtualMachines;
 exports.mapVMIRefsToSubnet = mapVMIRefsToSubnet;
 exports.deleteLISubnet = deleteLISubnet;
 exports.readLIDetails = readLIDetails;
-
+exports.deleteAllInterfaces = deleteAllInterfaces;

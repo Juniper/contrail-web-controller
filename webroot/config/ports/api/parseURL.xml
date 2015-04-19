@@ -49,5 +49,17 @@
         <feature>portconfig</feature>
         <callback>portsconfigapi.getVMIAndInstIPDetails</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/get-virtual-machine-details</url>
+        <method>get</method>
+        <feature>portconfig</feature>
+        <callback>portsconfigapi.getVMIDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/delete-all-ports</url>
+        <method>delete</method>
+        <feature>portconfig</feature>
+        <callback>portsconfigapi.deleteAllPorts</callback>
+    </item>
 </urlLists>
 
