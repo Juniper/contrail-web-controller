@@ -2952,13 +2952,13 @@ underlayController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
+            topologyCallback(response);
             if(getValueByJsonPath(response,'nodes',[]).length > 0) {
                 //Enabling the below tabs only on success of ajax calls.
                 $("#underlay_tabstrip").tabs('enable');
                 //Rendering the first search flows tab
                 underlayView.prototype.renderFlowRecords();
             }
-            topologyCallback(response);
             _this.getModel().getData(forceCallCfg);
         },
         //Calling the force refresh call on failure of the cache call
