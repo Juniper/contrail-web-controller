@@ -91,16 +91,19 @@ underlayModel.prototype.getChildChassisType = function(parent_chassis_type) {
     }
 }
 
-underlayModel.prototype.parseTree = function(parents, tree) {
+underlayModel.prototype.parseTree = function(parents, tree, tmpTree) {
     if(null !== parents && false !== parents && 
         typeof parents === "object" && parents.length > 0) {
         for(var i=0; i<parents.length; i++) {
+            if(tmpTree.hasOwnProperty(parents[i].name)) {
+                delete tmpTree[parents[i].name];
+            }
             var parent_chassis_type = parents[i].chassis_type;
             var children_chassis_type = this.getChildChassisType(parent_chassis_type);
             tree[parents[i].name] = parents[i];
             var children = this.getChildren(parents[i].name, children_chassis_type)
             tree[parents[i].name]["children"] = {};
-            this.parseTree(children, tree[parents[i].name]["children"]);
+            this.parseTree(children, tree[parents[i].name]["children"], tmpTree);
         }
     }
     return tree;
@@ -111,7 +114,11 @@ underlayModel.prototype.formTree = function() {
     var links = this.getLinks();
     var cores = this.getCores();
     var tree = this.getTree();
+    var tmpTree = {};
     var firstLevelNodes = [];
+    for(var i=0; i<nodes.length; i++) {
+        tmpTree[nodes[i].name] = nodes[i];
+    }
     if(cores.length > 0) {
         firstLevelNodes = cores;
     } else {
@@ -125,7 +132,12 @@ underlayModel.prototype.formTree = function() {
             }
         }
     }
-    this.parseTree(firstLevelNodes, tree);
+    this.parseTree(firstLevelNodes, tree, tmpTree);
+    if(JSON.stringify(tmpTree) !== "{}") {
+        $.each(tmpTree, function (elementKey, elementValue) {
+            tree[elementKey] = elementValue;
+        });
+    }
     this.setTree(tree);
 }
 
