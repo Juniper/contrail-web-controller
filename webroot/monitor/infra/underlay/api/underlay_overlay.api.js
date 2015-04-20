@@ -169,6 +169,10 @@ function buildTopology (req, appData, callback)
                     }
                 }
             }
+            phyTopo['errors']['configNotFound'] =
+                _.uniq(phyTopo['errors']['configNotFound']);
+            phyTopo['errors']['uveNotFound'] =
+                _.uniq(phyTopo['errors']['uveNotFound']);
             if ((null != err) || (null == vrTopo)) {
                 callback(err, phyTopo);
                 return;
@@ -176,10 +180,10 @@ function buildTopology (req, appData, callback)
             topoData['nodes'] = phyTopo['nodes'].concat(vrTopo['nodes']);
             topoData['links'] = phyTopo['links'].concat(vrTopo['links']);
             topoData['errors'] = {};
-            topoData['errors']['configNotFound'] = _.uniq(phyTopo['errors']['configNotFound']);
+            topoData['errors']['configNotFound'] =
+                phyTopo['errors']['configNotFound'];
             topoData['errors']['uveNotFound'] =
-                _.uniq(phyTopo['errors']['uveNotFound']);
-
+                phyTopo['errors']['uveNotFound'];
             callback(null, topoData);
         });
     });
