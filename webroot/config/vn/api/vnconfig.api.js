@@ -502,47 +502,6 @@ function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData)
 }
 
 /**
- * @createVNSubnetAdd
- * private function
- * 1. Callback for CreateVirtualNetwork
- */
-function createVNSubnetAdd (error, vnConfig, vnPostData,
-                            request, response, appData) 
-{
-    var subnetPostData   = {};
-    var netIpamRef       = null;
-    var subnet_prefix    = null;
-
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    if ('network_ipam_refs' in vnPostData['virtual-network']) {
-        netIpamRef = vnPostData['virtual-network']['network_ipam_refs'];
-        if (!netIpamRef[0]['attr']['ipam_subnets'][0]
-                          ['subnet']['ip_prefix'].length) {
-            delete vnPostData['virtual-network']['network_ipam_refs'];
-        } else {
-            var reqUrl = '/virtual-network/' +
-                vnConfig['virtual-network']['uuid'].toString();
-            var putData = { 'virtual-network' :
-                {
-                    'fq_name': vnPostData['virtual-network']['fq_name'],
-                    'network_ipam_refs': netIpamRef
-                }
-            };
-            configApiServer.apiPut(reqUrl, putData, appData, function(error, data) {
-                createVirtualNetworkCb (error, vnConfig,
-                                        vnPostData, response, appData);
-            });
-            return;
-        }
-    }
-    createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData);
-}
-
-/**
  * @setVNPolicySequence
  * private function
  * 1. Iterates through policy refs and sets the sequence numbers,
@@ -959,7 +918,6 @@ function createVirtualNetwork (request, response, appData)
     }
 
     vnConfigData = JSON.parse(JSON.stringify(vnPostData)); 
-    delete vnPostData['virtual-network']['network_ipam_refs'];
 
     if ('route_target_list' in vnPostData['virtual-network']) {
         if (!(vnPostData['virtual-network']['route_target_list']
@@ -972,9 +930,9 @@ function createVirtualNetwork (request, response, appData)
     vnSeqPostData = setVNPolicySequence(vnPostData);
     configApiServer.apiPost(vnCreateURL, vnSeqPostData, appData,
                          function(error, data) {
-                         createVNSubnetAdd(error, data,
-                                           vnConfigData, request, response,
-                                           appData);
+                         createVirtualNetworkCb(error, data,
+                                                vnConfigData, response,
+                                                appData);
     });
 }
 
