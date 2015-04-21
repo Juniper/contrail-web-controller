@@ -109,19 +109,17 @@ monitorInfraControlPeersClass = (function() {
     }
     
     this.populatePeersTab = function(obj) {
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'peers',node: obj['displayName']},{triggerHashChange:false});
-        }    
+        layoutHandler.setURLHashParams({tab:'peers',node: obj['name']},{triggerHashChange:false});
         hostname = obj['name']
         var transportCfg = {
-                url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], encodeURIComponent(obj['displayName']), 40)
+                url: contrail.format(monitorInfraUrls['CONTROLNODE_PEERS'], obj['name'], 40)
             };
             var peersDS;
         //Intialize the grid only for the first time
-        if (!isGridInitialized('#gridPeers' + '_' + obj.name)) {
+        if (!isGridInitialized('#gridPeers')) {
             peersDS = new ContrailDataView();
             getOutputByPagination(peersDS,{transportCfg:transportCfg,parseFn:self.processPeerInfo});
-            $("#gridPeers" + '_' + obj.name).contrailGrid({
+            $("#gridPeers").contrailGrid({
                 header : {
                     title : {
                         text : 'Peers'
@@ -187,9 +185,9 @@ monitorInfraControlPeersClass = (function() {
                options : {
                   //checkboxSelectable: true,
                   forceFitColumns: true,
-                 detail:{
-                    template: $("#gridsTemplateJSONDetails").html()
-                 }
+                  detail:{
+                     template: $("#gridsTemplateJSONDetails").html()
+                  }
                },
                dataSource : {
                   dataView : peersDS
@@ -209,10 +207,10 @@ monitorInfraControlPeersClass = (function() {
                }
             }
          });
-            peersGrid = $("#gridPeers" + '_' + obj.name).data("contrailGrid");
+            peersGrid = $("#gridPeers").data("contrailGrid");
             peersGrid.showGridMessage('loading');
         } else {
-            //reloadGrid(peersGrid);
+            reloadGrid(peersGrid);
         }
 
         function initGridSparkline(data) {
