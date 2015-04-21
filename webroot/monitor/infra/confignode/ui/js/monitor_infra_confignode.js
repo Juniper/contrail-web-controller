@@ -10,7 +10,7 @@ configNodesView = function () {
       if(hashParams['node'] == null)
           monitorInfraConfigSummaryClass.populateConfigNodes();
       else
-         confNodeView.load({displayName:hashParams['node'], tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
+         confNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
       //layoutHandler.setURLHashParams({node:'Config Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -45,9 +45,7 @@ configNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        if(obj['detailView'] === undefined) {
-            pushBreadcrumb([obj['displayName']]);
-        }
+        pushBreadcrumb([obj['name']]);
         /*confNodeInfo = obj;
         //Select tab
         self.populateConfigNode(obj);
@@ -83,24 +81,15 @@ configNodeView = function () {
     this.populateConfigNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in config node details page
-        if (!isInitialized('#config_tabstrip' + '_' + obj.name)) {
-            if(obj.detailView === undefined) {
-                var confNodeTemplate = Handlebars.compile($("#confignode-template").html());
-                $(pageContainer).html(confNodeTemplate(confNodeInfo));
-                //Set the height of all tabstrip containers to viewheight - tabstrip
-                var tabContHeight = layoutHandler.getViewHeight() - 42;
-              //  $('#config_tabstrip > div').height(tabContHeight);
-            } else if(obj.detailView === true) {
-                confNodeInfo = obj;
-            }
-            $("#config_tabstrip" + '_' + obj.name).contrailTabs({
+        if (!isInitialized('#config_tabstrip')) {
+            var confNodeTemplate = Handlebars.compile($("#confignode-template").html());
+            $(pageContainer).html(confNodeTemplate(confNodeInfo));
+            //Set the height of all tabstrip containers to viewheight - tabstrip
+            var tabContHeight = layoutHandler.getViewHeight() - 42;
+          //  $('#config_tabstrip > div').height(tabContHeight);
+
+            $("#config_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    confNodeInfo.name = e.target.id.replace('config_tabstrip_','');
-                    confNodeInfo.displayName = getDisplayNameforHostName(confNodeInfo.name, 'configNodeDS');
-                    var newIP = getIPforHostName(confNodeInfo.name, 'configNodeDS');
-                    if(newIP != null) {
-                        confNodeInfo.ip = newIP;
-                    }                
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Console') {
@@ -117,7 +106,7 @@ configNodeView = function () {
             monitorInfraConfigDetailsClass.populateDetailsTab(confNodeInfo);
         }
         //If any tab is stored in URL,select it else select the first tab
-        selectTab(configNodeTabStrip + '_' + obj.name, tabIdx);
+        selectTab(configNodeTabStrip,tabIdx);
     }
 }
 
