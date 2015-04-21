@@ -7,8 +7,6 @@
  */
 monitorInfraAnalyticsSummaryClass = (function() {
     var aNodesGrid;
-    var disabledFeat = globalObj['webServerInfo']['disabledFeatures'].disabled;
-    var showDetails = disabledFeat != null && disabledFeat.indexOf('disable_expand_details') !== -1 ? false : true;
     this.populateAnalyticsNodes = function() {
         infraMonitorUtils.clearTimers();
         var aNodesTemplate = contrail.getTemplate4Id("analyticsnodes-template");
@@ -30,20 +28,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                 options: {
                     autoHeight : true,
                     enableAsyncPostRender: true,
-                    forceFitColumns:true,
-                    detail:(showDetails ? {
-                        template: $("#analyticsnode-template").html(),
-                        onExpand: function (e,dc) {
-                            $('#analytics_tabstrip_' + dc['name']).attr('style', 'margin:10px 10% 10px 10%');
-                            //aNodeView.populateAnalyticsNode({name:dc['name'], ip:dc['ip'], detailView : true});
-                            dc.detailView = true;
-                            onAnalyticsNodeRowSelChange(dc);
-                            $('#analytics-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
-                            $('#analytics-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');                           
-                        },
-                        onCollapse:function (e,dc) {
-                        }
-                    } : false)
+                    forceFitColumns:true
                 },
                 dataSource: {
                     dataView: analyticsNodesDataSource,
@@ -65,21 +50,20 @@ monitorInfraAnalyticsSummaryClass = (function() {
             columnHeader: {
                 columns:[
                     {
-                        field:"displayName",
-                        id:"displayName",
+                        field:"name",
+                        id:"name",
                         name:"Host name",
                         formatter:function(r,c,v,cd,dc) {
-                           return cellTemplateLinks({cellText:'displayName',name:'displayName',statusBubble:true,rowData:dc});
+                           return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
                         },
                         exportConfig: {
             				allow: true,
             				advFormatter: function(dc) {
-            					return dc.displayName;
+            					return dc.name;
             				}
             			},
                         events: {
                            onClick: function(e,dc){
-                              dc.detailView = undefined;
                               onAnalyticsNodeRowSelChange(dc);
                            }
                         },
@@ -174,12 +158,6 @@ monitorInfraAnalyticsSummaryClass = (function() {
            aNodesGrid.showGridMessage('errorGettingData');
         });
         $(analyticsNodeDS).on('change',function(){
-            //add display name
-            var rowItems = analyticsNodesDataSource.getItems();
-            for(var i = 0; i < rowItems.length;i++) {
-                 rowItems[i].displayName = rowItems[i].displayName != null ? rowItems[i].displayName : rowItems[i].name;
-                 rowItems[i].name = constructValidDOMId(rowItems[i].name);
-            }        
             updateChartsForSummary(analyticsNodesDataSource.getItems(),"analytics");
         });
         if(analyticsNodesResult['lastUpdated'] != null && (analyticsNodesResult['error'] == null || analyticsNodesResult['error']['errTxt'] == 'abort')){
@@ -217,7 +195,7 @@ function getGeneratorsInfoForAnalyticsNodes(analyticsDS) {
 }
 
 function onAnalyticsNodeRowSelChange(dc) {
-    aNodeView.load({name:dc['name'], ip:dc['ips'], displayName : dc['displayName'], detailView : dc['detailView']});
+    aNodeView.load({name:dc['name'], ip:dc['ips']});
 }
 
 function mergeCollectorDataAndPrimaryData(collectorData,primaryDS){

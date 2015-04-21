@@ -81,17 +81,13 @@ dbNodeView = function () {
     this.populateDbNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in db node details page
-        if (!isInitialized('#db_tabstrip' + '_' + obj.name)) {
-            if(obj.detailView === undefined) {
-                var databaseNodeTemplate = Handlebars.compile($("#dbnode-template").html());
-                $(pageContainer).html(databaseNodeTemplate(databaseNodeInfo));
-                //Set the height of all tabstrip containers to viewheight - tabstrip
-                var tabContHeight = layoutHandler.getViewHeight() - 42;
-              //  $('#db_tabstrip > div').height(tabContHeight);
-            } else if(obj.detailView === true) {
-                databaseNodeInfo = obj;
-            }
-            $("#db_tabstrip" + '_' + obj.name).contrailTabs({
+        if (!isInitialized('#db_tabstrip')) {
+            var databaseNodeTemplate = Handlebars.compile($("#dbnode-template").html());
+            $(pageContainer).html(databaseNodeTemplate(databaseNodeInfo));
+            //Set the height of all tabstrip containers to viewheight - tabstrip
+            var tabContHeight = layoutHandler.getViewHeight() - 42;
+            //  $('#db_tabstrip > div').height(tabContHeight);
+            $("#db_tabstrip").contrailTabs({
                 activate:function (e, ui) {
                     databaseNodeInfo.name = e.target.id.split('_')[2];
                     var newIP = getIPforHostName(databaseNodeInfo.name, 'dbNodeDS');
@@ -114,7 +110,7 @@ dbNodeView = function () {
             monitorInfraDbDetailsClass.populateDetailsTab(databaseNodeInfo);
         }
         //If any tab is stored in URL,select it else select the first tab
-        selectTab(dbNodeTabStrip + '_' + obj.name, tabIdx);
+        selectTab(dbNodeTabStrip, tabIdx);
     }
 }
 

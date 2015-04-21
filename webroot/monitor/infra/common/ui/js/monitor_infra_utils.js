@@ -782,28 +782,26 @@ var infraMonitorUtils = {
     },
     populateMessagesTab : function (nodeType, options, obj) {
         var consoleTabTemplate = Handlebars.compile($('#console-tab-template').html());
-        var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;  
+        var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;
         var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
-        if(obj.detailView === undefined && obj.page === null) {
-            layoutHandler.setURLHashParams({tab:'console', node: obj['displayName']},{triggerHashChange:false});
-        }    
+        layoutHandler.setURLHashParams({tab:'console', node: obj['name']},{triggerHashChange:false});
         if (nodeType == 'control') {
-            $('#ctrlNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
+            $('#ctrlNodeMessagesTab').html(consoleTabTemplate({}));
         } else if (nodeType == "analytics"){
-            $('#analyticsNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
+            $('#analyticsNodeMessagesTab').html(consoleTabTemplate({}));
         } else if (nodeType == "config"){
-            $('#configNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
+            $('#configNodeMessagesTab').html(consoleTabTemplate({}));
         } else {
-            $('#computeNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
+            $('#computeNodeMessagesTab').html(consoleTabTemplate({}));
         }
-        initWidget4Id('#console-msgs' + '_' + obj.name + '-box');
+        initWidget4Id('#console-msgs-box');
         //Disable Auto-refresh for time-being
         //$('#msgAutoRefresh').attr('disabled','disabled');
 
         var MIN = 60, HOUR = MIN * 60;
-        if ($('#msgTimeRange' + '_' + obj.name).data('contrailDropdown') == null) {
-            $('#msgAutoRefresh' + '_' + obj.name).attr('checked', 'checked');
-            $('#msgAutoRefresh' + '_' + obj.name).on('click', function () {
+        if ($('#msgTimeRange').data('contrailDropdown') == null) {
+            $('#msgAutoRefresh').attr('checked', 'checked');
+            $('#msgAutoRefresh').on('click', function () {
                 if ($(this).is(':checked')) {
                     if (userChangedQuery)
                         loadLogs();
@@ -813,7 +811,7 @@ var infraMonitorUtils = {
                     infraMonitorUtils.clearTimers();
                 }
             });
-            $('#msgTimeRange' + '_' + obj.name).contrailDropdown({
+            $('#msgTimeRange').contrailDropdown({
                 data:[
                     {lbl:'Last 5 mins', value:'5m'},
                     {lbl:'Last 10 mins', value:'10m'},
@@ -834,14 +832,14 @@ var infraMonitorUtils = {
             });
             var defaultToTime = new Date();
             var defaultFromTime = new Date(defaultToTime.getTime() - 300000);
-            createNewDTPicker('console', 'console-from-time' + '_' + obj.name, showFromTime, onSelectFromDate, defaultFromTime);
-            createNewDTPicker('console', 'console-to-time' + '_' + obj.name, showToTime, onSelectToDate, defaultToTime);
-            $('#msgType' + '_' + obj.name).contrailCombobox({
+            createNewDTPicker('console', 'console-from-time', showFromTime, onSelectFromDate, defaultFromTime);
+            createNewDTPicker('console', 'console-to-time', showToTime, onSelectToDate, defaultToTime);
+            $('#msgType').contrailCombobox({
                 dataSource:[],
                 dataTextField:'text',
                 dataValueField:'value'
             });
-            $('#msgCategory' + '_' + obj.name).contrailDropdown({
+            $('#msgCategory').contrailDropdown({
                 dataSource:{
                     type:'remote',
                     url: '/api/admin/table/values/MessageTable/Category',
@@ -868,7 +866,7 @@ var infraMonitorUtils = {
                 dataValueField:'value',
                 placeholder:'All'
             });
-            $('#msgLevel' + '_' + obj.name).contrailDropdown({
+            $('#msgLevel').contrailDropdown({
                 dataSource:{
                     type:'remote',
                     url: '/api/admin/table/values/MessageTable/Level',
@@ -885,7 +883,7 @@ var infraMonitorUtils = {
                 dataTextField:'text',
                 dataValueField:'value'
             });
-            $('#msgLimit' + '_' + obj.name).contrailDropdown({
+            $('#msgLimit').contrailDropdown({
                 data:$.map(['All',10, 50, 100, 200, 500], function (value) {
                     return {value:value, text:(value == 'All')? 'All':contrail.format('{0} messages', value)};
                 }),
@@ -893,23 +891,22 @@ var infraMonitorUtils = {
                 dataValueField:'value'                    
             });
         }
-        cboTimeRange = $('#msgTimeRange' + '_' + obj.name).data('contrailDropdown');
-        cboMsgCategory = $('#msgCategory' + '_' + obj.name).data('contrailDropdown');
-        cboMsgType = $('#msgType' + '_' + obj.name).data('contrailCombobox');
-        cboMsgLevel = $('#msgLevel' + '_' + obj.name).data('contrailDropdown');
-        cboMsgLimit = $('#msgLimit' + '_' + obj.name).data('contrailDropdown');
-        cboMsgFromTime = $('#console-from-time' + '_' + obj.name).data('contrailDateTimePicker');
-        cboMsgToTime = $('#console-to-time' + '_' + obj.name).data('contrailDateTimePicker');
-        toTimeEle = $('#console-to-time' + '_' + obj.name);
-        fromTimeEle = $('#console-from-time' + '_' + obj.name);
-        keywords = $('#console-keywords' + '_' + obj.name);
+        cboTimeRange = $('#msgTimeRange').data('contrailDropdown');
+        cboMsgCategory = $('#msgCategory').data('contrailDropdown');
+        cboMsgType = $('#msgType').data('contrailCombobox');
+        cboMsgLevel = $('#msgLevel').data('contrailDropdown');
+        cboMsgLimit = $('#msgLimit').data('contrailDropdown');
+        cboMsgFromTime = $('#console-from-time').data('contrailDateTimePicker');
+        cboMsgToTime = $('#console-to-time').data('contrailDateTimePicker');
+        toTimeEle = $('#console-to-time');
+        fromTimeEle = $('#console-from-time');
+        keywords = $('#console-keywords');
 
         cboTimeRange.value('custom');
         cboMsgLevel.value('5');
         cboMsgLimit.value('50')
         
-        $('#btnDisplayLogs' + '_' + obj.name).on('click', function () {
-            obj.name = arguments[0].target.id.split('_')[1];
+        $('#btnDisplayLogs').on('click', function () {
             userChangedQuery = true;
             loadLogs();
         });
@@ -933,7 +930,7 @@ var infraMonitorUtils = {
                         selectGridPage(lastPageNo);
                     }, 100);
                 }*/
-                if ($('#msgAutoRefresh' + '_' + obj.name).is(':checked')) {
+                if ($('#msgAutoRefresh').is(':checked')) {
                     //Don't start the timer,if one is already pending
                     if (consoleTimer.length == 0) {
                         var timerId = setTimeout(function () {
@@ -1000,7 +997,7 @@ var infraMonitorUtils = {
                     }
                 }
             }
-            var cbMsgType = $('#msgType' + '_' + obj.name).data('contrailCombobox');
+            var cbMsgType = $('#msgType').data('contrailCombobox');
             cbMsgType.setData(msgTypeStatsList);
             cbMsgType.value('');
         }
@@ -1040,25 +1037,25 @@ var infraMonitorUtils = {
                 if(lastTimeStamp == null || lastMsgLogTime != lastTimeStamp){
                     lastMsgLogTime = lastTimeStamp;
                     if(lastMsgLogTime != null && lastLogLevel != null){
-                        var dateTimePicker = $("#console-to-time" + '_' + obj.name).data("contrailDateTimePicker");
+                        var dateTimePicker = $("#console-to-time").data("contrailDateTimePicker");
                         dateTimePicker.val(new Date(lastMsgLogTime));
-                        dateTimePicker = $("#console-from-time" + '_' + obj.name).data("contrailDateTimePicker");
+                        dateTimePicker = $("#console-from-time").data("contrailDateTimePicker");
                         //dateTimePicker.val(adjustDate(new Date(lastMsgLogTime), {sec:-1 * defaultTimeRange}));
                         dateTimePicker.val(moment(new Date(lastMsgLogTime)).subtract('s', defaultTimeRange));
                         //select the level option which has the last log
                         //$("#msgLevel option:contains(" + lastLogLevel + ")").attr('selected', 'selected');
-                        var dropdownlist = $("#msgLevel" + '_' + obj.name).data("contrailDropdown");
+                        var dropdownlist = $("#msgLevel").data("contrailDropdown");
                         dropdownlist.text(lastLogLevel);
                         cboTimeRange.value('custom');
                         selectTimeRange({val:"custom"}) ;
                     } else {
-                        var timerangedropdownlistvalue = $("#msgTimeRange" + '_' + obj.name).data("contrailDropdown");
+                        var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown");
                         timerangedropdownlistvalue.value('5m');
 
-                        $('#consoleFromTimeDiv' + '_' + obj.name).hide();
-                        $('#consoleToTimeDiv' + '_' + obj.name).hide();
-                        $('#msgFromTime' + '_' + obj.name).hide();
-                        $('#msgToTime' + '_' + obj.name).hide();
+                        $('#consoleFromTimeDiv').hide();
+                        $('#consoleToTimeDiv').hide();
+                        $('#msgFromTime').hide();
+                        $('#msgToTime').hide();
                         selectTimeRange({val:"5m"}) ;
                     }
                     loadLogs(timerId,true);
@@ -1066,35 +1063,22 @@ var infraMonitorUtils = {
 //                    gridConsole.dataSource.bind('requestEnd', moveToLastPage);
                    moveToLastPage();
                 }
-            }).fail(displayAjaxError.bind(null, $('#computenode-dashboard' + '_' + obj.name)));
+            }).fail(displayAjaxError.bind(null, $('#computenode-dashboard')));
         }
-        function selectTimeRange(obj1) {
-            if(obj1.target != null) {
-                obj.name = obj1.target.id.split('_')[1];        
-            }    
-            if (obj1.val == 'custom') {
-                $('#consoleFromTimeDiv' + '_' + obj.name).show();
-                $('#consoleToTimeDiv' + '_' + obj.name).show();
-                $('#msgFromTime' + '_' + obj.name).show();
-                $('#msgToTime' + '_' + obj.name).show();
+        function selectTimeRange(obj) {
+            if (obj.val == 'custom') {
+                $('#consoleFromTimeDiv').show();
+                $('#consoleToTimeDiv').show();
+                $('#msgFromTime').show();
+                $('#msgToTime').show();
             } else {
-                $('#consoleFromTimeDiv' + '_' + obj.name).hide();
-                $('#consoleToTimeDiv' + '_' + obj.name).hide();
-                $('#msgFromTime' + '_' + obj.name).hide();
-                $('#msgToTime' + '_' + obj.name).hide();
+                $('#consoleFromTimeDiv').hide();
+                $('#consoleToTimeDiv').hide();
+                $('#msgFromTime').hide();
+                $('#msgToTime').hide();
             }
         }
         function loadLogs(timerId) {
-            cboTimeRange = $('#msgTimeRange' + '_' + obj.name).data('contrailDropdown');
-            cboMsgCategory = $('#msgCategory' + '_' + obj.name).data('contrailDropdown');
-            cboMsgType = $('#msgType' + '_' + obj.name).data('contrailCombobox');
-            cboMsgLevel = $('#msgLevel' + '_' + obj.name).data('contrailDropdown');
-            cboMsgLimit = $('#msgLimit' + '_' + obj.name).data('contrailDropdown');
-            cboMsgFromTime = $('#console-from-time' + '_' + obj.name).data('contrailDateTimePicker');
-            cboMsgToTime = $('#console-to-time' + '_' + obj.name).data('contrailDateTimePicker');
-            toTimeEle = $('#console-to-time' + '_' + obj.name);
-            fromTimeEle = $('#console-from-time' + '_' + obj.name);
-        
             logMessage("Timer triggered:", timerId);
             if ((timerId != null) && (timerId != '') && $.inArray(timerId, consoleTimer) == -1) {
                 logMessage("Timer cancelled:", timerId);
@@ -1103,7 +1087,7 @@ var infraMonitorUtils = {
                 //Remove timerId from self.consoleTimer (pending timers)
                 consoleTimer.splice($.inArray(timerId, consoleTimer), 1);
             }
-            var timerangedropdownlistvalue = $("#msgTimeRange" + '_' + obj.name).data("contrailDropdown").value();
+            var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown").value();
              
             var filterObj = {
                 table:'MessageTable',
@@ -1180,10 +1164,10 @@ var infraMonitorUtils = {
             if(keywords.val() != null && keywords.val() != ''){
                 filterObj['keywords'] = keywords.val();
             }
-            loadSLResults({elementId:'gridConsole' + '_' + obj.name, btnId:'btnDisplayLogs', timeOut:60000,
+            loadSLResults({elementId:'gridConsole', btnId:'btnDisplayLogs', timeOut:60000,
                 pageSize:20, //gridHeight:500,
                 reqFields:['MessageTS', 'Category','Messagetype', 'Xmlmessage']}, filterObj);
-            gridConsole = $('#gridConsole' + '_' + obj.name).data('contrailGrid');
+            gridConsole = $('#gridConsole').data('contrailGrid');
             //Take to the last page and scroll to bottom
             //gridConsole.bind('dataBound',function() {
             //gridConsole.bind('dataBinding',function() {
@@ -1202,15 +1186,7 @@ var infraMonitorUtils = {
             fetchLastLogtimeAndCallLoadLogs('',nodeType);
         }
         
-        $('#btnResetLogs' + '_' + obj.name).on('click', function () {
-            obj.name = arguments[0].target.id.split('_')[1];
-            cboTimeRange = $('#msgTimeRange' + '_' + obj.name).data('contrailDropdown');
-            cboMsgCategory = $('#msgCategory' + '_' + obj.name).data('contrailDropdown');
-            cboMsgType = $('#msgType' + '_' + obj.name).data('contrailCombobox');
-            cboMsgLevel = $('#msgLevel' + '_' + obj.name).data('contrailDropdown');
-            cboMsgLimit = $('#msgLimit' + '_' + obj.name).data('contrailDropdown');
-            cboMsgFromTime = $('#console-from-time' + '_' + obj.name).data('contrailDateTimePicker');
-           
+        $('#btnResetLogs').on('click', function () {
             cboTimeRange.value('5m');
             selectTimeRange({val:"5m"});
             cboMsgType.value('');
@@ -1314,15 +1290,14 @@ function closeObjectLogWindow() {
     //clearValuesFromDomElements();
 }
 
-function showStatus(node, action){
-    var ip = node.ip;
+function showStatus(ip, action){
     if(CONTRAIL_STATUS_USER["ip_"+ip] == null || CONTRAIL_STATUS_PWD["ip_"+ip] == null){
-        showLoginWindow(node, action);
+        showLoginWindow(ip, action);
     }else {
         if(action === 'log') {
             showLogDirWindow(CONTRAIL_STATUS_USER["ip_"+ip], CONTRAIL_STATUS_PWD["ip_"+ip], ip);
         } else {
-            populateStatus(CONTRAIL_STATUS_USER["ip_"+ip], CONTRAIL_STATUS_PWD["ip_"+ip], node);
+            populateStatus(CONTRAIL_STATUS_USER["ip_"+ip], CONTRAIL_STATUS_PWD["ip_"+ip], ip);
         }
     }
 }
@@ -1331,8 +1306,7 @@ function showLogs(ip) {
     showStatus(ip, 'log');
 }
 
-function showLoginWindow(node, action){
-    var ip = node.ip;
+function showLoginWindow(ip, action){
     var username;
     var password;
     /*if ($('body').find('loginWindow')){
@@ -1368,7 +1342,7 @@ function showLoginWindow(node, action){
             if(action === 'log') {
                 showLogDirWindow(username, password, ip, loginWindow);
             }else { 
-                populateStatus(username, password, node, loginWindow);
+                populateStatus(username, password, ip, loginWindow);
             }
         }
         //loginWindow.hide();
@@ -1376,33 +1350,32 @@ function showLoginWindow(node, action){
     loginWindow.modal('show');
 };
 
-function populateStatus(usrName,pwd,node,loginWindow) {
-    var ip = node.ip;
-    startWidgetLoading('dashboard' + '_' + node.name);
-    $('#divBasic' + '_' + node.name).hide();
-    $('#divAdvanced' + '_' + node.name).hide();
-    $('#divStatus' + '_' + node.name).show();
+function populateStatus(usrName,pwd,ip,loginWindow) {
+    startWidgetLoading('dashboard');
+    $('#divBasic').hide();
+    $('#divAdvanced').hide();
+    $('#divStatus').show();
     var postData = {"username":usrName,"password":pwd};
     $.ajax({
         url:'/api/service/networking/device-status/' + ip,
         type:'post',
         data:postData
     }).done(function(response) {
-        endWidgetLoading('dashboard' + '_' + node.name);
+        endWidgetLoading('dashboard');
         CONTRAIL_STATUS_USER["ip_"+ip] = usrName;
         CONTRAIL_STATUS_PWD["ip_"+ip] = pwd;
         if(loginWindow != null){
             loginWindow.hide();
         }
         var htmlString = '<pre>' + response + '</pre>';
-        $('#divContrailStatus' + '_' + node.name).html(htmlString);
-        $('#divBasic' + '_' + node.name).hide();
-        $('#divAdvanced' + '_' + node.name).hide();
-        $('#divStatus' + '_' + node.name).show();
-        $('#divAdvanced' + '_' + node.name).parents('.widget-box').find('.widget-header h4 .subtitle').remove();
-        $('#divAdvanced' + '_' + node.name).parents('.widget-box').find('.widget-header h4').append('<span class="subtitle">(Status)</span>')
+        $('#divContrailStatus').html(htmlString);
+        $('#divBasic').hide();
+        $('#divAdvanced').hide();
+        $('#divStatus').show();
+        $('#divAdvanced').parents('.widget-box').find('.widget-header h4 .subtitle').remove();
+        $('#divAdvanced').parents('.widget-box').find('.widget-header h4').append('<span class="subtitle">(Status)</span>')
     }).fail(function(response) {
-        endWidgetLoading('dashboard' + '_' + node.name);
+        endWidgetLoading('dashboard');
         if(response != null && response.responseText != null && response.responseText.search("Error: Authentication failure") != -1){
             $('#divLoginError').html("Invalid username or password");
             showLoginWindow(ip);
@@ -2437,9 +2410,8 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
 
 //Default tooltip contents to show for infra nodes
 function getNodeTooltipContents(currObj) {
-    var displayName = currObj['displayName'] != null ? currObj['displayName'] : currObj['name'];
     var tooltipContents = [
-        {lbl:'Host Name', value: displayName},
+        {lbl:'Host Name', value: currObj['name']},
         {lbl:'Version', value:currObj['version']},
         {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
         {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
@@ -2478,19 +2450,19 @@ function getNodeTooltipContentsForBucket(currObj) {
 
 var bgpMonitor = {
     onvRouterDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
     },
     onControlNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_control'});
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_control'});
     },
     onAnalyticNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_analytics'});
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_analytics'});
     },
     onConfigNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_config'});
+         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
     },
     onDbNodeDrillDown:function(currObj) {
-        layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_database'});
+        layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
     },
     vRouterTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
