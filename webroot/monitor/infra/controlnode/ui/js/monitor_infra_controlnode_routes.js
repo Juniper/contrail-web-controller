@@ -116,17 +116,15 @@ monitorInfraControlRoutesClass = (function() {
     }
     
     this.populateRoutesTab = function(obj) {
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
-        }    
-         var  txtPrefixSearch = $('#txtPrefixSearch' + '_' + obj.name).contrailAutoComplete({
+        layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
+         var  txtPrefixSearch = $('#txtPrefixSearch').contrailAutoComplete({
            source:[]
          });
          var routeTableList = ["All","enet","erm-vpn","evpn","inet","inetvpn","inet6","l3vpn","rtarget"];
          var routeLimits = [10, 50, 100, 200];
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
          
-         $( "#comboRoutingInstance" + '_' + obj.name ).contrailCombobox({
+         $( "#comboRoutingInstance" ).contrailCombobox({
              defaultValue:'All',
              dataSource: {
                  type:'remote',
@@ -139,25 +137,25 @@ monitorInfraControlRoutesClass = (function() {
                  }
              },
          });
-         var comboRoutingInstance = $( "#comboRoutingInstance" + '_' + obj.name ).data('contrailCombobox');
+         var comboRoutingInstance = $( "#comboRoutingInstance" ).data('contrailCombobox');
          
-         $( "#comboRoutingTable" + '_' + obj.name ).contrailDropdown({
+         $( "#comboRoutingTable" ).contrailDropdown({
             data:routeTableList
          });
-         var comboRoutingTable = $( "#comboRoutingTable" + '_' + obj.name ).data('contrailDropdown');
+         var comboRoutingTable = $( "#comboRoutingTable" ).data('contrailDropdown');
         
          $.each(routeLimits,function(idx,obj){
             routeLimits[idx] = {'value':obj,'text':obj+' Routes'};
          });
          routeLimits = [{'text':'All','value':'All'}].concat(routeLimits);
-         $( "#comboRouteLimit" + '_' + obj.name ).contrailDropdown({
+         $( "#comboRouteLimit" ).contrailDropdown({
             dataTextField: 'text',
              dataValueField: 'value',
             data:routeLimits
          });
-         var comboLimit = $( "#comboRouteLimit" + '_' + obj.name ).data('contrailDropdown');
+         var comboLimit = $( "#comboRouteLimit" ).data('contrailDropdown');
          
-         $( "#comboPeerSource" + '_' + obj.name ).contrailDropdown({
+         $( "#comboPeerSource" ).contrailDropdown({
              //dataTextField: 'text',
              //dataValueField: 'value',
              dataSource: {
@@ -176,12 +174,12 @@ monitorInfraControlRoutesClass = (function() {
                  }
              },
          });
-         var comboPeerSource = $( "#comboPeerSource" + '_' + obj.name ).data('contrailDropdown');
+         var comboPeerSource = $( "#comboPeerSource" ).data('contrailDropdown');
          
-        $( "#comboProtocol" + '_' + obj.name ).contrailDropdown({
+        $( "#comboProtocol" ).contrailDropdown({
          data:protocols
         });
-        var comboProtocol = $( "#comboProtocol" + '_' + obj.name ).data('contrailDropdown');
+        var comboProtocol = $( "#comboProtocol" ).data('contrailDropdown');
         var routeQueryString = {}, routeTableSel = '';
         
         //Bug : 2360 : Setting default values before the responses for the particular comboboxes are retrieved
@@ -233,37 +231,26 @@ monitorInfraControlRoutesClass = (function() {
             var name;
             if (name = isCellSelectable(this.select())) {
                 if (name == 'source') {
-                    selectTab(ctrlNodeTabStrip + '_' + obj.name, 0);
+                    selectTab(ctrlNodeTabStrip, 0);
                 }
             }
         }
-        if (!isGridInitialized($('#gridRoutes' + '_' + obj.name))) {
-            var routesGrid = $('#gridRoutes' + '_' + obj.name).data('contrailGrid');
+        if (!isGridInitialized($('#gridRoutes'))) {
+            var routesGrid = $('#gridRoutes').data('contrailGrid');
             var url =  monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(obj) + '&' + $.param(routeQueryString);
             var ajaxConfig = {
                     url: url,
                     type: 'GET'
                 };
-            $('#btnRouteReset' + '_' + obj.name).on('click', function () {
+            $('#btnRouteReset').on('click', function () {
                 setDefaults();
-                $('#btnDisplayRoutes' + '_' + obj.name).trigger('click');
+                $('#btnDisplayRoutes').trigger('click');
             });
 
-            $('#btnDisplayRoutes' + '_' + obj.name).on('click', function (e) {
-                obj.name = e.target.id.split('_')[1];
-                var newIP = getIPforHostName(obj.name, 'controlNodeDS');
-                if(newIP != null) {
-                    obj.ip = newIP;
-                }            
-                comboRoutingInstance = $( "#comboRoutingInstance" + '_' + obj.name ).data('contrailCombobox');
-                comboRoutingTable = $( "#comboRoutingTable" + '_' + obj.name ).data('contrailDropdown');
-                comboPeerSource = $( "#comboPeerSource" + '_' + obj.name ).data('contrailDropdown');
-                comboProtocol = $( "#comboProtocol" + '_' + obj.name ).data('contrailDropdown');
-                comboLimit = $( "#comboRouteLimit" + '_' + obj.name ).data('contrailDropdown');
+            $('#btnDisplayRoutes').on('click', function (e) {
                 //Frame the filter query string
                 var newAjaxConfig = {url:url,type:'Get'};
                 routeQueryString = { };
-                
                 var routeInst = comboRoutingInstance.value(), routeTable = comboRoutingTable.value(),
                     peerSource = comboPeerSource.value(), protocol = comboProtocol.value(), limit = comboLimit.value(), prefix = txtPrefixSearch.val();
                 if (routeInst != 'All')
@@ -287,7 +274,7 @@ monitorInfraControlRoutesClass = (function() {
             });
             
             
-            $("#gridRoutes" + '_' + obj.name).contrailGrid({
+            $("#gridRoutes").contrailGrid({
                 header : {
                     title : {
                         text : 'Routes'
@@ -384,7 +371,7 @@ monitorInfraControlRoutesClass = (function() {
                     }
                 }
             });
-            routesGrid = $('#gridRoutes' + '_' + obj.name).data('contrailGrid');
+            routesGrid = $('#gridRoutes').data('contrailGrid');
             routesGrid.showGridMessage('loading');
         }
     }

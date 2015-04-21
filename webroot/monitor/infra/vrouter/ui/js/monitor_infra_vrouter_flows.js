@@ -6,7 +6,6 @@
  * vRouter Flows tab
  */
 monitorInfraComputeFlowsClass = (function() {
-    var nodeObj;
     this.parseFlowsData = function(response){
 
         var origResponse = response;
@@ -33,7 +32,7 @@ monitorInfraComputeFlowsClass = (function() {
                 response = [response];
             }
             if(isFromACLFlows) {
-                var aclUUID = $('#aclDropDown' + '_' + nodeObj.name).data('contrailDropdown').value();
+                var aclUUID = $('#aclDropDown').data('contrailDropdown').value();
                 $.each(response,function(idx,obj) {
                     var rawJson = obj;
                     if(idx != 0){
@@ -93,24 +92,22 @@ monitorInfraComputeFlowsClass = (function() {
         var isAclPrevFirstTimeClicked = true;
         var isAllPrevFirstTimeClicked = true;
         var selectedAcl = 'All';
-        var tabFilter =  $('#' + computeNodeTabStrip + '_' + obj.name).data('tabFilter');
+        var tabFilter =  $('#' + computeNodeTabStrip).data('tabFilter');
         var filters;
         if(tabFilter != null && tabFilter['tab'] == 'flows'){
             filters = tabFilter['filters'];
-            $('#' + computeNodeTabStrip + '_' + obj.name).removeData('tabFilter');
+            $('#' + computeNodeTabStrip).removeData('tabFilter');
         }
         if (filters != null){
             selectedAcl = filters[0]['aclUUID'];
         }
         flowKeyStack = [];
         aclIterKeyStack = [];
-        $('#btnNextFlows' + '_' + obj.name).unbind("click").click(onNextClick);
-        $('#btnPrevFlows' + '_' + obj.name).unbind("click").click(onPrevClick);
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
-        }    
-        if (!isDropdownInitialized('aclDropDown' + '_' + obj.name)){
-            $('#aclDropDown' + '_' + obj.name).contrailDropdown({
+        $('#btnNextFlows').unbind("click").click(onNextClick);
+        $('#btnPrevFlows').unbind("click").click(onPrevClick);
+        layoutHandler.setURLHashParams({tab:'flows',node: obj['name']},{triggerHashChange:false});
+        if (!isDropdownInitialized('aclDropDown')){
+            $('#aclDropDown').contrailDropdown({
                 dataSource: {
                     type: 'remote',
                      url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
@@ -136,13 +133,13 @@ monitorInfraComputeFlowsClass = (function() {
                 dataTextField:'text',
                 change:onSelectAcl
             }).data('contrailDropdown');
-            $('#aclDropDown' + '_' + obj.name).data('contrailDropdown').value(selectedAcl);
+            $('#aclDropDown').data('contrailDropdown').value(selectedAcl);
         } 
         if(selectedAcl != 'All'){
-            $('#aclDropDown' + '_' + obj.name).data('contrailDropdown').value(selectedAcl);
+            $('#aclDropDown').data('contrailDropdown').value(selectedAcl);
         }   
-        if (!isGridInitialized('#gridComputeFlows' + '_' + obj.name)) {
-            $("#gridComputeFlows" + '_' + obj.name).contrailGrid({
+        if (!isGridInitialized('#gridComputeFlows')) {
+            $("#gridComputeFlows").contrailGrid({
                 header : {
                     title : {
                         text : 'Flows'
@@ -177,7 +174,7 @@ monitorInfraComputeFlowsClass = (function() {
                                        events: {
                                            onClick: function(e,dc){
                                                var tabIdx = $.inArray("networks", computeNodeTabs);
-                                               selectTab(computeNodeTabStrip + '_' + obj.name,tabIdx);
+                                               selectTab(computeNodeTabStrip,tabIdx);
                                            }
                                         },
                                        minWidth:195
@@ -199,7 +196,7 @@ monitorInfraComputeFlowsClass = (function() {
                                        events: {
                                            onClick: function(e,dc){
                                                var tabIdx = $.inArray("networks", computeNodeTabs);
-                                               selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+                                               selectTab(computeNodeTabStrip,tabIdx);
                                            }
                                         },
                                        minWidth:195
@@ -277,7 +274,7 @@ monitorInfraComputeFlowsClass = (function() {
                 footer : false,
                 change:onFlowChange
             });
-            flowGrid = $('#gridComputeFlows' + '_' + obj.name).data('contrailGrid');
+            flowGrid = $('#gridComputeFlows').data('contrailGrid');
             flowGrid.showGridMessage('loading');
             /*TODO context filtering
              * if(filters == null || filters == "" || filters == undefined){
@@ -285,7 +282,7 @@ monitorInfraComputeFlowsClass = (function() {
             }*/
         } else { 
             var newAjaxConfig;
-            flowGrid = $('#gridComputeFlows' + '_' + obj.name).data('contrailGrid');
+            flowGrid = $('#gridComputeFlows').data('contrailGrid');
             if(selectedAcl != 'All'){
                 newAjaxConfig = {
                         url: monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(obj) 
@@ -337,14 +334,8 @@ monitorInfraComputeFlowsClass = (function() {
             return (ret == '')? noDataStr: ret;
         }
         function onSelectAcl() {
-            obj.name = arguments[0].target.id.split('_')[1];
-            var newIP = getIPforHostName(obj.name, 'computeNodeDS');
-            if(newIP != null) {
-                obj.ip = newIP; 
-            }     
-            nodeObj = obj;
-            var acluuid = $('#aclDropDown' + '_' + obj.name).data("contrailDropdown").value();
-            var flowGrid = $('#gridComputeFlows' + '_' + obj.name).data('contrailGrid');
+            var acluuid = $('#aclDropDown').data("contrailDropdown").value();
+            var flowGrid = $('#gridComputeFlows').data('contrailGrid');
             var newAjaxConfig = "";
             flowKeyStack = [];
             aclIterKeyStack = [];
@@ -364,13 +355,8 @@ monitorInfraComputeFlowsClass = (function() {
             reloadGrid(flowGrid);
         }
         function onNextClick(){
-            obj.name = arguments[0].target.id.split('_')[1];
-            var newIP = getIPforHostName(obj.name, 'computeNodeDS');
-            if(newIP != null) {
-                obj.ip = newIP;
-            }
-            var flowGrid = $('#gridComputeFlows' + '_' + obj.name).data('contrailGrid');
-            var acluuid = $('#aclDropDown' + '_' + obj.name).data("contrailDropdown").value();
+            var flowGrid = $('#gridComputeFlows').data('contrailGrid');
+            var acluuid = $('#aclDropDown').data("contrailDropdown").value();
             var newAjaxConfig = "";
             isAllPrevFirstTimeClicked = true;
             isAclPrevFirstTimeClicked = true;
@@ -397,13 +383,8 @@ monitorInfraComputeFlowsClass = (function() {
             reloadGrid(flowGrid);
         }
         function onPrevClick(){
-            obj.name = arguments[0].target.id.split('_')[1];
-            var newIP = getIPforHostName(obj.name, 'computeNodeDS');
-            if(newIP != null) {
-                obj.ip = newIP;
-            }
-            var flowGrid = $('#gridComputeFlows' + '_' + obj.name).data('contrailGrid');
-            var acluuid = $('#aclDropDown' + '_' + obj.name).data("contrailDropdown").value();
+            var flowGrid = $('#gridComputeFlows').data('contrailGrid');
+            var acluuid = $('#aclDropDown').data("contrailDropdown").value();
             var newAjaxConfig = "";
             if(isAllPrevFirstTimeClicked) {
                 //we need to do this because when we click the prev for the first time the stack would contain the next uuid as well. 
@@ -453,7 +434,7 @@ monitorInfraComputeFlowsClass = (function() {
             if (name = isCellSelectable(this.select())) {
                 if ($.inArray(name, ['src_vn', 'dst_vn']) > -1){
                     var tabIdx = $.inArray("networks", computeNodeTabs);
-                    selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+                    selectTab(computeNodeTabStrip, tabIdx);
                 }
             }
         }

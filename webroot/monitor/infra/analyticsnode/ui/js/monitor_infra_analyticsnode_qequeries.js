@@ -42,12 +42,10 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
     }
     
     this.populateQEQueriesTab = function (obj) {
-        if(obj.detailView === undefined) { 
-            layoutHandler.setURLHashParams({tab:'qequeries', node: obj['name']},{triggerHashChange:false});
-        }    
+        layoutHandler.setURLHashParams({tab:'qequeries', node: obj['name']},{triggerHashChange:false});
         //Intialize the grid only for the first time
-        if (!isGridInitialized('#gridQEQueries' + '_' + obj.name)) {
-            $("#gridQEQueries" + '_' + obj.name).contrailGrid({
+        if (!isGridInitialized('#gridQEQueries')) {
+            $("#gridQEQueries").contrailGrid({
                 header : {
                     title : {
                         text : 'QE Queries'
@@ -111,7 +109,7 @@ monitorInfraAnalyticsQEQueriesClass = (function() {
                     }
                 }
             });
-            qequeriesGrid = $("#gridQEQueries" + '_' + obj.name).data("contrailGrid");
+            qequeriesGrid = $("#gridQEQueries").data("contrailGrid");
             qequeriesGrid.showGridMessage('loading');
         } else {
             reloadGrid(qequeriesGrid);

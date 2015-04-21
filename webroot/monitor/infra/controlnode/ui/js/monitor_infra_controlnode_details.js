@@ -12,14 +12,12 @@ monitorInfraControlDetailsClass = (function() {
         var nodeIp;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'', node: obj['name']},{triggerHashChange:false});
-        }
+        layoutHandler.setURLHashParams({tab:'', node: obj['name']},{triggerHashChange:false});
         //showProgressMask('#controlnode-dashboard', true);
-        startWidgetLoading('control-sparklines' + '_' + obj.name);
+        startWidgetLoading('control-sparklines');
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
-        $('#controlnode-dashboard' + '_' + obj.name).html(dashboardTemplate({title:'Control Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
-        startWidgetLoading('dashboard' + '_' + obj.name);   
+        $('#controlnode-dashboard').html(dashboardTemplate({title:'Control Node',colCount:2, showSettings:true, widgetBoxId:'dashboard'}));
+        startWidgetLoading('dashboard');   
         $.ajax({
             url: contrail.format(monitorInfraUrls['CONTROLNODE_DETAILS'], obj['name'])
         }).done(function (result) {
@@ -37,12 +35,12 @@ monitorInfraControlDetailsClass = (function() {
                     var slConfig;
                     startTime = endTime - 600000;
                     slConfig = {startTime: startTime, endTime: endTime};
-                    $('#control-sparklines' + '_' + obj.name).initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'BgpRouterState': [
+                    $('#control-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'BgpRouterState': [
                         {name: 'cpu_share', color: 'blue-sparkline'},
                         {name: 'virt_mem', color: 'green-sparkline'}
                     ]}, slConfig);
-                    endWidgetLoading('control-sparklines' + '_' + obj.name);
-                    $('#control-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                    endWidgetLoading('control-sparklines');
+                    $('#control-chart').initMemCPULineChart($.extend({url:function() {
                         return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
                     }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines' + '_' + obj.name, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
@@ -203,30 +201,30 @@ monitorInfraControlDetailsClass = (function() {
                 for(var i=0;i<cores.length;i++)
                   ctrlNodeDashboardInfo.push(cores[i]);
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#controlnode-dashboard' + '_' + obj.name + ' .widget-body').html(dashboardBodyTemplate({colCount:2, d:ctrlNodeDashboardInfo, nodeData:ctrlNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
+                $('#dashboard-box .widget-body').html(dashboardBodyTemplate({colCount:2, d:ctrlNodeDashboardInfo, nodeData:ctrlNodeData, showSettings:true, ip:nodeIp}));
                 var ipList = getControlNodeIpAddressList(ctrlNodeData);
                 var ipDeferredObj = $.Deferred();
                getReachableIp(ipList,"8083",ipDeferredObj);
                ipDeferredObj.done(function(nodeIp){
                    if(nodeIp != null && nodeIp != noDataStr) {
-                     $('#linkIntrospect' + '_' + obj.name).unbind('click');
-                       $('#linkIntrospect' + '_' + obj.name).click(function(){
+                     $('#linkIntrospect').unbind('click');
+                       $('#linkIntrospect').click(function(){
                            window.open('/proxy?proxyURL=http://'+nodeIp+':8083&indexPage', '_blank');
                        });
-                       $('#linkStatus' + '_' + obj.name).unbind('click');
-                       $('#linkStatus' + '_' + obj.name).on('click', function(){
-                           showStatus({ip : nodeIp, name : obj.name});
+                       $('#linkStatus').unbind('click');
+                       $('#linkStatus').on('click', function(){
+                           showStatus(nodeIp);
                        });
-                       $('#linkLogs' + '_' + obj.name).unbind('click');
-                       $('#linkLogs' + '_' + obj.name).on('click', function(){
+                       $('#linkLogs').unbind('click');
+                       $('#linkLogs').on('click', function(){
                            showLogs(nodeIp);
                        });
                    }
                });
 
-                endWidgetLoading('dashboard' + '_' + obj.name);
-                initWidget4Id('#control-chart' + '_' + obj.name + '-box');
-            }).fail(displayAjaxError.bind(null, $('#controlnode-dashboard' + '_' + obj.name)));
+                endWidgetLoading('dashboard');
+                initWidget4Id('#control-chart-box');
+            }).fail(displayAjaxError.bind(null, $('#controlnode-dashboard')));
     }
     return {populateDetailsTab:populateDetailsTab}
 })();

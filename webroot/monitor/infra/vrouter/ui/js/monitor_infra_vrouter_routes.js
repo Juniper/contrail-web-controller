@@ -138,30 +138,29 @@ monitorInfraComputeRoutesClass = (function() {
     }
     
     this.populateRoutesTab = function(obj){
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
-        }    
+
+        layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
         var routesGrid,ucIndex,mcIndex;
-        var rdoRouteType = $('#routeType' + '_' + obj.name).val();
+        var rdoRouteType = $('#routeType').val();
         var cboVRF;
         var selectedRoute;
-        var tabFilter =  $('#' + computeNodeTabStrip + '_' + obj.name).data('tabFilter');
+        var tabFilter =  $('#' + computeNodeTabStrip).data('tabFilter');
         var filters;
         if(tabFilter != null && tabFilter['tab'] == 'routes'){
             filters = tabFilter['filters'];
-            $('#' + computeNodeTabStrip + '_' + obj.name).removeData('tabFilter');
+            $('#' + computeNodeTabStrip).removeData('tabFilter');
         }
         if (filters != null){
             selectedRoute = filters[0]['routeName'];
         }
-        if(isDropdownInitialized('comboVRF' + '_' + obj.name)) {
-            cboVRF = $('#comboVRF' + '_' + obj.name).data('contrailDropdown');
+        if(isDropdownInitialized('comboVRF')) {
+            cboVRF = $('#comboVRF').data('contrailDropdown');
 //            cboVRF.select(function(dataItem) {
 //                return dataItem.name === selectedRoute;
 //            });
 //            cboVRF.dataSource.read();
         } else {
-            cboVRF = $('#comboVRF' + '_' + obj.name).contrailDropdown({
+            cboVRF = $('#comboVRF').contrailDropdown({
                 dataSource: {
                     type: 'remote',
                      url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(obj), obj['introspectPort']),
@@ -191,7 +190,7 @@ monitorInfraComputeRoutesClass = (function() {
                 cboVRF.value(cboVRF.getAllData()[0]['value']);
             }
            // cboVRF.list.width(300);
-            $('input[name="routeType' + '_' + obj.name + '"]').change(onRouteTypeChange);
+            $('input[name="routeType"]').change(onRouteTypeChange);
         }
         if(selectedRoute != null) {
              cboVRF.text(selectedRoute);
@@ -205,74 +204,69 @@ monitorInfraComputeRoutesClass = (function() {
             $(currentTypeDivId).hide();
         }
         function resetAllTypes(){
-            $("#gridvRouterUnicastRoutes" + '_' + obj.name).html('');
-            $("#gridvRouterMulticastRoutes" + '_' + obj.name).html('');
-            $("#gridvRouterL2Routes" + '_' + obj.name).html('');
-            $("#gridvRouterIpv6Routes" + '_' + obj.name).html('');
+            $("#gridvRouterUnicastRoutes").html('');
+            $("#gridvRouterMulticastRoutes").html('');
+            $("#gridvRouterL2Routes").html('');
+            $("#gridvRouterIpv6Routes").html('');
         }
         function onRouteTypeChange() {
-            obj.name = arguments[0].target.id.split('_')[1];
-            var newIP = getIPforHostName(obj.name, 'computeNodeDS');
-            if(newIP != null) {
-                obj.ip = newIP; 
-            }
             resetAllTypes();
-            if($('#rdboxUnicast' + '_' + obj.name).is(':checked') == true) {
-                if($("#gridvRouterMulticastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterMulticastRoutes" + '_' + obj.name);
+            if($('#rdboxUnicast').is(':checked') == true) {
+                if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterMulticastRoutes");
                 }
-                if($("#gridvRouterL2Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterL2Routes" + '_' + obj.name);
+                if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterL2Routes");
                 }
-                if($("#gridvRouterIpv6Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterIpv6Routes" + '_' + obj.name);
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
                 }
                 initUnicastRoutesGrid();
-                $("#gridvRouterUnicastRoutes" + '_' + obj.name).show();
+                $("#gridvRouterUnicastRoutes").show();
             }
-            else if($('#rdboxMulticast' + '_' + obj.name).is(':checked') == true) {
-                if($("#gridvRouterUnicastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterUnicastRoutes" + '_' + obj.name);
+            else if($('#rdboxMulticast').is(':checked') == true) {
+                if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterUnicastRoutes");
                 }
-                if($("#gridvRouterL2Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterL2Routes" + '_' + obj.name);
+                if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterL2Routes");
                 }
-                if($("#gridvRouterIpv6Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterIpv6Routes" + '_' + obj.name);
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
                 }
                 initMulticastRoutesGrid();
-                $("#gridvRouterMulticastRoutes" + '_' + obj.name).show();
-            } else if($('#rdboxL2' + '_' + obj.name).is(':checked') == true) {
-                if($("#gridvRouterMulticastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterMulticastRoutes" + '_' + obj.name);
+                $("#gridvRouterMulticastRoutes").show();
+            } else if($('#rdboxL2').is(':checked') == true) {
+                if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterMulticastRoutes");
                 }
-                if($("#gridvRouterUnicastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterUnicastRoutes" + '_' + obj.name);
+                if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterUnicastRoutes");
                 }
-                if($("#gridvRouterIpv6Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterIpv6Routes" + '_' + obj.name);
+                if($("#gridvRouterIpv6Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterIpv6Routes");
                 }
                 initL2RoutesGrid();
-                $("#gridvRouterL2Routes" + '_' + obj.name).show();
+                $("#gridvRouterL2Routes").show();
             } else {
-                if($("#gridvRouterMulticastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterMulticastRoutes" + '_' + obj.name);
+                if($("#gridvRouterMulticastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterMulticastRoutes");
                 }
-                if($("#gridvRouterUnicastRoutes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterUnicastRoutes" + '_' + obj.name);
+                if($("#gridvRouterUnicastRoutes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterUnicastRoutes");
                 }
-                if($("#gridvRouterL2Routes" + '_' + obj.name).data("contrailGrid") !=null) {
-                    destroyAndHide("#gridvRouterL2Routes" + '_' + obj.name);
+                if($("#gridvRouterL2Routes").data("contrailGrid") !=null) {
+                    destroyAndHide("#gridvRouterL2Routes");
                 }
                 initIPv6Grid();
-                $("#gridvRouterIpv6Routes" + '_' + obj.name).show();
+                $("#gridvRouterIpv6Routes").show();
             }
         }
 
         function onVRFChange(e) {
             var selectedRadio = "";
             var index = '';
-            var selected = $("input[type='radio'][name='routeType"+ '_' + obj.name + "']:checked");
+            var selected = $("input[type='radio'][name='routeType']:checked");
             if (selected.length > 0) {
                 selectedRadio = selected.val();
             }
@@ -310,13 +304,13 @@ monitorInfraComputeRoutesClass = (function() {
         
         //Initialize grid only after getting vrfList
         function initUnicastRoutesGrid(initialSelection) {
-            if (!isGridInitialized($('#gridvRouterUnicastRoutes' + '_' + obj.name))) {
+            if (!isGridInitialized($('#gridvRouterUnicastRoutes'))) {
                 /*cboVRF.select(function(dataItem) {
                     return dataItem.text === selectedRoute;
                 });*/
                 //cboVRF.select(1);
 
-                $("#gridvRouterUnicastRoutes" + '_' + obj.name).contrailGrid({
+                $("#gridvRouterUnicastRoutes").contrailGrid({
                     header : {
                         title : {
                             text : 'Routes'
@@ -357,11 +351,7 @@ monitorInfraComputeRoutesClass = (function() {
                             detail:{
                                 template: $("#gridsTemplateJSONDetails").html()
                             },
-                            sortable: false,
-                            onRenderComplete : function() {
-                                //$('#compute_tabstrip' + '_' + obj.name + ' .slick-cell').attr('style', 'font-size:0.85em;');
-                                //$('#compute_tabstrip' + '_' + obj.name + ' .slick-column-name').attr('style', 'font-size:0.85em;');
-                            }
+                            sortable: false
                         },
                         dataSource : {
                             remote: {
@@ -394,18 +384,18 @@ monitorInfraComputeRoutesClass = (function() {
                         }
                     }
                 });
-                routesGrid = $('#gridvRouterUnicastRoutes' + '_' + obj.name).data('contrailGrid');
+                routesGrid = $('#gridvRouterUnicastRoutes').data('contrailGrid');
                 routesGrid.showGridMessage('loading');
             } else {
-                routesGrid = $('#gridvRouterUnicastRoutes' + '_' + obj.name).data('contrailGrid');
+                routesGrid = $('#gridvRouterUnicastRoutes').data('contrailGrid');
                 reloadGrid(routesGrid);
             }
         }
         
       //Initialize grid only after getting vrfList
         function initMulticastRoutesGrid() {
-            if (!isGridInitialized($('#gridvRouterMulticastRoutes' + '_' + obj.name))) {
-                $("#gridvRouterMulticastRoutes" + '_' + obj.name).contrailGrid({
+            if (!isGridInitialized($('#gridvRouterMulticastRoutes'))) {
+                $("#gridvRouterMulticastRoutes").contrailGrid({
                     header : {
                         title : {
                             text : 'Routes'
@@ -476,18 +466,18 @@ monitorInfraComputeRoutesClass = (function() {
                         }
                     }
                 });
-                routesGrid = $('#gridvRouterMulticastRoutes' + '_' + obj.name).data('contrailGrid');     
+                routesGrid = $('#gridvRouterMulticastRoutes').data('contrailGrid');     
                 routesGrid.showGridMessage('loading');
             } else {
-                routesGrid = $('#gridvRouterMulticastRoutes' + '_' + obj.name).data('contrailGrid');  
+                routesGrid = $('#gridvRouterMulticastRoutes').data('contrailGrid');  
                 reloadGrid(routesGrid);
             }
         }
         
         function initL2RoutesGrid() {
-            if (!isGridInitialized($('#gridvRouterL2Routes' + '_' + obj.name))) {
+            if (!isGridInitialized($('#gridvRouterL2Routes'))) {
                 
-                $("#gridvRouterL2Routes" + '_' + obj.name).contrailGrid({
+                $("#gridvRouterL2Routes").contrailGrid({
                     header : {
                         title : {
                             text : 'Routes'
@@ -558,22 +548,22 @@ monitorInfraComputeRoutesClass = (function() {
                         }
                     }
                 });
-                routesGrid = $('#gridvRouterL2Routes' + '_' + obj.name).data('contrailGrid'); 
+                routesGrid = $('#gridvRouterL2Routes').data('contrailGrid'); 
                 routesGrid.showGridMessage('loading');
             } else {
-                routesGrid = $('#gridvRouterL2Routes' + '_' + obj.name).data('contrailGrid'); 
+                routesGrid = $('#gridvRouterL2Routes').data('contrailGrid'); 
                 reloadGrid(routesGrid);
             }
         }
         
         function initIPv6Grid(initialSelection) {
-            if (!isGridInitialized($('#gridvRouterIpv6Routes' + '_' + obj.name))) {
+            if (!isGridInitialized($('#gridvRouterIpv6Routes'))) {
                 /*cboVRF.select(function(dataItem) {
                     return dataItem.text === selectedRoute;
                 });*/
                 //cboVRF.select(1);
 
-                $("#gridvRouterIpv6Routes" + '_' + obj.name).contrailGrid({
+                $("#gridvRouterIpv6Routes").contrailGrid({
                     header : {
                         title : {
                             text : 'Routes'
@@ -647,10 +637,10 @@ monitorInfraComputeRoutesClass = (function() {
                         }
                     }
                 });
-                routesGrid = $('#gridvRouterIpv6Routes' + '_' + obj.name).data('contrailGrid');
+                routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
                 routesGrid.showGridMessage('loading');
             } else {
-                routesGrid = $('#gridvRouterIpv6Routes' + '_' + obj.name).data('contrailGrid');
+                routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
                 reloadGrid(routesGrid);
             }
         }

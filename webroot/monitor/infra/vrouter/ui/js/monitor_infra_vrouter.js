@@ -71,27 +71,18 @@ computeNodeView = function () {
     this.populateComputeNode = function (obj) {
         var tabIdx = $.inArray(obj['tab'], computeNodeTabs);
         
-        if (!isInitialized('#compute_tabstrip_' + obj.name)) {
-            if(obj.detailView === undefined) {
-            	var compNodeTemplate = Handlebars.compile($("#computenode-template").html());
-                $(pageContainer).html(compNodeTemplate(computeNodeInfo));
-               
-                //Set the height of all tabstrip containers to viewheight - tabstrip
-                var tabContHeight = layoutHandler.getViewHeight() - 42;
-            } else if(obj.detailView === true) {
-                computeNodeInfo = obj;
-            }   
+        if (!isInitialized('#compute_tabstrip')) {
+        	var compNodeTemplate = Handlebars.compile($("#computenode-template").html());
+            $(pageContainer).html(compNodeTemplate(computeNodeInfo));
+           
+            //Set the height of all tabstrip containers to viewheight - tabstrip
+            var tabContHeight = layoutHandler.getViewHeight() - 42;
             if (tabIdx == -1){
                 tabIdx = 0;
                 monitorInfraComputeDetailsClass.populateDetailsTab(computeNodeInfo);
             }
-            $("#compute_tabstrip_" + obj.name).contrailTabs({
+            $("#compute_tabstrip").contrailTabs({
                  activate: function(e, ui) {
-                    computeNodeInfo.name = e.target.id.split('_')[2];
-                    var newIP = getIPforHostName(computeNodeInfo.name, 'computeNodeDS');
-                    if(newIP != null) {
-                        computeNodeInfo.ip = newIP; 
-                    }
                     infraMonitorUtils.clearTimers();
                     //var selTab = $(e.item).text();
                     var selTab = $(ui.newTab.context).text();
@@ -102,7 +93,7 @@ computeNodeView = function () {
                         monitorInfraComputeInterfacesClass.populateInterfaceTab(computeNodeInfo);
                     } else if (selTab == 'Networks') {
                         monitorInfraComputeNetworksClass.populateVNTab(computeNodeInfo);
-                        $('#gridComputeVN' + '_' + obj.name).data('contrailGrid').refreshView();
+                        $('#gridComputeVN').data('contrailGrid').refreshView();
                     } else if (selTab == 'ACL') {
                         monitorInfraComputeACLClass.populateACLTab(computeNodeInfo);
                     } else if (selTab == 'Flows') {
@@ -113,18 +104,18 @@ computeNodeView = function () {
                         monitorInfraComputeDetailsClass.populateDetailsTab(computeNodeInfo);
                     } else if(selTab == 'Routes') {
                         monitorInfraComputeRoutesClass.populateRoutesTab(computeNodeInfo);
-                        if(isGridInitialized('#gridvRouterUnicastRoutes' + '_' + obj.name))
-                            $('#gridvRouterUnicastRoutes' + '_' + obj.name).data('contrailGrid').refreshView();
-                        if(isGridInitialized('#gridvRouterMulticastRoutes' + '_' + obj.name))
-                            $('#gridvRouterMulticastRoutes' + '_' + obj.name).data('contrailGrid').refreshView();
-                        if(isGridInitialized('#gridvRouterL2Routes' + '_' + obj.name))
-                            $('#gridvRouterL2Routes' + '_' + obj.name).data('contrailGrid').refreshView();
+                        if(isGridInitialized('#gridvRouterUnicastRoutes'))
+                            $('#gridvRouterUnicastRoutes').data('contrailGrid').refreshView();
+                        if(isGridInitialized('#gridvRouterMulticastRoutes'))
+                            $('#gridvRouterMulticastRoutes').data('contrailGrid').refreshView();
+                        if(isGridInitialized('#gridvRouterL2Routes'))
+                            $('#gridvRouterL2Routes').data('contrailGrid').refreshView();
                     }
                 }
             });
-            selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+            selectTab(computeNodeTabStrip,tabIdx);
         } else {
-            selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+            selectTab(computeNodeTabStrip,tabIdx);
         }
     }
 }
@@ -145,3 +136,5 @@ function getDisplayNameForVRouterType(type){
 
 cmpNodesView = new computeNodesView();
 cmpNodeView = new computeNodeView();
+
+

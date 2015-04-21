@@ -44,18 +44,15 @@ monitorInfraComputeInterfacesClass = (function() {
                 }
             });
         }
-        //$('#compute_tabstrip_nodeg2 .slick-cell').attr('style', 'font-size:0.85em;');
         return retArray;
     }
     
     this.populateInterfaceTab = function (obj) {
         //Push only tab & node parameter in URL
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
-        }    
+        layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
         
-        if (!isGridInitialized('#gridComputeInterfaces' + '_' + obj.name)) {
-            $('#gridComputeInterfaces' + '_' + obj.name).contrailGrid({
+        if (!isGridInitialized('#gridComputeInterfaces')) {
+            $('#gridComputeInterfaces').contrailGrid({
                 header : {
                     title : {
                         text : 'Interfaces'
@@ -98,7 +95,7 @@ monitorInfraComputeInterfacesClass = (function() {
                            events: {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                   selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+                                   selectTab(computeNodeTabStrip,tabIdx);
                                }
                             },
                            minWidth:120
@@ -186,7 +183,7 @@ monitorInfraComputeInterfacesClass = (function() {
                 }
                 //change:onIntfChange,
             })
-            intfGrid = $('#gridComputeInterfaces' + '_' + obj.name).data('contrailGrid');
+            intfGrid = $('#gridComputeInterfaces').data('contrailGrid');
             intfGrid.showGridMessage('loading');
             //applyGridDefHandlers(intfGrid, {noMsg:'No interfaces to display'});
         } else {

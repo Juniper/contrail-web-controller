@@ -114,16 +114,14 @@ monitorInfraComputeACLClass = (function() {
     }
     
     this.populateACLTab = function (obj) {
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
-        }    
+        layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
         var selectedAcl = 'All';
         if(obj['filters'] != null){
             selectedAcl = obj['filters'];
         }
         
-        if (!isGridInitialized($('#gridComputeACL' + '_' + obj.name))) {
-            $('#gridComputeACL' + '_' + obj.name).contrailGrid({
+        if (!isGridInitialized($('#gridComputeACL'))) {
+            $('#gridComputeACL').contrailGrid({
                 header : {
                     title : {
                         text : 'ACL'
@@ -145,8 +143,8 @@ monitorInfraComputeACLClass = (function() {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("flows", computeNodeTabs);
                                    var data = {tab:"flows",filters:[{aclUUID:dc['uuid']}]};
-                                   $('#' + computeNodeTabStrip + '_' + obj.name).data('tabFilter',data);
-                                   selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+                                   $('#' + computeNodeTabStrip).data('tabFilter',data);
+                                   selectTab(computeNodeTabStrip,tabIdx);
                                }
                             }
                        },
@@ -174,7 +172,7 @@ monitorInfraComputeACLClass = (function() {
                            events: {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                   selectTab(computeNodeTabStrip + '_' + obj.name,tabIdx);
+                                   selectTab(computeNodeTabStrip,tabIdx);
                                }
                             }
                        },
@@ -194,7 +192,7 @@ monitorInfraComputeACLClass = (function() {
                            events: {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                   selectTab(computeNodeTabStrip + '_' + obj.name,tabIdx);
+                                   selectTab(computeNodeTabStrip,tabIdx);
                                }
                             },
                            minWidth:200
@@ -255,7 +253,7 @@ monitorInfraComputeACLClass = (function() {
                     }
                 }
             })
-            aclGrid = $('#gridComputeACL' + '_' + obj.name).data('contrailGrid');
+            aclGrid = $('#gridComputeACL').data('contrailGrid');
             aclGrid.showGridMessage('loading');
         } else {
             reloadGrid(aclGrid);
@@ -323,19 +321,19 @@ monitorInfraComputeACLClass = (function() {
             if (name = isCellSelectable(this.select())) {
                 if ($.inArray(name, ['src_vn', 'dst_vn']) > -1)
                     var tabIdx = $.inArray("networks", computeNodeTabs);
-                    selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx);
+                    selectTab(computeNodeTabStrip, tabIdx);
                 if (name == 'flows') {
                     var dataItem = this.dataItem(this.select()[0].parentNode);
                     var filters = dataItem.uuid;
                     $('#compute_tabstrip').data(filters, uuid);
                     var tabIdx = $.inArray("flows", computeNodeTabs);
-                    selectTab(computeNodeTabStrip + '_' + obj.name, tabIdx,filters);
+                    selectTab(computeNodeTabStrip, tabIdx,filters);
                     //TODO removing the filtering because of some issues layoutHandler.setURLHashParams({tab:'flows', obj['ip'],node:'vRouters:' + obj['name'], filters:filters});
                 }
             }
         }
         function onAclSelect(){
-            var datasource = $("#gridComputeACL" + '_' + obj.name).data("contrailGrid").dataSource;
+            var datasource = $("#gridComputeACL").data("contrailGrid").dataSource;
             var filters = datasource.filter();
             var selectedAcl = $('#aclComboBox').data("contrailDropdown").value();
             if(selectedAcl == "All")
