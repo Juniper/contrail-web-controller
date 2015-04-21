@@ -7,8 +7,6 @@
  */
 monitorInfraDatabaseSummaryClass = (function() {
     var dbNodesGrid;
-    var disabledFeat = globalObj['webServerInfo']['disabledFeatures'].disabled;
-    var showDetails = disabledFeat != null && disabledFeat.indexOf('disable_expand_details') !== -1 ? false : true;
     this.populateDbNodes = function() {
         infraMonitorUtils.clearTimers();
         var dbNodesTemplate = contrail.getTemplate4Id("dbnodes-template");
@@ -31,18 +29,7 @@ monitorInfraDatabaseSummaryClass = (function() {
                 options: {
                     autoHeight : true,
                     enableAsyncPostRender:true,
-                    forceFitColumns:true,
-                    detail: (showDetails ? {
-                        template: $("#dbnode-template").html(),
-                        onExpand: function (e,dc) {
-                            $('#db_tabstrip_' + dc['name']).attr('style', 'margin:10px 150px 10px 150px');
-                            databaseNodeView.populateDbNode({name:dc['name'], ip:dc['ip'], detailView : true});
-                            $('#db-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail').addClass('slick-grid-detail-content-height');
-                            $('#db-nodes-grid > .grid-body > .slick-viewport > .grid-canvas > .slick-row-detail > .slick-cell').addClass('slick-grid-detail-sub-content-height');
-                        },
-                        onCollapse:function (e,dc) {
-                        }
-                    } : false)
+                    forceFitColumns:true
                 },
                 dataSource: {
                     dataView: dbNodesDataSource,

@@ -11,7 +11,7 @@ controlNodesView = function () {
         if(hashParams['node'] == null)
             monitorInfraControlSummaryClass.populateControlNodes();
         else
-            ctrlNodeView.load({displayName:hashParams['node'],tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
+            ctrlNodeView.load({name:hashParams['node'],tab:hashParams['tab']});
         //layoutHandler.setURLHashParams({node:'Control Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -49,9 +49,7 @@ controlNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        if(obj['detailView'] === undefined) {
-            pushBreadcrumb([obj['displayName']]);
-        }
+        pushBreadcrumb([obj['name']]);
     	ctrlNodeInfo = obj;
     	if((ctrlNodeInfo == null || ctrlNodeInfo.ip ==  null ||  ctrlNodeInfo.ip == '') && ctrlNodeInfo.tab != null){
 			//issue details call and populate ip
@@ -82,33 +80,24 @@ controlNodeView = function () {
     this.populateControlNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in control node details page
-        if (!isInitialized('#control_tabstrip' + '_' + obj.name)) {
-            if(obj.detailView === undefined) {
-                var ctrlNodeTemplate = Handlebars.compile($("#controlnode-template").html());
-                $(pageContainer).html(ctrlNodeTemplate(ctrlNodeInfo));
-            
-                //Set the height of all tabstrip containers to viewheight - tabstrip
-                var tabContHeight = layoutHandler.getViewHeight() - 42;
-                //$('#control_tabstrip > div').height(tabContHeight);
-            } else if(obj.detailView === true) {
-                ctrlNodeInfo = obj;
-            }
-            $("#control_tabstrip" + '_' + obj.name).contrailTabs({
+        if (!isInitialized('#control_tabstrip')) {
+            var ctrlNodeTemplate = Handlebars.compile($("#controlnode-template").html());
+            $(pageContainer).html(ctrlNodeTemplate(ctrlNodeInfo));
+
+            //Set the height of all tabstrip containers to viewheight - tabstrip
+            var tabContHeight = layoutHandler.getViewHeight() - 42;
+            //$('#control_tabstrip > div').height(tabContHeight);
+
+            $("#control_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    ctrlNodeInfo.name = e.target.id.replace('control_tabstrip_','');
-                    ctrlNodeInfo.displayName = getDisplayNameforHostName(ctrlNodeInfo.name, 'controlNodeDS');
-                    var newIP = getIPforHostName(ctrlNodeInfo.name, 'controlNodeDS');
-                    if(newIP != null) {
-                        ctrlNodeInfo.ip = newIP;
-                    }
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Peers') {
                         monitorInfraControlPeersClass.populatePeersTab(ctrlNodeInfo);
-                        $('#gridPeers' + '_' + obj.name).data('contrailGrid').refreshView();
+                        $('#gridPeers').data('contrailGrid').refreshView();
                     } else if (selTab == 'Routes') {
                         monitorInfraControlRoutesClass.populateRoutesTab(ctrlNodeInfo);
-                        $('#gridRoutes' + '_' + obj.name).data('contrailGrid').refreshView();
+                        $('#gridRoutes').data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
                         infraMonitorUtils.populateMessagesTab('control', {source:ctrlNodeInfo['name']}, ctrlNodeInfo);
                     } else if (selTab == 'Details') {
@@ -123,7 +112,7 @@ controlNodeView = function () {
             monitorInfraControlDetailsClass.populateDetailsTab(ctrlNodeInfo);
         }
         //If any tab is stored in URL,select it else select the first tab
-        selectTab(ctrlNodeTabStrip + '_' + obj.name, tabIdx);
+        selectTab(ctrlNodeTabStrip,tabIdx);
     }
 }
 
