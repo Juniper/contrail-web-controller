@@ -12,16 +12,14 @@ monitorInfraConfigDetailsClass = (function() {
         var nodeIp,iplist;
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
-        if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'', node:obj['displayName']},{triggerHashChange:false});
-        }    
-        startWidgetLoading('config-sparklines' + '_' + obj.name);
-        toggleWidgetsVisibility(['apiServer-chart' + '_' + obj.name + '-box'], ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box']);
+        layoutHandler.setURLHashParams({tab:'', node:obj['name']},{triggerHashChange:false});
+        startWidgetLoading('config-sparklines');
+        toggleWidgetsVisibility(['apiServer-chart-box'], ['serviceMonitor-chart-box', 'schema-chart-box']);
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
-        $('#confignode-dashboard' + '_' + obj.name).html(dashboardTemplate({title:'Configuration Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
-        startWidgetLoading('dashboard' + '_' + obj.name);
+        $('#confignode-dashboard').html(dashboardTemplate({title:'Configuration Node',colCount:2, showSettings:true, widgetBoxId:'dashboard'}));
+        startWidgetLoading('dashboard');
         $.ajax({
-            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , encodeURIComponent(obj['displayName']))
+            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , obj['name'])
         }).done(function (result) {
                 var noDataStr = "--";
                 $.ajax({
@@ -31,7 +29,6 @@ monitorInfraConfigDetailsClass = (function() {
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {
-                    
                     var cpuMemStats = [], nodetype = "configNodeDS";
                     //Build a query to fetch the cpu mem stats
                     var postData = getPostDataForCpuMemStatsQuery(nodetype,"details");
@@ -44,34 +41,32 @@ monitorInfraConfigDetailsClass = (function() {
                         var slConfig;
                         startTime = endTime - 600000;
                         slConfig = {startTime: startTime, endTime: endTime};
-                        $('#apiServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#apiServer-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-api-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-api-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        $('#serviceMonitor-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#serviceMonitor-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-svc-monitor-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-svc-monitor-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        $('#schema-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#schema-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-schema-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-schema-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        endWidgetLoading('config-sparklines' + '_' + obj.name);
-                        $('#apiServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        endWidgetLoading('config-sparklines');
+                        $('#apiServer-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-api', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines' + '_' + obj.name, showWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                        $('#serviceMonitor-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines', showWidgetIds: ['apiServer-chart' + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '-box', 'schema-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        $('#serviceMonitor-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-svc-monitor', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines' + '_' + obj.name, showWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                        $('#schema-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines', showWidgetIds: ['serviceMonitor-chart' + '-box'], hideWidgetIds: ['apiServer-chart' + '-box', 'schema-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        $('#schema-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-schema', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines', showWidgetIds: ['schema-chart' + '-box'], hideWidgetIds: ['apiServer-chart' + '-box', 'serviceMonitor-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                     });
-                    
-                    
                 });
                 confNodeData = result;
-                var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['displayName'],value:confNodeData}])[0];
+                var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['name'],value:confNodeData}])[0];
                 var cpu = "N/A",
                     memory = "N/A",
                     confNodeDashboardInfo, oneMinCPU, fiveMinCPU, fifteenMinCPU,
@@ -86,7 +81,7 @@ monitorInfraConfigDetailsClass = (function() {
                 }
                 configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
                 confNodeDashboardInfo = [
-                  {lbl:'Hostname', value:obj['displayName']},
+                  {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address', value:(function (){
                      var ips = '';
                         try{
@@ -187,31 +182,31 @@ monitorInfraConfigDetailsClass = (function() {
                   confNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#confignode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#confignode-dashboard' + '_' + obj.name + ' .widget-body').html(dashboardBodyTemplate({colCount:2, d:confNodeDashboardInfo, nodeData:confNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
+                $('#confignode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:confNodeDashboardInfo, nodeData:confNodeData, showSettings:true, ip:nodeIp}));
                 var ipDeferredObj = $.Deferred();
                 getReachableIp(iplist,"8084",ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
                    if(nodeIp != null && nodeIp != noDataStr) {
-                     $('#linkIntrospect' + '_' + obj.name).unbind('click');
-                       $('#linkIntrospect' + '_' + obj.name).click(function(){
+                     $('#linkIntrospect').unbind('click');
+                       $('#linkIntrospect').click(function(){
                            window.open('/proxy?proxyURL=http://'+nodeIp+':8084&indexPage', '_blank');
                        });
-                       $('#linkStatus' + '_' + obj.name).unbind('click');
-                       $('#linkStatus' + '_' + obj.name).on('click', function(){
-                           showStatus({ip : nodeIp, name : obj.name});
+                       $('#linkStatus').unbind('click');
+                       $('#linkStatus').on('click', function(){
+                           showStatus(nodeIp);
                        });
-                       $('#linkLogs' + '_' + obj.name).unbind('click');
-                       $('#linkLogs' + '_' + obj.name).on('click', function(){
+                       $('#linkLogs').unbind('click');
+                       $('#linkLogs').on('click', function(){
                            showLogs(nodeIp);
                        });
                    }
                 });
             
-                endWidgetLoading('dashboard' + '_' + obj.name);
-                initWidget4Id('#apiServer-chart' + '_' + obj.name + '-box');
-                initWidget4Id('#serviceMonitor-chart' + '_' + obj.name + '-box');
-                initWidget4Id('#schema-chart' + '_' + obj.name + '-box');
-            }).fail(displayAjaxError.bind(null, $('#confignode-dashboard' + '_' + obj.name)));
+                endWidgetLoading('dashboard');
+                initWidget4Id('#apiServer-chart-box');
+                initWidget4Id('#serviceMonitor-chart-box');
+                initWidget4Id('#schema-chart-box');
+            }).fail(displayAjaxError.bind(null, $('#confignode-dashboard')));
     }
     return {populateDetailsTab:populateDetailsTab};
 })();
