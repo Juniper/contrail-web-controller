@@ -29,20 +29,19 @@
 
 <script type="text/x-handlebars-template" id="dbnode-template">
     <div class="contrail">
-        <!--<h3 id="detail-title" class="smaller">Database Node Details</h3>-->
-        <div id="db_tabstrip_{{name}}" class="contrail-widget-tabs">
+        <div id="db_tabstrip">
             <ul>
-                <li><a href="#mon-infra-db-details-tab_{{name}}">Details</a></li>
+                <li><a href="#mon-infra-db-details-tab">Details</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-db-details-tab_{{name}}">
-                <div id='dbnode-dashboard_{{name}}' class='span5'>
+            <div class="row-fluid" id="mon-infra-db-details-tab">
+                <div id='dbnode-dashboard' class='span5'>
                 </div>
-                <div id='dbnode-detail-charts_{{name}}' class="span7">
+                <div id='dbnode-detail-charts' class="span7">
                     <div class="row-fluid">
                         <div class="widget-box transparent" id="dbnode-sparklines-box">
                             <div class="widget-header">
                                 <h4 class="smaller">
-                                    <i id="dbnode-sparklines_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="dbnode-sparklines-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     Database Space Utilization
                                 </h4>
                                 <div class="widget-toolbar pull-right">
@@ -54,7 +53,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-4">
                                     <div class="row-fluid">
-                                        <div id="dbnode-sparklines_{{name}}" class="span4 dbnode-chart-link sparklines-box">
+                                        <div id="dbnode-sparklines" class="span4 dbnode-chart-link sparklines-box">
                                             <p class="sparkline-title">Database Node</p>
                                             <div class="row-fluid">
                                                <span class="span6"><small>Space Usage</small></span>
@@ -69,10 +68,10 @@
                                 </div><!-- /widget-main -->
                             </div><!--/widget-body -->
                         </div><!--/widget-box-->
-                        <div class="widget-box transparent" id="dbnode-chart_{{name}}-box">
+                        <div class="widget-box transparent" id="dbnode-chart-box">
                             <div class="widget-header">
                                 <h4 class="smaller">
-                                    <i id="dbnode-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="dbnode-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     Database Node Disk Space Usage
                                 </h4>
                                 <div class="widget-toolbar">
@@ -83,7 +82,7 @@
                             </div>
                             <div class="widget-body">
                                 <div class="widget-main padding-4">
-                                    <div id='dbnode-chart_{{name}}' class='row-fluid'></div>
+                                    <div id='dbnode-chart' class='row-fluid'></div>
                                 </div><!-- /widget-main -->
                             </div><!--/widget-body -->
                         </div><!--/widget-box-->
