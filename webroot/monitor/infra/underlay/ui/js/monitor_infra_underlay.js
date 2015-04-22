@@ -345,6 +345,10 @@ underlayModel.prototype.getData = function(cfg) {
             failure: function (err) {
                 if(cfg.failureCallback != null && typeof cfg.failureCallback == 'function')
                     cfg.failureCallback(err);
+            },
+            complete: function (ajaxObj, stateOfRequest) {
+                if(cfg.completeCallback != null && typeof cfg.completeCallback == 'function')
+                    cfg.completeCallback(ajaxObj, stateOfRequest);
             }
         });
     }
@@ -611,7 +615,7 @@ underlayView.prototype.addElementsToGraph = function(els) {
         $("#topology-connected-elements").find("div").remove();
         graph.clear();
         graph.resetCells(els);
-        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 70, "rankSep" : 80});
+        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 60, "rankSep" : 60});
         var svgHeight = newGraphSize.height;
         var svgWidth = newGraphSize.width;
         var viewAreaHeight = $("#topology-connected-elements").height();
@@ -1622,12 +1626,12 @@ underlayView.prototype.highlightPath = function(response, data) {
         null !== response.nodes && typeof response.nodes !== "undefined"){
 
     }
-    if(response.nodes <=0 ){
-        showInfoWindow("No Underlay paths found for the selected flow.", "Info");
+    if(response.nodes <=0 || response.links <= 0){
+        underlayView.prototype.showInfoDiv('network_topology','No Underlay paths found for the selected flow');
         return false;
     }
     if(typeof response === "string") {
-        showInfoWindow(response, "Info");
+        underlayView.prototype.showInfoDiv('network_topology',response);
         return false;
     }
     var _this = null;
@@ -2092,7 +2096,8 @@ underlayView.prototype.renderTracePath = function(options) {
                         },
                         dataParser: function(response) {
                             //Need to diasable the next button if there are no more records
-                            if(response != null && response[0]['FlowRecordsResp'] != null && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
+                            if(response != null && response[0] != null && response[0]['FlowRecordsResp'] != null 
+                                    && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
                                 $("#btnNextFlows").attr('disabled','disabled'); 
                             return monitorInfraComputeFlowsClass.parseFlowsData(response,gridRenderDefObj);
                         },
@@ -2307,10 +2312,14 @@ underlayView.prototype.renderTracePath = function(options) {
                 data:{
                     data: postData
                 }
-            }).success(function(response){
+            }).done(function(response) {
                 _this.highlightPath(response, {data: postData});
-            }).always(function(response){
-                $("#network_topology").find('.topology-visualization-loading').hide();
+            }).fail(function(error) {
+                $("#network_topology").html('<div class="display-nonodes">Error in fetching details</div>');
+            }).always(function(ajaxObj,status) {
+               if(status == 'timeout') {
+                   underlayView.prototype.showInfoDiv('network_topology','Timeout in fetching details');
+               } 
             });
         });
     });
@@ -2366,10 +2375,14 @@ underlayView.prototype.renderTracePath = function(options) {
                 data:{
                     data: postData
                 }
-            }).success(function(response){
+            }).done(function(response) {
                 _this.highlightPath(response, {data: postData});
-            }).always(function(response){
-                $("#network_topology").find('.topology-visualization-loading').hide();
+            }).failure(function(error) {
+                $("#network_topology").html('<div class="display-nonodes">Error in fetching details</div>');
+            }).complete(function(ajaxObj,status) {
+                if(status == 'timeout') {
+                    $("#network_topology").html('<div class="display-nonodes">Timeout in fetching details</div>');
+                } 
             });
         });
     });
@@ -2896,6 +2909,11 @@ underlayView.prototype.destroy = function() {
     }
 }
 
+underlayView.prototype.showInfoDiv = function(container,msg) {
+    var html = '<div class="topology-visualization-loading loading-spinner" style="display: none;"><i class="icon-refresh icon-spin"></i></div>';
+        html += '<div class="display-nonodes">'+msg+'</div>';
+    $("#"+container).html(html);
+}
 
 
 var underlayController = function (model, view) {
@@ -2924,7 +2942,7 @@ underlayController.prototype.getModelData = function(cfg) {
                 //removing the progress bar and clearing the graph
                 $("#network_topology").find('.topology-visualization-loading').hide();
                 if(getValueByJsonPath(forceResponse,'nodes',[]).length == 0 ) {
-                    showEmptyInfo('network_topology');
+                    underlayView.prototype.showInfoDiv('network_topology','No physical devices to display');
                     $("#underlay_tabstrip").tabs('disable');
                 } else if(forceResponse['topologyChanged']) {
                     var graph = _this.getView().getGraph();
@@ -2982,9 +3000,6 @@ underlayController.prototype.getModelData = function(cfg) {
         _this.getModel().categorizeNodes(response['nodes']);
         _this.getModel().formTree();
         _this.getView().renderTopology(response);
-    }
-    function showEmptyInfo(container) {
-        $("#"+container).html('<div class="display-nonodes">No Physical Devices found</div>');
     }
     if(null !== cfg && typeof cfg !== "undefined")
         this.getModel().getData(cfg);

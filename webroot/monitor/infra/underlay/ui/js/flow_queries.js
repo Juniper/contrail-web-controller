@@ -47,7 +47,7 @@ frQuery['columnDisplay'] = [
                         retStr = '-';    
                     if(ip != noDataStr) {
                         var vRouterDetails = underlayView.prototype.getvRouterVMDetails(ip,'self_ip_list',VROUTER);
-                        retStr = contrail.format('{0} ({1})',vRouterDetails['name'], ip);
+                        retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
                     }
                 return retStr;
             }
@@ -796,7 +796,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                 iconCssClass: 'blue'
             },
             defaultControls: {
-                searchable: false
+                searchable: true
             }
         },
         columnHeader : {
@@ -916,16 +916,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             },
             actionCell: []
         };
-        if(getValueByJsonPath(globalObj['webServerInfo'],'disabledFeatures;disabled',[]).indexOf('mon_infra_underlay') == -1) {
-            gridConfig.body.options.actionCell.push({
-                    title: 'Show Underlay Paths',
-                    iconClass: 'icon-edit',
-                    onClick: function(rowIndex){
-                        var dataItem = $('#' + options.elementId).data('contrailGrid')._grid.getDataItem(rowIndex);
-                        showUnderlayPaths(dataItem);
-                    }
-                });
-         }
         $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
             var endTime = $("#"+options.queryPrefix+"-results").data('endTimeUTC');
