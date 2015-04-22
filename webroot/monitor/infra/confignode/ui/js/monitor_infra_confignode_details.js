@@ -148,7 +148,7 @@ monitorInfraConfigDetailsClass = (function() {
                         }
                      }
                      if(secondaryAnlNode != null && secondaryAnlNode != "" && secondaryAnlNode != "0.0.0.0"){
-                        anlNode.concat(', ' + secondaryAnlNode);
+                        anlNode = anlNode.concat(', ' + secondaryAnlNode);
                      }
                      return ifNull(anlNode,noDataStr);
                   })()},
