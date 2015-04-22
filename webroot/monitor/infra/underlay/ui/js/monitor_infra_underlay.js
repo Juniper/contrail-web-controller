@@ -345,6 +345,10 @@ underlayModel.prototype.getData = function(cfg) {
             failure: function (err) {
                 if(cfg.failureCallback != null && typeof cfg.failureCallback == 'function')
                     cfg.failureCallback(err);
+            },
+            complete: function (ajaxObj, stateOfRequest) {
+                if(cfg.completeCallback != null && typeof cfg.completeCallback == 'function')
+                    cfg.completeCallback(ajaxObj, stateOfRequest);
             }
         });
     }
@@ -611,7 +615,7 @@ underlayView.prototype.addElementsToGraph = function(els) {
         $("#topology-connected-elements").find("div").remove();
         graph.clear();
         graph.resetCells(els);
-        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 70, "rankSep" : 80});
+        var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 60, "rankSep" : 60});
         var svgHeight = newGraphSize.height;
         var svgWidth = newGraphSize.width;
         var viewAreaHeight = $("#topology-connected-elements").height();
@@ -1552,11 +1556,9 @@ underlayView.prototype.hideNodesOfType = function(type) {
     });
 }
 
-underlayView.prototype.resetTopology = function() {
+underlayView.prototype.resetTopology = function(resetBelowTabs) {
     $("#underlay_topology").data('nodeType',null);
     $("#underlay_topology").data('nodeName',null);
-    this.renderUnderlayTabs();
-    this.renderFlowRecords();
     this.removeUnderlayPathIds();
     this.setUnderlayPathIds([]);
     this.clearHighlightedConnectedElements();
@@ -1569,6 +1571,10 @@ underlayView.prototype.resetTopology = function() {
     this.addElementsToGraph(childElementsArray);
     $("#underlay_topology").removeData('nodeType');
     $("#underlay_topology").removeData('nodeName');
+    if(resetBelowTabs == undefined || resetBelowTabs == true) {
+        this.renderUnderlayTabs();
+        this.renderFlowRecords();
+    }
 }
 
 underlayView.prototype.removeUnderlayPathIds = function() {
@@ -1622,12 +1628,18 @@ underlayView.prototype.highlightPath = function(response, data) {
         null !== response.nodes && typeof response.nodes !== "undefined"){
 
     }
-    if(response.nodes <=0 ){
+    if(response.nodes <=0 || response.links <= 0){
         showInfoWindow("No Underlay paths found for the selected flow.", "Info");
+        if(null !== underlayRenderer && typeof underlayRenderer === "object"){
+            underlayRenderer.getView().resetTopology(false);
+        }
         return false;
     }
     if(typeof response === "string") {
         showInfoWindow(response, "Info");
+        if(null !== underlayRenderer && typeof underlayRenderer === "object"){
+            underlayRenderer.getView().resetTopology(false);
+        }
         return false;
     }
     var _this = null;
@@ -2092,7 +2104,8 @@ underlayView.prototype.renderTracePath = function(options) {
                         },
                         dataParser: function(response) {
                             //Need to diasable the next button if there are no more records
-                            if(response != null && response[0]['FlowRecordsResp'] != null && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
+                            if(response != null && response[0] != null && response[0]['FlowRecordsResp'] != null 
+                                    && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
                                 $("#btnNextFlows").attr('disabled','disabled'); 
                             return monitorInfraComputeFlowsClass.parseFlowsData(response,gridRenderDefObj);
                         },
@@ -2126,7 +2139,14 @@ underlayView.prototype.renderTracePath = function(options) {
                     }
                 }
             },
-            footer : false,
+            footer : {
+                pager : {
+                    options : {
+                        pageSize : 15,
+                        pageSizeSelect : [10, 15, 50, 100, 200, 500 ]
+                    }
+                }
+            }
         });
         vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
         vrouterflowsGrid.showGridMessage('loading');
@@ -2307,10 +2327,17 @@ underlayView.prototype.renderTracePath = function(options) {
                 data:{
                     data: postData
                 }
-            }).success(function(response){
+            }).done(function(response) {
                 _this.highlightPath(response, {data: postData});
-            }).always(function(response){
-                $("#network_topology").find('.topology-visualization-loading').hide();
+            }).fail(function(error,status) {
+                _this.resetTopology(false);
+                if(status == 'timeout') {
+                    showInfoWindow('Timeout in fetching details','Error');
+                } else if (status != 'success') {
+                    showInfoWindow('Error in fetching details','Error');
+                } 
+            }).always(function(ajaxObj,status) {
+               $(progressBar).hide();
             });
         });
     });
@@ -2366,10 +2393,17 @@ underlayView.prototype.renderTracePath = function(options) {
                 data:{
                     data: postData
                 }
-            }).success(function(response){
+            }).done(function(response) {
                 _this.highlightPath(response, {data: postData});
-            }).always(function(response){
-                $("#network_topology").find('.topology-visualization-loading').hide();
+            }).fail(function(error,status) {
+                _this.resetTopology();
+                if(status == 'timeout') {
+                    showInfoWindow('Timeout in fetching details','Error');
+                } else if (status != 'success') {
+                    showInfoWindow('Error in fetching details','Error');
+                } 
+            }).always(function(ajaxObj,status) {
+               $(progressBar).hide();
             });
         });
     });
