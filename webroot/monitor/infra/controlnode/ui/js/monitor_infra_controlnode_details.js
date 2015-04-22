@@ -116,7 +116,8 @@ monitorInfraControlDetailsClass = (function() {
                     })()},
                     {lbl:'Analytics Node', value:(function(){
                      var anlNode = noDataStr; 
-                     var secondaryAnlNodes, status;
+                     var secondaryAnlNodes = [];
+                     var status;
                      try{
                         anlNode = jsonPath(ctrlNodeData,"$..ModuleClientState..primary")[0].split(':')[0];
                         status = jsonPath(ctrlNodeData,"$..ModuleClientState..status")[0];
