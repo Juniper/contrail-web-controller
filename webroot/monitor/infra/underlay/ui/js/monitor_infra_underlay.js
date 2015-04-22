@@ -2503,6 +2503,7 @@ underlayView.prototype.renderUnderlayTabs = function() {
     var _this = this;
     $("#underlayTabs").html(Handlebars.compile($("#underlay-tabs").html()));
     $("#underlay_tabstrip").contrailTabs({
+        theme: 'classic',
         activate:function (e, ui) {
             var selTab = $(ui.newTab.context).text();
             if (selTab == 'Search Flows') {
