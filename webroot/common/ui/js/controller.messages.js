@@ -23,8 +23,8 @@ define([
 
         this.NO_TRAFFIC_STATS_FOUND = 'No Traffic Stats Found.';
 
-        this.NO_NETWORK_FOUND = 'Sorry, no virtual network present in this project.'
-        this.NO_VM_FOUND = 'Sorry, no virtual machine present in this network.'
+        this.NO_NETWORK_FOUND = 'No virtual network present in this project.'
+        this.NO_VM_FOUND = 'No virtual machine present in this network.'
 
         this.get = function () {
             var args = arguments;
