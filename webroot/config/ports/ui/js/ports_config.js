@@ -1251,7 +1251,9 @@ function mapVMIData(portData,selectedDomain,selectedProject){
         }
     }
     var vn = portData["virtual_network_refs"];
-    var vnLength = vn.length;
+    var vnLength = 0;
+    if(vn != undefined)
+        vnLength = vn.length;;
     var vnString = "";
     var vnUUID = "";
     var vnValues = [];
@@ -1627,6 +1629,10 @@ function showPortEditWindow(mode, rowIndex) {
         var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
         selectedPortUUID = selectedRow["portUUID"];
         vnUUID = selectedRow["vnUUID"];
+        if (vnUUID == "") {
+            showInfoWindow("Network not available for this port.", "Invalid Input");
+            return;
+        }
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
