@@ -50,6 +50,10 @@ if (!module.parent)
 function readPorts (portsObj, callback)
 {
     var dataObjArr = portsObj['reqDataArr'];
+    if (!dataObjArr.length) {
+        callback(err,null);
+        return;
+    }
     async.map(dataObjArr, getPortsAsync, function(err, data) {
         callback(err, data);
     });
@@ -68,6 +72,11 @@ function getPortsAsync (portsObj, callback)
     var appData = portsObj['appData'];
     var reqUrl = '/virtual-machine-interface/' + portId;
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
+        if (null == data) {
+            var error = new appErrors.RESTServerError('Invalid Data');
+            callback(error, null);
+            return; 
+        }
         getVirtualMachineInterfaceCb(err, data, appData, callback);
     });
 }
@@ -94,6 +103,11 @@ function getVirtualMachineInterfaceCb (err, vmiData, appData, callback)
     var fixedipObj            = null;
     var routeTableObj         = null;
 
+    if(!('virtual-machine-interface' in vmiData)){
+        var error = new appErrors.RESTServerError('Invalid virtual machine interface Data');
+        callback(error, null);
+        return; 
+    }
     if ('floating_ip_back_refs' in vmiData['virtual-machine-interface']) {
         floatingipPoolRef = vmiData['virtual-machine-interface']['floating_ip_back_refs'];
         floatingipPoolRefsLen = floatingipPoolRef.length;
@@ -635,6 +649,10 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
     async.map(DataObjectArr,
         commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(error, results) {
+            if (error){
+                callback(error, portConfig);
+                return;
+            }
             var DataObjectArrUpdate = [];
             if (staticIpPoolRefLen <= 0) {
                 callback(error, portConfig);
@@ -1000,6 +1018,10 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, DataSRObjec
         async.map(DataObjectArr,
         commonUtils.getServerResponseByRestApi(configApiServer, true),
         function(error, result) {
+            if(error){
+                callback(error, results);
+                return;
+            }
             linkUnlinkDetails(error, result, DataObjectLenDetail, portPutData, boolDeviceOwnerChange, vmiData, request, appData,
             function(error, results, subIntfObjArr){
                 async.map(subIntfObjArr,
@@ -2434,6 +2456,7 @@ function removeRefSubInterface(error, results, vmiData, appData, callback)
                     for(var j=0;j<vmiRefLen;j++){
                         if(vmiRef[j]['uuid'] == vmiUUID){
                             results[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                            results[i]['virtual-machine-interface']['virtual_machine_interface_properties'] = {};
                             j--;
                             vmiRefLen--;
                             commonUtils.createReqObj(DataObjectArr, vmiRefURL,
