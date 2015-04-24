@@ -161,6 +161,12 @@
         <method>get</method>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.getExternalVirtualNetworks</callback>
+     </item>
+     <item>
+        <url>/api/tenants/config/all-virtual-networks-fields</url>
+        <method>get</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getAllVirtualNetworksWFields</callback>
     </item>
 </urlLists>
 
