@@ -147,33 +147,52 @@ function deleteVirtualNetwork (request, response, appData)
                 return;                                
             }
         }
-        vCenterApi.getIdByMobName(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(portGroupId) {
-            vCenterApi.retrievePropertiesExForObj(appData,'DistributedVirtualPortgroup',portGroupId,'summary').done(function(portGroupSummary) {
-                //Delete portGroup and its IPPool from vCenter
-                vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
-                    if(data['Fault'] != null) {
-                        commonUtils.handleJSONResponse(createErrorObjFromFaultObj(data['Fault']),response,null);
-                        return;
-                    }
-                    var poolId = commonUtils.getValueByJsonPath(portGroupSummary,'RetrievePropertiesExResponse;returnval;objects;propSet;val;0;_value;ipPoolId',null);
-                    vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
-                        if(data['Fault'] != null) {
-                            commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
-                            return;
-                        } else {
-                            //Wait for network to be deleted from API server
-                            waitForNetworkDelete(appData,virtualNetworkId,function(result) {
-                                if(result == false) {
-                                    commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'Error in deleting virtual network' + virtualNetworkId});
-                                    return
+        var dataObjArr = [];
+        /* Check if we have any floating-ip-pool */
+        var fipPoolList = data['virtual-network']['floating_ip_pools'];
+        if (null != fipPoolList) {
+            var fipPoolCnt = fipPoolList.length;
+            for (i = 0; i < fipPoolCnt; i++) {
+                dataObjArr[i] = {};
+                dataObjArr[i]['virtualNetworkId'] = virtualNetworkId;
+                dataObjArr[i]['fipPoolId'] = fipPoolList[i]['uuid'];
+                dataObjArr[i]['appData'] = appData;
+            }
+        }
+        async.map(dataObjArr, vnConfigApi.fipPoolDelete, function(err, results) {
+            if(err != null) {
+                commonUtils.handleJSONResponse(err,response,null);
+                return;
+            } else {
+                vCenterApi.getIdByMobName(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(portGroupId) {
+                    vCenterApi.retrievePropertiesExForObj(appData,'DistributedVirtualPortgroup',portGroupId,'summary').done(function(portGroupSummary) {
+                        //Delete portGroup and its IPPool from vCenter
+                        vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
+                            if(data['Fault'] != null) {
+                                commonUtils.handleJSONResponse(createErrorObjFromFaultObj(data['Fault']),response,null);
+                                return;
+                            }
+                            var poolId = commonUtils.getValueByJsonPath(portGroupSummary,'RetrievePropertiesExResponse;returnval;objects;propSet;val;0;_value;ipPoolId',null);
+                            vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
+                                if(data['Fault'] != null) {
+                                    commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
+                                    return;
                                 } else {
-                                    commonUtils.handleJSONResponse(null,response,data);
+                                    //Wait for network to be deleted from API server
+                                    waitForNetworkDelete(appData,virtualNetworkId,function(result) {
+                                        if(result == false) {
+                                            commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'Error in deleting virtual network' + virtualNetworkId},response,null);
+                                            return
+                                        } else {
+                                            commonUtils.handleJSONResponse(null,response,data);
+                                        }
+                                    });
                                 }
                             });
-                        }
+                        });
                     });
                 });
-            });
+            }
         });
     });
 }
