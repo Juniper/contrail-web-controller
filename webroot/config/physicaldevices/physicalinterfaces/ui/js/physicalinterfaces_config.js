@@ -11,7 +11,6 @@ function physicalInterfacesConfig() {
     var doubleCreation = false;
     var interfaceDelimiters = [];
     var vmiDetails = [];
-    var piUUIDList = [];
     var pInterfaceDS = [];
     var flow = null;
     var dynamicID = 0;
@@ -21,6 +20,7 @@ function physicalInterfacesConfig() {
     var selAllRows;
     var ajaxTimeout = 300000;
     var deleteMsg = 'Confirm to delete all Interface(s) for Physical Router (%s)';
+    var piDataSrc = [];
     //Method Definations
     this.load = load;
     this.destroy = destroy;	
@@ -1295,7 +1295,7 @@ function physicalInterfacesConfig() {
         gridPhysicalInterfaces.showGridMessage('loading');
         ajaxParam = currentUUID;
         pInterfaceDS = [];
-        piUUIDList = [];
+        piDataSrc = [];
         doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID +'&parent=physical-router','GET', null,
         'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, ajaxTimeout);
     }
@@ -1321,7 +1321,6 @@ function physicalInterfacesConfig() {
                 var lInfs = pInterface["logical_interfaces"];
                 var lInterfaceNames = '';
                 if(lInfs != null) {
-                    piUUIDList.push(pInterface.uuid);
                     for(var j = 0; j < lInfs.length;j++) {
                         var lInterfaceName = lInfs[j].to[3]; 
                         if(lInterfaceNames === ''){
@@ -1330,23 +1329,16 @@ function physicalInterfacesConfig() {
                             lInterfaceNames += ',' + lInterfaceName;
                         }
                     }
+                    setPhysicalInterfaceDataItem(piDataSrc, pInterface, piName, lInterfaceNames);
+                } else {
+                    setPhysicalInterfaceDataItem(gridDS, pInterface, piName, lInterfaceNames);
                 }
                 pInterfaceDS.push({text : piName, value : pInterface.uuid, parent : 'physical_interface'});
-                gridDS.push({
-                    uuid : pInterface.uuid,
-                    name : piName,
-                    type : 'Physical',
-                    lInterfaces : lInterfaceNames != '' ? lInterfaceNames : '-',
-                    parent : pInterface.fq_name[1],
-                    vlan : '-',
-                    server : '-',
-                    servers_display : '-',        
-                    vn : '-',
-                    li_type : '-' 
-                });
             }
         }
-        gridPhysicalInterfaces._dataView.addData(gridDS);
+        if(gridDS.length > 0) {
+            gridPhysicalInterfaces._dataView.addData(gridDS);
+        }
         if(result != null && result.more == true || result.more == "true"){
 	       gridPhysicalInterfaces.showGridMessage('loading');
 	    } else {
@@ -1356,6 +1348,21 @@ function physicalInterfacesConfig() {
                 fetchLogicalInterfaces();
             }
         }    
+    }
+
+    function setPhysicalInterfaceDataItem(ds, pInterface, piName, lInterfaceNames) {
+        ds.push({
+            uuid : pInterface.uuid,
+            name : piName,
+            type : 'Physical',
+            lInterfaces : lInterfaceNames != '' ? lInterfaceNames : '-',
+            parent : pInterface.fq_name[1],
+            vlan : '-',
+            server : '-',
+            servers_display : '-',
+            vn : '-',
+            li_type : '-'
+        });
     }
     //fetches all logical interfaces under selected physical router 
     function fetchLogicalInterfaces() {
@@ -1382,8 +1389,9 @@ function physicalInterfacesConfig() {
         if(result != null && result.more == true || result.more == "true"){
 	       gridPhysicalInterfaces.showGridMessage('loading');
 	    } else {
-            if(piUUIDList.length > 0) {
+            if(piDataSrc.length > 0) {
                 // get the logical interfaces under first physical interface
+                gridPhysicalInterfaces._dataView.addData([piDataSrc[0]]);
                 fetchLIWithPI(0);
             } else {
                 var gridData = gridPhysicalInterfaces._dataView.getItems();
@@ -1439,17 +1447,18 @@ function physicalInterfacesConfig() {
     //fetches all logical interfaces under all physical interfaces
     function fetchLIWithPI(piUUIDIndex) {
         ajaxParam = currentUUID;
-        var uuid = piUUIDList[piUUIDIndex];
+        var uuid = piDataSrc[piUUIDIndex].uuid;
         var parent = 'physical-interface';
         doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
         'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
             {ajaxParam : ajaxParam, id : uuid, index : piUUIDIndex}, ajaxTimeout);
     }
-     
+
     window.successHandlerForLIWithPI = function(result, cbparam) {
         if(cbparam.ajaxParam != ajaxParam) {
             return;
         }
+        prepareLIDataWithPI(result);
         if(result.more == true || result.more == "true"){
             doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +
                 '&parent=physical-interface','GET', null, 'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
@@ -1457,11 +1466,11 @@ function physicalInterfacesConfig() {
         } else {
             //issue logical interfaces per physical interface call one at a time
             var newIndex = cbparam.index + 1;
-            if(newIndex < piUUIDList.length) {
+            if(newIndex < piDataSrc.length) {
+                gridPhysicalInterfaces._dataView.addData([piDataSrc[newIndex]]);
                 fetchLIWithPI(newIndex);
             }
         }
-        prepareLIDataWithPI(result);
     }
     function prepareLIDataWithPI(result) {
         prepareLIData(result);
