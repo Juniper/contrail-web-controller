@@ -59,7 +59,8 @@ define([
                             notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
                                 title: ctwm.NO_VM_FOUND,
                                 iconClass: false,
-                                defaultErrorMessage: false
+                                defaultErrorMessage: false,
+                                defaultNavLinks: false
                             });
 
                         $(selectorId).html(notFoundTemplate(notFoundConfig));
