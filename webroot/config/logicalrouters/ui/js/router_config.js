@@ -1061,7 +1061,7 @@ function logRouterCreateWindow(mode,rowIndex) {
 
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
-        url:"/api/admin/config/get-data?type=virtual-network",
+        url:"/api/tenants/config/all-virtual-networks-fields?uuid="+selectedProject,
         type:"GET"
     });
 
@@ -1070,10 +1070,10 @@ function logRouterCreateWindow(mode,rowIndex) {
         type:"GET"
     });
     
-    getAjaxs[2] = $.ajax({
+    /*getAjaxs[2] = $.ajax({
         url:"/api/tenants/config/shared-virtual-networks",
         type:"GET"
-    });
+    });*/
 
     $.when.apply($, getAjaxs).then(
         function () {
@@ -1083,8 +1083,8 @@ function logRouterCreateWindow(mode,rowIndex) {
             network_subnet = [];
             var externalNetworks = [];
             var localNetworks = [];
-            if(results[0][0] != null && results[0][0] != "" && results[0][0].data != null && results[0][0].data.length > 0) {
-                localNetworks = results[0][0].data;
+            if(results[0][0] != null && results[0][0] != "" && results[0][0].length > 0) {
+                localNetworks = results[0][0];
             }
             for(var j=0;j < localNetworks.length;j++){
                 var val="";
@@ -1101,12 +1101,12 @@ function logRouterCreateWindow(mode,rowIndex) {
                     networkText = localNetwork.fq_name[2] +" ("+localNetwork.fq_name[0]+":"+localNetwork.fq_name[1]+")";
                 } else {
                     networkText = localNetwork.fq_name[2];
+                }
                     if(localNetworks[j]["virtual-network"]["router_external"] == false &&
                        "network_ipam_refs" in localNetworks[j]["virtual-network"] && 
                        localNetworks[j]["virtual-network"]["network_ipam_refs"].length > 0){
                         networks.push({'text':networkText,'value':val});
                     }
-                }
                 var subnet = localNetwork["network_ipam_refs"];
                 network_subnet.push({"value" :val,"subnet":subnet})
             }
@@ -1140,7 +1140,7 @@ function logRouterCreateWindow(mode,rowIndex) {
             $(ddExtGateway).data("contrailDropdown").setData(externalNetworks);
             $(ddExtGateway).data("contrailDropdown").text("None");
 
-            var localNetworks = [];
+            /*var localNetworks = [];
             if(results[2][0] != null && results[2][0] != "" && results[2][0].length > 0) {
                 localNetworks = results[2][0];
             }
@@ -1157,7 +1157,7 @@ function logRouterCreateWindow(mode,rowIndex) {
                         networks.push({'text':networkText,'value':val})
                     }
                 }
-            }
+            }*/
             
             $("#msConnectedNetworks").data("contrailMultiselect").setData(networks);
 

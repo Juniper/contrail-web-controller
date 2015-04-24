@@ -149,6 +149,10 @@ function listVMInterfacesAggCb (error, logicalRouterDetail, appData, callback)
         async.map(dataObjArr,
                 commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
                 function(error, results) {
+                    if(error){
+                       callback(error, results);
+                       return;
+                    }
                    vmIfAggCb(error, results, logicalRouterDetail, appData, function(error, logicalRouterDetail) {
                        callback(error, logicalRouterDetail);
                    });
@@ -194,6 +198,10 @@ function vmIfAggCb(error, vmIfList, logicalRouterDetail, appData, callback)
     async.map(dataObjArr,
             commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
             function(error, results) {
+                if(error){
+                    callback(error, results);
+                    return;
+			    }
                 instanceIPRefAggCb(error, results, logicalRouterDetail, vmiLen, appData, function(error, logicalRouterDetail){
                     callback(error, logicalRouterDetail);
                 });
@@ -377,6 +385,10 @@ function updateRouteTable(addVMIData, domain, project, lruuid, appData, callback
         async.map(vnDataArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
         function(error, vnData) {
+            if(error){
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
            updateVTDataforAdd (vnData, lruuid, appData, domain, project, function(error, rtableResult) {
                callback(error, rtableResult);
            });
@@ -415,6 +427,7 @@ function updateVTDataforAdd(vnData, lruuid, appData, domain, project, callback){
         commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
         function(error, vnData) {
             callback(error, vnData);
+            return;
         });
     } else {
         callback(null, []);
@@ -523,6 +536,10 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
             }
             
             async.mapSeries(allDataArr, portConfig.createPortsCB, function(error, data){
+                if(error){
+                    commonUtils.handleJSONResponse(error, response, null);
+                    return;
+                }
                 var datalen = data.length;
                 var vmiLength = logicalRouterPostData['logical-router']['virtual_machine_interface_refs'].length;
                 var addVMIData = [];
@@ -590,6 +607,10 @@ function removeRTableRef (allDataArr, lruuid, appData, callback) {
         async.map(vmiDataArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
         function(error, vmiData) {
+            if(error){}
+                callback(error, vmiData);
+                return;
+            }
            readVMforRTable (vmiData, lruuid, appData, function(error, vmResult) {
                callback(error, vmResult);
            });
@@ -611,21 +632,25 @@ function readVMforRTable(vmiData, lruuid, appData, callback){
         async.map(vnDataArr,
         commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
         function(error, vnData) {
-           updateVTData (vnData, lruuid, appData, function(error, rtableResult) {
-               callback(error, rtableResult);
+            if(error){
+               callback(error, vnData);
+               return;
+            }
+            updateVTData (vnData, lruuid, appData, function(error, rtableResult) {
+            callback(error, rtableResult);
            });
         });
     }
 }
 
 function updateVTData(vnData, lruuid, appData, callback){
-	var vnDataArr = [];
-	var vnDataLength = vnData.length;
-	for (var i = 0; i < vnDataLength; i++){
-	    if("route_table_refs" in vnData[i]["virtual-network"]){
-	        var rtref = vnData[i]["virtual-network"]["route_table_refs"];
+    var vnDataArr = [];
+    var vnDataLength = vnData.length;
+    for (var i = 0; i < vnDataLength; i++){
+        if("route_table_refs" in vnData[i]["virtual-network"]){
+            var rtref = vnData[i]["virtual-network"]["route_table_refs"];
             if (rtref.length > 0){
-	            var rtrefLen = rtref.length;
+                var rtrefLen = rtref.length;
                 for (var j = 0; j < rtrefLen; j++){
                     if (rtref[j]["to"][2] == ("rt_"+lruuid)){
                         var vnuuid = vnData[i]["virtual-network"]["uuid"]
@@ -646,6 +671,7 @@ function updateVTData(vnData, lruuid, appData, callback){
         commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
         function(error, vnData) {
             callback(error, vnData);
+            return;
         });
     } else {
         callback(null, []);
