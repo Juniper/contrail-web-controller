@@ -32,17 +32,28 @@ monitorInfraControlDetailsClass = (function() {
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {
-                    var slConfig;
-                    startTime = endTime - 600000;
-                    slConfig = {startTime: startTime, endTime: endTime};
-                    $('#control-sparklines').initMemCPUSparkLines(result, 'parseMemCPUData4SparkLines', {'BgpRouterState': [
-                        {name: 'cpu_share', color: 'blue-sparkline'},
-                        {name: 'virt_mem', color: 'green-sparkline'}
-                    ]}, slConfig);
-                    endWidgetLoading('control-sparklines');
-                    $('#control-chart').initMemCPULineChart($.extend({url:function() {
-                        return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines', showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    var cpuMemStats = [], nodetype = "controlNodeDS";
+                    //Build a query to fetch the cpu mem stats
+                    var postData = getPostDataForCpuMemStatsQuery(nodetype,"details");
+                    $.ajax({
+                        url: monitorInfraUrls['QUERY'],
+                        type:"POST",
+                        data:postData
+                    }).done(function (resultJSON) {
+                        var cpuMemStats = infraMonitorUtils.parseCpuMemStats(resultJSON,nodetype);
+                        var slConfig;
+                        startTime = endTime - 600000;
+                        slConfig = {startTime: startTime, endTime: endTime};
+                        $('#control-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                             {name: 'contrail-control-cpu-share', color: 'blue-sparkline'},
+                             {name: 'contrail-control-mem-res', color: 'green-sparkline'}
+                         ]}, slConfig);
+                        endWidgetLoading('control-sparklines' + '_' + obj.name);
+                        $('#control-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                            return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines' + '_' + obj.name, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    });
+                    
                 });
                 var procStateList, overallStatus = noDataStr;
                 var controlProcessStatusList = [];
