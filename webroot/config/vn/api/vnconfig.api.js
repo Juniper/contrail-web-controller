@@ -2385,4 +2385,5 @@ exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
 exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
 exports.getAllVirtualNetworksWFields = getAllVirtualNetworksWFields;
+exports.fipPoolDelete  = fipPoolDelete;
 
