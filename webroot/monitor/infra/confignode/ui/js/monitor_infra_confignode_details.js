@@ -31,31 +31,44 @@ monitorInfraConfigDetailsClass = (function() {
                 }).fail(function() {
                     endTime = getCurrentTime4MemCPUCharts();
                 }).always(function() {
-                    var slConfig;
-                    startTime = endTime - 600000;
-                    slConfig = {startTime: startTime, endTime: endTime};
-                    $('#apiServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'api_server_cpu_share', color: 'blue-sparkline'},
-                        {name: 'api_server_mem_virt', color: 'green-sparkline'}
-                    ]}, slConfig);
-                    $('#serviceMonitor-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'service_monitor_cpu_share', color: 'blue-sparkline'},
-                        {name: 'service_monitor_mem_virt', color: 'green-sparkline'}
-                    ]}, slConfig);
-                    $('#schema-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.configNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'schema_xmer_cpu_share', color: 'blue-sparkline'},
-                        {name: 'schema_xmer_mem_virt', color: 'green-sparkline'}
-                    ]}, slConfig);
-                    endWidgetLoading('config-sparklines' + '_' + obj.name);
-                    $('#apiServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-api', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines' + '_' + obj.name, showWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#serviceMonitor-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-svc-monitor', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines' + '_' + obj.name, showWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#schema-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-schema', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    
+                    var cpuMemStats = [], nodetype = "configNodeDS";
+                    //Build a query to fetch the cpu mem stats
+                    var postData = getPostDataForCpuMemStatsQuery(nodetype,"details");
+                    $.ajax({
+                        url: monitorInfraUrls['QUERY'],
+                        type:"POST",
+                        data:postData
+                    }).done(function (resultJSON) {
+                        var cpuMemStats = infraMonitorUtils.parseCpuMemStats(resultJSON,nodetype);
+                        var slConfig;
+                        startTime = endTime - 600000;
+                        slConfig = {startTime: startTime, endTime: endTime};
+                        $('#apiServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                            {name: 'contrail-api-cpu-share', color: 'blue-sparkline'},
+                            {name: 'contrail-api-mem-res', color: 'green-sparkline'}
+                        ]}, slConfig);
+                        $('#serviceMonitor-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                            {name: 'contrail-svc-monitor-cpu-share', color: 'blue-sparkline'},
+                            {name: 'contrail-svc-monitor-mem-res', color: 'green-sparkline'}
+                        ]}, slConfig);
+                        $('#schema-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                            {name: 'contrail-schema-cpu-share', color: 'blue-sparkline'},
+                            {name: 'contrail-schema-mem-res', color: 'green-sparkline'}
+                        ]}, slConfig);
+                        endWidgetLoading('config-sparklines' + '_' + obj.name);
+                        $('#apiServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-api', '30', '10', obj['name'], endTime);
+                        }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines' + '_' + obj.name, showWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        $('#serviceMonitor-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-svc-monitor', '30', '10', obj['name'], endTime);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines' + '_' + obj.name, showWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        $('#schema-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                            return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-schema', '30', '10', obj['name'], endTime);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    });
+                    
+                    
                 });
                 confNodeData = result;
                 var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['name'],value:confNodeData}])[0];
