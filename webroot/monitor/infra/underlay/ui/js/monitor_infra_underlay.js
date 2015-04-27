@@ -2194,6 +2194,12 @@ underlayView.prototype.renderTracePath = function(options) {
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
+            var selectedText = '';
+            try {
+                selectedText = $("#tracePathDropdown").select2('data')['text'];
+            } catch (error) {
+                selectedText = '-';
+            }
             if($('#vrouterRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var deferredObj = $.Deferred(),vRouterData = {name:e['val']};
@@ -2201,7 +2207,7 @@ underlayView.prototype.renderTracePath = function(options) {
             } else if($('#instRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var ajaxConfig = {};
-                ajaxConfig = getInstFlowsUrl(e['val'],VIRTUALMACHINE);
+                ajaxConfig = getInstFlowsUrl(e['val'],selectedText);
                 reloadFlowsGrid(ajaxConfig);
             }
         }
@@ -2229,18 +2235,20 @@ underlayView.prototype.renderTracePath = function(options) {
         var instAttributes = ifNull(instObj['more_attributes'],{});
         var interfaceList = ifNull(instAttributes['interface_list'],[])
         var vmIp = '-',vmIpArr = [];
-        if(interfaceList.length > 0) {
-            for(var j = 0; j < interfaceList.length; j++) {
-                var intfObj = interfaceList[j];
-                if(intfObj['ip6_active']) {
-                    vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
-                } else {
-                    vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
-                }
+        for(var j = 0; j < interfaceList.length; j++) {
+            var intfObj = interfaceList[j];
+            if(intfObj['ip6_active']) {
+                vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
+            } else {
+                vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
             }
-            if(vmIpArr.length > 0)
-                vmIp = vmIpArr.join(',');
+            for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length; k++) {
+                var floatingIpObj = intfObj['floating_ips'][k];
+                vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
+            }
         }
+        if(vmIpArr.length > 0)
+            vmIp = vmIpArr.join(',');
         instComboboxData.push({
             text: instAttributes['vm_name']+' ('+vmIp+')',
             value: instances[i]['name']
@@ -2269,7 +2277,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $("#prevNextBtns").toggleClass('show hide');
             tracePathDropdown.setData(instComboboxData);
             selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            ajaxConfig = getInstFlowsUrl(selItem['value'],VIRTUALMACHINE);
+            ajaxConfig = getInstFlowsUrl(selItem['value'],selItem['text']);
             reloadFlowsGrid(ajaxConfig);
         }
     });
@@ -2279,6 +2287,11 @@ underlayView.prototype.renderTracePath = function(options) {
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{});
         var item = tracePathDropdown.getSelectedData();
+        var contextVrouterIp = '';
+        try {
+            contextVrouterIp = item[0]['text'].split("(")[1].slice(0,-1);
+        }catch(err) {
+        } 
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
@@ -2291,9 +2304,13 @@ underlayView.prototype.renderTracePath = function(options) {
                 destPort: dataItem['dport'] != null ? dataItem['dport'] : dataItem['dst_port'],
                 protocol: dataItem['protocol'],
          };
+        //We are sending the VrfId of the flow for trace router request, in some cases like egress flows, the Vrf Id is in context with the
+        //current Vrouter introspect but we are issuing the trace route request to other vrouter,which throws error to fix these cases
+        //resolveVrfId IP used.
         if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
             if($("#vrouterRadiobtn").is(':checked')) {
-                postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+                postData['nodeIP'] = contextVrouterIp;
+                postData['resolveVrfId'] = contextVrouterIp;
             } else if($("#instRadiobtn").is(':checked')) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -2302,25 +2319,39 @@ underlayView.prototype.renderTracePath = function(options) {
                     postData['nodeIP'] = getValueByJsonPath(vrouterDetails,'more_attributes;VrouterAgent;self_ip_list;0','-');
                 }
             }
+            if(dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null) {
+                postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
+            }
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         } else if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
+            if(dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null) {
+                postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
+                postData['resolveVrfId'] = contextVrouterIp;
+            }
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         }
         var progressBar = $("#network_topology").find('.topology-visualization-loading');
         $(progressBar).show();
         $(progressBar).css('margin-bottom',$(progressBar).parent().height());
-        $.ajax({
-            url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
-        }).always(function(networkDetails){
-            if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
-                var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
-                if(vrfList[0] != null)
-                    nwFqName += ":"+vrfList[0];
-            } else 
-                // if there is no vrf name in the response then just constructing it in general format
-                nwFqName += ":"+nwFqName.split(':')[2];
-            postData['vrfName'] = nwFqName;
+        if (postData['vrfId'] != null) {
+            doTraceFlow(postData);
+        } else {
+            $.ajax({
+                url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
+            }).always(function(networkDetails){
+                if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
+                    var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
+                    if(vrfList[0] != null)
+                        nwFqName += ":"+vrfList[0];
+                } else 
+                    // if there is no vrf name in the response then just constructing it in general format
+                    nwFqName += ":"+nwFqName.split(':')[2];
+                postData['vrfName'] = nwFqName;
+                doTraceFlow(postData);
+            });
+        }
+        function doTraceFlow (postData) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
@@ -2339,13 +2370,18 @@ underlayView.prototype.renderTracePath = function(options) {
             }).always(function(ajaxObj,status) {
                $(progressBar).hide();
             });
-        });
+        }
     });
     $("#revTraceFlowBtn").die('click').live('click',function(e){
         var flowGrid = $("#vrouterflows").data('contrailGrid');
         var checkedRows = flowGrid.getCheckedRows();
         var dataItem = ifNull(checkedRows[0],{}),nwFqName = '';
         var item = tracePathDropdown.getSelectedData();
+        var contextVrouterIp = '';
+        try {
+            contextVrouterIp = item[0]['text'].split("(")[1].slice(0,-1);
+        }catch(err) {
+        } 
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
@@ -2359,7 +2395,8 @@ underlayView.prototype.renderTracePath = function(options) {
         };
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             if($("#vrouterRadiobtn").is(':checked')) {
-                postData['nodeIP'] = item[0]['text'].split("(")[1].slice(0,-1);
+                postData['nodeIP'] = contextVrouterIp;
+                postData['resolveVrfId'] = contextVrouterIp;
             } else if($("#instRadiobtn").is(':checked')) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -2369,24 +2406,39 @@ underlayView.prototype.renderTracePath = function(options) {
                 }
             }
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
+            if(dataItem['raw_json'] != null && dataItem['raw_json']['dest_vrf'] != null) {
+                postData['vrfId'] = parseInt(dataItem['raw_json']['dest_vrf']);
+            }
         } else if(dataItem['direction_ing'] == 1 || dataItem['direction'] == 'ingress') {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['destvn'] != null ? dataItem['destvn'] : dataItem['dst_vn'];
+            if(dataItem['raw_json'] != null && dataItem['raw_json']['dest_vrf'] != null) {
+                postData['vrfId'] = parseInt(dataItem['raw_json']['dest_vrf']);
+                postData['resolveVrfId'] = contextVrouterIp;
+            }
         }
         var progressBar = $("#network_topology").find('.topology-visualization-loading');
         $(progressBar).show();
         $(progressBar).css('margin-bottom',$(progressBar).parent().height());
-        $.ajax({
-            url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
-        }).always(function(networkDetails){
-            if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
-                var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
-                if(vrfList[0] != null)
-                    nwFqName += ":"+vrfList[0];
-            } else 
-                // if there is no vrf name in the response then just constructing it in general format
-                nwFqName += ":"+nwFqName.split(':')[2];
-            postData['vrfName'] = nwFqName;
+        if(postData['vrfId'] != null) {
+            doReverseFlow(postData);
+        } else {
+            $.ajax({
+                url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='+nwFqName,
+            }).always(function(networkDetails){
+                if(networkDetails['value']!= null && networkDetails['value'][0] != null &&  networkDetails['value'][0]['value'] != null) {
+                    var vrfList = getValueByJsonPath(networkDetails,'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
+                    if(vrfList[0] != null)
+                        nwFqName += ":"+vrfList[0];
+                } else 
+                    // if there is no vrf name in the response then just constructing it in general format
+                    nwFqName += ":"+nwFqName.split(':')[2];
+                postData['vrfName'] = nwFqName;
+                doReverseFlow(postData);
+            });
+        }
+        
+        function doReverseFlow (postData) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
@@ -2405,9 +2457,9 @@ underlayView.prototype.renderTracePath = function(options) {
             }).always(function(ajaxObj,status) {
                $(progressBar).hide();
             });
-        });
+        }
     });
-    function getInstFlowsUrl(name,type){
+    function getInstFlowsUrl(name,text){
         var req = {};
         var ajaxData = {
                 pageSize: 50,
@@ -2419,19 +2471,20 @@ underlayView.prototype.renderTracePath = function(options) {
                 async: true,
                 table:'FlowRecordTable'
         };
-        if(type == VIRTUALMACHINE) {
-            var vmData = instMap[name];
-            var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
-            var where = '';
-            for(var i = 0; i < intfData.length; i++) {
-                where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
-                if(i+1 > intfData.length)
-                    where+= 'OR';
+        var vmData = instMap[name];
+        var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
+        var where = '',floatingIp = [];
+        for(var i = 0; i < intfData.length; i++) {
+            for(var k = 0;k < ifNull(intfData[i]['floating_ips'],[]).length; k++) {
+                var floatingIpData = intfData[i]['floating_ips'][k];
+                where += '(sourcevn = '+floatingIpData['virtual_network']+' AND destvn = '+floatingIpData['virtual_network'];
+                where += ' AND sourceip = '+floatingIpData['ip_address']+') OR '
             }
-            ajaxData['where'] = where;
-        } else if(type == VROUTER) {
-            ajaxData['where'] = "(vrouter = "+name+")";
+            where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
+            if(i+1 > intfData.length)
+                where+= 'OR';
         }
+        ajaxData['where'] = where;
         ajaxData['engQueryStr'] = getEngQueryStr(ajaxData);
         req['data'] = ajaxData;
         req['url'] = '/api/admin/reports/query';
