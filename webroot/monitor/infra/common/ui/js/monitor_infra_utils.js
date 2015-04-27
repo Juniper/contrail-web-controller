@@ -387,7 +387,7 @@ var infraMonitorUtils = {
             if(obj['ip'] == '-') {
                 obj['ip'] = obj['configIP'];
             }
-            obj['histCpuArr'] = parseUveHistoricalValues(dValue,'','VrouterStatsAgent;cpu_share;0;history-10');
+            obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
             
             obj['status'] = getOverallNodeStatus(d,'compute');
             var processes = ['contrail-vrouter-agent','contrail-vrouter-nodemgr','supervisor-vrouter'];
@@ -464,7 +464,7 @@ var infraMonitorUtils = {
             //Info:Need to specify the processname explictly for which we need res memory
             obj['y'] = parseInt(jsonPath(d,'$..meminfo.res')[0])/1024; //Convert to MB
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
-            obj['histCpuArr'] = parseUveHistoricalValues(d,'$..cpu_share[*].history-10');
+            obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
             obj['uveIP'] = ifNull(jsonPath(d,'$..bgp_router_ip_list')[0],[]);
             obj['configIP'] = ifNull(jsonPath(d,'$..ConfigData..bgp_router_parameters.address')[0],'-');
             obj['isConfigMissing'] = $.isEmptyObject(jsonPath(d,'$..ConfigData')[0]) ? true : false;
@@ -558,7 +558,7 @@ var infraMonitorUtils = {
             obj['y'] = parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info[?(@.module_id=="contrail-collector")]..meminfo.res')[0])/1024;
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
-            obj['histCpuArr'] = parseUveHistoricalValues(d,'$..collector_cpu_share[*].history-10');
+            obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
             obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.queries_being_processed')[0],[]).length; 
             obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.pending_queries')[0],[]).length; 
             obj['size'] = obj['pendingQueryCnt'] + 1;
@@ -637,7 +637,7 @@ var infraMonitorUtils = {
             }catch(e){
                 obj['status'] = 'Down';
             }
-            obj['histCpuArr'] = parseUveHistoricalValues(d,'$..api_server_cpu_share[*].history-10');
+            obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
             var iplist = jsonPath(d,'$..config_node_ip')[0];
              obj['ip'] = obj['summaryIps'] = noDataStr;
                 if(iplist != null && iplist != noDataStr && iplist.length > 0){
@@ -734,6 +734,90 @@ var infraMonitorUtils = {
             obj['name'] = d['name'];
             retArr.push(obj);
         });
+        return retArr;
+    },
+    parseCpuStatsData : function(statsData){
+        var ret = {};
+        var retArr = [];
+        if(statsData == null){
+            return [];
+        }
+        $.each(statsData,function(idx,d){
+            var source = d['Source'];
+            var t = JSON.stringify({"ts":d['T']});
+            
+            if(ret[source] != null && ret[source]['history-10'] != null){
+                var hist10 = ret[source]['history-10'];
+                hist10[t] = d['cpu_info.cpu_share'];
+            } else {
+                ret[source] = {};
+                ret[source]['history-10'] = {};
+                ret[source]['history-10'][t] = d['cpu_info.cpu_share'];
+            }
+        });
+        $.each(ret,function(key,val){
+           var t = {};
+           t["name"] = key;
+           t["value"] = val;
+           retArr.push(t); 
+        });
+        return retArr;
+    },
+    parseCpuMemStats : function(statsData,nodeType){
+        var ret = {};
+        var retArr = {};
+        if(statsData == null || statsData['data'] == null){
+            return [];
+        }
+        statsData = statsData['data'];
+        $.each(statsData,function(idx,d){
+            var module = d['cpu_info.module_id'];
+            var t = JSON.stringify({"ts":d['T']});
+            var cpuForModule = module + '-cpu-share';
+            var memForModule = module + '-mem-res';
+            
+            
+            if(nodeType == "computeNodeDS"){
+                cpuForModule = "contrail-vrouter-agent-cpu-share";
+                memForModule = "contrail-vrouter-agent-mem-res";
+                var oneMinCpuLoadModule = "contrail-vrouter-agent-one-min-cpuload";
+                var useSysMemModule = "contrail-vrouter-agent-used-sys-mem";
+                if(ret[oneMinCpuLoadModule] != null && ret[oneMinCpuLoadModule][0]['history-10'] != null){
+                    var memhist10 = ret[oneMinCpuLoadModule][0]['history-10'];
+                    memhist10[t] = d['cpu_info.mem_res'];
+                } else {
+                    ret[oneMinCpuLoadModule] = [];
+                    ret[oneMinCpuLoadModule][0]={'history-10':{}};
+                    ret[oneMinCpuLoadModule][0]['history-10'][t] = d['cpu_info.one_min_cpuload'];
+                }
+                if(ret[useSysMemModule] != null && ret[useSysMemModule][0]['history-10'] != null){
+                    var memhist10 = ret[useSysMemModule][0]['history-10'];
+                    memhist10[t] = d['cpu_info.mem_res'];
+                } else {
+                    ret[useSysMemModule] = [];
+                    ret[useSysMemModule][0]={'history-10':{}};
+                    ret[useSysMemModule][0]['history-10'][t] = d['cpu_info.used_sys_mem'];
+                }
+            }
+            if(ret[cpuForModule] != null && ret[cpuForModule][0]['history-10'] != null){
+                var cpuhist10 = ret[cpuForModule][0]['history-10'];
+                cpuhist10[t] = d['cpu_info.cpu_share'];
+            } else {
+                ret[cpuForModule] = [];
+                ret[cpuForModule][0]={'history-10':{}};
+                ret[cpuForModule][0]['history-10'][t] = d['cpu_info.cpu_share'];
+            }
+            if(ret[memForModule] != null && ret[memForModule][0]['history-10'] != null){
+                var memhist10 = ret[memForModule][0]['history-10'];
+                memhist10[t] = d['cpu_info.mem_res'];
+            } else {
+                ret[memForModule] = [];
+                ret[memForModule][0]={'history-10':{}};
+                ret[memForModule][0]['history-10'][t] = d['cpu_info.mem_res'];
+            }
+            
+        });
+        retArr['value'] = ret;
         return retArr;
     },
     isProcessStateMissing: function(dataItem) {
@@ -2403,6 +2487,108 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
     genDeferredObj.done(function(genData) {
         deferredObj.resolve(mergeGeneratorAndPrimaryData(genData['dataSource'],dataSource));
     });
+}
+
+function mergeCpuStatsDataAndPrimaryData(statsDataDS,primaryDS){
+    var statsDSData = statsDataDS.getItems();
+    var primaryData = primaryDS.getItems();
+    var updatedData = [];
+  //to avoid the change event getting triggered copy the data into another array and use it.
+    var statsData = [];
+    $.each(statsDSData,function (idx,obj){
+        statsData.push(obj);
+    });
+    $.each(primaryData,function(i,d){
+        var idx=0;
+        while(statsData.length > 0 && idx < statsData.length){
+            if(statsData[idx]['name'] == d['name']){
+                d['histCpuArr'] = parseUveHistoricalValues(statsData[idx],'$.value.history-10');
+                statsData.splice(idx,1);
+                break;
+            }
+            idx++;
+        };
+        updatedData.push(d);
+    });
+    primaryDS.updateData(updatedData);
+    return {dataSource:primaryDS};
+}
+
+function getPostDataForCpuMemStatsQuery(dsName,source) {
+    var postData = {
+            pageSize:50,
+            page:1,
+            timeRange:600,
+            tgUnits:'secs',
+            fromTimeUTC:'now-10m',
+            toTimeUTC:'now',
+            async:true,
+            queryId:randomUUID(),
+            reRunTimeRange:600,
+            select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id'
+    }
+    
+    if (dsName == 'controlNodeDS'){
+        postData['table'] = 'StatTable.ControlCpuState.cpu_info';
+        postData['where'] = '(cpu_info.module_id = contrail-control)';
+    } else if (dsName == "computeNodeDS") {
+        postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+        postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
+        postData['where'] = '';
+    } else if (dsName == "analyticsNodeDS") {
+        postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
+        if(source == "details"){
+            postData['where'] = '(cpu_info.module_id = contrail-collector) OR (cpu_info.module_id = contrail-query-engine) OR (cpu_info.module_id = contrail-analytics-api)';
+        } else {
+            postData['where'] = '(cpu_info.module_id = contrail-collector)';
+        }
+    } else if (dsName == "configNodeDS") {
+        postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
+        if(source == "details"){
+            postData['where'] = '(cpu_info.module_id = contrail-api) OR (cpu_info.module_id = contrail-svc-monitor) OR (cpu_info.module_id = contrail-schema)';
+        } else {
+            postData['where'] = '(cpu_info.module_id = contrail-api)';
+        }
+    }
+    
+    return postData;
+    
+}
+
+function fetchCPUStats(deferredObj,primaryDS,dsName){
+    //build the query
+    var postData = getPostDataForCpuMemStatsQuery(dsName,"summary");
+    
+    var transportCfg = { 
+            url:monitorInfraUrls['QUERY'],
+            type:'POST',
+            data:postData
+        }
+    var genDeferredObj = $.Deferred();
+    var dataView = new ContrailDataView();
+//    if(source != null && source == 'details'){
+//        $.ajax({
+//            url:monitorInfraUrls['QUERY'],
+//            type:'POST',
+//            data:postData
+//        }).done(function(result) {
+//            if(result != null && result [0] != null){
+//                infraMonitorUtils.parseCpuStatsData
+//                primaryDS =  mergeCollectorDataAndPrimaryData(result[0],primaryDS);
+//                deferredObj.resolve({dataSource:primaryDS});
+//            }
+//        }).fail(function(result) {
+//            //nothing to do..the generators numbers will not be updated
+//        });
+//    } else {
+        getOutputByPagination(dataView,
+                            {transportCfg:transportCfg,
+                            parseFn:infraMonitorUtils.parseCpuStatsData,
+                            loadedDeferredObj:genDeferredObj});
+        genDeferredObj.done(function(cpuStatsData) {
+            deferredObj.resolve(mergeCpuStatsDataAndPrimaryData(cpuStatsData['dataSource'],primaryDS));
+        });
+//    }
 }
 
 //Default tooltip contents to show for infra nodes
