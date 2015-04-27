@@ -269,10 +269,10 @@ function createPortValidate (request, data, response, appData, callback)
         }
         delete portPostData['virtual-machine-interface']['logical_router_back_refs'];
     }
-    if (('virtual_machine_interface_device_owner' in portPostData['virtual-machine-interface']) && 
+    /*if (('virtual_machine_interface_device_owner' in portPostData['virtual-machine-interface']) && 
         (portPostData['virtual-machine-interface']["virtual_machine_interface_device_owner"]).substring(0,7) == "compute"){
         portPostData["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
-    }
+    }*/
     configApiServer.apiPost(portsCreateURL, portPostData, appData,
                             function(error, vmisData) {
         if (error) {
