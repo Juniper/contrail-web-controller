@@ -147,19 +147,15 @@ function deleteVirtualNetwork (request, response, appData)
                 return;                                
             }
         }
-        //Delete portGroup and its IPPool from vCenter
-        vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
-            var ipPoolName = 'ip-pool-for-' + vnPostData['Network'];
-            if(data['Fault'] != null) {
-                commonUtils.handleJSONResponse(createErrorObjFromFaultObj(data['Fault']),response,null);
-                return;
-            }
-            vCenterApi.queryIpPools(appData).done(function(data) {
-                if(data['Fault'] != null) {
-                    commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
-                    return;
-                } else {
-                    var poolId = data[ipPoolName];
+        vCenterApi.getIdByMobName(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(portGroupId) {
+            vCenterApi.retrievePropertiesExForObj(appData,'DistributedVirtualPortgroup',portGroupId,'summary').done(function(portGroupSummary) {
+                //Delete portGroup and its IPPool from vCenter
+                vCenterApi.destroyTask(appData,'DistributedVirtualPortgroup',vnPostData['Network']).done(function(data) {
+                    if(data['Fault'] != null) {
+                        commonUtils.handleJSONResponse(createErrorObjFromFaultObj(data['Fault']),response,null);
+                        return;
+                    }
+                    var poolId = commonUtils.getValueByJsonPath(portGroupSummary,'RetrievePropertiesExResponse;returnval;objects;propSet;val;0;_value;ipPoolId',null);
                     vCenterApi.destroyIpPool(appData,poolId).done(function(data) {
                         if(data['Fault'] != null) {
                             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},response,null);
@@ -176,7 +172,7 @@ function deleteVirtualNetwork (request, response, appData)
                             });
                         }
                     });
-                }
+                });
             });
         });
     });
