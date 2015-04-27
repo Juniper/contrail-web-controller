@@ -2194,6 +2194,12 @@ underlayView.prototype.renderTracePath = function(options) {
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
+            var selectedText = '';
+            try {
+                selectedText = $("#tracePathDropdown").select2('data')['text'];
+            } catch (error) {
+                selectedText = '-';
+            }
             if($('#vrouterRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var deferredObj = $.Deferred(),vRouterData = {name:e['val']};
@@ -2201,7 +2207,7 @@ underlayView.prototype.renderTracePath = function(options) {
             } else if($('#instRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var ajaxConfig = {};
-                ajaxConfig = getInstFlowsUrl(e['val'],VIRTUALMACHINE);
+                ajaxConfig = getInstFlowsUrl(e['val'],selectedText);
                 reloadFlowsGrid(ajaxConfig);
             }
         }
@@ -2229,18 +2235,23 @@ underlayView.prototype.renderTracePath = function(options) {
         var instAttributes = ifNull(instObj['more_attributes'],{});
         var interfaceList = ifNull(instAttributes['interface_list'],[])
         var vmIp = '-',vmIpArr = [];
-        if(interfaceList.length > 0) {
-            for(var j = 0; j < interfaceList.length; j++) {
-                var intfObj = interfaceList[j];
-                if(intfObj['ip6_active']) {
-                    vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
-                } else {
-                    vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
-                }
+        for(var j = 0; j < interfaceList.length; j++) {
+            var intfObj = interfaceList[j];
+            if(intfObj['ip6_active']) {
+                vmIpArr.push(isValidIP(intfObj['ip6_address']) ? intfObj['ip6_address'] : '-');
+            } else {
+                vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
             }
-            if(vmIpArr.length > 0)
-                vmIp = vmIpArr.join(',');
+            for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length; k++) {
+                var floatingIpObj = intfObj['floating_ips'][k];
+                instComboboxData.push({
+                    text: instAttributes['vm_name']+' ('+floatingIpObj['ip_address']+')(Floating IP)',
+                    value: instances[i]['name']
+                })
+            }
         }
+        if(vmIpArr.length > 0)
+            vmIp = vmIpArr.join(',');
         instComboboxData.push({
             text: instAttributes['vm_name']+' ('+vmIp+')',
             value: instances[i]['name']
@@ -2269,7 +2280,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $("#prevNextBtns").toggleClass('show hide');
             tracePathDropdown.setData(instComboboxData);
             selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            ajaxConfig = getInstFlowsUrl(selItem['value'],VIRTUALMACHINE);
+            ajaxConfig = getInstFlowsUrl(selItem['value'],selItem['text']);
             reloadFlowsGrid(ajaxConfig);
         }
     });
@@ -2407,7 +2418,7 @@ underlayView.prototype.renderTracePath = function(options) {
             });
         });
     });
-    function getInstFlowsUrl(name,type){
+    function getInstFlowsUrl(name,text){
         var req = {};
         var ajaxData = {
                 pageSize: 50,
@@ -2419,19 +2430,24 @@ underlayView.prototype.renderTracePath = function(options) {
                 async: true,
                 table:'FlowRecordTable'
         };
-        if(type == VIRTUALMACHINE) {
-            var vmData = instMap[name];
-            var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
-            var where = '';
-            for(var i = 0; i < intfData.length; i++) {
+        var vmData = instMap[name];
+        var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
+        var where = '',floatingIp = [];
+        for(var i = 0; i < intfData.length; i++) {
+            for(var k = 0;k < ifNull(intfData[i]['floating_ips'],[]).length; k++) {
+                var floatingIpData = intfData[i]['floating_ips'][k];
+                if(text != null && text.indexOf('Floating') > 1 && text.indexOf(floatingIpData['ip_address']) > 1) {
+                    where += '(sourcevn = '+floatingIpData['virtual_network']+' AND destvn = '+floatingIpData['virtual_network'];
+                    where += ' AND sourceip = '+floatingIpData['ip_address']+')'
+                }
+            }
+            if(text != null && text.indexOf('Floating') == -1) {
                 where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
                 if(i+1 > intfData.length)
                     where+= 'OR';
             }
-            ajaxData['where'] = where;
-        } else if(type == VROUTER) {
-            ajaxData['where'] = "(vrouter = "+name+")";
         }
+        ajaxData['where'] = where;
         ajaxData['engQueryStr'] = getEngQueryStr(ajaxData);
         req['data'] = ajaxData;
         req['url'] = '/api/admin/reports/query';
