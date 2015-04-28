@@ -62,5 +62,11 @@
         <feature>configUtil</feature>
         <callback>configUtilapi.getConfigDetails</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/delete-config-data</url>
+        <method>delete</method>
+        <feature>configUtil</feature>
+        <callback>configUtilapi.deleteConfigObj</callback>
+    </item>
 </urlLists>
 
