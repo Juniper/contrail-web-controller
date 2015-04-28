@@ -56,6 +56,18 @@ var configJsonModifyObj = {
             'applyOnOldJSON': modifyPhyTopoData,
             'applyOnNewJSON': modifyPhyTopoData,
         }
+    },
+    'arrayDiff': {
+     /*   'floating-ip-pool': {
+        }
+      */
+    },
+    'configDelete': {
+        'virtual-machine-interface': {
+            'del-back-refs': [
+                'instance-ip'
+            ]
+        }
     }
 };
 
