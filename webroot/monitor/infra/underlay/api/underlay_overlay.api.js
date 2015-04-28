@@ -1451,6 +1451,7 @@ function getTraceFlow (req, res, appData)
     var maxHops = introData['maxHops'];
     var maxAttempts = introData['maxAttempts'];
     var interval = introData['interval'];
+    var resolveVrfId = introData['resolveVrfId'];
     var url = '/Snh_TraceRouteReq?source_ip=' + srcIP + '&source_port=' +
         srcPort + '&dest_ip=' + destIP + '&dest_port=' + destPort +
         '&protocol=' + protocol;
@@ -1468,7 +1469,7 @@ function getTraceFlow (req, res, appData)
     }
     var urlLists = [];
     var vrfUrl = '/Snh_VrfListReq?name=';
-    urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + vrfUrl;
+    urlLists[0] = resolveVrfId + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@' + vrfUrl;
     if (null == vrfName) {
         async.map(urlLists, 
                   commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
