@@ -196,7 +196,147 @@ function getConfigDetails (req, res, appData)
     });
 }
 
+function deleteConfigObj (req, res, appData)
+{
+    var dataObjGetArr = []; 
+    var dataObjPutArr = []; 
+    var configType = req.param('type');
+    var uuid = req.param('uuid');
+    var tmpUUIDObjs = {}; 
+    var delCnt = 0;
+
+    var delURL = '/' + configType + '/' + uuid;
+    var configRefs = configType.replace(/-/g, "_") + "_refs";
+
+    configApiServer.apiGet(delURL, appData, function(err, configObj) {
+        if ((null != err) || (null == configObj) ||
+            (null == configObj[configType])) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var configData = configObj[configType];
+        for (key in configData) {
+            var splitArr = key.split('_back_refs');
+            if (splitArr.length > 1) {
+                var newConfigType = splitArr[0].replace(/_/g, "-");
+
+                var typeBackRefsCnt = configData[key].length;
+                tmpUUIDObjs[newConfigType] = [];
+                for (var i = 0; i < typeBackRefsCnt; i++) {
+                    tmpUUIDObjs[newConfigType].push(configData[key][i]['uuid']);
+                }
+            }
+        }
+        var chunk = 200;
+        var keyList = [];
+        var configJsonModifyObj =
+            process.mainModule.exports['configJsonModifyObj'];
+        var backRefsObjs = null;
+        if ((null != configJsonModifyObj) &&
+            (null != configJsonModifyObj['configDelete']) &&
+            (null != configJsonModifyObj['configDelete'][configType]) &&
+            (null != configJsonModifyObj['configDelete'][configType]['del-back-refs'])) {
+            backRefsObjs =
+                configJsonModifyObj['configDelete'][configType]['del-back-refs'];
+        }
+        for (key in tmpUUIDObjs) {
+            if (null != backRefsObjs) {
+                var backRefsObjsCnt = backRefsObjs.length;
+                for (var idx = 0; idx < backRefsObjsCnt; idx++) {
+                    if (backRefsObjs[idx] == key) {
+                        var uuidCnt = tmpUUIDObjs[key].length;
+                        for (idx2 = 0; idx2 < uuidCnt; idx2++) {
+                            var delBackRefsUrl = '/' +
+                                key + '/' + tmpUUIDObjs[key][idx2];
+                            commonUtils.createReqObj(dataObjGetArr,
+                                                     delBackRefsUrl,
+                                                     global.HTTP_REQUEST_DEL,
+                                                     null, configApiServer,
+                                                     null, appData);
+                            delCnt++;
+                        }
+                        delete tmpUUIDObjs[key];
+                    }
+                }
+            }
+        }
+        for (key in tmpUUIDObjs) {
+            var uuidCnt = tmpUUIDObjs[key].length;
+            for (i = 0, j = uuidCnt; i < j; i += chunk) {
+                var tempArray = tmpUUIDObjs[key].slice(i, i + chunk);
+                var typeReqUrl = '/' + key + 's?detail=true&fields=' +
+                    configRefs + '&obj_uuids=' + tempArray.join(',');
+                commonUtils.createReqObj(dataObjGetArr, typeReqUrl, null, null,
+                                         configApiServer, null, appData);
+                keyList.push(key);
+            }
+        }
+        if (!dataObjGetArr.length) {
+            configApiServer.apiDelete(delURL, appData, function(err, data) {
+                commonUtils.handleJSONResponse(err, res, data);
+            });
+            return;
+        }
+        async.map(dataObjGetArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         true),
+                  function(err, results) {
+            results.splice(0, delCnt);
+            var resCnt = results.length;
+            for (var i = 0; i < resCnt; i++) {
+                var configKey = keyList[i] + 's';
+                var configData = results[i][configKey];
+                if ((null == configData) || (!configData.length)) {
+                    continue;
+                }
+                var configTypeLen = configData.length;
+                for (var j = 0; j < configTypeLen; j++) {
+                    var typeConfig = configData[j][keyList[i]];
+                    var typeRefs = typeConfig[configRefs];
+                    var typeRefsCnt = typeRefs.length;
+                    for (var k = 0; k < typeRefsCnt; k++) {
+                        if (uuid == typeRefs[k]['uuid']) {
+                            typeConfig[configRefs].splice(k, 1);
+                            break;
+                        }
+                    }
+                    for (key in typeConfig) {
+                        if (-1 != key.indexOf('_back_refs')) {
+                            delete typeConfig[key];
+                        }
+                    }
+                    var newConfig = {};
+                    newConfig[keyList[i]] = typeConfig;
+                    var putURL = '/' + keyList[i] + '/' + typeConfig['uuid'];
+                    commonUtils.createReqObj(dataObjPutArr, putURL,
+                                             global.HTTP_REQUEST_PUT, newConfig,
+                                             null, null, appData);
+                }
+            }
+            if (!dataObjPutArr.length) {
+                configApiServer.apiDelete(delURL, appData, function(err, data) {
+                    commonUtils.handleJSONResponse(err, res, data);
+                });
+                return;
+            }
+            async.map(dataObjPutArr,
+                      commonUtils.getServerResponseByRestApi(configApiServer,
+                                                             false),
+                      function(error, results) {
+                if (null != error) {
+                    commonUtils.handleJSONResponse(error, res, null);
+                    return;
+                }
+                configApiServer.apiDelete(delURL, appData, function(err, data) {
+                    commonUtils.handleJSONResponse(err, res, data);
+                })
+            });
+        });
+    });
+}
+
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
+exports.deleteConfigObj = deleteConfigObj;
 
