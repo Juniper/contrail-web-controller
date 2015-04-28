@@ -47,67 +47,20 @@ function listServiceTemplates(request, response, appData)
 {
     var domainId = null;
     var requestParams = url.parse(request.url, true);
-    var domainURL = '/domain';
 
-    if ((domainId = request.param('id'))) {
-        domainURL += '/' + domainId.toString();
-    } else {
-        /**
-         * TODO - Add Language independent error code and return
-         */
-    }
-    configApiServer.apiGet(domainURL, appData,
+    domainId = request.param('id');
+
+    var svcTmplUrl = '/service-templates?detail=true&' +
+        'fields=service_template_properties&parent_id=' + domainId;
+    configApiServer.apiGet(svcTmplUrl, appData,
         function (error, data) {
-            listServiceTemplatesCb(error, data, response, appData);
-        });
-}
-
-/**
- * @listServiceTemplatesCb
- * private function
- * 1. Callback for listServiceTemplates
- * 2. Reads the response of per domain ST list from config api server
- *    and sends it back to the client.
- */
-function listServiceTemplatesCb(error, stListData, response, appData) 
-{
-    var reqUrl = null;
-    var dataObjArr = [];
-    var i = 0, stLength = 0;
-    var serviceTemplates = {};
-
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    serviceTemplates['service_templates'] = [];
-
-    if ('service_templates' in stListData['domain']) {
-        serviceTemplates['service_templates'] =
-            stListData['domain']['service_templates'];
-    }
-
-    stLength = serviceTemplates['service_templates'].length;
-
-    if (!stLength) {
-        commonUtils.handleJSONResponse(error, response, serviceTemplates);
-        return;
-    }
-
-    for (i = 0; i < stLength; i++) {
-        var stRef = serviceTemplates['service_templates'][i];
-        reqUrl = '/service-template/' + stRef['uuid'];
-        commonUtils.createReqObj(dataObjArr, reqUrl,
-            global.HTTP_REQUEST_GET, null, null, null,
-            appData);
-    }
-
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function (error, results) {
-            stListAggCb(error, results, response)
-        });
+        if ((null != error) || (null == data) ||
+            (null == data['service-templates'])) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        stListAggCb(data['service-templates'], response)
+    });
 }
 
 /**
@@ -115,17 +68,13 @@ function listServiceTemplatesCb(error, stListData, response, appData)
  * private function
  * 1. Callback for the ST gets, sends all STs to client.
  */
-function stListAggCb(error, results, response) 
+function stListAggCb(results, response) 
 {
     var serviceTemplates = {}, finalResults;
 
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
     finalResults = filterDefaultAnalyzerTemplate(results);
     serviceTemplates['service_templates'] = finalResults;
-    commonUtils.handleJSONResponse(error, response, serviceTemplates);
+    commonUtils.handleJSONResponse(null, response, serviceTemplates);
 }
 
 function getServiceTemplates (dataObj, callback)
