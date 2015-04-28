@@ -27,6 +27,12 @@
         <callback>virtualroutersconfigapi.getVirtualRouters</callback>
     </item>
     <item>
+        <url>/api/tenants/config/virtual-routers-detail</url>
+        <method>get</method>
+        <feature>virtualroutersconfig</feature>
+        <callback>virtualroutersconfigapi.getVirtualRoutersWithDetail</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/virtual-routers</url>
         <method>post</method>
         <feature>virtualroutersconfig</feature>
