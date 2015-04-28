@@ -104,7 +104,7 @@ function physicalRoutersConfig() {
                 },                
                 {
                     id : 'interfaces',
-                    field : 'interfaces',
+                    field : 'totalInterfacesCount',
                     name : 'Interfaces',
                     cssClass :'cell-hyperlink-blue',
                     events : {
@@ -1028,7 +1028,7 @@ function physicalRoutersConfig() {
     function fetchData() {
         gridPhysicalRouters._dataView.setData([]);
         gridPhysicalRouters.showGridMessage('loading');
-        doAjaxCall('/api/tenants/config/physical-routers','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null, 300000);
+        doAjaxCall('/api/tenants/config/physical-routers-with-intf-count','GET', null, 'successHandlerForPhysicalRouters', 'failureHandlerForPhysicalRouters', null, null, 300000);
     }
     
     window.successHandlerForPhysicalRouters =  function(result) {
@@ -1044,13 +1044,15 @@ function physicalRoutersConfig() {
                     linpinterfaces = linpinterfaces.concat(lInterfaces);
                 });
                 var interfaces = pinterfaces.concat(linterfaces,linpinterfaces);
-                
+                var totalInterfacesCount = interfaces.length;
                 var virtualRouterRefs = ifNull(rowData['virtual_router_refs'],[]);
                 var virtualRouterString = '';
                 
                 var virtualRouters = ifNull(rowData['virtual-routers'],[]);
                 var pRouterEditType = PROUTER_SUFFIX;
                 var pRouterType = [PROUTER_TYPE];
+                var logicalIntfCount = ifNull(rowData['logicalIntfCount'],0);
+                totalInterfacesCount += logicalIntfCount;
                 //Deduce the type for the prouter
                 //If the prouter has a reference to virtual router which is a TSN then it is - OVSDB
                 //If the prouter has a reference to virtual router which is a Embedded then it is - VCPE
@@ -1171,7 +1173,7 @@ function physicalRoutersConfig() {
                     data_ip_address : rowData['physical_router_dataplane_ip'] ? rowData['physical_router_dataplane_ip'] : '-',
                     username : (username == '')? '-' : username,
                     password : password,
-                    interfaces : interfaces.length,
+                    totalInterfacesCount : totalInterfacesCount,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
                     virtual_networks : vnsString.length > 0 ? vnsString : '-',       
                     displayVirtualRouters : (virtualRouterString == '')? '-' : virtualRouterString,
@@ -1213,14 +1215,15 @@ function physicalRoutersConfig() {
     }
     
     function fetchVirtualRouters() {
-        doAjaxCall('/api/tenants/config/virtual-routers','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
+        doAjaxCall('/api/tenants/config/virtual-routers-detail','GET', null, 'successHandlerForVirtualRouters', 'failureHandlerForVirtualRouters', null, null);
     }
     
     window.successHandlerForVirtualRouters =  function(result) {
         var torAgentVrouterDS = [];
         var tsnVrouterDS = [];
         globalVRoutersMap = {};
-        if(result && result.length > 0) {
+        if(result && result['virtual-routers'] && result['virtual-routers'].length > 0) {
+            result = result['virtual-routers'];
             for(var i = 0; i < result.length;i++) {
                 var virtualRouter = result[i]['virtual-router'];
                 var vRouterType = (virtualRouter['virtual_router_type'])? virtualRouter['virtual_router_type'][0] : '';
