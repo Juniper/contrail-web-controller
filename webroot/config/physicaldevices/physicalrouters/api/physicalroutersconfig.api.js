@@ -228,6 +228,95 @@ function getVirtualRouterDetails(error, pRouters, response, appData){
     }
 }
 
+function getPhysicalRoutersWithIntfCount (request, response, appData)
+{
+     configApiServer.apiGet('/physical-routers?detail=true&fields=logical_interfaces,physical_interfaces', appData,
+         function(error, data) {
+             if ((null != error) || (null == data) || (null ==
+                 data['physical-routers'])) {
+                 commonUtils.handleJSONResponse(error, response, null);
+             }
+             getPhysicalInterfacesLogicalInterfaceCount(error,
+                 data['physical-routers'], response, appData);
+         });             
+}
+
+function getPostDataForLogicalIntfCount(parentUUIDs){
+    var postData = {"type":"logical-interface","count":true};
+    postData["parent_id"] = parentUUIDs.toString();
+    return postData;
+}
+
+function getChunkedUrl (uuidList,appData)
+{
+    console.log("UUIDLIST as:", uuidList);
+	var tempArray = [];
+	var dataObjArr = [];
+	var chunk = 200;
+    var j = 0;
+    var reqUrl = '/list-bulk-collection ';
+    for (var i = 0, j = uuidList.length; i < j; i += chunk) {
+        tempArray = uuidList.slice(i, i + chunk);
+        var postData = {"type":"logical-interface","count":true};
+        postData.parent_id = tempArray.join(',');
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
+                                 postData, null, null, appData);
+    }
+	return dataObjArr;
+}
+
+function getPhysicalInterfacesLogicalInterfaceCount(error, pRouters, response, appData){
+    var pInterfacesLength = 0;
+    var result = [];
+    var dataObjArr        = [];
+    var dataObjPostArr     = [];
+    
+    var prouterMap = [];//Keep the map of prouter uuid and array of arrays of pinterfaces
+    var pRoutersCnt = pRouters.length;
+    var totalCnt = 0;
+    for(var k = 0; k < pRoutersCnt; k++){
+        var prouter = pRouters[k];
+        var pIntfUUIDs = [];
+        if(prouter['physical-router'] != null && prouter['physical-router']['physical_interfaces'] != null && prouter['physical-router']['physical_interfaces'].length > 0){
+            pInterfacesLength =
+                prouter['physical-router']['physical_interfaces'].length;
+            for(i = 0; i < pInterfacesLength; i++) {
+                pIntfUUIDs.push(prouter['physical-router']['physical_interfaces'][i]['uuid']);
+            }
+            var dataObjArr = getChunkedUrl(pIntfUUIDs,appData);
+            prouterMap[k] = [totalCnt, totalCnt + dataObjArr.length - 1];
+            totalCnt = totalCnt + dataObjArr.length;
+            dataObjPostArr = dataObjPostArr.concat(dataObjArr);
+        }
+    }
+    console.log("dataObjPostArr: ", dataObjPostArr);
+    if(dataObjArr.length > 0) {
+        async.map(dataObjPostArr,
+            commonUtils.getAPIServerResponse(configApiServer.apiPost, true),
+            function(error, results) {
+                console.log("Getting results as:", JSON.stringify(results));
+                if (error) {
+                   commonUtils.handleJSONResponse(error, response, null);
+                   return;
+                }
+                for (var i = 0; i < pRoutersCnt; i++) {
+                    pRouters[i]['physical-router']['logicalIntfCount'] = 0;
+                    var prStartIndex = prouterMap[i][0];
+                    var prEndIndex = prouterMap[i][1];
+                    for (var j = prStartIndex; j <= prEndIndex; j++) {
+                        pRouters[i]['physical-router']['logicalIntfCount'] +=
+                        results[j]['logical-interfaces']['count'];
+                    }
+                }
+                console.log("Getting pRouters as:", JSON.stringify(pRouters));
+                getVirtualRouterDetails(error, pRouters, response, appData);
+            }
+        );
+    } else {
+        getVirtualRouterDetails(error, pRouters, response, appData);
+    }
+}
+
 /**
  * @setPRouterRead
  * private function
@@ -593,6 +682,7 @@ function validatePhysicalRouterId (request)
  
  exports.getPhysicalRoutersList= getPhysicalRoutersList;
  exports.getPhysicalRouters    = getPhysicalRouters; 
+ exports.getPhysicalRoutersWithIntfCount = getPhysicalRoutersWithIntfCount;
  exports.getPhysicalRouter    = getPhysicalRouter;
  exports.createPhysicalRouters = createPhysicalRouters;
  exports.updatePhysicalRouters = updatePhysicalRouters;

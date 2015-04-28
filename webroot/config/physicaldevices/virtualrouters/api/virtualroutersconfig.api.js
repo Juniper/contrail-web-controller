@@ -50,6 +50,24 @@ function getVirtualRoutersList (request, response, appData)
 /**
  * @getVirtualRouters
  * public function
+ * 1. URL /api/tenants/config/virtual-routers-detail/
+ * 2. Gets virtual routers from config api server using the detail=true field to fetch the details of each vrouter
+ */
+function getVirtualRoutersWithDetail (request, response, appData)
+{
+     configApiServer.apiGet('/virtual-routers?detail=true&fields=physical_router_back_refs', appData,
+         function(error, data) {
+             if(error){
+                 commonUtils.handleJSONResponse(error, response, null);
+                 return;
+             }
+             commonUtils.handleJSONResponse(error, response, data);
+         });             
+}
+
+/**
+ * @getVirtualRouters
+ * public function
  * 1. URL /api/tenants/config/virtual-routers/
  * 2. Gets virtual routers from config api server
  */
@@ -163,6 +181,7 @@ function validateVirtualRouterId (request)
 
 exports.getVirtualRoutersList= getVirtualRoutersList;
 exports.getVirtualRouters    = getVirtualRouters;
+exports.getVirtualRoutersWithDetail = getVirtualRoutersWithDetail;
 exports.createVirtualRouters = createVirtualRouters;
 exports.updateVirtualRouters = updateVirtualRouters;
 exports.deleteVirtualRouters = deleteVirtualRouters;  
