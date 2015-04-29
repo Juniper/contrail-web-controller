@@ -1506,7 +1506,7 @@ underlayView.prototype.initGraphEvents = function() {
                             virtualNetwork: vnList.length > 0 ? vnList.join(',') : '-',
                             interfaceCount : intfLen,
                             stats: formatBytes(ifNull(instDetails['inBytes'],'-'))+"/"+ifNull(formatBytes(instDetails['outBytes'],'-')),
-                            link:{p:'mon_net_instances',q:{vmName:vmName,fqName:nodeDetails['name'],srcVN:srcVN}}
+                            link:{p:'mon_networking_instances',q:{vmName:vmName,fqName:nodeDetails['name'],srcVN:srcVN}}
                     };
                     _this.populateDetailsTab(data);
                     break;
