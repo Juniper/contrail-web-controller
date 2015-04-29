@@ -305,13 +305,13 @@ function createLogicalRouter(request, response, appData)
             removeBackRefFromPostData(logicalRouterPostData);
             configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
             function (error, data) {
-                setLogicalRouterRead(error, data, networkUUID, [], request, response, appData);
+                setLogicalRouterRead(error, data, networkUUID, [], false, request, response, appData);
             });
         });
     } else {
     configApiServer.apiPost(logicalRouterCreateURL, logicalRouterPostData, appData,
         function (error, data) {
-            setLogicalRouterRead(error, data, networkUUID, [], request, response, appData);
+            setLogicalRouterRead(error, data, networkUUID, [], false, request, response, appData);
         });
     }
 }
@@ -323,7 +323,7 @@ function createLogicalRouter(request, response, appData)
  * 2. Reads the response of Logical Router get from config api server
  *    and sends it back to the client.
  */
-function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, addVMIData, request, response, appData)
+function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, addVMIData, resetExternalGateway, request, response, appData)
 {
     if (error) {
         commonUtils.handleJSONResponse(error, response, null);
@@ -338,14 +338,14 @@ function setLogicalRouterRead(error, logicalRouterConfig, networkUUID, addVMIDat
                 commonUtils.handleJSONResponse(error, response, null);;
                 return;
             }
-            updteExternalNetwork(logicalRouterConfig, networkUUID, request, response, appData);
+            updateExternalNetwork(logicalRouterConfig, networkUUID, resetExternalGateway, request, response, appData);
         });
     } else {
-        updteExternalNetwork(logicalRouterConfig, networkUUID, request, response, appData);
+        updateExternalNetwork(logicalRouterConfig, networkUUID, resetExternalGateway, request, response, appData);
     }
 }
 
-function updteExternalNetwork(logicalRouterConfig, networkUUID, request, response, appData)
+function updateExternalNetwork(logicalRouterConfig, networkUUID, resetExternalGateway, request, response, appData)
 {
 	var routerObj = {};
     routerObj["router"] = {};
@@ -353,27 +353,57 @@ function updteExternalNetwork(logicalRouterConfig, networkUUID, request, respons
     var logicalRouterGetURL = '/logical-router/';
     logicalRouterGetURL += logicalRouterConfig['logical-router']['uuid'];
     var routerUUID = logicalRouterConfig['logical-router']['uuid'];
-    if(config.network.router_L3Enable === true){
-        if(networkUUID != null) {
-            routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
-        }
-        networkManager.updateRouter(request, routerObj, routerUUID,  function (error ,data) {
-            if(error) {
-                logicalRouterSendResponse(error, data, response);
-                return;
-            }
-            configApiServer.apiGet(logicalRouterGetURL, appData,
-                function (error, data) {
+    if (config.network.router_L3Enable === true){
+        if (resetExternalGateway == true){
+            updateRouterCB(request, routerObj, routerUUID, function (error, data){
+                if (error){
                     logicalRouterSendResponse(error, data, response);
+                    return;
+                }
+                if(networkUUID != null) {
+                    routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
+                    updateRouterCB(request, routerObj, routerUUID, function (error, data){
+                        if (error) {
+                            logicalRouterSendResponse(error, data, response);
+                            return;
+                        }
+
+                        readLRSendDataUI (logicalRouterGetURL, appData, response);
+                    });
+                } else {
+                    readLRSendDataUI (logicalRouterGetURL, appData, response);
+                }
             });
-        });
+        } else {
+            if (networkUUID != null) {
+                routerObj["router"]["external_gateway_info"]["network_id"] = networkUUID;
+            }
+            updateRouterCB(request, routerObj, routerUUID, function (error, data){
+                if (error) {
+                    logicalRouterSendResponse(error, data, response);
+                    return;
+                }
+                readLRSendDataUI (logicalRouterGetURL, appData, response);
+            });
+        }
     } else {
-        configApiServer.apiGet(logicalRouterGetURL, appData,
-            function (error, data) {
-                logicalRouterSendResponse(error, data, response);
-        });
+        readLRSendDataUI (logicalRouterGetURL, appData, response);
     }
-    
+}
+
+function readLRSendDataUI (logicalRouterGetURL, appData, response)
+{
+    configApiServer.apiGet(logicalRouterGetURL, appData,
+        function (error, data) {
+            logicalRouterSendResponse(error, data, response);
+    });
+}
+
+function updateRouterCB (request, routerObj, routerUUID, callback)
+{
+    networkManager.updateRouter(request, routerObj, routerUUID,  function (error, data) {
+        callback (error, data);
+    });
 }
 
 function updateRouteTable(addVMIData, domain, project, lruuid, appData, callback){
@@ -502,11 +532,23 @@ function updateLogicalRouter(request, response, appData)
 
 function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, logicalRouterPostData, datafromAPI, networkUUID, request, response, appData){
     var updateRouteTableFlag = false;
+    var resetExternalGateway = false;
+
 
 
     filterVMI(error, orginalDataFromUI, datafromAPI, function (createVMIArray,deleteVMIArray){
-       var allDataArr = [];
-        
+        var allDataArr = [];
+        if ("logical-router" in orginalDataFromUI &&
+            "virtual_network_refs" in orginalDataFromUI["logical-router"] &&
+            orginalDataFromUI["logical-router"]["virtual_network_refs"].length > 0 &&
+            "uuid" in orginalDataFromUI["logical-router"]["virtual_network_refs"][0] &&
+            "logical-router" in datafromAPI &&
+            "virtual_network_refs" in datafromAPI["logical-router"] &&
+            datafromAPI["logical-router"]["virtual_network_refs"].length > 0 &&
+            "uuid" in datafromAPI["logical-router"]["virtual_network_refs"][0] &&
+            orginalDataFromUI["logical-router"]["virtual_network_refs"][0]["uuid"] != datafromAPI["logical-router"]["virtual_network_refs"][0]["uuid"]){
+                resetExternalGateway = true;
+        }
         if(createVMIArray.length > 0){
             if ("logical-router" in orginalDataFromUI && 
                 "virtual_network_refs" in orginalDataFromUI["logical-router"] && 
@@ -561,15 +603,15 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                     addVMIData = [];
                 }
                 removeBackRefFromPostData(logicalRouterPostData);
-                updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, request, response, appData);
+                updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData);
             });
         } else {
-            updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, [], request, response, appData);
+            updateLogicalRouterWithVMI(logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, [], resetExternalGateway, request, response, appData);
         }
     });
 }
 
-function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, request, response, appData){
+function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData){
     // delete vmi Reference 
     if(deleteVMIArray.length > 0){
         var allDataArr = [];
@@ -589,11 +631,11 @@ function removeVMI(error, logicalRouterURL, logicalRouterPostData, deleteVMIArra
                     commonUtils.handleJSONResponse(error, response, null);
                     return;
                 }
-                setLogicalRouterRead(error, logicalRouterPostData, networkUUID, addVMIData, request, response, appData);
+                setLogicalRouterRead(error, logicalRouterPostData, networkUUID, addVMIData, resetExternalGateway, request, response, appData);
             });
         });
     } else {
-        setLogicalRouterRead(error, logicalRouterPostData, networkUUID, addVMIData, request, response, appData);
+        setLogicalRouterRead(error, logicalRouterPostData, networkUUID, addVMIData, resetExternalGateway, request, response, appData);
     }
 
 }
@@ -693,10 +735,10 @@ function createvnObj(vnObj, rtObj) {
     return vnreturnObj;
 }
 
-function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, request, response, appData){
+function updateLogicalRouterWithVMI(logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData){
     configApiServer.apiPut(logicalRouterPutURL, logicalRouterPostData, appData,
     function (error, data) {
-        removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, request, response, appData);
+        removeVMI(error, logicalRouterPutURL, logicalRouterPostData, deleteVMIArray, networkUUID, addVMIData, resetExternalGateway, request, response, appData);
     });
 }
 
