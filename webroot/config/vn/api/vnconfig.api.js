@@ -1053,6 +1053,10 @@ function createVirtualNetwork (request, response, appData)
     vnSeqPostData = setVNPolicySequence(vnPostData);
     configApiServer.apiPost(vnCreateURL, vnSeqPostData, appData,
                          function(error, data) {
+                           if (error || data == null) {
+                               commonUtils.handleJSONResponse(error, response, null);
+                               return;
+                           }
                            updatePhysicalRouters("create",physicalRouters,error,data,
                                    vnConfigData,request,response,appData,function(error,data){
                                                                    createVirtualNetworkCb(error, data,
