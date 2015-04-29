@@ -103,7 +103,8 @@ monitorInfraComputeNetworksClass = (function() {
                                  iconClass: 'icon-tasks',
                                  onClick: function(rowIndex){
                                      var rowData = vnGrid._dataView.getItem(rowIndex);
-                                     layoutHandler.setURLHashParams({fqName:rowData['name']},{p:'mon_net_networks',merge:false});
+                                     setNetworkURLHashParams(null, rowData['name'], true);
+                                     //layoutHandler.setURLHashParams({fqName:rowData['name']},{p:'mon_networking_networks',merge:false});
                                  }
                              },
                              {
