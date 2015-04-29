@@ -2546,7 +2546,9 @@ function getPostDataForCpuMemStatsQuery(dsName,source) {
             async:true,
             queryId:randomUUID(),
             reRunTimeRange:600,
-            select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id'
+            select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id',
+            groupFields:['Source'],
+            plotFields:['cpu_info.cpu_share']
     }
     
     if (dsName == 'controlNodeDS'){
