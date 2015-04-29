@@ -286,21 +286,13 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
         linkDataLen = prouterData.length;
         for (var j = 0; j < linkDataLen; j++) {
             if (links[i]['remote_system_name'] == prouterData[j]['name']) {
-                break;
+                var isLinkvRouter =
+                    isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
+                if (true == isLinkvRouter) {
+                    return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
+                }
             }
         }
-        if (j != linkDataLen) {
-            break;
-        }
-    }
-    if (i == linksCnt) {
-        /* pRouters's link is not known */
-        return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
-    }
-    var isLinkvRouter =
-        isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
-    if (true == isLinkvRouter) {
-        return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
     }
     return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
 }
