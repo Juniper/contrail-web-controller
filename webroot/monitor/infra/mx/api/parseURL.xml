@@ -1,0 +1,23 @@
+<!--
+ Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+
+<urlLists>
+    <!-- Define module name here which is being referenced in the generated 
+         file
+     -->
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>mxVizApi</define>
+        <path>./mxvisualisation.api</path>
+    </require>
+    <item>
+        <url>/api/tenant/networking/mxtopology</url>
+        <method>get</method>
+        <feature>mxviz</feature>
+        <callback>mxVizApi.getPRouterChassisInfo</callback>
+    </item>
+</urlLists>

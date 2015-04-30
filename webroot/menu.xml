@@ -62,6 +62,18 @@ and need to add the iconClass tag wherever we need to show some icons
               <searchStrings>Infrastructure Dashboard</searchStrings>
             </item>
             <item>
+              <hash>mon_infra_mx</hash>
+              <label>MX Visualisation</label>
+              <resources>
+                <resource>
+                  <rootDir>/monitor/infra/mx/ui</rootDir>
+                  <view>monitor_infra_mx.view</view>
+                  <js>monitor_infra_mx.js</js>
+                  <class>mxRenderer</class>
+                </resource>
+              </resources>
+            </item>
+            <item>
               <hash>mon_infra_underlay</hash>
               <label>Physical Topology</label>
               <resources>

@@ -48,6 +48,9 @@
         <feature>underlay</feature>
     </item>
     <item>
+        <feature>mxviz</feature>
+    </item>
+    <item>
         <feature>vnconfig</feature>
         <read-access>member</read-access>
         <write-access>member</write-access>
