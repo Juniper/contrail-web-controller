@@ -2269,16 +2269,24 @@ underlayView.prototype.renderTracePath = function(options) {
         var ajaxConfig = {},selItem = {};
         if($('#vrouterRadiobtn').is(':checked') == true) {
             $("#prevNextBtns").toggleClass('show hide');
-            tracePathDropdown.setData(computeNodeCombobox);
-            selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            var deferredObj = $.Deferred(),vRouterData = {name:selItem['value']};
-            updateVrouterFlowsGrid(deferredObj,vRouterData);
+            if(computeNodeCombobox.length > 0) {
+                tracePathDropdown.setData(computeNodeCombobox);
+                selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+                var deferredObj = $.Deferred(),vRouterData = {name:selItem['value']};
+                updateVrouterFlowsGrid(deferredObj,vRouterData);
+            } else {
+                tracePathDropdown.setData([{text:'None',value: 'None'}]);
+            }
         } else if($('#instRadiobtn').is(':checked') == true) {
             $("#prevNextBtns").toggleClass('show hide');
-            tracePathDropdown.setData(instComboboxData);
-            selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
-            ajaxConfig = getInstFlowsUrl(selItem['value'],selItem['text']);
-            reloadFlowsGrid(ajaxConfig);
+            if(instComboboxData.length > 0) {
+                tracePathDropdown.setData(instComboboxData);
+                selItem = $("#tracePathDropdown").data('contrailDropdown').getAllData()[0];
+                ajaxConfig = getInstFlowsUrl(selItem['value'],selItem['text']);
+                reloadFlowsGrid(ajaxConfig);
+            } else {
+                tracePathDropdown.setData([{text:'None',value: 'None'}]);
+            }
         }
     });
     
