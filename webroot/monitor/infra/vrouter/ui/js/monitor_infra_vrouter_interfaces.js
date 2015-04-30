@@ -137,7 +137,8 @@ monitorInfraComputeInterfacesClass = (function() {
                            },
                            events: {
                               onClick: function(e,dc) {
-                                 layoutHandler.setURLHashParams({vmName:dc['vm_name'],fqName:dc['vm_uuid'],srcVN:dc['vn_name']},{p:'mon_net_instances',merge:false,triggerHashChange:true});
+                                  setInstanceURLHashParams(null, dc['vn_name'], dc['vm_uuid'], true);
+                                  //layoutHandler.setURLHashParams({vmName:dc['vm_name'],fqName:dc['vm_uuid'],srcVN:dc['vn_name']},{p:'mon_networking_instances',merge:false,triggerHashChange:true});
                               }
                            },
                            minWidth:200
