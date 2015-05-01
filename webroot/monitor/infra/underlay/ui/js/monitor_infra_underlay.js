@@ -2257,7 +2257,7 @@ underlayView.prototype.renderTracePath = function(options) {
     }
     //Todo when changing the VM flows to introspect need to merge this function
     function reloadFlowsGrid(newAjaxConfig) {
-        var selectArray = parseStringToArray("other_vrouter_ip,agg-bytes", ',');
+        var selectArray = parseStringToArray("other_vrouter_ip,vrouter_ip,agg-bytes", ',');
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         var options = getFRDefaultOptions();
         options['elementId'] = 'vrouterflows';
