@@ -1528,7 +1528,48 @@ mxView.prototype.initGraphEvents = function() {
                     data['targetElement'] = targetElement;
                     _this.populateDetailsTab(data);
                     break;
-
+                case 'contrail.Chassis':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = ifNullOrEmpty(modelData['name'], 'Chassis');
+                    data['type'] = 'Chassis';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.RoutingEngine':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Routing Engine';
+                    data['type'] = 'RoutingEngine';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.SwitchCard':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Switch Card';
+                    data['type'] = 'SwitchCard';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.LineCard':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Line Card';
+                    data['type'] = 'LineCard';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.FanModule':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Fan Module';
+                    data['type'] = 'FanModule';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.PowerModule':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Power Module';
+                    data['type'] = 'PowerModule';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
                 timeout = null;
             }
         }, 500);
@@ -1723,6 +1764,93 @@ mxView.prototype.populateDetailsTab = function(data) {
             } 
         }).always(function(response){
             $("#detailsTab").find('.icon-spinner').hide();
+        });
+    } else if (type == 'Chassis') {
+        var widget_template = contrail.getTemplate4Id("dashboard-template"),
+            details_template = contrail.getTemplate4Id("device-details-template");
+
+        $("#detailsTab").html(widget_template({
+            title: 'Chassis',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Name',
+            value: data['name']
+        }, {
+            label: 'Identifier',
+            value: data['identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }, {
+            label: 'RE Count',
+            value: data['max_routing_engines']
+        }, {
+            label: 'SW Count',
+            value: data['max_switch_cards']
+        }, {
+            label: 'LC Count',
+            value: data['max_line_cards']
+        }, {
+            label: 'Fan Count',
+            value: data['max_fan_modules']
+        }, {
+            label: 'PSU Count',
+            value: data['max_power_modules']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+
+    } else if (type == 'RoutingEngine') {
+        content = data;
+        content['type'] = 'routing-engine';
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'SwitchCard') {
+        content = data;
+        content['type'] = 'switch-card';
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'LineCard') {
+        content = data;
+        content['type'] = 'line-card';
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'FanModule') {
+        content = data;
+        content['type'] = 'fan-module';
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'PowerModule') {
+        content = data;
+        content['type'] = 'power-module';
+        details = Handlebars.compile($("#device-summary-template").html())(content);
+        $("#detailsTab").html(details);
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
         });
     }
 }
