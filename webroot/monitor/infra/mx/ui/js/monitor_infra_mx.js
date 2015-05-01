@@ -1570,6 +1570,9 @@ mxView.prototype.initGraphEvents = function() {
                     $.extend(data, modelData);
                     _this.populateDetailsTab(data);
                     break;
+                case 'contrail.PacketForwardingEngine':
+                    //TBD
+                    break;
                 timeout = null;
             }
         }, 500);
@@ -1648,6 +1651,8 @@ mxView.prototype.renderMxDetails = function(){
 
 mxView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content = {},_this = this;
+    var widget_template = contrail.getTemplate4Id("device-details-widget"),
+        details_template = contrail.getTemplate4Id("device-details-body");
     if(type == 'VROUTER' || type == 'link')
         _this.renderUnderlayTabs();
     $("#detailsLink").show();
@@ -1766,9 +1771,6 @@ mxView.prototype.populateDetailsTab = function(data) {
             $("#detailsTab").find('.icon-spinner').hide();
         });
     } else if (type == 'Chassis') {
-        var widget_template = contrail.getTemplate4Id("dashboard-template"),
-            details_template = contrail.getTemplate4Id("device-details-template");
-
         $("#detailsTab").html(widget_template({
             title: 'Chassis',
             colCount: 2,
@@ -1788,19 +1790,92 @@ mxView.prototype.populateDetailsTab = function(data) {
         }, {
             label: 'RE Count',
             value: data['max_routing_engines']
-        }, {
+        }];
+        //REs
+        $.each(data['routing_engines'], function(idx, re) {
+           attrs.push({
+               label: 'Routing Engine ' + idx,
+               value: ' '
+           }, {
+               label: INDENT_RIGHT + 'Slot Identifier',
+               value: re['slot_identifier']
+           }, {
+               label: INDENT_RIGHT + 'Model',
+               value: re['model_type']
+           });
+        });
+        //SWs
+        attrs.push({
             label: 'SW Count',
             value: data['max_switch_cards']
-        }, {
+        });
+        $.each(data['switch_cards'], function(idx, sw) {
+            attrs.push({
+                label: 'Switch Card ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Slot Identifier',
+                value: sw['slot_identifier']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: sw['model_type']
+            });
+        });
+        //LCs
+        attrs.push({
             label: 'LC Count',
             value: data['max_line_cards']
-        }, {
+        });
+        $.each(data['line_cards'], function(idx, lc) {
+            attrs.push({
+                label: 'Line Card ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Slot Identifier',
+                value: lc['slot_identifier']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: lc['model_type']
+            }, {
+                label: INDENT_RIGHT + 'CPU Count',
+                value: lc['cpu_count']
+            }, {
+                label: INDENT_RIGHT + 'PFE Count',
+                value: lc['pfe_count']
+            });
+        });
+        //Fans
+        attrs.push({
             label: 'Fan Count',
             value: data['max_fan_modules']
-        }, {
+        });
+        $.each(data['fan_modules'], function(idx, fan) {
+            attrs.push({
+                label: 'Fan ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Description',
+                value: fan['description']
+            })
+        });
+        //PSUs
+        attrs.push({
             label: 'PSU Count',
             value: data['max_power_modules']
-        }];
+        });
+        $.each(data['power_modules'], function(idx, psu) {
+            attrs.push({
+                label: 'PSU ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Serial Number',
+                value: psu['serial_number']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: psu['model_type']
+            })
+        });
+
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
             deviceData: data,
@@ -1813,42 +1888,125 @@ mxView.prototype.populateDetailsTab = function(data) {
         });
 
     } else if (type == 'RoutingEngine') {
-        content = data;
-        content['type'] = 'routing-engine';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        $("#detailsTab").html(widget_template({
+            title: 'Routing Engine',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });
     } else if (type == 'SwitchCard') {
-        content = data;
-        content['type'] = 'switch-card';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        $("#detailsTab").html(widget_template({
+            title: 'Switch Card',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });
     } else if (type == 'LineCard') {
-        content = data;
-        content['type'] = 'line-card';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        $("#detailsTab").html(widget_template({
+            title: 'Line Card',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }, {
+            label: 'CPU Count',
+            value: data['cpu_count']
+        }, {
+            label: 'PFE Count',
+            value: data['pfe_count']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });
     } else if (type == 'FanModule') {
-        content = data;
-        content['type'] = 'fan-module';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        $("#detailsTab").html(widget_template({
+            title: 'Fan Module',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Description',
+            value: data['description']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });
     } else if (type == 'PowerModule') {
-        content = data;
-        content['type'] = 'power-module';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
+        $("#detailsTab").html(widget_template({
+            title: 'Power Module',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Serial Number',
+            value: data['serial_number']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });

@@ -128,119 +128,57 @@ body > svg {
                             </label>
                         </li>
                     {{/IfCompare}}
-                    {{#IfCompare type 'routing-engine' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Slot Identifier </span>
-                                <span class="value"> {{slot_identifier}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Model Type </span>
-                                <span class="value"> {{model_type}} </span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'switch-card' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Slot Identifier </span>
-                                <span class="value"> {{slot_identifier}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Model Type </span>
-                                <span class="value"> {{model_type}} </span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'line-card' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Slot Identifier </span>
-                                <span class="value"> {{slot_identifier}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Model Type </span>
-                                <span class="value"> {{model_type}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> PFE Count </span>
-                                <span class="value"> {{pfe_count}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> CPU Count </span>
-                                <span class="value"> {{cpu_count}} </span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'power-module' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Serial Number </span>
-                                <span class="value"> {{serial_number}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Model Type </span>
-                                <span class="value"> {{model_type}} </span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'fan-module' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Description </span>
-                                <span class="value"> {{description}} </span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
 	                </ul>
 	            </div>
 	        </div>
 	    </div>
 	</div>
 </script>
-<script type="text/x-handlebars-template" id="device-details-template">
+<script type="text/x-handlebars-template" id="device-details-widget">
+    <div id="deviceDetails" class="contrail-tab-content">
+        <div class="section-content">
+            <div class="row-fluid margin-0-0-5">
+                <div id="dashboard-box" class="widget-box transparent">
+                    {{#IfCompare noTitle null operator="=="}}
+                    <div class="widget-header">
+                        <h4 class="smaller">
+                            {{#if widgetBoxId}}
+                            <i id="{{widgetBoxId}}-loading" class="icon-spinner icon-spin blue bigger-125" style="display:none"></i>
+                            {{/if}}
+                            {{#if title}}
+                            {{title}}
+                            {{else}}
+                            Information
+                            {{/if}}
+                        </h4>
+                        {{#if showSettings}}
+                        <div class="widget-toolbar pull-right">
+                            <a data-action="settings" data-toggle="dropdown">
+                                <i class="icon-cog"></i>
+                            </a>
+                            <ul class="pull-right dropdown-menu dropdown-caret dropdown-closer">
+                                <li>
+                                    <a onclick="showBasicDetails('{{name}}');">
+                                        <i class="icon-list"></i> &nbsp; Basic view
+                                    </a>
+                                </li>
+                                <li>
+                                    <a onclick="showAdvancedDetails('{{name}}');">
+                                        <i class="icon-code"></i> &nbsp; Advanced view
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {{/if}}
+                    </div>
+                    {{/IfCompare}}
+                    <div class="widget-body"></div><!--/widget-body-->
+                </div><!--/widget-box-->
+            </div><!--/row-->
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="device-details-body">
     <div class="widget-main row-fluid">
         {{#IfCompare showSettings true options='=='}}
         <div id="divAdvanced_{{{name}}}" class="row-fluid hide">
@@ -328,7 +266,7 @@ body > svg {
         </div>
         <div class="row-fluid" id="traceFlow"></div>
         <div id="detailsmxTab" class="row-fluid"></div>
-        <div id="detailsTab" class="row-fluid"></div>
+        <div id="detailsTab"></div>
     </div>
 </script>
 
