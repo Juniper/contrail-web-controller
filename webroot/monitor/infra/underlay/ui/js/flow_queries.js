@@ -46,8 +46,24 @@ frQuery['columnDisplay'] = [
                     var ip = validateIPAddress(handleNull4Grid(dc['other_vrouter_ip'])) == true ? handleNull4Grid(dc['other_vrouter_ip']) : noDataStr,
                         retStr = '-';    
                     if(ip != noDataStr) {
-                        var vRouterDetails = underlayView.prototype.getvRouterVMDetails(ip,'self_ip_list',VROUTER);
-                        retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
+                        if(null !== underlayRenderer && typeof underlayRenderer === "object") {
+                            var vRouterDetails = underlayRenderer.getView().getvRouterVMDetails(ip,'self_ip_list',VROUTER);
+                            retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
+                        }
+                    }
+                return retStr;
+            }
+        }
+    },
+    {select:"vrouter_ip", display:{id:'vrouter_ip', field:'vrouter_ip', width:170, name:"Virtual Router", groupable:false,formatter: 
+            function(r, c, v, cd, dc){
+                    var ip = validateIPAddress(handleNull4Grid(dc['vrouter_ip'])) == true ? handleNull4Grid(dc['vrouter_ip']) : noDataStr,
+                        retStr = '-';    
+                    if(ip != noDataStr) {
+                        if(null !== underlayRenderer && typeof underlayRenderer === "object") {
+                            var vRouterDetails = underlayView.prototype.getvRouterVMDetails(ip,'self_ip_list',VROUTER);
+                            retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
+                        }
                     }
                 return retStr;
             }
@@ -724,12 +740,18 @@ function runFRQuery() {
         //validator = initValidateDate("fr"),
         queryPrefix = 'fr',
         options = getFRDefaultOptions(),
-        select = "other_vrouter_ip,agg-bytes",
         columnDisplay, selectArray, queryId;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
         queryId = randomUUID();
         collapseWidget('#fr-query-widget');
+        var select = '';
+        //vrouter should in query only when it is not there in where clause
+        if(reqQueryObj['where'] != null && reqQueryObj['where'].indexOf('vrouter') == -1) {
+            select = "other_vrouter_ip,vrouter_ip,agg-bytes";
+        } else {
+            select = "other_vrouter_ip,agg-bytes";
+        }
         var option = {};
         reqQueryObj = setUTCTimeObj('fr', reqQueryObj, option);
         reqQueryObj.table = 'FlowRecordTable';
