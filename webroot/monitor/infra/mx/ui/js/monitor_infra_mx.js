@@ -1528,7 +1528,51 @@ mxView.prototype.initGraphEvents = function() {
                     data['targetElement'] = targetElement;
                     _this.populateDetailsTab(data);
                     break;
-
+                case 'contrail.Chassis':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = ifNullOrEmpty(modelData['name'], 'Chassis');
+                    data['type'] = 'Chassis';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.RoutingEngine':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Routing Engine';
+                    data['type'] = 'RoutingEngine';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.SwitchCard':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Switch Card';
+                    data['type'] = 'SwitchCard';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.LineCard':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Line Card';
+                    data['type'] = 'LineCard';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.FanModule':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Fan Module';
+                    data['type'] = 'FanModule';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.PowerModule':
+                    var modelData = clickedElement['attributes']['nodeDetails']['modelData'];
+                    data['name'] = 'Power Module';
+                    data['type'] = 'PowerModule';
+                    $.extend(data, modelData);
+                    _this.populateDetailsTab(data);
+                    break;
+                case 'contrail.PacketForwardingEngine':
+                    //TBD
+                    break;
                 timeout = null;
             }
         }, 500);
@@ -1607,6 +1651,8 @@ mxView.prototype.renderMxDetails = function(){
 
 mxView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content = {},_this = this;
+    var widget_template = contrail.getTemplate4Id("device-details-widget"),
+        details_template = contrail.getTemplate4Id("device-details-body");
     if(type == 'VROUTER' || type == 'link')
         _this.renderUnderlayTabs();
     $("#detailsLink").show();
@@ -1723,6 +1769,246 @@ mxView.prototype.populateDetailsTab = function(data) {
             } 
         }).always(function(response){
             $("#detailsTab").find('.icon-spinner').hide();
+        });
+    } else if (type == 'Chassis') {
+        $("#detailsTab").html(widget_template({
+            title: 'Chassis',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Name',
+            value: data['name']
+        }, {
+            label: 'Identifier',
+            value: data['identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }, {
+            label: 'RE Count',
+            value: data['max_routing_engines']
+        }];
+        //REs
+        $.each(data['routing_engines'], function(idx, re) {
+           attrs.push({
+               label: 'Routing Engine ' + idx,
+               value: ' '
+           }, {
+               label: INDENT_RIGHT + 'Slot Identifier',
+               value: re['slot_identifier']
+           }, {
+               label: INDENT_RIGHT + 'Model',
+               value: re['model_type']
+           });
+        });
+        //SWs
+        attrs.push({
+            label: 'SW Count',
+            value: data['max_switch_cards']
+        });
+        $.each(data['switch_cards'], function(idx, sw) {
+            attrs.push({
+                label: 'Switch Card ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Slot Identifier',
+                value: sw['slot_identifier']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: sw['model_type']
+            });
+        });
+        //LCs
+        attrs.push({
+            label: 'LC Count',
+            value: data['max_line_cards']
+        });
+        $.each(data['line_cards'], function(idx, lc) {
+            attrs.push({
+                label: 'Line Card ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Slot Identifier',
+                value: lc['slot_identifier']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: lc['model_type']
+            }, {
+                label: INDENT_RIGHT + 'CPU Count',
+                value: lc['cpu_count']
+            }, {
+                label: INDENT_RIGHT + 'PFE Count',
+                value: lc['pfe_count']
+            });
+        });
+        //Fans
+        attrs.push({
+            label: 'Fan Count',
+            value: data['max_fan_modules']
+        });
+        $.each(data['fan_modules'], function(idx, fan) {
+            attrs.push({
+                label: 'Fan ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Description',
+                value: fan['description']
+            })
+        });
+        //PSUs
+        attrs.push({
+            label: 'PSU Count',
+            value: data['max_power_modules']
+        });
+        $.each(data['power_modules'], function(idx, psu) {
+            attrs.push({
+                label: 'PSU ' + idx,
+                value: ' '
+            }, {
+                label: INDENT_RIGHT + 'Serial Number',
+                value: psu['serial_number']
+            }, {
+                label: INDENT_RIGHT + 'Model',
+                value: psu['model_type']
+            })
+        });
+
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+
+    } else if (type == 'RoutingEngine') {
+        $("#detailsTab").html(widget_template({
+            title: 'Routing Engine',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'SwitchCard') {
+        $("#detailsTab").html(widget_template({
+            title: 'Switch Card',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'LineCard') {
+        $("#detailsTab").html(widget_template({
+            title: 'Line Card',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Slot Identifier',
+            value: data['slot_identifier']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }, {
+            label: 'CPU Count',
+            value: data['cpu_count']
+        }, {
+            label: 'PFE Count',
+            value: data['pfe_count']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'FanModule') {
+        $("#detailsTab").html(widget_template({
+            title: 'Fan Module',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Description',
+            value: data['description']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+        });
+    } else if (type == 'PowerModule') {
+        $("#detailsTab").html(widget_template({
+            title: 'Power Module',
+            colCount: 2,
+            showSettings: true,
+            widgetBoxId: 'deviceDetails'
+        }));
+        startWidgetLoading('deviceDetails');
+        var attrs = [{
+            label: 'Serial Number',
+            value: data['serial_number']
+        }, {
+            label: 'Model',
+            value: data['model_type']
+        }];
+        $('#dashboard-box .widget-body').html(details_template({
+            attributes: attrs,
+            deviceData: data,
+            showSettings: true
+        }));
+        endWidgetLoading('deviceDetails');
+        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
         });
     }
 }
