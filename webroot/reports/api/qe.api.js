@@ -226,6 +226,10 @@ function processQueryResults(res, queryResults, options)
         }
         commonUtils.handleJSONResponse(null, res, {data:responseJSON, total:total, queryJSON: queryJSON});
     }
+    if ((null != options['saveQuery']) && ((false == options['saveQuery']) ||
+                                           ('false' == options['saveQuery']))) {
+        return;
+    }
     saveQueryResult2Redis(resultJSON, total, queryId, pageSize, getSortStatus4Query(queryJSON), queryJSON);
     if (table == 'FlowSeriesTable') {
         saveData4Chart2Redis(queryId, resultJSON, getPlotFields(queryJSON['select_fields']));
@@ -1201,7 +1205,11 @@ function runNewQuery(req, res, queryId, reqQuery)
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
         reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery, engQueryStr = reqQuery['engQueryStr'],
-        options = {queryId:queryId, pageSize:pageSize, counter:0, status:"run", async:async, count:0, progress:0, errorMessage:"", reRunTimeRange: reRunTimeRange, reRunQuery: reRunQuery, opsQueryId: "", engQueryStr: engQueryStr},
+        saveQuery = reqQuery['saveQuery'],
+        options = {queryId:queryId, pageSize:pageSize, counter:0, status:"run",
+            async:async, count:0, progress:0, errorMessage:"", reRunTimeRange:
+                reRunTimeRange, reRunQuery: reRunQuery, opsQueryId: "",
+            engQueryStr: engQueryStr, saveQuery: saveQuery},
         queryJSON;
     if (tableName == 'MessageTable') {
         queryJSON = parseSLQuery(reqQuery);
