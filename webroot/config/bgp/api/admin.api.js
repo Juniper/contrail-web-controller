@@ -315,16 +315,17 @@ adminapi.createBGPRouter = function (req, res, appData) {
 				    data["bgp-router"]["_type"] = type;
 				    data["bgp-router"]["parent_name"] = parentName;
 				    data["bgp-router"]["bgp_router_parameters"] = bgpParams;
+				    data["prouter-params"] = proutersParams;
 				    logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
 				    updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
                                             appData);
                 } else {
                     if(proutersParams != null){
-                        var bgpFqName = data["bgp-router"]["fq_name"];
-                        updatePhysicalRouters(error,data,appData,bgpFqName,proutersParams, function(error, data) {
-				commonUtils.handleJSONResponse(error, res, data);
-				return;
-			});
+                            var bgpFqName = data["bgp-router"]["fq_name"];
+                            updatePhysicalRouters(error,data,appData,bgpFqName,proutersParams, function(error, data) {
+                				commonUtils.handleJSONResponse(error, res, data);
+                				return;
+                			});
                     } else {
                         commonUtils.handleJSONResponse(error, res, data);
                     }
@@ -532,7 +533,10 @@ function addBGPPeerCB (bgpUUIDObj, callback)
 function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 	var url = '/bgp-router/' + id;
 	var content = req.param('content');
-	var prouterParams = content["prouter-params"];
+	console.log("Inside updateBGPRouterInternal - " + JSON.stringify(content));
+	var prouterParams = bgpUpdates["prouter-params"];
+	console.log("Prouter params"+ prouterParams);
+	delete bgpUpdates["prouter-params"];
 	var bgpPeerUUIDs = [];
 	logutils.logger.debug("updateBGPRouter: " + url);
 		configApiServer.apiGet(url, appData, function (error, bgpJSON) {
@@ -568,11 +572,14 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 		    							    (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
 										prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
 									}
+									updatePhysicalRouters(null,data,appData,bgpFqName,prouterParams, function(err, data) {
+                                        commonUtils.handleJSONResponse(err, res, data);
+                                        return;
+                                     });
+								} else {
+								    commonUtils.handleJSONResponse(err, res, data);
 								}
-	                            updatePhysicalRouters(null,data,appData,bgpFqName,prouterParams, function(err, data) {
-            								commonUtils.handleJSONResponse(err, res, data);
-									return;
-								 });
+	                            
 							});
 							
 						}
@@ -603,6 +610,7 @@ function prepareBGPPeerAttrJSON(bgpUpdates) {
 adminapi.updateBGPRouter = function (req, res, appData) {
 	var id = req.param('id');
 	var bgpUpdates = req.param('content');
+	console.log("inside updatebgprouter - " + JSON.stringify(bgpUpdates));
 	updateBGPRouterInternal(req, res, id, bgpUpdates, appData);
 };
 
@@ -1433,10 +1441,25 @@ function deleteBGPRouter (request, response, appData)
 
     configApiServer.apiGet(url, appData,
                          function(error, data) {
-                         deleteBgpPeersRead(error, data, id.toString(),
-                                            response, appData)
+                             if(error){
+                                 commonUtils.handleJSONResponse(error, res, null);
+                                 return;
+                             }
+                             //If there is a physical router associated with this remove the ref
+                             if ((data["bgp-router"]["physical_router_back_refs"] != null) && 
+                                     (data["bgp-router"]["physical_router_back_refs"][0] != null)) {
+                                 var bgpFqName = data["bgp-router"]["fq_name"];
+                                 var prouterParams = {};
+                                 prouterParams['oldProuter'] = data["bgp-router"]["physical_router_back_refs"][0]['uuid'];
+                                 updatePhysicalRouters (error,data,appData,bgpFqName,prouterParams, function(error, prdata) {
+                                                                 deleteBgpPeersRead(error, data, id.toString(),response, appData);
+                                                                 });
+                             } else {
+                                 deleteBgpPeersRead(error, data, id.toString(),response, appData);
+                             }
                          });
-};
+                         
+}
 
 function getMatchStrByType (type)
 {
