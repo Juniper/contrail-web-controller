@@ -259,7 +259,7 @@
     }
     
     function validateQuotaData(result) {
-        if(result && result["project"]) {
+        if(result && result["quota"]) {
             updateData = result    
             fetchQuotaUsedInfo()
         } else {
@@ -269,7 +269,7 @@
     
     function fetchQuotaUsedInfo() {
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").getSelectedData()[0];  
-        doAjaxCall("/api/tenants/config/quota-used/" + selectedProject.text,
+        doAjaxCall("/api/tenants/config/quota-used/" + selectedProject.value,
             "GET", null, "successHandlerForQuotaUsed", "failureHandlerForQuotaUsed", null, null);    
     }
     
@@ -287,7 +287,7 @@
     }
     
     function populateQuotaEditPopup() {
-        var data = updateData["project"]["quota"];
+        var data = updateData["quota"];
         for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
             var quotaKey = quotaList[quotaCnt].key;
             var comboDS = [{ text : 'Unlimited', value : -1 }];
@@ -312,7 +312,7 @@
     }
     
     function bindDatatoGrid(usedInfo) {
-        var data = updateData["project"]["quota"];
+        var data = updateData["quota"];
         if(data != null && data != undefined) {
             var dsQuota = [];
             for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
@@ -362,7 +362,7 @@
         $("#gridQuotas").data("contrailGrid")._dataView.setData([]);
         gridQuotas.showGridMessage('loading');
         var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").getSelectedData()[0];
-        var updateQuota = data["project"]["quota"];
+        var updateQuota = data["quota"];
         for(var quotaCnt = 0;quotaCnt < quotaList.length;quotaCnt++) {
             var quotaKey = quotaList[quotaCnt].key;
             var comboInstanceValue = $('#' + quotaKey).data('contrailCombobox').value();
@@ -379,11 +379,11 @@
     }
     
     window.successHandlerForQuotasUpdate = function(result) {
-        validateQuotaData(result);
+        fetchDataForQuota();
     }
     
     window.failureHandlerForQuotasUpdate = function(err) {
-        gridQuotas.showGridMessage('errorGettingData'); 
+        fetchDataForQuota();
     }
     
     function destroy() {
