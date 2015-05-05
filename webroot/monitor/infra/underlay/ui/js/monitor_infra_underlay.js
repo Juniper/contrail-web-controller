@@ -969,7 +969,7 @@ underlayView.prototype.initTooltipConfig = function() {
             content: function(element, graph) {
                 var viewElement = _this.getGraph().getCell(element.attr('model-id'));
                 var tooltipContent = contrail.getTemplate4Id('tooltip-content-template');
-
+                var tooltipLblValues = [];
                 var ifLength = 0;
                 if(viewElement.attributes && viewElement.attributes.hasOwnProperty('nodeDetails') &&
                     viewElement.attributes.nodeDetails.hasOwnProperty('more_attributes') &&
@@ -977,16 +977,23 @@ underlayView.prototype.initTooltipConfig = function() {
                     viewElement.attributes.nodeDetails.more_attributes.ifTable.length) {
                     ifLength = viewElement.attributes.nodeDetails.more_attributes.ifTable.length;
                 }
-                return tooltipContent([
-                    {
-                        lbl:'Name',
-                        value: viewElement.attributes.nodeDetails['name']
-                    },
-                    {
+                tooltipLblValues.push({
+                    lbl:'Name',
+                    value: viewElement.attributes.nodeDetails['name']
+                });
+                var nodeDetails = getValueByJsonPath(viewElement,'attributes;nodeDetails',{});
+                if(nodeDetails['errorMsg'] != null) {
+                    tooltipLblValues.push({
+                        lbl:'Events',
+                        value: nodeDetails['errorMsg']
+                    }); 
+                } else {
+                    tooltipLblValues.push({
                         lbl:'Interfaces',
                         value: ifLength
-                    }
-                ]);
+                    }); 
+                }
+                return tooltipContent(tooltipLblValues);
             }
         },
         VirtualMachine: {
@@ -3077,12 +3084,50 @@ underlayController.prototype.getModelData = function(cfg) {
         });
         globalObj['topologyResponse']['VMList'] = virtualMachineList;
         globalObj['topologyResponse']['vRouterList'] = vRouterList;
-        _this.getModel().setNodes(response['nodes']);
+        //Adding the config missing and uve missing nodes to topology
+        var nodes = ifNull(response['nodes'],[]),errorNodes = [];
+        var configMissingNodes = getValueByJsonPath(response,'errors;configNotFound',[]);
+        var configMissingLen = configMissingNodes.length;
+        var uveMissingNodes = getValueByJsonPath(response,'errors;uveNotFound',[]);
+        var uveMissingLen = uveMissingNodes.length;
+        for(var i = 0; i < configMissingLen; i++) {
+            errorNodes.push(configMissingNodes[i]);
+            var nodeObj = {
+                    name:configMissingNodes[i],
+                    node_type: "physical-router",
+                    chassis_type: "coreswitch",
+                    more_attributes: {},
+                    errorMsg:'Configuration Unavailable'
+            }
+            nodes.push(nodeObj);
+        }
+        for(var i = 0; i < uveMissingLen; i++) {
+            errorNodes.push(uveMissingNodes[i]);
+            var nodeObj = {
+                    name:uveMissingNodes[i],
+                    node_type: "physical-router",
+                    chassis_type: "coreswitch",
+                    more_attributes: {},
+                    errorMsg:'System Information Unavailable'
+            }
+            nodes.push(nodeObj);
+        }
+        _this.getModel().setNodes(nodes);
         _this.getModel().setLinks(response['links']);
         _this.getModel().updateChassisType(response['nodes']);
         _this.getModel().categorizeNodes(response['nodes']);
         _this.getModel().formTree();
         _this.getView().renderTopology(response);
+        var elementMap = _this.getView().getElementMap();
+        var errorNodesLen = errorNodes.length;
+        for(var i = 0; i < errorNodesLen; i++) {
+            var nodes = ifNull(elementMap['nodes'],{});
+            if (nodes[errorNodes[i]] != null ) {
+                $('div.font-element[font-element-model-id="' + nodes[errorNodes[i]] + '"]')
+                .find('i')
+                .css('color','#b94a48');
+            }
+        }
     }
     function showEmptyInfo(container) {
         $("#"+container).html('<div class="display-nonodes">No Physical Devices found</div>');
