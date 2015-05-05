@@ -391,7 +391,7 @@ function updateRouteTable(addVMIData, domain, project, lruuid, appData, callback
         commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
         function(error, vnData) {
             if(error){
-                commonUtils.handleJSONResponse(error, response, null);
+                callback(error, vnData);
                 return;
             }
            updateVTDataforAdd (vnData, lruuid, appData, domain, project, function(error, rtableResult) {
@@ -879,3 +879,5 @@ exports.readLogicalRouter = readLogicalRouter;
 exports.createLogicalRouter = createLogicalRouter;
 exports.updateLogicalRouter = updateLogicalRouter;
 exports.deleteLogicalRouter = deleteLogicalRouter;
+exports.updateRouteTable = updateRouteTable;
+exports.readVMforRTable = readVMforRTable;
