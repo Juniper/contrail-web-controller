@@ -743,7 +743,6 @@ function runFRQuery() {
         columnDisplay, selectArray, queryId;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
-        queryId = randomUUID();
         collapseWidget('#fr-query-widget');
         var select = '',vrouterRegex = /\(?\s*vrouter\s?=/;
         //vrouter should in query only when it is not there in where clause
@@ -755,8 +754,7 @@ function runFRQuery() {
         var option = {};
         reqQueryObj = setUTCTimeObj('fr', reqQueryObj, option);
         reqQueryObj.table = 'FlowRecordTable';
-        reqQueryObj.queryId = queryId;
-        reqQueryObj.async = 'true';
+        reqQueryObj.async = 'false';
         selectArray = parseStringToArray(select, ',');
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
@@ -808,7 +806,9 @@ function viewFRQueryResults(dataItem, params) {
 function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridDisplay,reverseTraceFlow) {
     var grid = $('#' + options.elementId).data('contrailGrid'),
         url = "/api/admin/reports/query",
-        btnId = options.btnId;
+        btnId = options.btnId,
+        dataView = new ContrailDataView(),
+        gridObject;
     
     var gridConfig = {
         header: {
@@ -830,16 +830,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                 forceFitColumns: true,
             },
             dataSource : {
-                remote: {
-                    ajaxConfig: {
-                        url: url,
-                        timeout: options.timeOut,
-                        type: "POST",
-                        data: reqQueryObj
-                    },
-                    serverSidePagination: true,
-                    exportFunction: exportServersideQueryResults
-                },
+                dataView: dataView,
                 events : {
                     onRequestStartCB : function() {
                         onQueryRequestStart(btnId);
@@ -900,7 +891,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             }
         }
     };
-    
     if(options.queryPrefix == 'fs'){
         if (grid) {
             $('#ts-chart').empty();
@@ -937,7 +927,8 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                     $(e['currentTarget']).attr('checked',true);
                 }
             },
-            actionCell: []
+            actionCell: [],
+            lazyLoading:true,
         };
         $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
@@ -949,8 +940,22 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             showUnderlayPaths(dataItem);
         });
     }
-
     $("#" + options.elementId).contrailGrid(gridConfig);
+    gridObject = $("#"+options.elementId).data('contrailGrid');
+    $.ajax({
+        url:url+'?'+$.param(reqQueryObj),
+    }).done(function(response){
+        dataView.setData(response['data']);
+        if(response['data'].length == 0 && gridObject != null) {
+            gridObject.showGridMessage('empty');
+        }
+    }).fail(function(error){
+        if(gridObject != null) {
+            gridObject.showGridMessage('error');
+        }
+    }).always(function() {
+          $("#" + options.elementId).find('.grid-header-icon-loading').hide();
+    });
     $("#" + options.elementId).find('input.headerRowCheckbox').parent('span').remove();
     $('#fs-results').find('a[data-action="collapse"]').on('click', function(){
         if($(this).find('i.collapse-icon').hasClass('icon-chevron-up')){
@@ -970,7 +975,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
 function getFRDefaultOptions() {
     return {
         elementId:'fr-results', gridHeight:480,
-        timeOut:60000, pageSize:15, queryPrefix:'fr', export:true,
+        timeOut:60000, pageSize:10, queryPrefix:'fr', export:true,
         btnId:'fr-query-submit'
     };
 };
