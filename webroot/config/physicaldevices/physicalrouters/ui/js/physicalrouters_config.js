@@ -20,6 +20,7 @@ function physicalRoutersConfig() {
     var VCPE_TYPE = 'CPE Router';
     var PROUTER_TYPE = 'Physical Router';
     var SNMP_TYPE = 'SNMP Managed';
+    var dynamicID = 0;
    
     var currAddEditType = '';
     var mode = '';
@@ -345,6 +346,14 @@ function physicalRoutersConfig() {
         }
     }
     
+    function onServicePortCheckboxChange(e){
+        if($('#enableDisableServicePort' + currAddEditType)[0].checked == true){
+            $('#junosServicePortsPanel' + currAddEditType).removeClass('hide').addClass('show');
+        } else {
+            $('#junosServicePortsPanel' + currAddEditType).removeClass('show').addClass('hide');
+        }
+    }
+    
     function onSnmpSecurityLevelChange(e){
         var level = e.added.value;
         if(level === "auth") {//Show only auth 
@@ -474,6 +483,10 @@ function physicalRoutersConfig() {
             $('#confirmMainDelete').modal("hide");
             deletePhysicalRouter(selected_rows);
         });        
+        
+        $('[id^=btnAddServicePort]').click(function() {
+            appendServicePortsEntry(this, true);
+        });
     }
     
     window.showPhysicalRouterDelWindow = function(e) {
@@ -551,7 +564,10 @@ function physicalRoutersConfig() {
         //On SNMP settings checkbox change
 //        $('#chkSnmpSettings' + currAddEditType).change(onSNMPSettingsCheckboxChange);
         $('input[name="chkSnmpSettings' + currAddEditType + '"]').change(onSNMPSettingsCheckboxChange);
+        //Junos service port
+        $('input[name="enableDisableServicePort' + currAddEditType + '"]').change(onServicePortCheckboxChange);
         if(mode === 'edit') {
+            dynamicID = 0;
             //Set the heading correctly
             if(currAddEditType == OVSDB_SUFFIX)
                 $('#' + options['divId']).find(".modal-header-title").text('Edit ' + OVSDB_TYPE);
@@ -576,6 +592,21 @@ function physicalRoutersConfig() {
                 $('#txtMgmtIPAddress' + currAddEditType).val(gblSelRow.mgmt_ip_address);
             if(gblSelRow.data_ip_address != '-' && $('#txtDataIPAddress' + currAddEditType).length > 0)
                 $('#txtDataIPAddress' + currAddEditType).val(gblSelRow.data_ip_address);
+            if(gblSelRow.junosServicePorts != '-' && $('#junosServicePortsPanel' + currAddEditType).length > 0){
+                var servicePorts = gblSelRow.junosServicePorts;
+                $('#enableDisableServicePort' + currAddEditType)[0].checked = true;
+                onServicePortCheckboxChange();
+                for(var i = 0 ; i < servicePorts.length; i++){
+                    //Append the tuples to the Server Details
+                    var rule = servicePorts[i];
+                    dynamicID += 1;
+                    var ruleEntry = createServicePortsEntry(rule, dynamicID,"servicePortsTuples" + currAddEditType,window.serverData);
+                    $("#servicePortsTuples" + currAddEditType).append(ruleEntry);
+                }
+            } else if($('#junosServicePortsPanel' + currAddEditType).length > 0){
+                $('#enableDisableServicePort' + currAddEditType)[0].checked = false;
+                onServicePortCheckboxChange();
+            }
             if(gblSelRow.username != '-' && $('#txtUsername' + currAddEditType).length > 0)
                 $('#txtUsername' + currAddEditType).val(gblSelRow.username);
             if(gblSelRow.password != '-' && $('#txtPassword' + currAddEditType).length > 0)
@@ -733,7 +764,7 @@ function physicalRoutersConfig() {
             postObject["physical-router"]["uuid"] = gblSelRow.uuid;
         }
         var name,vendor,mgmtIpAddress,dataIpAddress,username,password,bgpRouter,vRoutersType,model,autoConfig,vns;
-        
+        var servicePortsTuples,servicePorts=[];
         name = $("#txtPhysicalRouterName" + currAddEditType).val();
         if(currAddEditType != VCPE_SUFFIX) {
             vendor = $("#txtVendor" + currAddEditType).val();
@@ -746,6 +777,17 @@ function physicalRoutersConfig() {
         if(currAddEditType == NETCONF_SUFFIX || currAddEditType == PROUTER_SUFFIX){
             username = $("#txtUsername" + currAddEditType).val();
             password = $("#txtPassword" + currAddEditType).val();
+            if($('#enableDisableServicePort' + currAddEditType)[0].checked == true){
+                servicePortsTuples = $("#servicePortsTuples" + currAddEditType)[0].children;
+                if (servicePortsTuples && servicePortsTuples.length > 0) {
+                    for(i = 0 ; i< servicePortsTuples.length ; i++){
+                        var divid = servicePortsTuples[i].id;
+                        var id = getServicePortsDivID(divid);
+                        var servicePort = $("#servicePortsTuples"+ currAddEditType + "_"+id+"_servicePort").val();
+                        servicePorts.push(servicePort);
+                    }
+                }
+            }
         }
         if(currAddEditType == PROUTER_SUFFIX) {
             bgpRouter = $("#ddBgpRouter" + currAddEditType).data('contrailDropdown').text();
@@ -771,6 +813,12 @@ function physicalRoutersConfig() {
         postObject["physical-router"]['physical_router_user_credentials'] = {};
         postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
         postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
+        if(servicePorts != null && servicePorts.length > 0){
+            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
+            postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = servicePorts;
+        } else {
+            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
+        }
         if(bgpRouter != null && bgpRouter != 'None'){
             var bgpRouterRefs = [{"to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpRouter]}];
             postObject["physical-router"]["bgp_router_refs"] = bgpRouterRefs;
@@ -1023,7 +1071,20 @@ function physicalRoutersConfig() {
         $('[id^=txtV3EngineTime]').val('');
         //Need to unbind the click events on the save button or else they will be triggered multiple times.
         $('[id^=btnAddOk]').unbind('click');
+        clearServicePortsDetailsGrid();
     }
+    
+    function clearServicePortsDetailsGrid(){
+        //Remove all the rows in the grid.
+          $("[id$=servicePorts]").remove();
+          $(".rule-item").remove();
+//          if($('#ddVN').data('contrailDropdown').value() == 'none'){
+//              $('#btnAddServer').hide();
+//          } else {
+//              $('#btnAddServer').show();
+//          }
+          dynamicID = 0;
+      }
         
     function fetchData() {
         gridPhysicalRouters._dataView.setData([]);
@@ -1115,6 +1176,7 @@ function physicalRoutersConfig() {
                     username = credentials['username'];
                     password = credentials['password'];
                 }
+                var junosServicePorts = rowData["physical_router_junos_service_ports"]? ifNull(rowData["physical_router_junos_service_ports"]["service_port"],'-') : '-' ;
                 var snmpCredentials = rowData['physical_router_snmp_credentials'];
                 var isSNMPManaged = false;
                 var snmpVersion = '-';
@@ -1173,6 +1235,7 @@ function physicalRoutersConfig() {
                     data_ip_address : rowData['physical_router_dataplane_ip'] ? rowData['physical_router_dataplane_ip'] : '-',
                     username : (username == '')? '-' : username,
                     password : password,
+                    junosServicePorts : junosServicePorts,
                     totalInterfacesCount : totalInterfacesCount,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
                     virtual_networks : vnsString.length > 0 ? vnsString : '-',       
@@ -1432,7 +1495,96 @@ function physicalRoutersConfig() {
         //SNMP Validations Ends
         return true;         
     }
+    
+    //Creates the html elements for new rows
+    function createServicePortsEntry(rule, id, element,serverData) {
+        
+        var inputServicePort = document.createElement("input");
+        inputServicePort.type = "text";
+        inputServicePort.className = "span12";
+        inputServicePort.setAttribute("placeholder", "Enter Port");
+        inputServicePort.setAttribute("id",element + "_"+id+"_"+"servicePort");
+        var divRowFluidServicePort = document.createElement("div");
+        divRowFluidServicePort.className = "span5";
+        divRowFluidServicePort.appendChild(inputServicePort);
 
+        var divPlusMinus =  document.createElement("div");
+        divPlusMinus.className = 'span2 pull-right';
+        var iBtnAddRule = document.createElement("i");
+        iBtnAddRule.className = "icon-plus";
+        iBtnAddRule.setAttribute("title", "Add service port");
+        $(iBtnAddRule).click(function() {
+            appendServicePortsEntry(this, false);
+        });
+
+        var divPullLeftMargin5Plus = document.createElement("div");
+        divPullLeftMargin5Plus.className = "pull-right margin-5";
+        divPullLeftMargin5Plus.appendChild(iBtnAddRule);
+
+        var iBtnDeleteRule = document.createElement("i");
+        iBtnDeleteRule.className = "icon-minus";
+        iBtnDeleteRule.setAttribute("title", "Delete service port");
+        $(iBtnDeleteRule).click(function() {
+            deleteServicePortsEntry(this);
+          });
+
+        var divPullLeftMargin5Minus = document.createElement("div");
+        divPullLeftMargin5Minus.className = "pull-right margin-5";
+        divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
+        
+        var divRowFluidMargin10 = document.createElement("div");
+        divRowFluidMargin10.className = "row-fluid margin-0-0-5";
+        divRowFluidMargin10.appendChild(divRowFluidServicePort);
+        divRowFluidMargin10.appendChild(divPullLeftMargin5Plus);
+        divRowFluidMargin10.appendChild(divPullLeftMargin5Minus);
+
+        var rootDiv = document.createElement("div");
+        rootDiv.id = element+"_"+id+"_"+"rule";
+        rootDiv.className = 'rule-item';
+        rootDiv.appendChild(divRowFluidMargin10);
+        
+        if (null !== rule && typeof rule !== "undefined") {//edit
+            
+            if(rule != null && rule != '-' && rule != ''){
+                $(inputServicePort).val(rule);
+            } else {
+                $(inputServicePort).val(' ');
+            }
+            //$(inputServicePort).attr('disabled', 'disabled');
+        }
+        return rootDiv;
+    }
+    
+    //Function to Append a tuple/row in the Service Port Details row
+    function appendServicePortsEntry(who, defaultRow) {
+        dynamicID += 1;
+        var ruleEntry = createServicePortsEntry(null, dynamicID, "servicePortsTuples" + currAddEditType,window.serverData);
+        if (defaultRow) {
+            $("#servicePortsTuples" + currAddEditType).prepend($(ruleEntry));
+        } else {
+            var parentEl = who.parentNode.parentNode.parentNode;
+            parentEl.parentNode.insertBefore(ruleEntry, parentEl.nextSibling);
+        }
+//        scrollUp("#addPhysicalInterfaceWindow",ruleEntry,false);
+    }
+    
+    function deleteServicePortsEntry(who) {
+        var templateDiv = who.parentNode.parentNode.parentNode;
+        $(templateDiv).remove();
+        templateDiv = $();
+    }
+
+    function getServicePortsDivID(divid){
+        if(divid === undefined){
+             return -1;
+        }
+        var split = divid.split("_");
+        if(split.length > 2){
+            return(split[2])
+        } else {
+            return -1;
+        }
+    }
     
     function destroy() {
         var configTemplate = $("#physicalrouters-config-template");
