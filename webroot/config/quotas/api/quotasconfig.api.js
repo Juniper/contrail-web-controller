@@ -26,7 +26,6 @@ var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var async = require('async'); 
 /**
  * @parseProjectQuotas
  * private function
@@ -36,7 +35,9 @@ function parseProjectQuotas(error, projData, appData, callback)
 {
     var quotaData =  projData["project"]["quota"];
     if(quotaData != undefined) {
-         callback(error, projData);
+         var resQuota = {};
+         resQuota.quota = quotaData;
+         callback(error, resQuota);
     }
     else {
         callback(error, null);
@@ -84,7 +85,8 @@ function readProjectQuotas (projectIdStr, appData, callback)
                              } else     {
                                  setProjectQuotas(projectIdStr, appData, data, callback);
                              }    
-                         });
+                         }
+    );
 }
 
 /**
@@ -149,12 +151,14 @@ function updateProjectQuotas(request, response, appData)
     var updateData = request.body; 
     var url = "/project/";
     url += projectId ;
-    configApiServer.apiPut(url, updateData, appData, function(err, data){
+    var putObj = {};
+    putObj.project = updateData;
+    configApiServer.apiPut(url, putObj, appData, function(err, data){
         if (err) {
             commonUtils.handleJSONResponse(err, response, null);
             return;
         }  
-        projectQuotasAPIGet(projectId, response, appData);
+        commonUtils.handleJSONResponse(err, response, data);
     });    
 }
 
@@ -181,7 +185,7 @@ function processAsyncReq(req, callback) {
 function getProjectQuotaUsedInfo(request, response, appData)
 {
     var usedResCnt = {};
-    var projName = validateProjectName(request);
+    var projId = validateProjectId(request);
     var resources = [{key : 'floating-ips', value : 'floating_ip'},
         {key : 'floating-ip-pools', value : 'floating_ip_pool'},
         {key : 'network-ipams', value : 'network_ipam'},
@@ -200,7 +204,7 @@ function getProjectQuotaUsedInfo(request, response, appData)
     var callObj = [];
     for(var featureCnt = 0; featureCnt < resources.length; featureCnt ++) {
         var reqObj = {};
-        reqObj.url = '/' + resources[featureCnt].key;
+        reqObj.url = '/' + resources[featureCnt].key + '?parent_id=' + projId + '&count=true';
         reqObj.appData = appData;
         callObj.push(reqObj);         
     }
@@ -209,104 +213,75 @@ function getProjectQuotaUsedInfo(request, response, appData)
             commonUtils.handleJSONResponse(err, response, null);
             return;
         }
-        var callVNObj = [];
-        var callSGObj = [];
         for(var dataCnt = 0; dataCnt < data.length ; dataCnt++) {
-            for(var resCnt = 0; resCnt <  resources.length; resCnt++) {
-                var resource = resources[resCnt];
+            for(var i = 0; i <  resources.length; i++) {
+                var resource = resources[i];
                 if(resource.key in data[dataCnt]) {
-                    var resData =  data[dataCnt][resource.key];
-                    var resCntPerProj = 0;
-                    if(resData && resData.length > 0) {
-                        for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
-                            if(resData[resDataCnt].fq_name[1] ===  projName) {
-                               resCntPerProj ++; 
-                               if(resource.key === 'virtual-networks') {
-                                   var vnReqObj = {};
-                                   vnReqObj.url =  '/virtual-network/' + resData[resDataCnt].uuid;
-                                   vnReqObj.appData = appData; 
-                                   callVNObj.push(vnReqObj);
-                               }
-                               if(resource.key === 'security-groups') {
-                                   var sgReqObj = {};
-                                   sgReqObj.url =  '/security-group/' + resData[resDataCnt].uuid;
-                                   sgReqObj.appData = appData; 
-                                   callSGObj.push(sgReqObj);
-                               }
-                            }   
-                        }
-                    }
-                    usedResCnt[resource.value] = resCntPerProj;                                             
+                    var resCnt =  data[dataCnt][resource.key].count;
+                    usedResCnt[resource.value] = resCnt;
                 }
             }
         }
-        if(callVNObj.length <= 0) {
-            usedResCnt['subnet'] = 0;
-            if(callSGObj.length <= 0) { 
-                usedResCnt['security_group_rule'] = 0;
-                commonUtils.handleJSONResponse(err, response, usedResCnt); 
-            } else {
-                getSecurityGroupRule(callSGObj, usedResCnt, response, function(error, data) {
-                    commonUtils.handleJSONResponse(error, response, usedResCnt); 
-                });			
-            }
-        } else {
-            if(callSGObj.length <= 0) { 
-                usedResCnt['security_group_rule'] = 0;
-                getSubNetsUsedInfo(callVNObj, usedResCnt, response, function(error, data) {
-                    commonUtils.handleJSONResponse(error, response, usedResCnt);
-                });
-            } else {
-                getSubNetsUsedInfo(callVNObj, usedResCnt, response, function(error, data) {
-                    getSecurityGroupRule(callSGObj, usedResCnt, response, function(error, data) {
-                        commonUtils.handleJSONResponse(error, response, usedResCnt); 
-                    });	
-                });	
-            }
-        }
+        getSubNetsUsedInfo(projId, usedResCnt, response, appData, function(err, data) {
+            getSecurityGroupRule(projId, usedResCnt, response, appData, function(err, data) {
+                commonUtils.handleJSONResponse(err, response, usedResCnt);
+            });
+        });
     });  
 }
 
-function getSubNetsUsedInfo(callVNObj, usedResCnt, response, callback) 
+function getSubNetsUsedInfo(projId, usedResCnt, response, appData, callback)
 {
     //prepare used info count for subnets
-    async.map(callVNObj, processAsyncReq, function(err, resData) {
-        if (err) {
-            commonUtils.handleJSONResponse(err, response, null);
-            return;
+    var vnDetailsURL = '/virtual-networks?parent_id=' + projId + '&detail=true&fields=network_ipam_refs';
+    configApiServer.apiGet(vnDetailsURL, appData,
+        function(err, resData) {
+            if (err) {
+                commonUtils.handleJSONResponse(err, response, null);
+                return;
+            }
+            var resCnt = 0;
+            resData = resData['virtual-networks'];
+            if(resData != null) {
+                for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
+                    var ipams = resData[resDataCnt]['virtual-network']['network_ipam_refs'];
+                    if(ipams && ipams.length > 0) {
+                        for(var ipamCnt = 0; ipamCnt < ipams.length; ipamCnt++) {
+                            var attr = ipams[ipamCnt]['attr'];
+                            var subnetsCnt =  attr['ipam_subnets'] ? attr['ipam_subnets'].length : 0;
+                            resCnt = resCnt + subnetsCnt;
+                        }
+                    }
+                }
+                usedResCnt['subnet'] = resCnt;
+            }
+            callback();
         }
-        var resCntPerProj = 0;
-        for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
-            var ipams = resData[resDataCnt]['virtual-network']['network_ipam_refs'];
-            if(ipams && ipams.length > 0) {
-                for(var ipamCnt = 0; ipamCnt < ipams.length; ipamCnt++) {
-                    var attr = ipams[ipamCnt]['attr'];
-                    var subnetsCnt =  attr['ipam_subnets'] ? attr['ipam_subnets'].length : 0;   
-                    resCntPerProj = resCntPerProj + subnetsCnt;        
-                }  
-            }            
-        }
-        usedResCnt['subnet'] = resCntPerProj;
-        callback();       
-    });
+    );
 }
 
-function getSecurityGroupRule(sgReqObj, usedResCnt, response, callback) 
+function getSecurityGroupRule(projId, usedResCnt, response, appData, callback)
 {
     //prepare used info count for subnets
-    async.map(sgReqObj, processAsyncReq, function(err, resData) {
-        if (err) {
-            commonUtils.handleJSONResponse(err, response, null);
-            return;
+    var sgDetailsURL = '/security-groups?parent_id=' + projId + '&detail=true&fields=security_group_entries';
+    configApiServer.apiGet(sgDetailsURL, appData,
+        function(err, resData) {
+            if (err) {
+                commonUtils.handleJSONResponse(err, response, null);
+                return;
+            }
+            var subGrpCnt = 0;
+            resData = resData['security-groups'];
+            if(resData != null) {
+                for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
+                    var sg = resData[resDataCnt]['security-group']['security_group_entries'];
+                    subGrpCnt += sg['policy_rule'] ? sg['policy_rule'].length : 0;
+                }
+            }
+            usedResCnt['security_group_rule'] = subGrpCnt;
+            callback();
         }
-        var subGrpCnt = 0;
-        for(var resDataCnt = 0; resDataCnt < resData.length ; resDataCnt++) {
-            var sg = resData[resDataCnt]['security-group']['security_group_entries'];
-            subGrpCnt += sg['policy_rule'] ? sg['policy_rule'].length : 0;
-        }
-        usedResCnt['security_group_rule'] = subGrpCnt;
-        callback();            
-    });
+    );
 }
 
 function validateProjectId (request) 
