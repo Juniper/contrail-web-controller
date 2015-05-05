@@ -895,6 +895,9 @@ underlayView.prototype.createNode = function(node) {
         var refX, refY;
         var labelNodeName = contrail.truncateText(nodeName,20);
         switch(chassis_type) {
+            case "coreswitch":
+                chassis_type = 'router';
+                break;
             case "spine":
                 chassis_type = 'router';
                 break;
