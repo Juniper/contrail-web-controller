@@ -31,7 +31,7 @@
         <callback>quotasconfigapi.updateProjectQuotas</callback>
     </item>          
     <item>
-        <url>/api/tenants/config/quota-used/:name</url>
+        <url>/api/tenants/config/quota-used/:id</url>
         <method>get</method>
         <feature>quotasconfig</feature>
         <callback>quotasconfigapi.getProjectQuotaUsedInfo</callback>
