@@ -2311,6 +2311,8 @@ underlayView.prototype.renderTracePath = function(options) {
                 srcPort: dataItem['sport'] != null ? dataItem['sport'] : dataItem['src_port'],
                 destPort: dataItem['dport'] != null ? dataItem['dport'] : dataItem['dst_port'],
                 protocol: dataItem['protocol'],
+                maxAttempts: 3,
+                interval: 5,
          };
         //We are sending the VrfId of the flow for trace router request, in some cases like egress flows, the Vrf Id is in context with the
         //current Vrouter introspect but we are issuing the trace route request to other vrouter,which throws error to fix these cases
@@ -2396,10 +2398,12 @@ underlayView.prototype.renderTracePath = function(options) {
          */
         var postData = {
                 srcIP: dataItem['destip'] != null ? dataItem['destip'] : dataItem['dip'],
-                        destIP: dataItem['sourceip'] != null ? dataItem['sourceip'] : dataItem['sip'],
-                        srcPort: dataItem['dport'] != null ? dataItem['dport'] : dataItem['dst_port'],
-                        destPort: dataItem['sport'] != null ? dataItem['sport'] : dataItem['src_port'],
-               protocol: dataItem['protocol'],
+                destIP: dataItem['sourceip'] != null ? dataItem['sourceip'] : dataItem['sip'],
+                srcPort: dataItem['dport'] != null ? dataItem['dport'] : dataItem['dst_port'],
+                destPort: dataItem['sport'] != null ? dataItem['sport'] : dataItem['src_port'],
+                protocol: dataItem['protocol'],
+                maxAttempts: 3,
+                interval: 5,
         };
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             if($("#vrouterRadiobtn").is(':checked')) {
