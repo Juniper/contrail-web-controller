@@ -169,6 +169,7 @@ function clearBgpWindow() {
     $('#msbgppeer').data('contrail2WayMultiselect').setRightData([]);
     $('#multifamily').data('contrailMultiselect').value(['inet-vpn','inet6-vpn','route-target','e-vpn']);
     $('#ddAuthType').data('contrailDropdown').value('none');
+    $('#ddProuter').data('contrailDropdown').value('none');
     disableAuthKeyTextbox();
 }
 
@@ -1404,5 +1405,11 @@ function destroy() {
     if(isSet(txtfamily)) {
         txtfamily.destroy();
         txtfamily = $();
-    }    
+    }
+    ddProuter = $("#ddProuter").data("contrailDropdown");
+    if(isSet(ddProuter)) {
+        ddProuter.destroy();
+        ddProuter = $();
+    } 
+    
 }
