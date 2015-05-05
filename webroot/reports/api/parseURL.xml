@@ -14,7 +14,7 @@
     <item>
         <url>/api/admin/reports/query</url>
         <method>get</method>
-        <timeout>300</timeout>
+        <timeout>600</timeout>
         <feature>query-engine</feature>
         <callback>qeapi.runGETQuery</callback>
     </item>
