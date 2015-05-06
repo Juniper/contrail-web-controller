@@ -919,16 +919,42 @@ function parseWhereANDClause(whereANDClause)
     for (i = 0; i < whereANDLength; i += 1) {
         whereANDArray[i] = whereANDArray[i].trim();
         whereANDClause = whereANDArray[i];
-        if(whereANDClause.indexOf('Starts with') != -1){
-            operator = 'Starts with';
-            whereANDClauseArray = whereANDClause.split(operator);
-        } else if(whereANDClause.indexOf('=') != -1){
-            operator = '='
-            whereANDClauseArray = whereANDClause.split(operator);
+        if (whereANDClause.indexOf('&') == -1) {
+            if (whereANDClause.indexOf('Starts with') != -1) {
+                operator = 'Starts with';
+                whereANDClauseArray = whereANDClause.split(operator);
+            } else if (whereANDClause.indexOf('=') != -1) {
+                operator = '=';
+                whereANDClauseArray = whereANDClause.split(operator);
+            }
+            whereANDClause = {"name": "", value: "", op: ""};
+            populateWhereANDClause(whereANDClause, whereANDClauseArray[0].trim(), whereANDClauseArray[1].trim(), operator);
+            whereANDArray[i] = whereANDClause;
+        } else {
+            whereANDClauseWithSuffixArrray = whereANDClause.split('&');
+            // Treat whereANDClauseWithSuffixArrray[0] as a normal AND term and
+            // whereANDClauseWithSuffixArrray[1] as a special suffix term
+            if (whereANDClauseWithSuffixArrray != null && whereANDClauseWithSuffixArrray.length != 0) {
+                var tempWhereANDClauseWithSuffix;
+                for (var j = 0; j < whereANDClauseWithSuffixArrray.length; j++) {
+                    if (whereANDClauseWithSuffixArrray[j].indexOf('Starts with') != -1) {
+                        operator = 'Starts with';
+                        whereANDTerm = whereANDClauseWithSuffixArrray[j].split(operator);
+                    } else if (whereANDClauseWithSuffixArrray[j].indexOf('=') != -1) {
+                        operator = '=';
+                        whereANDTerm = whereANDClauseWithSuffixArrray[j].split(operator);
+                    }
+                    whereANDClause = {"name": "", value: "", op: ""};
+                    populateWhereANDClause(whereANDClause, whereANDTerm[0].trim(), whereANDTerm[1].trim(), operator);
+                    if (j == 0) {
+                        tempWhereANDClauseWithSuffix = whereANDClause;
+                    } else if (j == 1) {
+                        tempWhereANDClauseWithSuffix.suffix = whereANDClause;
+                    }
+                }
+                whereANDArray[i] = tempWhereANDClauseWithSuffix;
+            }
         }
-        whereANDClause = {"name":"", value:"", op:""};
-        populateWhereANDClause(whereANDClause, whereANDClauseArray[0].trim(), whereANDClauseArray[1].trim(), operator);
-        whereANDArray[i] = whereANDClause;
     }
     return whereANDArray;
 };
