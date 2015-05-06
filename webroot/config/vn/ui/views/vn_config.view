@@ -136,7 +136,6 @@
             <h6 class="modal-header-title"></h6>
         </div>
         <div class="modal-body">
-            <div>
                 <form class="form-horizontal">
                     <div class="control-group hide">
                         <label class="control-label">Name</label>
