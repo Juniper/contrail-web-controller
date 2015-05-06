@@ -181,7 +181,6 @@ function getVirtualRouterDetails(error, pRouters, response, appData){
     var vroutersLength = 0;
     var result = [];
     var dataObjArr        = [];
-    console.log('entering getVirtualRouterDetails');
     for(var k = 0; k < pRouters.length; k++){
         var prouter = pRouters[k];
         if(prouter['physical-router'] != null && prouter['physical-router']['virtual_router_refs'] != null && prouter['physical-router']['virtual_router_refs'].length > 0){
@@ -202,7 +201,6 @@ function getVirtualRouterDetails(error, pRouters, response, appData){
                    commonUtils.handleJSONResponse(error, response, null);
                    return;
                 }
-                console.log(JSON.stringify(vrouters));
                 if(vrouters.length > 0){
                     
                     for(var j=0 ;j < pRouters.length; j++){
@@ -212,7 +210,6 @@ function getVirtualRouterDetails(error, pRouters, response, appData){
                             if(prouterBackRefs != null && prouterBackRefs instanceof Array && prouterBackRefs.length > 0){
                                 for(var k=0; k < prouterBackRefs.length; k++){
                                     if(pRouters[j]['physical-router']['uuid'] == prouterBackRefs[k]['uuid']){
-                                        console.log('adding vrouter dtails - ' + vrouters[l]['virtual-router']['name']);
                                         pRouters[j]['physical-router']['virtual-routers'].push(vrouters[l]['virtual-router']);
                                     }
                                 }
@@ -249,7 +246,6 @@ function getPostDataForLogicalIntfCount(parentUUIDs){
 
 function getChunkedUrl (uuidList,appData)
 {
-    console.log("UUIDLIST as:", uuidList);
 	var tempArray = [];
 	var dataObjArr = [];
 	var chunk = 200;
@@ -287,14 +283,14 @@ function getPhysicalInterfacesLogicalInterfaceCount(error, pRouters, response, a
             prouterMap[k] = [totalCnt, totalCnt + dataObjArr.length - 1];
             totalCnt = totalCnt + dataObjArr.length;
             dataObjPostArr = dataObjPostArr.concat(dataObjArr);
+        } else {
+            prouterMap[k] = [-1, -1];
         }
     }
-    console.log("dataObjPostArr: ", dataObjPostArr);
     if(dataObjArr.length > 0) {
         async.map(dataObjPostArr,
             commonUtils.getAPIServerResponse(configApiServer.apiPost, true),
             function(error, results) {
-                console.log("Getting results as:", JSON.stringify(results));
                 if (error) {
                    commonUtils.handleJSONResponse(error, response, null);
                    return;
@@ -303,12 +299,14 @@ function getPhysicalInterfacesLogicalInterfaceCount(error, pRouters, response, a
                     pRouters[i]['physical-router']['logicalIntfCount'] = 0;
                     var prStartIndex = prouterMap[i][0];
                     var prEndIndex = prouterMap[i][1];
+                    if(-1 == prStartIndex){
+                        continue;
+                    }
                     for (var j = prStartIndex; j <= prEndIndex; j++) {
                         pRouters[i]['physical-router']['logicalIntfCount'] +=
-                        results[j]['logical-interfaces']['count'];
+                                    results[j]['logical-interfaces']['count'];
                     }
                 }
-                console.log("Getting pRouters as:", JSON.stringify(pRouters));
                 getVirtualRouterDetails(error, pRouters, response, appData);
             }
         );
@@ -419,21 +417,17 @@ function createPhysicalRouters (request, response, appData)
                                 }
                              });
                  } else {
-                     console.log("In else block . tyring to creat the vrouter");
                      configApiServer.apiPost('/virtual-routers', vrouterPostData, appData,
                              function(error, data) {
-                                console.log("created the vrouter");
                                 if(error) {
                                     commonUtils.handleJSONResponse(error, response, null);
                                     return;
                                 } else {
                                     delete postData['physical-router']['virtual-routers'];
                                     delete postData['physical-router']['virtual_router_type'];
-                                    console.log("creating the protuer");
                                     //create physical router
                                     configApiServer.apiPost('/physical-routers', postData, appData,
                                             function(error, data) {
-                                            console.log("created prtouer");
                                                 if(error){
                                                     commonUtils.handleJSONResponse(error, response, null);
                                                     return;
