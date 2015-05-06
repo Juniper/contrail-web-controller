@@ -673,9 +673,9 @@ var infraMonitorUtils = {
         var retArr = [];
         $.each(result,function(idx,d) {
             var obj = {};
-            var dbSpaceAvailable = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.disk_space_available_1k')[0]);
-            var dbSpaceUsed = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.disk_space_used_1k')[0]);
-            var analyticsDbSize = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage.analytics_db_size_1k')[0]);
+            var dbSpaceAvailable = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].disk_space_available_1k')[0]);
+            var dbSpaceUsed = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].disk_space_used_1k')[0]);
+            var analyticsDbSize = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].analytics_db_size_1k')[0]);
             
             obj['x'] = $.isNumeric(dbSpaceAvailable)? dbSpaceAvailable / 1024 / 1024 : 0;
             obj['y'] = $.isNumeric(dbSpaceUsed)? dbSpaceUsed / 1024 / 1024 : 0;
