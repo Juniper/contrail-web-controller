@@ -320,9 +320,11 @@ function getpRouterLinkType (linkType)
     }
 }
 
-function createNodeObj (node, nodeType, prouterEntry)
+function createNodeObj (node, nodeType, prouterEntry, prConfigData)
 {
+    var prMgmtIP = "";
     var nodeObj = {};
+
     try {
         lldpNode =
             prouterEntry['value']['PRouterEntry']['lldpTable']['lldpLocalSystemData'];
@@ -353,6 +355,26 @@ function createNodeObj (node, nodeType, prouterEntry)
                 prouterEntry['value']['PRouterEntry']['ifXTable'] : '-'
         }
     });
+    if (ctrlGlobal.NODE_TYPE_PROUTER != nodeType) {
+        return nodeObj;
+    }
+    var prCnt = 0;
+    try {
+        var prData = prConfigData['physical-routers'];
+        prCnt = prData.length;
+    } catch(e) {
+        prCnt = 0;
+    }
+    for (var i = 0; i < prCnt; i++) {
+        if (prData[i]['physical-router']['fq_name'][1] == node) {
+            break;
+        }
+    }
+    if (i < prCnt) {
+        prMgmtIP =
+            prData[i]['physical-router']['physical_router_management_ip'];
+    }
+    nodeObj['mgmt_ip'] = prMgmtIP;
     return nodeObj;
 }
 
@@ -387,7 +409,7 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
         return topoData;
     }
     nodeObj = createNodeObj(data[i]['name'], ctrlGlobal.NODE_TYPE_PROUTER,
-                            data[i]);
+                            data[i], prConfigData);
     var found = isProuterExists(data[i]['name'], prConfigData,
                                 pRouterData);
     if (CONFIG_NOT_FOUND == found) {
@@ -417,7 +439,8 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
                 createNodeObj(pRouterLinkTable[j]['remote_system_name'], 
                               prLinkType,
                               getPRouterEntryByName(pRouterLinkTable[j]['remote_system_name'],
-                                                    data));
+                                                    data),
+                              prConfigData);
             if (ctrlGlobal.NODE_TYPE_PROUTER == prLinkType) {
                 var found =
                     isProuterExists(pRouterLinkTable[j]['remote_system_name'],
@@ -557,7 +580,9 @@ function buildPhysicalTopology (prouter, appData, callback)
     var url = '/analytics/uves/prouter';
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
-    var url = '/physical-routers';
+    var url =
+        '/physical-routers?detail=true&field=physical_router_management_ip&' +
+        'exclude_back_refs=true&exclude_children=true';
     commonUtils.createReqObj(dataObjArr, url, null, null, configApiServer, null,
                              appData);
     async.map(dataObjArr,
@@ -591,7 +616,7 @@ function isProuterExists (node, prConfigData, prUVEData)
 
     for (var i = 0; i < prCnt; i++) {
         try {
-            if (node == prConfig[i]['fq_name'][1]) {
+            if (node == prConfig[i]['physical-router']['fq_name'][1]) {
                 break;
             }
         } catch(e) {
@@ -636,7 +661,7 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
             (null == tempNodeObjs[data[i]['name']])) {
             nodeObj = createNodeObj(data[i]['name'],
                                     ctrlGlobal.NODE_TYPE_PROUTER,
-                                    data[i]);
+                                    data[i], prConfigData);
             var found = isProuterExists(data[i]['name'], prConfigData,
                                         pRouterData);
             if (CONFIG_NOT_FOUND == found) {
@@ -669,7 +694,8 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
                     createNodeObj(pRouterLinkTable[j]['remote_system_name'],
                                   prLinkType,
                                   getPRouterEntryByName(pRouterLinkTable[j]['remote_system_name'],
-                                                        data));
+                                                        data),
+                                  prConfigData);
                 if (ctrlGlobal.NODE_TYPE_PROUTER == prLinkType) {
                     var found =
                         isProuterExists(pRouterLinkTable[j]['remote_system_name'],
