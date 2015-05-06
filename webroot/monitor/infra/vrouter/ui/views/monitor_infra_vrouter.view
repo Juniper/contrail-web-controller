@@ -3,40 +3,47 @@
 -->
 <script type="text/x-handlebars-template" id="computenodes-template">
     <div class="row-fluid">
-        <div class="row-fluid">
-            <div class="span12">
-                <div class="widget-box transparent" id="recent-box">
-                    <div class="widget-header" id='vrouter-header'></div>
-                    <div class="widget-body">
-                        <div class="widget-main padding-4">
-                            <div class="row-fluid">
-                                <div class="span12">
-                                    <div id="vrouters-bubble" class="infra-node-chart" style="margin:-10px 0 0 0;height:290px;">
-                                    </div>
+        <div class="span12">
+            <div class="widget-box transparent" id="recent-box">
+                <div class="widget-header" id='vrouter-header'></div>
+                <div class="widget-body">
+                    <!--
+                      <div class="chart-settings">
+                          <div class="color-selection" style="float:right">
+                              <label>Status :</label>
+                              <div data-color="red" class="circle red filled"></div>
+                              <div data-color="orange" class="circle orange filled"></div>
+                              <div data-color="green" class="circle green filled"></div>
+                              <div data-color="blue" class="circle blue filled"></div>
+                          </div>
+                      </div>
+                    -->
+                    <div class="widget-main padding-4">
+                        <div class="row-fluid">
+                            <div class="span12">
+                                <div id="vrouters-bubble" class="infra-node-chart" style="height:290px;">
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="row-fluid">
-                                <div class="span12 charts" style="box-sizing: border-box; padding-left: 60px;">
-                                    <div id="vn-chart" class="chart span4 margin-0-0-10">
-                                        <div class="title">vRouters over Virtual Networks</div>
-                                    </div>
-                                    <div id="inst-chart" class="span4 margin-0-0-10 chart">
-                                        <div class="title">vRouters over Instances</div>
-                                    </div>
-                                    <div id="intf-chart" class="chart span4 margin-0-0-10">
-                                        <div class="title text-center">vRouters over Interfaces</div>
-                                    </div>
+                        <div class="row-fluid">
+                            <div class="span12 charts" style="box-sizing: border-box; padding-left: 60px;">
+                                <div id="vn-chart" class="chart span4 margin-0-0-10">
+                                    <div class="title">vRouters over Virtual Networks</div>
                                 </div>
-                                <div class="hr hr16 hr-dotted"></div>
+                                <div id="inst-chart" class="span4 margin-0-0-10 chart">
+                                    <div class="title">vRouters over Instances</div>
+                                </div>
+                                <div id="intf-chart" class="chart span4 margin-0-0-10">
+                                    <div class="title text-center">vRouters over Interfaces</div>
+                                </div>
                             </div>
+                            <div class="hr hr16 hr-dotted"></div>
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid">
-                    <div id="divcomputesgrid"></div>
-                </div>
             </div>
+            <div id="divcomputesgrid"></div>
         </div>
     </div>
 </script>

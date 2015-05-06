@@ -65,10 +65,10 @@ var axisParams = {
                     }
                  }
 var chartsLegend = { 
-        Working: d3Colors['green'],
-        Idle: d3Colors['blue'],
-        Warning: d3Colors['orange'],
-        Error: d3Colors['red']
+        Green: d3Colors['green'],
+        Blue: d3Colors['blue'],
+        Orange: d3Colors['orange'],
+        Red: d3Colors['red']
    };
 var infraMonitorAlertUtils = {
     /**
@@ -1565,29 +1565,6 @@ function runOTQueryForObjLogs(objId, timeRange, type) {
 };
 
 
-function bucketizeData(data,fieldName) {
-    var retObj = {},retArr=[];keys=[];
-    $.each(data,function(idx,obj) {
-        //Add key if it doesn't exist
-        if($.inArray(obj[fieldName],keys) == -1)
-            keys.push(obj[fieldName]);
-        if(obj[fieldName] in retObj) {
-            retObj[obj[fieldName]]++;
-        } else {
-            retObj[obj[fieldName]] = 1;
-        }
-    });
-    var maxKey = d3.extent(keys);
-    for(var i=maxKey[0];i<=maxKey[1];i++) {
-        var value = 0;
-        if(retObj[i] != null) {
-            value = retObj[i];
-            retArr.push({name:i,value:value});
-        }
-    }
-    return retArr;
-}
-
 function getNodeVersion(buildStr) {
     var verStr = '';
     if(buildStr != null) {
@@ -2209,8 +2186,8 @@ function formatMemory(memory) {
 function updateChartsForSummary(dsData, nodeType) {
     var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter;
     var nodeData = dsData;
-    var showLegend,xLbl,yLbl;
-    var data = [],updateHeaderCount = false;
+    var showLegend,xLbl,yLbl,useSizeAsRadius = false;
+    var data = []
     data = dsData;
     if(nodeType == 'compute'){
 		title = 'vRouters';
@@ -2221,27 +2198,23 @@ function updateChartsForSummary(dsData, nodeType) {
         isBucketize = false;
         clickFn = bgpMonitor.onvRouterDrillDown;
         crossFilter = 'vRoutersCF';
-        updateHeaderCount = true;
 	} else if(nodeType =="control"){
 		title = 'Control Nodes';
 		key = 'controlNode';
 		chartId = 'controlNodes-bubble';
         tooltipFn = bgpMonitor.controlNodetooltipFn;
-        isBucketize = false;
         clickFn = bgpMonitor.onControlNodeDrillDown;
 	} else if(nodeType == "analytics"){
 		title = 'Analytic Nodes';
 		key = 'analyticsNode';
 		chartId = 'analyticNodes-bubble';
         tooltipFn = bgpMonitor.analyticNodeTooltipFn;
-        isBucketize = false;
         clickFn = bgpMonitor.onAnalyticNodeDrillDown;
 	} else if(nodeType == "config"){
 		title = 'Config Nodes';
 		key = 'configNode';
 		chartId = 'configNodes-bubble';
         tooltipFn = bgpMonitor.configNodeTooltipFn;
-        isBucketize = false;
         clickFn = bgpMonitor.onConfigNodeDrillDown;
 	} else if(nodeType == "db"){
         title = 'Database Nodes';
@@ -2250,8 +2223,10 @@ function updateChartsForSummary(dsData, nodeType) {
         xLbl = 'Available Space (GB)';
         yLbl = 'Used Space (GB)';
         tooltipFn = bgpMonitor.dbNodeTooltipFn;
-        isBucketize = false;
         clickFn = bgpMonitor.onDbNodeDrillDown;
+    }
+    if(isBucketize == true) {
+        useSizeAsRadius = true;
     }
 
     //Check if chart is already initialized and has chartOptions like currLevel
@@ -2265,16 +2240,21 @@ function updateChartsForSummary(dsData, nodeType) {
 
     var chartsData = {
         title: title,
-        d: splitNodesToSeriesByColor(data, chartsLegend),
+        // d: splitNodesToSeriesByColor(data, chartsLegend),
+        d: [{
+            key:key,
+            values:data
+        }],
         chartOptions: $.extend(true,{
             xLbl:xLbl,
             yLbl:yLbl,
             tooltipFn: tooltipFn,
-            bucketTooltipFn: (isBucketize)? bucketTooltipFn : '',
+            bucketTooltipFn: bucketTooltipFn,
             clickFn: clickFn,
             xPositive: true,
             addDomainBuffer: true,
             isBucketize: isBucketize,
+            useSizeAsRadius : useSizeAsRadius,
             bucketOptions:{
                 maxBucketizeLevel: defaultMaxBucketizeLevel,
                 bucketSizeParam: defaultBucketSizeParam,
@@ -2282,12 +2262,8 @@ function updateChartsForSummary(dsData, nodeType) {
                 currLevel : 1
             },
             crossFilter:crossFilter,
-            deferredObj:$.Deferred(),
             showSettings: false,
-            showLegend:false,
-            //This parameter(updateHeaderCount) updates the selected nodes count in widget header
-            //(eg:vRouter summary page)
-            updateHeaderCount:updateHeaderCount,
+            // showLegend:false,
         },currChartOptions),
         link: {
             hashParams: {
@@ -2300,10 +2276,34 @@ function updateChartsForSummary(dsData, nodeType) {
         widgetBoxId: 'recent'
     };
     var chartObj = {},nwObj = {};
-    $('#' + chartId).initScatterChart(chartsData);
+    if(isBucketize) {
+        //Move to MVC
+        cowu.renderView4Config($('#' + chartId),null,{
+            "elementId":chartId,
+            "title": "Port Distribution",
+            "view": "ScatterChartView",
+            "viewConfig": {
+                modelConfig : {
+                    remote: {},
+                    data:data
+                },
+                parseFn: function(response) {
+                    return {
+                        d: chartsData['d'],
+                        chartOptions: chartsData['chartOptions']
+                    }
+                },
+                "class": "port-distribution-chart",
+            }
+        });
+    } else {
+        $('#' + chartId).initScatterChart(chartsData);
+    }
 }
 
 function splitNodesToSeriesByColor(data,colors) {
+    //No need to split based on color as we don't want to maintain separate buckets for each color
+    return data;
     var splitSeriesData = [];
     var nodeCrossFilter = crossfilter(data);
     var colorDimension = nodeCrossFilter.dimension(function(d) {return d.color});
@@ -2594,14 +2594,33 @@ function fetchCPUStats(deferredObj,primaryDS,dsName){
 }
 
 //Default tooltip contents to show for infra nodes
-function getNodeTooltipContents(currObj) {
+function getNodeTooltipContents(currObj,formatType) {
     var tooltipContents = [
-        {lbl:'Host Name', value: currObj['name']},
-        {lbl:'Version', value:currObj['version']},
-        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
-        {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
+        {label:'Host Name', value: currObj['name']},
+        {label:'Version', value:currObj['version']},
+        {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
+        {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
     ];
-    return tooltipContents;
+    if(formatType == 'simple') {
+        return tooltipContents;
+    } else {
+        return {
+            content: {
+                info: tooltipContents.slice(1),
+                actions: [
+                    {
+                        type: 'link',
+                        text: 'View',
+                        iconClass: 'icon-external-link',
+                        // callback: onScatterChartClick
+                    }
+                ]
+            },title : {
+                name: tooltipContents[0]['value'],
+                type: currObj['display_type']
+            }
+        }
+    }
 }
 
 //Tooltip contents to show for database nodes
@@ -2618,16 +2637,36 @@ function getDbNodeTooltipContents(currObj) {
 }
 
 //Default tooltip render function for buckets
-function getNodeTooltipContentsForBucket(currObj) {
+function getNodeTooltipContentsForBucket(currObj,formatType) {
     var nodes = currObj['children'];
     //var avgCpu = d3.mean(nodes,function(d){return d.x});
     //var avgMem = d3.mean(nodes,function(d){return d.y});
     var tooltipContents = [
-        {lbl:'', value: 'No. of Nodes: ' + nodes.length},
-        {lbl:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
-        {lbl:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
+        {label:'', value: 'No. of Nodes: ' + nodes.length},
+        {label:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
+        {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
     ];
-    return tooltipContents;
+    if(formatType == 'simple') {
+        return tooltipContents;
+    } else {
+        return {
+            content: {
+                info: tooltipContents.slice(1),
+                actions: [
+                    {
+                        type: 'link',
+                        text: 'View',
+                        iconClass: 'icon-external-link',
+                        // callback: onScatterChartClick
+                    }
+                ]
+            },
+            title: {
+                name: tooltipContents[0]['value'],
+                type: 'virtual router'
+            }
+        }
+    }
 }
 
 var bgpMonitor = {
@@ -2646,39 +2685,29 @@ var bgpMonitor = {
     onDbNodeDrillDown:function(currObj) {
         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
     },
-    vRouterTooltipFn: function(currObj) {
-        return getNodeTooltipContents(currObj);
+    vRouterTooltipFn: function(currObj,formatType) {
+        if(currObj['children'] != null && currObj['children'].length == 1)
+            return getNodeTooltipContents(currObj['children'][0],formatType);
+        else
+            return getNodeTooltipContents(currObj,formatType);
     },
-    vRouterBucketTooltipFn: function(currObj) {
-        return getNodeTooltipContentsForBucket(currObj);
+    vRouterBucketTooltipFn: function(currObj,formatType) {
+        return getNodeTooltipContentsForBucket(currObj,formatType);
     },
-    controlNodetooltipFn: function(currObj) {
-        return getNodeTooltipContents(currObj);
+    controlNodetooltipFn: function(currObj,formatType) {
+        return getNodeTooltipContents(currObj,formatType);
     },
-    analyticNodeTooltipFn: function(currObj) {
+    analyticNodeTooltipFn: function(currObj,formatType) {
         var tooltipContents = [];
         if(currObj['pendingQueryCnt'] != null && currObj['pendingQueryCnt'] > 0)
-            tooltipContents.push({lbl:'Pending Queries', value:currObj['pendingQueryCnt']});
-        return getNodeTooltipContents(currObj).concat(tooltipContents);;
+            tooltipContents.push({label:'Pending Queries', value:currObj['pendingQueryCnt']});
+        return getNodeTooltipContents(currObj).concat(tooltipContents,formatType);
     },
-    configNodeTooltipFn: function(currObj) {
-        return getNodeTooltipContents(currObj);
+    configNodeTooltipFn: function(currObj,formatType) {
+        return getNodeTooltipContents(currObj,formatType);
     },
-    dbNodeTooltipFn: function(currObj) {
-        return getDbNodeTooltipContents(currObj);
-    },
-    nodeTooltipFn:function (e,x,y,chart,tooltipFn) {
-        var result = {};
-        //markOverlappedBubblesOnHover reuturns Overlapped nodes in ascending order of severity
-        //Reverse the nodes such that high severity nodes are displayed first in the tooltip 
-        e['point']['overlappedNodes'] = markOverlappedBubblesOnHover(e,chart).reverse();
-        if(e['point']['overlappedNodes'] == undefined || e['point']['overlappedNodes'].length <= 1) {
-            return formatLblValueTooltip(bgpMonitor.getTooltipContents(e));
-        } else if(e['point']['multiTooltip'] == true) {
-            result = getMultiTooltipContent(e,bgpMonitor.getTooltipContents,chart);
-            result['content'] = result['content'].slice(0,result['perPage']);
-            return formatLblValueMultiTooltip(result);
-        }
+    dbNodeTooltipFn: function(currObj,formatType) {
+        return getDbNodeTooltipContents(currObj,formatType);
     },
     getNextHopType:function (data) {
     	var type = data['path']['nh']['NhSandeshData']['type'];
@@ -2687,29 +2716,6 @@ var bgpMonitor = {
     	} else {
     		return type;
     	}
-    },
-    getTooltipContents:function(e) {
-        //Get the count of overlapping bubbles
-        var series = e['series'];
-        var processDetails = e['point']['processDetails'];
-        var tooltipContents = [
-            {lbl:'Host Name', value: e['point']['name']},
-            {lbl:'Version', value:e['point']['version']},
-            {lbl:'CPU', value:$.isNumeric(e['point']['cpu']) ? e['point']['cpu'] + '%' : e['point']['cpu']},
-            {lbl:'Memory', value:e['point']['memory']}
-        ];
-        if (e['point']['type'] == 'vRouter') {
-        } else if (e['point']['type'] == 'controlNode') {
-        } else if (e['point']['type'] == 'analyticsNode') {
-            if(e['point']['pendingQueryCnt'] != null && e['point']['pendingQueryCnt'] > 0)
-              tooltipContents.push({lbl:'Pending Queries', value:e['point']['pendingQueryCnt']});
-        } else if (e['point']['type'] == 'configNode') {
-        }
-        $.each(e['point']['alerts'],function(idx,obj) {
-            if(obj['tooltipAlert'] != false)
-                tooltipContents.push({lbl:ifNull(obj['tooltipLbl'],'Events'),value:obj['msg']});
-        });
-        return tooltipContents;
     },
     getNextHopDetails:function (data) {
         var nhType = bgpMonitor.getNextHopType(data);
