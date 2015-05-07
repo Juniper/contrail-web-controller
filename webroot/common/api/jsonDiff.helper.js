@@ -61,6 +61,7 @@ var configJsonModifyObj = {
      /*   'floating-ip-pool': {
         }
       */
+      'bgp-router':{}
     },
     'configDelete': {
         'virtual-machine-interface': {
