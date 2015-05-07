@@ -886,7 +886,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             pager : {
                 options : {
                     pageSize : options.pageSize,
-                    pageSizeSelect : [10, 15, 50, 100, 200, 500 ]
+                    pageSizeSelect : [10, 50, 100, 200, 500 ]
                 }
             }
         }
