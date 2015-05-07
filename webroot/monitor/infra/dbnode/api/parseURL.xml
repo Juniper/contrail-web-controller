@@ -34,5 +34,12 @@
         <feature>database-node</feature>
         <callback>infraDb.getDatabaseNodeDetails</callback>
     </item>
+    <item>
+        <!-- Returns the dbnode stats flow series -->
+        <url>/api/admin/monitor/infrastructure/dbnode/flow-series/stats</url>
+        <method>get</method>
+        <feature>database-node</feature>
+        <callback>infraDb.getDBNodeStatsFlowSeries</callback>
+    </item>
 </urlLists>
 
