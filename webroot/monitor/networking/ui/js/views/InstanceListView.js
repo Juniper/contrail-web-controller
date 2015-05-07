@@ -57,8 +57,8 @@ define([
                                     parseFn: function (response) {
                                         return {
                                             d: [{key: 'Instances', values: response}],
-                                            yLbl: 'Memory',
-                                            xLbl: '% CPU Utilization',
+                                            yLbl: 'Memory Usage',
+                                            xLbl: 'CPU Utilization (%)',
                                             forceX: [0, 1],
                                             yLblFormat: function(yValue) {
                                                 var formattedValue = formatBytes(yValue * 1024, true);
@@ -96,7 +96,7 @@ define([
         ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, true);
     };
 
-    var getInstanceTooltipConfig = function(data) {
+    function getInstanceTooltipConfig(data) {
         var vmUUID = data.name;
 
         return {
@@ -107,11 +107,12 @@ define([
             content: {
                 iconClass: 'icon-contrail-virtual-machine font-size-30',
                 info: [
-                    {label: 'Network', value: data.vnFQN},
                     {label: 'Name', value: data.vmName},
                     {label: 'UUID', value: vmUUID},
-                    {label:'% CPU Utilization', value: d3.format('.02f')(data['x'])},
-                    {label:'Memory', value: formatBytes(data['y'] * 1024, false, null, 1)}
+                    //{label: 'Network', value: data.vnFQN},
+                    {label:'CPU Utilization', value: d3.format('.02f')(data['x']) + " %"},
+                    {label:'Memory Usage', value: formatBytes(data['y'] * 1024, false, null, 1)},
+                    {label:'Throughput', value:formatThroughput(data['throughput'])}
                 ],
                 actions: [
                     {

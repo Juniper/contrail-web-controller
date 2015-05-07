@@ -62,14 +62,17 @@ define([
             egressFlowCount: "Egress Flow Count",
 
             /* Instance Details */
-            cpu_one_min_avg: '% CPU',
+            cpu_one_min_avg: 'CPU Utilization (%)',
             rss: 'Used Memory',
             vm_memory_quota: 'Total Memory',
             vrouter: 'Virtual Router',
+            vm_name: "Name",
+            vn: "Virtual Networks",
 
             /*Interface Details */
             uuid: 'UUID',
             mac_address: 'MAC Address',
+            ip: 'IP Address',
             ip_address: 'IP Address',
             ip6_address: 'IPV6 Address',
             gateway: 'Gateway',
@@ -112,6 +115,7 @@ define([
         this.MONITOR_INSTANCE_PAGE_ID = "monitor-instance-page";
         this.MONITOR_INSTANCE_LIST_PAGE_ID = "monitor-instances-list-page";
         this.MONITOR_INSTANCE_LIST_VIEW_ID = "monitor-instance-list-view";
+        this.MONITOR_INTERFACE_LIST_VIEW_ID = "monitor-interface-list-view";
         this.MONITOR_INSTANCE_ID = "monitor-instance";
         this.MONITOR_INSTANCE_VIEW_ID = "monitor-instance-view";
         this.MONITOR_FLOW_LIST_ID = "monitor-flow-list";
@@ -154,6 +158,8 @@ define([
         this.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID = "instance-traffic-stats-dropdown";
         this.INSTANCE_TRAFFIC_STATS_CHART_ID = "instance-traffic-stats-chart";
         this.INSTANCE_PORT_HEAT_CHART_ID = "instance-port-heat-chart";
+        this.INSTANCE_INTERFACE_GRID_ID = "instance-interface-grid";
+        this.INSTANCE_INTERFACE_ID = "instance-interface";
 
         this.MONITOR_CONNECTED_NETWORK_ID = "monitor-connected-network";
         this.MONITOR_CONNECTED_NETWORK_VIEW_ID = "monitor-connected-network-view";
@@ -179,6 +185,10 @@ define([
         this.TITLE_INSTANCES_SUMMARY = "Instances Summary";
         this.TITLE_INSTANCE_DETAILS = "Instance Details";
 
+        this.TITLE_INTERFACES = "Interfaces";
+        this.TITLE_INTERFACE_DETAILS = "Interface Details";
+        this.TITLE_INTERFACES_SUMMARY = "Interfaces Summary";
+
         this.TITLE_CONNECTED_NETWORK_DETAILS = "Connected Network Details";
 
         this.TITLE_FLOWS= "Flows";
@@ -187,7 +197,6 @@ define([
         this.TITLE_FILTER_BY_PROTOCOL = "Filter by Protocol";
 
         this.TITLE_DETAILS = "Details";
-        this.TITLE_INTERFACES = "Interfaces";
         this.TITLE_VRF_STATS = "VRF Stats";
         this.TITLE_CPU_MEMORY_INFO = "CPU/Memory Information";
         this.TITLE_TRAFFIC_DETAILS = "Traffic Details";

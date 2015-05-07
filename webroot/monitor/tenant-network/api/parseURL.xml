@@ -182,6 +182,12 @@
         <callback>nwMonApi.getVirtualMachinesSummary</callback>
     </item>
     <item>
+        <url>/api/tenant/networking/virtual-machine-interfaces/summary</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualInterfacesSummary</callback>
+    </item>
+    <item>
         <url>/api/tenant/networking/vm/stats/top</url>
         <method>get</method>
         <timeout>300</timeout>

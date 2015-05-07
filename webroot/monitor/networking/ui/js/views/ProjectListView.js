@@ -100,9 +100,8 @@ define([
                 iconClass: 'icon-contrail-project',
                 info: [
                     {label: 'Domain', value: projectFQNObj[0]},
-                    {label:'Interfaces', value: data['x']},
                     {label:'Networks', value: data['y']},
-                    {label:'Instance', value: data.instCnt},
+                    {label:'Interfaces', value: data['x']},
                     {label:'Throughput', value:formatThroughput(data['throughput'])}
                 ],
                 actions: [
