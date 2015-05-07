@@ -37,6 +37,8 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     svcTempl = require('../../services/template/api/servicetemplateconfig.api'),
     os = require('os'),
     request = require('request'),
+    jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff'),
     opServer;
 
 var parser = null;
@@ -542,6 +544,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 				commonUtils.handleJSONResponse(error, res, null);
                                 return;
 			} else {
+				var bgpActJSON = commonUtils.cloneObj(bgpJSON);
 				updateBGPJSON(bgpJSON, bgpUpdates);
 				logutils.logger.debug("updateBGPRouter JSON: " + JSON.stringify(bgpJSON));
 				configApiServer.apiPut(url, bgpJSON, appData, function (error, data) {
@@ -551,7 +554,10 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
                                                 return;
 					}
 					try {
-						var bgpPeers = bgpUpdates["bgp-router"]["bgp_router_refs"];
+						var oldJSON = bgpActJSON["bgp-router"]["bgp_router_refs"];
+						var newJSON = bgpJSON["bgp-router"]["bgp_router_refs"];
+						var bgpPeersDelta = jsonDiff.getConfigArrayDelta('bgp-router', oldJSON, newJSON);
+						var bgpPeers = bgpPeersDelta["addedList"];
 						if (bgpPeers) {
 							var bgpPeerObj = {};
 							//bgpPeerObj["uuid"] = content["bgp-router"].uuid;
