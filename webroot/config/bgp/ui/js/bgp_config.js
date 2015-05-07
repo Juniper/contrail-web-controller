@@ -870,6 +870,13 @@ function initComponents() {
                         onClick: function(rowIndex){
                             onActionChange('edit-control',rowIndex);
                         }
+                    },
+                    {
+                        title: 'Delete',
+                        iconClass: 'icon-trash',
+                        onClick: function(rowIndex){
+                            showRemoveWindow(rowIndex);
+                        }
                     }
                 ],
                 detail: {
@@ -959,6 +966,30 @@ function initComponents() {
 
     $('#confirmAutoMeshUpdate').modal({backdrop:'static', keyboard: false, show:false});
     $('#confirmPeers').modal({backdrop:'static', keyboard: false, show:false});
+}
+
+function showRemoveWindow(rowIndex) {
+    $.contrailBootstrapModal({
+        id: 'confirmRemove',
+        title: 'Remove',
+        body: '<h6>Confirm BGP Router delete</h6>',
+        footer: [{
+            title: 'Cancel',
+            onclick: 'close',
+        },
+        {
+            id: 'btnRemovePopupOK',
+            title: 'Confirm',
+            rowIdentifier: rowIndex,
+            onclick: function(){
+                var rowNum = this.rowIdentifier;
+                var selected_row = $("#gridBGP").data("contrailGrid")._dataView.getItem(rowNum);
+                deleteBgp([selected_row]);
+                $('#confirmRemove').modal('hide');
+            },
+            className: 'btn-primary'
+        }]
+   });
 }
 
 function onAuthTypeChanged(e) {
