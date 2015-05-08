@@ -1402,6 +1402,7 @@ function createFipPoolUpdateProjects (error, results,
         return;
     }
 
+    var origProjConfigData = commonUtils.cloneObj(results);
     fipPoolCnt = fipPool.length;
     for (i = 0; i < projLen ; i++) {
         projURL = '/project/' + results[i]['project']['uuid'];
@@ -1413,8 +1414,12 @@ function createFipPoolUpdateProjects (error, results,
         getFipPoolToEntry(fipPoolRef, fipPool,
                           results[i]['project']['fq_name'].join(':'),
                           fipPostData);
+        var projDelta =
+            jsonDiff.getConfigJSONDiff('virtual-network:project',
+                                       origProjConfigData[i],
+                                       results[i]);
         commonUtils.createReqObj(dataObjArr, projURL, global.HTTP_REQUEST_PUT,
-                                 results[i], null, null, appData);
+                                 projDelta, null, null, appData);
     }
     async.map(dataObjArr,
               commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
@@ -1582,6 +1587,7 @@ function deleteFipPoolUpdateProjects (error, results,
     }
 
     projLen = results.length;
+    var origProjConfigData = commonUtils.cloneObj(results);
 
     for (i = 0; i < projLen ; i++) {
         projURL = '/project/' + results[i]['project']['uuid'];
@@ -1595,8 +1601,12 @@ function deleteFipPoolUpdateProjects (error, results,
                break; 
             }
         }
+        var projDelta =
+            jsonDiff.getConfigJSONDiff('virtual-network:project',
+                                       origProjConfigData[i],
+                                       results[i]);
         commonUtils.createReqObj(dataObjArr, projURL,
-                                 global.HTTP_REQUEST_PUT, results[i], null, null,
+                                 global.HTTP_REQUEST_PUT, projDelta, null, null,
                                  appData);
     }
 
@@ -1769,6 +1779,7 @@ function updateFipPoolUpdateProjects (error, results,
        return;
     }
 
+    var origProjConfigData = commonUtils.cloneObj(results);
     projLen = results.length;
 
     for (i = 0; i < projLen ; i++) {
@@ -1799,8 +1810,12 @@ function updateFipPoolUpdateProjects (error, results,
                 }
             }
         }
+        var projDelta =
+            jsonDiff.getConfigJSONDiff('virtual-network:project',
+                                       origProjConfigData[i],
+                                       results[i]);
         commonUtils.createReqObj(dataObjArr, projURL, global.HTTP_REQUEST_PUT,
-                                 results[i], null, null, appData);
+                                 projDelta, null, null, appData);
     }
 
     async.map(dataObjArr,
