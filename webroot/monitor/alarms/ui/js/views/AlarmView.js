@@ -4,9 +4,8 @@
 
 define([
     'underscore',
-    'backbone',
-    './BreadcrumbView.js'
-], function (_, Backbone, BreadcrumbView) {
+    'backbone'
+], function (_, Backbone) {
     var MonitorAlarmsView = Backbone.View.extend({
         el: $(contentContainer),
         renderAlarms: function (viewConfig) {
