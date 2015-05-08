@@ -338,7 +338,8 @@
                                                         <div id="ddDeviceOwnerName" class="span12"></div>
                                                     </div>
                                                     <div class="span5">
-                                                        <div id="ddDeviceOwnerUUID" class="span12""></div>
+                                                        <div id="divDeviceOwnerUUID" class="hide"><div id="ddDeviceOwnerUUID" class="span12"></div></div>
+                                                        <div id="divDeviceOwnerUUIDRouter" class="hide"><div id="ddDeviceOwnerUUIDRouter" class="span12" ></div></div>
                                                     </div>
                                                 </div>
                                             </div>
