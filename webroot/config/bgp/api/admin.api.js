@@ -463,13 +463,21 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 	if (newBGPRefs != null && newBGPRefs.length == 0) {
 		bgpJSON["bgp-router"]["bgp_router_refs"] = [];
 	} else if(newBGPRefs != null && newBGPRefs.length > 0) {
+		var newPeers = []
 		if (!bgpRefs || bgpRefs.length == 0) {
-			bgpJSON["bgp-router"]["bgp_router_refs"] = bgpUpdates["bgp_router_refs"];
+			bgpJSON["bgp-router"]["bgp_router_refs"] = [];
+			for (i = 0; i < newBGPRefs.length; i += 1) {
+				var newPeer = {};
+				newPeer["uuid"] = newBGPRefs[i].uuid;
+				newPeer["to"] = newBGPRefs[i].to;
+				newPeer["href"] = newBGPRefs[i].href;
+				newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
+				newPeers[newPeers.length] = newPeer;
+			}
 		} else {
 			var newBGPRefNames = {},
 				bgpRefNames = {},
 				spliceArray = [],
-				newPeers = [],
 				i;
 
 			for (i = 0; i < newBGPRefs.length; i += 1) {
@@ -495,8 +503,9 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 				var toArray = newBGPRefs[i].to;
 				if (!(toArray[toArray.length - 1] in bgpRefNames)) {
 					var newPeer = {};
-					newPeer["to"] = newBGPRefs[i].to
-					newPeer["href"] = newBGPRefs[i].href
+					newPeer["uuid"] = newBGPRefs[i].uuid;
+					newPeer["to"] = newBGPRefs[i].to;
+					newPeer["href"] = newBGPRefs[i].href;
 					newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
 					newPeers[newPeers.length] = newPeer;
 				}
@@ -507,10 +516,10 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 				(bgpJSON["bgp-router"]["bgp_router_refs"]).splice(spliceIndex - i, 1);
 			}
 
-			for (i = 0; i < newPeers.length; i += 1) {
-				var length = bgpJSON["bgp-router"]["bgp_router_refs"].length
-				bgpJSON["bgp-router"]["bgp_router_refs"][length] = newPeers[i];
-			}
+		}
+		for (i = 0; i < newPeers.length; i += 1) {
+			var length = bgpJSON["bgp-router"]["bgp_router_refs"].length
+			bgpJSON["bgp-router"]["bgp_router_refs"][length] = newPeers[i];
 		}
 	}
 }
@@ -555,9 +564,10 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 					}
 					try {
 						var oldJSON = bgpActJSON["bgp-router"]["bgp_router_refs"];
+						oldJSON = oldJSON != null ? oldJSON : [];
 						var newJSON = bgpJSON["bgp-router"]["bgp_router_refs"];
 						var bgpPeersDelta = jsonDiff.getConfigArrayDelta('bgp-router', oldJSON, newJSON);
-						var bgpPeers = bgpPeersDelta["addedList"];
+						var bgpPeers = bgpPeersDelta != null ? bgpPeersDelta["addedList"] : false;
 						if (bgpPeers && bgpPeers.length > 0) {
 							var bgpPeerObj = {};
 							//bgpPeerObj["uuid"] = content["bgp-router"].uuid;
@@ -586,6 +596,8 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 	                            
 							});
 							
+						} else {
+							commonUtils.handleJSONResponse(error, res, data);
 						}
 					} catch (e) {
 						logutils.logger.error(e.stack);
