@@ -20,6 +20,7 @@
                     <div class="span10"> {{model}}</div>
                 </div>   
             {{/IfCompare}}
+           
             <div class="row-fluid">
                 <div class="span2"><label>Management IP</label></div>
                 <div class="span10">{{mgmt_ip_address}}</div>
@@ -182,39 +183,43 @@
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
+				<div class="control-group">
                     <label class="control-label">Vendor</label>  
-                    <div class="controls">                       
-                        <div class="row-fluid">
-                             <div class="pull-left">
-                                 <input type="text" id="txtVendor_PRouter" class="span12"/>
-                             </div>
-                             <label class="pull-left margin-left-23-right-10 padding-top-5">
-                                 Model
-                             </label>
-                             <div class ="pull-left">
-                                 <input type="text" id="txtModel_PRouter" class="span12"/>
-                             </div>
-                        </div>
+                    <div class="controls">               
+					
+					<div class="row-fluid">
+                                <div class="span4">
+                                     <input type="text" id="txtVendor_PRouter" class="span12 pull-left"/>
+                                </div>
+                                <label class="span3 new-column-label">
+                                Model
+                                </label>
+                                <div class="span4">
+                                    <input type="text" id="txtModel_PRouter" class="span12"/>
+                                     
+                                </div>                                
+                           </div>
+					
                     </div>
                 </div>
+			
                 <div class="control-group">
                     <label  class="control-label ">Management IP</label>
                     <div class="controls">
                         <div class="row-fluid">
-                            <input type="text" id="txtMgmtIPAddress_PRouter" class="span11"/>
+						<div class="span4">
+                            <input type="text" id="txtMgmtIPAddress_PRouter" class="span12"/>
+							</div>
+							 <label class="span3 new-column-label">
+                                 VTEP Address
+                             </label>
+                             <div class ="span4">
+                                 <input type="text" id="txtDataIPAddress_PRouter" class="span12" />
+                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="control-group">
-                    <label  class="control-label ">VTEP Address</label>
-                    <div class="controls">
-                        <div class="row-fluid">
-                            <input type="text" id="txtDataIPAddress_PRouter" class="span11"/>
-                        </div>
-                    </div>
-                </div>
-                <div class="control-group">
+                  <div class="control-group">
                     <label class="control-label">Junos Service ports</label>
                     <div class="controls">
                         <div class="row-fluid">
@@ -231,9 +236,9 @@
                 <div class="control-group hide" id="junosServicePortsPanel_PRouter">
                     <label class="control-label"></label>
                     <div  class="controls">
-                        <div class="row-fluid margin-0-0-15">
-                            <div class="rule-item-header">
-                                <div class="row-fluid">
+					        <div class="row-fluid">
+                            <div class="row-fluid">
+                                <div class="span11 rule-item-header">
                                     <div class="span5">
                                         <h6>Port</h6>
                                     </div>
@@ -244,7 +249,7 @@
                             </div>
                             <div>  
                                 <div class="row-fluid">
-                                    <div id="servicePortsTuples_PRouter" class="row-fluid"></div>
+                                    <div id="servicePortsTuples_PRouter" class="span11"></div>
                                 </div>
                             </div>
                         </div> 
@@ -264,14 +269,14 @@
                                   <label class="control-label">Username</label>  
                                   <div class="controls">                       
                                       <div class="row-fluid">
-                                           <div class="pull-left">
+                                           <div class="span4">
                                                <input type="text" id="txtUsername_PRouter" name="txtUsername_PRouter" title="Username" 
-                                               class="span12 pull-left"/>
+                                               class="span12"/>
                                            </div>
-                                           <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                           <label class="span3 new-column-label">
                                                Password
                                            </label>
-                                           <div class ="pull-left">
+                                           <div class ="span4">
                                                <input title="Password"
                                                    id="txtPassword_PRouter" class="span12" type="password" name="txtPassword_PRouter"
                                                    value="">
@@ -293,7 +298,7 @@
                     </div>
                     <div id="vrPRouterWidget" class="widget-body collapsed">
                         <div class="row-fluid widget-main">
-                            <div class="row-fluid margin-0-0-10">
+                            <div class="row-fluid">
                                 <div class="control-group">
                                     <label  class="control-label ">Type</label>
                                     <div class="controls">
@@ -304,37 +309,33 @@
                                 </div>
                                 <div id="vRouterTorAgentFields_PRouter" class="hide">
                                     <div class="control-group">
-                                        <div class="row-fluid margin-0-0-10">
+                                        <div class="row-fluid">
                                             <div class="control-group">
                                               <label class="control-label">ToR Agents</label>  
                                               <div class="controls">                       
                                                   <div class="row-fluid">
-                                                       <div class="pull-left">
+                                                       <div class="span5">
                                                            <input type="text" id="ddTorAgentName1_PRouter" name="ddTorAgentName1_PRouter" title="" 
                                                            class="span12 pull-left"/>
                                                        </div>
-                                                       <label class="pull-left margin-left-23-right-10 padding-top-5">
-                                                           
-                                                       </label>
-                                                       <div class="pull-left">
+                                                
+                                                       <div class="span5 offset1">
                                                            <input type="text" id="ddTorAgentName2_PRouter" name="ddTorAgentName2_PRouter" title="" 
                                                            class="span12 pull-left"/>
                                                        </div>                                
                                                   </div>  
                                               </div>
                                         </div>
-                                        <div class="row-fluid margin-0-0-10">
+                                        <div class="row-fluid">
                                             <div class="control-group">
                                               <label class="control-label">TSNs</label>  
                                               <div class="controls">                       
                                                   <div class="row-fluid">
-                                                       <div class="pull-left">
+                                                       <div class="span5">
                                                            <input type="text" id="ddTsnName1_PRouter" name="ddTsnName1_PRouter" title="" class="span12 pull-left"/>
                                                        </div>
-                                                       <label class="pull-left margin-left-23-right-10 padding-top-5">
-                                                           
-                                                       </label>
-                                                       <div class="pull-left">
+                                                  
+                                                       <div class="span5 offset1">
                                                            <input type="text" id="ddTsnName2_PRouter" name="ddTsnName2_PRouter" title="" class="span12 pull-left"/>
                                                        </div>                               
                                                   </div>  
@@ -357,19 +358,19 @@
                     </div>
                     <div id="PRouterbgpRouterWidget" class="widget-body collapsed">
                         <div class="row-fluid widget-main">
-                            <div class="row-fluid margin-0-0-10">
+                            <div class="row-fluid">
                                 <div class="control-group">
                                     <label class="control-label">Username</label>  
                                     <div class="controls">                       
                                         <div class="row-fluid">
-                                             <div class="pull-left">
+                                             <div class="span4">
                                                  <input type="text" id="txtUsername_PRouter" name="txtUsername_PRouter" title="Username" 
                                                  class="span12 pull-left"/>
                                              </div>
-                                             <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                             <label class="span3 new-column-label">
                                                  Password
                                              </label>
-                                             <div class ="pull-left">
+                                             <div class ="span4">
                                                  <input title="Password"
                                                      id="txtPassword_PRouter" class="span12" type="password" name="txtPassword_PRouter"
                                                      value="">
@@ -382,7 +383,7 @@
                                     <label class="control-label">BGP Gateway</label>
                                     <div class="controls">
                                         <div class="row-fluid">
-                                             <div class="pull-left span6">
+                                             <div class="pull-left span4">
                                                  <input type="text" id="ddBgpRouter_PRouter" class="span12"/>
                                              </div>
                                              <div class="pull-left margin-left-60 padding-top-5">
@@ -476,18 +477,18 @@
                                          </div>
                                      </div>
                                  </div>
-                                 <div id="snmpAuthDiv_PRouter" class="row-fluid margin-0-0-10 hide">
+                                 <div id="snmpAuthDiv_PRouter" class="hide">
                                      <div class="control-group">
                                          <label class="control-label">Authentication Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpAuthProtocol_PRouter" name="txtSnmpAuthProtocol_PRouter" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpAuthPassword_PRouter" class="span12" type="password" name="txtSnmpAuthPassword_PRouter"
                                                             value="">
@@ -497,18 +498,18 @@
                                           </div>
                                      </div>
                                  </div>
-                                 <div id="snmpPrivDiv_PRouter" class="row-fluid margin-0-0-10 hide">
+                                 <div id="snmpPrivDiv_PRouter" class="row-fluid hide">
                                      <div class="control-group">
                                          <label class="control-label">Privacy Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpPrivProtocol_PRouter" name="txtSnmpPrivProtocol_PRouter" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpPrivPassword_PRouter" class="span12" type="password" name="txtSnmpPrivPassword_PRouter"
                                                             value="">
@@ -595,19 +596,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid margin-0-0-10">
+                <div class="row-fluid">
                     <div class="control-group">
                        <label class="control-label">Vendor</label>  
                        <div class="controls">                       
                            <div class="row-fluid">
-                                <div class="pull-left">
+                                <div class="span4">
                                     <input type="text" id="txtVendor_OVSDB" name="txtVendor_OVSDB" title="" 
                                     class="span12 pull-left"/>
                                 </div>
-                                <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                <label class="span3 new-column-label">
                                 Model
                                 </label>
-                                <div class ="pull-left">
+                                <div class ="span4">
                                     <input title=""
                                         id="txtModel_OVSDB" class="span12" type="text" name="txtModel_OVSDB"
                                         value="">
@@ -617,21 +618,21 @@
                        </div>
                    </div>
                  </div> 
-                <div class="row-fluid margin-0-0-10">
+                <div class="row-fluid">
                    <div class="control-group">
                       <label class="control-label">Management IP</label>  
                       <div class="controls">                       
                           <div class="row-fluid">
-                               <div class="pull-left">
+                               <div class="span4">
                                    <input type="text" id="txtMgmtIPAddress_OVSDB" name="txtMgmtIPAddress_OVSDB" title="" 
                                    class="span12 pull-left"/>
                                </div>
-                               <label class="pull-left margin-left-23-right-10 padding-top-5">
+                               <label class="span3 new-column-label">
                                    VTEP Address
                                </label>
-                               <div class ="pull-left">
+                               <div class ="span4">
                                    <input title=""
-                                       id="txtDataIPAddress_OVSDB" class="span12" type="text" name="txtDataIPAddress_OVSDB"
+                                       id="txtDataIPAddress_OVSDB" class="span12" size="16" type="text" name="txtDataIPAddress_OVSDB"
                                        value="">
                                    </input> 
                                </div>                                
@@ -639,39 +640,34 @@
                       </div>
                   </div>
                 </div>
-                <div class="row-fluid margin-0-0-10">
+                <div class="row-fluid">
                     <div id="vRouterTorAgentFields_OVSDB" class="hide">
                         <div class="control-group">
-                            <div class="row-fluid margin-0-0-10">
+                            <div class="row-fluid">
                                 <div class="control-group">
                                     <label class="control-label">TOR Agent(s)</label>
                                     <div class="controls">
                                         <div class="row-fluid">
-                                            <div class="pull-left">
+                                            <div class="span5">
                                                 <input type="text" id="ddTorAgentName1_OVSDB" name="ddTorAgentName1_OVSDB" title="" class="span12 pull-left" />
                                             </div>
-                                            <label class="pull-left margin-left-23-right-10 padding-top-5">
-        
-                                            </label>
-                                            <div class="pull-left">
+                                            <div class="span5 offset1">
                                                 <input type="text" id="ddTorAgentName2_OVSDB" name="ddTorAgentName2_OVSDB" title="" class="span12 pull-left" />
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="row-fluid margin-0-0-10">
+                            <div class="row-fluid">
                                 <div class="control-group">
                                     <label class="control-label">TSN(s)</label>
                                     <div class="controls">
                                         <div class="row-fluid">
-                                            <div class="pull-left">
+                                            <div class="span5">
                                                 <input type="text" id="ddTsnName1_OVSDB" name="ddTsnName1_OVSDB" title="" class="span12 pull-left" />
                                             </div>
-                                            <label class="pull-left margin-left-23-right-10 padding-top-5">
-        
-                                            </label>
-                                            <div class="pull-left">
+                                           
+                                            <div class="span5 offset1">
                                                 <input type="text" id="ddTsnName2_OVSDB" name="ddTsnName2_OVSDB" title="" class="span12 pull-left" />
                                             </div>
                                         </div>
@@ -757,18 +753,18 @@
                                          </div>
                                      </div>
                                  </div>
-                                 <div id="snmpAuthDiv_OVSDB" class="row-fluid margin-0-0-10 hide">
+                                 <div id="snmpAuthDiv_OVSDB" class="row-fluid hide">
                                      <div class="control-group">
                                          <label class="control-label">Authentication Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpAuthProtocol_OVSDB" name="txtSnmpAuthProtocol_OVSDB" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpAuthPassword_OVSDB" class="span12" type="password" name="txtSnmpAuthPassword_OVSDB"
                                                             value="">
@@ -778,18 +774,18 @@
                                           </div>
                                      </div>
                                  </div>
-                                 <div id="snmpPrivDiv_OVSDB" class="row-fluid margin-0-0-10 hide">
+                                 <div id="snmpPrivDiv_OVSDB" class="row-fluid hide">
                                      <div class="control-group">
                                          <label class="control-label">Privacy Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpPrivProtocol_OVSDB" name="txtSnmpPrivProtocol_OVSDB" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpPrivPassword_OVSDB" class="span12" type="password" name="txtSnmpPrivPassword_OVSDB"
                                                             value="">
@@ -881,13 +877,13 @@
                     <label class="control-label">Vendor</label>  
                     <div class="controls">                       
                         <div class="row-fluid">
-                             <div class="pull-left">
+                             <div class="span4">
                                  <input type="text" id="txtVendor_Netconf" class="span12"/>
                              </div>
-                             <label class="pull-left margin-left-23-right-10 padding-top-5">
+                             <label class="span3 new-column-label">
                                  Model
                              </label>
-                             <div class ="pull-left">
+                             <div class ="span4">
                                  <input type="text" id="txtModel_Netconf" class="span12"/>
                              </div>
                         </div>
@@ -901,19 +897,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="row-fluid margin-0-0-10">
+                <div class="row-fluid">
                     <div class="control-group">
                       <label class="control-label">Netconf Username</label>  
                       <div class="controls">                       
                           <div class="row-fluid">
-                               <div class="pull-left">
+                               <div class="span4">
                                    <input type="text" id="txtUsername_Netconf" name="txtUsername_Netconf" title="Username" 
                                    class="span12 pull-left"/>
                                </div>
-                               <label class="pull-left margin-left-23-right-10 padding-top-5">
+                               <label class="span3 new-column-label">
                                    Password
                                </label>
-                               <div class ="pull-left">
+                               <div class ="span4">
                                    <input title="Password"
                                        id="txtPassword_Netconf" class="span12" type="password" name="txtPassword_Netconf"
                                        value="">
@@ -969,20 +965,20 @@
                 <div class="control-group hide" id="junosServicePortsPanel_Netconf">
                     <label class="control-label"></label>
                     <div  class="controls">
-                        <div class="row-fluid margin-0-0-15">
-                            <div class="rule-item-header">
-                                <div class="row-fluid">
+                        <div class="row-fluid">
+                                 <div class="row-fluid">
+								<div class="span11 rule-item-header">
                                     <div class="span5">
                                         <h6>Port</h6>
                                     </div>
                                     <div class="span1 pull-right">
                                         <div title="Add Ports below" class="pull-right margin-5 padding-10-0"><i id="btnAddServicePort_Netconf" class="icon-plus"></i></div>
                                     </div>
-                                </div>
-                            </div>
+									</div>
+                           </div>
                             <div>  
                                 <div class="row-fluid">
-                                    <div id="servicePortsTuples_Netconf" class="row-fluid"></div>
+                                    <div id="servicePortsTuples_Netconf" class="span11"></div>
                                 </div>
                             </div>
                         </div> 
@@ -1064,18 +1060,18 @@
                                          </div>
                                      </div>
                                  </div>
-                                 <div id="snmpAuthDiv_Netconf" class="row-fluid margin-0-0-10 hide">
+                                 <div id="snmpAuthDiv_Netconf" class="row-fluid hide">
                                      <div class="control-group">
                                          <label class="control-label">Authentication Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpAuthProtocol_Netconf" name="txtSnmpAuthProtocol_Netconf" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpAuthPassword_Netconf" class="span12" type="password" name="txtSnmpAuthPassword_Netconf"
                                                             value="">
@@ -1090,13 +1086,13 @@
                                          <label class="control-label">Privacy Protocol</label>  
                                          <div class="controls">                       
                                              <div class="row-fluid">
-                                                  <div class="pull-left">
+                                                  <div class="span4">
                                                       <input type="text" id="txtSnmpPrivProtocol_Netconf" name="txtSnmpPrivProtocol_Netconf" title="Protocol" class="span12 pull-left"/>
                                                   </div>
-                                                  <label class="pull-left margin-left-23-right-10 padding-top-5">
+                                                  <label class="span3 new-column-label">
                                                   Password
                                                   </label>
-                                                  <div class ="pull-left">
+                                                  <div class ="span4">
                                                       <input title=""
                                                             id="txtSnmpPrivPassword_Netconf" class="span12" type="password" name="txtSnmpPrivPassword_Netconf"
                                                             value="">
@@ -1188,14 +1184,14 @@
                       <label class="control-label">Management IP</label>  
                       <div class="controls">                       
                           <div class="row-fluid">
-                               <div class="pull-left">
+                               <div class="span4">
                                    <input type="text" id="txtMgmtIPAddress_VCPE" name="txtMgmtIPAddress_VCPE" title="" 
                                    class="span12 pull-left"/>
                                </div>
-                               <label class="pull-left margin-left-23-right-10 padding-top-5">
+                               <label class="span3 new-column-label">
                                    VTEP Address
                                </label>
-                               <div class ="pull-left">
+                               <div class ="span4">
                                    <input title=""
                                        id="txtDataIPAddress_VCPE" class="span12" type="text" name="txtDataIPAddress_VCPE"
                                        value="">
