@@ -696,7 +696,7 @@ function initActions() {
         if (rtTuples && rtTuples.length > 0) {
             for (var i = 0; i < rtTuples.length; i++) {
                 var rtTuple = $($(rtTuples[i]).find("div")[0]).children();
-                var rt =  parseInt($($(rtTuple[0]).find("input")).val().trim());
+                var rt =  $($(rtTuple[0]).find("input")).val().trim();
                 var asn = parseInt($($(rtTuple[2]).find("input")).val().trim());
                 routeTargets.push({RouteTarget:rt + ":" + asn});
             }
