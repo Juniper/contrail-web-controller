@@ -14,7 +14,13 @@ var configJsonModifyObj = {
             'network_ipam_refs', 'network_policy_refs',
             'route_target_list', 'is_shared',
             'router_external', 'id_perms:enable'],
-        'mandateFields': ['fq_name', 'uuid', 'display_name']
+        'mandateFields': ['fq_name', 'uuid', 'display_name'],
+        'subType': {
+            'project': {
+                'optFields': ['floating_ip_pool_refs'],
+                'mandateFields': ['fq_name', 'uuid', 'display_name']
+            }
+        },
     },
     'network-ipam': {
         'isConfig': true,
