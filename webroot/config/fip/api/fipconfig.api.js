@@ -80,73 +80,78 @@ function fipListAggCb (error, results, callback)
  * 2. Gets the list of Fip backrefs and does an individual
  *    get for each one of them.
  */
-function getFipsForProjectCb (error, fipListData, response, appData)
+function getFipsForProjectCb (results, response, appData)
 {
-    var reqUrl            = null;
-    var dataObjArr        = [];
+    var vmiObjs           = {};
+    var fipObjArr         = [];
+    var fipDataArr        = [];
+    var dataObjGetArr     = [];
     var i = 0, fipLength  = 0;
     var fipConfigBackRefs = {};
-    var fipObjArr = [];
 
-    if (error) {
-       commonUtils.handleJSONResponse(error, response, null);
-       return;
-    }
-
-    fipConfigBackRefs['floating_ip_back_refs'] = [];
-
-    if ('floating_ip_back_refs' in fipListData['project']) {
-        fipConfigBackRefs['floating_ip_back_refs'] =
-              fipListData['project']['floating_ip_back_refs'];
-    }
-
-    fipLength = fipConfigBackRefs['floating_ip_back_refs'].length;
-
-    if (!fipLength) {
-        commonUtils.handleJSONResponse(error, response, fipConfigBackRefs);
-        return;
-    }
-
-    for (i = 0; i < fipLength; i++) {
-       fipRef = fipConfigBackRefs['floating_ip_back_refs'][i];
-       reqUrl = '/floating-ip/' + fipRef['uuid'];
-       commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
-                                null, null, null, appData);
-    }
-
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function(error, results) {
-        fipListAggCb(error, results, function (err, fipAggList) {
-            if (err) {
-               commonUtils.handleJSONResponse(err, response, null);
-               return;
+    results = results['floating-ips'];
+    fipListAggCb(null, results, function (err, fipAggList) {
+        if (err) {
+           commonUtils.handleJSONResponse(err, response, null);
+           return;
+        }
+        if (!fipAggList['floating_ip_back_refs'].length) {
+            commonUtils.handleJSONResponse(err, response, fipAggList);
+            return;
+        }
+        var fipBackRefsCnt = fipAggList['floating_ip_back_refs'].length;
+        for (var i = 0; i < fipBackRefsCnt; i++) {
+            var fipBackRef = fipAggList['floating_ip_back_refs'][i];
+            if ('floating-ip' in fipBackRef &&
+                'virtual_machine_interface_refs' in fipBackRef['floating-ip'] &&
+                fipBackRef['floating-ip']['virtual_machine_interface_refs'].length > 0) {
+                var vmiRefsCnt =
+                    fipBackRef['floating-ip']['virtual_machine_interface_refs'].length;
+                for (var j = 0; j < vmiRefsCnt; j++) {
+                    var vmiRef = fipBackRef['floating-ip']['virtual_machine_interface_refs'][j];
+                    fipObjArr.push(vmiRef['uuid']);
+                    vmiObjs[vmiRef['uuid']] = { 'fip' : fipBackRef };
+                }
             }
-            if(fipAggList && fipAggList['floating_ip_back_refs'] && fipAggList['floating_ip_back_refs'].length > 0) {
-                for(var i=0; i<fipAggList['floating_ip_back_refs'].length; i++) {
-                    var fipBackRef = fipAggList['floating_ip_back_refs'][i];
-                    if('floating-ip' in fipBackRef && 
-                        'virtual_machine_interface_refs' in fipBackRef['floating-ip'] &&
-                        fipBackRef['floating-ip']['virtual_machine_interface_refs'].length > 0) {
-                        for(var j=0; j<fipBackRef['floating-ip']['virtual_machine_interface_refs'].length; j++) {
-                            var vmiRef = fipBackRef['floating-ip']['virtual_machine_interface_refs'][j];
-                            fipObjArr.push({'appData' : appData, 'vmiRef' : vmiRef, 'fip' : fipBackRef, 'fip_uuid' : fipBackRef['floating-ip']['uuid']});
-                        }
-                    }
+        }
+        if (!fipObjArr.length) {
+            commonUtils.handleJSONResponse(null, response, fipAggList);
+            return;
+        }
+        var chunk = 200;
+        var fipObjArrLen = fipObjArr.length;
+        for (var i = 0, j = fipObjArrLen; i < j; i += chunk) {
+            var tmpArray = fipObjArr.slice(i, i + chunk);
+            var vmiUrl = '/virtual-machine-interfaces?detail=true&obj_uuids=' +
+                tmpArray.join(',');
+            commonUtils.createReqObj(dataObjGetArr, vmiUrl, null, null, null,
+                                     null, appData);
+        }
+
+        async.map(dataObjGetArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
+                                                   true),
+                  function(err, results) {
+            var resCnt = results.length;
+            var vmiData = [];
+            for (var i = 0; i < resCnt; i++) {
+                if (null == results[i]) {
+                    continue;
                 }
-                if(fipAggList['floating_ip_back_refs'].length > 0) {
-                    async.mapSeries(fipObjArr, getInstanceIPForVirtualMachineInterface, function(err, fipDetailData) {
-                        if(err) {
-                            commonUtils.handleJSONResponse(error, response, fipAggList);
-                        }
-                        else {
-                            updateFipAggrList(err, response, fipAggList, fipDetailData);
-                        }
-                    });
-                } else {
-                    commonUtils.handleJSONResponse(error, response, fipAggList);
-                }
-          }
+                vmiData =
+                    vmiData.concat(results[i]['virtual-machine-interfaces']);
+            }
+            var vmiDataCnt = vmiData.length;
+            for (var i = 0; i < vmiDataCnt; i++) {
+                var vmiUUID =
+                    vmiData[i]['virtual-machine-interface']['uuid'];
+                var vmi = vmiObjs[vmiUUID];
+                var fip =
+                    getInstanceIPForVirtualMachineInterface(vmiData[i],
+                                                            vmi['fip']);
+                fipDataArr.push(fip);
+            }
+            updateFipAggrList(null, response, fipAggList, fipDataArr);
         });
     });
 }
@@ -178,26 +183,20 @@ function updateFipAggrList(err, response, fipAggList, fipDetailData) {
  * 2. Updates the list of floating ip backrefs with virtual_machine_refs 
  *    of individual virtual machine interface of the floating ip. 
  */
-function getInstanceIPForVirtualMachineInterface(fipObj, callback) {
-    var appData = fipObj['appData'];    
-    var reqUrl = '/virtual-machine-interface/' + fipObj['vmiRef']['uuid'];
-    var fip = fipObj["fip"];
-    configApiServer.apiGet(reqUrl, appData, function(err, vmiData) {
-        if (err) {
-            callback(err, null);
-            return;
-        } else {
-            for(var i=0; i<fip['floating-ip']['virtual_machine_interface_refs'].length; i++) {
-                var vmiRef = fip['floating-ip']['virtual_machine_interface_refs'][i];
-                if(vmiRef["uuid"] === vmiData['virtual-machine-interface']["uuid"]) {
-                    fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] = [];
-                    fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] = 
-                        vmiData['virtual-machine-interface']['virtual_machine_refs']
-                    callback(err, fip);
-                }
-            }
+function getInstanceIPForVirtualMachineInterface (vmiData, fip, callback)
+{
+    var vmiRefsCnt =
+        fip['floating-ip']['virtual_machine_interface_refs'].length;
+    for (var i = 0; i < vmiRefsCnt; i++) {
+        var vmiRef = fip['floating-ip']['virtual_machine_interface_refs'][i];
+        if (vmiRef["uuid"] === vmiData['virtual-machine-interface']["uuid"]) {
+            fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] = [];
+            fip['floating-ip']['virtual_machine_interface_refs'][i]["virtual_machine_refs"] =
+                vmiData['virtual-machine-interface']['virtual_machine_refs'];
+            return fip;
         }
-    });
+    }
+    return fip;
 }
 
 function listFloatingIpsAsync (fipObj, callback)
@@ -235,21 +234,20 @@ function listFloatingIpsAsync (fipObj, callback)
  */
 function listFloatingIps (request, response, appData) 
 {
-    var tenantId      = null;
-    var requestParams = url.parse(request.url,true);
-    var projectURL   = '/project';
+    var emptyFipResp = {'floating_ip_back_refs': []};
+    var tenantId = request.param('id');
+    var fipReqURL = '/floating-ips?detail=true&back_ref_id=' + tenantId +
+        '&fields=virtual_machine_interface_refs,project_refs';
 
-    if ((tenantId = request.param('id'))) {
-        projectURL += '/' + tenantId.toString();
-    } else {
-        /**
-         * TODO - Add Language independent error code and return
-         */
-    }
-    configApiServer.apiGet(projectURL, appData,
-                         function(error, data) {
-                         getFipsForProjectCb(error, data, response, appData);
-                         });
+    configApiServer.apiGet(fipReqURL, appData, function(error, data) {
+        if ((null != error) || (null == data) ||
+            (null == data['floating-ips']) ||
+            (!data['floating-ips'].length)) {
+            commonUtils.handleJSONResponse(error, response, emptyFipResp);
+            return;
+        }
+        getFipsForProjectCb(data, response, appData);
+    });
 }
 
 /**
