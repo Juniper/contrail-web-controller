@@ -104,10 +104,9 @@ define([
             content: {
                 iconClass: 'icon-contrail-virtual-network',
                 info: [
-                    {label: 'Domain', value: networkFQNObj[0]},
-                    {label: 'Project', value: networkFQNObj[1]},
+                    {label: 'Project', value: networkFQNObj[0] + ":" + networkFQNObj[1]},
+                    {label:'Instances', value: data.instCnt},
                     {label:'Interfaces', value: data['x']},
-                    {label:'Instance', value: data.instCnt},
                     {label:'Throughput', value:formatThroughput(data['throughput'])}
                 ],
                 actions: [
@@ -118,6 +117,9 @@ define([
                         callback: onScatterChartClick
                     }
                 ]
+            },
+            dimension: {
+                width: 300
             }
         };
     };

@@ -46,6 +46,51 @@ define([
             }
         ];
 
+        this.instanceInterfaceColumns = [
+            {
+                field: 'ip',
+                name: 'IP Address',
+                minWidth: 150,
+                searchable: true
+            },
+            {
+                field: 'mac_address',
+                name: 'MAC Address',
+                minWidth: 150,
+                searchable: true
+            },
+            {
+                field: 'gateway',
+                name: 'Gateway',
+                minWidth: 150,
+                searchable: true
+            },
+            {
+                field: 'virtual_network',
+                name: 'Network',
+                minWidth: 200,
+                searchable: true
+            },
+            {
+                field: 'vm_name',
+                name: 'Instance',
+                minWidth: 150,
+                searchable: true
+            },
+            {
+                name: 'Status',
+                minWidth: 100,
+                searchable: true,
+                formatter: function (r, c, v, cd, dc) {
+                    if (dc.active) {
+                        return ('<div class="status-badge-rounded status-active"></div>&nbsp;Active');
+                    } else {
+                        return ('<div class="status-badge-rounded status-inactive"></div>&nbsp;Inactive');
+                    }
+                }
+            }
+        ];
+
         this.projectInstancesColumns = [
             {
                 field: 'vmName',
@@ -53,7 +98,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
                 },
-                minWidth: 250,
+                minWidth: 150,
                 searchable: true,
                 events: {
                     onClick: onClickGrid
@@ -66,13 +111,13 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return getMultiValueStr(dc['vn']);
                 },
-                minWidth: 200,
+                minWidth: 150,
                 searchable: true
             },
             {
                 field: 'intfCnt',
                 name: 'Interfaces',
-                minWidth: 100
+                minWidth: 80
             },
             {
                 field: 'vRouter',
@@ -92,8 +137,9 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return formatIPArr(dc['ip']);
                 },
-                minWidth: 100
+                minWidth: 150
             },
+            /*
             {
                 field: 'floatingIP',
                 name: 'Floating IPs In/Out',
@@ -102,9 +148,10 @@ define([
                 },
                 minWidth: 200
             },
+            */
             {
                 field: '',
-                name: 'Traffic In/Out (Last 1 Hr)',
+                name: 'Aggr. Traffic In/Out (Last 1 Hr)',
                 formatter: function (r, c, v, cd, dc) {
                     return formatBytes(dc['inBytes60']) + ' / ' + formatBytes(dc['outBytes60']);
                 },
@@ -149,7 +196,7 @@ define([
             }
         ];
 
-        this.getVNDetailsLazyRemoteConfig = function(type) {
+        this.getVNDetailsLazyRemoteConfig = function (type) {
             return [
                 {
                     getAjaxConfig: function (responseJSON) {
@@ -190,12 +237,40 @@ define([
                             }
                         }
                         contrailListModel.updateData(dataItems);
-                        if(contrail.checkIfExist(parentModelList)) {
+                        if (contrail.checkIfExist(parentModelList)) {
                             ctwp.projectNetworksDataParser(parentModelList, contrailListModel);
                         }
                     }
                 }
             ];
+        };
+
+        this.getVMInterfacesLazyRemoteConfig = function () {
+            return [
+                {
+                    getAjaxConfig: function (responseJSON) {
+                        var lazyAjaxConfig,
+                            interfaceList = responseJSON['value']['UveVirtualMachineAgent']['interface_list'];
+
+                        lazyAjaxConfig = {
+                            url: ctwc.URL_VM_INTERFACES,
+                            type: 'POST',
+                            data: JSON.stringify({kfilt: interfaceList.join(',')})
+                        };
+
+                        return lazyAjaxConfig;
+                    },
+                    successCallback: function (response, contrailViewModel) {
+                        var interfaceMap = ctwp.instanceInterfaceDataParser(response),
+                            interfaceDetailsList = _.values(interfaceMap);
+
+                        contrailViewModel.attributes['value']['UveVirtualMachineAgent']['interface_details'] = interfaceDetailsList;
+                        if (interfaceDetailsList.length > 0) {
+                            contrailViewModel.attributes.vm_name = interfaceDetailsList[0]['vm_name'];
+                        }
+                    }
+                }
+            ]
         };
 
         this.getVMDetailsLazyRemoteConfig = function (type) {
@@ -223,7 +298,7 @@ define([
                         return lazyAjaxConfig;
                     },
                     successCallback: function (response, contrailListModel) {
-                        var statDataList = tenantNetworkMonitorUtils.statsOracleParseFn(response[0], type),
+                        var statDataList = ctwp.parseInstanceStats(response[0], type),
                             dataItems = contrailListModel.getItems(),
                             statData;
                         for (var j = 0; j < statDataList.length; j++) {
@@ -233,11 +308,87 @@ define([
                                 if (statData['name'] == dataItem['name']) {
                                     dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
                                     dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
-                                    dataItem['size'] = ifNull(statData['inBytes'], 0) + ifNull(statData['outBytes'], 0);
                                     break;
                                 }
                             }
                         }
+                        contrailListModel.updateData(dataItems);
+                    }
+                },
+                {
+                    getAjaxConfig: function (responseJSON) {
+                        var lazyAjaxConfig,
+                            interfaceList = [];
+
+                        for (var i = 0; i < responseJSON.length; i++) {
+                            var instance = responseJSON[i],
+                                instanceInterfaces = instance['value']['UveVirtualMachineAgent']['interface_list'];
+                            interfaceList.push(instanceInterfaces);
+                        }
+
+                        lazyAjaxConfig = {
+                            url: ctwc.URL_VM_INTERFACES,
+                            type: 'POST',
+                            data: JSON.stringify({
+                                kfilt: interfaceList.join(','),
+                                cfilt: ctwc.FILTERS_INSTANCE_LIST_INTERFACES.join(',')
+                            })
+                        };
+                        return lazyAjaxConfig;
+                    },
+                    successCallback: function (response, contrailListModel) {
+                        var interfaceMap = ctwp.instanceInterfaceDataParser(response),
+                            dataItems = contrailListModel.getItems();
+
+                        for (var i = 0; i < dataItems.length; i++) {
+                            var dataItem = dataItems[i],
+                                uveVirtualMachineAgent = dataItem['value']['UveVirtualMachineAgent'],
+                                interfaceList = dataItem['value']['UveVirtualMachineAgent']['interface_list'],
+                                interfaceDetailsList = [],
+                                inThroughput = 0, outThroughput = 0, throughput = 0;
+
+                            for (var j = 0; j < interfaceList.length; j++) {
+                                var interfaceDetail = interfaceMap[interfaceList[j]],
+                                    ifStats;
+
+                                if (contrail.checkIfExist(interfaceDetail)) {
+                                    ifStats = ifNull(interfaceDetail['if_stats'], [{}]);
+                                    inThroughput += ifNull(ifStats[0]['in_bw_usage'], 0);
+                                    outThroughput += ifNull(ifStats[0]['out_bw_usage'], 0);
+                                    interfaceDetailsList.push(interfaceDetail);
+                                }
+                            }
+
+                            throughput = inThroughput + outThroughput;
+                            dataItem['throughput'] = throughput;
+                            dataItem['size'] = throughput;
+                            uveVirtualMachineAgent['interface_details'] = interfaceDetailsList;
+                            dataItem['vn'] = ifNull(jsonPath(interfaceDetailsList, '$...virtual_network'), []);
+
+                            if (dataItem['vn'] != false) {
+                                if (dataItem['vn'].length != 0) {
+                                    dataItem['vnFQN'] = dataItem['vn'][0];
+                                }
+                                dataItem['vn'] = tenantNetworkMonitorUtils.formatVN(dataItem['vn']);
+                            }
+
+                            for (var k = 0; k < interfaceDetailsList.length; k++) {
+                                if (interfaceDetailsList[k]['ip6_active'] == true) {
+                                    if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
+                                        dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
+                                    if (interfaceDetailsList[k]['ip6_address'] != null)
+                                        dataItem['ip'].push(interfaceDetailsList[k]['ip6_address']);
+                                } else {
+                                    if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
+                                        dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
+                                }
+                            }
+
+                            if (interfaceDetailsList.length > 0) {
+                                dataItem['vmName'] = interfaceDetailsList[0]['vm_name'];
+                            }
+                        }
+
                         contrailListModel.updateData(dataItems);
                     }
                 }
@@ -260,7 +411,7 @@ define([
                     dataParser: ctwp.networkDataParser
                 },
                 vlRemoteConfig: {
-                    completeCallback: function(contrailListModel, parentModelList) {
+                    completeCallback: function (contrailListModel, parentModelList) {
                         //ctwp.projectNetworksDataParser(parentModelList, contrailListModel);
                     },
                     vlRemoteList: ctwgc.getVNDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
@@ -302,7 +453,7 @@ define([
             {
                 field: 'protocol',
                 name: 'Protocol',
-                formatter:function(r,c,v,cd,dc){
+                formatter: function (r, c, v, cd, dc) {
                     return getProtocolName(dc['protocol']);
                 },
                 minWidth: 60,

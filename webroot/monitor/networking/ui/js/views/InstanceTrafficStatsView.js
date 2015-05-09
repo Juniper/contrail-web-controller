@@ -28,13 +28,13 @@ define([
                     interfaceList;
 
                 if (!contrailViewModel.isRequestInProgress()) {
-                    interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_list;
+                    interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_details;
                     constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChart,
                         interfaceList, getInstanceTrafficStatsChangeCB(instanceTrafficStatsDropdown, instanceTrafficStatsChart, viewConfig));
                 } else {
                     contrailViewModel.onAllRequestsComplete.subscribe(function () {
-                        if (contrail.checkIfKeyExistInObject(true, contrailViewModel.attributes, 'value.UveVirtualMachineAgent.interface_list')) {
-                            interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_list;
+                        if (contrail.checkIfKeyExistInObject(true, contrailViewModel.attributes, 'value.UveVirtualMachineAgent.interface_details')) {
+                            interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_details;
                             constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChart,
                                 interfaceList, getInstanceTrafficStatsChangeCB(instanceTrafficStatsDropdown, instanceTrafficStatsChart, viewConfig));
                         }

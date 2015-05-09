@@ -1594,72 +1594,59 @@ function processTopFlowsByVM (pubChannel, saveChannelKey, jobData, done)
     });
 }
 
-function processVMFlowSeriesData (pubChannel, saveChannelKey, jobData, done)
-{
-    var appData = jobData.taskData.appData;
-    var srcVNObjArr = [];
-    var destVNObjArr = [];
-    var vnName = appData['vName'];
-    var vmName = appData['vmName'];
-    var vmVnName = appData['vmVnName'];
-    var fip = appData['fip'];
-    var ip = appData.ip;
-    var context = 'vm';
-    var whereClause = [
-        {'if_stats.name':vmVnName}
-    ];
-    var minsSince = appData['minsSince'];
-    var timeObj;
-    var timeGran;
+function processVMFlowSeriesData(pubChannel, saveChannelKey, jobData, done) {
+    var appData = jobData.taskData.appData,
+        srcVNObjArr = [], destVNObjArr = [],
+        vnName = appData['vName'], vmName = appData['vmName'],
+        vmVnName = appData['vmVnName'], fip = appData['fip'], ip = appData.ip,
+        context = 'vm',
+        whereClause = [ {'name': vmVnName} ];
+
+    var minsSince = appData['minsSince'],
+        timeObj, timeGran;
+
     if (minsSince != null) {
-        timeObj = 
-            createTimeQueryJsonObjByServerTimeFlag(appData['minsSince'],
-                                                   appData['serverTime']);
-        timeGran = nwMonUtils.getTimeGranByTimeSlice(timeObj,
-            appData['sampleCnt']);
+        timeObj = createTimeQueryJsonObjByServerTimeFlag(appData['minsSince'], appData['serverTime']);
+        timeGran = nwMonUtils.getTimeGranByTimeSlice(timeObj, appData['sampleCnt']);
     } else {
-        timeObj =
-            nwMonUtils.createTimeQueryObjByStartEndTime(appData['startTime'],
-                appData['endTime']);
+        timeObj = nwMonUtils.createTimeQueryObjByStartEndTime(appData['startTime'], appData['endTime']);
         timeGran = appData['timeGran'];
     }
-    var strTimeGran = 'T=' + timeGran;
-    var table = 'StatTable_VirtualMachineStats_if_stats';
-    var selectArr = ['SUM(if_stats.out_bytes)', 'SUM(if_stats.in_bytes)','SUM(if_stats.out_pkts)','SUM(if_stats.in_pkts)', strTimeGran, 'name'];
-    if(fip) {
-        table = 'StatTable_VirtualMachineStats_fip_stats';
-        selectArr = ['SUM(fip_stats.out_bytes)', 'SUM(fip_stats.in_bytes)','SUM(fip_stats.out_pkts)','SUM(fip_stats.in_pkts)', strTimeGran, 'name'];
-        whereClause = [
-                       {'fip_stats.ip_address':ip}
-        ];
+
+    var strTimeGran = 'T=' + timeGran,
+        table = 'StatTable_UveVMInterfaceAgent_if_stats',
+        selectArr = ['SUM(if_stats.out_bytes)', 'SUM(if_stats.in_bytes)', 'SUM(if_stats.out_pkts)', 'SUM(if_stats.in_pkts)', strTimeGran, 'name'];
+
+    if (fip) {
+        table = 'StatTable_UveVMInterfaceAgent_fip_diff_stats';
+        selectArr = ['SUM(fip_stats.out_bytes)', 'SUM(fip_stats.in_bytes)', 'SUM(fip_stats.out_pkts)', 'SUM(fip_stats.in_pkts)', strTimeGran, 'name'];
+        whereClause = [ {'fip_diff_stats.ip_address': ip} ];
         context = 'fip';
     }
-    var queryJSON = formatQueryString(table, whereClause,
-            selectArr, timeObj, true, null,
-        global.TRAFFIC_DIR_INGRESS, true);
-    //Removing the flow_count select field from query as not required for the OracleStats 
+    var queryJSON = formatQueryString(table, whereClause, selectArr, timeObj, true, null, global.TRAFFIC_DIR_INGRESS, true);
+
+    //logutils.logger.debug(JSON.stringify(queryJSON));
+
+    //Removing the flow_count select field from query as not required for the OracleStats
     var flowCountIdx = queryJSON['select_fields'].indexOf('flow_count');
     if (flowCountIdx > -1)
-        queryJSON['select_fields'].splice(flowCountIdx,1);
+        queryJSON['select_fields'].splice(flowCountIdx, 1);
     formatFlowSeriesQuery(queryJSON);
-    logutils.logger.debug(messages.qe.qe_execution + 'VM Flow Series data ' +
-        vnName);
+
+    logutils.logger.debug(messages.qe.qe_execution + 'VM Flow Series data ' + vnName);
+
     flowCache.getFlowSeriesData(context, appData, queryJSON, null,
         function (err, data) {
             if (data != null) {
-                if(data['flow-series'] == null || data['flow-series'].length == 0) {
+                if (data['flow-series'] == null || data['flow-series'].length == 0) {
                     data['flow-series'] = getZeroFlowSeries(data['summary']['start_time'], data['summary']['end_time'], timeGran);
                 }
                 resultJSON = data;
             } else {
                 resultJSON = {};
             }
-            redisPub.publishDataToRedis(pubChannel, saveChannelKey,
-                global.HTTP_STATUS_RESP_OK,
-                JSON.stringify(resultJSON),
-                JSON.stringify(resultJSON),
-                0, 0, done);
-        },global.FlOW_SERIES_STAT_TYPE);
+            redisPub.publishDataToRedis(pubChannel, saveChannelKey, global.HTTP_STATUS_RESP_OK, JSON.stringify(resultJSON), JSON.stringify(resultJSON), 0, 0, done);
+        }, global.FlOW_SERIES_STAT_TYPE);
 }
 
 function parseVMStats (resultJSON, data)
