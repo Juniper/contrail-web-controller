@@ -161,7 +161,7 @@ define([
         this.instanceDataParser = function(response) {
             var retArr = $.map(ifNull(response['data']['value'],response), function (currObject, idx) {
                 var currObj = currObject['value'];
-                currObject['rawData'] = $.extend(true,{},currObj);
+                //currObject['rawData'] = $.extend(true,{},currObj);
                 currObject['inBytes60'] = '-';
                 currObject['outBytes60'] = '-';
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
@@ -170,28 +170,9 @@ define([
                 var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
                 currObject['vRouter'] = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(vRouter), '-');
                 currObject['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
-                currObject['vn'] = ifNull(jsonPath(currObj, '$..interface_list[*].virtual_network'),[]);
-                //Parse the VN only if it exists
-                if(currObject['vn'] != false) {
-                    if(currObject['vn'].length != 0) {
-                        currObject['vnFQN'] = currObject['vn'][0];
-                    }
-                    currObject['vn'] = tenantNetworkMonitorUtils.formatVN(currObject['vn']);
-                }
+                currObject['vn'] = false;
                 currObject['ip'] = [];
-                var intfList = tenantNetworkMonitorUtils.getDataBasedOnSource(getValueByJsonPath(currObj,'UveVirtualMachineAgent;interface_list',[]));
-                for(var i = 0; i < intfList.length; i++ ) {
-                    if(intfList[i]['ip6_active'] == true) {
-                        if(intfList[i]['ip_address'] != '0.0.0.0')
-                            currObject['ip'].push(intfList[i]['ip_address']);
-                        if(intfList[i]['ip6_address'] != null)
-                            currObject['ip'].push(intfList[i]['ip6_address']);
-                    } else {
-                        if(intfList[i]['ip_address'] != '0.0.0.0')
-                            currObject['ip'].push(intfList[i]['ip_address']);
-                    }
-                }
-                var fipStatsList = getValueByJsonPath(currObj,'UveVirtualMachineAgent:fip_stats_list');
+                var fipStatsList = getValueByJsonPath(currObj,'UveVirtualMachineAgent;fip_stats_list');
                 var floatingIPs = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(fipStatsList), []);
                 currObject['floatingIP'] = [];
                 $.each(floatingIPs, function(idx, fipObj){
@@ -213,7 +194,33 @@ define([
                 return currObject;
             });
             return retArr;
-        }
+        };
+
+        this.interfaceDataParser = function(response) {
+            var interfaceMap = ctwp.instanceInterfaceDataParser(response)
+            return _.values(interfaceMap);
+        };
+
+        this.instanceInterfaceDataParser = function(response) {
+            var rawInterfaces, interface, interfaceMap = {}, uveVMInterfaceAgent;
+            if(response != null && response.value != null) {
+                rawInterfaces = response.value;
+                for(var i = 0; i < rawInterfaces.length; i++) {
+                    interface = {};
+                    uveVMInterfaceAgent = rawInterfaces[i]['value']['UveVMInterfaceAgent'];
+                    interface = $.extend(true, interface, uveVMInterfaceAgent);
+                    interface['name'] = rawInterfaces[i]['name'];
+                    var ip6Active = interface['ip6_active'];
+                    if(ip6Active) {
+                        interface['ip'] = interface['ip6_address'];
+                    } else {
+                        interface['ip'] = interface['ip_address'];
+                    }
+                    interfaceMap[interface['name']] = interface;
+                }
+            }
+            return interfaceMap;
+        };
 
         this.projectDataParser = function (response) {
             var projects = contrail.handleIfNull(response['projects'], []),
@@ -389,6 +396,18 @@ define([
                     });
             }
             return portArr;
+        };
+
+        this.parseInstanceStats = function (response, type) {
+            var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
+                var item = {};
+                var props = STATS_PROP[type];
+                item['name'] = obj['vm_uuid'];
+                item['inBytes'] = ifNull(obj[props['inBytes']], '-');
+                item['outBytes'] = ifNull(obj[props['outBytes']], '-');
+                return item;
+            });
+            return retArr;
         };
     };
 

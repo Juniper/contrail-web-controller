@@ -27,11 +27,11 @@ define([
             // TODO: Handle multi-tenancy
             var ucid = (parentUUID != null) ? (ctwc.UCID_PREFIX_MN_LISTS + parentUUID + ":" + 'virtual-machines') : ctwc.UCID_ALL_VM_LIST;
 
-            cowu.renderView4Config(that.$el, this.model, getInstanceListViewConfig(instanceRemoteConfig, ucid, pagerOptions));
+            cowu.renderView4Config(that.$el, this.model, getInstanceGridViewConfig(instanceRemoteConfig, ucid, pagerOptions));
         }
     });
 
-    var getInstanceListViewConfig = function (instanceRemoteConfig, ucid, pagerOptions) {
+    var getInstanceGridViewConfig = function (instanceRemoteConfig, ucid, pagerOptions) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_VIEW_ID]),
             view: "SectionView",
@@ -127,6 +127,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    key: 'vn',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'ip',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
                                                     key: 'intfCnt',
                                                     templateGenerator: 'TextGenerator'
                                                 }
@@ -160,59 +168,6 @@ define([
                                                     }
                                                 }
                                             ]
-                                        }
-                                    ]
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        templateGenerator: 'ColumnSectionTemplateGenerator',
-                        templateGeneratorConfig: {
-                            columns: [
-                                {
-                                    class: 'span12',
-                                    rows: [
-                                        {
-                                            templateGenerator: 'BlockGridTemplateGenerator',
-                                            title: ctwl.TITLE_INTERFACES,
-                                            key: 'value.UveVirtualMachineAgent.interface_list',
-                                            templateGeneratorConfig: {
-                                                titleColumn: {
-                                                    key: 'uuid',
-                                                    templateGenerator: 'TextGenerator'
-                                                },
-                                                dataColumn: [
-                                                    {
-                                                        key: 'uuid',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'mac_address',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'ip_address',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'label',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'Gateway',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'active',
-                                                        templateGenerator: 'TextGenerator'
-                                                    },
-                                                    {
-                                                        key: 'l2_active',
-                                                        templateGenerator: 'TextGenerator'
-                                                    }
-                                                ]
-                                            }
                                         }
                                     ]
                                 }
