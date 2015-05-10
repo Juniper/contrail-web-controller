@@ -183,14 +183,6 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'byte'
                                                     }
-                                                },
-                                                {
-                                                    key: 'in_tpkts',
-                                                    templateGenerator: 'TextGenerator'
-                                                },
-                                                {
-                                                    key: 'out_tpkts',
-                                                    templateGenerator: 'TextGenerator'
                                                 }
                                             ]
                                         }
