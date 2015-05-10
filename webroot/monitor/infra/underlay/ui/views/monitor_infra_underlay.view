@@ -13,7 +13,7 @@ body > svg {
 }
 </style>
 <script type="text/x-handlebars-template" id="device-summary-template">
-	<div class="span4">
+	<div class="span8">
 	    <div class="widget-box transparent">
 	        <div class="widget-body">
 	            <div class="widget-main" id="system-info-stat">
@@ -26,10 +26,10 @@ body > svg {
                            </label>
                        </li>
                        <li>
-                           <label class="inline">
-                               <span class="key"> Description </span>
-                               <span class="value"> {{description}} </span>
-                           </label>
+                            <label class="inline">
+                                <span class="key"> Management IP </span>
+                                <span class="value">{{managementIP}}</span>
+                            </label>
                        </li>
                        <li>
                             <label class="inline">
@@ -37,6 +37,12 @@ body > svg {
                                 <span class="value"> {{intfCnt}} </span>
                             </label>
                         </li>
+                        <li>
+                           <label class="inline">
+                               <span class="key"> Description </span>
+                               <span class="value"> {{description}} </span>
+                           </label>
+                       </li>
                     {{/IfCompare}}
                     {{#IfCompare type 'virtual-router' operator='=='}}
                         <li>
