@@ -22,12 +22,19 @@ var portsConfig = require('../../ports/api/portsconfig.api'),
                           '/src/serverroot/utils/common.utils'),
     configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var vnConfig = require('../../vn/api/vnconfig.api');
+var nwIpam = require('../../ipaddressmanagement/api/ipamconfig.api');
 
 var errorData = [];
 var configCBDelete = 
 {
     'virtual-machine-interface': portsConfig.deletePortsCB
 }
+
+var getConfigPageRespCB = {
+    'virtual-network': vnConfig.getVirtualNetworkCb,
+    'network-ipam': nwIpam.getIpamCb
+};
 
 /**
  * Bail out if called directly as "nodejs projectconfig.api.js"
@@ -347,9 +354,97 @@ function deleteConfigObjCB (dataObj, callback)
     });
 }
 
+function getConfigUUIDList (req, res, appData)
+{
+    var type        = req.param('type');
+    var parentUUID  = req.param('parentUUID');
+    var resultJSON = [];
+    type = type + 's';
+
+    var configUrl = '/' + type + '?parent_id=' + parentUUID;
+    configApiServer.apiGet(configUrl, appData, function(err, configData) {
+        if ((null != err) || (null == configData) ||
+            (null == configData[type])) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        configData = configData[type];
+        if ((null == configData) || (!configData.length)) {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+            return;
+        }
+        var count = configData.length;
+        for (var i = 0; i < count; i++) {
+            resultJSON.push(configData[i]['uuid']);
+        }
+        commonUtils.handleJSONResponse(null, res, resultJSON);
+    });
+}
+
+function getConfigPageRespAsync (configReqObj, callback)
+{
+    var type = configReqObj['type'];
+    var data = configReqObj['data'];
+    var appData = configReqObj['appdata'];
+    var configPageCB = getConfigPageRespCB[type];
+    configPageCB(data, appData, function(err, data) {
+        callback(err, data);
+    });
+}
+
+function getConfigPaginatedResponse (req, res, appData)
+{
+    var body = req.body;
+    var type = body.type + 's';
+    var uuidList = body.uuidList;
+    var fields = body.fields;
+    var dataObjGetArr = [];
+    var configReqObjArr = [];
+    var tmpArray = [];
+
+    var chunk = 200;
+    var uuidCnt = uuidList.length;
+    for (var i = 0, j = uuidCnt; i < j; i += chunk) {
+        tmpArray = uuidList.slice(i, i + chunk);
+        var reqUrl = '/' + type + '?detail=true&obj_uuids=' + tmpArray.join(',');
+        if ((null != fields) && (fields.length > 0)) {
+            reqUrl += '&fields=' + fields.join(',');
+        }
+        commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null, null,
+                                 appData);
+    }
+    async.map(dataObjGetArr,
+              commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+              function(error, results) {
+        var resultJSON = [];
+        var resCnt = results.length;
+        for (var i = 0; i < resCnt; i++) {
+            results[i] = results[i][type];
+            resultJSON = resultJSON.concat(results[i]);
+        }
+        var configPageCB = getConfigPageRespCB[body.type];
+        if (null == configPageCB) {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+            return;
+        }
+        resCnt = resultJSON.length;
+        for (i = 0; i < resCnt; i++) {
+            configReqObjArr.push({'type': body.type, 'data': resultJSON[i],
+                                 'appData': appData});
+        }
+        async.map(configReqObjArr, getConfigPageRespAsync,
+                  function(err, customConfigData) {
+            commonUtils.handleJSONResponse(err, res, customConfigData);
+            return;
+        });
+    });
+}
+
+exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
 exports.deleteConfigObj = deleteConfigObj;
 exports.deleteConfigObjCB = deleteConfigObjCB;
+exports.getConfigPaginatedResponse = getConfigPaginatedResponse;
 
