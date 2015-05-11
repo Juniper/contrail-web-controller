@@ -174,7 +174,8 @@ function clearBgpWindow() {
 }
 
 function disableAuthKeyTextbox() {
-    $('#txtAuthKey').val(' ');
+    $('#txtAuthKey').val('');
+    $('#txtAuthKey').attr('placeholder', '');
     $('#txtAuthKey').attr('disabled', 'disabled');
 }
 
@@ -604,7 +605,7 @@ function fetchData() {
                 if (null != d) {
                     var type = (d.type) ? d.type : "",
                         append = "", role = "", roles, addr_families = [],
-                        allPeers = [], details = [], detailStr = "";
+                        allPeers = [], details = [], detailStr = "", bgpProperties = [], ipAddress = '-';
                     if (type.indexOf("bgp-router") != -1) {
                         globalData.push(d);
                         bgpavailabledata.push({"label":d.name, "value":d.name});
@@ -628,6 +629,7 @@ function fetchData() {
                         //tbd bgp peers
                         details.push({ "name":"Display Name", "value":d.display_name });
                         details.push({ "name":"UUID", "value":d.uuid});
+                        details.push({ "name":"Type", "value":role});
                         if (d.bgp_refs) {
                             var peerDetails = d.bgp_refs;
                             for(var i = 0; i < peerDetails.length; i++) {
@@ -642,32 +644,36 @@ function fetchData() {
                                 }
                                 allPeers.push({'name' : curPeer.name, 'authType' : authType, 'authKey' : authKey });
                             }
-                            //details.push({ "name":"Peers", "value":peers });
                         }
                         if (type.indexOf("bgp-router") != -1) {
                             if (d.vendor && d.vendor.trim() != "") {
                                 detailStr = "Vendor " + d.vendor + "; ";
                                 details.push({ "name":"Vendor", "value":d.vendor });
                             }
-                            if (d.autonomous_system) {
-                                detailStr += "BGP ASN " + d.autonomous_system + ";";
-                                details.push({ "name":"BGP ASN", "value":d.autonomous_system });
-                            }
+                            ipAddress = (d.address && "" != d.address.trim())
+                                              ? d.address : ((d.ip_address && "" != d.ip_address.trim()) ? d.ip_address : '-');
+                            //assign ip address
+                            detailStr = "IP Address " + ipAddress + "; ";
+                            details.push({ "name":"IP Address", "value":ipAddress });
                             if (d.identifier && d.identifier.trim() != "") {
                                 detailStr += "Router ID " + d.identifier + "; ";
-                                details.push({ "name":"Router ID", "value":d.identifier });
+                                bgpProperties.push({ "name":"Router ID", "value":d.identifier });
                             }
-                            if (d.port) {
-                                detailStr += "BGP Port " + d.port + "; ";
-                                details.push({ "name":"BGP Port", "value":d.port });
+                            if (d.autonomous_system) {
+                                detailStr += "BGP ASN " + d.autonomous_system + ";";
+                                bgpProperties.push({ "name":"BGP ASN", "value":d.autonomous_system });
                             }
                             if (addr_families && addr_families.trim() != "") {
                                 detailStr += "Address family " + addr_families + "; ";
-                                details.push({ "name":"Address family", "value":addr_families });
+                                bgpProperties.push({ "name":"Address family", "value":addr_families });
+                            }
+                            if (d.port) {
+                                detailStr += "BGP Port " + d.port + "; ";
+                                bgpProperties.push({ "name":"BGP Port", "value":d.port });
                             }
                             if(d["hold_time"]) { 
                                 detailStr += "Hold Time " + d["hold_time"] + "; ";
-                                details.push({ "name":"Hold Time", "value":d["hold_time"]});                                
+                                bgpProperties.push({ "name":"Hold Time", "value":d["hold_time"]});
                             }
                             if(d["auth_data"]) {
                                 var authData = d["auth_data"];
@@ -680,8 +686,7 @@ function fetchData() {
                                 }
                                 detailStr += "Authentication Type " + authType + "; ";
                                 detailStr += "Authentication Key " + authKey + "; ";
-                                details.push({"name" : "Authentication Type", "value" : authType});
-                                details.push({"name" : "Authentication Key", "value" :authKey});
+                                bgpProperties.push({"name" : "Authentication Type", "value" : authType});
                             }
                             if(d['physical_routers'] && d['physical_routers'] != '-') {
                                 var prouters = d['physical_routers'];
@@ -694,42 +699,26 @@ function fetchData() {
                                         prouterString += ', ' + prouter['to'][1];
                                     }
                                 }
-                                details.push({"name":"Physical Router", "value": prouterString});
+                                detailStr += "Physical Router " + prouterString + "; ";
+                                bgpProperties.push({"name":"Physical Router", "value": prouterString});
                             }
                         }
-                        
-                        if (d.address && "" != d.address) {
-                            bgpData.push({
-                                "id":counter++,
-                                "uuid":d.uuid,
-                                "href":d.href,
-                                "id_perms":d.id_perms,
-                                "ip":d.address,
-                                "role":role,
-                                "name":d.name,
-                                "display_name":d.display_name,
-                                "vendor":(d.vendor == null) ? "-" : d.vendor,
-                                "details":details,
-                                "detailStr":detailStr,
-                                "allPeers":allPeers,
-                                "physical_routers":d.physical_routers
-                            });
-                        } else if (d.ip_address && "" != d.ip_address) {
-                            bgpData.push({
-                                "id":counter++,
-                                "uuid":d.uuid,
-                                "href":d.href,
-                                "id_perms":d.id_perms,
-                                "ip":d.ip_address,
-                                "role":role,
-                                "name":d.name,
-                                "display_name":d.display_name,
-                                "vendor":(d.vendor == null) ? "-" : d.vendor,
-                                "details":details,
-                                "detailStr":detailStr,
-                                "physical_routers":d.physical_routers
-                            });
-                        }
+                        bgpData.push({
+                            "id":counter++,
+                            "uuid":d.uuid,
+                            "href":d.href,
+                            "id_perms":d.id_perms,
+                            "ip":ipAddress,
+                            "role":role,
+                            "name":d.name,
+                            "display_name":d.display_name,
+                            "vendor":(d.vendor == null) ? "-" : d.vendor,
+                            "details":details,
+                            "detailStr":detailStr,
+                            "allPeers":allPeers,
+                            "physical_routers":d.physical_routers,
+                            "bgpProperties":bgpProperties
+                        });
                     }
                 }
                 //counter++;
@@ -909,8 +898,8 @@ function initComponents() {
         },
     	beforeMoveOneToRight: handleltor,
         beforeMoveOneToLeft: handlertol,  
-        leftTitle: 'Available Peers',
-        rightTitle: 'Configured Peers',
+        leftTitle: 'Available Peer(s)',
+        rightTitle: 'Configured Peer(s)',
         sizeLeft: 10,
         sizeRight: 10
     });
@@ -994,10 +983,10 @@ function showRemoveWindow(rowIndex) {
 
 function onAuthTypeChanged(e) {
    if(e.added.value === 'none') {
-       $('#txtAuthKey').val(' ');
-       $('#txtAuthKey').attr('disabled', 'disabled');
+       disableAuthKeyTextbox();
    } else {
        $('#txtAuthKey').val('');
+       $('#txtAuthKey').attr('placeholder','Enter a key');
        $('#txtAuthKey').removeAttr('disabled');
    }
 }
@@ -1027,7 +1016,7 @@ function btnaddbgpClick() {
     $("#txtport").val("179");
     $("#txtname").focus();
     disableAuthKeyTextbox();
-    bgpwindow.find('.modal-body').scrollTop(5);
+    //bgpwindow.find('.modal-body').scrollTop(5);
     $("#chkextern").click();
 }
 
@@ -1101,7 +1090,7 @@ function initActions() {
             }
             returnHtml += '<div class="span3">' +allPeers[k]["name"] +' </div>';
             returnHtml += '<div class="span3">' +allPeers[k]["authType"] +'</div>';
-            returnHtml += '<div class="span3">' +allPeers[k]["authKey"] +'</div>';
+            //returnHtml += '<div class="span3">' +allPeers[k]["authKey"] +'</div>';
             returnHtml += '</div>';
         }
         return returnHtml;
@@ -1197,7 +1186,8 @@ function copyToRouterID() {
 function selectJnpr() {
     $("#txtasn").attr('disabled', 'disabled');
     $("#txtasn").val(ggasn);
-    $("#vendor-n-family").addClass('hide');
+    $('#txtvendor').val('contrail');
+    $('#txtvendor').attr('disabled','disabled');
     $("#multipanel").addClass('hide');        
     $("#txtpanel").removeClass('hide');
     if(isiBGPAutoMesh){
@@ -1205,7 +1195,7 @@ function selectJnpr() {
     } else {
         $("#peersdiv").show();
     }
-    $('#bgpbody').scrollTop(5);
+    //$('#bgpbody').scrollTop(5);
     populateMultiselect("chkjnpr");
 }
 function populateMultiselect(who) {
@@ -1278,12 +1268,13 @@ window.failureHandlerForPhysicalRouters =  function(error) {
 
 function selectExternal() {
     $("#txtasn").removeAttr('disabled');
-    $("#vendor-n-family").removeClass('hide');
+    $('#txtvendor').val('');
+    $('#txtvendor').removeAttr('disabled');
     $("#txtpanel").addClass('hide');
     $("#multipanel").removeClass('hide');
     $("#peersdiv").show();
     populateMultiselect("chkexternal");
-    $('#bgpbody').scrollTop(120);
+    //$('#bgpbody').scrollTop(120);
 }
 
 function closeGasnWindow() {
