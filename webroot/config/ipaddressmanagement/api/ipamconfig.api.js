@@ -90,16 +90,12 @@ function listIpams (request, response, appData)
  * 2. Reads the response of ipam get from config api server
  *    and sends it back to the client.
  */
-function getIpamCb (error, ipamConfig, callback) 
+function getIpamCb (ipamConfig, appData, callback)
 {
-    if (error) {
-        callback(error, null);
-        return;
-    }
     delete ipamConfig['network-ipam']['id_perms'];
     delete ipamConfig['network-ipam']['href'];
     delete ipamConfig['network-ipam']['_type'];
-    callback(error, ipamConfig);
+    callback(null, ipamConfig);
 }
 
 /**
@@ -136,7 +132,11 @@ function getIpamAsync (ipamObj, callback)
 
     var reqUrl = '/network-ipam/' + ipamId;
     configApiServer.apiGet(reqUrl, appData, function(err, data) {
-        getIpamCb(err, data, callback);
+        if ((null != err) || (null == data)) {
+            callback(null, null);
+            return;
+        }
+        getIpamCb(data, appData, callback);
     });
 }
 
@@ -709,3 +709,5 @@ exports.createIpam = createIpam;
 exports.deleteIpam = deleteIpam;
 exports.updateIpam = updateIpam;
 exports.updateIpamDns = updateIpamDns;
+exports.getIpamCb = getIpamCb;
+
