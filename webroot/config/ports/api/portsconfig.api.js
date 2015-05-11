@@ -1,4 +1,5 @@
 /*
+
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
@@ -77,7 +78,7 @@ function getPortsAsync (portsObj, callback)
             callback(null, null);
             return; 
         }
-        getVirtualMachineInterfaceCb(err, data, appData, callback);
+        getVirtualMachineInterfaceCb(data, appData, callback);
     });
 }
  
@@ -90,8 +91,9 @@ function getPortsAsync (portsObj, callback)
  *    the mergeVMIResponse is called for formating the result object.
  * 3. The result is sent back to getPortsAsync.
  */
-function getVirtualMachineInterfaceCb (err, vmiData, appData, callback)
+function getVirtualMachineInterfaceCb (vmiData, appData, callback)
 {
+    var err                   = null;
     var dataObjArr            = [];
     var floatingipPoolRefsLen = 0;
     var fixedipPoolRefsLen    = 0;
@@ -2881,3 +2883,5 @@ exports.deletePortsCB = deletePortsCB;
 exports.getVMIAndInstIPDetails = getVMIAndInstIPDetails;
 exports.getVMIDetails = getVMIDetails;
 exports.deleteAllPorts = deleteAllPorts;
+exports.getVirtualMachineInterfaceCb = getVirtualMachineInterfaceCb;
+
