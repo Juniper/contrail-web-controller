@@ -776,7 +776,117 @@ function computePathByNodeList (allPaths, topoData)
     return endpoints;
 }
 
-function getUnderlayPathByNodelist (req, topoData, srcVM, destVM, appData, callback)
+function getUnderlayPathByNodelist (req, topoData, srcNode, destNode, appData, callback)
+{
+    var body = req.body;
+    var data = body['data'];
+    var srcVM = srcNode['node'];
+    var destVM = destNode['node'];
+    doCheckIfInternalIPAndComputePath(req, srcNode, destNode, function(err, topo) {
+        if (null != topo) {
+            callback(err, topo, true);
+            return;
+        }
+        getUnderlayPathByTopoData(req, topoData, srcVM, destVM, appData,
+                                  callback);
+    });
+}
+
+function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
+{
+    var body = req.body;
+    var data = body['data'];
+    var srcVN = data['srcVN'];
+    var destVN = data['destVN'];
+    var srcIP = data['srcIP'];
+    var destIP = data['destIP'];
+    var nodeIP = data['nodeIP'];
+    var topologyData = {'nodes':[], 'links': []};
+
+    if (srcVN != destVN) {
+        callback(null, null);
+        return;
+    }
+
+    var srcVM = srcNode['node'];
+    var srcVr = null;
+    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
+        srcVr = srcNode['vrouter'];
+    }
+    var destVM = destNode['node'];
+    var destVr = null;
+    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
+        destVr = destNode['vrouter'];
+    }
+
+    /* If any of srcIP/destIP matches with the dns/gateway ip, if
+       yes, then send the path within this vrouter itself
+     */
+    var urlLists = [];
+    var introspectUrl =
+        nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT +
+        '@' + '/Snh_VnListReq?name=' + srcVN;
+    urlLists.push(introspectUrl);
+    async.map(urlLists,
+              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                    true),
+              function(err, result) {
+        var dnsServer = jsonPath(result[0], "$..dns_server");
+        var gateway = jsonPath(result[0], "$..gateway");
+        var byDest = false;
+        var bySrc = false;
+        if ((null != dnsServer) && (null != dnsServer[0]) &&
+            (dnsServer[0].length > 0)) {
+            var dnsLen = dnsServer[0].length;
+            for (var i = 0; i < dnsLen; i++) {
+                if (dnsServer[0][i]['_'] == srcIP) {
+                    byDest = true;
+                    break;
+                }
+                if (dnsServer[0][i]['_'] == destIP) {
+                    bySrc = true;
+                    break;
+                }
+            }
+        }
+        if ((false == byDest) && (false == bySrc) && (null != gateway) &&
+            (null != gateway[0]) && (gateway[0].length > 0)) {
+            var gwLen = gateway[0].length;
+            for (var i = 0; i < gwLen; i++) {
+                if (gateway[0][i]['_'] == srcIP) {
+                    byDest = true;
+                    break;
+                }
+                if (gateway[0][i]['_'] == destIP) {
+                    bySrc = true;
+                    break;
+                }
+            }
+        }
+        if ((true == byDest) &&
+            (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type'])) {
+            topologyData['nodes'].push(destVM);
+            topologyData['nodes'].push(destVr);
+            topologyData['links'].push([destVM, destVr]);
+            topologyData['links'].push([destVr, destVM]);
+            callback(null, topologyData);
+            return;
+        }
+        if ((true == bySrc) &&
+            (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type'])) {
+            topologyData['nodes'].push(srcVM);
+            topologyData['nodes'].push(srcVr);
+            topologyData['links'].push([srcVM, srcVr]);
+            topologyData['links'].push([srcVr, srcVM]);
+            callback(null, topologyData);
+            return;
+        }
+        callback(null, null);
+    });
+}
+
+function getUnderlayPathByTopoData (req, topoData, srcVM, destVM, appData,
+                                    callback)
 {
     var tempLinksObjArr = [];
     var url = '/analytics/uves/prouter';
@@ -795,7 +905,7 @@ function getUnderlayPathByNodelist (req, topoData, srcVM, destVM, appData, callb
         var nodes = 
             commonUtils.findAllPathsInEdgeGraph(tempLinksObjArr, srcVM, destVM);
         var endpoints = computePathByNodeList(nodes, topoData);
-        callback(null, endpoints);
+        callback(null, endpoints, false);
     });
 }
 
@@ -858,6 +968,9 @@ function getUnderlayPath (req, res, appData)
     var tempFlowIpObjs = {};
     var srcIP = data['srcIP'];
     var destIP = data['destIP'];
+    var srcVN = data['srcVN'];
+    var destVN = data['destVN'];
+    var nodeIP = data['nodeIP'];
     var nodeName = null;
     var tmppRouterListObjs = {};
 
@@ -949,6 +1062,7 @@ function getUnderlayPath (req, res, appData)
                     /* Already added in nodes array */
                 }
             }
+            var destVM = null;
             if (null != destNode) {
                 destVM = destNode['node'];
                 if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
@@ -960,8 +1074,13 @@ function getUnderlayPath (req, res, appData)
                     /* Already added in nodes array */
                 }
             }
-            getUnderlayPathByNodelist(req, topoData, srcVM, destVM,
-                                      appData, function(err, endpoints) {
+            getUnderlayPathByNodelist(req, topoData, srcNode, destNode,
+                                      appData, function(err, endpoints,
+                                                        wholeTopo) {
+                if (true == wholeTopo) {
+                    commonUtils.handleJSONResponse(err, res, endpoints);
+                    return;
+                }
                 topoData['links'] = endpoints;
                 commonUtils.handleJSONResponse(err, res, topoData);
             });
@@ -1334,7 +1453,7 @@ function getIPToProuterMapTable (prouterData)
     return ipPrTable;
 }
 
-function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
+function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, callback)
 {
     var topoData = {};
     var dataObjArr = [];
@@ -1416,10 +1535,16 @@ function getTraceFlowByReqURL (urlLists, srcIP, destIP, callback)
                                        destNode['node']]});
                 }
             }
-            callback(null, topoData);
+            doCheckIfInternalIPAndComputePath(req, srcNode, destNode,
+                                              function(err, topo) {
+                if (null != topo) {
+                    callback(null, topo);
+                } else {
+                    callback(null, topoData);
+                }
+            });
         });
     });
-
 }
 
 /* Function: getTraceFlow
@@ -1491,7 +1616,7 @@ function getTraceFlow (req, res, appData)
             }
             urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
                 + url;
-            getTraceFlowByReqURL(urlLists, srcIP, destIP, function(err, results) {
+            getTraceFlowByReqURL(req, urlLists, srcIP, destIP, function(err, results) {
                 commonUtils.handleJSONResponse(err, res, results);
             });
         });
@@ -1499,7 +1624,7 @@ function getTraceFlow (req, res, appData)
         url += '&vrf_name=' + vrfName;
         urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
             + url + urlExtd;
-        getTraceFlowByReqURL(urlLists, srcIP, destIP, function(err, results) {
+        getTraceFlowByReqURL(req, urlLists, srcIP, destIP, function(err, results) {
             commonUtils.handleJSONResponse(err, res, results);
         });
     }
