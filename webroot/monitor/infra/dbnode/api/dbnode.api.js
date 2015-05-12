@@ -17,6 +17,9 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
+    queries = require(process.mainModule.exports["corePath"] +
+                      '/src/serverroot/common/queries.api'),
+    ctrlGlobal = require('../../../../common/api/global'),
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
@@ -172,9 +175,50 @@ function postProcessDatabaseNodeSummary (uves)
     return resultJSON;
 }
 
+function getDBNodeStatsFlowSeries (req, res, appData)
+{
+    var resultJSON = {'summary': {}, 'flow-series': []};
+    var timeObj = {};
+    var source = req.param('source');
+    var dataObjArr = [];
+    var appData = {
+        'startTime': req.param('startTime'),
+        'endTime': req.param('endTime'),
+        'minsSince': req.param('minsSince')
+    };
+
+    var timeObj = queries.createTimeQueryJsonObjByAppData(appData);
+    var queryJSON =
+        commonUtils.cloneObj(ctrlGlobal.QUERY_JSON[
+            'StatTable.DatabaseUsageInfo.database_usage_stats'
+            ]);
+    queryJSON['where'][0][0]['value'] = source;
+    queryJSON['start_time'] = timeObj['start_time'];
+    queryJSON['end_time'] = timeObj['end_time'];
+    var url = '/analytics/query';
+    commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
+                             queryJSON, null, null, null);
+    logutils.logger.debug("Executing DB Node Stats Query:",
+                          JSON.stringify(queryJSON) + "at:" + new Date());
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(opApiServer, true),
+              function(err, results) {
+        if ((null == results[0]) || (null == results[0]['value'])) {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+            return;
+        }
+        logutils.logger.debug("DB Node Stats Query completed at:" + new Date());
+        resultJSON['flow-series'] = results[0]['value'];
+        resultJSON['summary']['start_time'] = timeObj['start_time'];
+        resultJSON['summary']['end_time'] = timeObj['end_time'];
+        commonUtils.handleJSONResponse(null, res, resultJSON);
+    });
+}
+
 exports.postProcessDatabaseNodeSummary = postProcessDatabaseNodeSummary;
 exports.postProcessDatabaseNodeDetails = postProcessDatabaseNodeDetails;
 exports.getDatabaseNodesSummary = getDatabaseNodesSummary;
 exports.getDatabaseNodeDetails = getDatabaseNodeDetails;
 exports.getDatabaseNodesList = getDatabaseNodesList;
+exports.getDBNodeStatsFlowSeries = getDBNodeStatsFlowSeries;
 
