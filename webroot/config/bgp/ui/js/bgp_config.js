@@ -472,7 +472,9 @@ function addEditBgp(data) {
         $("#txtname").val(data.name);
         $("#txtname")[0].disabled = true;
         $("#txtport")[0].disabled = true;
-        $("#txtaddr").val(data.ip);
+        if(data.ip != '-') {
+            $("#txtaddr").val(data.ip);
+        }
         detailStr = data['detailStr'];
         detailStr = detailStr.split(";");
         for (var i = 0; i < detailStr.length; i++) {
@@ -647,13 +649,13 @@ function fetchData() {
                         }
                         if (type.indexOf("bgp-router") != -1) {
                             if (d.vendor && d.vendor.trim() != "") {
-                                detailStr = "Vendor " + d.vendor + "; ";
+                                detailStr += "Vendor " + d.vendor + "; ";
                                 details.push({ "name":"Vendor", "value":d.vendor });
                             }
                             ipAddress = (d.address && "" != d.address.trim())
                                               ? d.address : ((d.ip_address && "" != d.ip_address.trim()) ? d.ip_address : '-');
                             //assign ip address
-                            detailStr = "IP Address " + ipAddress + "; ";
+                            detailStr += "IP Address " + ipAddress + "; ";
                             details.push({ "name":"IP Address", "value":ipAddress });
                             if (d.identifier && d.identifier.trim() != "") {
                                 detailStr += "Router ID " + d.identifier + "; ";
@@ -750,7 +752,7 @@ function setActions() {
 }
 
 function onActionChange(who, rowIndex) {
-    var selectedRow = $("#gridBGP").data("contrailGrid")._dataView.getItem(rowIndex);
+    selectedRow = $("#gridBGP").data("contrailGrid")._dataView.getItem(rowIndex);
     guuid = selectedRow.uuid;
     ghref = selectedRow.href;
     gPRouter = selectedRow.physical_routers[0]['uuid'];
@@ -1268,7 +1270,8 @@ window.failureHandlerForPhysicalRouters =  function(error) {
 
 function selectExternal() {
     $("#txtasn").removeAttr('disabled');
-    $('#txtvendor').val('');
+    var curVendor = selectedRow.vendor != '-' ? selectedRow.vendor : '';
+    $('#txtvendor').val(curVendor);
     $('#txtvendor').removeAttr('disabled');
     $("#txtpanel").addClass('hide');
     $("#multipanel").removeClass('hide');
