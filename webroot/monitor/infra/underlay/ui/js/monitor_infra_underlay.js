@@ -2046,7 +2046,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"src_vn",
                                           name:"Source Network",
-                                          minWidth:125,
+                                          minWidth:110,
                                           formatter: function (r,c,v,cd,dc) {
                                               var srcVN = dc['src_vn'] != null ? dc['src_vn'] : noDataStr;
                                               return formatVN(srcVN);
@@ -2055,7 +2055,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"sip",
                                           name:"Source IP",
-                                          minWidth:70,
+                                          minWidth:60,
                                           formatter:function(r,c,v,cd,dc) {
                                               if(validateIPAddress(dc['sip']))
                                                   return dc['sip']
@@ -2071,7 +2071,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"direction",
                                           name:"Direction",
-                                          minWidth:50,
+                                          minWidth:40,
                                           formatter: function(r,c,v,cd,dc) {
                                               if (dc['direction'] == 'ingress')
                                                   return 'INGRESS'
@@ -2084,7 +2084,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"dst_vn",
                                           name:"Destination Network",
-                                          minWidth:125,
+                                          minWidth:110,
                                           formatter: function (r,c,v,cd,dc) {
                                               var destVN = dc['dst_vn'] != null ? dc['dst_vn'] : noDataStr;
                                               return formatVN(destVN);
@@ -2093,7 +2093,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"dip",
                                           name:"Destination IP",
-                                          minWidth:70,
+                                          minWidth:60,
                                           formatter:function(r,c,v,cd,dc) {
                                               if(validateIPAddress(dc['dip']))
                                                   return dc['dip']
@@ -2109,7 +2109,7 @@ underlayView.prototype.renderTracePath = function(options) {
                                       {
                                           field:"stats_bytes",
                                           name:"Bytes/Pkts",
-                                          minWidth:80,
+                                          minWidth:120,
                                           formatter:function(r,c,v,cd,dc){
                                               return contrail.format("{0}/{1}",formatBytes(dc['stats_bytes']),dc['stats_packets']);
                                           },
@@ -2143,20 +2143,18 @@ underlayView.prototype.renderTracePath = function(options) {
                 options : {
                     forceFitColumns: true,
                     sortable : false,
+                    multiRowSelection : false,
                     checkboxSelectable: {
                         enableRowCheckbox: true,
                         onNothingChecked: function(e){
-                            $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
                             $("#mapflow").attr('disabled','disabled');
                             $("#traceFlowBtn").attr('disabled','disabled');
                             $("#revTraceFlowBtn").attr('disabled','disabled');
                         },
                         onSomethingChecked: function(e){
-                            $("div.slick-cell-checkboxsel > input").attr('checked',false);
                             $("#mapflow").removeAttr('disabled');
                             $("#traceFlowBtn").removeAttr('disabled');
                             $("#revTraceFlowBtn").removeAttr('disabled');
-                            $(e['currentTarget']).attr('checked',true);
                         }
                     },
                 },
@@ -2179,6 +2177,7 @@ underlayView.prototype.renderTracePath = function(options) {
                     events:{
                         onDataBoundCB : function () {
                             var gridObj = $("#vrouterflows").data('contrailGrid');
+                            $("#vrouterflows").find('input.headerRowCheckbox').parent('span').remove();
                             if(gridObj != null) {
                                 var dataItems = gridObj._dataView.getItems();
                                 var dataItemsLen = dataItems.length;
