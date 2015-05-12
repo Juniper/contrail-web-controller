@@ -780,8 +780,14 @@ function getUnderlayPathByNodelist (req, topoData, srcNode, destNode, appData, c
 {
     var body = req.body;
     var data = body['data'];
-    var srcVM = srcNode['node'];
-    var destVM = destNode['node'];
+    var srcVM = null;
+    var destVM = null;
+    if (null != srcNode) {
+        srcVM = srcNode['node'];
+    }
+    if (null != destNode) {
+        destVM = destNode['node'];
+    }
     doCheckIfInternalIPAndComputePath(req, srcNode, destNode, function(err, topo) {
         if (null != topo) {
             callback(err, topo, true);
@@ -808,15 +814,21 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
         return;
     }
 
-    var srcVM = srcNode['node'];
+    var srcVM = null;
     var srcVr = null;
-    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
-        srcVr = srcNode['vrouter'];
+    if (null != srcNode) {
+        srcVM = srcNode['node'];
+        if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
+            srcVr = srcNode['vrouter'];
+        }
     }
-    var destVM = destNode['node'];
+    var destVM = null;
     var destVr = null;
-    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
-        destVr = destNode['vrouter'];
+    if (null != destNode) {
+        destVM = destNode['node'];
+        if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
+            destVr = destNode['vrouter'];
+        }
     }
 
     /* If any of srcIP/destIP matches with the dns/gateway ip, if
