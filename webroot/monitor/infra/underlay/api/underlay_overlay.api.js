@@ -780,8 +780,14 @@ function getUnderlayPathByNodelist (req, topoData, srcNode, destNode, appData, c
 {
     var body = req.body;
     var data = body['data'];
-    var srcVM = srcNode['node'];
-    var destVM = destNode['node'];
+    var srcVM = null;
+    var destVM = null;
+    if (null != srcNode) {
+        srcVM = srcNode['node'];
+    }
+    if (null != destNode) {
+        destVM = destNode['node'];
+    }
     doCheckIfInternalIPAndComputePath(req, srcNode, destNode, function(err, topo) {
         if (null != topo) {
             callback(err, topo, true);
@@ -808,15 +814,21 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
         return;
     }
 
-    var srcVM = srcNode['node'];
+    var srcVM = null;
     var srcVr = null;
-    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
-        srcVr = srcNode['vrouter'];
+    if (null != srcNode) {
+        srcVM = srcNode['node'];
+        if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) {
+            srcVr = srcNode['vrouter'];
+        }
     }
-    var destVM = destNode['node'];
+    var destVM = null;
     var destVr = null;
-    if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
-        destVr = destNode['vrouter'];
+    if (null != destNode) {
+        destVM = destNode['node'];
+        if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) {
+            destVr = destNode['vrouter'];
+        }
     }
 
     /* If any of srcIP/destIP matches with the dns/gateway ip, if
@@ -863,7 +875,8 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
                 }
             }
         }
-        if ((true == byDest) &&
+        if ((true == byDest) && (null != destNode) &&
+            (null != destVM) && (null != destVr) &&
             (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type'])) {
             topologyData['nodes'].push(destVM);
             topologyData['nodes'].push(destVr);
@@ -872,7 +885,8 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
             callback(null, topologyData);
             return;
         }
-        if ((true == bySrc) &&
+        if ((true == bySrc) && (null != srcNode) &&
+            (null != srcVM) && (null != srcVr) &&
             (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type'])) {
             topologyData['nodes'].push(srcVM);
             topologyData['nodes'].push(srcVr);
