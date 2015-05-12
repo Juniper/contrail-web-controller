@@ -566,6 +566,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 						var oldJSON = bgpActJSON["bgp-router"]["bgp_router_refs"];
 						oldJSON = oldJSON != null ? oldJSON : [];
 						var newJSON = bgpJSON["bgp-router"]["bgp_router_refs"];
+						newJSON = newJSON != null ? newJSON : [];
 						var bgpPeersDelta = jsonDiff.getConfigArrayDelta('bgp-router', oldJSON, newJSON);
 						var bgpPeers = bgpPeersDelta != null ? bgpPeersDelta["addedList"] : false;
 						if (bgpPeers && bgpPeers.length > 0) {
@@ -586,7 +587,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 		    							    (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
 										prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
 									}
-									updatePhysicalRouters(null,data,appData,bgpFqName,prouterParams, function(err, data) {
+									updatePhysicalRouters(err,data,appData,bgpFqName,prouterParams, function(err, data) {
                                         commonUtils.handleJSONResponse(err, res, data);
                                         return;
                                      });
@@ -597,7 +598,20 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 							});
 							
 						} else {
-							commonUtils.handleJSONResponse(error, res, data);
+		                    if(prouterParams != null){
+		                            var bgpFqName = bgpUpdates["bgp-router"]["fq_name"];
+		                            if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) && 
+	                                        (bgpJSON["bgp-router"]["physical_router_back_refs"][0] != null) &&
+	                                            (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
+	                                        prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
+	                                    }
+		                            updatePhysicalRouters(error,data,appData,bgpFqName,prouterParams, function(error, data) {
+		                                commonUtils.handleJSONResponse(error, res, data);
+		                                return;
+		                            });
+		                    } else {
+		                        commonUtils.handleJSONResponse(error, res, data);
+		                    }
 						}
 					} catch (e) {
 						logutils.logger.error(e.stack);
