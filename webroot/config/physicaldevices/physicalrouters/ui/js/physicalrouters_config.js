@@ -953,23 +953,27 @@ function physicalRoutersConfig() {
             var torAgentName = $("#ddTorAgentName" + i + currAddEditType).data('contrailCombobox').text();
             var tsnName = $("#ddTsnName" + i + currAddEditType).data('contrailCombobox').text();
             //TOR Agent
-            if(!isTorSelectedFromList && !isTorAlreadyFromEdit){
-                virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", torAgentName],
-                                    "parent_type":"global-system-config",
-                                    "name": torAgentName,
-//                                    "virtual_router_ip_address" : torAgentIp,
-                                    "virtual_router_type" : ['tor-agent']}});
+            if(torAgentName != null && torAgentName != ''){
+                if(!isTorSelectedFromList && !isTorAlreadyFromEdit){
+                    virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", torAgentName],
+                                        "parent_type":"global-system-config",
+                                        "name": torAgentName,
+    //                                    "virtual_router_ip_address" : torAgentIp,
+                                        "virtual_router_type" : ['tor-agent']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",torAgentName]});
             }
-            virtualRouterRefs.push({"to":["default-global-system-config",torAgentName]});
             //TSN
-            if(!isTsnSelectedFromList && !isTsnAlreadyFromEdit){
-                virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", tsnName],
-                                    "parent_type":"global-system-config",
-                                    "name": tsnName,
-//                                    "virtual_router_ip_address" : tsnIp,
-                                    "virtual_router_type" : ['tor-service-node']}});
+            if(tsnName != null && tsnName != ''){
+                if(!isTsnSelectedFromList && !isTsnAlreadyFromEdit){
+                    virtualRouters.push({"virtual-router" : {"fq_name":["default-global-system-config", tsnName],
+                                        "parent_type":"global-system-config",
+                                        "name": tsnName,
+    //                                    "virtual_router_ip_address" : tsnIp,
+                                        "virtual_router_type" : ['tor-service-node']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",tsnName]});
             }
-            virtualRouterRefs.push({"to":["default-global-system-config",tsnName]});
         }
         postObject["physical-router"]["virtual-routers"] = virtualRouters;
         postObject["physical-router"]["virtual_router_refs"] = virtualRouterRefs;
