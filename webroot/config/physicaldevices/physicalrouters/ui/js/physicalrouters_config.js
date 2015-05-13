@@ -217,7 +217,7 @@ function physicalRoutersConfig() {
                     ],
                     detail : {
                         template : $("#gridPhysicalRoutersDetailTemplate").html()
-                    }    
+                    }   
                 },
                 dataSource : {
                     data : []
@@ -589,13 +589,14 @@ function physicalRoutersConfig() {
                 }
                 $('#msVN' + currAddEditType).data('contrailMultiselect').value(valueArr);
             }
-            if(gblSelRow.virtual_router != '-'){
+            if(gblSelRow.virtualRouters != '-'){
                 var selectedVRouters = gblSelRow.virtualRouters;
                 var vrType = 'None';
                 var torAgentCount = 1, tsnCount = 1;
                 $.each(selectedVRouters,function(i,vrouter){
-                    var vrname = vrouter['name'];
-                    var vrouterType = vrouter['virtual_router_type'];
+                    var vrname = vrouter.trim();
+                    var vrDetails = getVirtualRouterDetails(vrname);
+                    var vrouterType = vrDetails['type'];
                     var vrIp = vrouter['virtual_router_ip_address']; 
                     if(vrouterType == 'embedded'){
                         vrType = 'Embedded';
@@ -1057,46 +1058,17 @@ function physicalRoutersConfig() {
         if(result.length > 0) {
             for(var i = 0; i < result.length;i++) {
                 var rowData = result[i]['physical-router'];
-                var pinterfaces = ifNull(rowData['physical_interfaces'],[]);
-                var linterfaces = ifNull(rowData['logical_interfaces'],[]);
-                var linpinterfaces = [];
-                $.each(pinterfaces,function(i,pInterface){
-                    var lInterfaces = ifNull(pInterface['logical_interfaces'],[]);
-                    linpinterfaces = linpinterfaces.concat(lInterfaces);
-                });
-                var interfaces = pinterfaces.concat(linterfaces,linpinterfaces);
-                var totalInterfacesCount = interfaces.length;
                 var virtualRouterRefs = ifNull(rowData['virtual_router_refs'],[]);
                 var virtualRouterString = '';
                 
                 var virtualRouters = ifNull(rowData['virtual-routers'],[]);
                 var pRouterEditType = PROUTER_SUFFIX;
                 var pRouterType = [PROUTER_TYPE];
-                var logicalIntfCount = ifNull(rowData['logicalIntfCount'],0);
-                totalInterfacesCount += logicalIntfCount;
-                //Deduce the type for the prouter
-                //If the prouter has a reference to virtual router which is a TSN then it is - OVSDB
-                //If the prouter has a reference to virtual router which is a Embedded then it is - VCPE
-                //If the prouter has autoconfig enabled then it is - NETCONF
-                //Else it is PROUTER
-                if(virtualRouters.length > 0){
-                    $.each(virtualRouters, function(i,vrouter){
-                        var vrString = vrouter['name'];
-                        
-                        if(vrouter['virtual_router_type'].indexOf('tor-service-node') >= 0){
-                            vrString += ' (ToR Service Node)';
-                            pRouterEditType = OVSDB_SUFFIX;
-                            pRouterType = [OVSDB_TYPE];
-                        }
-                        if(vrouter['virtual_router_type'].indexOf('tor-agent') >= 0){
-                            vrString += ' (ToR Agent)';
-                        }
-                        if(vrouter['virtual_router_type'].indexOf('embedded') >= 0){
-                            vrString += ' (Embedded)';
-                            pRouterEditType = VCPE_SUFFIX;
-                            pRouterType = [VCPE_TYPE];
-                        }
-                        
+                var totalInterfacesCount = ifNull(rowData['totalIntfCount'],0);
+                if(virtualRouterRefs.length > 0){
+                    $.each(virtualRouterRefs, function(i,vrouter){
+                        var vrString = vrouter['to'][1];
+                        virtualRouters.push(vrString);
                         if(i != 0)
                             virtualRouterString =  virtualRouterString + ', ' + vrString
                         else 
@@ -1254,7 +1226,6 @@ function physicalRoutersConfig() {
                 var vRouterIP = (virtualRouter['virtual_router_ip_address'])? virtualRouter['virtual_router_ip_address'] : '';
               //build a map with vrouter name and type to be used in createEditWindow
                 globalVRoutersMap[virtualRouter['name']] = {type:vRouterType,ip:vRouterIP};
-                
                 if(vRouterType == 'tor-agent'){
                     //Tor agent can be assigned to only one prouter so dont include them in the list
                     if(!virtualRouter['physical_router_back_refs'] || virtualRouter['physical_router_back_refs'].length < 1) {
@@ -1304,6 +1275,43 @@ function physicalRoutersConfig() {
                 torAgentDD2.text(selTor2);
             if(tsnAgentDD2 != null)
                 tsnAgentDD2.text(selTsn2);
+        }
+        //Update the grids DS with the Vrouter type
+        var gridDS = gridPhysicalRouters._dataView.getItems();
+        if(gridDS != null) {
+            for(var j = 0; j < gridDS.length ; j++) {
+                var pr = gridDS[j];
+                var virtualRouters = pr['virtualRouters'];
+                var displayVRouters = '';
+                if(virtualRouters != null && virtualRouters.length > 0){
+                    for (var k = 0; k < virtualRouters.length; k++){
+                        var vrdetails = getVirtualRouterDetails(virtualRouters[k]);
+                        var vrType = vrdetails['type'];
+                        var vrString = virtualRouters[k];
+                        //Deduce the type for the prouter
+                        //If the prouter has a reference to virtual router which is a TSN then it is - OVSDB
+                        //If the prouter has a reference to virtual router which is a Embedded then it is - VCPE
+                        //If the prouter has autoconfig enabled then it is - NETCONF
+                        //Else it is PROUTER
+                        if(vrType.indexOf('tor-service-node') >= 0){
+                              vrString += ' (ToR Service Node)';
+                        }
+                        if(vrType.indexOf('tor-agent') >= 0){
+                            vrString += ' (ToR Agent)';
+                        }
+                        if(vrType.indexOf('embedded') >= 0){
+                            vrString += ' (Embedded)';
+                        }
+                        if(k == 0){
+                            displayVRouters += vrString;
+                        } else {
+                            displayVRouters += ', ' + vrString;
+                        }
+                    }
+                }
+                pr['displayVirtualRouters'] = displayVRouters;
+            }
+            gridPhysicalRouters._dataView.setData(gridDS);
         }
     }
     

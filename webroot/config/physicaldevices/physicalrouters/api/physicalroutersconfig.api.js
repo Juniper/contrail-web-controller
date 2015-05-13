@@ -288,7 +288,7 @@ function getPhysicalInterfacesLogicalInterfaceCount(error, pRouters, response, a
         }
     }
     if(dataObjArr.length > 0) {
-        async.map(dataObjPostArr,
+        async.mapLimit(dataObjPostArr, 50,
             commonUtils.getAPIServerResponse(configApiServer.apiPost, true),
             function(error, results) {
                 if (error) {
@@ -296,22 +296,28 @@ function getPhysicalInterfacesLogicalInterfaceCount(error, pRouters, response, a
                    return;
                 }
                 for (var i = 0; i < pRoutersCnt; i++) {
-                    pRouters[i]['physical-router']['logicalIntfCount'] = 0;
+                    pRouters[i]['physical-router']['totalIntfCount'] = 0;
+                    if(pRouters[i]['physical-router']['physical_interfaces'] != null)
+                        pRouters[i]['physical-router']['totalIntfCount']  += pRouters[i]['physical-router']['physical_interfaces'].length;
+                    if(pRouters[i]['physical-router']['logical_interfaces'] != null)
+                        pRouters[i]['physical-router']['totalIntfCount']  += pRouters[i]['physical-router']['logical_interfaces'].length;
                     var prStartIndex = prouterMap[i][0];
                     var prEndIndex = prouterMap[i][1];
                     if(-1 == prStartIndex){
                         continue;
                     }
                     for (var j = prStartIndex; j <= prEndIndex; j++) {
-                        pRouters[i]['physical-router']['logicalIntfCount'] +=
+                        pRouters[i]['physical-router']['totalIntfCount'] +=
                                     results[j]['logical-interfaces']['count'];
                     }
+                    delete pRouters[i]['physical-router']['physical_interfaces'];
+                    delete pRouters[i]['physical-router']['logical_interfaces'];
                 }
-                getVirtualRouterDetails(error, pRouters, response, appData);
+                commonUtils.handleJSONResponse(error, response, pRouters);
             }
         );
     } else {
-        getVirtualRouterDetails(error, pRouters, response, appData);
+        commonUtils.handleJSONResponse(error, response, pRouters);
     }
 }
 
