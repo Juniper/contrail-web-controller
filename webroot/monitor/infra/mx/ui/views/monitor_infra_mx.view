@@ -134,6 +134,83 @@ body > svg {
 	    </div>
 	</div>
 </script>
+<script type="text/x-handlebars-template" id="device-details-widget">
+    <div id="deviceDetails" class="contrail-tab-content">
+        <div class="section-content">
+            <div class="row-fluid margin-0-0-5">
+                <div id="dashboard-box" class="widget-box transparent">
+                    {{#IfCompare noTitle null operator="=="}}
+                    <div class="widget-header">
+                        <h4 class="smaller">
+                            {{#if widgetBoxId}}
+                            <i id="{{widgetBoxId}}-loading" class="icon-spinner icon-spin blue bigger-125" style="display:none"></i>
+                            {{/if}}
+                            {{#if title}}
+                            {{title}}
+                            {{else}}
+                            Information
+                            {{/if}}
+                        </h4>
+                        {{#if showSettings}}
+                        <div class="widget-toolbar pull-right">
+                            <a data-action="settings" data-toggle="dropdown">
+                                <i class="icon-cog"></i>
+                            </a>
+                            <ul class="pull-right dropdown-menu dropdown-caret dropdown-closer">
+                                <li>
+                                    <a onclick="showBasicDetails('{{name}}');">
+                                        <i class="icon-list"></i> &nbsp; Basic view
+                                    </a>
+                                </li>
+                                <li>
+                                    <a onclick="showAdvancedDetails('{{name}}');">
+                                        <i class="icon-code"></i> &nbsp; Advanced view
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                        {{/if}}
+                    </div>
+                    {{/IfCompare}}
+                    <div class="widget-body"></div><!--/widget-body-->
+                </div><!--/widget-box-->
+            </div><!--/row-->
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="device-details-body">
+    <div class="widget-main row-fluid">
+        {{#IfCompare showSettings true options='=='}}
+        <div id="divAdvanced_{{{name}}}" class="row-fluid hide">
+            <div><pre>{{{displayJson deviceData}}}</pre></div>
+        </div>
+        {{/IfCompare}}
+        <div id="divBasic_{{name}}" class="row-fluid">
+            <ul id="detail-columns_{{name}}" class="item-list">
+                {{#each attributes}}
+                {{#if this}}
+                <li>
+                    <label class="inline row-fluid">
+                        <div class="key span3">{{{this.label}}}</div>
+                        <div class="value span9">
+                            {{#if this.value}}
+                                {{{this.value}}}
+                            {{else}}
+                                {{#IfCompare this.value '0' options='=='}}
+                                    0
+                                {{else}}
+                                    --
+                                {{/IfCompare}}
+                            {{/if}}
+                        </div>
+                    </label>
+                </li>
+                {{/if}}
+                {{/each}} <!-- /each attribute -->
+            </ul>
+        </div><!--/span-->
+    </div><!-- /widget-main -->
+</script>
 <script type="text/x-handlebars-template" id="visualization-template">
     <div id="underlay_topology">
         <div id="network_topology" class="topology-visualization" style="overflow:hidden">
@@ -189,7 +266,7 @@ body > svg {
         </div>
         <div class="row-fluid" id="traceFlow"></div>
         <div id="detailsmxTab" class="row-fluid"></div>
-        <div id="detailsTab" class="row-fluid"></div>
+        <div id="detailsTab"></div>
     </div>
 </script>
 
