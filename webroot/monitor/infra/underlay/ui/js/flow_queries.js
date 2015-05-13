@@ -914,21 +914,19 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             checkboxSelectable: {
                 enableRowCheckbox: true,
                 onNothingChecked: function(e){
-                    $("div.slick-cell-checkboxsel > input").removeAttr('disabled')
                     $("#mapflow").attr('disabled','disabled');
                     $("#traceFlowBtn").attr('disabled','disabled');
                     $("#revTraceFlowBtn").attr('disabled','disabled');
                 },
                 onSomethingChecked: function(e){
-                    $("div.slick-cell-checkboxsel > input").attr('checked',false);
                     $("#mapflow").removeAttr('disabled');
                     $("#traceFlowBtn").removeAttr('disabled');
                     $("#revTraceFlowBtn").removeAttr('disabled');
-                    $(e['currentTarget']).attr('checked',true);
                 }
             },
             actionCell: [],
             lazyLoading:true,
+            multiRowSelection : false,
         };
         $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
