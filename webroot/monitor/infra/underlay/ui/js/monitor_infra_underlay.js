@@ -2830,7 +2830,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     "data": {
                         "endpoints": endpoints,
                         "sampleCnt": 150, 
-                        "minsSince":60
+                        "minsSince":180
                       }
                     };
             link = 'prouter';
