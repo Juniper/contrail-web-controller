@@ -41,7 +41,7 @@
                 <div class="span2"><label>Interfaces</label></div>
                 <div class="span10">{{totalInterfacesCount}}</div>
             </div>
-            {{#IfCompare pRouterEditType '_Netconf' operator='!='}}
+            {{#IfCompare displayVirtualRouters '-' operator='!='}}
                 <div class="row-fluid">
                     <div class="span2"><label>Associated Virtual Router(s)</label></div>
                     <div class="span10">{{displayVirtualRouters}}</div>
