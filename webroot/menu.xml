@@ -723,7 +723,7 @@ and need to add the iconClass tag wherever we need to show some icons
             </item>
           </items>
         </item>
-        <item>
+        <!-- <item>
           <label>Analytics DB</label>
           <iconClass>icon-contrail-analytics-db</iconClass>
           <items>
@@ -740,7 +740,7 @@ and need to add the iconClass tag wherever we need to show some icons
                   </resources>
               </item>
           </items>
-        </item>
+        </item> -->
       </items>
     </item>
     <item>
