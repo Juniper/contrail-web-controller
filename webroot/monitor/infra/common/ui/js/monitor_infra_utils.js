@@ -2419,12 +2419,15 @@ function getNodeTooltipContents(currObj) {
 //Tooltip contents to show for database nodes
 function getDbNodeTooltipContents(currObj) {
     var tooltipContents = [
-        {lbl:'Host Name', value: currObj['name']},
-//        {lbl:'Version', value:currObj['version']},
-        {lbl:'Available Space', value:currObj['availableSpace']},
-        {lbl:'Used Space', value:currObj['usedSpace']},
-        {lbl:'Analytics DB Size', value:currObj['analyticsDbSize']},
-        {lbl:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'}
+        {label:'Host Name', value: currObj['name']},
+//        {label:'Version', value:currObj['version']},
+        {label:'Disk Space', value: '',options:{noLabelColon:true}},
+        {label:'Available', value:currObj['availableSpace']},
+        {label:'Used', value:currObj['usedSpace']},
+        {label:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'},
+        {label:'Analytics DB', value:'',options:{noLabelColon:true}},
+        {label:'Used', value:currObj['analyticsDbSize']},
+        
     ];
     return tooltipContents;
 }
