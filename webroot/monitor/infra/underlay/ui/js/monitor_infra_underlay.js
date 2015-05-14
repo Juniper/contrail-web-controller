@@ -2880,13 +2880,11 @@ underlayView.prototype.populateDetailsTab = function(data) {
         });
     } else if (type == 'link') {
         var endpoints = ifNull(data['endpoints'],[]);
-        var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
-        var targetType = data['targetElement']['attributes']['nodeDetails']['node_type'];
+        var sourceType = getValueByJsonPath(data,'sourceElement;attributes;nodeDetails;node_type','-');
+        var targetType = getValueByJsonPath(data,'targetElement;attributes;nodeDetails;node_type','-');
         var url = '',link = '';
         var type = 'GET';
         var ajaxData = {};
-        if(sourceType == VIRTUALMACHINE || targetType == VIRTUALMACHINE)
-            return;
         _this.renderUnderlayTabs();
         $("#detailsLink").show();
         $("#underlay_tabstrip").tabs({active:2});
@@ -2919,6 +2917,21 @@ underlayView.prototype.populateDetailsTab = function(data) {
             link = 'vrouter';
             details = Handlebars.compile($("#link-summary-template").html())({link:link,title:title});
             $("#detailsTab").html(details);
+        } else if(sourceType == VROUTER && targetType == VIRTUALMACHINE) {
+            check4CTInit(function() {
+                var instanceUUID = getValueByJsonPath(data,'targetElement;attributes;nodeDetails;name','-');
+                var virtualNetwork = getValueByJsonPath(data,'targetElement;attributes;nodeDetails;more_attributes;interface_list;0;virtual_network','-');
+                _this.renderUnderlayTabs();
+                var tabConfig = ctwu.getInstanceTabViewConfig({
+                    networkFQN: virtualNetwork,
+                    instanceUUID: instanceUUID,
+                    tabsToDisplay: ['InstanceTrafficStatsView'],
+                });
+                var modelMap = {};
+                modelMap[ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID)] = ctwu.getInstanceTabViewModelConfig(instanceUUID);
+                cowu.renderView4Config($('#underlay_tabstrip'), null, tabConfig, null, null, modelMap);
+                _this.addCommonTabs('contrail-tabs');
+            });
         }
         $.ajax({
             url:url,
