@@ -2981,6 +2981,9 @@ function getStats(req, res) {
     } else if ('virtual-network' == type) {
         table = 'StatTable_UveVirtualNetworkAgent_vn_stats';
         context = 'vn';
+    } else if ('virtual-machine-interface' == type) {
+        table = 'StatTable_UveVMInterfaceAgent_if_stats';
+        context = 'vm';
     }
 
     if (uuids.indexOf(',') > -1) {

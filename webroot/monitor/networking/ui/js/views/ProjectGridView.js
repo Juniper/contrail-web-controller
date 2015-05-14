@@ -146,7 +146,8 @@ define([
                                                 {
                                                     key: 'egressFlowCount',
                                                     templateGenerator: 'TextGenerator'
-                                                },
+                                                }
+                                                /*
                                                 {
                                                     key: 'inBytes',
                                                     templateGenerator: 'TextGenerator',
@@ -160,7 +161,7 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'byte'
                                                     }
-                                                },
+                                                }
                                                 {
                                                     key: 'inTpkts',
                                                     templateGenerator: 'TextGenerator'
@@ -168,7 +169,8 @@ define([
                                                 {
                                                     key: 'outTpkts',
                                                     templateGenerator: 'TextGenerator'
-                                                },
+                                                }
+                                                */
                                             ]
                                         }
                                     ]

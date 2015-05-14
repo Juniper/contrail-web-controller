@@ -142,18 +142,12 @@ define([
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
                 currObject['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + currObject['name'] + '?flat';
                 currObject['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
+
                 var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
                 currObject['vRouter'] = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(vRouter), '-');
                 currObject['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
                 currObject['vn'] = false;
                 currObject['ip'] = [];
-                var fipStatsList = getValueByJsonPath(currObj,'UveVirtualMachineAgent;fip_stats_list');
-                var floatingIPs = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(fipStatsList), []);
-                currObject['floatingIP'] = [];
-                $.each(floatingIPs, function(idx, fipObj){
-                    currObject['floatingIP'].push(contrail.format('{0}<br/> ({1}/{2})', fipObj['ip_address'],formatBytes(ifNull(fipObj['in_bytes'],'-')),
-                        formatBytes(ifNull(fipObj['out_bytes'],'-'))));
-                });
 
                 var cpuInfo = getValueByJsonPath(currObj,'UveVirtualMachineAgent;cpu_info');
                 if(contrail.checkIfExist(cpuInfo)) {
@@ -181,16 +175,33 @@ define([
             if(response != null && response.value != null) {
                 rawInterfaces = response.value;
                 for(var i = 0; i < rawInterfaces.length; i++) {
-                    interface = {};
+                    interface = {
+                        'traffic_stats': {}
+                    };
                     uveVMInterfaceAgent = rawInterfaces[i]['value']['UveVMInterfaceAgent'];
                     interface = $.extend(true, interface, uveVMInterfaceAgent);
                     interface['name'] = rawInterfaces[i]['name'];
+
                     var ip6Active = interface['ip6_active'];
                     if(ip6Active) {
                         interface['ip'] = interface['ip6_address'];
                     } else {
                         interface['ip'] = interface['ip_address'];
                     }
+
+                    var fipStatsList = getValueByJsonPath(uveVMInterfaceAgent, 'fip_diff_stats'),
+                        floatingIPs = (fipStatsList == null) ? [] : fipStatsList;
+
+                    interface['floatingIP'] = [];
+                    $.each(floatingIPs, function (idx, fipObj) {
+                        interface['floatingIP'].push(contrail.format('{0} ({1} / {2})', fipObj['ip_address'], formatBytes(ifNull(fipObj['in_bytes'], '-')), formatBytes(ifNull(fipObj['out_bytes'], '-'))));
+                    });
+
+                    if(interface['if_stats'].length > 0) {
+                        interface['traffic_stats'] = interface['if_stats'][0];
+                        interface['traffic_stats']['throughput'] = interface['if_stats'][0]['in_bw_usage'] +  interface['if_stats'][0]['out_bw_usage'];
+                    }
+
                     interfaceMap[interface['name']] = interface;
                 }
             }
@@ -205,6 +216,8 @@ define([
                 project = {};
                 project['name'] = projects[i]['fq_name'].join(":");
                 project['uuid'] = projects[i]['uuid'];
+                project['vnCnt'] = '-';
+                project['instCnt'] = '-';
                 projectList.push(project);
             }
 
@@ -378,6 +391,18 @@ define([
                 var item = {};
                 var props = STATS_PROP[type];
                 item['name'] = obj['vm_uuid'];
+                item['inBytes'] = ifNull(obj[props['inBytes']], '-');
+                item['outBytes'] = ifNull(obj[props['outBytes']], '-');
+                return item;
+            });
+            return retArr;
+        };
+
+        this.parseInstanceInterfaceStats = function (response) {
+            var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
+                var item = {};
+                var props = STATS_PROP['virtual-machine'];
+                item['name'] = obj['name'];
                 item['inBytes'] = ifNull(obj[props['inBytes']], '-');
                 item['outBytes'] = ifNull(obj[props['outBytes']], '-');
                 return item;

@@ -66,8 +66,10 @@ define([
             rss: 'Used Memory',
             vm_memory_quota: 'Total Memory',
             vrouter: 'Virtual Router',
-            vm_name: "Name",
+            vRouter: 'Virtual Router',
+            vm_name: "Virtual Machine Name",
             vn: "Virtual Networks",
+            virtual_network: "Virtual Network",
 
             /*Interface Details */
             uuid: 'UUID',
@@ -79,6 +81,7 @@ define([
             label: 'Label',
             active: 'Active',
             l2_active: 'L2 Active',
+            floatingIP: 'Floating IPs',
 
             /*Connected Network Details */
             src: 'Source Network',
@@ -200,6 +203,7 @@ define([
         this.TITLE_VRF_STATS = "VRF Stats";
         this.TITLE_CPU_MEMORY_INFO = "CPU/Memory Information";
         this.TITLE_TRAFFIC_DETAILS = "Traffic Details";
+        this.TITLE_FLOATING_IPS = "Floating IPs";
         this.TITLE_TRAFFIC_STATISTICS = "Traffic Statistics";
         this.TITLE_TRAFFIC_STATISTICS_IN = "Traffic Statistics In";
         this.TITLE_TRAFFIC_STATISTICS_OUT = "Traffic Statistics Out";
