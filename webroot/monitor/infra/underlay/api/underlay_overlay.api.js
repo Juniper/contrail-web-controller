@@ -25,9 +25,12 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
   queries = require(process.mainModule.exports["corePath"] +
                     '/src/serverroot/common/queries.api');
 
-var CONFIG_UVE_FOUND = 0;
-var CONFIG_NOT_FOUND = 1;
-var CONFIG_UVE_NOT_FOUND = 2;
+var CONFIG_FOUND            = 0;
+var CONFIG_NOT_FOUND        = 1;
+var UVE_FOUND               = 2;
+var UVE_NOT_FOUND           = 3;
+var CONFIG_UVE_FOUND        = 4;
+var CONFIG_UVE_NOT_FOUND    = 5;
 
 var vmiPostCfilt = [
     'UveVMInterfaceAgent:vm_name', 'UveVMInterfaceAgent:uuid',
@@ -487,10 +490,10 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
     if (CONFIG_NOT_FOUND == found) {
         topoData['errors']['configNotFound'].push(data[i]['name']);
         return topoData;
-    } else if (CONFIG_UVE_NOT_FOUND == found) {
+    } else if (UVE_NOT_FOUND == found) {
         topoData['errors']['uveNotFound'].push(data[i]['name']);
         return topoData;
-    } else {
+    } else if (CONFIG_UVE_FOUND == found) {
         topoData['nodes'].push(nodeObj);
         tempNodeObjs[data[i]['name']] = data[i]['name'];
     }
@@ -521,8 +524,12 @@ function buildPhysicalTopologyByPRouter (prouter, pRouterData, prConfigData)
                     topoData['errors']['configNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
                     continue;
                 }
-                if (CONFIG_UVE_NOT_FOUND == found) {
+                if (UVE_NOT_FOUND == found) {
                     topoData['errors']['uveNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                    continue;
+                }
+                if (CONFIG_UVE_NOT_FOUND == found) {
+                    /* Do not insert if both config/uve not found */
                     continue;
                 }
             }
@@ -678,6 +685,8 @@ function buildPhysicalTopology (prouter, appData, callback)
 
 function isProuterExists (node, prConfigData, prUVEData)
 {
+    var configFlag = CONFIG_NOT_FOUND;
+    var uveFlag = UVE_NOT_FOUND;
     var prCnt = 0;
     try {
         var prConfig = prConfigData['physical-routers'];
@@ -689,16 +698,14 @@ function isProuterExists (node, prConfigData, prUVEData)
     for (var i = 0; i < prCnt; i++) {
         try {
             if (node == prConfig[i]['physical-router']['fq_name'][1]) {
+                configFlag = CONFIG_FOUND;
                 break;
             }
         } catch(e) {
             continue;
         }
     }
-    if (i == prCnt) {
-        /* No Config */
-        return CONFIG_NOT_FOUND;
-    }
+
     var prUVECnt = 0;
     try {
         var prUVE = prUVEData['value'];
@@ -708,10 +715,22 @@ function isProuterExists (node, prConfigData, prUVEData)
     }
     for (var i = 0; i < prUVECnt; i++) {
         if (node == prUVE[i]['name']) {
-            return CONFIG_UVE_FOUND;
+            uveFlag = UVE_FOUND;
+            break;
         }
     }
-    /* No UVE for this, though config we have */
+    if (UVE_NOT_FOUND == uveFlag) {
+        if (CONFIG_NOT_FOUND == configFlag) {
+            return CONFIG_UVE_NOT_FOUND;
+        }
+        return UVE_NOT_FOUND;
+    } else {
+        if (CONFIG_NOT_FOUND == configFlag) {
+            return CONFIG_NOT_FOUND;
+        }
+        return CONFIG_UVE_FOUND;
+    }
+    /* We will not come here */
     return CONFIG_UVE_NOT_FOUND;
 }
 
@@ -740,8 +759,12 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
                 topoData['errors']['configNotFound'].push(data[i]['name']);
                 continue;
             }
-            if (CONFIG_UVE_NOT_FOUND == found) {
+            if (UVE_NOT_FOUND == found) {
                 topoData['errors']['uveNotFound'].push(data[i]['name']);
+                continue;
+            }
+            if (CONFIG_UVE_NOT_FOUND == found) {
+                /* Do not push if config & uve not found */
                 continue;
             }
             topoData['nodes'].push(nodeObj);
@@ -776,8 +799,12 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
                         topoData['errors']['configNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
                         continue;
                     }
-                    if (CONFIG_UVE_NOT_FOUND == found) {
+                    if (UVE_NOT_FOUND == found) {
                         topoData['errors']['uveNotFound'].push(pRouterLinkTable[j]['remote_system_name']);
+                        continue;
+                    }
+                    if (CONFIG_UVE_NOT_FOUND == found) {
+                        /* Do not push if config & uve not found */
                         continue;
                     }
                 }
