@@ -1269,6 +1269,7 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
                         var vmRef =
                             result[i]['virtual-machine-interface']['virtual_machine_refs'];
                         result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                        result[i]['virtual-machine-interface']['virtual_machine_interface_properties'] = {};
                         if (vmiData['virtual-machine-interface']['virtual_machine_refs']) {
                             var vmiChildUrl = '/virtual-machine-interface/' +
                                 vmiData['virtual-machine-interface']['uuid'];
@@ -2502,6 +2503,7 @@ function removeRefSubInterface(error, results, vmiData, appData, callback)
                     for(var j=0;j<vmiRefLen;j++){
                         if(vmiRef[j]['uuid'] == vmiUUID){
                             results[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                            results[i]['virtual-machine-interface']['virtual_machine_interface_properties'] = {};
                             j--;
                             vmiRefLen--;
                             commonUtils.createReqObj(DataObjectArr, vmiRefURL,
