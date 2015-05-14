@@ -232,7 +232,7 @@
                                                                 </div>
                                                                 <div class="pull-left">
                                                                     <div title="Add Fixed IP below" class="margin-5 padding-10-0">
-                                                                        <i class="icon-plus pull-right" onclick="appendFixedIPEntry(this, 'FixedIPTuples',true);"></i>
+                                                                        <i class="icon-plus fixedipAdd pull-right" onclick="appendFixedIPEntry(this, 'FixedIPTuples',true);"></i>
                                                                     </div>
                                                                 </div>
                                                             </div>

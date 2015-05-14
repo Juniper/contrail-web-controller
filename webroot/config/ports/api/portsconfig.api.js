@@ -191,6 +191,10 @@ function mergeVMIResponse (results, vmiData, floatingipPoolRefsLen, routeTableRe
             vmiData['virtual-machine-interface']['instance_ip_back_refs'][i - floatingipPoolRefsLen]['fixedip'] = {};
             vmiData['virtual-machine-interface']['instance_ip_back_refs'][i - floatingipPoolRefsLen]['fixedip'].ip =
                      results[i]['instance-ip']['instance_ip_address'];
+            if ("subnet_uuid" in results[i]['instance-ip']) {
+                vmiData['virtual-machine-interface']['instance_ip_back_refs'][i - floatingipPoolRefsLen]['fixedip'].subnet_uuid =
+                     results[i]['instance-ip']['subnet_uuid'];
+            }
         }
     }
     for (i = instanceIPLen; i < ipPoolsLen; i++) {
