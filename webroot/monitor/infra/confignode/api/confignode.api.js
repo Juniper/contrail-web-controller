@@ -47,6 +47,9 @@ function getConfigNodeDetails (req, res, appData)
     reqUrl = '/analytics/uves/generator';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              genPostData, opApiServer, null, appData);
+    reqUrl = '/config-nodes?detail=true';
+    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                             configApiServer, null, appData);
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(configApiServer, false),
               function(err, results) {
@@ -73,6 +76,9 @@ function getConfigNodesSummary (req, res, appData)
     postData['cfilt'] = ['ModuleCpuState','NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
+    reqUrl = '/config-nodes?detail=true';
+    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                             configApiServer, null, appData);
     if (null != addGen) {
         reqUrl = '/analytics/uves/generator';
         var genPostData = {};
@@ -88,11 +94,6 @@ function getConfigNodesSummary (req, res, appData)
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
-        if (err || (results[0] == null) ||
-            (results[0]['value'].length == 0)) {
-            commonUtils.handleJSONResponse(err, res, resultJSON);
-            return;
-        }
         resultJSON = postProcessConfigNodeSummary(results);
         var nodeCnt = 0;
         try {
@@ -128,8 +129,17 @@ function getConfigNodesSummary (req, res, appData)
     });
 }
 
-function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, host)
+function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData, host)
 {
+    if ((null != configData) && (configData.length > 0)) {
+        var confLen = configData.length;
+        for (var i = 0; i < confLen; i++) {
+            if (configData[i]['config-node']['fq_name'][1] == host) {
+                resultJSON['ConfigNode'] = configData[i]['config-node'];
+                break;
+            }
+        }
+    }
     var moduleList = ['contrail-api', 'contrail-discovery', 'contrail-svc-monitor', 'contrail-schema'];
     try {
         var cfgProcUVEData = configProcessUVEs['value'];
@@ -161,31 +171,73 @@ function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, host)
 
 function postProcessConfigNodeDetails (uves, host)
 {
+    var configData = uves[2];
+    if ((null == configData) || (null == configData['config-nodes'])) {
+        configData = null;
+    } else {
+        configData = configData['config-nodes'];
+    }
     var resultJSON = {};
     resultJSON['configNode'] = {};
     resultJSON['configNode'] =
         commonUtils.copyObject(resultJSON['configNode'], uves[0]);
-    resultJSON = parseConfigNodeProcessUVEs(resultJSON, uves[1], host)
+    resultJSON =
+        parseConfigNodeProcessUVEs(resultJSON, uves[1], configData, host)
     return resultJSON;
 }
 
-function postProcessConfigNodeSummary (uves)
+function postProcessConfigNodeSummary (configUVEData)
 {
+    var uveData    = configUVEData[0];
+    var configData = configUVEData[1];
+    var genData    = configUVEData[2];
+    var tmpConfigObjs = {};
+
+    if ((null == configData) || (null == configData['config-nodes'])) {
+        configData = null;
+    } else {
+        configData = configData['config-nodes'];
+    }
+    if ((null == uveData) || (null == uveData['value'])) {
+        uveData = null;
+    } else {
+        uveData = uveData['value'];
+    }
+
     var resultJSON = [];
-    var configData = uves[0]['value'];
-    var configDataLen = configData.length;
-    for (var i = 0; i < configDataLen; i++) {
-        var host = configData[i]['name'];
+    var uveLen = uveData.length;
+    for (var i = 0; i < uveLen; i++) {
+        var host = uveData[i]['name'];
         resultJSON[i] = {};
         resultJSON[i]['name'] = host;
         resultJSON[i]['value'] = {};
         resultJSON[i]['value']['configNode'] = {};
         resultJSON[i]['value']['configNode'] =
             commonUtils.copyObject(resultJSON[i]['value']['configNode'],
-                       configData[i]['value']);
+                       uveData[i]['value']);
         resultJSON[i]['value'] =
-            parseConfigNodeProcessUVEs(resultJSON[i]['value'], uves[1],
-                                       host);
+            parseConfigNodeProcessUVEs(resultJSON[i]['value'], genData,
+                                       configData, host);
+    }
+    if (null == configData) {
+        return resultJSON;
+    }
+    var configLen = configData.length;
+    for (var i = 0; i < configLen; i++) {
+        tmpConfigObjs[configData[i]['config-node']['fq_name'][1]] =
+            configData[i]['config-node'];
+    }
+    var resCnt = resultJSON.length;
+    for (i = 0; i < resCnt; i++) {
+        if (null != tmpConfigObjs[resultJSON[i]['name']]) {
+            delete tmpConfigObjs[resultJSON[i]['name']];
+        }
+    }
+    for (key in tmpConfigObjs) {
+        resultJSON[resCnt] = {};
+        resultJSON[resCnt]['name'] = key;
+        resultJSON[resCnt]['value'] = {};
+        resultJSON[resCnt]['value']['ConfigNode'] = tmpConfigObjs[key];
     }
     return resultJSON;
 }
