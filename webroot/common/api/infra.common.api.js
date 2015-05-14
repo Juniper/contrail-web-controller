@@ -141,26 +141,6 @@ function getProcStateMappedModule(moduleName)
     }
 }
 
-function getNodeStatusByUVE (moduleName, uveData)
-{
-    var procStateList = jsonPath(uveData, "$..NodeStatus.process_info");
-    if (procStateList.length == 0) {
-        /* Why? */
-        return 'Down';
-    }
-    moduleName = getProcStateMappedModule(moduleName);
-    var len = procStateList[0].length;
-    for (var i = 0; i < len; i++) {
-        if (moduleName == procStateList[0][i]['process_name']) {
-            if (procStateList[0][i]['process_state'] ==
-                'PROCESS_STATE_RUNNING') {
-                return 'Up';
-            }
-        }
-    }
-    return 'Down';
-}
-
 function checkAndGetSummaryJSON (configData, uves, moduleNames)
 {
     var resultJSON = [];
@@ -193,8 +173,6 @@ function checkAndGetSummaryJSON (configData, uves, moduleNames)
             } else {
                 resultJSON[j]['value']['ConfigData'] = {};
             }
-            resultJSON[j]['nodeStatus'] = getNodeStatusByUVE(moduleNames[0],
-                                                             uveData[i]);
             j++;
         } catch(e) {
             continue;
@@ -226,7 +204,6 @@ function checkAndGetSummaryJSON (configData, uves, moduleNames)
                 var fqLen = fqName.length;
                 resultJSON[j] = {};
                 resultJSON[j]['name'] = fqName[fqLen - 1];
-                resultJSON[j]['nodeStatus'] = 'Down';
                 resultJSON[j]['value'] = {};
                 resultJSON[j]['value']['ConfigData'] = {};
                 resultJSON[j]['value']['ConfigData'] = configData[i];
