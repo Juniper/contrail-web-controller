@@ -38,6 +38,7 @@ function portsConfigObj() {
     var pageCount;
     var allfloatingIP;
     var allNetworkData;
+    var currentVNSubnetDetail;
     var routerUUID;
     var computeUUID;
     var mac_address;
@@ -69,6 +70,7 @@ function portsConfigObj() {
     this.pageCount = pageCount;
     this.allfloatingIP = allfloatingIP;
     this.allNetworkData = allNetworkData;
+    this.currentVNSubnetDetail = currentVNSubnetDetail;
     this.mac_address = mac_address;
     this.ip_address = ip_address;
     this.selectedParentVMIObject = selectedParentVMIObject;
@@ -346,6 +348,7 @@ function initComponents() {
     pageCount = 50;
     allfloatingIP = [];
     allNetworkData = [];
+    currentVNSubnetDetail = [];
 
     windowCreatePorts = $("#windowCreatePorts");
     windowCreatePorts.on("hide", closeCreatePortsWindow);
@@ -1523,12 +1526,28 @@ function updateSubnet(createFlag){
             if(fqname === selectedFqname){
                 var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
                 if(subnet.length > 0){
+                    currentVNSubnetDetail = [];
+                    for(var subnetInc = 0; subnetInc < subnet.length; subnetInc++){
+                        var subnetCIDR = subnet[subnetInc]["subnet"]["ipam_subnet"];
+                        var subnetGateway = subnet[subnetInc]["subnet"]["default_gateway"];
+                        var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
+                        var SubnetVal = {};
+                        SubnetVal.Gateway = subnetGateway;
+                        SubnetVal.subnetCIDR = subnetCIDR;
+                        SubnetVal.subnetUUID = subnetUUID;
+                        currentVNSubnetDetail.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
+                    }
                     $("#fixedipContainer").find('div.pull-left').removeClass('hide');
                     if(createFlag != false){
                         var element = "FixedIPTuples";
                         var FixedIPEntry = createFixedIPEntry(null, dynamicID++,element);
                         if(FixedIPEntry !== false)
                         $("#"+element).append(FixedIPEntry);
+                        if (Number($("#"+element).children().length) >= currentVNSubnetDetail.length) {
+                            $(".fixedipAdd").addClass("hide");
+                        } else {
+                            $(".fixedipAdd").removeClass("hide");
+                        }
                     }
                 } else {
                     $("#fixedipContainer").find('div.pull-left').addClass('hide');
@@ -1993,7 +2012,9 @@ function showPortEditWindow(mode, rowIndex) {
                         var FixedIPEntry = createFixedIPEntry(mapedData.fixedIPValue[localInc], dynamicID,element);
                         if(FixedIPEntry !== false)
                         $("#"+element).append(FixedIPEntry);
-                        
+                    }
+                    if (Number($("#"+element).children().length) >= currentVNSubnetDetail.length) {
+                        $(".fixedipAdd").addClass("hide");
                     }
                 var floatingIPArr = [];
                 //element = "FloatingIPTuples";
@@ -2251,6 +2272,9 @@ function appendFixedIPEntry(who,element, defaultRow) {
         var parentEl = who.parentNode.parentNode.parentNode;
         parentEl.parentNode.insertBefore(FixedIPEntry, parentEl.nextSibling);
     }
+    if (Number($("#"+element).children().length) >= currentVNSubnetDetail.length) {
+        $(".fixedipAdd").addClass("hide");
+    }
     scrollUp("#windowCreatePorts",FixedIPEntry,false);
 }
 
@@ -2275,7 +2299,7 @@ function createFixedIPEntry(FixedIPData, id,element) {
     divFixedIPCode.appendChild(inputTxtFixedIPValue);
     
     var iBtnAddRule = document.createElement("i");
-    iBtnAddRule.className = "icon-plus";
+    iBtnAddRule.className = "icon-plus fixedipAdd";
     iBtnAddRule.setAttribute("onclick", "appendFixedIPEntry(this,'"+element+"');");
     iBtnAddRule.setAttribute("title", "Add Fixed IP below");
 
@@ -2284,8 +2308,8 @@ function createFixedIPEntry(FixedIPData, id,element) {
     divPullLeftMargin5Plus.appendChild(iBtnAddRule);
 
     var iBtnDeleteRule = document.createElement("i");
-    iBtnDeleteRule.className = "icon-minus";
-    iBtnDeleteRule.setAttribute("onclick", "deleteFixedIPEntry(this);");
+    iBtnDeleteRule.className = "icon-minus fixedipRemove";
+    iBtnDeleteRule.setAttribute("onclick", "deleteFixedIPEntry(this, '"+element+"');");
     iBtnDeleteRule.setAttribute("title", "Delete Fixed IP");
 
     var divPullLeftMargin5Minus = document.createElement("div");
@@ -2313,26 +2337,8 @@ function createFixedIPEntry(FixedIPData, id,element) {
 
     var subnetData = [];
     var selectedFqname = $("#ddVN").data("contrailDropdown").value();
-    var fqname;
-    for(var i = 0 ;i<allNetworkData.length;i++){
-        fqname = allNetworkData[i]["virtual-network"]["fq_name"].join(":");
-        if(fqname === selectedFqname){
-            var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
-            if(subnet.length > 0){
-                for(var subnetInc = 0; subnetInc < subnet.length; subnetInc++){
-                    var subnetCIDR = subnet[subnetInc]["subnet"]["ipam_subnet"];
-                    var subnetGateway = subnet[subnetInc]["subnet"]["default_gateway"];
-                    var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
-                    var SubnetVal = {};
-                    SubnetVal.Gateway = subnetGateway;
-                    SubnetVal.subnetCIDR = subnetCIDR;
-                    SubnetVal.subnetUUID = subnetUUID;
-                    subnetData.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
-                }
-            }
-            break;
-        }
-    }
+    //subnetData = getCurrentSubnetData(selectedFqname);
+    subnetData = currentVNSubnetDetail.slice();
     $(inputTxtFixedIPValue).val("");
     $(ddFixedIPSubnet).data("contrailDropdown").setData(subnetData);
     if(subnetData.length > 0){
@@ -2394,21 +2400,70 @@ function createFixedIPEntry(FixedIPData, id,element) {
     return rootDiv;
 }
 
-function deleteFixedIPEntry(who) {
+function getCurrentSubnetData(selectedFqname){
+    var fqname;
+    var subnetData = [];
+    for(var i = 0 ;i<allNetworkData.length;i++){
+        fqname = allNetworkData[i]["virtual-network"]["fq_name"].join(":");
+        if(fqname === selectedFqname){
+            var subnet = allNetworkData[i]["virtual-network"]["network_ipam_refs"];
+            if(subnet.length > 0){
+                for(var subnetInc = 0; subnetInc < subnet.length; subnetInc++){
+                    var subnetCIDR = subnet[subnetInc]["subnet"]["ipam_subnet"];
+                    var subnetGateway = subnet[subnetInc]["subnet"]["default_gateway"];
+                    var subnetUUID = subnet[subnetInc]["subnet"]["subnet_uuid"];
+                    var SubnetVal = {};
+                    SubnetVal.Gateway = subnetGateway;
+                    SubnetVal.subnetCIDR = subnetCIDR;
+                    SubnetVal.subnetUUID = subnetUUID;
+                    subnetData.push({"text" : subnetCIDR,"value":JSON.stringify(SubnetVal)});
+                }
+            }
+            break;
+        }
+    }
+    return subnetData;
+}
+
+function deleteFixedIPEntry(who, element) {
     var templateDiv = who.parentNode.parentNode.parentNode;
     $(templateDiv).remove();
     templateDiv = $();
     $("#fixedipContainer").find('div.pull-left').removeClass('hide');
+    if (Number($("#"+element).children().length) < currentVNSubnetDetail.length) {
+        $(".fixedipAdd").removeClass("hide");
+    }
 }
 
 function validateFixedIP(element){
     var fixedIPTexts = [];
     var len = $("#"+element).children().length;
+    var fipObjs = {};
+    var enteredSubnetUUIDs = [];
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var elementid = getID($("#"+element).children()[i].id);
             var fixedIP = $("#"+element +"_"+ elementid +"_txtFixedIPValue").val();
             var fixedIPText = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').text();
+            var fixedIPValue = $("#"+element +"_"+ elementid +"_ddFixedIPSubnet").data('contrailDropdown').value();
+            var fixedIPValueObj = JSON.parse(fixedIPValue)
+            //fixedIPValueObj.subnetUUID = "";
+            if(fixedIPValueObj.subnetUUID != "" && fixedIPValueObj.subnetUUID != undefined && fixedIPValueObj.subnetUUID != null) {
+                if(enteredSubnetUUIDs.hasOwnProperty(fixedIPValueObj.subnetUUID)){
+                    showInfoWindow("Only one Fixed IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
+                    return false;
+                } else {
+                    enteredSubnetUUIDs[fixedIPValueObj.subnetUUID] = 0;
+                }
+            } else {
+                var subnetresult = findSubnetUUIDFromIP(fixedIP);
+                if(subnetresult.error == false){
+                    enteredSubnetUUIDs[subnetresult.uuid] = 0;
+                } else {
+                    showInfoWindow("Only one Fixed IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
+                    return false;
+                }
+            }
             if (typeof fixedIP === "string" && fixedIP.trim().length > 0) {
                 if(!isValidIP(fixedIP.trim())) {
                    showInfoWindow("Enter a valid IP In the format xxx.xxx.xxx.xxx", "Invalid input in Fixed IP");
@@ -2432,7 +2487,6 @@ function validateFixedIP(element){
                 fixedIPTexts.push(fixedIPText);
             }
         }
-        var fipObjs = {};
         for(var i=0; i<fixedIPTexts.length; i++) {
             if(fipObjs.hasOwnProperty(fixedIPTexts[i])) {
                 showInfoWindow("Only one Fixed IP can be assigned to a subnet. Select a different subnet.", "Duplicate subnet");
@@ -2440,10 +2494,23 @@ function validateFixedIP(element){
             } else {
                 fipObjs[fixedIPTexts[i]]=0;
             }
-
         }
     }
     return true;
+}
+
+function findSubnetUUIDFromIP(fixedIp){
+    var subnetUUID = {};
+    subnetUUID.error = true;
+    for(var i=0; i < currentVNSubnetDetail.length; i++) {
+        var eachSubnet = JSON.parse(currentVNSubnetDetail[i].value);
+        if (isIPBoundToRange(eachSubnet.subnetCIDR, fixedIp)) {
+            subnetUUID.error = false;
+            subnetUUID.uuid = eachSubnet.subnetUUID;
+            break;
+        }
+    }
+    return subnetUUID;
 }
 function changeSubnetIP(e){
     var value = e.val;
