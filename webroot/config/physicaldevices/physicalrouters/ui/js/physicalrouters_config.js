@@ -720,6 +720,48 @@ function physicalRoutersConfig() {
     function getVirtualRouterDetails(vRouterName) {
         return (globalVRoutersMap[vRouterName.trim()])? globalVRoutersMap[vRouterName.trim()] : '';
     }
+    
+    function initializePostObjectFromCurrentData(postObject){
+        postObject["physical-router"]["fq_name"] = ["default-global-system-config", gblSelRow.name];
+        postObject["physical-router"]["parent_type"] = "global-system-config";
+        postObject["physical-router"]["name"] = gblSelRow.name;
+        postObject["physical-router"]['physical_router_vendor_name'] = gblSelRow.vendor;
+        postObject["physical-router"]["physical_router_product_name"] = gblSelRow.model;
+        postObject["physical-router"]["physical_router_management_ip"] = gblSelRow.mgmt_ip_address;
+        postObject["physical-router"]["physical_router_dataplane_ip"] = gblSelRow.data_ip_address;
+        postObject["physical-router"]['physical_router_user_credentials'] = {};
+        postObject["physical-router"]['physical_router_user_credentials']["username"] = gblSelRow.username;
+        postObject["physical-router"]['physical_router_user_credentials']["password"] = gblSelRow.password;
+        if(gblSelRow.junosServicePorts != '-' && gblSelRow.junosServicePorts.length > 0){
+            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
+            postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = gblSelRow.junosServicePorts;
+        } else {
+            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
+        }
+        if(gblSelRow.bgp_routers != '-'){
+            var bgpRouterRefs = [{"to":["default-domain", "default-project" , "ip-fabric", "__default__", gblSelRow.bgp_routers]}];
+            postObject["physical-router"]["bgp_router_refs"] = bgpRouterRefs;
+        } else {
+            postObject["physical-router"]["bgp_router_refs"] = [];
+        }
+        if(gblSelRow.auto_config == "Enabled") {
+            postObject["physical-router"]["physical_router_vnc_managed"] = true;
+        } else {
+            postObject["physical-router"]["physical_router_vnc_managed"] = false;
+        }
+        
+        if(gblSelRow.vnRefs.length > 0){
+            postObject["physical-router"]["virtual_network_refs"] = gblSelRow.vnRefs;
+        } 
+        
+        if(gblSelRow.virtualRouterRefs.length > 0) {
+            postObject["physical-router"]["virtual_router_refs"] = gblSelRow.virtualRouterRefs; 
+        }
+        
+        if(gblSelRow.snmpCredentials != null){
+            postObject["physical-router"]["physical_router_snmp_credentials"] = gblSelRow.snmpCredentials;
+        }
+    }
         
     function createUpdatePhysicalRouter() {
         var methodType = 'POST';
@@ -733,6 +775,7 @@ function physicalRoutersConfig() {
             if(gblSelRow.virtualRouters != '-' && gblSelRow.virtualRouters.length > 0){
                 selectedVRouters = gblSelRow.virtualRouters;
             }
+            initializePostObjectFromCurrentData(postObject);
             postObject["physical-router"]["uuid"] = gblSelRow.uuid;
         }
         var name,vendor,mgmtIpAddress,dataIpAddress,username,password,bgpRouter,vRoutersType,model,autoConfig,vns;
@@ -782,19 +825,20 @@ function physicalRoutersConfig() {
         postObject["physical-router"]["physical_router_product_name"] = model;
         postObject["physical-router"]["physical_router_management_ip"] = mgmtIpAddress;
         postObject["physical-router"]["physical_router_dataplane_ip"] = dataIpAddress;
-        postObject["physical-router"]['physical_router_user_credentials'] = {};
-        postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
-        postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
+        if(username != null && postObject["physical-router"]['physical_router_user_credentials']["username"] != null &&
+                username != postObject["physical-router"]['physical_router_user_credentials']["username"]){
+            postObject["physical-router"]['physical_router_user_credentials'] = {};
+            postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
+            postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
+        }
         if(servicePorts != null && servicePorts.length > 0){
             postObject["physical-router"]["physical_router_junos_service_ports"] = {};
             postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = servicePorts;
-        } else {
-            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
-        }
+        } 
         if(bgpRouter != null && bgpRouter != 'None'){
             var bgpRouterRefs = [{"to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpRouter]}];
             postObject["physical-router"]["bgp_router_refs"] = bgpRouterRefs;
-        } else {
+        } else if(bgpRouter == 'None') {
             postObject["physical-router"]["bgp_router_refs"] = [];
         }
         postObject["physical-router"]["physical_router_vnc_managed"] = autoConfig;
@@ -805,9 +849,7 @@ function physicalRoutersConfig() {
                 vnRefs.push({"to":vns[i].data});
             }
             postObject["physical-router"]["virtual_network_refs"] = vnRefs;
-        } else {
-            postObject["physical-router"]["virtual_network_refs"] = [];
-        }
+        } 
         
         var virtualRouterRefs = [];
         //Decide the creation vrouter based on the currAddEditType
@@ -815,8 +857,8 @@ function physicalRoutersConfig() {
             //Given the tor and tsn name create them without ips
             populateTORAgentVirtualRouterObjectToPostObj(postObject,selectedVRouters,'TOR Agent');
         } else if (currAddEditType == NETCONF_SUFFIX) {
-            postObject["physical-router"]["virtual-routers"] = [];
-            postObject["physical-router"]["virtual_router_refs"] = [];
+//            postObject["physical-router"]["virtual-routers"] = [];
+//            postObject["physical-router"]["virtual_router_refs"] = [];
             //Create tor and tsn using the ips
 //            populateTORAgentVirtualRouterObjectToPostObj(postObject,selectedVRouters,'TOR Agent');
         } else if (currAddEditType == VCPE_SUFFIX) {
@@ -1181,16 +1223,19 @@ function physicalRoutersConfig() {
                     username : (username == null || username == '' )? '-' : username,
                     password : password,
                     junosServicePorts : junosServicePorts,
-                    totalInterfacesCount : totalInterfacesCount,
+                    totalInterfacesCount : (totalInterfacesCount == 0)? 'None' : totalInterfacesCount,
                     bgp_routers : (bgpRoutersString == '')? '-' : bgpRoutersString,
-                    virtual_networks : vnsString.length > 0 ? vnsString : '-',       
+                    virtual_networks : vnsString.length > 0 ? vnsString : '-',  
+                    vnRefs : vnRefs,
                     displayVirtualRouters : (virtualRouterString == '')? '-' : virtualRouterString,
                     virtualRouters : virtualRouters,
+                    virtualRouterRefs : virtualRouterRefs,
                     pRouterEditType : pRouterEditType,
                     pRouterType : pRouterType,
-                    model : rowData['physical_router_product_name'] != null ? rowData['physical_router_product_name'] : '-',
+                    model : (rowData['physical_router_product_name'] != null && rowData['physical_router_product_name'] != '')? rowData['physical_router_product_name'] : '-',
                     auto_config : autoConfig,
                     isSNMPManaged:isSNMPManaged,
+                    snmpCredentials:snmpCredentials,
                     snmpVersion : snmpVersion,
                     snmpLocalPort : snmpLocalPort,
                     snmpRetries : snmpRetries,
