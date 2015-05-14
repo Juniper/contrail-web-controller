@@ -224,22 +224,33 @@ function initComponents() {
                         $('#btnDeletePorts').removeClass('disabled-link');
                     }
                 },
-                actionCell: [
-                    {
+                actionCell: function(dc){
+                    var menu = [];
+                    menu.push({
                         title: 'Edit',
                         iconClass: 'icon-edit',
                         onClick: function(rowIndex){
                             showPortEditWindow('edit',rowIndex);
                         }
-                    },
-                    {
+                    });
+                    if(dc.chiled == false) {
+                        menu.push({
+                            title: 'Add Sub Interface',
+                            iconClass: 'icon-edit',
+                            onClick: function(rowIndex){
+                                showPortEditWindow('add',rowIndex, 'true');
+                            }
+                        });
+                    }
+                    menu.push({
                         title: 'Delete',
                         iconClass: 'icon-trash',
                         onClick: function(rowIndex){
                             showRemoveWindow(rowIndex);
                         }
-                    }
-                ],
+                    });
+                    return menu;
+                },
                 detail:{
                     template: $("#gridPortsDetailTemplate").html()
                 }
@@ -1646,7 +1657,7 @@ function clearValuesFromDomElements() {
 
 }
 
-function showPortEditWindow(mode, rowIndex) {
+function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
     if($("#btnCreatePorts").hasClass('disabled-link')) {
         return;
     }
@@ -1659,9 +1670,14 @@ function showPortEditWindow(mode, rowIndex) {
         windowCreatePorts.find('.modal-header-title').text('Create Port');
     } else {
         windowCreatePorts.find('.modal-header-title').text('Edit Port');
-        var selectedRow = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
-        selectedPortUUID = selectedRow["portUUID"];
-        vnUUID = selectedRow["vnUUID"];
+    }
+    if(enableSubInterfaceFlag == "true" || mode == "edit") {
+	    var mapedData = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
+        selectedPortUUID = mapedData["portUUID"];
+        vnUUID = mapedData["vnUUID"];
+    }
+    if(enableSubInterfaceFlag == "true") {
+        windowCreatePorts.find('.modal-header-title').text('Add SubInterface for ' + selectedPortUUID);
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1797,7 +1813,11 @@ function showPortEditWindow(mode, rowIndex) {
             $("#ddVN").data("contrailDropdown").setData(allNetworks);
 
             if(allNetworks.length > 0) {
-                $("#ddVN").data("contrailDropdown").value(allNetworks[0].value);
+                if(enableSubInterfaceFlag == "true"){
+                    $("#ddVN").data("contrailDropdown").value(mapedData.vnValues[0]["values"]);
+                } else {
+                    $("#ddVN").data("contrailDropdown").value(allNetworks[0].value);
+			    }
                 updateSubnet();
             } else {
                 //Disable port create and show a popup 
@@ -1838,6 +1858,7 @@ function showPortEditWindow(mode, rowIndex) {
             var mainDS = [];
             routerUUID = [];
             computeUUID = [];
+            var subnetValue = "";
             
             if(results[3][0] != null && results[3][0] != "" && results[3][0]["data"] && results[3][0]["data"].length > 0) {
                 vmiArray = results[3][0]["data"];
@@ -1858,7 +1879,8 @@ function showPortEditWindow(mode, rowIndex) {
                         (ip["virtual_network_refs"] != undefined && 
                              ip["virtual_network_refs"] != null &&
                              ip["virtual_network_refs"][0]["to"][1] == selectedProject) &&
-                             selectedPortUUID != ip["uuid"]){
+                             ((selectedPortUUID != ip["uuid"]) || 
+                              ((selectedPortUUID == ip["uuid"]) && enableSubInterfaceFlag == "true"))){
 
                         subInterfaceParentText += ip["uuid"] + "\xa0\xa0";
                         if(ip["instance_ip_back_refs"] != undefined &&
@@ -1884,8 +1906,8 @@ function showPortEditWindow(mode, rowIndex) {
 
                         subInterfaceParentValObj.virtual_network_refs = ip["virtual_network_refs"][0]["to"];
                         var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
+                        console.log("inc:"+JSON.stringify(value));
                         subInterfaceParentDatas.push({"text":subInterfaceParentText, "value":JSON.stringify(value)});
-                        
                         /*if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
                             //take it from VMR
                             if("virtual_machine_refs" in ip && ip["virtual_machine_refs"].length >=0){
@@ -1897,13 +1919,19 @@ function showPortEditWindow(mode, rowIndex) {
                             }
                         }*/
                     }
+                        if(ip["uuid"] == selectedPortUUID && enableSubInterfaceFlag == "true"){
+                            var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
+                            console.log(JSON.stringify(value));
+                            subnetValue = JSON.stringify(value);
+                        }
                 }
             }
             $("#ddSubInterfaceParent").data("contrailDropdown").setData(subInterfaceParentDatas);
             $("#is_subInterface").attr("disabled","disabled")
+            $("#ddSubInterfaceParent").data("contrailDropdown").value("");
             if(subInterfaceParentDatas.length > 0) {
                 $("#is_subInterface").removeAttr("disabled","disabled")
-                $("#ddSubInterfaceParent").data("contrailDropdown").value(subInterfaceParentDatas[0].value);
+                //$("#ddSubInterfaceParent").data("contrailDropdown").value(subInterfaceParentDatas[0].value);
             }
 
             var vmArray = [];
@@ -1932,7 +1960,15 @@ function showPortEditWindow(mode, rowIndex) {
             }
             
             if (mode === "add") {
-                windowCreatePorts.find('.modal-header-title').text('Create Port');
+                if(enableSubInterfaceFlag == "true") {
+                    $("#is_subInterface").attr("checked", true);
+                    $("#txtVlan").val("");
+                    $("#ddSubInterfaceParent").data('contrailDropdown').enable(true);
+                    $(".subInterface").removeClass("hide");
+                    $("#ddSubInterfaceParent").data("contrailDropdown").value(subnetValue);                    
+                } else {
+                    windowCreatePorts.find('.modal-header-title').text('Create Port');
+                }
                 $(txtPortName).focus();
             } else if (mode === "edit") {
                 var selectedVMI = null;
@@ -1949,7 +1985,7 @@ function showPortEditWindow(mode, rowIndex) {
                 }
                 
                 //var mapedData = mapVMIData(selectedVMI,selectedDomain,selectedProject);
-                var mapedData = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
+                //var mapedData = $("#gridPorts").data("contrailGrid")._dataView.getItem(rowIndex);
                 windowCreatePorts.find('.modal-header-title').text('Edit Port ' + mapedData.portName);
 
                 // Not editable fields
@@ -2150,6 +2186,11 @@ function validate() {
         var vlanVal = Number($("#txtVlan").val().trim());
         if(vlanVal < 1 || vlanVal > 4094 ){
             showInfoWindow("VLAN has to be between 1 to 4094", "Invalid Input");
+            return false
+        }
+        var subInterfaceVal = $("#ddSubInterfaceParent").data("contrailDropdown").value();
+        if(subInterfaceVal.trim() == "" ){
+            showInfoWindow("Sub Interface cannot be empty.", "Invalid Input");
             return false
         }
     }
