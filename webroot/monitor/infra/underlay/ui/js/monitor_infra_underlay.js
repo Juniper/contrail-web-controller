@@ -2634,8 +2634,8 @@ underlayView.prototype.renderTracePath = function(options) {
             where += '(sourcevn = '+intfData[i]['virtual_network']+' AND sourceip = '+intfData[i]['ip_address']+')';
             where += ' OR ';
             where += '(destvn = '+intfData[i]['virtual_network']+' AND destip = '+intfData[i]['ip_address']+')';
-            if(i+1 > intfData.length)
-                where+= 'OR';
+            if(i+1 < intfData.length)
+                where+= ' OR ';
         }
         ajaxData['where'] = where;
         ajaxData['engQueryStr'] = getEngQueryStr(ajaxData);
