@@ -135,7 +135,7 @@ function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData, 
         var confLen = configData.length;
         for (var i = 0; i < confLen; i++) {
             if (configData[i]['config-node']['fq_name'][1] == host) {
-                resultJSON['ConfigNode'] = configData[i]['config-node'];
+                resultJSON['ConfigData'] = configData[i]['config-node'];
                 break;
             }
         }
@@ -237,7 +237,7 @@ function postProcessConfigNodeSummary (configUVEData)
         resultJSON[resCnt] = {};
         resultJSON[resCnt]['name'] = key;
         resultJSON[resCnt]['value'] = {};
-        resultJSON[resCnt]['value']['ConfigNode'] = tmpConfigObjs[key];
+        resultJSON[resCnt]['value']['ConfigData'] = tmpConfigObjs[key];
     }
     return resultJSON;
 }

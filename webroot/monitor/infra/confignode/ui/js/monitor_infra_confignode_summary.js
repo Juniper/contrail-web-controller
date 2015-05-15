@@ -85,7 +85,7 @@ monitorInfraConfigSummaryClass = (function() {
                     },
                     {
                         field:"ip",
-                        name:"IP address",
+                        name:"IP Address",
                         minWidth:90,
                         formatter:function(r,c,v,cd,dc){
                             return summaryIpDisplay(dc['ip'],dc['summaryIps']);
