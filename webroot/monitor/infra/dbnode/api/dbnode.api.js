@@ -42,10 +42,12 @@ function getDatabaseNodeDetails (req, res, appData)
     var resultJSON = {};
     var dataObjArr = [];
     var excludeProcessList = [];
-    var genPostData = {};
     reqUrl = '/analytics/uves/database-node/' + hostName + '?flat';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
+    reqUrl = '/database-nodes?detail=true';
+    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                             configApiServer, null, appData);
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
@@ -53,7 +55,6 @@ function getDatabaseNodeDetails (req, res, appData)
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
-        console.log('got result:' + JSON.stringify(results));
         resultJSON = postProcessDatabaseNodeDetails(results, hostName);
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
@@ -61,28 +62,24 @@ function getDatabaseNodeDetails (req, res, appData)
 
 function getDatabaseNodesSummary (req, res, appData)
 {
-    console.log('inside getDatabaseNodesSummary');
     var nodesHostIp = {'hosts': {}, 'ips': {}};
     var addGen = req.param('addGen');
     var dataObjArr = [];
 
     var reqUrl = '/analytics/uves/database-node';
     var postData = {};
-    postData['cfilt'] = ['DatabaseUsageInfo','NodeStatus'];
+//    postData['cfilt'] = ['NodeStatus'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
+    reqUrl = '/database-nodes?detail=true';
+    commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
+                             configApiServer, null, appData);
     
     var resultJSON = [];
 
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(opApiServer, true),
               function(err, results) {
-        if (err || (results[0] == null) ||
-            (results[0]['value'].length == 0)) {
-            console.log('getDatabaseNodesSummary - Got error for ajax req');
-            commonUtils.handleJSONResponse(err, res, resultJSON);
-            return;
-        }
         resultJSON = postProcessDatabaseNodeSummary(results);
         var nodeCnt = 0;
         try {
@@ -113,30 +110,39 @@ function getDatabaseNodesSummary (req, res, appData)
     });
 }
 
-function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs, host)
+function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs, configData, host)
 {
+    if ((null != configData) && (configData.length > 0)) {
+        var confLen = configData.length;
+        for (var i = 0; i < confLen; i++) {
+            if (configData[i]['database-node']['fq_name'][1] == host) {
+                resultJSON['ConfigData'] = configData[i]['database-node'];
+                break;
+            }
+        }
+    }
     var moduleList = [];//TODO no process to be excluded
     try {
-        var cfgProcUVEData = databaseProcessUVEs['value'];
-        var cfgProcUVEDataLen = cfgProcUVEData.length;
+        var dbUVEData = databaseProcessUVEs['value'];
+        var dbUVEDataLen = dbUVEData.length;
     } catch(e) {
         return resultJSON;
     }
-    for (var i = 0; i < cfgProcUVEDataLen; i++) {
+    for (var i = 0; i < dbUVEDataLen; i++) {
         if (false == infraCmn.modExistInGenList(moduleList, host,
-                                                cfgProcUVEData[i]['name'])) {
+                                                dbUVEData[i]['name'])) {
             continue;
         }
         try {
             var modInstName =
-                infraCmn.getModInstName(cfgProcUVEData[i]['name']);
+                infraCmn.getModInstName(dbUVEData[i]['name']);
             if (null == modInstName) {
                 continue;
             }
             resultJSON[modInstName] = {};
             resultJSON[modInstName] =
                 commonUtils.copyObject(resultJSON[modInstName],
-                                       cfgProcUVEData[i]['value']);
+                                       dbUVEData[i]['value']);
         } catch(e) {
             continue;
         }
@@ -146,31 +152,71 @@ function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs, host)
 
 function postProcessDatabaseNodeDetails (uves, host)
 {
+    var configData = uves[1];
+    if ((null == configData) || (null == configData['database-nodes'])) {
+        configData = null;
+    } else {
+        configData = configData['database-nodes'];
+    }
     var resultJSON = {};
     resultJSON['databaseNode'] = {};
     resultJSON['databaseNode'] =
         commonUtils.copyObject(resultJSON['databaseNode'], uves[0]);
-    resultJSON = parseDatabaseNodeProcessUVEs(resultJSON, uves[1], host)
+    resultJSON = parseDatabaseNodeProcessUVEs(resultJSON, uves[0], configData, host)
     return resultJSON;
 }
 
-function postProcessDatabaseNodeSummary (uves)
+function postProcessDatabaseNodeSummary (dbUVEData)
 {
+    var uveData    = dbUVEData[0];
+    var configData = dbUVEData[1];
+    var tmpConfigObjs = {};
+
+    if ((null == configData) || (null == configData['database-nodes'])) {
+        configData = null;
+    } else {
+        configData = configData['database-nodes'];
+    }
+    if ((null == uveData) || (null == uveData['value'])) {
+        uveData = null;
+    } else {
+        uveData = uveData['value'];
+    }
+
     var resultJSON = [];
-    var databaseData = uves[0]['value'];
-    var databaseDataLen = databaseData.length;
-    for (var i = 0; i < databaseDataLen; i++) {
-        var host = databaseData[i]['name'];
+    var uveLen = uveData.length;
+    for (var i = 0; i < uveLen; i++) {
+        var host = uveData[i]['name'];
         resultJSON[i] = {};
         resultJSON[i]['name'] = host;
         resultJSON[i]['value'] = {};
         resultJSON[i]['value']['databaseNode'] = {};
         resultJSON[i]['value']['databaseNode'] =
             commonUtils.copyObject(resultJSON[i]['value']['databaseNode'],
-                       databaseData[i]['value']);
+                    uveData[i]['value']);
         resultJSON[i]['value'] =
-            parseDatabaseNodeProcessUVEs(resultJSON[i]['value'], uves[1],
-                                       host);
+            parseDatabaseNodeProcessUVEs(resultJSON[i]['value'], uveData,
+                    configData, host);
+    }
+    if (null == configData) {
+        return resultJSON;
+    }
+    var configLen = configData.length;
+    for (var i = 0; i < configLen; i++) {
+        tmpConfigObjs[configData[i]['database-node']['fq_name'][1]] =
+                                            configData[i]['database-node'];
+    }
+    var resCnt = resultJSON.length;
+    for (i = 0; i < resCnt; i++) {
+        if (null != tmpConfigObjs[resultJSON[i]['name']]) {
+            delete tmpConfigObjs[resultJSON[i]['name']];
+        }
+    }
+    for (key in tmpConfigObjs) {
+        resultJSON[resCnt] = {};
+        resultJSON[resCnt]['name'] = key;
+        resultJSON[resCnt]['value'] = {};
+        resultJSON[resCnt]['value']['ConfigData'] = tmpConfigObjs[key];
     }
     return resultJSON;
 }
