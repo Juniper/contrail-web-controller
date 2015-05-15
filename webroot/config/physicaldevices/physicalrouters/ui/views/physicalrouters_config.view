@@ -31,12 +31,6 @@
                 <div class="span10">{{data_ip_address}}</div>
             </div>
             
-            {{#IfCompare junosServicePorts '-' operator='!='}}
-                <div class="row-fluid">
-                    <div class="span2"><label>Junos Service Ports</label></div>
-                    <div class="span10">{{junosServicePorts}}</div>
-                </div>
-            {{/IfCompare}}
             <div class="row-fluid">
                 <div class="span2"><label>Interfaces</label></div>
                 <div class="span10">{{totalInterfacesCount}}</div>
@@ -692,14 +686,14 @@
                         <span class="ace-lbl ">&nbsp;</span>
                     </div>
                 </div>
-                <div class="widget-box transparent collapsed" id="snmpSettings_OVSDB" class="hide">
+                <div class="widget-box transparent " id="snmpSettings_OVSDB" class="hide">
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#OVSDBSnmpCredWidget');">
-                            <i class="icon-caret-right grey"></i>
+                            <i class="icon-caret-down grey"></i>
                             <span>SNMP Settings</span>
                         </h4>
                     </div>
-                    <div id="OVSDBSnmpCredWidget" class="widget-body collapsed">
+                    <div id="OVSDBSnmpCredWidget" class="widget-body ">
                         <div class="row-fluid widget-main">
                             <div class="control-group">
                                 <label class="control-label" for='snmpVersion_OVSDB'>Version</label>
@@ -999,14 +993,14 @@
                         <span class="ace-lbl ">&nbsp;</span>
                     </div>
                 </div>
-                <div class="widget-box transparent collapsed" id="snmpSettings_Netconf" class="hide">
+                <div class="widget-box transparent " id="snmpSettings_Netconf" class="hide">
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#NetconfSnmpCredWidget');">
-                            <i class="icon-caret-right grey"></i>
+                            <i class="icon-caret-down grey"></i>
                             <span>SNMP Settings</span>
                         </h4>
                     </div>
-                    <div id="NetconfSnmpCredWidget" class="widget-body collapsed">
+                    <div id="NetconfSnmpCredWidget" class="widget-body ">
                         <div class="row-fluid widget-main">
                             <div class="control-group">
                                 <label class="control-label" for='snmpVersion_Netconf'>Version</label>

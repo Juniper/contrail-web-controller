@@ -357,7 +357,7 @@
                                             <label class="control-label">Physical Router(s)</label>
                                             <div class="controls">
                                                 <div class="row-fluid">
-                                                    <div id="msPhysicalRouters" placeholder="Select Physical Routers..." class="span8" ></div>
+                                                    <div id="msPhysicalRouters" class="span8" ></div>
                                             </div>
                                         </div>
                                     </div>

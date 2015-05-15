@@ -159,7 +159,7 @@
                                             </div>
                                         </div>
                                    </div>
-                                   <div class="control-group">
+                                   <div class="control-group" id="physicalrouterdiv">
                                         <label class="control-label">Physical Router</label>
                                         <div class="controls">
                                             <div class="row-fluid">
