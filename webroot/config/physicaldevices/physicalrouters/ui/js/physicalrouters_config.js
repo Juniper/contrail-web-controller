@@ -737,25 +737,25 @@ function physicalRoutersConfig() {
         }
         var name,vendor,mgmtIpAddress,dataIpAddress,username,password,bgpRouter,vRoutersType,model,autoConfig,vns;
         var servicePortsTuples,servicePorts=[];
-        name = $("#txtPhysicalRouterName" + currAddEditType).val();
+        name = $("#txtPhysicalRouterName" + currAddEditType).val().trim();
         if(currAddEditType != VCPE_SUFFIX) {
-            vendor = $("#txtVendor" + currAddEditType).val();
+            vendor = $("#txtVendor" + currAddEditType).val().trim();
             model = $("#txtModel" + currAddEditType).val().trim();
         }
-        mgmtIpAddress = $("#txtMgmtIPAddress" + currAddEditType).val();
+        mgmtIpAddress = $("#txtMgmtIPAddress" + currAddEditType).val().trim();
         if(currAddEditType != NETCONF_SUFFIX){
-            dataIpAddress = $("#txtDataIPAddress" + currAddEditType).val();
+            dataIpAddress = $("#txtDataIPAddress" + currAddEditType).val().trim();
         }
         if(currAddEditType == NETCONF_SUFFIX || currAddEditType == PROUTER_SUFFIX){
-            username = $("#txtUsername" + currAddEditType).val();
-            password = $("#txtPassword" + currAddEditType).val();
+            username = $("#txtUsername" + currAddEditType).val().trim();
+            password = $("#txtPassword" + currAddEditType).val().trim();
             if($('#enableDisableServicePort' + currAddEditType)[0].checked == true){
                 servicePortsTuples = $("#servicePortsTuples" + currAddEditType)[0].children;
                 if (servicePortsTuples && servicePortsTuples.length > 0) {
                     for(i = 0 ; i< servicePortsTuples.length ; i++){
                         var divid = servicePortsTuples[i].id;
                         var id = getServicePortsDivID(divid);
-                        var servicePort = $("#servicePortsTuples"+ currAddEditType + "_"+id+"_servicePort").val();
+                        var servicePort = $("#servicePortsTuples"+ currAddEditType + "_"+id+"_servicePort").val().trim();
                         servicePorts.push(servicePort);
                     }
                 }
@@ -782,9 +782,11 @@ function physicalRoutersConfig() {
         postObject["physical-router"]["physical_router_product_name"] = model;
         postObject["physical-router"]["physical_router_management_ip"] = mgmtIpAddress;
         postObject["physical-router"]["physical_router_dataplane_ip"] = dataIpAddress;
-        postObject["physical-router"]['physical_router_user_credentials'] = {};
-        postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
-        postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
+        if(username != null){
+            postObject["physical-router"]['physical_router_user_credentials'] = {};
+            postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
+            postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
+        }
         if(servicePorts != null && servicePorts.length > 0){
             postObject["physical-router"]["physical_router_junos_service_ports"] = {};
             postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = servicePorts;
@@ -844,9 +846,9 @@ function physicalRoutersConfig() {
         //SNMP Credentials
         if(currAddEditType == PROUTER_SUFFIX || isSNMPManaged) {
             var snmpVersion = ($('#snmpVersion2' + currAddEditType).is(':checked') == true)? 2 : 3;
-            var snmpLocalPort = ($("#txtLocalPort" + currAddEditType).val() != '')? parseInt($("#txtLocalPort" + currAddEditType).val()) : '';
-            var snmpRetries = ($("#txtRetries" + currAddEditType).val() != '')? parseInt($("#txtRetries" + currAddEditType).val()) : '';
-            var snmpTimeOut = ($("#txtTimeout" + currAddEditType).val() != '')? parseInt($("#txtTimeout" + currAddEditType).val()) : '';
+            var snmpLocalPort = ($("#txtLocalPort" + currAddEditType).val().trim() != '')? parseInt($("#txtLocalPort" + currAddEditType).val().trim()) : '';
+            var snmpRetries = ($("#txtRetries" + currAddEditType).val().trim() != '')? parseInt($("#txtRetries" + currAddEditType).val().trim()) : '';
+            var snmpTimeOut = ($("#txtTimeout" + currAddEditType).val().trim() != '')? parseInt($("#txtTimeout" + currAddEditType).val().trim()) : '';
             postObject["physical-router"]['physical_router_snmp_credentials'] = {};
             postObject["physical-router"]['physical_router_snmp_credentials']['version'] = snmpVersion;
             if(snmpLocalPort != '')
@@ -857,32 +859,32 @@ function physicalRoutersConfig() {
                 postObject["physical-router"]['physical_router_snmp_credentials']['timeout'] = snmpTimeOut;
             
             if(snmpVersion == 2){//version is 2
-                postObject["physical-router"]['physical_router_snmp_credentials']['v2_community'] = $("#txtCommunity" + currAddEditType).val();
+                postObject["physical-router"]['physical_router_snmp_credentials']['v2_community'] = $("#txtCommunity" + currAddEditType).val().trim();
             } else { //version is 3
-                var securityLevel = $("#ddSnmpSecurityLevel" + currAddEditType).data('contrailDropdown').value();
-                if($("#txtSecurityName" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_name'] = $("#txtSecurityName" + currAddEditType).val();
+                var securityLevel = $("#ddSnmpSecurityLevel" + currAddEditType).data('contrailDropdown').value().trim();
+                if($("#txtSecurityName" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_name'] = $("#txtSecurityName" + currAddEditType).val().trim();
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_level'] = securityLevel;
-                if($("#txtSecurityEngineId" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId" + currAddEditType).val();
+                if($("#txtSecurityEngineId" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId" + currAddEditType).val().trim();
                 if (securityLevel == SNMP_AUTH) {
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_protocol'] = $("#txtSnmpAuthProtocol" + currAddEditType).val();
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_password'] = $("#txtSnmpAuthPassword" + currAddEditType).val();
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_protocol'] = $("#txtSnmpAuthProtocol" + currAddEditType).val().trim();
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_password'] = $("#txtSnmpAuthPassword" + currAddEditType).val().trim();
                 } 
                 if (securityLevel == SNMP_AUTHPRIV) {
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_protocol'] = $("#txtSnmpPrivProtocol" + currAddEditType).val();
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_password'] = $("#txtSnmpPrivPassword" + currAddEditType).val();
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_protocol'] = $("#txtSnmpPrivProtocol" + currAddEditType).val().trim();
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_privacy_password'] = $("#txtSnmpPrivPassword" + currAddEditType).val().trim();
                 }
-                if($("#txtContext" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_context'] = $("#txtContext" + currAddEditType).val();
-                if($("#txtContextEngineId" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_context_engine_id'] = $("#txtContextEngineId" + currAddEditType).val();
-                if($("#txtV3EngineId" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_id'] = $("#txtV3EngineId" + currAddEditType).val();
-                if($("#txtV3EngineBoots" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots" + currAddEditType).val());
-                if($("#txtV3EngineTime" + currAddEditType).val() != '')
-                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime" + currAddEditType).val());
+                if($("#txtContext" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_context'] = $("#txtContext" + currAddEditType).val().trim();
+                if($("#txtContextEngineId" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_context_engine_id'] = $("#txtContextEngineId" + currAddEditType).val().trim();
+                if($("#txtV3EngineId" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_id'] = $("#txtV3EngineId" + currAddEditType).val().trim();
+                if($("#txtV3EngineBoots" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots" + currAddEditType).val().trim());
+                if($("#txtV3EngineTime" + currAddEditType).val().trim() != '')
+                    postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime" + currAddEditType).val().trim());
             }
         }
         if(methodType == "PUT"){
@@ -935,7 +937,7 @@ function physicalRoutersConfig() {
         //Loop through twice to fetch the 2 toragents and 2 tsns and populate them 
         for(var i=1 ; i <= 2 ; i++){
             var torcb = $('#ddTorAgentName' + i + currAddEditType).data('contrailCombobox');
-            var tor = torcb.value();
+            var tor = torcb.value().trim();
             var allData = torcb.getAllData();
             var isTorSelectedFromList = false;
             var isTorAlreadyFromEdit = false;
@@ -950,7 +952,7 @@ function physicalRoutersConfig() {
                } 
             });
             var tsncb = $('#ddTsnName' + i + currAddEditType).data('contrailCombobox');
-            var tsn = tsncb.value();
+            var tsn = tsncb.value().trim();
             var tsnAllData = tsncb.getAllData();
             var isTsnSelectedFromList = false;
             var isTsnAlreadyFromEdit = false;
@@ -964,8 +966,8 @@ function physicalRoutersConfig() {
                     isTsnAlreadyFromEdit = true;
                 } 
              });
-            var torAgentName = $("#ddTorAgentName" + i + currAddEditType).data('contrailCombobox').text();
-            var tsnName = $("#ddTsnName" + i + currAddEditType).data('contrailCombobox').text();
+            var torAgentName = $("#ddTorAgentName" + i + currAddEditType).data('contrailCombobox').text().trim();
+            var tsnName = $("#ddTsnName" + i + currAddEditType).data('contrailCombobox').text().trim();
             //TOR Agent
             if(torAgentName != null && torAgentName != ''){
                 if(!isTorSelectedFromList && !isTorAlreadyFromEdit){
@@ -1425,25 +1427,30 @@ function physicalRoutersConfig() {
             vRouterType = 'none';
         }
         if(vRouterType == "tor-agent") {
-            if(ddTorAgentName1.text() == ''){
-                showInfoWindow("ToR Agent Name cannot be empty","Input required Virtual Router");
+            var vroutersList = [];
+            var tor1 = ddTorAgentName1.text().trim();
+            var tor2 = ddTorAgentName2.text().trim();
+            var tsn1 = ddTsnName1.text().trim();
+            var tsn2 = ddTsnName2.text().trim();
+            if(tor1 != '') 
+                vroutersList.push(tor1);
+            if(tor2 != '')
+                vroutersList.push(tor2);
+            if(tsn1 != '')
+                vroutersList.push(tsn1);
+            if(tsn2 != '')
+                vroutersList.push(tsn2);
+            if(tor1 == '' && tor2 ==''){
+                showInfoWindow("Select or Enter atleast one ToR","Input required Virtual Router");
                 return false;
             }
-            if(ddTsnName1.text() == ''){
-                showInfoWindow("TSN Name cannot be empty","Input required Virtual Router");
+            if(tsn1 == '' && tsn2 ==''){
+                showInfoWindow("Select or Enter alteast one TSN","Input required Virtual Router");
                 return false;
             }
-            if(ddTorAgentName1.text() != '' && ddTorAgentName2.text() != ''){
-                if(ddTorAgentName1.text() == ddTorAgentName2.text()){
-                    showInfoWindow("Please select different TOR Agents","Input error Virtual Router");
-                    return false;
-                }
-            }
-            if(ddTsnName1.text() != '' && ddTsnName2.text() != ''){
-                if(ddTsnName1.text() == ddTsnName2.text()){
-                    showInfoWindow("Please select different TSNs","Input error Virtual Router");
-                    return false;
-                }
+            if(checkIfDuplicates(vroutersList)){
+                showInfoWindow("Enter different names for ToRs and TSNs","Input required Virtual Router");
+                return false;
             }
         } else if(vRouterType == "embedded"){
             var currVr = getVirtualRouterDetails(name);
@@ -1461,19 +1468,19 @@ function physicalRoutersConfig() {
                     return false;
                 }
             }
-            if($('#txtRetries' + pRouterType).val() != '' && !$.isNumeric($('#txtRetries' + pRouterType).val())) {
+            if($('#txtRetries' + pRouterType).val().trim() != '' && !$.isNumeric($('#txtRetries' + pRouterType).val().trim())) {
                 showInfoWindow("Retries should be a number","Input error SNMP Credentials");
                 return false;
             }
-            if($('#txtTimeout' + pRouterType).val() != '' && !$.isNumeric($('#txtTimeout' + pRouterType).val())) {
+            if($('#txtTimeout' + pRouterType).val().trim() != '' && !$.isNumeric($('#txtTimeout' + pRouterType).val().trim())) {
                 showInfoWindow("Timeout should be a number","Input error SNMP Credentials");
                 return false;
             }
-            if($('#txtV3EngineBoots' + pRouterType).val() != '' && !$.isNumeric($('#txtV3EngineBoots' + pRouterType).val())) {
+            if($('#txtV3EngineBoots' + pRouterType).val().trim() != '' && !$.isNumeric($('#txtV3EngineBoots' + pRouterType).val().trim())) {
                 showInfoWindow("Engine Boots should be a number","Input error SNMP Credentials");
                 return false;
             }
-            if($('#txtV3EngineTime' + pRouterType).val() != '' && !$.isNumeric($('#txtV3EngineTime' + pRouterType).val())) {
+            if($('#txtV3EngineTime' + pRouterType).val().trim() != '' && !$.isNumeric($('#txtV3EngineTime' + pRouterType).val().trim())) {
                 showInfoWindow("Engine Time should be a number","Input error SNMP Credentials");
                 return false;
             }
