@@ -85,7 +85,7 @@ monitorInfraAnalyticsSummaryClass = (function() {
                     {
                         field:"ip",
                         id:"ip",
-                        name:"IP address",
+                        name:"IP Address",
                         minWidth:110,
                         sortable:true,
                         formatter:function(r,c,v,cd,dc){
