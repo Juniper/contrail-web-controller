@@ -248,8 +248,14 @@ var infraMonitorAlertUtils = {
     processConfigNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Config Node',ip:obj['ip'],link:obj['link']};
-        if(obj['isPartialUveMissing'] == true)
-            alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        if(obj['isUveMissing'] == true)
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
+        if(obj['isConfigMissing'] == true)
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+        if(obj['isUveMissing'] == false){
+            if(obj['isPartialUveMissing'] == true)
+                alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        }
         return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processAnalyticsNodeAlerts : function(obj) {
@@ -273,7 +279,14 @@ var infraMonitorAlertUtils = {
     processDbNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Database Node',ip:obj['ip'],link:obj['link']};
-        if(obj['isPartialUveMissing'] == true){
+        if(obj['isUveMissing'] == true){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
+        }
+        if(obj['isConfigMissing'] == true){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+        }
+        
+        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         }
         if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
@@ -630,6 +643,8 @@ var infraMonitorUtils = {
             obj['display_type'] = 'Config Node';
             obj['name'] = d['name'];
             obj['link'] = {p:'mon_infra_config',q:{node:obj['name'],tab:''}};
+            obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,'value;ConfigData')) ? true : false;
+            obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,'value;configNode'))) ? true : false;
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
             try{
@@ -680,6 +695,15 @@ var infraMonitorUtils = {
             obj['x'] = $.isNumeric(dbSpaceAvailable)? dbSpaceAvailable / 1024 / 1024 : 0;
             obj['y'] = $.isNumeric(dbSpaceUsed)? dbSpaceUsed / 1024 / 1024 : 0;
             
+            obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,'value;ConfigData')) ? true : false;
+            obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,'value;databaseNode'))) ? true : false;
+            var configData;
+            if(!obj['isConfigMissing']){
+                configData = getValueByJsonPath(d,'value;ConfigData');
+                obj['ip'] = configData.database_node_ip_address;
+            } else {
+                obj['ip'] = noDataStr;
+            }
             obj['availableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
             obj['usedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
             obj['analyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
@@ -694,7 +718,7 @@ var infraMonitorUtils = {
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
             try{
-                obj['status'] = getOverallNodeStatus(d,"config");
+                obj['status'] = getOverallNodeStatus(d,"db");
             }catch(e){
                 obj['status'] = 'Down';
             }
