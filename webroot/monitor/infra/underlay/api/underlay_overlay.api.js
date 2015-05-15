@@ -29,6 +29,14 @@ var CONFIG_UVE_FOUND = 0;
 var CONFIG_NOT_FOUND = 1;
 var CONFIG_UVE_NOT_FOUND = 2;
 
+var vmiPostCfilt = [
+    'UveVMInterfaceAgent:vm_name', 'UveVMInterfaceAgent:uuid',
+    'UveVMInterfaceAgent:label', 'UveVMInterfaceAgent:mac_address',
+    'UveVMInterfaceAgent:active', 'UveVMInterfaceAgent:virtual_network',
+    'UveVMInterfaceAgent:ip_address', 'UveVMInterfaceAgent:gateway',
+    'UveVMInterfaceAgent:floating_ips', 'UveVirtualMachineAgent:ip6_active',
+    'UveVirtualMachineAgent:ip6_address'];
+
 function sortVMNames (vmNode1, vmNode2, sortKey)
 {
     try {
@@ -52,6 +60,53 @@ function sortTopologyVMListByVMName (vmTopoNodes, sortKey)
         return sortVMNames(vmNode1, vmNode2, sortKey);
     });
     return vmTopoNodes;
+}
+
+function mergeVMAndVMIUveData (vmData, vmiData)
+{
+    if ((null == vmData) || (null == vmData['value']) ||
+        (null == vmiData) || (null == vmiData['value'])) {
+        return vmData;
+    }
+    var tmpVMIData = commonUtils.cloneObj(vmiData['value']);
+    var vmiCnt = tmpVMIData.length;
+    var vmiObjs = {};
+    for (var i = 0; i < vmiCnt; i++) {
+        if ((null == tmpVMIData[i]['value']) ||
+            (null == tmpVMIData[i]['name'])) {
+            continue;
+        }
+        vmiObjs[tmpVMIData[i]['name']] =
+            tmpVMIData[i]['value']['UveVMInterfaceAgent'];
+    }
+    var tmpVMData = commonUtils.cloneObj(vmData['value']);
+    var vmCnt = tmpVMData.length;
+    for (var i = 0; i < vmCnt; i++) {
+        var vmIntfList = [];
+        var intfCnt = 0;
+        try {
+            var intfList =
+                tmpVMData[i]['value']['UveVirtualMachineAgent']['interface_list'];
+            intfCnt = intfList.length;
+        } catch(e) {
+            intfCnt = 0;
+        }
+        for (var j = 0; j < intfCnt; j++) {
+            if (null != vmiObjs[intfList[j]]) {
+                vmIntfList.push(vmiObjs[intfList[j]]);
+                /* Add the interface name */
+                vmIntfList[vmIntfList.length - 1]['interface_name'] = intfList[j];
+            }
+        }
+        try {
+            delete
+                vmData['value'][i]['value']['UveVirtualMachineAgent']['interface_list'];
+            vmData['value'][i]['value']['UveVirtualMachineAgent']['interface_list']
+                = vmIntfList;
+        } catch(e) {
+        }
+    }
+    return vmData;
 }
 
 function buildvRouterVMTopology (nodeList, appData, callback)
@@ -84,6 +139,11 @@ function buildvRouterVMTopology (nodeList, appData, callback)
     vrPostData['cfilt'] = ['VrouterAgent:self_ip_list','VrouterAgent:sandesh_http_port'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
                              opApiServer, null, appData);
+    var vmiUrl = '/analytics/uves/virtual-machine-interface';
+    var vmiPostData = {};
+    vmiPostData['cfilt'] = vmiPostCfilt;
+    commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_POST,
+                             vmiPostData, opApiServer, null, appData);
     async.map(dataObjArr,
               commonUtils.getServerResponseByRestApi(configApiServer, true),
               function(err, results) {
@@ -94,25 +154,37 @@ function buildvRouterVMTopology (nodeList, appData, callback)
             callback(null, null, vrData);
             return;
         }
+        results[0] = mergeVMAndVMIUveData(results[0], results[2]);
         var vmCnt = vmData['value'].length;
         for (var i = 0; i < vmCnt; i++) {
             try {
                 var vrName =
-                    vmData['value'][i]['value']['UveVirtualMachineAgent']['vrouter'];
+                    vmData['value'][i]['value']['UveVirtualMachineAgent']
+                          ['vrouter'];
                 if (null == tempvRouterObjs[vrName]) {
                     continue;
                 }
             } catch(e) {
             }
+            var moreAttr = {};
             try {
-                var moreAttr = {'vm_name':
+                moreAttr['vm_name'] =
                     vmData['value'][i]['value']['UveVirtualMachineAgent']
-                        ['interface_list'][0]['vm_name'],
-                    'interface_list':
-                        vmData['value'][i]['value']['UveVirtualMachineAgent']
-                               ['interface_list'],
-                    'vrouter':
-                        vmData['value'][i]['value']['UveVirtualMachineAgent']['vrouter']};
+                          ['interface_list'][0]['vm_name'];
+            } catch(e) {
+            }
+            try {
+                moreAttr['interface_list'] =
+                    vmData['value'][i]['value']['UveVirtualMachineAgent']
+                          ['interface_list'];
+            } catch(e) {
+            }
+            try {
+                moreAttr['vrouter'] =
+                    vmData['value'][i]['value']['UveVirtualMachineAgent']['vrouter'];
+            } catch(e) {
+            }
+            try {
                 vmList.push({'name': vmData['value'][i]['name'],
                     'node_type': ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE,
                     'chassis_type': ctrlGlobal.NODE_TYPE_NONE,
@@ -1028,9 +1100,15 @@ function getUnderlayPath (req, res, appData)
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vmPostData, null, null, null);
+        var vmiUrl = '/analytics/uves/virtual-machine-interface';
+        var vmiPostData = {};
+        vmiPostData['cfilt'] = vmiPostCfilt;
+        commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_POST,
+                                 vmiPostData, opApiServer, null, appData);
         async.map(dataObjArr,
                   commonUtils.getServerResponseByRestApi(opApiServer, true),
                   function(err, results) {
+            results[1] = mergeVMAndVMIUveData(results[1], results[2]);
             var ipPrTable = getIPToProuterMapTable(results[0]);
 
             var srcNode = getvRouterByIntfIP(srcIP, results[1], ipPrTable);
@@ -1493,7 +1571,7 @@ function getIPToProuterMapTable (prouterData)
     return ipPrTable;
 }
 
-function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, callback)
+function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, appData, callback)
 {
     var topoData = {};
     var dataObjArr = [];
@@ -1527,9 +1605,15 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, callback)
             'UveVirtualMachineAgent:vrouter'];
         commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST,
                                  vmPostData, null, null, null);
+        var vmiUrl = '/analytics/uves/virtual-machine-interface';
+        var vmiPostData = {};
+        vmiPostData['cfilt'] = vmiPostCfilt;
+        commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_POST,
+                                 vmiPostData, opApiServer, null, appData);
         async.map(dataObjArr,
                   commonUtils.getServerResponseByRestApi(opApiServer, true),
                   function(err, results) {
+            results[2] = mergeVMAndVMIUveData(results[2], results[3]);
             var hopCnt = hopList.length;
             topoData['nodes'] = [];
             var ipPrTable = getIPToProuterMapTable(results[0]);
@@ -1656,7 +1740,8 @@ function getTraceFlow (req, res, appData)
             }
             urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
                 + url;
-            getTraceFlowByReqURL(req, urlLists, srcIP, destIP, function(err, results) {
+            getTraceFlowByReqURL(req, urlLists, srcIP, destIP, appData,
+                                 function(err, results) {
                 commonUtils.handleJSONResponse(err, res, results);
             });
         });
@@ -1664,7 +1749,8 @@ function getTraceFlow (req, res, appData)
         url += '&vrf_name=' + vrfName;
         urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
             + url + urlExtd;
-        getTraceFlowByReqURL(req, urlLists, srcIP, destIP, function(err, results) {
+        getTraceFlowByReqURL(req, urlLists, srcIP, destIP, appData,
+                             function(err, results) {
             commonUtils.handleJSONResponse(err, res, results);
         });
     }
