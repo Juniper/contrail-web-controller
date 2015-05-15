@@ -25,10 +25,16 @@
                 <div class="span2"><label>Management IP</label></div>
                 <div class="span10">{{mgmt_ip_address}}</div>
             </div>
-            {{#IfCompare pRouterEditType '_Netconf' operator='!='}}
+            
+            <div class="row-fluid">
+                <div class="span2"><label>VTEP Address</label></div>
+                <div class="span10">{{data_ip_address}}</div>
+            </div>
+            
+            {{#IfCompare junosServicePorts '-' operator='!='}}
                 <div class="row-fluid">
-                    <div class="span2"><label>VTEP Address</label></div>
-                    <div class="span10">{{data_ip_address}}</div>
+                    <div class="span2"><label>Junos Service Ports</label></div>
+                    <div class="span10">{{junosServicePorts}}</div>
                 </div>
             {{/IfCompare}}
             <div class="row-fluid">
