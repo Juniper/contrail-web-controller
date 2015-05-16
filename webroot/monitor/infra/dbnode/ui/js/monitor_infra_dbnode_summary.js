@@ -15,6 +15,7 @@ monitorInfraDatabaseSummaryClass = (function() {
         var dbNodesResult = dbNodeDS.getDataSourceObj();
         var dbNodesDataSource = dbNodesResult['dataSource'];
         var dbDeferredObj = dbNodesResult['deferredObj'];
+        var dbPurgeTemplate = contrail.getTemplate4Id('purge-action-template');
         //Initialize widget header
         $('#dbNodes-header').initWidgetHeader({title:'Database Nodes', widgetBoxId:'recent'});
         $('#db-nodes-grid').contrailGrid({
@@ -22,7 +23,7 @@ monitorInfraDatabaseSummaryClass = (function() {
                 title : {
                     text : 'Database Nodes'
                 },
-                customControls: []
+                customControls: [dbPurgeTemplate()],
             },
             body: {
                 options: {
@@ -142,4 +143,22 @@ monitorInfraDatabaseSummaryClass = (function() {
 
 function onDbNodeRowSelChange(dc) {
     databaseNodeView.load({name:dc['name'], ip:dc['ip']});
+}
+
+function purgeAnalyticsDB(purgePercentage) {
+    var ajaxConfig = {
+        type: "GET",
+        url: "/api/analytics/db/purge?purge_input=" + purgePercentage
+    };
+
+    contrail.ajaxHandler(ajaxConfig, null, function(response) {
+        if(response != null && response['status'] == 'started') {
+            showInfoWindow("Analytics DB purge has been started.", "Success");
+        } else {
+            showInfoWindow(response, "Purge Response");
+        }
+    }, function(response){
+        var errorMsg = contrail.parseErrorMsgFromXHR(response);
+        showInfoWindow(errorMsg, "Error");
+    });
 }
