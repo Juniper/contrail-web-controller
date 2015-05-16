@@ -197,6 +197,9 @@ var infraMonitorAlertUtils = {
     processvRouterAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'vRouter',ip:obj['ip'],link:obj['link']};
+        if(obj['isNTPUnsynced']){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
+        }
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{msg:infraAlertMsgs['UVE_MISSING'],sevLevel:sevLevels['ERROR'],tooltipLbl:'Events'},infoObj));
         if(obj['isConfigMissing'] == true)
@@ -220,6 +223,9 @@ var infraMonitorAlertUtils = {
     processControlNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Control Node',ip:obj['ip'],link:obj['link']};
+        if(obj['isNTPUnsynced']){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
+        }
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         if(obj['isConfigMissing'] == true)
@@ -255,12 +261,17 @@ var infraMonitorAlertUtils = {
         if(obj['isUveMissing'] == false){
             if(obj['isPartialUveMissing'] == true)
                 alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        if(obj['isNTPUnsynced']){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
         }
         return alertsList.sort(dashboardUtils.sortInfraAlerts);
     },
     processAnalyticsNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Analytics Node',ip:obj['ip'],link:obj['link']};
+        if(obj['isNTPUnsynced']){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
+        }
         if(obj['isUveMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         }
@@ -279,14 +290,16 @@ var infraMonitorAlertUtils = {
     processDbNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Database Node',ip:obj['ip'],link:obj['link']};
+        if(obj['isNTPUnsynced']){
+            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
+        }
         if(obj['isUveMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         }
         if(obj['isConfigMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
         }
-        
-        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
+        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){    
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         }
         if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
@@ -391,6 +404,7 @@ var infraMonitorUtils = {
             obj['uveIP'] = iplist;
             obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(dValue,'ConfigData')) ? true : false;
             obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(dValue,'VrouterAgent')) && $.isEmptyObject(getValueByJsonPath(dValue,'VrouterStatsAgent'))) ? true : false;
+            obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(dValue,'$..NodeStatus')[0]);
             obj['configIP'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_ip_address','-');
             obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
             if(obj['vRouterType'] == ''){
@@ -529,6 +543,7 @@ var infraMonitorUtils = {
                     obj['ifmapDownAt'] = ifNull(ifmapObj['connection_status_change_at'],'-');
                 }
             }
+            obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
             if(obj['downBgpPeerCnt'] > 0){
                 obj['downBgpPeerCntText'] = ", <span class='text-error'>" + obj['downBgpPeerCnt'] + " Down</span>";
             } else {
@@ -602,6 +617,7 @@ var infraMonitorUtils = {
             obj['name'] = d['name'];
             obj['link'] = {p:'mon_infra_analytics',q:{node:obj['name'],tab:''}};
             obj['errorStrings'] = ifNull(jsonPath(d,"$.value.ModuleCpuState.error_strings")[0],[]);
+            obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             var isConfigDataAvailable = $.isEmptyObject(jsonPath(d,'$..ConfigData')[0]) ? false : true;
             obj['isUveMissing'] = ($.isEmptyObject(jsonPath(d,'$..CollectorState')[0]) && isConfigDataAvailable)? true : false;
@@ -645,6 +661,7 @@ var infraMonitorUtils = {
             obj['link'] = {p:'mon_infra_config',q:{node:obj['name'],tab:''}};
             obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,'value;ConfigData')) ? true : false;
             obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,'value;configNode'))) ? true : false;
+            obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
             obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(d,obj);
             obj['isPartialUveMissing'] = false;
             try{
@@ -722,20 +739,7 @@ var infraMonitorUtils = {
             }catch(e){
                 obj['status'] = 'Down';
             }
-//            var iplist = jsonPath(d,'$..config_node_ip')[0];
-//             obj['ip'] = obj['summaryIps'] = noDataStr;
-//                if(iplist != null && iplist != noDataStr && iplist.length > 0){
-//                obj['ip'] = iplist[0];
-//                var ipString = "";
-//                $.each(iplist, function (idx, ip){
-//                    if(idx+1 == iplist.length) {
-//                        ipString = ipString + ip;
-//                       } else {
-//                        ipString = ipString + ip + ', ';
-//                       }
-//                });
-//                obj['summaryIps'] = ipString;
-//            }
+            obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
             obj['nodeAlerts'] = infraMonitorAlertUtils.processDbNodeAlerts(obj);
             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(dashboardUtils.sortInfraAlerts);
             obj['color'] = getDbNodeColor(d,obj);
@@ -2839,6 +2843,17 @@ function updatevRouterLabel(selector,filteredCnt,totalCnt){
     infoElem.text(innerText);
 }
 
-
+function isNTPUnsynced (nodeStatus){
+    if(nodeStatus == null || !nodeStatus || nodeStatus.process_status == null){
+        return false;
+    }
+    var processStatus = nodeStatus.process_status;
+    for(var i = 0; i < processStatus.length; i++){
+        var procstat = processStatus[i];
+        if(procstat.description != null && procstat.description.toLowerCase().indexOf("ntp state unsynchronized") != -1){
+            return true;
+        }
+    }
+}
 
 
