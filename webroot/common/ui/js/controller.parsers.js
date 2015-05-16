@@ -11,10 +11,12 @@ define([
                 if(!isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
                     currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
+                    /*
                     currObject['outBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_bytes', 0);
                     currObject['inBytes'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_bytes', 0);
                     currObject['out_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;out_tpkts', 0);
                     currObject['in_tpkts'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;in_tpkts', 0);
+                    */
                     currObject['egress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;egress_flow_count', 0);
                     currObject['ingress_flow_count'] = getValueByJsonPath(currObject, 'value;UveVirtualNetworkAgent;ingress_flow_count', 0);
                     currObject['outBytes60'] = '-';
@@ -175,9 +177,7 @@ define([
             if(response != null && response.value != null) {
                 rawInterfaces = response.value;
                 for(var i = 0; i < rawInterfaces.length; i++) {
-                    interface = {
-                        'traffic_stats': {}
-                    };
+                    interface = {};
                     uveVMInterfaceAgent = rawInterfaces[i]['value']['UveVMInterfaceAgent'];
                     interface = $.extend(true, interface, uveVMInterfaceAgent);
                     interface['name'] = rawInterfaces[i]['name'];
@@ -197,10 +197,7 @@ define([
                         interface['floatingIP'].push(contrail.format('{0} ({1} / {2})', fipObj['ip_address'], formatBytes(ifNull(fipObj['in_bytes'], '-')), formatBytes(ifNull(fipObj['out_bytes'], '-'))));
                     });
 
-                    if(interface['if_stats'].length > 0) {
-                        interface['traffic_stats'] = interface['if_stats'][0];
-                        interface['traffic_stats']['throughput'] = interface['if_stats'][0]['in_bw_usage'] +  interface['if_stats'][0]['out_bw_usage'];
-                    }
+                    interface['if_stats']['throughput'] = interface['if_stats']['in_bw_usage'] +  interface['if_stats']['out_bw_usage'];
 
                     interfaceMap[interface['name']] = interface;
                 }

@@ -85,7 +85,7 @@ define([
                 name: 'Throughput In/Out',
                 minWidth: 150,
                 formatter: function (r, c, v, cd, dc) {
-                    return contrail.format("{0} / {1}", formatThroughput(dc['traffic_stats']['in_bw_usage'], true), formatThroughput(dc['traffic_stats']['out_bw_usage'], true));
+                    return contrail.format("{0} / {1}", formatThroughput(dc['if_stats']['in_bw_usage'], true), formatThroughput(dc['if_stats']['out_bw_usage'], true));
                 }
             },
             {
@@ -358,9 +358,9 @@ define([
                                     ifStats;
 
                                 if (contrail.checkIfExist(interfaceDetail)) {
-                                    ifStats = ifNull(interfaceDetail['if_stats'], [{}]);
-                                    inThroughput += ifNull(ifStats[0]['in_bw_usage'], 0);
-                                    outThroughput += ifNull(ifStats[0]['out_bw_usage'], 0);
+                                    ifStats = ifNull(interfaceDetail['if_stats'], {});
+                                    inThroughput += ifNull(ifStats['in_bw_usage'], 0);
+                                    outThroughput += ifNull(ifStats['out_bw_usage'], 0);
                                     interfaceDetailsList.push(interfaceDetail);
                                 }
                             }

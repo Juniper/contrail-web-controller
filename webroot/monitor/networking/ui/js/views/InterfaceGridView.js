@@ -173,7 +173,7 @@ define([
                                             templateGenerator: 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
                                                 {
-                                                    key: 'traffic_stats.throughput',
+                                                    key: 'if_stats.throughput',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'throughput'
