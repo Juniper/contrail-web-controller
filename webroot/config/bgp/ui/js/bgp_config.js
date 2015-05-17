@@ -1199,6 +1199,8 @@ function selectJnpr() {
     }
     //$('#bgpbody').scrollTop(5);
     populateMultiselect("chkjnpr");
+    $('#physicalrouterdiv').removeClass('show').addClass('hide');
+    $('#ddProuter').data('contrailDropdown').value('none');
 }
 function populateMultiselect(who) {
     var jnprs = [];
@@ -1278,6 +1280,7 @@ function selectExternal() {
     $("#peersdiv").show();
     populateMultiselect("chkexternal");
     //$('#bgpbody').scrollTop(120);
+    $('#physicalrouterdiv').removeClass('hide').addClass('show');
 }
 
 function closeGasnWindow() {
