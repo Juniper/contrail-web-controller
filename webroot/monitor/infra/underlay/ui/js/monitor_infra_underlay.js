@@ -3256,7 +3256,7 @@ underlayController.prototype.getModelData = function(cfg) {
                 $("#network_topology").find('.topology-visualization-loading').hide();
                 if(getValueByJsonPath(forceResponse,'nodes',[]).length == 0 ) {
                     showEmptyInfo('network_topology');
-                    $("#underlay_tabstrip").tabs('disable');
+                    enableDisableTabs({disable:true});
                 } else if(forceResponse['topologyChanged']) {
                     var graph = _this.getView().getGraph();
                     graph.clear();
@@ -3264,7 +3264,7 @@ underlayController.prototype.getModelData = function(cfg) {
                     _this.getModel().setTree({});
                     topologyCallback(forceResponse);
                     //Enabling the below tabs only on success of ajax calls.
-                    $("#underlay_tabstrip").tabs('enable');
+                    enableDisableTabs({enable:true});
                     //Rendering the first search flows tab
                     if(typeof underlayRenderer === "object"){
                         underlayRenderer.getView().renderFlowRecords();
@@ -3287,7 +3287,7 @@ underlayController.prototype.getModelData = function(cfg) {
             topologyCallback(response);
             if(getValueByJsonPath(response,'nodes',[]).length > 0) {
                 //Enabling the below tabs only on success of ajax calls.
-                $("#underlay_tabstrip").tabs('enable');
+                enableDisableTabs({enable:true});
                 //Rendering the first search flows tab
                 underlayView.prototype.renderFlowRecords();
             }
@@ -3299,6 +3299,21 @@ underlayController.prototype.getModelData = function(cfg) {
             _this.getModel().getData(forceCallCfg);
         }
     };
+    
+    function enableDisableTabs(options) {
+        if(options['enable']) {
+            $("#underlay_tabstrip").tabs('enable');
+            $("#underlay_tabstrip").find('ul.ui-tabs-nav li').each(function(idx,obj){
+               $(obj).find('a').attr('href',"#"+$(this).attr('aria-controls')); 
+            });
+        } else if (options['disable']){
+            $("#underlay_tabstrip").tabs('disable');
+            $("#underlay_tabstrip").find('ul.ui-tabs-nav li').each(function(idx,obj){
+               $(obj).find('a').removeAttr('href'); 
+            });
+        }
+    }
+    
     function topologyCallback(response){
         globalObj['topologyResponse'] = response;
         var virtualMachineList = $.grep(ifNull(response['nodes'],[]),function(value,idx){
