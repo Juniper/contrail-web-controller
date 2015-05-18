@@ -27,6 +27,8 @@ var util        = require('util');
 var url         = require('url');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonDiff = require(process.mainModule.exports["corePath"] +
+                       '/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs globalvrouterconfig.api.js"
@@ -154,26 +156,30 @@ function updateForwardingOptions (request, response, appData) {
            		return;
            	} else {
         	    var gvrPutURL = '/global-vrouter-config/' + gvrId;
-        	    var gvrConfigData = data;
+        	    var gvrConfigData = commonUtils.cloneObj(data);
         	    gvrConfigData["global-vrouter-config"]["vxlan_network_identifier_mode"] =
         	    	gvrPutData["global-vrouter-config"]["vxlan_network_identifier_mode"];
 
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"] = {};
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"] =
         	    	gvrPutData["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"];
-        	    
-        	    configApiServer.apiPut(gvrPutURL, gvrConfigData, appData,
-        	        function (error, data) {
-		            	if (error) {
-		            		commonUtils.handleJSONResponse(error, response, null);
-		            		return;
-		            	} else {
-		            		commonUtils.handleJSONResponse(error, response, data);
-		            	}
-		            	return;
-        	        });
-           		}
-           	});
+        	    var diffObj = jsonDiff.getConfigJSONDiff('global-vrouter-config', data, gvrConfigData);
+                if(diffObj != null) {
+        	        configApiServer.apiPut(gvrPutURL, diffObj, appData,
+        	            function (error, data) {
+		                	if (error) {
+		                		commonUtils.handleJSONResponse(error, response, null);
+		                		return;
+		                	} else {
+		                		commonUtils.handleJSONResponse(error, response, data);
+		                	}
+		                	return;
+        	            });
+           		} else {
+                    commonUtils.handleJSONResponse(error, response, null);
+                }
+            }
+        });
 }
 
 function updateLinkLocalService (request, response, appData) {

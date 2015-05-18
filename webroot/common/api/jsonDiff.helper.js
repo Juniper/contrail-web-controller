@@ -57,6 +57,16 @@ var configJsonModifyObj = {
         'optFields': ['virtual_machine_interface_refs'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'global-system-config': {
+        'isConfig': true,
+        'optFields': ['autonomous_system', 'ibgp_auto_mesh', 'ip_fabric_subnets'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'global-vrouter-config': {
+        'isConfig': true,
+        'optFields': ['vxlan_network_identifier_mode', 'encapsulation_priorities', 'linklocal_services'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'physical-topology': {
         'preProcessCB': {
             'applyOnOldJSON': modifyPhyTopoData,

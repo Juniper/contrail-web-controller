@@ -1063,18 +1063,20 @@ function updateGlobalConfigObj (error, data,
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-
+    var actData = commonUtils.cloneObj(data);
     gASN = globalASNBody['global-system-config']['autonomous_system'] ;
     data['global-system-config']['autonomous_system'] = gASN;
 
     gscURL += data['global-system-config']['uuid'];
-
-    configApiServer.apiPut(gscURL, data, appData,
-    function(error, data) {
-        setTimeout(function() {
+    var diffObj = jsonDiff.getConfigJSONDiff('global-system-config', actData, data);
+    if(diffObj != null) {
+        configApiServer.apiPut(gscURL, diffObj, appData,
+        function(error, data) {
             commonUtils.handleJSONResponse(error, response, null);
-        }, 3000);
-    });
+        });
+    } else {
+        commonUtils.handleJSONResponse(error, response, null);
+    }
 }
 
 /**
@@ -1133,18 +1135,20 @@ function updateiBGPAutoMeshObj (error, data,
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-
+    var actData = commonUtils.cloneObj(data);
     iBGPAutoMesh = globaliBGPAutoMesh['global-system-config']['ibgp_auto_mesh'] ;
     data['global-system-config']['ibgp_auto_mesh'] = iBGPAutoMesh;
 
     gscURL += data['global-system-config']['uuid'];
-
-    configApiServer.apiPut(gscURL, data, appData,
-    function(error, data) {
-        setTimeout(function() {
+    var diffObj = jsonDiff.getConfigJSONDiff('global-system-config', actData, data);
+    if(diffObj != null) {
+        configApiServer.apiPut(gscURL, diffObj, appData,
+        function(error, data) {
             commonUtils.handleJSONResponse(error, response, null);
-        }, 3000);
-    });
+        });
+    } else {
+        commonUtils.handleJSONResponse(error, response, null);
+    }
 }
 
 /**
@@ -1191,6 +1195,78 @@ function updateiBGPAutoMesh (request, response, appData) {
 }
 
 /**
+ * @updateIPFabricSubnetsObj
+ *  Update the IP Fabric Subnets
+ */
+function updateIPFabricSubnetsObj (error, data,
+                                globalIPFabricSubnets, response, appData)
+{
+    var gscURL = '/global-system-config/';
+    var ipFabricSubnets   = null;
+
+    if (error) {
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    var actData = commonUtils.cloneObj(data);
+    ipFabricSubnets = globalIPFabricSubnets['global-system-config']['ip_fabric_subnets'] ;
+    data['global-system-config']['ip_fabric_subnets'] = ipFabricSubnets;
+    gscURL += data['global-system-config']['uuid'];
+    var diffObj = jsonDiff.getConfigJSONDiff('global-system-config', actData, data);
+    if(diffObj != null) {
+        configApiServer.apiPut(gscURL, diffObj, appData,
+        function(error, data) {
+            commonUtils.handleJSONResponse(error, response, null);
+        });
+    } else {
+        commonUtils.handleJSONResponse(error, response, null);
+    }
+}
+
+/**
+ * @getIPFabricSubnetsObj
+ * private function
+ * Gets the GSC Object
+ */
+function getIPFabricSubnetsObj (error, data, globalIPFabricSubnets, response, appData) {
+    var gscURL = '/global-system-config/';
+
+    if (error) {
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+
+    gscURL += data['uuid'];
+
+    configApiServer.apiGet(gscURL, appData,
+                         function(error, data) {
+                         updateIPFabricSubnetsObj(error, data,
+                                               globalIPFabricSubnets, response, appData)
+                         });
+}
+
+
+/**
+ * @updateIPFabricSubnets
+ * public function
+ * 1. URL /api/tenants/admin/config/ip-fabric-subnets
+ * 2. Updates Global ASN
+ */
+function updateIPFabricSubnets (request, response, appData) {
+    var globalIPFabricSubnets = request.body;
+    var fqnameURL     = '/fqname-to-id';
+    var gscReqBody    = null;
+
+    gscReqBody = {'fq_name': ['default-global-system-config'],
+                  'type': 'global-system-config'};
+    configApiServer.apiPost(fqnameURL, gscReqBody, appData,
+                         function(error, data) {
+                         getIPFabricSubnetsObj(error, data,
+                                            globalIPFabricSubnets, response, appData);
+                         });
+}
+
+/**
  * @readGlobalConfigObj
  * private function
  * Gets the GSC Object
@@ -1218,7 +1294,8 @@ function readGlobalConfigObj (error, data, globalASNBody, response, appData) {
                                   ['uuid'],
                       'autonomous_system':data['global-system-config']
                                   ['autonomous_system'],
-                      'ibgp_auto_mesh':data['global-system-config']['ibgp_auto_mesh']}
+                      'ibgp_auto_mesh':data['global-system-config']['ibgp_auto_mesh'],
+                      'ip_fabric_subnets':data['global-system-config']['ip_fabric_subnets']}
             };
             commonUtils.handleJSONResponse(error, response, gscObj);
             return;
@@ -1781,4 +1858,5 @@ exports.deleteBGPRouter = deleteBGPRouter;
 exports.getControlNodeDetailsFromConfig = getControlNodeDetailsFromConfig;
 exports.getApiServerDataByPage = getApiServerDataByPage;
 exports.updateiBGPAutoMesh = updateiBGPAutoMesh;
+exports.updateIPFabricSubnets = updateIPFabricSubnets;
 
