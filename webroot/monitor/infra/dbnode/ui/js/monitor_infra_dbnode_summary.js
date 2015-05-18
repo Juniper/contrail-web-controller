@@ -84,21 +84,31 @@ monitorInfraDatabaseSummaryClass = (function() {
             				}
             			},
                     },
-//                    {
-//                        field:"ip",
-//                        name:"IP address",
-//                        minWidth:90,
-//                        formatter:function(r,c,v,cd,dc){
-//                            return summaryIpDisplay(dc['ip'],dc['summaryIps']);
-//                        },
-//                        exportConfig: {
-//            				allow: true,
-//            				advFormatter: function(dc) {
-//            					return dc.ip;
-//            				}
-//            			},
-//            			sorter : comparatorIP
-//                    },
+                    {
+                        field:"ip",
+                        name:"IP Address",
+                        minWidth:110,
+                        sorter : comparatorIP
+                    },
+                    {
+                        field:"status",
+                        id:"status",
+                        name:"Status",
+                        sortable:true,
+                        formatter:function(r,c,v,cd,dc) {
+                            return getNodeStatusContentForSummayPages(dc,'html');
+                        },
+                        searchFn:function(d) {
+                            return getNodeStatusContentForSummayPages(d,'text');
+                        },
+                        minWidth:110,
+                        exportConfig: {
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return getNodeStatusContentForSummayPages(dc,'text');
+                            }
+                        }
+                    },
                     {
                         field:"availableSpace",
                         name:"Available Space",
