@@ -926,7 +926,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
             },
             actionCell: [],
             lazyLoading:true,
-            multiRowSelection : false,
         };
         $("#mapflow").die('click').live('click',function(e){
             var startTime = $("#"+options.queryPrefix+"-results").data('startTimeUTC');
