@@ -11,7 +11,7 @@ computeNodesView = function () {
         if(hashParams['node'] == null)
             monitorInfraComputeSummaryClass.populateComputeNodes();
         else
-            cmpNodeView.load({name:hashParams['node'], tab:hashParams['tab'], filters:hashParams['filters']});
+            cmpNodeView.load({displayName : hashParams['node'], tab:hashParams['tab'], filters:hashParams['filters'], name : constructValidDOMId(hashParams['node'])});
         //layoutHandler.setURLHashParams({node:'vRouters'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -26,7 +26,7 @@ computeNodesView = function () {
 }
 
 function onComputeNodeChange(dc) {
-    cmpNodeView.load({name:dc['name'], ip:dc['ip'], uuid:dc['uuid']});
+    cmpNodeView.load({name:dc['name'], ip:dc['ip'], uuid:dc['uuid'], displayName : dc['displayName'], detailView : dc['detailView']});
 }
 
 computeNodeView = function () {
@@ -38,7 +38,9 @@ computeNodeView = function () {
     }
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        pushBreadcrumb([obj['name']]);
+        if(obj['detailView'] === undefined) {
+            pushBreadcrumb([obj['displayName']]);
+        }
         computeNodeInfo = obj;
         if(computeNodeInfo == null || computeNodeInfo.ip ==  null ||  computeNodeInfo.ip == '' || 
                 computeNodeInfo['introspectPort'] == null || computeNodeInfo['introspectPort'] == '' ||
@@ -83,7 +85,8 @@ computeNodeView = function () {
                
                 //Set the height of all tabstrip containers to viewheight - tabstrip
                 var tabContHeight = layoutHandler.getViewHeight() - 42;
-            } 
+            }
+            $('.contrail').removeClass('hide');
             if (tabIdx == -1){
                 tabIdx = 0;
                 monitorInfraComputeDetailsClass.populateDetailsTab(computeNodeInfo);
@@ -94,11 +97,12 @@ computeNodeView = function () {
                 $.each(disabledTabsForTOR, function(i,tab){
                     $('#mon-infra-vrouter-' + tab + '-tab_' + obj.name).removeClass('show').addClass('hide');
                 });
-            } 
+            }
             $("#compute_tabstrip_" + obj.name).contrailTabs({
                  theme:obj.page == 'underlay' ? 'classic' : '',
                  activate: function(e, ui) {
-                    computeNodeInfo.name = e.target.id.split('_')[2];
+                    computeNodeInfo.name = e.target.id.replace('compute_tabstrip_','');
+                    computeNodeInfo.displayName = getDisplayNameforHostName(computeNodeInfo.name, 'computeNodeDS');
                     var newIP = getIPforHostName(computeNodeInfo.name, 'computeNodeDS');
                     if(newIP != null) {
                         computeNodeInfo.ip = newIP; 
