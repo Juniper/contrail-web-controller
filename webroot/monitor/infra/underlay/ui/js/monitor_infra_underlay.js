@@ -2271,8 +2271,8 @@ underlayView.prototype.renderTracePath = function(options) {
             footer : {
                 pager : {
                     options : {
-                        pageSize : 15,
-                        pageSizeSelect : [10, 15, 50, 100, 200, 500 ]
+                        pageSize : 10,
+                        pageSizeSelect : [10, 50, 100, 200, 500 ]
                     }
                 }
             }
@@ -2790,7 +2790,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                             ifInOctets: intfObj['ifInOctets'],
                             ifOutOctets: intfObj['ifOutOctets'],
                             ifPhysAddress: ifNull(intfObj['ifPhysAddress'],'-'),
-                            rawData: intfObj
+                            raw_json: intfObj
                     };
                     intfDetails.push(rowObj);
                 }
@@ -2800,6 +2800,27 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     field:'ifDescr',
                     name:'Name',
                     minWidth: 150,
+                },{
+                    field:'ifAdminStatus',
+                    name:'Status',
+                    minWidth: 100,
+                    formatter:function(r,c,v,cd,dc) {
+                        var adminStatus = getValueByJsonPath(dc,'raw_json;ifAdminStatus','-'),
+                            operStatus = getValueByJsonPath(dc,'raw_json;ifOperStatus','-');
+                        if(adminStatus == 1 && operStatus == 1) {
+                            return 'Up';
+                        } else if (adminStatus == 1 && operStatus != 1) {
+                            return 'Oper Down';  
+                        } else if (adminStatus != 1 && operStatus != 1) {
+                            return 'Admin Down';
+                        } else {
+                            return '-';
+                        }
+                    }
+                },{
+                    field:'ifPhysAddress',
+                    name:'MAC Address',
+                    minWidth:150,
                 },{
                     field:'ifIndex',
                     name:'Index',
@@ -2811,10 +2832,6 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     formatter:function(r,c,v,cd,dc) {
                         return contrail.format("{0} / {1}",formatBytes(dc['ifInOctets']),formatBytes(dc['ifOutOctets']));
                     }
-                },{
-                    field:'ifPhysAddress',
-                    name:'Address',
-                    minWidth:150,
                 }];
                 var selector = $("#pRouterInterfacesTab").find('div.contrail-grid')[0];
                 $(selector).contrailGrid({
@@ -2829,7 +2846,10 @@ underlayView.prototype.populateDetailsTab = function(data) {
                     body : {
                         options : {
                             forceFitColumns: true,
-                            sortable : false
+                            sortable : true,
+                            detail :{
+                                template: $("#gridsTemplateJSONDetails").html()
+                            }
                         },
                         dataSource:{
                             dataView:dataSource,
@@ -2845,6 +2865,14 @@ underlayView.prototype.populateDetailsTab = function(data) {
                                 type: 'error',
                                 iconClasses: 'icon-warning',
                                 text: 'Error in getting Data.'
+                            }
+                        }
+                    },
+                    footer : {
+                        pager : {
+                            options : {
+                                pageSize : 10,
+                                pageSizeSelect : [10, 50, 100, 200, 500 ]
                             }
                         }
                     }
