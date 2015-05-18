@@ -13,7 +13,8 @@ var configJsonModifyObj = {
         'optFields': ['virtual_network_properties',
             'network_ipam_refs', 'network_policy_refs',
             'route_target_list', 'is_shared',
-            'router_external', 'id_perms:enable'],
+            'router_external', 'id_perms:enable',
+            'flood_unknown_unicast' ],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {
