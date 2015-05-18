@@ -734,6 +734,11 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = true;
         else
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = false;
+        if($("#chk_flood_unknown_unicast")[0].checked === true)
+            vnConfig["virtual-network"]["flood_unknown_unicast"] = true;
+        else
+            vnConfig["virtual-network"]["flood_unknown_unicast"] = false;
+		
         //vnConfig["virtual-network"]["display_name"] = vnConfig["virtual-network"]["fq_name"][vnConfig["virtual-network"]["fq_name"].length-1];
 
         selectedProuters = $("#msPhysicalRouters").data('contrailMultiselect').value();
@@ -2177,6 +2182,12 @@ function successHandlerForGridVNRow(result) {
                 }
             }
         }
+        var flood_unknown_unicast = "Disabled";
+        if(vn["flood_unknown_unicast"] != undefined) {
+            if(String(vn["flood_unknown_unicast"]) == "true") {
+                flood_unknown_unicast = "Enabled";
+            }
+        }
         //if(vn.fq_name[1] == selectedProject){
             vnData.push({
                 "id": idCount++,
@@ -2198,6 +2209,7 @@ function successHandlerForGridVNRow(result) {
                 "ForwardingMode": fwdMode,
                 "VxLanId": vxlanid,
                 "AllowTransit": AllowTransit,
+                "flood_unknown_unicast": flood_unknown_unicast,
                 "staticIPAddressing" : staticIPAddressing,
                 "NetworkUUID": uuid,
                 "parent_uuid": parent_uuid,
@@ -2531,6 +2543,7 @@ function showVNEditWindow(mode, rowIndex) {
                     $('#btnCommonAddIpam').trigger('click');
                     $('#btnCommonAddIpam').hide();
                 }
+                $("#chk_flood_unknown_unicast")[0].checked = false;
             } else if (mode === "edit") {
                 if(isVCenter()) {
                     $('#btnCommonAddIpam').hide();
@@ -2660,10 +2673,15 @@ function showVNEditWindow(mode, rowIndex) {
                 //place to add edid of AdminState, Extend/Shared,DNS Server
                 var AdminState = selectedVN["id_perms"]["enable"];
                 var isShared = selectedVN["is_shared"];
+                var isflood_unknown_unicast = false;
+                if(selectedVN["flood_unknown_unicast"] != null || selectedVN["flood_unknown_unicast"] != undefined) {
+                    isflood_unknown_unicast = selectedVN["flood_unknown_unicast"];
+                }
                 var isExternal = selectedVN["router_external"];
                 $("#ddAdminState").data("contrailDropdown").value(String(AdminState));
                 $("#is_shared")[0].checked = isShared;
                 $("#router_external")[0].checked = isExternal;
+                $("#chk_flood_unknown_unicast")[0].checked = isflood_unknown_unicast;
 
                 if(null !== selectedVN["virtual_network_properties"] &&
                     typeof selectedVN["virtual_network_properties"] !== "undefined") {
