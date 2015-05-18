@@ -398,6 +398,8 @@ var infraMonitorUtils = {
             obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024;
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
+            obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',0) + 
+                getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_5min_usage;0;in_bandwidth_usage',0);
             obj['shape'] = 'circle';
             var xmppPeers = getValueByJsonPath(dValue,'VrouterAgent;xmpp_peer_list',[]);
             obj['xmppPeerDownCnt'] = 0;
@@ -2184,7 +2186,7 @@ function formatMemory(memory) {
 }
 
 function updateChartsForSummary(dsData, nodeType) {
-    var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter;
+    var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter,bubbleSizeFn;
     var nodeData = dsData;
     var showLegend,xLbl,yLbl,useSizeAsRadius = false;
     var data = []
@@ -2194,6 +2196,7 @@ function updateChartsForSummary(dsData, nodeType) {
 		key = 'vRouters';
 		chartId = 'vrouters-bubble';
         tooltipFn = bgpMonitor.vRouterTooltipFn;
+        bubbleSizeFn = bgpMonitor.vRouterBubbleSizeFn;
         bucketTooltipFn = bgpMonitor.vRouterBucketTooltipFn;
         isBucketize = false;
         clickFn = bgpMonitor.onvRouterDrillDown;
@@ -2250,6 +2253,7 @@ function updateChartsForSummary(dsData, nodeType) {
             yLbl:yLbl,
             tooltipFn: tooltipFn,
             bucketTooltipFn: bucketTooltipFn,
+            bubbleSizeFn: bubbleSizeFn,
             clickFn: clickFn,
             xPositive: true,
             addDomainBuffer: true,
@@ -2277,25 +2281,26 @@ function updateChartsForSummary(dsData, nodeType) {
     };
     var chartObj = {},nwObj = {};
     if(isBucketize) {
-        //Move to MVC
-        cowu.renderView4Config($('#' + chartId),null,{
-            "elementId":chartId,
-            "title": "Port Distribution",
-            "view": "ScatterChartView",
-            "viewConfig": {
-                modelConfig : {
-                    remote: {},
-                    data:data
-                },
-                parseFn: function(response) {
-                    return {
-                        d: chartsData['d'],
-                        chartOptions: chartsData['chartOptions']
-                    }
-                },
-                "class": "port-distribution-chart",
-            }
-        });
+            //Move to MVC
+            cowu.renderView4Config($('#' + chartId),null,{
+                "elementId":chartId,
+                "title": "Port Distribution",
+                "view": "ScatterChartView",
+                "viewConfig": {
+                    // reInitialize : false,
+                    modelConfig : {
+                        remote: {},
+                        data:data
+                    },
+                    parseFn: function(response) {
+                        return {
+                            d: chartsData['d'],
+                            chartOptions: chartsData['chartOptions']
+                        }
+                    },
+                    "class": "port-distribution-chart",
+                }
+            });
     } else {
         $('#' + chartId).initScatterChart(chartsData);
     }
@@ -2673,6 +2678,11 @@ function getNodeTooltipContentsForBucket(currObj,formatType) {
 }
 
 var bgpMonitor = {
+    vRouterBubbleSizeFn: function(mergedNodes) {
+        return d3.max(mergedNodes,function(d) { 
+            return d.size;
+        });
+    },
     onvRouterDrillDown:function(currObj) {
          layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
     },
@@ -2704,7 +2714,7 @@ var bgpMonitor = {
         var tooltipContents = [];
         if(currObj['pendingQueryCnt'] != null && currObj['pendingQueryCnt'] > 0)
             tooltipContents.push({label:'Pending Queries', value:currObj['pendingQueryCnt']});
-        return getNodeTooltipContents(currObj).concat(tooltipContents,formatType);
+        return getNodeTooltipContents(currObj,formatType).concat(tooltipContents);
     },
     configNodeTooltipFn: function(currObj,formatType) {
         return getNodeTooltipContents(currObj,formatType);
