@@ -171,6 +171,7 @@ function clearBgpWindow() {
     $('#ddAuthType').data('contrailDropdown').value('none');
     $('#ddProuter').data('contrailDropdown').value('none');
     disableAuthKeyTextbox();
+    window.selectedRow = null;
 }
 
 function disableAuthKeyTextbox() {
@@ -809,9 +810,7 @@ function initComponents() {
             //},
             customControls: [
                 '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
-                '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>',
-                '<button id="btneditgasn" class="btn btn-primary btn-mini" onclick="openGasnWindow();return false;" title="Edit Global ASN"></button>',
-                '<div><input type="checkbox" id="chk_ibgp_auto_mesh" class="ace-input" onchange="toggleiBGPAutoMesh(this)"></input><span class="ace-lbl">&nbsp;</span><label class="ace-lbl hyperlink-active" for="chk_ibgp_auto_mesh">iBGP Auto Mesh</label></div>'
+                '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>'
             ]
         },
         columnHeader : {
