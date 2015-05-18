@@ -13,7 +13,7 @@ monitorInfraConfigDetailsClass = (function() {
         //Compute the label/value pairs to be displayed in dashboard pane
         //As details tab is the default tab,don't update the tab state in URL
         if(obj.detailView === undefined) {
-            layoutHandler.setURLHashParams({tab:'', node:obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'', node:obj['displayName']},{triggerHashChange:false});
         }    
         startWidgetLoading('config-sparklines' + '_' + obj.name);
         toggleWidgetsVisibility(['apiServer-chart' + '_' + obj.name + '-box'], ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box']);
@@ -21,7 +21,7 @@ monitorInfraConfigDetailsClass = (function() {
         $('#confignode-dashboard' + '_' + obj.name).html(dashboardTemplate({title:'Configuration Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
         startWidgetLoading('dashboard' + '_' + obj.name);
         $.ajax({
-            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , obj['name'])
+            url: contrail.format(monitorInfraUrls['CONFIG_DETAILS'] , encodeURIComponent(obj['displayName']))
         }).done(function (result) {
                 var noDataStr = "--";
                 $.ajax({
@@ -58,7 +58,7 @@ monitorInfraConfigDetailsClass = (function() {
                     }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
                 });
                 confNodeData = result;
-                var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['name'],value:confNodeData}])[0];
+                var parsedData = infraMonitorUtils.parseConfigNodesDashboardData([{name:obj['displayName'],value:confNodeData}])[0];
                 var cpu = "N/A",
                     memory = "N/A",
                     confNodeDashboardInfo, oneMinCPU, fiveMinCPU, fifteenMinCPU,
@@ -73,7 +73,7 @@ monitorInfraConfigDetailsClass = (function() {
                 }
                 configProcessStatusList = getStatusesForAllConfigProcesses(procStateList);
                 confNodeDashboardInfo = [
-                  {lbl:'Hostname', value:obj['name']},
+                  {lbl:'Hostname', value:obj['displayName']},
                     {lbl:'IP Address', value:(function (){
                      var ips = '';
                         try{

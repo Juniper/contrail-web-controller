@@ -31,7 +31,8 @@
 
 <script type="text/x-handlebars-template" id="controlnode-template">
     <div class="contrail">
-        <div id="control_tabstrip_{{name}}">
+        <!--<h3 id="detail-title" class="smaller">Control Node Details</h3>-->
+        <div id="control_tabstrip_{{name}}" class="contrail-widget-tabs">
             <ul>
                 <li><a href="#mon-infra-ctrl-details-tab_{{name}}">Details</a></li>
                 <li><a href="#mon-infra-ctrl-peers-tab_{{name}}">Peers</a></li>

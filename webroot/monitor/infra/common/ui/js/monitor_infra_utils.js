@@ -780,7 +780,7 @@ var infraMonitorUtils = {
         var cboMsgType, cboMsgCategory, cboMsgLevel, cboTimeRange;  
         var lastMsgLogTime, lastLogLevel, userChangedQuery = false, defaultTimeRange = 5 * 60;//5 mins by default
         if(obj.detailView === undefined && obj.page === null) {
-            layoutHandler.setURLHashParams({tab:'console', node: obj['name']},{triggerHashChange:false});
+            layoutHandler.setURLHashParams({tab:'console', node: obj['displayName']},{triggerHashChange:false});
         }    
         if (nodeType == 'control') {
             $('#ctrlNodeMessagesTab' + '_' + obj.name).html(consoleTabTemplate(obj));
@@ -2431,8 +2431,9 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
 
 //Default tooltip contents to show for infra nodes
 function getNodeTooltipContents(currObj) {
+    var displayName = currObj['displayName'] != null ? currObj['displayName'] : currObj['name'];
     var tooltipContents = [
-        {lbl:'Host Name', value: currObj['name']},
+        {lbl:'Host Name', value: displayName},
         {lbl:'Version', value:currObj['version']},
         {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
         {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
@@ -2471,19 +2472,19 @@ function getNodeTooltipContentsForBucket(currObj) {
 
 var bgpMonitor = {
     onvRouterDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
+         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
     },
     onControlNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_control'});
+         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_control'});
     },
     onAnalyticNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_analytics'});
+         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_analytics'});
     },
     onConfigNodeDrillDown:function(currObj) {
-         layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
+         layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_config'});
     },
     onDbNodeDrillDown:function(currObj) {
-        layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
+        layoutHandler.setURLHashParams({node:currObj['displayName'] != null ? currObj['displayName'] : currObj['name'], tab:''}, {p:'mon_infra_database'});
     },
     vRouterTooltipFn: function(currObj) {
         return getNodeTooltipContents(currObj);
