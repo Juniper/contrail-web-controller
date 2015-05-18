@@ -453,6 +453,18 @@ underlayModel.prototype.destroy = function() {
     this.reset();
 }
 
+underlayModel.prototype.checkIPInVrouterList = function(data) {
+    var vRouterList = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]);
+    for(var i = 0; i < ifNull(vRouterList,[]).length; i++) {
+        var vRouterData = vRouterList[i];
+        var vRouterIPs = getValueByJsonPath(vRouterData,'more_attributes;VrouterAgent;self_ip_list',[]);
+        if(vRouterIPs.indexOf(data['nodeIP']) > -1) {
+            return true;
+        }
+    }
+    return false;
+}
+
 var underlayView = function (model) {
     this.elementMap        = {
         nodes: {},
@@ -1707,7 +1719,7 @@ underlayView.prototype.highlightPath = function(response, data) {
 
     }
     if(response.nodes <=0 || response.links <= 0){
-        showInfoWindow("No Underlay paths found for the selected flow.", "Info");
+        showInfoWindow("Cannot Map the path for selected flow", "Info");
         if(null !== underlayRenderer && typeof underlayRenderer === "object"){
             underlayRenderer.getView().resetTopology(false);
         }
@@ -2207,7 +2219,6 @@ underlayView.prototype.renderTracePath = function(options) {
                 options : {
                     forceFitColumns: true,
                     sortable : false,
-                    multiRowSelection : false,
                     checkboxSelectable: {
                         enableRowCheckbox: true,
                         onNothingChecked: function(e){
@@ -2268,14 +2279,7 @@ underlayView.prototype.renderTracePath = function(options) {
                     }
                 }
             },
-            footer : {
-                pager : {
-                    options : {
-                        pageSize : 10,
-                        pageSizeSelect : [10, 50, 100, 200, 500 ]
-                    }
-                }
-            }
+            footer : false
         });
         vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
         vrouterflowsGrid.showGridMessage('loading');
@@ -2472,6 +2476,10 @@ underlayView.prototype.renderTracePath = function(options) {
             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ? dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['sourcevn'] != null ? dataItem['sourcevn'] : dataItem['src_vn'];
         }
+        if(typeof underlayRenderer === 'object' && !underlayRenderer.getModel().checkIPInVrouterList(postData)) {
+            showInfoWindow("Cannot Trace the path for the selected flow", "Info");
+            return;
+        }
         var progressBar = $("#network_topology").find('.topology-visualization-loading');
         $(progressBar).show();
         $(progressBar).css('margin-bottom',$(progressBar).parent().height());
@@ -2566,6 +2574,10 @@ underlayView.prototype.renderTracePath = function(options) {
                 postData['resolveVrfId'] = contextVrouterIp;
             }
         }
+        if(typeof underlayRenderer === 'object' && !underlayRenderer.getModel().checkIPInVrouterList(postData)) {
+            showInfoWindow("Cannot Trace the path for the selected flow", "Info");
+            return;
+        }
         var progressBar = $("#network_topology").find('.topology-visualization-loading');
         $(progressBar).show();
         $(progressBar).css('margin-bottom',$(progressBar).parent().height());
@@ -2610,6 +2622,7 @@ underlayView.prototype.renderTracePath = function(options) {
             });
         }
     });
+    
     function getInstFlowsUrl(name,text){
         var req = {};
         var ajaxData = {
