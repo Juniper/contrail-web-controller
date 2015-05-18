@@ -79,9 +79,9 @@ monitorInfraDbDetailsClass = (function() {
                     //If node manager is not installed dont show the processes
                 databaseNodeDashboardInfo = databaseNodeDashboardInfo.concat(
                         [{lbl:'Processes', value:" "},
-                          {lbl:INDENT_RIGHT+'Kafka', value:(function(){
+                          /*{lbl:INDENT_RIGHT+'Kafka', value:(function(){
                               return dbProcessStatusList['kafka'];
-                          })()},
+                          })()},*/
                           {lbl:INDENT_RIGHT+'Database', value:(function(){
                               return dbProcessStatusList['contrail-database'];
                           })()}
