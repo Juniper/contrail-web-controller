@@ -779,7 +779,7 @@ function physicalRoutersConfig() {
             postObject["physical-router"]["uuid"] = gblSelRow.uuid;
         }
         var name,vendor,mgmtIpAddress,dataIpAddress,username,password,bgpRouter,vRoutersType,model,autoConfig,vns;
-        var servicePortsTuples,servicePorts=[];
+        var servicePortsTuples,servicePorts=[],enableServicePorts = true;
         name = $("#txtPhysicalRouterName" + currAddEditType).val().trim();
         if(currAddEditType != VCPE_SUFFIX) {
             vendor = $("#txtVendor" + currAddEditType).val().trim();
@@ -802,7 +802,9 @@ function physicalRoutersConfig() {
                         servicePorts.push(servicePort);
                     }
                 }
-            } 
+            } else {
+                enableServicePorts = false;//explicitely disable the service ports
+            }
         }
         if(currAddEditType == PROUTER_SUFFIX) {
             bgpRouter = $("#ddBgpRouter" + currAddEditType).data('contrailDropdown').text();
@@ -831,10 +833,11 @@ function physicalRoutersConfig() {
             postObject["physical-router"]['physical_router_user_credentials']["username"] = username;
             postObject["physical-router"]['physical_router_user_credentials']["password"] = password;
         }
-        if(servicePorts != null && servicePorts.length > 0){
+        if(enableServicePorts && servicePorts != null && servicePorts.length > 0){
             postObject["physical-router"]["physical_router_junos_service_ports"] = {};
             postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = servicePorts;
-        } else {
+        } else if(!enableServicePorts){
+            //Disable service ports if it is explictely disabled from ui
             postObject["physical-router"]["physical_router_junos_service_ports"] = {};
         }
         if(bgpRouter != null && bgpRouter != 'None'){
