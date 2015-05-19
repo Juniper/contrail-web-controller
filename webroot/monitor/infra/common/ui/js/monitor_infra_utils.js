@@ -261,6 +261,7 @@ var infraMonitorAlertUtils = {
         if(obj['isUveMissing'] == false){
             if(obj['isPartialUveMissing'] == true)
                 alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
+        }
         if(obj['isNTPUnsynced']){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
         }
