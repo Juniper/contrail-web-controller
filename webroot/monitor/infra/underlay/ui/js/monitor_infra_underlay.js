@@ -2505,6 +2505,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
+                timeout:5000,
                 data:{
                     data: postData
                 }
@@ -2602,6 +2603,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
+                timeout:5000,
                 data:{
                     data: postData
                 }
@@ -2788,6 +2790,9 @@ underlayView.prototype.populateDetailsTab = function(data) {
         };
         details = Handlebars.compile($("#device-summary-template").html())(content);
         $("#detailsTab").html(details);
+        $("#pRouterIntfCnt").on('click',function(){
+            $("#underlay_tabstrip").tabs({active:3});
+        });
         var underlayTabObj = $("#underlay_tabstrip").data('contrailTabs');
         underlayTabObj.addTab('pRouterInterfacesTab','Interfaces');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
@@ -2850,7 +2855,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 $(selector).contrailGrid({
                     header : {
                         title : {
-                            text : 'Interfaces'
+                            text : 'Interfaces ('+ifNull(data['host_name'],'-')+')'
                         }
                     },
                     columnHeader : {
