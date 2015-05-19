@@ -256,6 +256,7 @@ var infraMonitorAlertUtils = {
         var infoObj = {name:obj['name'],type:'Config Node',ip:obj['ip'],link:obj['link']};
         if(obj['isNTPUnsynced']){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
+        }
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         if(obj['isConfigMissing'] == true)
