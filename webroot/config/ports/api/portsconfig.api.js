@@ -27,6 +27,7 @@ var url = require('url');
 var UUID = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonPath = require('JSONPath').eval;
 
 
 /**
@@ -2874,6 +2875,203 @@ function deleteAllPorts (req, res, appData)
     });
 }
 
+function buildVMIData (vmiData, dataObj)
+{
+    var fip = dataObj['fip'];
+    var instIps = dataObj['instIp'];
+    var intfRtTab = dataObj['intfRtTab'];
+    var fipObjs = {};
+    var instIpsObjs = {};
+    var intfRtTabObjs = {};
+
+    var fipCnt = 0;
+    if ((null != fip) && (fip.length > 0)) {
+        fipCnt = fip.length;
+    }
+    var instIpsCnt = 0;
+    if ((null != instIps) && (instIps.length > 0)) {
+        instIpsCnt = instIps.length;
+    }
+    var intfRtTabCnt = 0;
+    if ((null != intfRtTab) && (intfRtTab.length > 0)) {
+        intfRtTabCnt = intfRtTab.length;
+    }
+    for (var i = 0; i < fipCnt; i++) {
+        fipObjs[fip[i]['floating-ip']['uuid']] =
+            fip[i]['floating-ip'];
+    }
+    for (i = 0; i < instIpsCnt; i++) {
+        instIpsObjs[instIps[i]['instance-ip']['uuid']] =
+            instIps[i]['instance-ip'];
+    }
+    for (i = 0; i < intfRtTabCnt; i++) {
+        intfRtTabObjs[intfRtTab[i]['interface-route-table']['uuid']] =
+            intfRtTab[i]['interface-route-table'];
+    }
+    var vmiCnt = vmiData.length;
+    var vmiObjs = {};
+    for (var i = 0; i < vmiCnt; i++) {
+        var vmiFip =
+            vmiData[i]['virtual-machine-interface']['floating_ip_back_refs'];
+        var vmiFipCnt = 0;
+        if (null != vmiFip) {
+            vmiFipCnt = vmiFip.length;
+        }
+        for (var j = 0; j < vmiFipCnt; j++) {
+            if (null == fipObjs[vmiFip[j]['uuid']]) {
+                continue;
+            }
+            vmiData[i]['virtual-machine-interface']['floating_ip_back_refs']
+                      [j]['floatingip'] = {};
+            vmiData[i]['virtual-machine-interface']['floating_ip_back_refs']
+                      [j]['floatingip']['ip'] =
+                fipObjs[vmiFip[j]['uuid']]['floating_ip_address'];
+            vmiData[i]['virtual-machine-interface']['floating_ip_back_refs']
+                      [j]['floatingip']['subnet_uuid'] =
+                fipObjs[vmiFip[j]['uuid']]['subnet_uuid'];
+
+        }
+        var vmiInstIps =
+            vmiData[i]['virtual-machine-interface']['instance_ip_back_refs'];
+        var vmiInstIpsCnt = 0;
+        if (null != vmiInstIps) {
+            vmiInstIpsCnt = vmiInstIps.length;
+        }
+        for (var j = 0; j < vmiInstIpsCnt; j++) {
+            if (null == instIpsObjs[vmiInstIps[j]['uuid']]) {
+                continue;
+            }
+            vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
+                   [j]['fixedip'] = {};
+            vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
+                   [j]['fixedip']['ip'] =
+               instIpsObjs[vmiInstIps[j]['uuid']]['instance_ip_address'];
+            if (null != instIpsObjs[vmiInstIps[j]['uuid']]['subnet_uuid']) {
+                vmiData[i]['virtual-machine-interface']['instance_ip_back_refs']
+                       [j]['fixedip']['subnet_uuid'] =
+                    instIpsObjs[vmiInstIps[j]['uuid']]['subnet_uuid'];
+            }
+        }
+        var vmiRtTabRefs =
+            vmiData[i]['virtual-machine-interface']['interface_route_table_refs'];
+        var vmiRtTabRefsCnt = 0;
+        if (null != vmiRtTabRefs) {
+            vmiRtTabRefsCnt = vmiRtTabRefs.length;
+        }
+        for (var j = 0; j < vmiRtTabRefsCnt; j++) {
+            if (null == intfRtTabObjs[vmiRtTabRefs[j]['uuid']]) {
+                continue;
+            }
+            vmiData[i]['virtual-machine-interface']['interface_route_table_refs']
+               [j]['sharedip'] =
+                intfRtTabObjs[vmiRtTabRefs[j]['uuid']]['interface_route_table_routes'];
+        }
+    }
+    return vmiData;
+}
+
+function getVMIDetailsPaged (req, res, appData)
+{
+    var body = req.body;
+    var uuidList = body.uuidList;
+    var fields = body.fields;
+    var chunk = 200;
+    var uuidCnt = uuidList.length;
+    var dataObjGetArr = [];
+    var j = 0;
+    var tmpArray = [];
+    var vmiObjs = {};
+
+    var count = 0;
+    for (var i = 0, j = uuidCnt; i < j; i += chunk) {
+        tmpArray = uuidList.slice(i, i + chunk);
+        var reqUrl = '/virtual-machine-interfaces?detail=true&obj_uuids=' +
+            tmpArray.join(',') +
+            '&fields=floating_ip_back_refs,instance_ip_back_refs,' +
+            'interface_route_table_refs';
+        if ((null != fields) && (fields.length > 0)) {
+            reqUrl += ',' + fields.join(',');
+        }
+        commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null, null,
+                                 appData);
+        reqUrl = '/floating-ips?detail=true&back_ref_id=' + tmpArray.join(',');
+        commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null, null,
+                                 appData);
+        reqUrl = '/instance-ips?detail=true&back_ref_id=' + tmpArray.join(',');
+        commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null, null,
+                                 appData);
+
+    }
+    var vmiResultJSON = [];
+    var fipResultJSON = [];
+    var instIpsResultJSON = [];
+    async.map(dataObjGetArr,
+              commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+              function(error, results) {
+        var resCnt = results.length;
+        var index;
+        for (var i = 0; i < resCnt; i++) {
+            index = 0 + i * 3;
+            if ((null != results[index]) &&
+                (null != results[index]['virtual-machine-interfaces']) &&
+                (results[index]['virtual-machine-interfaces'].length > 0)) {
+                vmiResultJSON =
+                    vmiResultJSON.concat(results[index]['virtual-machine-interfaces']);
+            }
+            index = 1 + i * 3;
+            if ((null != results[index]) &&
+                (null != results[index]['floating-ips']) &&
+                (results[index]['floating-ips'].length > 0)) {
+                fipResultJSON =
+                    fipResultJSON.concat(results[index]['floating-ips']);
+            }
+            index = 2 + i * 3;
+            if ((null != results[index]) &&
+                (null != results[index]['instance-ips']) &&
+                (results[index]['instance-ips'].length > 0)) {
+                instIpsResultJSON =
+                    instIpsResultJSON.concat(results[index]['instance-ips']);
+            }
+        }
+        var dataObj = {'fip': fipResultJSON, 'instIp': instIpsResultJSON};
+        var vmiData = buildVMIData(vmiResultJSON, dataObj);
+        var intfRtTabRefs = jsonPath(vmiResultJSON,
+                                     "$..interface_route_table_refs");
+        if ((false == intfRtTabRefs) || (null == intfRtTabRefs) &&
+            (null != intfRtTabRefs[0]) || (!intfRtTabRefs[0].length)) {
+            commonUtils.handleJSONResponse(null, res, vmiData);
+            return;
+        }
+        var intfRtTabUUIDs = [];
+        var intfRtTabRefsCnt = intfRtTabRefs[0].length;
+        for (i = 0; i < intfRtTabRefsCnt; i++) {
+            intfRtTabUUIDs[i] = intfRtTabRefs[0][i]['uuid'];
+        }
+        dataObjGetArr = [];
+        var intfRtTabUUIDsCnt = intfRtTabUUIDs.length;
+        for (i = 0, j = intfRtTabUUIDsCnt; i < j; i += chunk) {
+            tmpArray = intfRtTabUUIDs.slice(i, i + chunk);
+            reqUrl = '/interface-route-tables?detail=true&obj_uuids=' +
+                tmpArray.join(',') + '&fields=interface_route_table_routes';
+            commonUtils.createReqObj(dataObjGetArr, reqUrl, null, null, null,
+                                     null, appData);
+        }
+        async.map(dataObjGetArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+                  function(error, results) {
+            resCnt = results.length;
+            var intfRtTables = [];
+            for (i = 0; i < resCnt; i++) {
+                intfRtTables =
+                    intfRtTables.concat(results[i]['interface-route-tables']);
+            }
+            var dataObj = {'intfRtTab': intfRtTables};
+            vmiData = buildVMIData(vmiData, dataObj);
+            commonUtils.handleJSONResponse(null, res, vmiData);
+        });
+    });
+}
+
 exports.listVirtualMachines = listVirtualMachines;
 exports.readPorts = readPorts;
 exports.createPort = createPort;
@@ -2885,3 +3083,4 @@ exports.deletePortsCB = deletePortsCB;
 exports.getVMIAndInstIPDetails = getVMIAndInstIPDetails;
 exports.getVMIDetails = getVMIDetails;
 exports.deleteAllPorts = deleteAllPorts;
+exports.getVMIDetailsPaged = getVMIDetailsPaged;

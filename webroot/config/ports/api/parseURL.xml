@@ -61,5 +61,11 @@
         <feature>portconfig</feature>
         <callback>portsconfigapi.deleteAllPorts</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/get-virtual-machine-details-paged</url>
+        <method>post</method>
+        <feature>portconfig</feature>
+        <callback>portsconfigapi.getVMIDetailsPaged</callback>
+    </item>
 </urlLists>
 
