@@ -2505,6 +2505,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
+                timeout:5000,
                 data:{
                     data: postData
                 }
@@ -2602,6 +2603,7 @@ underlayView.prototype.renderTracePath = function(options) {
             $.ajax({
                 url:'/api/tenant/networking/trace-flow',
                 type:'POST',
+                timeout:5000,
                 data:{
                     data: postData
                 }
@@ -2850,7 +2852,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 $(selector).contrailGrid({
                     header : {
                         title : {
-                            text : 'Interfaces'
+                            text : 'Interfaces ('+ifNull(data['host_name'],'-')+')'
                         }
                     },
                     columnHeader : {

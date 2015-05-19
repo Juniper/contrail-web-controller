@@ -13,130 +13,42 @@ body > svg {
 }
 </style>
 <script type="text/x-handlebars-template" id="device-summary-template">
-	<div class="span8">
-	    <div class="widget-box transparent">
-	        <div class="widget-body">
-	            <div class="widget-main" id="system-info-stat">
-                    <ul class="item-list">	            
-                    {{#IfCompare type 'physical-router' operator='=='}}
-                       <li>
-                           <label class="inline">
-                               <span class="key"> Host name </span>
-                               <span class="value"> {{hostName}} </span>
+	<div class="row-fluid detail-section-content group-detail-container">
+        <div class="span6 detail-section-column-content">
+            <div class="detail-block-list-content row-fluid">
+                <h6>Physical Router Details</h6>
+                <ul class="item-list">
+                {{#IfCompare type 'physical-router' operator='=='}}
+                        <li>
+                           <label class="inline row-fluid">
+                               <span class="key span5"> Host name </span>
+                               <span class="value span7"> {{hostName}} </span>
                            </label>
                        </li>
                        <li>
-                            <label class="inline">
-                                <span class="key"> Management IP </span>
-                                <span class="value">{{managementIP}}</span>
+                            <label class="inline row-fluid">
+                                <span class="key span5"> Management IP </span>
+                                <span class="value span7">{{managementIP}}</span>
                             </label>
                        </li>
                        <li>
-                            <label class="inline">
-                                <span class="key"> Interfaces </span>
-                                <span class="value"> {{intfCnt}} </span>
+                            <label class="inline row-fluid">
+                                <span class="key span5"> Interfaces </span>
+                                <span class="value span7"> {{intfCnt}} </span>
                             </label>
                         </li>
                         <li>
-                           <label class="inline">
-                               <span class="key"> Description </span>
-                               <span class="value"> {{description}} </span>
+                           <label class="inline row-fluid">
+                               <span class="key span5"> Description </span>
+                               <span class="value span7"> {{description}} </span>
                            </label>
                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'virtual-router' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Host name </span>
-                                <span class="value"> {{hostName}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Version </span>
-                                <span class="value"> {{version}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Memory </span>
-                                <span class="value"> {{memory}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Instances </span>
-                                <span class="value"> {{instanceCount}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Interfaces </span>
-                                <span class="value"> {{interfaceCnt}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Virtual Networks </span>
-                                <span class="value"> {{virtualNetworkCnt}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key hyperlink" onclick=javascript:layoutHandler.setURLHashObj({{#jsonStringify link}}{{/jsonStringify}})>more</span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-                    {{#IfCompare type 'virtual-machine' operator='=='}}
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Name </span>
-                                <span class="value"> {{name}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> UUID </span>
-                                <span class="value"> {{uuid}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> IP Address </span>
-                                <span class="value"> {{ipAddr}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Interfaces </span>
-                                <span class="value"> {{interfaceCount}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Virtual Networks </span>
-                                <span class="value"> {{formattedVN}} </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key"> Traffic (In/Out) (Last 1 hr) </span>
-                                <span id = "VMstats" class="value"> 
-                                    <i class="grid-header-icon-loading icon-spinner icon-spin"></i> 
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label class="inline">
-                                <span class="key hyperlink" onclick=underlayRenderer.getView().launchVMPage({{#encodedVN link}}{{/encodedVN}})>more</span>
-                            </label>
-                        </li>
-                    {{/IfCompare}}
-	                </ul>
-	            </div>
-	        </div>
-	    </div>
-	</div>
+                {{/IfCompare}}
+                </ul>
+                <br>
+            </div>
+        </div>
+    </div>
 </script>
 <script type="text/x-handlebars-template" id="visualization-template">
     <div id="underlay_topology">
