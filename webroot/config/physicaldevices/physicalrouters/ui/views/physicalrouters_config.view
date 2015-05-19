@@ -40,55 +40,32 @@
                     <div class="span2"><label>Associated Virtual Router(s)</label></div>
                     <div class="span10">{{displayVirtualRouters}}</div>
                 </div>   
-                {{/IfCompare}}
-            {{#IfCompare pRouterEditType '_Netconf' operator='=='}}
-                <div class="row-fluid">
-                    <label class="details-group-heading">Netconf Settings</label>
-                </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>Username</label></div>
-                    <div class="span10">{{username}}</div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>BGP Gateway</label></div>
-                    <div class="span10">{{bgp_routers}}</div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>Auto Configuration</label></div>
-                    <div class="span10">{{auto_config}}</div>
-                </div>            
-                <div class="row-fluid">
-                    <div class="span2"><label>Virtual Networks</label></div>
-                    <div class="span10">{{virtual_networks}}</div>
-                </div>
-                {{#IfCompare junosServicePorts '-' operator='!='}}
-                    <div class="row-fluid">
-                        <div class="span2"><label>Junos Service Ports</label></div>
-                        <div class="span10">{{junosServicePorts}}</div>
-                    </div>
-                {{/IfCompare}}
             {{/IfCompare}}
-            {{#IfCompare pRouterEditType '_PRouter' operator='=='}}
+            <div class="row-fluid">
+                <label class="details-group-heading">Netconf Settings</label>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Username</label></div>
+                <div class="span10">{{username}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>BGP Gateway</label></div>
+                <div class="span10">{{bgp_routers}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Auto Configuration</label></div>
+                <div class="span10">{{auto_config}}</div>
+            </div>            
+            <div class="row-fluid">
+                <div class="span2"><label>Virtual Networks</label></div>
+                <div class="span10">{{virtual_networks}}</div>
+            </div>
+            {{#IfCompare junosServicePorts '-' operator='!='}}
                 <div class="row-fluid">
-                    <label class="details-group-heading">Netconf Settings</label>
+                    <div class="span2"><label>Junos Service Ports</label></div>
+                    <div class="span10">{{junosServicePorts}}</div>
                 </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>Username</label></div>
-                    <div class="span10">{{username}}</div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>BGP Gateway</label></div>
-                    <div class="span10">{{bgp_routers}}</div>
-                </div>
-                <div class="row-fluid">
-                    <div class="span2"><label>Auto Configuration</label></div>
-                    <div class="span10">{{auto_config}}</div>
-                </div>            
-                <div class="row-fluid">
-                    <div class="span2"><label>Virtual Networks</label></div>
-                    <div class="span10">{{virtual_networks}}</div>
-                </div>
-            {{/IfCompare}}
+            {{/IfCompare}}            
             {{#IfCompare isSNMPManaged true operator='=='}}
             <div class="row-fluid">
             <label class="details-group-heading">SNMP Settings</label></div>
@@ -410,14 +387,23 @@
                         </div>
                     </div>
                 </div> <!-- BGP router widget -->
-                <div class="widget-box transparent collapsed">
+                <div class="control-group">
+                    <label class="control-label" >SNMP Monitored</label>
+                    <div class="pull-left margin-left-21 padding-top-5">
+                        <input id="chkSnmpSettings_PRouter" name="chkSnmpSettings_PRouter"
+                            type="checkbox" checked="" class="ace-input">
+                        </input>
+                        <span class="ace-lbl ">&nbsp;</span>
+                    </div>
+                </div>
+                <div class="widget-box transparent" id="snmpSettings_PRouter" class="hide">
                     <div class="widget-header">
                         <h4 class="smaller" onclick="collapseElement(this,'#PRoutersnmpCredWidget');">
-                            <i class="icon-caret-right grey"></i>
+                            <i class="icon-caret-down grey"></i>
                             <span>SNMP Settings</span>
                         </h4>
                     </div>
-                    <div id="PRoutersnmpCredWidget" class="widget-body collapsed">
+                    <div id="PRoutersnmpCredWidget" class="widget-body">
                         <div class="row-fluid widget-main">
                             <div class="control-group">
                                 <label class="control-label" for='snmpVersion_PRouter'>Version</label>
