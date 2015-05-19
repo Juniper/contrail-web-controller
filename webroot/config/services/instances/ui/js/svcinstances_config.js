@@ -995,7 +995,11 @@ function successHandlerForGridsvcInstanceRow(result) {
                    "virtual_network" in  svcInstance['service_instance_properties']["interface_list"][tinc] &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != null &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != undefined){
-                    virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"];
+                    if(typeof (svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"]) == "object"){
+                        virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"].join(":");
+                    } else {
+                        virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"];
+                    }
                 }
                 if(templateOrder[tinc].static_route_enable === true){
                     enableControles = true;
