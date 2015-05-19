@@ -631,7 +631,10 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 function prepareBGPPeerAttrJSON(bgpUpdates) {
     var addFamily = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"]["family"]; 
     var attrJSON = {"session": [
-        {"attributes": [{"bgp_router": null, "address_families": {"family": addFamily}}], "uuid": null}
+        {
+            //"attributes": [{"bgp_router": null, "address_families": {"family": addFamily}}],
+            "uuid": null
+        }
     ]};
     return attrJSON;
 }
