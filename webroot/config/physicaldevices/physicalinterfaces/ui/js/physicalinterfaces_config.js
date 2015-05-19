@@ -1022,7 +1022,7 @@ function physicalInterfacesConfig() {
                 var vmiFQName = null;
                 if(typeof selVMI === 'object') {
                     var vmiData = JSON.parse(selVMI.data);
-                    selVMIList.push(vmiData.vmi_uuid);
+                    selVMIList.push(vmiData.uuid);
                 }
             }
         }
