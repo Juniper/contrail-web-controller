@@ -35,6 +35,7 @@
     <item>
         <url>/api/tenant/networking/trace-flow</url>
         <method>post</method>
+        <timeout>300</timeout>
         <feature>underlay</feature>
         <callback>underlayApi.getTraceFlow</callback>
     </item>
