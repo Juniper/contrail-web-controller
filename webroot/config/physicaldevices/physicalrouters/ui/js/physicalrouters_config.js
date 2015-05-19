@@ -642,12 +642,12 @@ function physicalRoutersConfig() {
                 }
             }
             if(gblSelRow.isSNMPManaged){
-                if(currAddEditType != PROUTER_SUFFIX && currAddEditType != VCPE_SUFFIX){
+                if(currAddEditType != VCPE_SUFFIX){
                     $('#chkSnmpSettings' + currAddEditType)[0].checked = true;
                     $('#snmpSettings' + currAddEditType).removeClass('hide').addClass('show');
                 }
             } else {
-                if(currAddEditType != PROUTER_SUFFIX && currAddEditType != VCPE_SUFFIX){
+                if(currAddEditType != VCPE_SUFFIX){
                     $('#chkSnmpSettings' + currAddEditType)[0].checked = false;
                     $('#snmpSettings' + currAddEditType).removeClass('show').addClass('hide');
                 }
@@ -802,7 +802,7 @@ function physicalRoutersConfig() {
                         servicePorts.push(servicePort);
                     }
                 }
-            }
+            } 
         }
         if(currAddEditType == PROUTER_SUFFIX) {
             bgpRouter = $("#ddBgpRouter" + currAddEditType).data('contrailDropdown').text();
@@ -834,7 +834,9 @@ function physicalRoutersConfig() {
         if(servicePorts != null && servicePorts.length > 0){
             postObject["physical-router"]["physical_router_junos_service_ports"] = {};
             postObject["physical-router"]["physical_router_junos_service_ports"]["service_port"] = servicePorts;
-        } 
+        } else {
+            postObject["physical-router"]["physical_router_junos_service_ports"] = {};
+        }
         if(bgpRouter != null && bgpRouter != 'None'){
             var bgpRouterRefs = [{"to":["default-domain", "default-project" , "ip-fabric", "__default__", bgpRouter]}];
             postObject["physical-router"]["bgp_router_refs"] = bgpRouterRefs;
@@ -884,7 +886,7 @@ function physicalRoutersConfig() {
             isSNMPManaged = $('#chkSnmpSettings' + currAddEditType)[0].checked;
         }
         //SNMP Credentials
-        if(currAddEditType == PROUTER_SUFFIX || isSNMPManaged) {
+        if(isSNMPManaged) {
             var snmpVersion = ($('#snmpVersion2' + currAddEditType).is(':checked') == true)? 2 : 3;
             var snmpLocalPort = ($("#txtLocalPort" + currAddEditType).val().trim() != '')? parseInt($("#txtLocalPort" + currAddEditType).val().trim()) : '';
             var snmpRetries = ($("#txtRetries" + currAddEditType).val().trim() != '')? parseInt($("#txtRetries" + currAddEditType).val().trim()) : '';
@@ -925,6 +927,10 @@ function physicalRoutersConfig() {
                     postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_boots'] = parseInt($("#txtV3EngineBoots" + currAddEditType).val().trim());
                 if($("#txtV3EngineTime" + currAddEditType).val().trim() != '')
                     postObject["physical-router"]['physical_router_snmp_credentials']['v3_engine_time'] = parseInt($("#txtV3EngineTime" + currAddEditType).val().trim());
+            }
+        } else {
+            if($('#chkSnmpSettings' + currAddEditType).length > 0) {
+                postObject["physical-router"]['physical_router_snmp_credentials'] = {};
             }
         }
         if(methodType == "PUT"){
