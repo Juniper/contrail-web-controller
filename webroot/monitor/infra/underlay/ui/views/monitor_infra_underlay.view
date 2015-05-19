@@ -161,9 +161,6 @@ body > svg {
                     <div title="Zoom Reset" class="topology-control-item zoom-reset" onclick="underlayRenderer.getView().resetTopology();">
                         <i class="icon-remove-circle"></i>
                     </div>
-                    <div title="Expand/Collapse Visualization" class="topology-control-item" onclick="underlayRenderer.getView().expandTopology();">
-                        <i class="icon-resize-small"></i>
-                    </div>
                 </div>
             </div>
         </div>
