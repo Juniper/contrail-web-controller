@@ -459,7 +459,7 @@ function readVirtualNetworkWOBackRefs (netIdStr, appData, callback)
     //vnGetURL += '?exclude_back_refs=false';
     configApiServer.apiGet(vnGetURL, appData,
                            function(error, data) {
-        if (null == error) {
+        if (null != error) {
             callback(error, data);
             return;
         }
