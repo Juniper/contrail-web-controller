@@ -203,6 +203,8 @@ monitorInfraComputeSummaryClass = (function() {
                 });
             
             var source = 'datasource';
+            //Set source accordingly,as certain UI widgets need no reload/refresh if updates comes from certain sources
+            //Like populating generators information for vRouter nodes does not need refresh on scatter chart
             if(filteredNodes[0] != null && filteredNodes[0]['isGeneratorRetrieved'] == true){
                 source = 'generator';
             }
@@ -347,7 +349,7 @@ monitorInfraComputeSummaryClass = (function() {
                         name:"CPU (%)",
                         minWidth:150,
                         formatter:function(r,c,v,cd,dc) {
-                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'  + dc['cpu'] +  '</span>';
+                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'  + ifNotNumeric(dc['cpu'],'-') +  '</span>';
                         },
                         asyncPostRender: renderSparkLines,
                         searchFn:function(d){
