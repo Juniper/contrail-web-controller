@@ -995,7 +995,17 @@ function successHandlerForGridsvcInstanceRow(result) {
                    "virtual_network" in  svcInstance['service_instance_properties']["interface_list"][tinc] &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != null &&
                    svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"] != undefined){
-                    virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"];
+                    if(typeof (svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"]) == "object") {
+                       if(svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"].length > 0) {
+                            //some case network is comming as array insted of String.
+                            //Noticed when the router is added with external gateway
+                            virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"].join(":");
+                        } else  {
+                            virNetwork = JSON.stringify(svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"]);
+                        }
+                    } else {
+                        virNetwork = svcInstance['service_instance_properties']["interface_list"][tinc]["virtual_network"];
+                    }
                 }
                 if(templateOrder[tinc].static_route_enable === true){
                     enableControles = true;
