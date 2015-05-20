@@ -28,7 +28,7 @@
                       </div>                       
                   </div>
                   <div class="control-group">
-                      <label class="control-label">Peer Type</label>
+                      <label class="control-label">Router Type</label>
                       <div class="controls">
                           <div class="row-fluid padding-top-5">
                                <div class="pull-left">

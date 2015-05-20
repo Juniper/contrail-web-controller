@@ -99,7 +99,7 @@ function handleltor(left, right, options) {
                 if (globalData[j].name == selected[i].value) {
                     if (type == "external") {
                         if (!isJuniperControlNode(globalData[j].vendor)) {
-                            showInfoWindow("BGP peer(" +
+                            showInfoWindow("BGP router(" +
                                 globalData[j].name +
                                 ") can be paired only with Control Nodes.",
                                 "Selection Error");
@@ -216,7 +216,7 @@ function validate() {
         return false;
     }
     if ("" == addr || !validip(addr) || addr.indexOf("/") != -1) {
-        showInfoWindow("Enter a valid BGP peer address in the format xxx.xxx.xxx.xxx", "Invalid input");
+        showInfoWindow("Enter a valid BGP router address in the format xxx.xxx.xxx.xxx", "Invalid input");
         return false;
     }
     if (authType != 'none' && $('#txtAuthKey').val().trim() == '') {
@@ -257,7 +257,7 @@ function validate() {
         }
     }
     if ("" == family || family.length <= 0) {
-        showInfoWindow("Enter BGP peer address family", "Input required");
+        showInfoWindow("Enter BGP router address family", "Input required");
         return false;
     }
 
@@ -464,7 +464,7 @@ function addEditBgp(data) {
             tmp_availablelist = [],
             tmp_selectlist = [];
         bgpwindow.modal('show');
-        bgpwindow.find('h6').text("Edit BGP Peer");
+        bgpwindow.find('h6').text("Edit BGP Router");
         if (data.role.indexOf("Control") != -1) {
             $("#chkjnpr").click();
         } else {
@@ -797,7 +797,7 @@ function initComponents() {
     $("#gridBGP").contrailGrid({
         header : {
             title : {
-                text : 'BGP Peers',
+                text : 'BGP Routers',
                 //cssClass : 'blue',
                 //icon : 'icon-list',
                 //iconCssClass : 'blue'
@@ -809,8 +809,8 @@ function initComponents() {
             //    searchable: true
             //},
             customControls: [
-                '<a id="btndelbgp" class="disabled-link" title="Delete BGP Peer(s)"><i class="icon-trash"></i></a>',
-                '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Peer"><i class="icon-plus"></i></a>'
+                '<a id="btndelbgp" class="disabled-link" title="Delete BGP Router(s)"><i class="icon-trash"></i></a>',
+                '<a id="btnaddbgp" class="disabled-link" onclick="btnaddbgpClick();return false;" title="Create BGP Router"><i class="icon-plus"></i></a>'
             ]
         },
         columnHeader : {
@@ -878,15 +878,15 @@ function initComponents() {
             },
             statusMessages: {
                 loading: {
-                    text: 'Loading BGP Peers..',
+                    text: 'Loading BGP Routers..',
                 },
                 empty: {
-                    text: 'No BGP Peers Found.'
+                    text: 'No BGP Routers Found.'
                 }, 
                 errorGettingData: {
                     type: 'error',
                     iconClasses: 'icon-warning',
-                    text: 'Error in getting BGP Peers.'
+                    text: 'Error in getting BGP Routers.'
                 }
             }
         }
@@ -1012,7 +1012,7 @@ function btnaddbgpClick() {
     mode = "add";
     populatePhysicalRouters();
     bgpwindow.modal('show');
-    bgpwindow.find('h6').text("Create BGP Peer");
+    bgpwindow.find('h6').text("Create BGP Router");
     $("#txtasn").val(ggasn);
     $("#txtport").val("179");
     $("#txtname").focus();

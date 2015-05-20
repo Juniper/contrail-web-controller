@@ -361,7 +361,7 @@ and need to add the iconClass tag wherever we need to show some icons
               <searchStrings>Configure Global Config</searchStrings>
             </item>
             <item>
-              <label>BGP Peers</label>
+              <label>BGP Routers</label>
               <hash>config_infra_bgp</hash>
               <resources>
                 <resource>
@@ -371,7 +371,7 @@ and need to add the iconClass tag wherever we need to show some icons
                   <class>bgpConfigObj</class>
                 </resource>
               </resources>
-              <searchStrings>Configure BGP Peers</searchStrings>
+              <searchStrings>Configure BGP Routers</searchStrings>
             </item>
             <item>
               <label>Link Local Services</label>
