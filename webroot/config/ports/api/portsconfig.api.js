@@ -1270,6 +1270,11 @@ function linkUnlinkDetails (error, result, DataObjectLenDetail, portPutData, boo
                         var vmRef =
                             result[i]['virtual-machine-interface']['virtual_machine_refs'];
                         result[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                        if('virtual_machine_interface_properties' in result[i]['virtual-machine-interface'] &&
+                            "sub_interface_vlan_tag" in result[i]['virtual-machine-interface']['virtual_machine_interface_properties']) {
+                            //delete only sub_interface_vlan_tag to make sure it wont affect if a port is created from the SI which has extra fields. 
+                            delete result[i]['virtual-machine-interface']['virtual_machine_interface_properties']['sub_interface_vlan_tag'];
+                        }
                         if (vmiData['virtual-machine-interface']['virtual_machine_refs']) {
                             var vmiChildUrl = '/virtual-machine-interface/' +
                                 vmiData['virtual-machine-interface']['uuid'];
@@ -2503,6 +2508,11 @@ function removeRefSubInterface(error, results, vmiData, appData, callback)
                     for(var j=0;j<vmiRefLen;j++){
                         if(vmiRef[j]['uuid'] == vmiUUID){
                             results[i]['virtual-machine-interface']['virtual_machine_interface_refs'].splice(j,1);
+                            if('virtual_machine_interface_properties' in results[i]['virtual-machine-interface'] &&
+                               "sub_interface_vlan_tag" in results[i]['virtual-machine-interface']['virtual_machine_interface_properties']) {
+                                //delete only sub_interface_vlan_tag to make sure it wont affect if a port is created from the SI which has extra fields.
+                                delete results[i]['virtual-machine-interface']['virtual_machine_interface_properties']['sub_interface_vlan_tag'];
+                            }
                             j--;
                             vmiRefLen--;
                             commonUtils.createReqObj(DataObjectArr, vmiRefURL,
