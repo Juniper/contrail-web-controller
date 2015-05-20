@@ -48,6 +48,7 @@ function VirtualNetworkConfig() {
     var ajaxParam;
     var dynamicID;
     var selectedProuters;
+    var getUUIDCallCount;
 
     //Method definitions
     this.load = load;
@@ -78,6 +79,7 @@ function VirtualNetworkConfig() {
     this.getDNSStatus = getDNSStatus;
     this.getAllDNSServer = getAllDNSServer;
     this.dynamicID = dynamicID;
+    this.getUUIDCallCount = getUUIDCallCount;
     this.destroy = destroy;
 }
 
@@ -103,6 +105,7 @@ function fetchData() {
 
 function initComponents() {
     dynamicID = 0;
+    getUUIDCallCount = 2;
     $("#gridVN").contrailGrid({
         header : {
             title : {
@@ -1853,23 +1856,46 @@ function fetchDataForGridVN() {
     idCount = 0;
     vnAjaxcount = vnAjaxcount+1;
     ajaxParam = $("#ddProjectSwitcher").data("contrailDropdown").value()+"_"+vnAjaxcount;
-    doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=20&fqnUUID="+$("#ddProjectSwitcher").data("contrailDropdown").value(),
-        "GET", null, "successHandlerForGridVNLoop", "failureHandlerForGridVN", null, ajaxParam);
+    doAjaxCall("/api/tenants/config/get-config-uuid-list?type=virtual-network&parentUUID="+$("#ddProjectSwitcher").data("contrailDropdown").value(),
+        "GET", null, "successHandlerForAllUUIDGet", "failureHandlerForAllUUIDGet", null, ajaxParam);
+    /*doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=20&fqnUUID="+$("#ddProjectSwitcher").data("contrailDropdown").value(),
+        "GET", null, "successHandlerForGridVNLoop", "failureHandlerForGridVN", null, ajaxParam);*/
 }
 
-
-function successHandlerForGridVNLoop(result,cbparam){
+function successHandlerForAllUUIDGet(allUUID, cbparam)
+{
     if(cbparam != ajaxParam){
         return;
     }
-    if(result.more == true || result.more == "true"){
-        
-        doAjaxCall("/api/admin/config/get-data?type=virtual-network&count=20&fqnUUID="+ 
-            $("#ddProjectSwitcher").data("contrailDropdown").value() +"&lastKey="+result.lastKey, 
-            "GET", null, "successHandlerForGridVNLoop", "failureHandlerForGridVN", null, cbparam); 
+    var vnUUIDObj = {};
+    var sendUUIDArr = [];
+    vnUUIDObj.type = "virtual-network";
+    sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+    vnUUIDObj.uuidList = sendUUIDArr;
+    vnUUIDObj.fields = ["floating_ip_pools"];
+    allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+    doAjaxCall("/api/tenants/config/get-config-data-paged", "POST", JSON.stringify(vnUUIDObj),
+        "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, allUUID);
+}
+
+function failureHandlerForAllUUIDGet(result){
+    console.log("uuid", JSON.stringify(result));
+}
+
+function successHandlerForGridVNLoop(result, allUUID){
+    if(allUUID.length > 0) {
+        var vnUUIDObj = {};
+        var sendUUIDArr = [];
+        vnUUIDObj.type = "virtual-network";
+        sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+        vnUUIDObj.uuidList = sendUUIDArr;
+        vnUUIDObj.fields = ["floating_ip_pools"];
+        allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        doAjaxCall("/api/tenants/config/get-config-data-paged", "POST", JSON.stringify(vnUUIDObj),
+            "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, allUUID);
     } else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
-            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam);        
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);        
     }
     successHandlerForGridVNRow(result);
 }
