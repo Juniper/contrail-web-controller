@@ -143,7 +143,8 @@ define([
                 currObject['outBytes60'] = '-';
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
                 currObject['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + currObject['name'] + '?flat';
-                currObject['vmName'] = ifNull(jsonPath(currObj, '$..vm_name')[0], '-');
+                currObject['vmName'] = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vm_name');
+                currObject['uuid'] = currObject['name'];
 
                 var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
                 currObject['vRouter'] = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(vRouter), '-');
@@ -376,7 +377,7 @@ define([
                         range: range,
                         flowCnt: flowCnt,
                         size: flowCnt + 1,
-                        color: color,
+                        color: color
                         //type:portField
                     });
             }
@@ -384,7 +385,8 @@ define([
         };
 
         this.parseInstanceStats = function (response, type) {
-            var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
+            response = contrail.handleIfNull(response, {});
+            var retArr = $.map(ifNull(response['value'], []), function (obj, idx) {
                 var item = {};
                 var props = STATS_PROP[type];
                 item['name'] = obj['vm_uuid'];

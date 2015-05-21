@@ -107,7 +107,11 @@ define([
                 field: 'vmName',
                 name: 'Instance',
                 formatter: function (r, c, v, cd, dc) {
-                    return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
+                    if(contrail.checkIfExist(dc['vmName'])) {
+                        return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
+                    } else {
+                        return '-';
+                    }
                 },
                 minWidth: 150,
                 searchable: true,
@@ -328,8 +332,11 @@ define([
 
                         for (var i = 0; i < responseJSON.length; i++) {
                             var instance = responseJSON[i],
-                                instanceInterfaces = instance['value']['UveVirtualMachineAgent']['interface_list'];
-                            interfaceList.push(instanceInterfaces);
+                                uveVirtualMachineAgent = contrail.handleIfNull(instance['value']['UveVirtualMachineAgent'], {}),
+                                instanceInterfaces = contrail.handleIfNull(uveVirtualMachineAgent['interface_list'], []);
+                            if(instanceInterfaces.length > 0) {
+                                interfaceList.push(instanceInterfaces);
+                            }
                         }
 
                         lazyAjaxConfig = {
@@ -348,8 +355,8 @@ define([
 
                         for (var i = 0; i < dataItems.length; i++) {
                             var dataItem = dataItems[i],
-                                uveVirtualMachineAgent = dataItem['value']['UveVirtualMachineAgent'],
-                                interfaceList = dataItem['value']['UveVirtualMachineAgent']['interface_list'],
+                                uveVirtualMachineAgent = contrail.handleIfNull(dataItem['value']['UveVirtualMachineAgent'], {}),
+                                interfaceList = contrail.handleIfNull(uveVirtualMachineAgent['interface_list'], []),
                                 interfaceDetailsList = [],
                                 inThroughput = 0, outThroughput = 0, throughput = 0;
 
@@ -390,9 +397,11 @@ define([
                                 }
                             }
 
+                            /*
                             if (interfaceDetailsList.length > 0) {
                                 dataItem['vmName'] = interfaceDetailsList[0]['vm_name'];
                             }
+                            */
                         }
 
                         contrailListModel.updateData(dataItems);
@@ -576,7 +585,9 @@ define([
         } else if ($.inArray(name, ['instance']) > -1) {
             fqName = selRowDataItem['vnFQN'];
             uuid = selRowDataItem['name'];
-            ctwgrc.setInstanceURLHashParams(null, fqName, uuid, true)
+            if(contrail.checkIfExist(fqName)) {
+                ctwgrc.setInstanceURLHashParams(null, fqName, uuid, true);
+            }
         }
     };
 
