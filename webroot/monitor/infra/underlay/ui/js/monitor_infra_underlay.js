@@ -2743,15 +2743,17 @@ underlayView.prototype.getPostDataFromHashParams = function() {
 underlayView.prototype.addCommonTabs = function(tabDiv) {
     var _this = this;
     var tabObj = $("#"+tabDiv).data('contrailTabs');
-    tabObj.addTab('traceFlow','Trace Flows',{position: 'before'});
-    tabObj.addTab('flows-tab','Search Flows',{position: 'before'});
-    $("#"+tabDiv).on('tabsactivate',function(e,ui){
-        var selTab = $(ui.newTab.context).text();
-        if(selTab == 'Search Flows')
-            _this.renderFlowRecords();
-        else if(selTab == 'Trace Flows')
-            _this.renderTracePath();
-    });
+    if(tabObj != null) {
+        tabObj.addTab('traceFlow','Trace Flows',{position: 'before'});
+        tabObj.addTab('flows-tab','Search Flows',{position: 'before'});
+        $("#"+tabDiv).on('tabsactivate',function(e,ui){
+            var selTab = $(ui.newTab.context).text();
+            if(selTab == 'Search Flows')
+                _this.renderFlowRecords();
+            else if(selTab == 'Trace Flows')
+                _this.renderTracePath();
+        });
+    }
 }
 
 underlayView.prototype.renderUnderlayTabs = function() {
@@ -2910,7 +2912,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
         }catch(e){
             introspectPort = defaultIntrospectPort;
         }
-        cmpNodeView.populateComputeNode({name:content['name'], ip:content['ip'], page:'underlay',
+        cmpNodeView.populateComputeNode({name:constructValidDOMId(content['name']), displayName:content['name'], ip:content['ip'], page:'underlay',
             introspectPort:introspectPort != null ? introspectPort : defaultIntrospectPort});
         _this.addCommonTabs('compute_tabstrip_'+content['name']);
     } else if(type == VIRTUALMACHINE) {
