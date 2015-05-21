@@ -198,14 +198,15 @@ function postProcessConfigNodeSummary (configUVEData)
     } else {
         configData = configData['config-nodes'];
     }
+    var uveLen = 0;
     if ((null == uveData) || (null == uveData['value'])) {
         uveData = null;
     } else {
         uveData = uveData['value'];
+        uveLen = uveData.length;
     }
 
     var resultJSON = [];
-    var uveLen = uveData.length;
     for (var i = 0; i < uveLen; i++) {
         var host = uveData[i]['name'];
         resultJSON[i] = {};
