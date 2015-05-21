@@ -28,7 +28,7 @@
                       </div>                       
                   </div>
                   <div class="control-group">
-                      <label class="control-label">Peer Type</label>
+                      <label class="control-label">Router Type</label>
                       <div class="controls">
                           <div class="row-fluid padding-top-5">
                                <div class="pull-left">
@@ -51,7 +51,7 @@
                                </div>
                                <label
                                    onclick="$('\#chkextern').click()" class="hyperlink-active">
-                                   BGP Peer
+                                   BGP Router
                                </label>
                           </div>
                       </div>
@@ -252,7 +252,7 @@
         </div>
         <div class="modal-body">
             <div class="row-fluid text-center" >
-                <h6>Confirm BGP Peer(s) delete</h6>
+                <h6>Confirm BGP Router(s) delete</h6>
             </div>       
         </div>
         <div class="modal-footer">
