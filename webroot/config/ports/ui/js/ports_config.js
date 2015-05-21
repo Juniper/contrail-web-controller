@@ -44,6 +44,7 @@ function portsConfigObj() {
     var mac_address;
     var ip_address;
     var selectedParentVMIObject;
+    var getPortUUIDCallCount;
             
     //Method definitions
     this.load = load;
@@ -71,6 +72,7 @@ function portsConfigObj() {
     this.allfloatingIP = allfloatingIP;
     this.allNetworkData = allNetworkData;
     this.currentVNSubnetDetail = currentVNSubnetDetail;
+    this.getPortUUIDCallCount = getPortUUIDCallCount;
     this.mac_address = mac_address;
     this.ip_address = ip_address;
     this.selectedParentVMIObject = selectedParentVMIObject;
@@ -119,6 +121,7 @@ function groupBy( array , f )
 }
 
 function initComponents() {
+    getPortUUIDCallCount = 200;
     var deletePortsDropdownTemplate = contrail.getTemplate4Id('delete-port-action-template');
     var columnsToBeAddedDynamically = [];
     var displayOwnerNameColumn = {
@@ -1161,18 +1164,47 @@ function fetchDataForgridPorts() {
     gridPorts.showGridMessage('loading');
     var proid = $("#ddProjectSwitcher").data("contrailDropdown").value();
     ajaxParam = proid + "_" + polAjaxcount;
-    doAjaxCall("/api/admin/config/get-data?type=virtual-machine-interface&count="+pageCount+"&fqnUUID="+proid,
-        "GET", null, "successHandlerForgridPorts", "failureHandlerForgridPortsRow", null, ajaxParam);
+    doAjaxCall("/api/tenants/config/get-config-uuid-list?type=virtual-machine-interface&parentUUID="+proid,
+        "GET", null, "successHandlerForAllPortUUIDGet", "failureHandlerForAllPortUUIDGet", null, ajaxParam);
 }
 
-function successHandlerForgridPorts(result , cbparam) {
-    if(cbparam != ajaxParam){
+function successHandlerForAllPortUUIDGet(allUUID, cbparam)
+{
+    if (cbparam != ajaxParam){
         return;
     }
-    if(result.more == true || result.more == "true"){
-        doAjaxCall("/api/admin/config/get-data?type=virtual-machine-interface&count="+pageCount+"&fqnUUID="+
-            $("#ddProjectSwitcher").data("contrailDropdown").value() +"&lastKey="+result.lastKey,
-            "GET", null, "successHandlerForgridPorts", "failureHandlerForgridPortsRow", null, cbparam);
+    if (allUUID.length > 0) {
+        var vmiUUIDObj = {};
+        var sendUUIDArr = [];
+        vmiUUIDObj.type = "virtual-machine-interface";
+        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        vmiUUIDObj.uuidList = sendUUIDArr;
+        //vmiUUIDObj.fields = ["floating_ip_pools"];
+        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        doAjaxCall("/api/tenants/config/get-virtual-machine-details-paged", "POST", JSON.stringify(vmiUUIDObj),
+            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, allUUID);
+    } else {
+        $("#btnCreatePorts").removeClass('disabled-link');
+        gridPorts.showGridMessage("empty");
+    }
+}
+
+function failureHandlerForAllPortUUIDGet(result){
+    $("#btnCreatePorts").removeClass('disabled-link');
+    gridPorts.showGridMessage('errorGettingData');
+}
+
+function successHandlerForgridPorts(result , allUUID) {
+    if(allUUID.length > 0) {
+        var vmiUUIDObj = {};
+        var sendUUIDArr = [];
+        vmiUUIDObj.type = "virtual-machine-interface";
+        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        vmiUUIDObj.uuidList = sendUUIDArr;
+        //vmiUUIDObj.fields = ["floating_ip_pools"];
+        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        doAjaxCall("/api/tenants/config/get-virtual-machine-details-paged", "POST", JSON.stringify(vmiUUIDObj),
+            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, allUUID);
     }
     successHandlerForgridPortsRow(result);
 }
@@ -1186,7 +1218,7 @@ function successHandlerForgridPortsRow(result) {
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var PortsData = $("#gridPorts").data("contrailGrid")._dataView.getItems();
-    var Ports = result.data;
+    var Ports = result;
     if(Ports != undefined && Ports != null){
         for (var i = 0; i < Ports.length; i++) {
             if(Ports[i] != null && Ports[i] != undefined){
