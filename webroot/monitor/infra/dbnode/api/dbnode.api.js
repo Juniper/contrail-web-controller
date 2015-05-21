@@ -87,24 +87,6 @@ function getDatabaseNodesSummary (req, res, appData)
         } catch(e) {
             nodeCnt = 0;
         }
-        for (var i = 0; i < nodeCnt; i++) {
-            try {
-                nodesHostIp['hosts'][resultJSON[i]['name']] = [];
-            } catch(e) {
-            }
-            var nodeIpsCnt = 0;
-            try {
-                var nodeIps =
-                    resultJSON[i]['value']['databaseNode']['ModuleCpuState']['database_node_ip'];
-                nodeIpsCnt = nodeIps.length;
-            } catch(e) {
-                logutils.logger.error("Database UVE IP parse error: " + e);
-                nodeIpsCnt = 0;
-            }
-            for (var j = 0; j < nodeIpsCnt; j++) {
-                nodesHostIp['ips'][nodeIps[j]] = [];
-            }
-        }
        
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
@@ -177,14 +159,15 @@ function postProcessDatabaseNodeSummary (dbUVEData)
     } else {
         configData = configData['database-nodes'];
     }
+    var uveLen = 0;
     if ((null == uveData) || (null == uveData['value'])) {
         uveData = null;
     } else {
         uveData = uveData['value'];
+        uveLen = uveData.length;
     }
 
     var resultJSON = [];
-    var uveLen = uveData.length;
     for (var i = 0; i < uveLen; i++) {
         var host = uveData[i]['name'];
         resultJSON[i] = {};
@@ -236,7 +219,7 @@ function getDBNodeStatsFlowSeries (req, res, appData)
     var timeObj = queries.createTimeQueryJsonObjByAppData(appData);
     var queryJSON =
         commonUtils.cloneObj(ctrlGlobal.QUERY_JSON[
-            'StatTable.DatabaseUsageInfo.database_usage_stats'
+            'StatTable.DatabaseUsageInfo.database_usage'
             ]);
     queryJSON['where'][0][0]['value'] = source;
     queryJSON['start_time'] = timeObj['start_time'];

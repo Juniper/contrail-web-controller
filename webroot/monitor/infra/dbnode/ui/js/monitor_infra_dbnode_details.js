@@ -24,39 +24,36 @@ monitorInfraDbDetailsClass = (function() {
             url: contrail.format(monitorInfraUrls['DATABASE_DETAILS'] , obj['name'])
         }).done(function (result) {
                 var noDataStr = "--";
-                /*$.ajax({
-                    url: '/api/service/networking/web-server-info'
+                $.ajax({
+                    url: '/api/admin/monitor/infrastructure/dbnode/flow-series/stats?&minsSince=30&source='+ obj['name']
                 }).done(function (resultJSON) {
-                    endTime = resultJSON['serverUTCTime'];
-                }).fail(function() {
-                    endTime = getCurrentTime4MemCPUCharts();
-                }).always(function() {
                     var slDb;
                     startTime = endTime - 600000;
                     slDb = {startTime: startTime, endTime: endTime};
-                    $('#apiServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.dbNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'api_server_cpu_share', color: 'blue-sparkline'},
-                        {name: 'api_server_mem_virt', color: 'green-sparkline'}
-                    ]}, slDb);
-                    $('#serviceMonitor-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.dbNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'service_monitor_cpu_share', color: 'blue-sparkline'},
-                        {name: 'service_monitor_mem_virt', color: 'green-sparkline'}
-                    ]}, slDb);
-                    $('#schema-sparklines' + '_' + obj.name).initMemCPUSparkLines(result.dbNode, 'parseMemCPUData4SparkLines', {'ModuleCpuState': [
-                        {name: 'schema_xmer_cpu_share', color: 'blue-sparkline'},
-                        {name: 'schema_xmer_mem_virt', color: 'green-sparkline'}
-                    ]}, slDb);
-                    endWidgetLoading('db-sparklines' + '_' + obj.name);
-                    $('#apiServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-api', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines' + '_' + obj.name, showWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#serviceMonitor-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-svc-monitor', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines' + '_' + obj.name, showWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                    $('#schema-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
-                        return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-schema', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                });*/
+                    var flowSeriesData = resultJSON['flow-series'];
+                    var slineDataDiskUsage = parseDataForSparkline(flowSeriesData,'database_usage.disk_space_used_1k');
+                    var slineDataAnalDbSize = parseDataForSparkline(flowSeriesData,'database_usage.analytics_db_size_1k');
+                    try {
+                        drawSparkLine('dbnode-sparklines' + '_' + obj.name, 'db_usage_sparkline', 'blue-sparkline', slineDataDiskUsage);
+                    } catch (error) {
+                        console.log(error.stack);
+                    }
+                    try {
+                        drawSparkLine('dbnode-sparklines' + '_' + obj.name, 'analytics_db_size_sparkline', 'blue-sparkline', slineDataAnalDbSize);
+                    } catch (error) {
+                        console.log(error.stack);
+                    }
+                    endWidgetLoading('dbnode-sparklines' + '_' + obj.name);
+                    $('#dbnode-chart' + '_' + obj.name).initDbUsageLineChart({data:resultJSON, 
+                                                                                parser: "parseUsageData", 
+                                                                                plotOnLoad: true, 
+                                                                                lineChartId: 'dbnode-sparklines' + '_' + obj.name, 
+                                                                                showWidgetIds: [], 
+                                                                                hideWidgetIds: [], 
+                                                                                titles: {diskUsageTitle:'Database Disk Usage',analyticsDbSizeTitle:'Analytics DB Size'}},110);
+                }).fail(function() {
+                    //Fail condition
+                });
                 databaseNodeData = result;
                 var parsedData = infraMonitorUtils.parseDbNodesDashboardData([{name:obj['name'],value:databaseNodeData}])[0];
                 var cpu = "N/A",
@@ -144,3 +141,14 @@ function getStatusesForAllDbProcesses(processStateList){
     }
     return ret;
  }
+
+function parseDataForSparkline(flowSeriesData,field){
+    if(flowSeriesData == null || flowSeriesData.length == 0){
+        return [];
+    }
+    var slData = [];
+    $.each(flowSeriesData,function(i,d){
+        slData.push(d[field]);
+    });
+    return slData;
+}
