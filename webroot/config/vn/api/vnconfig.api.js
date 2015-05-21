@@ -237,8 +237,9 @@ function VNFloatingIpPoolAggCb (error, results, vnConfig, appData, callback)
  * 1. Gets the Floating ip pool list and then does an individual get on
  *    the floating ip pool for a given virtual network
  */
-function parseVNFloatingIpPools (error, vnConfig, appData, callback)
+function parseVNFloatingIpPools (vnConfig, appData, callback)
 {
+    var error          = null;
     var fipPoolRef     = null;
     var dataObjArr     = [];
     var fipObj         = null;
@@ -281,15 +282,9 @@ function parseVNFloatingIpPools (error, vnConfig, appData, callback)
  *    - Gets each Floating IP pool
  *    - ACL Reference is already part of the virtual-network get
  */
-function getVirtualNetworkCb (error, vnGetData, appData, callback) 
+function getVirtualNetworkCb (vnGetData, appData, callback)
 {
-
-    if (error) {
-       callback(error, null);
-       return;
-    }
-
-    parseVNFloatingIpPools(error, vnGetData, appData, callback);
+    parseVNFloatingIpPools(vnGetData, appData, callback);
 }
 
 /**
@@ -311,7 +306,11 @@ function readVirtualNetwork (netIdStr, appData, callback)
 
     configApiServer.apiGet(vnGetURL, appData,
                          function(error, data) {
-                         getVirtualNetworkCb(error, data, appData, callback);
+                         if (null != error) {
+                            callback(error, data);
+                            return;
+                         }
+                         getVirtualNetworkCb(data, appData, callback);
                          });
 }
 
@@ -349,7 +348,7 @@ function parseSharedVN (vnObj, callback)
 {
     var data = vnObj['data'];
     var appData = vnObj['appData'];
-    getVirtualNetworkCb(null, data, appData, function(err, data) {
+    getVirtualNetworkCb(data, appData, function(err, data) {
         callback(null, data);
     });
 }
@@ -460,7 +459,11 @@ function readVirtualNetworkWOBackRefs (netIdStr, appData, callback)
     //vnGetURL += '?exclude_back_refs=false';
     configApiServer.apiGet(vnGetURL, appData,
                            function(error, data) {
-        getVirtualNetworkCb(error, data, appData, callback);
+        if (null == error) {
+            callback(error, data);
+            return;
+        }
+        getVirtualNetworkCb(data, appData, callback);
     });
 }
 
@@ -2404,5 +2407,6 @@ exports.getSharedVirtualNetworks     = getSharedVirtualNetworks;
 exports.getExternalVirtualNetworks   = getExternalVirtualNetworks;
 exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
 exports.getAllVirtualNetworksWFields = getAllVirtualNetworksWFields;
-exports.fipPoolDelete  = fipPoolDelete;
+exports.fipPoolDelete                = fipPoolDelete;
+exports.getVirtualNetworkCb          = getVirtualNetworkCb;
 

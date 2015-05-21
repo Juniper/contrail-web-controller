@@ -68,5 +68,17 @@
         <feature>configUtil</feature>
         <callback>configUtilapi.deleteConfigObj</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/get-config-uuid-list</url>
+        <method>get</method>
+        <feature>configUtil</feature>
+        <callback>configUtilapi.getConfigUUIDList</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/get-config-data-paged</url>
+        <method>post</method>
+        <feature>configUtil</feature>
+        <callback>configUtilapi.getConfigPaginatedResponse</callback>
+    </item>
 </urlLists>
 
