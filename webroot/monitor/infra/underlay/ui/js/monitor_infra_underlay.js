@@ -2065,38 +2065,12 @@ underlayView.prototype.renderTracePath = function(options) {
     var nodeType = $("#underlay_topology").data('nodeType');
     var nodeName = $("#underlay_topology").data('nodeName');
     var tracePathTemplate = Handlebars.compile($("#tracePath-template").html())();
-    var defaultValue = '',ip = '';
+    var defaultValue = '';
     var isAllPrevFirstTimeClicked = true,vrouterflowsGrid;
     // Global variable need to reset to empty array because it is commonly used
     // in monitor infra vrouter details page flows tab
     flowKeyStack = [];
     $("#traceFlow").html(tracePathTemplate);
-    var computeNodes = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]),computeNodeCombobox = [];
-    if(nodeType == VROUTER && nodeName != null) {
-        defaultValue = nodeName;
-    } else {
-        defaultValue = getValueByJsonPath(computeNodes,'0;name','-');
-        ip = getValueByJsonPath(computeNodes,'0;more_attributes;VrouterAgent;self_ip_list;0','-');
-    }
-    for(var i = 0; i < computeNodes.length; i++) {
-        if(computeNodes[i]['name'] == defaultValue)
-            ip = getValueByJsonPath(computeNodes[i],'more_attributes;VrouterAgent;self_ip_list;0','-');
-        computeNodeCombobox.push({
-            text:contrail.format('{0} ({1})',computeNodes[i]['name'],
-                    getValueByJsonPath(computeNodes[i],'more_attributes;VrouterAgent;self_ip_list;0','-')),
-            value:computeNodes[i]['name']
-        });
-    }
-    var computeNodeInfo = {name:defaultValue};
-    var deferredObj = $.Deferred();
-    cmpNodeView.getComputeNodeDetails(deferredObj,computeNodeInfo);
-    $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').show();
-    deferredObj.done(function(data){
-        $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide();
-        computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
-        computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
-        renderVrouterFlowsGrid(computeNodeInfo);
-    });    
     function renderVrouterFlowsGrid(computeNodeInfo){
         flowKeyStack = [];
         var vRouterFlowsColumns = [
@@ -2281,8 +2255,6 @@ underlayView.prototype.renderTracePath = function(options) {
             },
             footer : false
         });
-        vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
-        vrouterflowsGrid.showGridMessage('loading');
         var newAjaxConfig = {};
         $("#btnNextFlows").click(function(){
             if(flowKeyStack.length > 0 && flowKeyStack[flowKeyStack.length - 1] != null){
@@ -2327,12 +2299,6 @@ underlayView.prototype.renderTracePath = function(options) {
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
-            var selectedText = '';
-            try {
-                selectedText = $("#tracePathDropdown").select2('data')['text'];
-            } catch (error) {
-                selectedText = '-';
-            }
             if($('#vrouterRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var deferredObj = $.Deferred(),vRouterData = {name:e['val']};
@@ -2340,27 +2306,33 @@ underlayView.prototype.renderTracePath = function(options) {
             } else if($('#instRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var ajaxConfig = {};
-                ajaxConfig = getInstFlowsUrl(e['val'],selectedText);
+                ajaxConfig = getInstFlowsUrl(e['val']);
                 reloadFlowsGrid(ajaxConfig);
             }
         }
     });
     function updateVrouterFlowsGrid(deferredObj,vRouterData) {
         cmpNodeView.getComputeNodeDetails(deferredObj,vRouterData);
-        vrouterflowsGrid.showGridMessage('loading');
-        $("#vrouterflows").find('.icon-spinner').show()
+        $("#vrouterflows").find('.icon-spinner').show();
+        if(vrouterflowsGrid != null)
+            vrouterflowsGrid.showGridMessage('loading');
         deferredObj.done(function(data){
-            $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide()
+            $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide();
             vRouterData['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
             vRouterData['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
             renderVrouterFlowsGrid(vRouterData);
+            vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
+            vrouterflowsGrid.showGridMessage('loading');
         });
     }
-    var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
-    tracePathDropdown.setData(computeNodeCombobox);
-    tracePathDropdown.text(contrail.format('{0} ({1})',defaultValue,ip));
-    
-    $("#vrouterRadiobtn").prop('checked',true);
+    var computeNodes = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]),computeNodeCombobox = [];
+    for(var i = 0; i < computeNodes.length; i++) {
+        computeNodeCombobox.push({
+            text:contrail.format('{0} ({1})',computeNodes[i]['name'],
+                    getValueByJsonPath(computeNodes[i],'more_attributes;VrouterAgent;self_ip_list;0','-')),
+            value:computeNodes[i]['name']
+        });
+    }
     var instances = getValueByJsonPath(globalObj,'topologyResponse;VMList',[]),instComboboxData = [];
     var instMap = {};
     for(var i = 0; i < instances.length; i++) {
@@ -2377,7 +2349,7 @@ underlayView.prototype.renderTracePath = function(options) {
             }
             for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length; k++) {
                 var floatingIpObj = intfObj['floating_ips'][k];
-                vmIpArr.push(isValidIP(intfObj['ip_address']) ? intfObj['ip_address'] : '-');
+                vmIpArr.push(isValidIP(floatingIpObj['ip_address']) ? floatingIpObj['ip_address'] : '-');
             }
         }
         if(vmIpArr.length > 0)
@@ -2388,8 +2360,30 @@ underlayView.prototype.renderTracePath = function(options) {
         });
         instMap[instances[i]['name']] = instances[i];
     }
+    var tracePathDropdown = $("#tracePathDropdown").data('contrailDropdown');
+    if(nodeType == VROUTER) {
+        tracePathDropdown.setData(computeNodeCombobox);
+        $("#vrouterRadiobtn").prop('checked',true);
+        defaultValue = nodeName;
+        $("#tracePathDropdown").select2('val',defaultValue);
+        updateVrouterFlowsGrid($.Deferred(),{name:defaultValue});
+    } else if (nodeType == VIRTUALMACHINE) {
+        tracePathDropdown.setData(instComboboxData);
+        $('#instRadiobtn').prop('checked',true); 
+        defaultValue = nodeName;
+        $("#tracePathDropdown").select2('val',defaultValue);
+        var ajaxConfig = {};
+        ajaxConfig = getInstFlowsUrl(defaultValue);
+        reloadFlowsGrid(ajaxConfig);
+    } else {
+        defaultValue = getValueByJsonPath(computeNodes,'0;name','-');
+        tracePathDropdown.setData(computeNodeCombobox);
+        $("#tracePathDropdown").select2('val',defaultValue);
+        updateVrouterFlowsGrid($.Deferred(),{name:defaultValue});
+    }
     //Todo when changing the VM flows to introspect need to merge this function
     function reloadFlowsGrid(newAjaxConfig) {
+        $("#vrouterflows").parent().siblings('div.widget-header').find('.icon-spinner').hide();
         var selectArray = parseStringToArray("other_vrouter_ip,vrouter_ip,agg-bytes", ',');
         selectArray = selectArray.concat(queries['fr']['defaultColumns']);
         var options = getFRDefaultOptions();
@@ -2397,6 +2391,7 @@ underlayView.prototype.renderTracePath = function(options) {
         var columnDisplay = getColumnDisplay4Grid(queries['fr']['columnDisplay'], selectArray, true);
         selectArray = selectArray.concat(newAjaxConfig['data']['select']);
         loadFlowResultsForUnderlay(options,newAjaxConfig['data'],columnDisplay,null,true);
+        vrouterflowsGrid = $("#vrouterflows").data('contrailGrid');
     }
     $('input[name="flowtype"]').change(function(){
         var ajaxConfig = {},selItem = {};
@@ -2625,7 +2620,7 @@ underlayView.prototype.renderTracePath = function(options) {
         }
     });
     
-    function getInstFlowsUrl(name,text){
+    function getInstFlowsUrl(name){
         var req = {};
         var ajaxData = {
                 pageSize: 50,
