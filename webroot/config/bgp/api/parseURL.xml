@@ -134,5 +134,11 @@
         <feature>orchestration</feature>
         <callback>adminapi.getApiServerDataByPage</callback>
     </item>
+    <item>
+        <url>/api/tenants/admin/config/ip-fabric-subnets</url>
+        <method>put</method>
+        <feature>bgp</feature>
+        <callback>adminapi.updateIPFabricSubnets</callback>
+    </item>
 </urlLists>
 
