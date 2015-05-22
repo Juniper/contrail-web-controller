@@ -938,7 +938,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                 });
             } else {
                 gridConfig.body.options.actionCell.push({
-                    title: 'Show Underlay Paths',
+                    title: 'Show Underlay Path(s)',
                     iconClass: 'icon-contrail-trace-flow',
                     onClick: function(rowIndex,targetElement){
                         var dataItem = $('#' + options.elementId).data('contrailGrid')._grid.getDataItem(rowIndex);

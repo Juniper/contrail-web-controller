@@ -2860,7 +2860,7 @@ underlayView.prototype.populateDetailsTab = function(data) {
                         pager : {
                             options : {
                                 pageSize : 10,
-                                pageSizeSelect : [10, 50, 100, 200, 500 ]
+                                pageSizeSelect : [10, 50, 100, 200]
                             }
                         }
                     }
@@ -3136,7 +3136,7 @@ underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth,is
             var curve = new Bezier(pathCoords);
             var inclinedVerticalLine = false;
             if(curve._linear != true) {
-            	if(isDirectionCrt) {
+            	if(!isDirectionCrt) {
             	    offsetWidth = -offsetWidth;
             	    offsetPath.attr('marker-start',"url(#bezierUp)");
             	} else {
@@ -3145,7 +3145,7 @@ underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth,is
             	//Hack,till we fix the issue,links b/w TOR and SPINES are not vertical 
             	if(Math.abs(pathCoords[pathCoords.length - 2] - pathCoords[0]) <= 10) {
             	    inclinedVerticalLine = true;
-            	    if(isDirectionCrt) {
+            	    if(!isDirectionCrt) {
             	        offsetPath.attr('marker-start','url(#upDeviated)');
             	    } else {
             	        offsetPath.attr('marker-end','url(#downDeviated)');
@@ -3156,10 +3156,10 @@ underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth,is
                 var offsetPathCordsLen = offsetPathCords.length;
                 var lastX = offsetPathCords[offsetPathCords.length - 2];
                 if(!isDirectionCrt && !inclinedVerticalLine) {
-                    lastX = parseFloat(lastX) - 10;
+                    lastX = parseFloat(lastX) + 10;
                     offsetPathCords[offsetPathCords.length - 2] = lastX;
                 } else if (isDirectionCrt && !inclinedVerticalLine)  {
-                    lastX = parseFloat(lastX) + 10;
+                    lastX = parseFloat(lastX) - 10;
                     offsetPathCords[offsetPathCords.length - 2] = lastX;
                 }
                 offsetPath.attr('d',offsetPathCords.join(' '));
@@ -3167,7 +3167,7 @@ underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth,is
                 //Vertical line
                 if(pathCoords[0] == pathCoords[6]) {
                     //Pointing upwards/downwards
-                    if(isDirectionCrt) {
+                    if(!isDirectionCrt) {
                         offsetPath.attr('transform','translate(' + offsetWidth + ',0)');
                         offsetPath.attr('marker-start',"url(#up)");
                     } else {
@@ -3181,7 +3181,7 @@ underlayView.prototype.addOffsetPath = function(connectionWrapId, offsetWidth,is
                 }
             }
             
-            if(isDirectionCrt) {
+            if(!isDirectionCrt) {
                 offsetPath.attr('class','connection-wrap-up');
             } else {
                 offsetPath.attr('class','connection-wrap-down');
