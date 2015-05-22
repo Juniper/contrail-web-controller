@@ -319,7 +319,7 @@ function getComputeNodeInterface (pubChannel, saveChannelKey,
     var vRouterRestAPI = 
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRtrIntrospectPortByJobData(jobData));
-    commonUtils.createReqObj(dataObjArr, '/Snh_ItfReq?name=');
+    commonUtils.createReqObj(dataObjArr,jobData.taskData.appData.url);
     
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, true),
@@ -431,27 +431,9 @@ function processComputeNodeInterface (pubChannel, saveChannelKey,
 {
     /* We get the interface details from Sandesh */
     var url = jobData.taskData.url;
-    var allDetails = false;
-    var pos = url.indexOf('/Snh_ItfReq?name=');
-    
-    pos = ('/Snh_ItfReq?name=').length;
-    var nodeIp = url.slice(pos);
-    if ((nodeIp == null) || (nodeIp.length == 0)) {
-        allDetails = true;
-    }
-    if (allDetails == true) {
-        /* Currently UI does not send this request, so will implement 
-           later when requires 
-         */
-        redisPub.publishDataToRedis(pubChannel, saveChannelKey,
-                                    global.HTTP_STATUS_INTERNAL_ERROR,
-                                    global.STR_CACHE_RETRIEVE_ERROR,
-                                    global.STR_CACHE_RETRIEVE_ERROR, 0,
-                                    0, done);
-    } else {
-        getComputeNodeInterface(pubChannel, saveChannelKey,
-                                            nodeIp, jobData, done);
-    }
+    console.log("jobData.taskData.url as:", jobData.taskData);
+    getComputeNodeInterface(pubChannel, saveChannelKey,
+                                        jobData.taskData.appData.ip, jobData, done);
 }
 
 function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
@@ -522,6 +504,8 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
 
     pos = reqUrl.length;
     var nodeIp = url.slice(pos);
+    console.log("jobData.taskData.url as:", jobData.taskData);
+    nodeIp = jobData.taskData.appData.ip;
     if ((nodeIp == null) || (nodeIp.length == 0)) {
         allDetails = true;
     }
@@ -539,7 +523,7 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(nodeIp,
                                      infraCmn.getvRtrIntrospectPortByJobData(jobData));
-    commonUtils.createReqObj(dataObjArr, '/Snh_AclReq?uuid=');
+    commonUtils.createReqObj(dataObjArr,url);
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
               commonUtils.doEnsureExecution(function(err, data) {

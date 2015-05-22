@@ -6,9 +6,29 @@
  * vRouter Networks tab
  */
 monitorInfraComputeNetworksClass = (function() {
+
+    var paginationInfo = {};
     
-    this.parseVNData = function(response){
+    /*
+     * //If we want to populate DS completely
+     * var vRouterNetworksDS = new ContrailDataView();
+     * function populatevRouterNetworksDS(obj) {
+     *     var transportCfg = {
+     *         url:contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(obj),obj['introspectPort'])
+     *     }
+     *     getOutputByPagination(vRouterNetworksDS, {
+     *         transportCfg: transportCfg,
+     *         paginationServer: 'introspect',
+     *         parseFn: self.parseVNData
+     *     });
+     * }
+     */
+
+    this.parseVNData = function(response) {
         var data = jsonPath(response,'$..VnSandeshData')[0];
+        paginationInfo = getIntrospectPaginationInfo(response); 
+        updateGridTitleWithPagingInfo($('#gridComputeVN'),paginationInfo);
+        //Disable/Enable prev Next buttons
         var ret = [];
         if(data != null){
             if(!(data instanceof Array)){
@@ -35,15 +55,47 @@ monitorInfraComputeNetworksClass = (function() {
             return [];
         }
     }
+
+    function getPaginationInfo() {
+        return paginationInfo;
+    }
+
+    function resetForm() {
+        $('#gridComputeVN').parent().find("[name='vnName']").val('');
+    }
+
+    function constructvRouterVNUrl(obj) {
+        var vRouterNetworkURL = monitorInfraUrls['VROUTER_NETWORKS'];
+        var urlParams = {
+            ip : getIPOrHostName(obj),
+            introspectPort : obj['introspectPort']
+        }
+        var vnNameFilter = $('#gridComputeVN').parent().find("[name='vnName']").val();
+        if(vnNameFilter != null) {
+            urlParams['vnNameFilter'] = vnNameFilter.trim();
+        }
+        return {
+            url: vRouterNetworkURL,
+            params:urlParams
+        }
+    }
     
     this.populateVNTab = function (obj) {
         layoutHandler.setURLHashParams({tab:'networks',node: obj['name']},{triggerHashChange:false});
         if (!isGridInitialized('#gridComputeVN')) {
+            //Issue a call to populate vRouter networks data
+            // populatevRouterNetworksDS(obj);
             $("#gridComputeVN").contrailGrid({
                 header : {
                     title : {
                         text : 'Networks'
-                    }
+                    },
+                    customControls: [
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                            ]
                 },
                 columnHeader : {
                     columns:[
@@ -116,13 +168,20 @@ monitorInfraComputeNetworksClass = (function() {
                          ]
                     },
                     dataSource : {
+                        // dataView: vRouterNetworksDS,
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_NETWORKS'], getIPOrHostName(obj),obj['introspectPort']),
-                                //timeout: timeout,
+                                url: monitorInfraUrls['VROUTER_NETWORKS']  + '?' + $.param({
+                                      ip: getIPOrHostName(obj),
+                                      introspectPort: obj['introspectPort']}),
                                 type: 'GET'
                             },
                             dataParser: self.parseVNData
+                        },
+                        events: {
+                            onDataBoundCB: function() {
+                                vnGrid.removeGridMessage('loading');
+                            }
                         }
                     },
                     statusMessages: {
@@ -142,6 +201,16 @@ monitorInfraComputeNetworksClass = (function() {
             });
             vnGrid = $('#gridComputeVN').data('contrailGrid');
             vnGrid.showGridMessage('loading');
+            //Bind listeners
+            bindGridPrevNextListeners({
+                gridSel: $('#gridComputeVN'),
+                resetFn: resetForm,
+                paginationInfoFn:getPaginationInfo,
+                obj: obj,
+                getUrlFn: function() {
+                    return constructvRouterVNUrl(obj);
+                }
+            });
         } else {
             reloadGrid(vnGrid);
         }
