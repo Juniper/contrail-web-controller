@@ -6,10 +6,13 @@
  * vRouter ACL tab
  */
 monitorInfraComputeACLClass = (function() {
+    var paginationInfo = {};
     this.parseACLData = function(response){
 
         var retArr = [];
-        response = getValueByJsonPath(response,"AclResp;acl_list;list;AclSandeshData");
+        paginationInfo = getIntrospectPaginationInfo(response);
+        updateGridTitleWithPagingInfo($('#gridComputeACL'),paginationInfo);
+        response = getValueByJsonPath(response,"__AclResp_list;AclResp;acl_list;list;AclSandeshData");
         //Loop through ACLs
         if(response != null){
             if(!(response instanceof Array)) {
@@ -112,6 +115,30 @@ monitorInfraComputeACLClass = (function() {
         return retArr;
     
     }
+    function getPaginationInfo() {
+        return paginationInfo;
+    }
+
+    function resetForm() {
+        $('#gridComputeACL').parent().find("[name='aclUUID']").val('');
+    }
+
+    function constructvRouterACLUrl(obj) {
+        var vRouterACLURL = monitorInfraUrls['VROUTER_ACL'];
+        var urlParams = {
+            ip : getIPOrHostName(obj),
+            introspectPort : obj['introspectPort'],
+            uuid:''
+        }
+        var aclUUIDFilter = $('#gridComputeACL').parent().find("[name='aclUUID']").val();
+        if(aclUUIDFilter != null) {
+            urlParams['uuid'] = aclUUIDFilter;
+        }
+        return {
+            url: vRouterACLURL,
+            params:urlParams
+        }
+    }
     
     this.populateACLTab = function (obj) {
         layoutHandler.setURLHashParams({tab:'acl',node: obj['name']},{triggerHashChange:false});
@@ -125,7 +152,13 @@ monitorInfraComputeACLClass = (function() {
                 header : {
                     title : {
                         text : 'ACL'
-                    }
+                    },
+                    customControls: [
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                            ]
                 },
                 columnHeader: {
                    columns:[
@@ -232,12 +265,19 @@ monitorInfraComputeACLClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
+                                url: monitorInfraUrls['VROUTER_ACL']  + '?' + $.param({
+                                      ip: getIPOrHostName(obj),
+                                      introspectPort: obj['introspectPort']}),
                                 type: 'GET'
                             },
                             dataParser: function(response) {
                                getSGUUIDs(getIPOrHostName(obj));
                                return self.parseACLData(response);
+                            }
+                        },
+                        events: {
+                            onDataBoundCB: function() {
+                                aclGrid.removeGridMessage('loading');
                             }
                         }
                     },
@@ -258,6 +298,15 @@ monitorInfraComputeACLClass = (function() {
             })
             aclGrid = $('#gridComputeACL').data('contrailGrid');
             aclGrid.showGridMessage('loading');
+            bindGridPrevNextListeners({
+                gridSel: $('#gridComputeACL'),
+                resetFn: resetForm,
+                paginationInfoFn:getPaginationInfo,
+                obj: obj,
+                getUrlFn: function() {
+                    return constructvRouterACLUrl(obj);
+                }
+            });
         } else {
             reloadGrid(aclGrid);
         }

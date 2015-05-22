@@ -118,7 +118,9 @@ monitorInfraComputeFlowsClass = (function() {
             $('#aclDropDown').contrailDropdown({
                 dataSource: {
                     type: 'remote',
-                     url: contrail.format(monitorInfraUrls['VROUTER_ACL'], getIPOrHostName(obj), obj['introspectPort']),
+                     url: monitorInfraUrls['VROUTER_ACL']  + '?' + $.param({
+                                      ip: getIPOrHostName(obj),
+                                      introspectPort: obj['introspectPort']}),
                      parse:function(response){
                          var retArr = [{text:'All',value:'All'}];
                          response = jsonPath(response,'$..AclSandeshData')[0];

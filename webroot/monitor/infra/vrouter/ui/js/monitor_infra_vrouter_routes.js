@@ -6,9 +6,15 @@
  * vRouter Routes tab
  */
 monitorInfraComputeRoutesClass = (function() {
+    var paginationInfo = {};
+    function getPaginationInfo() {
+        return paginationInfo;
+    }
     this.parseUnicastRoutesData = function(response){
 
         var ucastPaths = jsonPath(response,'$..PathSandeshData');
+        paginationInfo = getIntrospectPaginationInfo(response);
+        updateGridTitleWithPagingInfo($('#gridvRouterUnicastRoutes'),paginationInfo);
         var paths = [];
         var uPaths = [];
         ucastPaths = $.each(ucastPaths,function(idx,obj) {
@@ -46,6 +52,8 @@ monitorInfraComputeRoutesClass = (function() {
     this.parseMulticastRoutesData = function(response){
 
         var ucastPaths = jsonPath(response,'$..RouteMcSandeshData');
+        paginationInfo = getIntrospectPaginationInfo(response);
+        updateGridTitleWithPagingInfo($('#gridvRouterMulticastRoutes'),paginationInfo);
         var paths = [];
         var uPaths = [];
         ucastPaths = $.each(ucastPaths,function(idx,obj) {
@@ -83,6 +91,8 @@ monitorInfraComputeRoutesClass = (function() {
     this.parseL2RoutesData = function(response){
         var paths = [];
         var l2Data = jsonPath(response,'$..RouteL2SandeshData')[0];
+        paginationInfo = getIntrospectPaginationInfo(response);
+        updateGridTitleWithPagingInfo($('#gridvRouterL2Routes'),paginationInfo);
         if(l2Data != null){
             if(!(l2Data instanceof Array)){
                 l2Data = [l2Data];
@@ -110,6 +120,8 @@ monitorInfraComputeRoutesClass = (function() {
     this.parseIPv6RoutesData = function(response){
 
         var ucastPaths = jsonPath(response,'$..PathSandeshData');
+        paginationInfo = getIntrospectPaginationInfo(response); 
+        updateGridTitleWithPagingInfo($('#gridvRouterIpv6Routes'),paginationInfo);
         var paths = [];
         var uPaths = [];
         ucastPaths = $.each(ucastPaths,function(idx,obj) {
@@ -281,7 +293,23 @@ monitorInfraComputeRoutesClass = (function() {
                     + '&introspectPort=' + obj['introspectPort'],
                 type:'Get'
             };
-            routesGrid.setRemoteAjaxConfig(newAjaxConfig);
+            var constructURLMap = {
+                l2: constructvRouterL2RouteURL,
+                ucast: constructvRouterUnicastRouteURL,
+                mcast: constructvRouterMulticastURL,
+                ucast6: constructvRouterUnicast6RouteURL
+            };
+            newAjaxConfig = constructURLMap[selectedRadio]();
+            // var gridMap = {
+            //     l2 : l2RoutesGrid,
+            //     ucast : unicastRoutesGrid,
+            //     mcast : multicastRoutesGrid,
+            //     ucast6 : ipv6RoutesGrid
+            // };
+            routesGrid.setRemoteAjaxConfig({
+                url: newAjaxConfig['url'] + '?' + $.param(newAjaxConfig['params']),
+                type: 'Get'
+            });
             reloadGrid(routesGrid);
 //            if(routesGrid != null){
 //                reloadGrid(routesGrid);
@@ -301,6 +329,71 @@ monitorInfraComputeRoutesClass = (function() {
             });
             return index;
         }
+
+        function constructvRouterUnicastRouteURL(initialSelection) {
+            var selectedVrf = cboVRF.value();
+            var ucIndex = getIndexForType(selectedVrf,'ucast');
+            if(initialSelection != null){
+                selectedVrf = initialSelection['value'];
+            }
+            var urlParams = {
+                ip : getIPOrHostName(obj),
+                introspectPort : obj['introspectPort'],
+                vrfindex: ucIndex
+            }
+            return {
+                url: monitorInfraUrls['VROUTER_UNICAST_ROUTES'],
+                params:urlParams
+            }
+        }
+
+        function constructvRouterL2RouteURL() {
+            var selectedVrf = cboVRF.value();;
+            var l2index = getIndexForType(selectedVrf,'l2');
+            var urlParams = {
+                ip : getIPOrHostName(obj),
+                introspectPort : obj['introspectPort'],
+                vrfindex: l2index
+            }
+            return {
+                url: monitorInfraUrls['VROUTER_L2_ROUTES'],
+                params:urlParams
+            }
+        }
+
+        function constructvRouterMulticastURL() {
+            var selectedVrf = cboVRF.value();;
+            var mcIndex = getIndexForType(selectedVrf,'mcast');
+            var urlParams = {
+                ip : getIPOrHostName(obj),
+                introspectPort : obj['introspectPort'],
+                vrfindex: mcIndex
+            }
+            return {
+                url: monitorInfraUrls['VROUTER_MCAST_ROUTES'],
+                params:urlParams
+            }
+        }
+
+        function constructvRouterUnicast6RouteURL(initialSelection) {
+            var selectedVrf = cboVRF.value();
+            if(initialSelection != null){
+                selectedVrf = initialSelection['value'];
+            }
+            var ucIndex = getIndexForType(selectedVrf,'ucast6');
+            var urlParams = {
+                ip : getIPOrHostName(obj),
+                introspectPort : obj['introspectPort'],
+                vrfindex: ucIndex
+            }
+            return {
+                url: monitorInfraUrls['VROUTER_UCAST6_ROUTES'],
+                params:urlParams 
+            }
+        }
+
+        function resetForm() {
+        }
         
         //Initialize grid only after getting vrfList
         function initUnicastRoutesGrid(initialSelection) {
@@ -314,7 +407,13 @@ monitorInfraComputeRoutesClass = (function() {
                     header : {
                         title : {
                             text : 'Routes'
-                        }
+                        },
+                        customControls: [
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                                ]
                     },
                     columnHeader : {
                         columns:[
@@ -359,17 +458,18 @@ monitorInfraComputeRoutesClass = (function() {
                         dataSource : {
                             remote: {
                                 ajaxConfig: {
-                                    url: function(){
-                                        var selectedVrf = cboVRF.value();
-                                        if(initialSelection != null){
-                                            selectedVrf = initialSelection['value'];
-                                        }
-                                        var ucIndex = getIndexForType(selectedVrf,'ucast');
-                                        return contrail.format(monitorInfraUrls['VROUTER_UNICAST_ROUTES'] , getIPOrHostName(obj), ucIndex, obj['introspectPort'])
+                                    url: function() {
+                                        var urlObj = constructvRouterUnicastRouteURL(initialSelection);
+                                        return urlObj['url']  + '?' + $.param(urlObj['params']);
                                     }(),
                                     type: 'GET'
                                 },
                                 dataParser: self.parseUnicastRoutesData
+                            },
+                            events: {
+                                onDataBoundCB: function() {
+                                    routesGrid.removeGridMessage('loading');
+                                }
                             }
                         },
                         statusMessages: {
@@ -385,6 +485,22 @@ monitorInfraComputeRoutesClass = (function() {
                                 text: 'Error in getting Data.'
                             }
                         }
+                    },
+                    footer: {
+                        pager : {
+                            options : {
+                                pageSize : 100,
+                            }
+                        }
+                    }
+                });
+                bindGridPrevNextListeners({
+                    gridSel: $('#gridvRouterUnicastRoutes'),
+                    resetFn: resetForm,
+                    paginationInfoFn:getPaginationInfo,
+                    obj: obj,
+                    getUrlFn: function() {
+                        return constructvRouterUnicastRouteURL();
                     }
                 });
                 routesGrid = $('#gridvRouterUnicastRoutes').data('contrailGrid');
@@ -402,7 +518,13 @@ monitorInfraComputeRoutesClass = (function() {
                     header : {
                         title : {
                             text : 'Routes'
-                        }
+                        },
+                        customControls: [
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                                ]
                     },
                     columnHeader : {
                         columns:[
@@ -447,14 +569,18 @@ monitorInfraComputeRoutesClass = (function() {
                         dataSource : {
                             remote: {
                                 ajaxConfig: {
-                                    url: function(){
-                                        var selectedVrf = cboVRF.value();;
-                                        var mcIndex = getIndexForType(selectedVrf,'mcast');
-                                        return contrail.format(monitorInfraUrls['VROUTER_MCAST_ROUTES'], getIPOrHostName(obj), mcIndex, obj['introspectPort']);
+                                    url: function() {
+                                        var urlObj = constructvRouterMulticastURL();
+                                        return urlObj['url']  + '?' + $.param(urlObj['params']);
                                     }(),
                                     type: 'GET'
                                 },
                                 dataParser: self.parseMulticastRoutesData
+                            },
+                            events: {
+                                onDataBoundCB: function() {
+                                    routesGrid.removeGridMessage('loading');
+                                }
                             }
                         },
                         statusMessages: {
@@ -472,6 +598,15 @@ monitorInfraComputeRoutesClass = (function() {
                         }
                     }
                 });
+                bindGridPrevNextListeners({
+                    gridSel: $('#gridvRouterMulticastRoutes'),
+                    resetFn: resetForm,
+                    paginationInfoFn:getPaginationInfo,
+                    obj: obj,
+                    getUrlFn: function() {
+                        return constructvRouterMulticastURL();
+                    }
+                });
                 routesGrid = $('#gridvRouterMulticastRoutes').data('contrailGrid');     
                 routesGrid.showGridMessage('loading');
             } else {
@@ -487,7 +622,13 @@ monitorInfraComputeRoutesClass = (function() {
                     header : {
                         title : {
                             text : 'Routes'
-                        }
+                        },
+                        customControls: [
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                                ]
                     },
                     columnHeader : {
                         columns:[
@@ -498,7 +639,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  searchFn:function(d){
                                      return d['searchMac'];
                                  },
-                                 minWidth:5
+                                 minWidth:150
                              },
                              {
                                  field:"next_hop",
@@ -507,7 +648,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  formatter:function(r,c,v,cd,dc){
                                      return bgpMonitor.getNextHopType(dc);
                                  },
-                                 minWidth:5
+                                 minWidth:100
                              },
                              {
                                  field:"label",
@@ -532,14 +673,18 @@ monitorInfraComputeRoutesClass = (function() {
                         dataSource : {
                             remote: {
                                 ajaxConfig: {
-                                    url: function(){
-                                        var selectedVrf = cboVRF.value();;
-                                        var l2index = getIndexForType(selectedVrf,'l2');
-                                        return contrail.format(monitorInfraUrls['VROUTER_L2_ROUTES'], getIPOrHostName(obj), l2index, obj['introspectPort']);
+                                    url: function() {
+                                        var urlObj = constructvRouterL2RouteURL();
+                                        return urlObj['url']  + '?' + $.param(urlObj['params']);
                                     }(),
                                     type: 'GET'
                                 },
                                 dataParser: self.parseL2RoutesData
+                            },
+                            events: {
+                                onDataBoundCB: function() {
+                                    routesGrid.removeGridMessage('loading');
+                                }
                             }
                         },
                         statusMessages: {
@@ -555,6 +700,15 @@ monitorInfraComputeRoutesClass = (function() {
                                 text: 'Error in getting Data.'
                             }
                         }
+                    }
+                });
+                bindGridPrevNextListeners({
+                    gridSel: $('#gridvRouterL2Routes'),
+                    resetFn: resetForm,
+                    paginationInfoFn:getPaginationInfo,
+                    obj: obj,
+                    getUrlFn: function() {
+                        return constructvRouterL2RouteURL();
                     }
                 });
                 routesGrid = $('#gridvRouterL2Routes').data('contrailGrid'); 
@@ -576,7 +730,13 @@ monitorInfraComputeRoutesClass = (function() {
                     header : {
                         title : {
                             text : 'Routes'
-                        }
+                        },
+                        customControls: [
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                        '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                                ]
                     },
                     columnHeader : {
                         columns:[
@@ -621,17 +781,18 @@ monitorInfraComputeRoutesClass = (function() {
                         dataSource : {
                             remote: {
                                 ajaxConfig: {
-                                    url: function(){
-                                        var selectedVrf = cboVRF.value();
-                                        if(initialSelection != null){
-                                            selectedVrf = initialSelection['value'];
-                                        }
-                                        var ucIndex = getIndexForType(selectedVrf,'ucast6');
-                                        return contrail.format(monitorInfraUrls['VROUTER_UCAST6_ROUTES'] , getIPOrHostName(obj), ucIndex, obj['introspectPort'])
+                                    url: function() {
+                                        var urlObj = constructvRouterUnicast6RouteURL(initialSelection);
+                                        return urlObj['url']  + '?' + $.param(urlObj['params']);
                                     }(),
                                     type: 'GET'
                                 },
                                 dataParser: self.parseIPv6RoutesData
+                            },
+                            events: {
+                                onDataBoundCB: function() {
+                                    routesGrid.removeGridMessage('loading');
+                                }
                             }
                         },
                         statusMessages: {
@@ -651,6 +812,15 @@ monitorInfraComputeRoutesClass = (function() {
                 });
                 routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
                 routesGrid.showGridMessage('loading');
+                bindGridPrevNextListeners({
+                    gridSel: $('#gridvRouterIpv6Routes'),
+                    resetFn: resetForm,
+                    paginationInfoFn:getPaginationInfo,
+                    obj: obj,
+                    getUrlFn: function() {
+                        return constructvRouterUnicast6RouteURL();
+                    }
+                });
             } else {
                 routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
                 reloadGrid(routesGrid);
