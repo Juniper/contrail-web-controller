@@ -425,7 +425,7 @@ monitorInfraComputeFlowsClass = (function() {
             if(isAllPrevFirstTimeClicked) {
                 //we need to do this because when we click the prev for the first time the stack would contain the next uuid as well. 
                 //We need to pop out the uuids 3 times to get the prev uuid.
-                flowKeyStack.pop();
+                //flowKeyStack.pop();
                 isAllPrevFirstTimeClicked = false;
             }
             flowKeyStack.pop();//need to pop twice to get the prev last flowkey
