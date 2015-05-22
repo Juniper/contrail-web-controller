@@ -155,22 +155,22 @@
 				</div>
             </div>
             <div id="mon-infra-compute-interfaces-tab_{{name}}">
-                <div id="contInterfaces_{{name}}" class='height-100'>
+                <div id="contInterfaces_{{name}}">
                     <div id='gridComputeInterfaces_{{name}}'></div>
                 </div>
             </div>
             <div id="mon-infra-compute-networks-tab_{{name}}">
-                <div id="contVN_{{name}}" class='height-100'>
+                <div id="contVN_{{name}}">
                     <div class='contrail' id='gridComputeVN_{{name}}'></div>
                 </div>
             </div>
             <div id="mon-infra-compute-acl-tab_{{name}}">
-                <div id="contACL_{{name}}" class='height-100'>
+                <div id="contACL_{{name}}">
                     <div class='contrail' id='gridComputeACL_{{name}}'></div>
                 </div>
             </div>
             <div id="mon-infra-compute-flows-tab_{{name}}">
-                <div id='contFlows_{{name}}' class='height-100'>
+                <div id='contFlows_{{name}}'>
                     
                     <div class='row-fluid'>
 	                    <div class='span10'>

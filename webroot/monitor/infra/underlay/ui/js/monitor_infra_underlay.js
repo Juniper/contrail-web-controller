@@ -517,10 +517,12 @@ underlayView.prototype.calculateDimensions = function(expand) {
     var topologyHeight = (expand === true) ? viewAreaHeight*90/100 : viewAreaHeight*70/100;
     var detailsTabHeight = (expand === true) ? viewAreaHeight*10/100 : viewAreaHeight*30/100;
     return {
-        "underlay_topology": {
-            width: viewAreaWidth,
-            height: viewAreaHeight
-        },
+        /*
+         * "underlay_topology": {
+         *     width: viewAreaWidth,
+         *     height: viewAreaHeight
+         * },
+         */
             "network_topology": {
                 width: viewAreaWidth,
                 height: topologyHeight
