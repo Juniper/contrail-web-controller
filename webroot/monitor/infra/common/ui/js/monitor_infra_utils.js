@@ -258,8 +258,8 @@ var infraMonitorAlertUtils = {
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
         if(obj['isUveMissing'] == true)
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
-        if(obj['isConfigMissing'] == true)
-            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+//        if(obj['isConfigMissing'] == true)
+//            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
         if(obj['isUveMissing'] == false){
             if(obj['isPartialUveMissing'] == true)
                 alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
@@ -297,11 +297,10 @@ var infraMonitorAlertUtils = {
         if(obj['isUveMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['UVE_MISSING']},infoObj));
         }
-        if(obj['isConfigMissing'] == true){
-            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
-        }
-        
-        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
+//        if(obj['isConfigMissing'] == true){
+//            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+//        }
+        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){    
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         }
         if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
