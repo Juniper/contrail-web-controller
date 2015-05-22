@@ -2375,6 +2375,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
             }
         defferedObj.done(function(){
             dsObj['getFromCache'] = false;
+            manageDataSource.refreshDataSource('computeNodeDS');
         });
     } else {
         obj['transportCfg'] = {
