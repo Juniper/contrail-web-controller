@@ -115,7 +115,7 @@ define([
                                             templateGenerator: 'BlockListTemplateGenerator',
                                             templateGeneratorConfig: [
                                                 {
-                                                    key: 'name',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
