@@ -20,7 +20,8 @@ function physicalInterfacesConfig() {
     var selAllRows;
     var ajaxTimeout = 300000;
     var deleteMsg = 'Confirm to delete all Interface(s) for Physical Router (%s)';
-    var piDataSrc = [];
+    var piDataSrc = [], piUUID = [];
+    var liChunkCnt = 200;
     //Method Definations
     this.load = load;
     this.destroy = destroy;	
@@ -209,7 +210,7 @@ function physicalInterfacesConfig() {
         currentUUID = e.added.value;
         //Push query parameter in URL
         layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
-        fetchPhysicalInterfaces();
+        fetchInterfaces();
     }
     
     function onTypeSelChange(e) {
@@ -406,7 +407,7 @@ function physicalInterfacesConfig() {
                                 type : "GET"
                             }));
                         } else {
-                            fetchPhysicalInterfaces();
+                            fetchInterfaces();
                         }
                     });
                 } else {
@@ -420,7 +421,7 @@ function physicalInterfacesConfig() {
                             type : "GET"
                         }));
                     } else {
-                        fetchPhysicalInterfaces();
+                        fetchInterfaces();
                     }
                 }
                 
@@ -433,14 +434,14 @@ function physicalInterfacesConfig() {
                         //failure
                         var r = arguments;
                         showInfoWindow(r[0].responseText,r[2]);
-                        fetchPhysicalInterfaces();
+                        fetchInterfaces();
                     }
                 );
             }).fail(function(){
                  //failure
                  var r = arguments;
                  showInfoWindow(r[0].responseText,r[2]);
-                 fetchPhysicalInterfaces();
+                 fetchInterfaces();
                  if(vmiDetails.length > 0) {
                     deleteVirtulMachineInterfaces(prepareDeletePortListForFailedLI(), []);
                  }
@@ -458,7 +459,7 @@ function physicalInterfacesConfig() {
                     setVMIRefsToSubnet(vmiId);
                 }
             } else {
-                fetchPhysicalInterfaces();
+                fetchInterfaces();
             }
         }
         
@@ -466,7 +467,7 @@ function physicalInterfacesConfig() {
 
         window.failureHandlerForVMICreation = function(xhr, status, error) {
             showInfoWindow(error, status);
-            fetchPhysicalInterfaces();
+            fetchInterfaces();
         }
 
         function setVMIRefsToSubnet(vmiId) {
@@ -501,12 +502,12 @@ function physicalInterfacesConfig() {
             if(result != null) {
                 createUpdatePhysicalInterface();
             } else {
-                fetchPhysicalInterfaces();
+                fetchInterfaces();
             }
         }
 
         window.failureHandlerForVMRefToVMI = function(error) {
-            fetchPhysicalInterfaces();
+            fetchInterfaces();
         }
         
         $('#btnDeletePhysicalInterface').click(function(){
@@ -534,10 +535,10 @@ function physicalInterfacesConfig() {
             }
         });
         window.successHandlerForDeleteAll =  function(result) {
-            fetchPhysicalInterfaces();
+            fetchInterfaces();
         }
         window.failureHandlerForDeleteAll =  function(error) {
-            fetchPhysicalInterfaces();
+            fetchInterfaces();
         }
         $('#txtPhysicalInterfaceName').bind('blur', function(e) {
               if($('#ddType').data('contrailDropdown').value() === "logical") {
@@ -663,12 +664,12 @@ function physicalInterfacesConfig() {
             deleteInterface(selRowsByPI);
             selAllRows = [];
         } else {
-            fetchPhysicalInterfaces();
+            fetchInterfaces();
         }
     }
 
     window.onDeleteInterfaceFailure = function(err) {
-        fetchPhysicalInterfaces();
+        fetchInterfaces();
     }
 
     function deleteVirtulMachineInterfaces(deleteVMIs, deleteVMs, lastKey) {
@@ -837,8 +838,6 @@ function physicalInterfacesConfig() {
         var vlan =  $("#txtVlan").val() === '' ? 0 : parseInt($("#txtVlan").val());
         var pRouterDD = $('#ddPhysicalRouters').data('contrailDropdown');
         var postObject = {};
-        gridPhysicalInterfaces._dataView.setData([]);
-        gridPhysicalInterfaces.showGridMessage('loading');  
         
         //Only Physical interface case
         if(infType === 'Physical') {
@@ -994,15 +993,15 @@ function physicalInterfacesConfig() {
         return isRepeated;
     }
 
-    window.successHandlerForCreatePhysicalInterfaces = function(result) {
+    window.successHandlerForCreatePhysicalInterfaces = function(result, cbParams) {
         if(mode === 'edit' && JSON.parse(getCookie('bm_clear_vmi'))) {
             deleteVirtulMachineInterfaces(prepareDeletePortListForEdit(), []);
         }
-        fetchPhysicalInterfaces();
+        fetchInterfaces();
     }
 
     window.failureHandlerForCreatePhysicalInterfaces = function(error) {
-        fetchPhysicalInterfaces();
+        fetchInterfaces();
         if(vmiDetails.length > 0) {
            deleteVirtulMachineInterfaces(prepareDeletePortListForFailedLI(), []);
         }
@@ -1120,7 +1119,7 @@ function physicalInterfacesConfig() {
                 //Push query parameter in URL
                 layoutHandler.setURLHashParams({uuid:currentUUID},{triggerHashChange:false});
             }
-            fetchPhysicalInterfaces();            
+            fetchInterfaces();
         } else {
             pRoutersDS.push({text : 'No Physical Router found', value: 'Message'});
             pRouterDD.setData(pRoutersDS);
@@ -1135,7 +1134,7 @@ function physicalInterfacesConfig() {
         var postData = {};
         postData.data = [];
         postData.data.push({type : 'virtual-networks', fields : ['network_ipam_refs']});
-        doAjaxCall('/api/tenants/config/get-config-details','POST', JSON.stringify(postData), 'successHandlerForVN', 'failureHandlerForVN', null, null, 300000);
+        doAjaxCall('/api/tenants/config/get-config-details','POST', JSON.stringify(postData), 'successHandlerForVN', 'failureHandlerForVN', null, null, ajaxTimeout);
     }
     
     window.successHandlerForVN = function(result) {
@@ -1288,35 +1287,47 @@ function physicalInterfacesConfig() {
     window.failureHandlerForForConfigurations = function(error) {
     
     }
-    /*start pagination changes*/
-    //fetches all physical interfaces first
-    function fetchPhysicalInterfaces() {
+
+    function fetchInterfaces() {
         gridPhysicalInterfaces._dataView.setData([]);
         gridPhysicalInterfaces.showGridMessage('loading');
-        ajaxParam = currentUUID;
+        fetchPhysicalInterfaces();
+        if(!doubleCreation) {
+            fetchLogicalInterfaces();
+        }
+    }
+
+    function fetchPhysicalInterfaces() {
         pInterfaceDS = [];
         piDataSrc = [];
-        doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID +'&parent=physical-router','GET', null,
-        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, ajaxTimeout);
+        piUUID = [];
+        var postObj = {};
+        postObj.type = "physical-interface";
+        postObj.parentType = "physical-router";
+        postObj.parentIDList = [currentUUID];
+        doAjaxCall('/api/tenants/config/get-interfaces','POST', JSON.stringify(postObj),
+        'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, {isPIFlow : doubleCreation}, ajaxTimeout);
     }
     
-    window.successHandlerForPhysicalInterfacesNew = function(result, cbparam) {
-        if(cbparam != ajaxParam) {
-            return;
-        }
-        if(result.more == true || result.more == "true"){
-            doAjaxCall('/api/admin/config/get-data?type=physical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForPhysicalInterfacesNew', 'failureHandlerForPhysicalInterfaces', null, cbparam, ajaxTimeout);
-        }
+    window.successHandlerForPhysicalInterfacesNew = function(result, cbParams) {
         preparePIData(result);
+        if(piDataSrc.length > 0) {
+            if(!cbParams.isPIFlow) {
+                fetchLIWithPI();
+            }
+        } else {
+            var gridData = gridPhysicalInterfaces._dataView.getItems();
+            if(gridData == null || (gridData != null && gridData.length == 0)) {
+                gridPhysicalInterfaces.showGridMessage('empty');
+            }
+        }
     }
      
     function preparePIData(result) {
-        gridPhysicalInterfaces.removeGridMessage();
         var gridDS = [];
-        if(result!= null && result.data != null && result.data.length > 0) {
-            for(var i = 0; i < result.data.length; i++) {
-                var pInterface = result.data[i]['physical-interface'];
+        if(result!= null && result.length > 0) {
+            for(var i = 0; i < result.length; i++) {
+                var pInterface = result[i]['physical-interface'];
                 var piName = pInterface.display_name != null ? pInterface.display_name : pInterface.name;
                 var lInfs = pInterface["logical_interfaces"];
                 var lInterfaceNames = '';
@@ -1329,6 +1340,7 @@ function physicalInterfacesConfig() {
                             lInterfaceNames += ',' + lInterfaceName;
                         }
                     }
+                    piUUID.push(pInterface.uuid);
                     setPhysicalInterfaceDataItem(piDataSrc, pInterface, piName, lInterfaceNames);
                 } else {
                     setPhysicalInterfaceDataItem(gridDS, pInterface, piName, lInterfaceNames);
@@ -1336,18 +1348,21 @@ function physicalInterfacesConfig() {
                 pInterfaceDS.push({text : piName, value : pInterface.uuid, parent : 'physical_interface'});
             }
         }
-        if(gridDS.length > 0) {
-            gridPhysicalInterfaces._dataView.addData(gridDS);
-        }
-        if(result != null && result.more == true || result.more == "true"){
-	       gridPhysicalInterfaces.showGridMessage('loading');
-	    } else {
-            if(doubleCreation) {
-                createUpdatePhysicalInterface()
-            } else {            
-                fetchLogicalInterfaces();
+
+        if(doubleCreation) {
+            createUpdatePhysicalInterface()
+        } else {
+            if(gridDS.length > 0) {
+                if(piDataSrc.length > 0) {
+                    gridDS = gridDS.concat(piDataSrc);
+                }
+                gridPhysicalInterfaces._dataView.addData(gridDS);
+            } else {
+               if(piDataSrc.length > 0) {
+                   gridPhysicalInterfaces._dataView.addData(piDataSrc);
+               }
             }
-        }    
+        }
     }
 
     function setPhysicalInterfaceDataItem(ds, pInterface, piName, lInterfaceNames) {
@@ -1366,48 +1381,32 @@ function physicalInterfacesConfig() {
     }
     //fetches all logical interfaces under selected physical router 
     function fetchLogicalInterfaces() {
-        ajaxParam = currentUUID;
-        var uuid = currentUUID;
-        var parent = 'physical-router';
-        doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
-        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, ajaxParam, ajaxTimeout);
+        var postObj = {};
+        postObj.type = "logical-interface";
+        postObj.parentType = "physical-router";
+        postObj.parentIDList = [currentUUID];
+        doAjaxCall('/api/tenants/config/get-interfaces','POST', JSON.stringify(postObj),
+        'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, null, ajaxTimeout);
     }
      
-    window.successHandlerForLI = function(result, cbparam) {
-        if(cbparam != ajaxParam) {
-            return;
-        }
-        if(result.more == true || result.more == "true"){
-            doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + currentUUID + "&lastKey=" + result.lastKey +'&parent=physical-router','GET', null,
-                'successHandlerForLI', 'failureHandlerForPhysicalInterfaces', null, cbparam, ajaxTimeout);
-        }
-        prepareLIWithProutersData(result);    
+    window.successHandlerForLI = function(result) {
+        prepareLIWithProutersData(result);
     }
     
     function prepareLIWithProutersData(result) {
         prepareLIData(result);
-        if(result != null && result.more == true || result.more == "true"){
-	       gridPhysicalInterfaces.showGridMessage('loading');
-	    } else {
-            if(piDataSrc.length > 0) {
-                // get the logical interfaces under first physical interface
-                gridPhysicalInterfaces._dataView.addData([piDataSrc[0]]);
-                fetchLIWithPI(0);
-            } else {
-                var gridData = gridPhysicalInterfaces._dataView.getItems();
-                if(gridData == null || (gridData != null && gridData.length == 0)) {
-                    gridPhysicalInterfaces.showGridMessage('empty');
-                }
-            }
-        }        
+        var gridData = gridPhysicalInterfaces._dataView.getItems();
+        if(gridData == null || (gridData != null && gridData.length == 0)) {
+            gridPhysicalInterfaces.showGridMessage('empty');
+        }
     }
     
     function prepareLIData(result) {
         gridPhysicalInterfaces.removeGridMessage();
         var gridDS = [];        
-        if(result!= null && result.data != null && result.data.length > 0) {
-            for(var i = 0; i < result.data.length; i++) {
-                var lInterface = result.data[i]['logical-interface'];
+        if(result!= null && result.length > 0) {
+            for(var i = 0; i < result.length; i++) {
+                var lInterface = result[i]['logical-interface'];
                 var liName = lInterface.display_name != null ? lInterface.display_name : lInterface.name;
                 var liDetails = getLogicalInterfaceDetails(lInterface);
                 var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : lInterface.fq_name[2];
@@ -1442,16 +1441,71 @@ function physicalInterfacesConfig() {
                 }); 
             }
         }
-        gridPhysicalInterfaces._dataView.addData(gridDS);
+        if(gridDS.length > 0) {
+            gridPhysicalInterfaces._dataView.addData(gridDS);
+        }
+    }
+    function fetchLIWithPI() {
+       gridPhysicalInterfaces.showGridMessage('loading');
+       fetchLIWithPIChunk(piUUID.slice(0, liChunkCnt), liChunkCnt);
     }
     //fetches all logical interfaces under all physical interfaces
-    function fetchLIWithPI(piUUIDIndex) {
+    function fetchLIWithPIChunk(uuidsChunk, actCnt) {
         ajaxParam = currentUUID;
-        var uuid = piDataSrc[piUUIDIndex].uuid;
-        var parent = 'physical-interface';
-        doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + uuid +'&parent=' + parent,'GET', null,
+        var postObj = {};
+        postObj.type = "logical-interface";
+        postObj.parentType = "physical-interface";
+        postObj.parentIDList = [uuidsChunk];
+        doAjaxCall('/api/tenants/config/get-interfaces','POST', JSON.stringify(postObj),
         'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
-            {ajaxParam : ajaxParam, id : uuid, index : piUUIDIndex}, ajaxTimeout);
+            {ajaxParam : ajaxParam, actCnt : actCnt}, ajaxTimeout);
+    }
+
+    function orderInterfaces(result) {
+        var gridData = gridPhysicalInterfaces._dataView.getItems();
+        var newData = [];
+        $.extend(true, newData, gridData);
+        for(var j = 0; j < result.length; j++) {
+            for(var i = newData.length - 1; i > -1; i--) {
+                if(result[j]['logical-interface'].parent_uuid === newData[i].uuid){
+                    var lInterface = result[j]['logical-interface'];
+                    var liName = lInterface.display_name != null ? lInterface.display_name : lInterface.name;
+                    var liDetails = getLogicalInterfaceDetails(lInterface);
+                    var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : lInterface.fq_name[2];
+                    var serverString = '';
+                    var vmiDetails = liDetails.vmiDetails;
+                    if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
+                        serverString = '-'
+                    } else {
+                        $.each(vmiDetails,function(i,d){
+                            if(i == 0){
+                                serverString = d;
+                            } else {
+                                serverString += '</br>' + d;
+                            }
+                        });
+                    }
+                    var infObj = {
+                        uuid : lInterface.uuid,
+                        name : liName,
+                        type : 'Logical',
+                        parent : parentName,
+                        vlan : liDetails.vlanTag != null ? liDetails.vlanTag : '-',
+                        server : (liDetails.liType == "L3")? '-' : vmiDetails != null ? vmiDetails : '-',
+                        servers_display : serverString,
+                        vn : liDetails.vnRefs != null ? liDetails.vnRefs : '-',
+                        li_type : liDetails.liType != null ? liDetails.liType : '-' ,
+                        vmi_ip : liDetails.vmiIP != null ? liDetails.vmiIP : '-',
+                        vmi_uuid : liDetails.vmiUUID,
+                        vm_uuid : liDetails.vmUUID,
+                        subnetUUIDArr : liDetails.subnetUUIDArr != null ? liDetails.subnetUUIDArr : '-',
+                        subnetCIDRArr : liDetails.subnetCIDRArr != null ? liDetails.subnetCIDRArr : '-'
+                    };
+                    newData.splice(i + 1, 0, infObj);
+                }
+            }
+        }
+        gridPhysicalInterfaces._dataView.setData(newData);
     }
 
     window.successHandlerForLIWithPI = function(result, cbparam) {
@@ -1459,29 +1513,20 @@ function physicalInterfacesConfig() {
             return;
         }
         prepareLIDataWithPI(result);
-        if(result.more == true || result.more == "true"){
-            doAjaxCall('/api/admin/config/get-data?type=logical-interface&count=50&fqnUUID=' + cbparam.id + "&lastKey=" + result.lastKey +
-                '&parent=physical-interface','GET', null, 'successHandlerForLIWithPI', 'failureHandlerForPhysicalInterfaces', null,
-                    {ajaxParam : cbparam.ajaxParam, id : cbparam.id, index : cbparam.index}, ajaxTimeout);
-        } else {
-            //issue logical interfaces per physical interface call one at a time
-            var newIndex = cbparam.index + 1;
-            if(newIndex < piDataSrc.length) {
-                gridPhysicalInterfaces._dataView.addData([piDataSrc[newIndex]]);
-                fetchLIWithPI(newIndex);
-            }
+        //issue logical interfaces per 200 physical interfaces call one at a time
+        if(piUUID.length > cbparam.actCnt) {
+            var newCnt = cbparam.actCnt + liChunkCnt;
+            var newChunk = piUUID.slice(cbparam.actCnt, newCnt);
+            fetchLIWithPIChunk(newChunk, newCnt);
         }
     }
+
     function prepareLIDataWithPI(result) {
-        prepareLIData(result);
-        if(result != null && result.more == true || result.more == "true"){
-	       gridPhysicalInterfaces.showGridMessage('loading');
-	    } else {
-           var gridData = gridPhysicalInterfaces._dataView.getItems();
-           if(gridData == null || (gridData != null && gridData.length == 0)) {
-              gridPhysicalInterfaces.showGridMessage('empty'); 
-           }
-        }    
+        orderInterfaces(result);
+        var gridData = gridPhysicalInterfaces._dataView.getItems();
+        if(gridData == null || (gridData != null && gridData.length == 0)) {
+           gridPhysicalInterfaces.showGridMessage('empty');
+        }
     }
     /*end of pagination changes*/
 
