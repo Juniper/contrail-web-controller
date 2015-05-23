@@ -542,6 +542,12 @@
                                     <input id="fr-to-time" name="toTime" class="span12" value="" required/>
                                 </div>
                             </div>
+                            <div class="span1">
+                                <label>Limit</label>
+                                <div id="fr-limit" name="limit" class="span12">
+                                    
+                                </div>
+                            </div>
                         </div>
 
                         <div class="row-fluid margin-0-0-5">
