@@ -859,16 +859,6 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                             }
                             options.refreshChart = false;
                         }
-                        var gridObject = $('#' + options.elementId).data('contrailGrid');
-                        if(gridObject._grid.getData() != null){
-                            var dataItems = gridObject._grid.getData();
-                            var dataItemslen = dataItems.length;
-                            for(var i = 0; i < dataItemslen; i++) {
-                                if(dataItems[i]['other_vrouter_ip'] == null) {
-                                    $("[data-cgrid='"+dataItems[i]['cgrid']+"']").find('input.rowCheckbox').attr('disabled',true);
-                                }
-                            }
-                        }    
                     }
                 }
             },
@@ -944,6 +934,7 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                         var endTime = $("#"+options.queryPrefix+"-results").data('endTimeUTC');
                         dataItem['startTime'] = startTime;
                         dataItem['endTime'] = endTime;
+                        dataItem['startAt'] = new Date().getTime();
                         $("#fr-results div.selected-slick-row").each(function(idx,obj){
                             $(obj).removeClass('selected-slick-row');
                         });
@@ -959,16 +950,20 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
     $.ajax({
         url:url+'?'+$.param(reqQueryObj),
     }).done(function(response){
+        if(reqQueryObj['startAt'] != null && underlayLastInteracted > reqQueryObj['startAt'])
+            return;
+        $("#" + options.elementId).find('.grid-header-icon-loading').hide();
         dataView.setData(response['data']);
         if(response['data'].length == 0 && gridObject != null) {
             gridObject.showGridMessage('empty');
         }
     }).fail(function(error){
+        if(reqQueryObj['startAt'] != null && underlayLastInteracted > reqQueryObj['startAt'])
+            return;
+        $("#" + options.elementId).find('.grid-header-icon-loading').hide();
         if(gridObject != null) {
             gridObject.showGridMessage('error');
         }
-    }).always(function() {
-          $("#" + options.elementId).find('.grid-header-icon-loading').hide();
     });
     $("#" + options.elementId).find('input.headerRowCheckbox').parent('span').remove();
     $('#fs-results').find('a[data-action="collapse"]').on('click', function(){
