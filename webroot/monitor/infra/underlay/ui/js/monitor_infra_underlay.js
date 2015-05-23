@@ -482,8 +482,8 @@ var underlayView = function (model) {
     this.paper  = new joint.dia.Paper({
         el: $("#topology-connected-elements"),
         model: this.graph,
-        width: $("#topology-connected-elements").innerWidth(),
-        height: $("#topology-connected-elements").innerHeight(),
+        width: 2000,
+        height: 2000,
         linkView: joint.shapes.contrail.LinkView
     });
 
@@ -662,28 +662,45 @@ underlayView.prototype.getAdjacencyList = function() {
     return this.adjacencyList;
 }
 
-underlayView.prototype.addElementsToGraph = function(els) {
+underlayView.prototype.addElementsToGraph = function(els, clickedElement) {
         var graph = this.getGraph();
+        var paper = this.getPaper();
         $("#topology-connected-elements").find("div").remove();
         graph.clear();
-        graph.resetCells(els);
+        paper.setDimensions(2000,2000);
+        paper.setOrigin(0,0);
+        $("#topology-connected-elements").offset({
+            "top" : $("#topology-connected-elements").parent().offset().top,
+            "left": $("#topology-connected-elements").parent().offset().left
+        });
+        graph.addCells(els);
         var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "TB", "nodeSep" : 60, "rankSep" : 60});
         var svgHeight = newGraphSize.height;
         var svgWidth = newGraphSize.width;
         var viewAreaHeight = $("#topology-connected-elements").height();
         var viewAreaWidth = $("#topology-connected-elements").width();
-        var paperHeight = 0;
-        var paperWidth = 0;
+        var paperWidth = paper.options.width;
+        var paperHeight = paper.options.height;
+        var newPaperHeight = paperHeight;
+        var newPaperWidth = paperWidth;
         var offsetX = 0;
-        var offsetY = 0;
+        var offsetY = 15;
         var offset = {
             x: 0,
             y: 0
         };
+        if(svgHeight > paperHeight) {
+            newPaperHeight = svgHeight;
+        }
+        if(svgWidth > paperWidth) {
+            newPaperWidth = svgWidth;
+        }
+        if(newPaperHeight !== 2000 || newPaperWidth !== 2000 )
+            paper.setDimensions(newPaperWidth, newPaperHeight);
+
         if(svgHeight < viewAreaHeight) {
             offsetY = (viewAreaHeight - svgHeight)/2;
         }
-
         if(svgWidth < viewAreaWidth) {
             offsetX = (viewAreaWidth - svgWidth)/2;
         }
@@ -695,8 +712,25 @@ underlayView.prototype.addElementsToGraph = function(els) {
         $.each(els, function (elementKey, elementValue) {
             elementValue.translate(offset.x, offset.y);
         });
-        if(svgHeight > viewAreaHeight || svgWidth > viewAreaWidth) {
-            this.getPaper().fitToContent();
+        if(svgHeight > viewAreaHeight) {
+            $("#topology-connected-elements").offset({
+                "top" : -(svgHeight - viewAreaHeight)/2
+            });
+        }
+        if(svgWidth > viewAreaWidth) {
+            if(typeof clickedElement !== "undefined" && null !== clickedElement) {
+                var fixedDivPosition = $("#topology-connected-elements").parent().offset();
+                var fixedDivWidth = $("#topology-connected-elements").parent().width();
+                var fixedDivHeight = $("#topology-connected-elements").parent().height();
+                var centerXOfFixedDiv = fixedDivPosition.left + (fixedDivWidth/2);
+                var clickedElementAbsPosition =
+                    $('div.font-element[font-element-model-id="'+ clickedElement.id +'"]').offset();
+                var clickedElementAbsPositionX = clickedElementAbsPosition.left;
+                var offsetToMoveX = clickedElementAbsPositionX - centerXOfFixedDiv;
+                $("#topology-connected-elements").css({
+                    "left": (-offsetToMoveX) + "px"
+                });
+            }
         }
         this.initTooltipConfig();
         if(typeof underlayRenderer === 'object') {
@@ -820,6 +854,8 @@ underlayView.prototype.createElementsFromAdjacencyList = function() {
                         childNodeType.split("-")[0][0] + childNodeType.split("-")[1][0];
                     for(var i=0; i<links.length; i++) {
                         var link = links[i];
+                        if(link.endpoints[0] === link.endpoints[1])
+                            continue;
                         if((link.endpoints[0] === childElementLabel && link.endpoints[1] === parentElementLabel) ||
                             (link.endpoints[1] === childElementLabel && link.endpoints[0] === parentElementLabel)) {
                             var linkName = childElementLabel + "<->" + parentElementLabel;
@@ -843,6 +879,8 @@ underlayView.prototype.createElementsFromAdjacencyList = function() {
 
     for(var i=0; i<links.length; i++) {
         var link = links[i];
+        if(link.endpoints[0] === link.endpoints[1])
+            continue;
         var endpoints = link.endpoints;
         var endpoint0 = endpoints[0];
         var endpoint1 = endpoints[1];
@@ -1459,7 +1497,8 @@ underlayView.prototype.initGraphEvents = function() {
                         adjList[dblClickedElement['attributes']['nodeDetails']['name']] = childrenName;
                         _this.setAdjacencyList(adjList);
                         var childElementsArray = _this.createElementsFromAdjacencyList();
-                        _this.addElementsToGraph(childElementsArray);
+                        _this.addElementsToGraph(childElementsArray, dblClickedElement);
+                        _this.addDimlightToConnectedElements();
                         var thisNode = [dblClickedElement["attributes"]["nodeDetails"]];
                         _this.addHighlightToNodesAndLinks(thisNode.concat(children), childElementsArray);
                     }
@@ -1473,10 +1512,10 @@ underlayView.prototype.initGraphEvents = function() {
                 var oldAdjList = _.clone(_this.getAdjacencyList());
                 var newAdjList = _.clone(_this.getAdjacencyList());
                 if(children.length > 0) {
-                    if(ZOOMED_OUT == 0) {
+                    /*if(ZOOMED_OUT == 0) {
                         ZOOMED_OUT = 0.9;
                         $("#topology-connected-elements").panzoom("zoom",ZOOMED_OUT);
-                    }
+                    }*/
                     var childrenName = [];
                     for(var i=0; i<children.length; i++) {
                         childrenName.push(children[i]["name"]);
@@ -1488,7 +1527,7 @@ underlayView.prototype.initGraphEvents = function() {
                 }
                 _this.setAdjacencyList(newAdjList);
                 var childElementsArray = _this.createElementsFromAdjacencyList();
-                _this.addElementsToGraph(childElementsArray);
+                _this.addElementsToGraph(childElementsArray, dblClickedElement);
                 _this.addDimlightToConnectedElements();
                 var thisNode = [dblClickedElement["attributes"]["nodeDetails"]];
                 _this.addHighlightToNodesAndLinks(thisNode.concat(children), childElementsArray);
@@ -1519,12 +1558,13 @@ underlayView.prototype.initGraphEvents = function() {
     paper.on('cell:pointerclick', function (cellView, evt, x, y) {
         evt.stopImmediatePropagation();
         _this.clearHighlightedConnectedElements();
+        _this.addDimlightToConnectedElements();
         var clickedElement = cellView.model;
         var elementType    = clickedElement['attributes']['type'];
         if(elementType === "link") {
             _this.addHighlightToLink(clickedElement.id);
         } else {
-            _this.addHighlightToNode(clickedElement.id);    
+            _this.addHighlightToNode(clickedElement.id);
         }
         
         timeout = setTimeout(function() {
@@ -1657,6 +1697,7 @@ underlayView.prototype.resetTopology = function(resetBelowTabs) {
     $("#topology-connected-elements").panzoom("resetZoom");
     $("#topology-connected-elements").panzoom("reset");
     ZOOMED_OUT = 0;
+    this.resizeTopology();
     var adjList = _.clone(this.getUnderlayAdjacencyList());
     this.setAdjacencyList(adjList);
     var childElementsArray = this.createElementsFromAdjacencyList();
@@ -1716,6 +1757,7 @@ underlayView.prototype.renderTopology = function(response) {
 }
 
 underlayView.prototype.highlightPath = function(response, data) {
+    $("#network_topology").find('.topology-visualization-loading').hide();
     if(null !== response && typeof response !== "undefined" &&
         null !== response.nodes && typeof response.nodes !== "undefined"){
 
@@ -2954,6 +2996,8 @@ underlayView.prototype.populateDetailsTab = function(data) {
             type:type,
             data:ajaxData
         }).success(function(response){
+            if(null === response || typeof response === "undefined")
+                return;
             var chartData = {};
             var selector = '',options = {
                                             height:300,
@@ -3019,6 +3063,8 @@ underlayView.prototype.populateDetailsTab = function(data) {
 underlayView.prototype.resizeTopology = function() {
     var topologySize = underlayRenderer.getView().calculateDimensions(false);
     underlayRenderer.getView().setDimensions(topologySize);
+    //this.getPaper().setDimensions($("#topology-connected-elements").width(), $("#topology-connected-elements").height());
+    underlayRenderer.getView().getPaper().setDimensions(2000, 2000);
 }
 
 underlayView.prototype.expandTopology = function() {
