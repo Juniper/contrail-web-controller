@@ -766,6 +766,7 @@ function runFRQuery() {
             $("#"+queryPrefix+"-results").data('startTimeUTC',option['fromTime']);
         }
         reqQueryObj.select = "other_vrouter_ip,agg-bytes,agg-packets",
+        reqQueryObj.excludeInSelect = ['UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid','underlay_proto', 'underlay_source_port'],
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}
