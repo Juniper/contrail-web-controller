@@ -664,14 +664,18 @@ function parseStatsQuery(reqQuery)
 
 function parseFRQuery(reqQuery) 
 {
-    var select, where, fromTimeUTC, toTimeUTC, frQuery, table, direction;
+    var select, where, fromTimeUTC, toTimeUTC, frQuery, table, direction,filters;
     table = reqQuery['table'];
     frQuery = getQueryJSON4Table(table);
     fromTimeUTC = reqQuery['fromTimeUTC'];
     toTimeUTC = reqQuery['toTimeUTC'];
     select = reqQuery['select'];
     where = reqQuery['where'];
+    filters = reqQuery['filters'];
     direction = parseInt(reqQuery['direction']);
+    if(reqQuery['limit'] != null) {
+        frQuery['limit'] = reqQuery['limit'];
+    }
     setMicroTimeRange(frQuery, fromTimeUTC, toTimeUTC);
     if (select != "") {
         parseSelect(frQuery, select);
@@ -679,6 +683,9 @@ function parseFRQuery(reqQuery)
     parseWhere(frQuery, where);
     if (direction >= 0) {
         frQuery['dir'] = direction;
+    }
+    if(filters != null) {
+        parseFSFilter(frQuery, filters);
     }
     return frQuery;
 };
