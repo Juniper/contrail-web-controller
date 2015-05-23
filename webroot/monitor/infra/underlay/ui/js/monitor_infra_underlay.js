@@ -3,7 +3,6 @@
  *
  * Underlay Overlay Visualisation Page
  */
-
 var underlayRenderer = new underlayRenderer();
 var PROUTER_DBL_CLICK =  'config_net_vn';
 var PROUTER = 'physical-router';
@@ -12,6 +11,7 @@ var VIRTUALMACHINE = 'virtual-machine';
 var timeout;
 var expanded = true;
 var underlayLastInteracted;
+var defaultUnderlayFlowLimit = 5000;
 function underlayRenderer() {
     this.load = function(obj) {
         this.configTemplate = Handlebars.compile($("#visualization-template").html());
@@ -2061,6 +2061,14 @@ underlayView.prototype.renderFlowRecords = function() {
         queries['fr'].queryViewModel.isCustomTRVisible(false);
         ko.applyBindings(queries.fr.queryViewModel, document.getElementById('fr-query'));
         whereClauseStr = this.updateWhereClause();
+        $("#fr-limit").contrailDropdown({
+            dataTextField:'text',
+            dataValueField:'value',
+        });
+        var limitDropdown = $("#fr-limit").data('contrailDropdown');
+        var dropdownData = [{value:500,text:'500'},{value:1000,text:'1000'},{value:2500,text:'2500'},{value:5000,text:'5000'}];
+        limitDropdown.setData(dropdownData);
+        $("#fr-limit").select2('val','5000');
     }
 }
 /*
@@ -2462,10 +2470,10 @@ underlayView.prototype.renderTracePath = function(options) {
                 select: 'agg-bytes,agg-packets,vrouter_ip,other_vrouter_ip',
                 fromTimeUTC: 'now-300s',
                 toTimeUTC: 'now',
-                queryId: randomUUID(),
-                async: true,
-                table:'FlowRecordTable',
                 startAt: new Date().getTime(),
+                async: false,
+                table:'FlowRecordTable',
+                filters : "limit:"+defaultUnderlayFlowLimit
         };
         var vmData = instMap[name];
         var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);

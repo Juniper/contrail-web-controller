@@ -41,51 +41,16 @@ fsQuery['fcColumnDisplay'] = [
 ];
 
 frQuery['columnDisplay'] = [
-    {select:"other_vrouter_ip", display:{id:'other_vrouter_ip', field:'other_vrouter_ip', width:170, name:"Other Virtual Router", groupable:false,formatter: 
-            function(r, c, v, cd, dc){
-                    var ip = validateIPAddress(handleNull4Grid(dc['other_vrouter_ip'])) == true ? handleNull4Grid(dc['other_vrouter_ip']) : noDataStr,
-                        retStr = '-';    
-                    if(ip != noDataStr) {
-                        if(null !== underlayRenderer && typeof underlayRenderer === "object") {
-                            var vRouterDetails = underlayRenderer.getView().getvRouterVMDetails(ip,'self_ip_list',VROUTER);
-                            retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
-                        }
-                    }
-                return retStr;
-            }
-        }
-    },
-    {select:"vrouter_ip", display:{id:'vrouter_ip', field:'vrouter_ip', width:170, name:"Virtual Router", groupable:false,formatter: 
-            function(r, c, v, cd, dc){
-                    var ip = validateIPAddress(handleNull4Grid(dc['vrouter_ip'])) == true ? handleNull4Grid(dc['vrouter_ip']) : noDataStr,
-                        retStr = '-';
-                    var vrouter = ifNull(dc['vrouter'],noDataStr);
-                    if(ip != noDataStr || vrouter != noDataStr)
-                        retStr = contrail.format('{0} ({1})',vrouter, ip);
-                return retStr;
-            }
-        }
-    },
-    {select:"protocol", display:{id:"protocol", field:"protocol", width:80, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
-    {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", width:175, name:"Source VN", groupable:true, formatter: 
-            function(r, c, v, cd, dc){
-                    var vn = handleNull4Grid(dc.sourcevn);
-                    return formatVN(vn);
-            }
-        }
-    },
-    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:100, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (
+    {select:"other_vrouter_ip", display:{id:'formattedOtherVrouter', field:'formattedOtherVrouter', width:150, name:"Other Virtual Router", groupable:false}},
+    {select:"vrouter_ip", display:{id:'formattedVrouter', field:'formattedVrouter', width:150, name:"Virtual Router", groupable:false}},
+    {select:"protocol", display:{id:"protocol", field:"protocol", width:75, name:"Protocol", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}},
+    {select:"sourcevn", display:{id:"formattedSrcVN", field:"formattedSrcVN", width:125, name:"Source VN", groupable:true}},
+    {select:"sourceip", display:{id:"sourceip", field:"sourceip", width:90, name:"Source IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (
                         validateIPAddress(handleNull4Grid(dc['sourceip'])) == true ? handleNull4Grid(dc['sourceip']) : noDataStr)}}},
     {select:"sport", display:{id:"sport", field:"sport", width:70, name:"Source Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
     {select:"direction_ing", display:{id:"direction_ing", field:"direction_ing", width:90, name:"Direction", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getDirName(dc.direction_ing));}}},
-    {select:"destvn", display:{id:"destvn", field:"destvn", width:175, name:"Destination VN", groupable:true, formatter: 
-            function(r, c, v, cd, dc){ 
-                var vn = handleNull4Grid(dc.destvn);
-                return formatVN(vn); 
-            }
-        }
-    },
-    {select:"destip", display:{id:"destip", field:"destip", width:100, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(handleNull4Grid(dc['destip'])) == true ? handleNull4Grid(dc['destip']) : noDataStr)}}},
+    {select:"destvn", display:{id:"formattedDestVN", field:"formattedDestVN", width:125, name:"Destination VN", groupable:true}},
+    {select:"destip", display:{id:"destip", field:"destip", width:90, name:"Destination IP", groupable:true, formatter: function(r, c, v, cd, dc){ return (validateIPAddress(handleNull4Grid(dc['destip'])) == true ? handleNull4Grid(dc['destip']) : noDataStr)}}},
     {select:"dport", display:{id:"dport", field:"dport", width:70, name:"Destination Port", groupable:true, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
     {select:"agg-bytes", display:{id:'agg-bytes', field:'agg-bytes', width:120, name:"Bytes/Packets", groupable:false,formatter: function(r, c, v, cd, dc) {return contrail.format("{0}/{1}",formatBytes(dc['agg-bytes'],'-'),dc['agg-packets']);}}},
                         ];
@@ -737,7 +702,7 @@ function runFRQuery() {
         //validator = initValidateDate("fr"),
         queryPrefix = 'fr',
         options = getFRDefaultOptions(),
-        columnDisplay, selectArray, queryId;
+        columnDisplay, selectArray,limit = defaultUnderlayFlowLimit;
     //if ($("#" + queryPrefix + "-query-form").valid()) {
     	//collapseWidget('#fr-query-widget');
         collapseWidget('#fr-query-widget');
@@ -762,8 +727,14 @@ function runFRQuery() {
             $("#"+queryPrefix+"-results").data('endTimeUTC', option['toTime']);
             $("#"+queryPrefix+"-results").data('startTimeUTC',option['fromTime']);
         }
-        reqQueryObj.select = "other_vrouter_ip,agg-bytes,agg-packets",
-        reqQueryObj.excludeInSelect = ['UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid','underlay_proto', 'underlay_source_port'],
+        var limitDropdown = $('#fr-limit').data('contrailDropdown');
+        var selected = limitDropdown.getSelectedData()[0];
+        if(selected != null && selected['text'] != null) {
+            limit = selected['text']
+        }
+        reqQueryObj.select = "other_vrouter_ip,agg-bytes,agg-packets";
+        reqQueryObj.excludeInSelect = ['UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid','underlay_proto', 'underlay_source_port'];
+        reqQueryObj.filters = "limit:"+limit;
         reqQueryObj.engQueryStr = getEngQueryStr(reqQueryObj);
         loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay);
     //}
@@ -871,6 +842,10 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
                     type: 'error',
                     iconClasses: 'icon-warning',
                     text: 'Error in fetching details'
+                },timeout: {
+                    type: 'timeout',
+                    iconClasses: 'icon-warning',
+                    text: 'Timeout in fetching details' //need to change the message to something like specify query
                 }
             }
         },
@@ -949,20 +924,59 @@ function loadFlowResultsForUnderlay(options, reqQueryObj, columnDisplay, fcGridD
     gridObject = $("#"+options.elementId).data('contrailGrid');
     $.ajax({
         url:url+'?'+$.param(reqQueryObj),
+        timeout:1000 * 60 * 10,//10 mins
     }).done(function(response){
         if(reqQueryObj['startAt'] != null && underlayLastInteracted > reqQueryObj['startAt'])
             return;
         $("#" + options.elementId).find('.grid-header-icon-loading').hide();
-        dataView.setData(response['data']);
-        if(response['data'].length == 0 && gridObject != null) {
-            gridObject.showGridMessage('empty');
+        var computeNodes = getValueByJsonPath(globalObj,'topologyResponse;vRouterList',[]);
+        $.each(ifNull(response['data'],[]),function (idx,obj) {
+            var formattedVrouter,formattedOtherVrouter,formattedSrcVN,formattedDestVN;
+            var vRouterIp = validateIPAddress(handleNull4Grid(obj['vrouter_ip'])) == true ? handleNull4Grid(obj['vrouter_ip']) : noDataStr,
+                    formattedVrouter = noDataStr;    
+            var vrouter = ifNull(obj['vrouter'],noDataStr);
+            if(vRouterIp != noDataStr || vrouter != noDataStr)
+                formattedVrouter = contrail.format('{0} ({1})',vrouter, vRouterIp);
+            var othervRouterIp = validateIPAddress(handleNull4Grid(obj['other_vrouter_ip'])) == true ? handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
+                    formattedOtherVrouter = noDataStr;    
+                if(othervRouterIp != noDataStr) {
+                    $.each(computeNodes,function(idx,obj){
+                        var ipList = getValueByJsonPath(obj,'more_attributes;VrouterAgent;self_ip_list',[]);
+                        if(ipList.indexOf(othervRouterIp) > -1)
+                            formattedOtherVrouter = contrail.format('{0} ({1})',ifNull(obj['name'],noDataStr), othervRouterIp);
+                    });
+                }
+           var formattedSrcVN = handleNull4Grid(obj['sourcevn']);
+           formattedSrcVN = formatVN(formattedSrcVN);
+           var formattedDestVN = handleNull4Grid(obj['destvn']);
+           formattedDestVN = formatVN(formattedSrcVN);
+           obj['formattedVrouter'] = formattedVrouter;
+           obj['formattedOtherVrouter'] = formattedOtherVrouter;
+           obj['formattedSrcVN'] = formattedSrcVN[0]; 
+           obj['formattedDestVN'] = formattedDestVN[0];
+        });
+        var sortedData = response['data'].sort(function(dataItem1,dataItem2){
+                                                    if(dataItem1['vrouter_ip'] != null)
+                                                        return -1;
+                                                    else
+                                                        return 1;
+                                               });
+        dataView.setData(sortedData);
+        if(gridObject != null) {
+            if(response['data'].length == 0 && gridObject != null) {
+                gridObject.showGridMessage('empty');
+            }
         }
-    }).fail(function(error){
+    }).fail(function(error,status){
         if(reqQueryObj['startAt'] != null && underlayLastInteracted > reqQueryObj['startAt'])
             return;
         $("#" + options.elementId).find('.grid-header-icon-loading').hide();
         if(gridObject != null) {
-            gridObject.showGridMessage('error');
+            if(status == 'timeout') {
+                gridObject.showGridMessage('timeout');
+            } else {
+                gridObject.showGridMessage('error');
+            }
         }
     });
     $("#" + options.elementId).find('input.headerRowCheckbox').parent('span').remove();
