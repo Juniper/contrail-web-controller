@@ -88,7 +88,7 @@ $("#gridfip").contrailGrid({
             {
                 id:"ip_addr",
                 field:"ip_addr",
-                name:"IP Address",
+                name:"Floating IP",
                 sortable: true,
                 width: 100,
                 sorter : comparatorIP
@@ -96,9 +96,9 @@ $("#gridfip").contrailGrid({
             {
                 id:"instance",
                 field:"instance",
-                name:"Instance",
+                name:"Mapped Fixed IP Address",
                 sortable: true,
-                width: 200
+                width: 400
             },
             {
                 id:"fipPool",
@@ -106,14 +106,14 @@ $("#gridfip").contrailGrid({
                 name:"Floating IP Pool",
                 sortable: true,
                 width: 200
-            },
+            }/*,
             {
                 id:"uuid",
                 field:"uuid",
                 name:"UUID",
                 sortable: true,
                 width: 200
-            }
+            }*/
             ]
         },
         body : {
@@ -128,6 +128,9 @@ $("#gridfip").contrailGrid({
                     onSomethingChecked: function(e){
                         $('#btnDeletefip').removeClass('disabled-link');
                     }
+                },
+                detail:{
+                    template: $("#gridFIPDetailTemplate").html()
                 },
                 actionCell: [
                     {
@@ -503,16 +506,29 @@ function successHandlerForGridFIPRow(fipBackRefs) {
         var fip = fips[i];
         var ip_addr = ""
         ip_addr = String(jsonPath(fip, "$.floating_ip_address"));
-        var instanceId = "-";
+        var instanceId = "";
         var instance = jsonPath(fip, "$.virtual_machine_interface_refs");
         if (typeof instance === "object" && instance.length === 1) {
             instance = instance[0];
-            instance = jsonPath(instance, "$..virtual_machine_refs[*].uuid");
-            if(false !== instance && instance.length > 0) {
-                instanceId = instance.join(",");
+            var uuid = "";
+            var ip = "";
+            for (var k = 0; k < instance.length; k++) {
+                if (k > 0) uuid += ", ";
+                uuid += instance[k]["uuid"];
+                var fixedIPArr = instance[k]["instance_ip_back_refs"];
+                if (fixedIPArr != null && fixedIPArr != undefined) {
+                    for (var j = 0; j < fixedIPArr.length; j++) {
+                        if (j > 0)  ip += ", ";
+                        ip += fixedIPArr[j]["fixedip"]["ip"]
+                    }
+                }
             }
+            if(ip == "") ip = "-\xa0\xa0\xa0\xa0";
+            if(uuid != "")
+                instanceId = ip + " (" + uuid + ")";
         }
-        var fipPool = "-";
+        if(instanceId.trim() == "") instanceId = "-";
+            var fipPool = "-";
         var fipPoolVal = jsonPath(fip, "$.fq_name");
         if (typeof fipPoolVal === "object" && fipPoolVal.length === 1)
             fipPool = String(fipPoolVal[0][2]) + ":" + String(fipPoolVal[0][3]);
