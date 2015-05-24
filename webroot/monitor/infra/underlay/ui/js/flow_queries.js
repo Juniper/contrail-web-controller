@@ -58,13 +58,10 @@ frQuery['columnDisplay'] = [
     {select:"vrouter_ip", display:{id:'vrouter_ip', field:'vrouter_ip', width:170, name:"Virtual Router", groupable:false,formatter: 
             function(r, c, v, cd, dc){
                     var ip = validateIPAddress(handleNull4Grid(dc['vrouter_ip'])) == true ? handleNull4Grid(dc['vrouter_ip']) : noDataStr,
-                        retStr = '-';    
-                    if(ip != noDataStr) {
-                        if(null !== underlayRenderer && typeof underlayRenderer === "object") {
-                            var vRouterDetails = underlayView.prototype.getvRouterVMDetails(ip,'self_ip_list',VROUTER);
-                            retStr = contrail.format('{0} ({1})',ifNull(vRouterDetails['name'],'-'), ip);
-                        }
-                    }
+                        retStr = '-';
+                    var vrouter = ifNull(dc['vrouter'],noDataStr);
+                    if(ip != noDataStr || vrouter != noDataStr)
+                        retStr = contrail.format('{0} ({1})',vrouter, ip);
                 return retStr;
             }
         }
