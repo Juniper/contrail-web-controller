@@ -87,5 +87,11 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deleteAllInterfaces</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/get-interfaces</url>
+        <method>post</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.getInterfaceDetails</callback>
+    </item>
 </urlLists>
 
