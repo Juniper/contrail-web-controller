@@ -104,34 +104,32 @@ body > svg {
 </script>
 
 <script type="text/x-handlebars-template" id="tracePath-template">
-	<div class='row-fluid'>
-        <div class='row-fluid margin-0-0-10'>
-            <div class="span4">
-                <div>    
-                    <div id='tracePathDropdown' class='span12' tabindex=0></div>
-                </div>
-            </div>
-            <div class="span4">
-                <div>
-                    <input type='radio' name='flowtype' id='vrouterRadiobtn' checked='checked' tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Virtual Router&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                    <input type='radio' name='flowtype' id='instRadiobtn'  tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Instances&nbsp;&nbsp;&nbsp;&nbsp;</span>
-                </div>
+	<div class="widget-box transparent">
+	   <div class="widget-header">
+	       <h4 class="smaller">
+	           Trace Flows
+	       </h4>
+	       <div class="widget-toolbar pull-right">
+                <a data-action="collapse">
+                    <i class="icon-chevron-up"></i>
+                </a>
+           </div>
+       </div>
+       <div class="widget-body">
+            <div class="widget-main">
+                <div class='row-fluid margin-0-0-10'>
+                    <div class="span3">
+                            <input type='radio' name='flowtype' id='vrouterRadiobtn' checked='checked' tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Virtual Router&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                            <input type='radio' name='flowtype' id='instRadiobtn'  tabindex=0/><span class="ace-lbl" style="padding-left:5px;">Instances&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                    </div>
+                    <div class="span4">
+                            <div id='tracePathDropdown' class='span12' tabindex=0></div>
+                    </div>
+                </div>            
             </div>
         </div>
-        <div class="widget-box transparent">
-            <div class="widget-header">
-                <h4 class="smaller">
-                    <i class="icon-spinner hide icon-spin blue bigger-125"></i>
-                </h4>
-                <div class='row-fluid show' id="prevNextBtns">
-                    <div class='pull-right'>
-                    </div>
-                </div>
-            </div>
-            <div class="widget-body">
-                <div id='vrouterflows'></div>
-            </div>
-        </div
+    </div>
+    <div id='vrouterflows'></div>
     </div>
 </script>
 <script type="text/x-handlebars-template" id="pRouterInterfaces">
