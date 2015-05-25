@@ -72,7 +72,7 @@ body > svg {
                     <div title="Zoom Out" class="topology-control-item zoom-out">
                         <i class="icon-zoom-out"></i>
                     </div>
-                    <div title="Zoom Reset" class="topology-control-item zoom-reset" onclick="underlayRenderer.getView().resetTopology();">
+                    <div title="Zoom Reset" class="topology-control-item zoom-reset">
                         <i class="icon-remove-circle"></i>
                     </div>
                 </div>
