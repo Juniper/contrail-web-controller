@@ -9,7 +9,6 @@ var PROUTER_DBL_CLICK =  'config_net_vn';
 var PROUTER = 'physical-router';
 var VROUTER = 'virtual-router';
 var VIRTUALMACHINE = 'virtual-machine';
-var ZOOMED_OUT = 0;
 var timeout;
 var expanded = true;
 
@@ -663,12 +662,14 @@ underlayView.prototype.getAdjacencyList = function() {
 }
 
 underlayView.prototype.addElementsToGraph = function(els, clickedElement) {
+        $("#network_topology").find('.topology-visualization-loading').hide();
         var graph = this.getGraph();
         var paper = this.getPaper();
         $("#topology-connected-elements").find("div").remove();
         graph.clear();
         paper.setDimensions(2000,2000);
         paper.setOrigin(0,0);
+        $("#topology-connected-elements").prop('style').removeProperty('transform');
         $("#topology-connected-elements").offset({
             "top" : $("#topology-connected-elements").parent().offset().top,
             "left": $("#topology-connected-elements").parent().offset().left
@@ -1049,28 +1050,15 @@ underlayView.prototype.createNode = function(node) {
 
 underlayView.prototype.initZoomControls = function() {
     $("#topology-connected-elements").panzoom({
-        transition: true,
-        duration: 200,
-        increment: 0.1,
-        minScale: 0.5,
-        maxScale: 20,
-        contain: false,
+        duration: 300,
+        increment: 0.3,
+        minScale: 0.3,
+        maxScale: 2,
         $zoomIn: $("#topology-controls").find(".zoom-in"),
         $zoomOut: $("#topology-controls").find(".zoom-out"),
-        $reset: $("#topology-controls").find(".zoom-reset"),
-        cursor: "default"
+        $reset: $("#topology-controls").find(".zoom-reset")
     });
     var _this = this;
-    $('#topology-connected-elements').on('mousedown touchstart', function( e ) {
-        if(e.target.nodeName == 'svg') {
-            $('#topology-connected-elements').panzoom("enable");
-        } else{
-            $('#topology-connected-elements').panzoom("disable");
-        }
-    });
-    $('#topology-connected-elements').on('mouseup touchend', function( e ) {
-        $('#topology-connected-elements').panzoom("enable");
-    });
 }
 
 underlayView.prototype.initTooltipConfig = function() {
@@ -1512,10 +1500,6 @@ underlayView.prototype.initGraphEvents = function() {
                 var oldAdjList = _.clone(_this.getAdjacencyList());
                 var newAdjList = _.clone(_this.getAdjacencyList());
                 if(children.length > 0) {
-                    /*if(ZOOMED_OUT == 0) {
-                        ZOOMED_OUT = 0.9;
-                        $("#topology-connected-elements").panzoom("zoom",ZOOMED_OUT);
-                    }*/
                     var childrenName = [];
                     for(var i=0; i<children.length; i++) {
                         childrenName.push(children[i]["name"]);
@@ -1695,8 +1679,8 @@ underlayView.prototype.resetTopology = function(resetBelowTabs) {
     this.setUnderlayPathIds([]);
     this.clearHighlightedConnectedElements();
     $("#topology-connected-elements").panzoom("resetZoom");
+    $("#topology-connected-elements").panzoom("resetPan");
     $("#topology-connected-elements").panzoom("reset");
-    ZOOMED_OUT = 0;
     this.resizeTopology();
     var adjList = _.clone(this.getUnderlayAdjacencyList());
     this.setAdjacencyList(adjList);
@@ -1882,10 +1866,6 @@ underlayView.prototype.highlightPath = function(response, data) {
         }
     }
     if(connectionWrapIds.length > 0) {
-        if(ZOOMED_OUT == 0) {
-            ZOOMED_OUT = 0.9;
-            $("#topology-connected-elements").panzoom("zoom", ZOOMED_OUT);
-        }
         this.setUnderlayPathIds(connectionWrapIds);
         this.showPath(connectionWrapIds);
     }
