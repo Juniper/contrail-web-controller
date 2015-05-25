@@ -883,7 +883,9 @@ function getInterfaceDetails (req, res, appData)
               function(err, results) {
         var resCnt = results.length;
         for (var i = 0; i < resCnt; i++) {
-            liData = liData.concat(results[i][type + 's']);
+            if (null != results[i]) {
+                liData = liData.concat(results[i][type + 's']);
+            }
         }
         if (type == 'physical-interface') {
             commonUtils.handleJSONResponse(null, res, liData);
