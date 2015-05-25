@@ -3070,7 +3070,7 @@ function getVMIDetailsPaged (req, res, appData)
         var reqUrl = '/virtual-machine-interfaces?detail=true&obj_uuids=' +
             tmpArray.join(',') +
             '&fields=floating_ip_back_refs,instance_ip_back_refs,' +
-            'interface_route_table_refs';
+            'interface_route_table_refs,logical_router_back_refs';
         if ((null != fields) && (fields.length > 0)) {
             reqUrl += ',' + fields.join(',');
         }
