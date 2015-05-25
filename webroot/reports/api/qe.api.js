@@ -1255,6 +1255,13 @@ function runNewQuery(req, res, queryId, reqQuery)
         options.queryQueue = 'fqq';
     } else if (tableName == 'FlowRecordTable') {
         queryJSON = parseFRQuery(reqQuery);
+        if(reqQuery['excludeInSelect'] != null && reqQuery['excludeInSelect'].length > 0) {
+            queryJSON['select_fields'] = queryJSON['select_fields'].filter(function(item){
+                                             if(reqQuery['excludeInSelect'].indexOf(item) == -1) {
+                                                 return true;
+                                             }
+                                         });
+        }
         options.queryQueue = 'fqq';
     } else if (tableName.indexOf('StatTable.') != -1) {
         queryJSON = parseStatsQuery(reqQuery);
