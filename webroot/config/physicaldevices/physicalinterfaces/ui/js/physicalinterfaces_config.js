@@ -351,29 +351,16 @@ function physicalInterfacesConfig() {
             }
         });
 
-        function findSubnetUUIDFromIP(fixedIp, currentVNSubnetDetail){
-            var subnetUUID = '';
-            for(var i=0; i < currentVNSubnetDetail.length; i++) {
-                var eachSubnet = currentVNSubnetDetail[i].subnet;
-                var cidr = eachSubnet.ip_prefix + '/' + eachSubnet.ip_prefix_len;
-                if (isIPBoundToRange(cidr, fixedIp)) {
-                    subnetUUID = currentVNSubnetDetail[i].subnet_uuid;
-                    break;
-                }
-            }
-            return subnetUUID;
-        }
-
         function createPort(portDetails) {
             var postObjInput = {};
             var selVN = $('#ddVN').data('contrailDropdown').getSelectedData()[0];
             selVN = JSON.parse(selVN.data);
-            postObjInput.ip = portDetails.ip;
-            postObjInput.subnetId = findSubnetUUIDFromIP(postObjInput.ip, selVN.subnetId);
+            postObjInput.subnetId = selVN.subnetId;
             postObjInput.fqName = selVN.fqName;
             if(portDetails.mac != '') {
                 postObjInput.mac = portDetails.mac;
             }
+            postObjInput.ip = portDetails.ip;
             $.ajax({
                 url : '/api/tenants/config/ports',
                 type : "POST",
@@ -390,12 +377,12 @@ function physicalInterfacesConfig() {
                 var postObjInput = {};
                 var selVN = $('#ddVN').data('contrailDropdown').getSelectedData()[0];
                 selVN = JSON.parse(selVN.data);
-                postObjInput.ip = portsDetails[i].ip;
-                postObjInput.subnetId = findSubnetUUIDFromIP(postObjInput.ip, selVN.subnetId);
+                postObjInput.subnetId = selVN.subnetId;
                 postObjInput.fqName = selVN.fqName;
                 if(portsDetails[i].mac != '') {
                     postObjInput.mac = portsDetails[i].mac;
                 }
+                postObjInput.ip = portsDetails[i].ip;
                 portCreateAjaxs.push($.ajax({
                     url : '/api/tenants/config/ports',
                     type : "POST",
@@ -603,7 +590,7 @@ function physicalInterfacesConfig() {
         }
         if(input.ip != undefined) {
             postObj["virtual-machine-interface"]["instance_ip_back_refs"]
-                = [{"instance_ip_address" : [{"fixedIp": input.ip,"domain": curDomain,"project": curProject}],"subnet_uuid": input.subnetId}];
+                = [{"instance_ip_address" : [{"fixedIp": input.ip,"domain": curDomain,"project": curProject}]}];
         }
         postObj["virtual-machine-interface"]["virtual_machine_interface_device_owner"] = "";
         postObj["virtual-machine-interface"]["security_group_refs"] = [{"to" :[curDomain,curProject,"default"]}];
@@ -1163,7 +1150,7 @@ function physicalInterfacesConfig() {
                  if(field in vn && vn[field].length > 0) {
                     if(vn[field][0].attr != null && vn[field][0].attr.ipam_subnets != null
                         && vn[field][0].attr.ipam_subnets.length > 0) {
-                        subnetUUID = vn[field][0].attr.ipam_subnets;
+                        subnetUUID = vn[field][0].attr.ipam_subnets[0].subnet_uuid;
                     }
                     for(var k = 0; k < vn[field].length; k++) {
                         var ipam = vn[field][k];
