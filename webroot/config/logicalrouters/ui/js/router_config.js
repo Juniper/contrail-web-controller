@@ -384,7 +384,7 @@ function initActions() {
                         lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["fixedIp"] = "";//selectedSubnet[0]["subnet"]["default_gateway"];
                         lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["domain"] = selectedDomain;
                         lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["instance_ip_address"][0]["project"] = selectedProject;
-                        lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["subnet_uuid"] = selectedSubnet[0]["subnet"]["subnet_uuid"];
+                        //lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["subnet_uuid"] = selectedSubnet[0]["subnet"]["subnet_uuid"];
                         /*if(mode == "edit"){
                             lRouter["logical-router"]["virtual_machine_interface_refs"][i]["instance_ip_back_refs"][0]["uuid"] = cidrValue["fixedipuuid"];
                         }*/
