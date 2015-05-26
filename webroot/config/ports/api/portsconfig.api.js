@@ -1750,7 +1750,7 @@ function getReadDelVMICb(err, vmiData, request, appData, callback)
     if(rtDataArr.length > 0){
         async.map(rtDataArr, updateRouteTableCB, function (err, rtData) {
             if (err){
-                callback(error, rtData);
+                callback(err, rtData);
                 return;
             }
         });
