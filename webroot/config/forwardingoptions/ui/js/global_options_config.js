@@ -294,26 +294,30 @@ function initActions() {
                data : JSON.stringify(globalVRouterConfig)
             }));
         }
-        
-        //post url for global asn
-        if($("#txtgasn").val().trim() !== ggasn.toString()) {
-            ajaxArry.push($.ajax({
-               url : "/api/tenants/admin/config/global-asn",
-               type : "PUT",
-               contentType : "application/json; charset=utf-8",
-               data : JSON.stringify(getGasnJSON())
-            }));
-        }
-        
-        //post url for iBGP Auto Mesh
         var autoMeshCkd =  $('#ddAutoMesh').data('contrailDropdown').value() === 'enabled' ? true : false;
-        if(isiBGPAutoMesh != autoMeshCkd) {
-            ajaxArry.push($.ajax({
-               url : "/api/tenants/admin/config/ibgp-auto-mesh",
-               type : "PUT",
-               contentType : "application/json; charset=utf-8",
-               data : JSON.stringify(getiBGPAutoMeshJSON())
-            }));
+        var isASNSerialFlow = ($("#txtgasn").val().trim() !== ggasn.toString() && isiBGPAutoMesh != autoMeshCkd) ? true : false;
+        if(isASNSerialFlow) {
+            doAjaxCall("/api/tenants/admin/config/global-asn", "PUT", JSON.stringify(getGasnJSON()), "successASNUpdate", "failureASNUpdate");
+        } else {
+            //post url for global asn
+            if($("#txtgasn").val().trim() !== ggasn.toString()) {
+                ajaxArry.push($.ajax({
+                   url : "/api/tenants/admin/config/global-asn",
+                   type : "PUT",
+                   contentType : "application/json; charset=utf-8",
+                   data : JSON.stringify(getGasnJSON())
+                }));
+            }
+
+            //post url for iBGP Auto Mesh
+            if(isiBGPAutoMesh != autoMeshCkd) {
+                ajaxArry.push($.ajax({
+                   url : "/api/tenants/admin/config/ibgp-auto-mesh",
+                   type : "PUT",
+                   contentType : "application/json; charset=utf-8",
+                   data : JSON.stringify(getiBGPAutoMeshJSON())
+                }));
+            }
         }
         
         //post url for ip fabric subnets
@@ -329,14 +333,34 @@ function initActions() {
         $.when.apply($, ajaxArry).then(
             function () {
                 //all success
-                fetchData();
+                if(!isASNSerialFlow) {
+                    fetchData();
+                }
             },
             function (error) {
                 //If atleast one api fails
                 showInfoWindow(error.responseText, error.statusText);
-                fetchData();
+                if(!isASNSerialFlow) {
+                    fetchData();
+                }
             });
     });
+}
+
+function successASNUpdate() {
+    doAjaxCall("/api/tenants/admin/config/ibgp-auto-mesh", "PUT", JSON.stringify(getiBGPAutoMeshJSON()), "successiAutoMeshUpdate", "failureiAutoMeshUpdate");
+}
+
+function failureASNUpdate() {
+    fetchData();
+}
+
+function successiAutoMeshUpdate() {
+    fetchData();
+}
+
+function failureiAutoMeshUpdate() {
+    fetchData();
 }
 
 function getID(divid){
