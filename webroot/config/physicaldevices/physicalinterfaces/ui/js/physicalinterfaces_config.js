@@ -94,6 +94,9 @@ function physicalInterfacesConfig() {
                         })
                         return serverString;
                     },
+                    searchFn:function(d) {
+                        return d['server'];
+                    }
                 }]                
                                 
             },
