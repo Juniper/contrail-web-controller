@@ -323,7 +323,7 @@ monitorInfraComputeSummaryClass = (function() {
                             return getNodeStatusContentForSummayPages(dc,'html');
                         },
                         searchFn: function(d) {
-                            return getNodeStatusContentForSummayPages(dc,'text');
+                            return getNodeStatusContentForSummayPages(d,'text');
                         },
                         minWidth:150,
                         exportConfig: {
@@ -340,7 +340,7 @@ monitorInfraComputeSummaryClass = (function() {
                             return getDisplayNameForVRouterType(v);
                         },
                         searchFn: function(d) {
-                            return getDisplayNameForVRouterType(v);
+                            return getDisplayNameForVRouterType(d.vRouterType);
                         },
                         minWidth:120
                     },

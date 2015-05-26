@@ -114,7 +114,7 @@ monitorInfraConfigSummaryClass = (function() {
                         formatter:function(r,c,v,cd,dc) {
                             return getNodeStatusContentForSummayPages(dc,'html');
                         },
-                        searchFn:function(d) {
+                        searchFn:function(dc) {
                             return getNodeStatusContentForSummayPages(dc,'text');
                         },
                         minWidth:110,
