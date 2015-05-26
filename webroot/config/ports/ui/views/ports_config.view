@@ -203,7 +203,7 @@
                     </div>
 
                     <div class="row-fluid" >
-                            <div class="widget-box transparent collapsed">
+                            <div class="AdvanceExpandBox widget-box transparent collapsed">
                                 <div class="widget-header">
                                     <h5 class="smaller" onclick="scrollUp('#windowCreatePorts',this,true);">
                                         <i class="icon-caret-right grey"></i>
