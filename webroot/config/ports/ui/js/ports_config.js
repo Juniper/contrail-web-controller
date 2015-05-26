@@ -1709,7 +1709,7 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
         vnUUID = mapedData["vnUUID"];
     }
     if(enableSubInterfaceFlag == "true") {
-        windowCreatePorts.find('.modal-header-title').text('Add SubInterface for ' + selectedPortUUID);
+        windowCreatePorts.find('.modal-header-title').text('Add SubInterface of port ' + selectedPortUUID);
     }
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -1997,11 +1997,15 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
                     $("#txtVlan").val("");
                     $("#ddSubInterfaceParent").data('contrailDropdown').enable(true);
                     $(".subInterface").removeClass("hide");
-                    $("#ddSubInterfaceParent").data("contrailDropdown").value(subnetValue);                    
+                    $("#ddSubInterfaceParent").data("contrailDropdown").value(subnetValue);
+                    $(".AdvanceExpandBox").removeClass("collapsed");
+                    $($($(".AdvanceExpandBox").find("i"))[0]).removeClass("icon-caret-right");
+                    $($($(".AdvanceExpandBox").find("i"))[0]).addClass("icon-caret-down");
+                    $(txtVlan).focus();
                 } else {
                     windowCreatePorts.find('.modal-header-title').text('Create Port');
+                    $(txtPortName).focus();
                 }
-                $(txtPortName).focus();
             } else if (mode === "edit") {
                 var selectedVMI = null;
                 for(var j=0;j < vmiArrayLen;j++){
