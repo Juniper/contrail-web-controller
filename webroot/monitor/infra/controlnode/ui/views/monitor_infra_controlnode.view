@@ -110,9 +110,9 @@
                             <div id='formRoutes_{{name}}' class='row-fluid'>
                                 <div class='row-fluid margin-0-0-10'>
 									<div class='span6'>
-										<label for='comboRoutingInstance'>Routing Instance</label>
+										<label for='ddRoutingInstance'>Routing Instance</label>
 										<div>
-			                                <div class='span12' id='comboRoutingInstance_{{name}}' tabindex=0></div>
+			                                <div class='span12' id='ddRoutingInstance_{{name}}' tabindex=0></div>
 										</div>
 									</div>
 									<div class='span2'>
