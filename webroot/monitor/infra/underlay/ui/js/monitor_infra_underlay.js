@@ -2883,9 +2883,9 @@ underlayView.prototype.populateDetailsTab = function(data) {
         }catch(e){
             introspectPort = defaultIntrospectPort;
         }
-        cmpNodeView.populateComputeNode({name:constructValidDOMId(content['name']), displayName:content['name'], ip:content['ip'], page:'underlay',
-            introspectPort:introspectPort != null ? introspectPort : defaultIntrospectPort});
-        _this.addCommonTabs('compute_tabstrip_'+content['name']);
+        cmpNodeView.populateComputeNode({name:content['name'], ip:content['ip'], page:'underlay',
+            introspectPort:introspectPort});
+        _this.addCommonTabs('compute_tabstrip');
     } else if(type == VIRTUALMACHINE) {
         check4CTInit(function() {
             _this.renderUnderlayTabs();
