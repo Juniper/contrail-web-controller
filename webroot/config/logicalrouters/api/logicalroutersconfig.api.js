@@ -847,9 +847,7 @@ function deleteLogicalRouter(request, response, appData)
 
 }
 
-function readLogicalRouterToDeleteVMI(error, logicalRouterURL, datafromAPI, request, response, appData){    
-    configApiServer.apiDelete(logicalRouterURL, appData,
-        function (error, data) {
+function readLogicalRouterToDeleteVMI(error, logicalRouterURL, datafromAPI, request, response, appData){
             if('virtual_machine_interface_refs' in datafromAPI['logical-router'] && 
                 datafromAPI['logical-router']['virtual_machine_interface_refs'].length > 0){
                 var deleteVMIArray = datafromAPI['logical-router']['virtual_machine_interface_refs']
@@ -864,15 +862,26 @@ function readLogicalRouterToDeleteVMI(error, logicalRouterURL, datafromAPI, requ
                         });
                     }
                     async.mapSeries(allDataArr, portConfig.deletePortsCB, function(error, data){
+                        if(error) {
                             commonUtils.handleJSONResponse(error, response, null);
-                            return;
+                            return
+                        }
+                        setTimeout(function() {removeRouter(logicalRouterURL, response, appData);}, 3000);
+                        return;
                     });
                 }
             } else {
-                commonUtils.handleJSONResponse(error, response, null);
+                removeRouter(logicalRouterURL, appData);
                 return;
             }
-        });
+}
+
+function removeRouter(logicalRouterURL, response, appData){
+    configApiServer.apiDelete(logicalRouterURL, appData,
+    function (error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+        return;
+    });
 }
 
 /**
