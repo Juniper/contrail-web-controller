@@ -2154,7 +2154,7 @@ function formatMemory(memory) {
 function updateChartsForSummary(dsData, nodeType) {
     var title,key,chartId,isChartInitialized = false,tooltipFn,bucketTooltipFn,isBucketize,crossFilter;
     var nodeData = dsData;
-    var showLegend,xLbl,yLbl;
+    var showLegend,xLbl,yLbl,xLblFormat = null;
     var data = [],updateHeaderCount = false;
     data = dsData;
     if(nodeType == 'compute'){
@@ -2197,6 +2197,7 @@ function updateChartsForSummary(dsData, nodeType) {
         tooltipFn = bgpMonitor.dbNodeTooltipFn;
         isBucketize = false;
         clickFn = bgpMonitor.onDbNodeDrillDown;
+        xLblFormat = d3.format('.02f');
     }
 
     //Check if chart is already initialized and has chartOptions like currLevel
@@ -2214,6 +2215,7 @@ function updateChartsForSummary(dsData, nodeType) {
         chartOptions: $.extend(true,{
             xLbl:xLbl,
             yLbl:yLbl,
+            xLblFormat: xLblFormat,
             tooltipFn: tooltipFn,
             bucketTooltipFn: (isBucketize)? bucketTooltipFn : '',
             clickFn: clickFn,
