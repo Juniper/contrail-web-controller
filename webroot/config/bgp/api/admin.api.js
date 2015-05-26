@@ -1075,7 +1075,9 @@ function updateGlobalConfigObj (error, data,
     if(diffObj != null) {
         configApiServer.apiPut(gscURL, diffObj, appData,
         function(error, data) {
-            commonUtils.handleJSONResponse(error, response, null);
+            setTimeout(function() {
+                commonUtils.handleJSONResponse(error, response, null);
+            }, 3000);
         });
     } else {
         commonUtils.handleJSONResponse(error, response, null);
