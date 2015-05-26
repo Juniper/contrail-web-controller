@@ -51,7 +51,7 @@ function getConfigNodeDetails (req, res, appData)
     commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
                              configApiServer, null, appData);
     async.map(dataObjArr,
-              commonUtils.getServerResponseByRestApi(configApiServer, false),
+              commonUtils.getServerResponseByRestApi(configApiServer, true),
               function(err, results) {
         if (err || (results[0]['ModuleCpuState'] == null)) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
