@@ -473,6 +473,7 @@ function fetchDataForGridFIP() {
     
     $("#cb_gridfip").attr("checked", false);
     $("#gridfip").data("contrailGrid")._dataView.setData([]);
+    gridfip.showGridMessage("loading");
 }
 function successHandlerForGridFIP(result,cbparam) {
     if(cbparam != ajaxParam){
@@ -536,9 +537,9 @@ function successHandlerForGridFIPRow(fipBackRefs) {
         uuid = String(jsonPath(fip, "$.uuid"));
         fipData.push({"id":fipData.length, "ip_addr":ip_addr, "instance":instanceId, "fipPool":fipPool, "uuid":uuid});
     }
+    $("#gridfip").data("contrailGrid")._dataView.setData(fipData);
     if(!fipData || fipData.length<=0)
         gridfip.showGridMessage('empty');
-    $("#gridfip").data("contrailGrid")._dataView.setData(fipData);
 }
 
 function closeCreateFIPWindow() {
