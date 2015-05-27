@@ -45,6 +45,8 @@ global.NODE_CHASSIS_TYPE_SPINE = 'spine';
 global.NODE_CHASSIS_TYPE_CORE = 'coreswitch';
 global.NODE_CHASSIS_TYPE_NONE = '-';
 
+/* 5 Minutes */
+global.INSTANCE_SPAWNING_TIMEOUT = 5 * 60 * 1000;
 
 module.exports = global;
 
