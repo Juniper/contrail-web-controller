@@ -27,7 +27,6 @@ var url = require('url');
 var UUID = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var jsonPath = require('JSONPath').eval;
 var logicalRouter = require('../../logicalrouters/api/logicalroutersconfig.api');
 
 
@@ -3117,17 +3116,27 @@ function getVMIDetailsPaged (req, res, appData)
         }
         var dataObj = {'fip': fipResultJSON, 'instIp': instIpsResultJSON};
         var vmiData = buildVMIData(vmiResultJSON, dataObj);
-        var intfRtTabRefs = jsonPath(vmiResultJSON,
-                                     "$..interface_route_table_refs");
-        if ((false == intfRtTabRefs) || (null == intfRtTabRefs) &&
-            (null != intfRtTabRefs[0]) || (!intfRtTabRefs[0].length)) {
+        var vmiResCnt = vmiResultJSON.length;
+        var intfRtTabUUIDs = [];
+        for (var i = 0; i < vmiResCnt; i++) {
+            var itfRtTabRefs = null;
+            if ((null != vmiResultJSON[i]) &&
+                (null != vmiResultJSON[i]['virtual-machine-interface']) &&
+                (null !=
+                    vmiResultJSON[i]['virtual-machine-interface']
+                                 ['interface_route_table_refs'])) {
+                itfRtTabRefs =
+                    vmiResultJSON[i]['virtual-machine-interface']
+                                 ['interface_route_table_refs'];
+                var itfRtTabRefsCnt = itfRtTabRefs.length;
+                for (var j = 0; j < itfRtTabRefsCnt; j++) {
+                    intfRtTabUUIDs.push(itfRtTabRefs[j]['uuid']);
+                }
+            }
+        }
+        if (!intfRtTabUUIDs.length) {
             commonUtils.handleJSONResponse(null, res, vmiData);
             return;
-        }
-        var intfRtTabUUIDs = [];
-        var intfRtTabRefsCnt = intfRtTabRefs[0].length;
-        for (i = 0; i < intfRtTabRefsCnt; i++) {
-            intfRtTabUUIDs[i] = intfRtTabRefs[0][i]['uuid'];
         }
         dataObjGetArr = [];
         var intfRtTabUUIDsCnt = intfRtTabUUIDs.length;
