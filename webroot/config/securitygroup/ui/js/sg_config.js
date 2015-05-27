@@ -884,32 +884,11 @@ function setFocusSelectedItem(grpName, term, data) {
 function select2Query(query) {
     //using predefined process method to make work select2 selection
     var t = query.term,filtered = { results: [] }, process;
-    process = function(datum, collection) {
-        var group, attr;
-        datum = datum[0];
-        if (datum.children) {
-            group = {};
-            for (attr in datum) {
-                if (datum.hasOwnProperty(attr)) group[attr]=datum[attr];
-            }
-            group.children=[];
-            $(datum.children).each2(function(i, childDatum) { process(childDatum, group.children); });
-            if (group.children.length || query.matcher(t, '', datum)) {
-                collection.push(group);
-            }
-        } else {
-            if (query.matcher(t, '', datum)) {
-                collection.push(datum);
-            }
-        }
-    };
-    if(t != ""){
-        $(dsSrcDest).each2(function(i, datum) { process(datum, filtered.results); })
-    }
+    
 
     var data = {results: []};
     var grpName = getSelectedGroupName();
-    if(query.term != undefined && query.term != "") {
+    if(query.term != undefined) {
         data.results.push({ id : query.term, text : query.term, parent : grpName});
         this.data = [];
         $.extend(true, this.data, dsSrcDest);
@@ -924,8 +903,43 @@ function select2Query(query) {
             }
             data.results.push(this.data[i]);
         }
-        addNewTermDataSource(grpName, query.term, data.results);
+        if(query.term != '') {
+            addNewTermDataSource(grpName, query.term, data.results);
+        }
+        var pageSize = 200;
+        for(var i=1 ; i < data.results.length ; i++){
+            var more = false;
+            if (data.results[i]['children'].length >= query.page*pageSize) {
+                more = true;
+            }
+            data.results[i]['children'] = data.results[i]['children'].slice((query.page-1) * pageSize, query.page * pageSize);
+            if (more) {
+                data.results[i]['children'].push({id:"search" + i, text:"Search to find more entries", disabled : true})
+            }
+        }
     } else{
+        process = function(datum, collection) {
+            var group, attr;
+            datum = datum[0];
+            if (datum.children) {
+                group = {};
+                for (attr in datum) {
+                    if (datum.hasOwnProperty(attr)) group[attr]=datum[attr];
+                }
+                group.children=[];
+                $(datum.children).each2(function(i, childDatum) { process(childDatum, group.children); });
+                if (group.children.length || query.matcher(t, '', datum)) {
+                    collection.push(group);
+                }
+            } else {
+                if (query.matcher(t, '', datum)) {
+                    collection.push(datum);
+                }
+            }
+        };
+        if(t != ""){
+            $(dsSrcDest).each2(function(i, datum) { process(datum, filtered.results); })
+        }
         data.results = dsSrcDest;
     }
     query.callback(data);
