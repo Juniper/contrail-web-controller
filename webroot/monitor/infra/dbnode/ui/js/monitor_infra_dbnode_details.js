@@ -15,11 +15,11 @@ monitorInfraDbDetailsClass = (function() {
         if(obj.detailView === undefined) {
             layoutHandler.setURLHashParams({tab:'', node:obj['name']},{triggerHashChange:false});
         }    
-        startWidgetLoading('db-sparklines' + '_' + obj.name);
-        toggleWidgetsVisibility(['apiServer-chart' + '_' + obj.name + '-box'], ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box']);
+        startWidgetLoading('db-sparklines');
+        toggleWidgetsVisibility(['apiServer-chart-box'], ['serviceMonitor-chart-box', 'schema-chart-box']);
         var dashboardTemplate = contrail.getTemplate4Id('dashboard-template');
-        $('#dbnode-dashboard' + '_' + obj.name).html(dashboardTemplate({title:'Database Node',colCount:2, showSettings:true, widgetBoxId:'dashboard' + '_' + obj.name, name:obj.name}));
-        startWidgetLoading('dashboard' + '_' + obj.name);
+        $('#dbnode-dashboard').html(dashboardTemplate({title:'Database Node',colCount:2, showSettings:true, widgetBoxId:'dashboard', name:obj.name}));
+        startWidgetLoading('dashboard');
         $.ajax({
             url: contrail.format(monitorInfraUrls['DATABASE_DETAILS'] , obj['name'])
         }).done(function (result) {
@@ -34,20 +34,20 @@ monitorInfraDbDetailsClass = (function() {
                     var slineDataDiskUsage = parseDataForSparkline(flowSeriesData,'database_usage.disk_space_used_1k');
                     var slineDataAnalDbSize = parseDataForSparkline(flowSeriesData,'database_usage.analytics_db_size_1k');
                     try {
-                        drawSparkLine('dbnode-sparklines' + '_' + obj.name, 'db_usage_sparkline', 'blue-sparkline', slineDataDiskUsage);
+                        drawSparkLine('dbnode-sparklines', 'db_usage_sparkline', 'blue-sparkline', slineDataDiskUsage);
                     } catch (error) {
                         console.log(error.stack);
                     }
                     try {
-                        drawSparkLine('dbnode-sparklines' + '_' + obj.name, 'analytics_db_size_sparkline', 'blue-sparkline', slineDataAnalDbSize);
+                        drawSparkLine('dbnode-sparklines', 'analytics_db_size_sparkline', 'blue-sparkline', slineDataAnalDbSize);
                     } catch (error) {
                         console.log(error.stack);
                     }
-                    endWidgetLoading('dbnode-sparklines' + '_' + obj.name);
-                    $('#dbnode-chart' + '_' + obj.name).initDbUsageLineChart({data:resultJSON, 
+                    endWidgetLoading('dbnode-sparklines');
+                    $('#dbnode-chart').initDbUsageLineChart({data:resultJSON, 
                                                                                 parser: "parseUsageData", 
                                                                                 plotOnLoad: true, 
-                                                                                lineChartId: 'dbnode-sparklines' + '_' + obj.name, 
+                                                                                lineChartId: 'dbnode-sparklines', 
                                                                                 showWidgetIds: [], 
                                                                                 hideWidgetIds: [], 
                                                                                 titles: {diskUsageTitle:'Database Disk Usage',analyticsDbSizeTitle:'Analytics DB Size'}},110);
@@ -99,31 +99,31 @@ monitorInfraDbDetailsClass = (function() {
                   databaseNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#dbnode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#dbnode-dashboard' + '_' + obj.name + ' .widget-body').html(dashboardBodyTemplate({colCount:2, d:databaseNodeDashboardInfo, nodeData:databaseNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
+                $('#dbnode-dashboard' + ' .widget-body').html(dashboardBodyTemplate({colCount:2, d:databaseNodeDashboardInfo, nodeData:databaseNodeData, showSettings:true, ip:nodeIp, name:obj.name}));
                 var ipDeferredObj = $.Deferred();
                 getReachableIp(iplist,"8084",ipDeferredObj);
                 ipDeferredObj.done(function(nodeIp){
                    if(nodeIp != null && nodeIp != noDataStr) {
-                     $('#linkIntrospect' + '_' + obj.name).unbind('click');
-                       $('#linkIntrospect' + '_' + obj.name).click(function(){
+                     $('#linkIntrospect').unbind('click');
+                       $('#linkIntrospect').click(function(){
                            window.open('/proxy?proxyURL=http://'+nodeIp+':8084&indexPage', '_blank');
                        });
-                       $('#linkStatus' + '_' + obj.name).unbind('click');
-                       $('#linkStatus' + '_' + obj.name).on('click', function(){
+                       $('#linkStatus').unbind('click');
+                       $('#linkStatus').on('click', function(){
                            showStatus({ip : nodeIp, name : obj.name});
                        });
-                       $('#linkLogs' + '_' + obj.name).unbind('click');
-                       $('#linkLogs' + '_' + obj.name).on('click', function(){
+                       $('#linkLogs').unbind('click');
+                       $('#linkLogs').on('click', function(){
                            showLogs(nodeIp);
                        });
                    }
                 });
             
-                endWidgetLoading('dashboard' + '_' + obj.name);
-                initWidget4Id('#apiServer-chart' + '_' + obj.name + '-box');
-                initWidget4Id('#serviceMonitor-chart' + '_' + obj.name + '-box');
-                initWidget4Id('#schema-chart' + '_' + obj.name + '-box');
-            }).fail(displayAjaxError.bind(null, $('#dbnode-dashboard' + '_' + obj.name)));
+                endWidgetLoading('dashboard');
+                initWidget4Id('#apiServer-chart' + '-box');
+                initWidget4Id('#serviceMonitor-chart' + '-box');
+                initWidget4Id('#schema-chart' + '-box');
+            }).fail(displayAjaxError.bind(null, $('#dbnode-dashboard')));
     }
     return {populateDetailsTab:populateDetailsTab};
 })();

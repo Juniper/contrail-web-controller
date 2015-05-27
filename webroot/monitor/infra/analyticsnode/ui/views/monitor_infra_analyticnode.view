@@ -31,22 +31,21 @@
 
 <script type="text/x-handlebars-template" id="analyticsnode-template">
     <div class="contrail">
-        <!--<h3 id="detail-title" class="smaller">Analytic Node Details</h3>-->
-        <div id="analytics_tabstrip_{{name}}" class="contrail-widget-tabs">
+        <div id="analytics_tabstrip">
             <ul>
-                <li><a href="#mon-infra-analytics-details-tab_{{name}}">Details</a></li>
-                <li><a href="#mon-infra-analytics-generators-tab_{{name}}">Generators</a></li>
-                <li><a href="#mon-infra-analytics-qequeries-tab_{{name}}">QE Queries</a></li>
-                <li><a href="#mon-infra-analytics-console-tab_{{name}}">Console</a></li>
+                <li><a href="#mon-infra-analytics-details-tab">Details</a></li>
+                <li><a href="#mon-infra-analytics-generators-tab">Generators</a></li>
+                <li><a href="#mon-infra-analytics-qequeries-tab">QE Queries</a></li>
+                <li><a href="#mon-infra-analytics-console-tab">Console</a></li>
             </ul>
-            <div class="row-fluid" id="mon-infra-analytics-details-tab_{{name}}">
-                <div id='analyticsnode-dashboard_{{name}}' class='span5'></div>
-                <div id='analytics-detail-charts_{{name}}' class="span7">
+            <div class="row-fluid" id="mon-infra-analytics-details-tab">
+                <div id='analyticsnode-dashboard' class='span5''></div>
+                <div id='analytics-detail-charts' class="span7">
 	                <div class="row-fluid">
-                        <div class="widget-box transparent" id="analytics-sparklines_{{name}}-box">
+                        <div class="widget-box transparent" id="analytics-sparklines-box">
                             <div class="widget-header">
                                 <h4 class="smaller">
-                                    <i id="analytics-sparklines_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="analytics-sparklines-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     CPU and Memory Utilization
                                 </h4>
                                 <div class="widget-toolbar pull-right">
@@ -58,7 +57,7 @@
                             <div class="widget-body">
                                 <div class="widget-main padding-4">
                                     <div class="row-fluid">
-                                        <div id="collector-sparklines_{{name}}" class="span4 collector-chart-link sparklines-box">
+                                        <div id="collector-sparklines" class="span4 collector-chart-link sparklines-box">
                                             <p class="sparkline-title">Collector</p>
                                             <div class="row-fluid">
                                                <span class="span6"><small>CPU Utilization</small></span> <span id="contrail-collector-cpu-share_sparkline" class="span6 pull-right"></span>
@@ -67,7 +66,7 @@
                                                <span class="span6"><small>Memory</small></span> <span id="contrail-collector-mem-res_sparkline" class="span6 pull-right"></span>
                                              </div>
                                         </div>
-                                        <div id="queryengine-sparklines_{{name}}" class="span4 queryengine-chart-link sparklines-box">
+                                        <div id="queryengine-sparklines" class="span4 queryengine-chart-link sparklines-box">
                                             <p class="sparkline-title">Query Engine</p>
                                             <div class="row-fluid">
                                                <span class="span6"><small>CPU Utilization</small></span> <span id="contrail-query-engine-cpu-share_sparkline" class="span6 pull-right"></span>
@@ -76,7 +75,7 @@
                                                <span class="span6"><small>Memory</small></span> <span id="contrail-query-engine-mem-res_sparkline" class="span6 pull-right"></span>
                                              </div>
                                         </div>
-                                        <div id="opServer-sparklines_{{name}}" class="span4 opServer-chart-link sparklines-box">
+                                        <div id="opServer-sparklines" class="span4 opServer-chart-link sparklines-box">
                                             <p class="sparkline-title">OpServer</p>
                                             <div class="row-fluid">
                                                <span class="span6"><small>CPU Utilization</small></span> <span id="contrail-analytics-api-cpu-share_sparkline" class="span6 pull-right"></span>
@@ -89,10 +88,10 @@
                                 </div><!-- /widget-main -->
                             </div><!--/widget-body -->
                         </div><!--/widget-box-->
-		            	<div class="widget-box transparent" id="collector-chart_{{name}}-box">
+		            	<div class="widget-box transparent" id="collector-chart-box">
 		            		<div class="widget-header">
 		            			<h4 class="smaller">
-                                    <i id="collector-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                    <i id="collector-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                     Collector CPU/Memory Utilization
 		            			</h4>
 		            			<div class="widget-toolbar">
@@ -103,14 +102,14 @@
 		            		</div>
 		            		<div class="widget-body">
 		            			<div class="widget-main padding-4">
-		            				<div id='collector-chart_{{name}}' class='row-fluid'></div>
+		            				<div id='collector-chart' class='row-fluid'></div>
 	            				</div><!-- /widget-main -->
 		            		</div><!--/widget-body -->
 		            	</div><!--/widget-box-->
-		            <div class="widget-box transparent hide" id="queryengine-chart_{{name}}-box">
+		            <div class="widget-box transparent hide" id="queryengine-chart-box">
 	            		<div class="widget-header">
 	            			<h4 class="smaller">
-                                <i id="queryengine-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                <i id="queryengine-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                 Query Engine CPU/Memory Utilization
 	            			</h4>
 	            			<div class="widget-toolbar">
@@ -121,14 +120,14 @@
 	            		</div>
 	            		<div class="widget-body">
 	            			<div class="widget-main padding-4">
-	            				<div id='queryengine-chart_{{name}}' class='row-fluid'></div>
+	            				<div id='queryengine-chart' class='row-fluid'></div>
             				</div><!-- /widget-main -->
 	            		</div><!--/widget-body -->
 	            	</div><!--/widget-box-->
-	            	<div class="widget-box transparent hide" id="opServer-chart_{{name}}-box">
+	            	<div class="widget-box transparent hide" id="opServer-chart-box">
 	            		<div class="widget-header">
 	            			<h4 class="smaller">
-                                <i id="opServer-chart_{{name}}-loading" class="icon-spinner icon-spin blue bigger-125"></i>
+                                <i id="opServer-chart-loading" class="icon-spinner icon-spin blue bigger-125"></i>
                                 Opserver CPU/Memory Utilization
 	            			</h4>
 	            			<div class="widget-toolbar">
@@ -139,27 +138,27 @@
 	            		</div>
 	            		<div class="widget-body">
 	            			<div class="widget-main padding-4">
-	            				<div id='opServer-chart_{{name}}' class='row-fluid'></div>
+	            				<div id='opServer-chart' class='row-fluid'></div>
 	        				</div><!-- /widget-main -->
 	            		</div><!--/widget-body -->
 	            	</div><!--/widget-box-->
 	            	</div><!--/row-->
 	            </div>
 				<div class="footer-links">
-                    <a id="linkLogs_{{name}}" class="pull-right hide">Logs</a>
-					<a id="linkStatus_{{name}}">Status</a>
-					<a id="linkIntrospect_{{name}}">Introspect</a>
+                                        <a id="linkLogs" class="pull-right hide">Logs</a>
+					<a id="linkIntrospect" class="pull-right">Introspect</a>
+					<a id="linkStatus" class="pull-right">Status</a>
 				</div>
             </div>
             
-            <div id="mon-infra-analytics-generators-tab_{{name}}">
-                <div id='gridGenerators_{{name}}'></div>
+            <div id="mon-infra-analytics-generators-tab">
+                <div id='gridGenerators'></div>
             </div>
-            <div id="mon-infra-analytics-qequeries-tab_{{name}}">
-            	<div id='gridQEQueries_{{name}}'></div>
+            <div id="mon-infra-analytics-qequeries-tab">
+            	<div id='gridQEQueries'></div>
             </div>
-            <div id="mon-infra-analytics-console-tab_{{name}}">
-	            <div id='analyticsNodeMessagesTab_{{name}}'></div>
+            <div id="mon-infra-analytics-console-tab">
+	            <div id='analyticsNodeMessagesTab'></div>
 	        </div>
         </div>
     </div>
