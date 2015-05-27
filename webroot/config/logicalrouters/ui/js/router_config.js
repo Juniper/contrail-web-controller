@@ -711,14 +711,13 @@ function successHandlerForGridsLRouterRow(result) {
             });
         }
     }
+    $("#gridLogRouter").data("contrailGrid")._dataView.setData(LogicalRouterData);
     if(result.more == true || result.more == "true"){
         gridLogRouter.showGridMessage('loading');
     } else {
         if(!LogicalRouterData || LogicalRouterData.length<=0)
             gridLogRouter.showGridMessage('empty');
     }
-    
-    $("#gridLogRouter").data("contrailGrid")._dataView.setData(LogicalRouterData);
 }
 
 function mapLogicalRouterData(LogicalRuter,projectName,selectedDomainName){

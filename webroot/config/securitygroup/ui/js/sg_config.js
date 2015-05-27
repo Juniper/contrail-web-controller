@@ -1206,13 +1206,13 @@ function successHandlerForgridSGRow(result) {
         SGData.push({"id":idCount++, "sgName":sgName,"sgDisplayName":sgDisplayName, "sgRules":sgRule, "sgUUID":sgUUID, "sgID":sgID, "sgIDText":sgIDText});
     }
     }
+    $("#gridSG").data("contrailGrid")._dataView.setData(SGData);
     if(result.more == true || result.more == "true"){
         gridSG.showGridMessage('loading');
     } else {
         if(!SGData || SGData.length<=0)
             gridSG.showGridMessage('empty');
     }
-    $("#gridSG").data("contrailGrid")._dataView.setData(SGData);
 }
 
 function sgRuleFormat(text) {

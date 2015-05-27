@@ -1181,8 +1181,11 @@ function successHandlerForAllPortUUIDGet(allUUID, cbparam)
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
         allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        var param = {};
+        param.allUUID = allUUID;
+        param.cbparam = cbparam;
         doAjaxCall("/api/tenants/config/get-virtual-machine-details-paged", "POST", JSON.stringify(vmiUUIDObj),
-            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, allUUID);
+            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, param);
     } else {
         $("#btnCreatePorts").removeClass('disabled-link');
         gridPorts.showGridMessage("empty");
@@ -1194,7 +1197,12 @@ function failureHandlerForAllPortUUIDGet(result){
     gridPorts.showGridMessage('errorGettingData');
 }
 
-function successHandlerForgridPorts(result , allUUID) {
+function successHandlerForgridPorts(result , param) {
+    var allUUID = param.allUUID;
+    var cbparam = param.cbparam;
+    if (cbparam != ajaxParam){
+        return;
+    }
     if(allUUID.length > 0) {
         var vmiUUIDObj = {};
         var sendUUIDArr = [];
@@ -1203,10 +1211,17 @@ function successHandlerForgridPorts(result , allUUID) {
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
         allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        var param = {};
+        param.allUUID = allUUID;
+        param.cbparam = cbparam;
         doAjaxCall("/api/tenants/config/get-virtual-machine-details-paged", "POST", JSON.stringify(vmiUUIDObj),
-            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, allUUID);
+            "successHandlerForgridPorts", "failureHandlerForgridPorts", null, param);
     }
+    gridPorts.showGridMessage('loading');
     successHandlerForgridPortsRow(result);
+    if (allUUID.length <= 0) {
+        gridPorts.removeGridMessage();
+    }
 }
 
 function failureHandlerForgridPorts(result) {
@@ -1269,12 +1284,8 @@ function successHandlerForgridPortsRow(result) {
         }
     }
     var gridPageSize = $("#gridPorts").data("contrailGrid")._dataView.getPagingInfo().pageSize;
-    if((result.more == true || result.more == "true") && PortsData.length < gridPageSize){
-        gridPorts.showGridMessage('loading');
-    } else {
-        if(!PortsData || PortsData.length<=0)
-            gridPorts.showGridMessage('empty');
-    }
+    if(!PortsData || PortsData.length<=0)
+        gridPorts.showGridMessage('empty');
     $("#gridPorts").data("contrailGrid")._dataView.setData(PortsData);
 }
 

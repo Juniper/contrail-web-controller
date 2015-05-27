@@ -648,13 +648,13 @@ function successHandlerForGridIPAMRow(result) {
             "dns":dnsServer, "ntp":ntpServer,
             "domain_Name":domainName});
     }
+    $("#gridipam").data("contrailGrid")._dataView.setData(ipamData);
     if(result.more == true || result.more == "true"){
         gridipam.showGridMessage("loading");
     } else {
         if(!ipamData || ipamData.length<=0)
             gridipam.showGridMessage('empty');
     }
-    $("#gridipam").data("contrailGrid")._dataView.setData(ipamData);
 }
 
 function closeCreateIPAMWindow() {

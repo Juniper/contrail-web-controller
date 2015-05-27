@@ -1904,11 +1904,14 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
         allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        var param = {};
+        param.cbparam = cbparam;
+        param.allUUID = allUUID;
         doAjaxCall("/api/tenants/config/get-config-data-paged", "POST", JSON.stringify(vnUUIDObj),
-            "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, allUUID);
+            "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
 	} else {
-        $("#btnCreateVN").removeClass('disabled-link');
-        gridVN.showGridMessage('empty');
+        doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);
 	}
 }
 
@@ -1917,7 +1920,12 @@ function failureHandlerForAllUUIDGet(result){
     gridVN.showGridMessage('errorGettingData');
 }
 
-function successHandlerForGridVNLoop(result, allUUID){
+function successHandlerForGridVNLoop(result, param){
+    var allUUID = param.allUUID;
+    var cbparam = param.cbparam;
+    if(cbparam != ajaxParam){
+        return;
+    }
     if(allUUID.length > 0) {
         var vnUUIDObj = {};
         var sendUUIDArr = [];
@@ -1926,13 +1934,17 @@ function successHandlerForGridVNLoop(result, allUUID){
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
         allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        var param = {};
+        param.cbparam = cbparam;
+        param.allUUID = allUUID;
         doAjaxCall("/api/tenants/config/get-config-data-paged", "POST", JSON.stringify(vnUUIDObj),
-            "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, allUUID);
+            "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
     } else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
             "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);        
     }
     successHandlerForGridVNRow(result);
+    gridVN.showGridMessage('loading');
 }
 
 function successHandlerForAppendShared(result){
@@ -1953,6 +1965,7 @@ function successHandlerForAppendShared(result){
     if(uniqueNetwork.length > 0){
         successHandlerForGridVNRow(uniqueNetwork);
     }
+    gridVN.removeGridMessage();
 }
 
 
@@ -2009,7 +2022,6 @@ function showRemoveWindow(rowIndex) {
  }
 
 function successHandlerForGridVNRow(result) {
-    gridVN.removeGridMessage();
     var vnData = $("#gridVN").data("contrailGrid")._dataView.getItems();
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -2279,12 +2291,8 @@ function successHandlerForGridVNRow(result) {
             });
         //}
     }
-    if(result.more == true || result.more == "true"){
-        gridVN.showGridMessage('loading');
-    } else {
-        if(!vnData || vnData.length<=0)
-            gridVN.showGridMessage('empty');
-    }
+    if(!vnData || vnData.length<=0)
+        gridVN.showGridMessage('empty');
     $("#gridVN").data("contrailGrid")._dataView.setData(vnData);
 }
 
