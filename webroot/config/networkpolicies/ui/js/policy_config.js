@@ -1764,13 +1764,13 @@ function successHandlerForGridPolicyRow(result) {
         policyData.push({"id":idCount++, "NetworkPolicy":policyName,"NetworkPolicyDisplayName":NetworkPolicyDisplayName, "PolicyRules":ruleDescriptions, "AssociatedNetworks":networks, "PolicyUUID":uuid});
     }
 
+    $("#gridPolicy").data("contrailGrid")._dataView.setData(policyData);
     if(result.more == true || result.more == "true"){
         gridPolicy.showGridMessage('loading');
     } else {
         if(!policyData || policyData.length<=0)
             gridPolicy.showGridMessage('empty');
     }
-    $("#gridPolicy").data("contrailGrid")._dataView.setData(policyData);
 }
 
 
