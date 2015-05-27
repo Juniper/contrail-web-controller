@@ -126,7 +126,7 @@ monitorInfraControlRoutesClass = (function() {
          var routeLimits = [10, 50, 100, 200];
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
          
-         $( "#comboRoutingInstance" + '_' + obj.name ).contrailCombobox({
+         $( "#ddRoutingInstance" + '_' + obj.name ).contrailDropdown({
              defaultValue:'All',
              dataSource: {
                  type:'remote',
@@ -136,10 +136,11 @@ monitorInfraControlRoutesClass = (function() {
                    var ret = []
                    ret =['All'].concat(response['routeInstances']);
                    return ret; 
-                 }
+                 },
+                 timeout:300
              },
          });
-         var comboRoutingInstance = $( "#comboRoutingInstance" + '_' + obj.name ).data('contrailCombobox');
+         var ddRoutingInstance = $( "#ddRoutingInstance" + '_' + obj.name ).data('contrailDropdown');
          
          $( "#comboRoutingTable" + '_' + obj.name ).contrailDropdown({
             data:routeTableList
@@ -186,7 +187,7 @@ monitorInfraControlRoutesClass = (function() {
         
         //Bug : 2360 : Setting default values before the responses for the particular comboboxes are retrieved
         function setDefaults(){
-         comboRoutingInstance.value('All');
+         ddRoutingInstance.value('All');
          comboRoutingTable.value('All');
             comboPeerSource.value('All');
             comboProtocol.value('All');
@@ -255,7 +256,7 @@ monitorInfraControlRoutesClass = (function() {
                 if(newIP != null) {
                     obj.ip = newIP;
                 }            
-                comboRoutingInstance = $( "#comboRoutingInstance" + '_' + obj.name ).data('contrailCombobox');
+                ddRoutingInstance = $( "#ddRoutingInstance" + '_' + obj.name ).data('contrailDropdown');
                 comboRoutingTable = $( "#comboRoutingTable" + '_' + obj.name ).data('contrailDropdown');
                 comboPeerSource = $( "#comboPeerSource" + '_' + obj.name ).data('contrailDropdown');
                 comboProtocol = $( "#comboProtocol" + '_' + obj.name ).data('contrailDropdown');
@@ -264,7 +265,7 @@ monitorInfraControlRoutesClass = (function() {
                 var newAjaxConfig = {url:url,type:'Get'};
                 routeQueryString = { };
                 
-                var routeInst = comboRoutingInstance.value(), routeTable = comboRoutingTable.value(),
+                var routeInst = ddRoutingInstance.value(), routeTable = comboRoutingTable.value(),
                     peerSource = comboPeerSource.value(), protocol = comboProtocol.value(), limit = comboLimit.value(), prefix = txtPrefixSearch.val();
                 if (routeInst != 'All')
                     routeQueryString['routingInst'] = routeInst;
