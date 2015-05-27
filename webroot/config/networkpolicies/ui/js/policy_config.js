@@ -1443,19 +1443,19 @@ function select2Query(query) {
             }
             data.results.push(this.data[i]);
         }
-        addNewTermDataSource(grpName, query.term, data.results); 
-        var pageSize =200;
-        var typeNo = 2;
-        if(grpName == "Networks") {children = data.results[2]['children']; typeNo = 2;}
-        else if(grpName == "CIDR") {children  = data.results[1]['children'];typeNo = 1;}
-        else if(grpName == "Policies") {children  = data.results[3]['children'];typeNo = 3;}
-        var more = false;
-        if (data.results[typeNo]['children'].length >= query.page*pageSize) {
-            more = true;
+        if(query.term != '') {
+            addNewTermDataSource(grpName, query.term, data.results);
         }
-        data.results[typeNo]['children'] = data.results[typeNo]['children'].slice((query.page-1)*pageSize, query.page*pageSize);
-        if (more) {
-            data.results[typeNo]['children'].push({id:"search" + typeNo, text:"Search to find more entries", disabled : true})
+        var pageSize = 200;
+        for(var i=1 ; i < data.results.length ; i++){
+            var more = false;
+            if (data.results[i]['children'].length >= query.page*pageSize) {
+                more = true;
+            }
+            data.results[i]['children'] = data.results[i]['children'].slice((query.page-1) * pageSize, query.page * pageSize);
+            if (more) {
+                data.results[i]['children'].push({id:"search" + i, text:"Search to find more entries", disabled : true})
+            }
         }
     } else {
         process = function(datum, collection) {
