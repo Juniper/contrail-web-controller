@@ -10,7 +10,7 @@ analyticsNodesView = function () {
         if(hashParams['node'] == null)
             monitorInfraAnalyticsSummaryClass.populateAnalyticsNodes();
         else
-            aNodeView.load({displayName : hashParams['node'], tab:hashParams['tab'], name : constructValidDOMId(hashParams['node'])});
+            aNodeView.load({name:hashParams['node'], tab:hashParams['tab']});
     	//layoutHandler.setURLHashParams({node:'Analytics Nodes'},{merge:false,triggerHashChange:false});
     }
     this.updateViewByHash = function(hashObj,lastHashObj) {
@@ -41,9 +41,7 @@ analyticsNodeView = function () {
     } 
     /*End of Selenium Testing*/
     this.load = function (obj) {
-        if(obj['detailView'] === undefined) {
-            pushBreadcrumb([obj['displayName']]);
-        }
+        pushBreadcrumb([obj['name']]);
         aNodeInfo = obj;
     	if((aNodeInfo == null || aNodeInfo.ip ==  null ||  aNodeInfo.ip == '') && aNodeInfo.tab != null){
 			//issue details call and populate ip
@@ -74,32 +72,23 @@ analyticsNodeView = function () {
     this.populateAnalyticsNode = function (obj) {
         //Render the view only if URL HashParam doesn't match with this view
         //Implies that we are already in analytics node details page
-        if (!isInitialized('#analytics_tabstrip' + '_' + obj.name)) {
-            if(obj.detailView === undefined) {
-                var aNodeTemplate = Handlebars.compile($("#analyticsnode-template").html());
-                $(pageContainer).html(aNodeTemplate(aNodeInfo));
-                //Set the height of all tabstrip containers to viewheight - tabstrip
-                var tabContHeight = layoutHandler.getViewHeight() - 42;
-              //  $('#analytics_tabstrip > div').height(tabContHeight);
-            } else if(obj.detailView === true) {
-               aNodeInfo = obj; 
-            }
-            $("#analytics_tabstrip" + '_' + obj.name).contrailTabs({
+        if (!isInitialized('#analytics_tabstrip')) {
+            var aNodeTemplate = Handlebars.compile($("#analyticsnode-template").html());
+            $(pageContainer).html(aNodeTemplate(aNodeInfo));
+            //Set the height of all tabstrip containers to viewheight - tabstrip
+            var tabContHeight = layoutHandler.getViewHeight() - 42;
+          //  $('#analytics_tabstrip > div').height(tabContHeight);
+
+            $("#analytics_tabstrip").contrailTabs({
                 activate:function (e, ui) {
-                    aNodeInfo.name = e.target.id.replace('analytics_tabstrip_','');
-                    aNodeInfo.displayName = getDisplayNameforHostName(aNodeInfo.name, 'analyticsNodeDS');
-                    var newIP = getIPforHostName(aNodeInfo.name, 'analyticsNodeDS');
-                    if(newIP != null) {
-                        aNodeInfo.ip = newIP;
-                    }
                     infraMonitorUtils.clearTimers();
                     var selTab = $(ui.newTab.context).text();
                     if (selTab == 'Generators') {
                         monitorInfraAnalyticsGeneratorsClass.populateGeneratorsTab(aNodeInfo);
-                        $('#gridGenerators' + '_' + obj.name).data('contrailGrid').refreshView();
+                        $('#gridGenerators').data('contrailGrid').refreshView();
                     } else if (selTab == 'QE Queries') {
                         monitorInfraAnalyticsQEQueriesClass.populateQEQueriesTab(aNodeInfo);
-                        $('#gridQEQueries' + '_' + obj.name).data('contrailGrid').refreshView();
+                        $('#gridQEQueries').data('contrailGrid').refreshView();
                     } else if (selTab == 'Console') {
                         infraMonitorUtils.populateMessagesTab('analytics', {source:aNodeInfo['name']}, aNodeInfo);
                     } else if (selTab == 'Details') {
@@ -113,7 +102,7 @@ analyticsNodeView = function () {
             tabIdx = 0;
             monitorInfraAnalyticsDetailsClass.populateDetailsTab(aNodeInfo);
         }
-        selectTab(aNodeTabStrip + '_' + obj.name, tabIdx);
+        selectTab(aNodeTabStrip,tabIdx);
     }
 }
 
