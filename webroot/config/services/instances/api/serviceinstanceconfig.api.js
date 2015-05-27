@@ -29,6 +29,7 @@ var policyConfigApi = require('../../../networkpolicies/api/policyconfig.api');
 var jsonPath = require('JSONPath').eval;
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');
+var ctrlGlobal = require('../../../../common/api/global');
 
 /**
  * Bail out if called directly as "nodejs serviceinstanceconfig.api.js"
@@ -851,7 +852,7 @@ function updateVMStatusByCreateTS(result) {
     var siCreateTime = configData['service-instance']['id_perms']['created'];
     var siCreateUTCTime = commonUtils.getUTCTime(siCreateTime);
     var currentUTCTime = commonUtils.getCurrentUTCTime();
-    if ((currentUTCTime - siCreateUTCTime) > global.INSTANCE_SPAWNING_TIMEOUT) {
+    if ((currentUTCTime - siCreateUTCTime) > ctrlGlobal.INSTANCE_SPAWNING_TIMEOUT) {
         result['vmStatus'] = global.STR_VM_STATE_INACTIVE;
     }
     return;
@@ -945,16 +946,14 @@ function getServiceInstanceDetails(siObj, callback) {
                 logutils.logger.debug('Error in retrieving VM details for ' +
                     ' Instance Id: ' + servInstId +
                     ' with error:' + err);
-                callback(null, data);
-            } else {
-                var resultJSON = {};
-                resultJSON['ConfigData'] = data;
-                resultJSON['VMDetails'] = result;
-                /* Now update the vmStatus field */
-                resultJSON = updateVMStatus(resultJSON);
-                updateVMStatusByCreateTS(resultJSON);
-                callback(err, resultJSON);
             }
+            var resultJSON = {};
+            resultJSON['ConfigData'] = data;
+            resultJSON['VMDetails'] = result;
+            /* Now update the vmStatus field */
+            resultJSON = updateVMStatus(resultJSON);
+            updateVMStatusByCreateTS(resultJSON);
+            callback(null, resultJSON);
         });
     });
 }
@@ -988,16 +987,14 @@ function getServiceInstDetails(siObj, callback)
             logutils.logger.debug('Error in retrieving VM details for ' +
                                   ' Instance Id: ' + servInstId +
                                   ' with error:' + err);
-            callback(null, data);
-        } else {
-            var resultJSON = {};
-            resultJSON['ConfigData'] = data;
-            resultJSON['VMDetails'] = result;
-            /* Now update the vmStatus field */
-            resultJSON = updateVMStatus(resultJSON);
-            updateVMStatusByCreateTS(resultJSON);
-            callback(err, resultJSON);
         }
+        var resultJSON = {};
+        resultJSON['ConfigData'] = data;
+        resultJSON['VMDetails'] = result;
+        /* Now update the vmStatus field */
+        resultJSON = updateVMStatus(resultJSON);
+        updateVMStatusByCreateTS(resultJSON);
+        callback(null, resultJSON);
     });
 }
 
