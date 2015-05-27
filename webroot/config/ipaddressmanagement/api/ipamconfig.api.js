@@ -164,188 +164,6 @@ function ipamSendResponse(error, ipamConfig, response)
 }
 
 /**
- * @setIpamInVN
- * private function
- * 1. Callback for ipam create / update operations
- * 2. Reads the response of ipam get from config api server
- *    and sends it back to the client.
- */
-function setIpamInVN(error, vnConfig, ipamConfig, ipamPostData, response, appData) 
-{
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-     }
-    var dataObjArr = [];
-    for(var i=0; i<vnConfig.length; i++) {
-        var userIpamFoundInVN = false;
-        var userVNFound = false;
-        var vn = vnConfig[i]["virtual-network"];
-        var vnPutData = "";
-        if(null !== vn["network_ipam_refs"] &&
-            typeof vn["network_ipam_refs"] !== "undefined" &&
-            vn["network_ipam_refs"].length > 0) {
-        	//Current VN has some references to IPAMs
-            var ipamLen = vn["network_ipam_refs"].length;
-
-            for(var j=0; j<ipamLen; j++) {
-            	//Check if current VN has references to User's IPAM.
-                if(vn["network_ipam_refs"][j]["to"][0] === ipamPostData['network-ipam']['fq_name'][0] &&
-                    vn["network_ipam_refs"][j]["to"][1] === ipamPostData['network-ipam']['fq_name'][1] &&
-                    vn["network_ipam_refs"][j]["to"][2] === ipamPostData['network-ipam']['fq_name'][2]) {
-                	//Yes, Current VN has reference to User IPAM.
-                	//Delete it. We add it again with User IPAM's new values later.
-                	userIpamFoundInVN = true;
-                    vn["network_ipam_refs"].splice(j,1);
-                    break;
-                }
-            }
-        }
-        
-        var nwRefs = ipamPostData['network-ipam']['virtual_network_refs'];
-        if(null !== nwRefs && typeof nwRefs !== "undefined" && nwRefs.length > 0) {
-        	//User has given IPBlocks with some VNs.
-        	var nwRefsLen = nwRefs.length;
-        	for(var k=0; k<nwRefsLen; k++) {
-        		var vnRef = ipamPostData['network-ipam']['virtual_network_refs'][k];
-        		var vnPostUrl = '/virtual-network/' + vnRef['uuid'].toString();
-        		if(vn["fq_name"][0] === vnRef["to"][0] &&
-        		    vn["fq_name"][1] === vnRef["to"][1] &&
-        			vn["fq_name"][2] === vnRef["to"][2]) {
-        			userVNFound = true;
-        			if(userIpamFoundInVN === false) {
-        				//Match current VN with VN reference from user.
-        				//User is trying to add this IPAM to current VN.
-        				if(null !== vn["network_ipam_refs"] &&
-        					typeof vn["network_ipam_refs"] !== "undefined") {
-        					//There are IPAM references in current VN,
-        					//but this is a new IPAM to be added.
-        					var ipamLen = vn["network_ipam_refs"].length;
-        					vn["network_ipam_refs"][ipamLen] = {};
-        					vn["network_ipam_refs"][ipamLen]["to"] = 
-        						ipamPostData['network-ipam']['fq_name'];
-        					vn["network_ipam_refs"][ipamLen]["attr"] =
-        						vnRef['attr'];
-        				} else {
-        					//There are no IPAM references in current VN.
-        					//Add this as new IPAM to current VN.
-        					vn["network_ipam_refs"] = [];
-        					vn["network_ipam_refs"][0] = {};
-        					vn["network_ipam_refs"][0]["to"] = 
-        						ipamPostData['network-ipam']['fq_name'];
-        					vn["network_ipam_refs"][0]["attr"] = vnRef['attr'];
-        				}
-        				var vnPutData = {
-        						"virtual-network" : vn	
-        				};
-        				var vnPutUrl = '/virtual-network/' + vn['uuid'].toString();
-        				commonUtils.createReqObj(dataObjArr, vnPutUrl,
-        					global.HTTP_REQUEST_PUT, vnPutData, null, null, appData);
-        			} else {
-        				//userIpamFoundInVN is TRUE. Set IPAM reference with new values in current VN.
-        				var lenOfNwIpamRefs = vn["network_ipam_refs"].length;
-        				vn["network_ipam_refs"][lenOfNwIpamRefs] = {};
-        				vn["network_ipam_refs"][lenOfNwIpamRefs]["to"] = 
-        					ipamPostData["network-ipam"]["fq_name"];
-        				vn["network_ipam_refs"][lenOfNwIpamRefs]["attr"] =
-        					vnRef['attr'];
-        				var vnPutData = {
-        						"virtual-network" : vn
-        				};
-        				var vnPutUrl = '/virtual-network/' + vn['uuid'].toString();
-        				commonUtils.createReqObj(dataObjArr, vnPutUrl,
-        					global.HTTP_REQUEST_PUT, vnPutData, null, null, appData);
-        			}
-        		}
-        	}
-        	if(userVNFound === false) {
-        		//User has deleted IPAM reference from an current VN.
-        		//Just check if this IPAM had reference from current VN.
-        		if(userIpamFoundInVN === true) {
-    				var vnPutData = {
-    					"virtual-network" : vn
-    				};
-    				var vnPutUrl = '/virtual-network/' + vn['uuid'].toString();
-    				commonUtils.createReqObj(dataObjArr, vnPutUrl,
-    					global.HTTP_REQUEST_PUT, vnPutData, null, null, appData);
-        		}
-        	}
-        } else { 
-        	if(userIpamFoundInVN === true) {
-            	//User is deleting this IPAM reference from current VN.
-				var vnPutData = {
-					"virtual-network" : vn
-				};
-				var vnPutUrl = '/virtual-network/' + vn['uuid'].toString();
-				commonUtils.createReqObj(dataObjArr, vnPutUrl,
-					global.HTTP_REQUEST_PUT, vnPutData, null, null, appData);
-        	}
-        }
-    }
-    if(dataObjArr && dataObjArr.length > 0) {
-    	async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
-            function(error, results) {
-                setIpamRead(error, ipamConfig, response, appData);
-            }
-    	);
-    } else {
-    	setIpamRead(error, ipamConfig, response, appData);
-    }
-}
-
-function readVNForIpams(error, ipamConfig, ipamPostData, response, appData) 
-{
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-    var dataObjArr = [];
-    if (null !== ipamPostData['network-ipam']['virtual_network_refs'] &&
-    	typeof nwRefs !== "undefined") {
-    	var nwRefs = ipamPostData['network-ipam']['virtual_network_refs'];
-		var nwRefsLen = nwRefs.length; 
-		for(var i=0; i<nwRefsLen; i++) {
-			var vn = ipamPostData['network-ipam']['virtual_network_refs'][i];
-			var vnPostUrl = '/virtual-network/' + vn['uuid'].toString();
-        
-			commonUtils.createReqObj(dataObjArr, vnPostUrl,
-                global.HTTP_REQUEST_GET, null, null, null,
-                appData);
-		}
-        async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-            function(error, results) {
-        	    setIpamInVN(error, results, ipamConfig, ipamPostData, response, appData);
-            });
-    } else {
-    	var domain = ipamPostData["network-ipam"]["fq_name"][0];
-    	var project = ipamPostData["network-ipam"]["fq_name"][1];
-    	var tenantId = domain + ":" + project;
-        var vnsGetURL = "/virtual-networks";
-	    configApiServer.apiGet(vnsGetURL, appData,
-	    	function(error, data) {
-	            for(var i=0; null != data["virtual-networks"][i]; i++) {
-				    var vn = data["virtual-networks"][i];
-				    var vnGetURL = '/virtual-network/' + vn['uuid'].toString();
-			        commonUtils.createReqObj(dataObjArr, vnGetURL,
-                        global.HTTP_REQUEST_GET, null, null, null, appData);
-                }
-	            if(dataObjArr.length > 0) {
-		    	    async.map(dataObjArr,
-		        	    commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-		        	    function(error, results) {
-		        	        setIpamInVN(error, results, ipamConfig, ipamPostData, response, appData);
-		        	    });
-	            } else {
-	            	commonUtils.handleJSONResponse(error, response, null);
-	            }
-	        });
-    }
-}
-
-
-/**
  * @setIpamRead
  * private function
  * 1. Callback for ipam create / update operations
@@ -399,7 +217,7 @@ function createIpam (request, response, appData)
 
     configApiServer.apiPost(ipamCreateURL, ipamPostData, appData,
                          function(error, data) {
-    					 readVNForIpams(error, data, ipamPostData, response, appData);
+                         commonUtils.handleJSONResponse(error, response, data);
                          });
 
 }
@@ -452,7 +270,7 @@ function setIpamOptions(error, ipamPostData, ipamId, response,
     */
     configApiServer.apiPut(ipamPostURL, ipamPostData, appData,
                          function(error, data) {
-                             readVNForIpams(error, data, ipamPostData, response, appData);
+                             commonUtils.handleJSONResponse(error, response, data);
                          });
 }
 
