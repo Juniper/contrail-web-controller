@@ -662,11 +662,12 @@ function successHandlerForGridsTempRow(result) {
         });
     }
     $("#gridsvcTemplate").data("contrailGrid")._dataView.setData(svcTemplateData);
-    if(!svcTemplateData || svcTemplateData.length<=0)
-        gridsvcTemplate.showGridMessage('empty');
     if(result.more == true || result.more == "true"){
         gridsvcTemplate = $("#gridsvcTemplate").data("contrailGrid");
-        gridsvcTemplate.showGridMessage('updating');
+        gridsvcTemplate.showGridMessage('loading');
+    } else {
+        if(!svcTemplateData || svcTemplateData.length<=0)
+            gridsvcTemplate.showGridMessage('empty');
     }
 }
 
