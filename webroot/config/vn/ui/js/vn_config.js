@@ -1933,6 +1933,7 @@ function successHandlerForGridVNLoop(result, allUUID){
             "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);        
     }
     successHandlerForGridVNRow(result);
+    gridVN.showGridMessage('loading');
 }
 
 function successHandlerForAppendShared(result){
@@ -1953,6 +1954,7 @@ function successHandlerForAppendShared(result){
     if(uniqueNetwork.length > 0){
         successHandlerForGridVNRow(uniqueNetwork);
     }
+    gridVN.removeGridMessage();
 }
 
 
@@ -2009,7 +2011,6 @@ function showRemoveWindow(rowIndex) {
  }
 
 function successHandlerForGridVNRow(result) {
-    gridVN.removeGridMessage();
     var vnData = $("#gridVN").data("contrailGrid")._dataView.getItems();
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
@@ -2279,12 +2280,8 @@ function successHandlerForGridVNRow(result) {
             });
         //}
     }
-    if(result.more == true || result.more == "true"){
-        gridVN.showGridMessage('loading');
-    } else {
-        if(!vnData || vnData.length<=0)
-            gridVN.showGridMessage('empty');
-    }
+    if(!vnData || vnData.length<=0)
+        gridVN.showGridMessage('empty');
     $("#gridVN").data("contrailGrid")._dataView.setData(vnData);
 }
 

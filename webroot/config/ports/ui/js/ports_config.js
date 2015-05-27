@@ -1206,7 +1206,11 @@ function successHandlerForgridPorts(result , allUUID) {
         doAjaxCall("/api/tenants/config/get-virtual-machine-details-paged", "POST", JSON.stringify(vmiUUIDObj),
             "successHandlerForgridPorts", "failureHandlerForgridPorts", null, allUUID);
     }
+    gridPorts.showGridMessage('loading');
     successHandlerForgridPortsRow(result);
+    if (allUUID.length <= 0) {
+        gridPorts.removeGridMessage();
+    }
 }
 
 function failureHandlerForgridPorts(result) {
@@ -1269,12 +1273,8 @@ function successHandlerForgridPortsRow(result) {
         }
     }
     var gridPageSize = $("#gridPorts").data("contrailGrid")._dataView.getPagingInfo().pageSize;
-    if((result.more == true || result.more == "true") && PortsData.length < gridPageSize){
-        gridPorts.showGridMessage('loading');
-    } else {
-        if(!PortsData || PortsData.length<=0)
-            gridPorts.showGridMessage('empty');
-    }
+    if(!PortsData || PortsData.length<=0)
+        gridPorts.showGridMessage('empty');
     $("#gridPorts").data("contrailGrid")._dataView.setData(PortsData);
 }
 
