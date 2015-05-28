@@ -21,6 +21,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
+    _ = require('underscore'),
     bgpNode = require('../../controlnode/jobs//controlnode.jobs.api');
 
 computeNode = module.exports;
@@ -626,13 +627,48 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                 nodeCnt = 0;
             }
             for (var i = 0; i < nodeCnt; i++) {
-                nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+                var httpSandeshPort = null;
+                try {
+                    httpSandeshPort =
+                        resultJSON[i]['value']['VrouterAgent']['sandesh_http_port'];
+                    httpSandeshPort = httpSandeshPort.toString();
+                } catch(e) {
+                    httpSandeshPort = null;
+                }
+                if (null == nodesHostIp['hosts'][resultJSON[i]['name']]) {
+                    nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+		}
+                if (null != httpSandeshPort) {
+                    nodesHostIp['hosts'][resultJSON[i]['name']].push(httpSandeshPort);
+                }
                 try {
                     var configIp =
                         resultJSON[i]['value']['ConfigData']['virtual-router']['virtual_router_ip_address'];
-                    nodesHostIp['ips'][configIp] = [];
+                    if (null != configIp) {
+                        if (null == nodesHostIp['ips'][configIp]) {
+                            nodesHostIp['ips'][configIp] = [];
+                        }
+                        if (null != httpSandeshPort) {
+                            nodesHostIp['ips'][configIp].push(httpSandeshPort);
+                        }
+                    }
                 } catch(e) {
                     logutils.logger.error("vRouter Config IP parse error:" + e);
+                }
+                try {
+                    var ctrlIP =
+                        resultJSON[i]['value']['VrouterAgent']['control_ip'];
+                    if (null != ctrlIP) {
+                        if (null == nodesHostIp['ips'][ctrlIP]) {
+                            nodesHostIp['ips'][ctrlIP] = [];
+                        }
+                        if (null != httpSandeshPort) {
+                            nodesHostIp['ips'][ctrlIP].push(httpSandeshPort);
+                        }
+                    }
+                } catch(e) {
+                    logutils.logger.error("vRouter Control IP parse error:" +
+                                          e);
                 }
                 var uveIpsCnt = 0;
                 try {
@@ -644,8 +680,16 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                     uveIpsCnt = 0;
                 }
                 for (var j = 0; j < uveIpsCnt; j++) {
-                    nodesHostIp['ips'][uveIps[j]] = [];
+                    if (null == nodesHostIp['ips'][uveIps[j]]) {
+                        nodesHostIp['ips'][uveIps[j]] = [];
+                    }
+                    if (null != httpSandeshPort) {
+                        nodesHostIp['ips'][uveIps[j]].push(httpSandeshPort);
+                    }
                 }
+            }
+            for (key in nodesHostIp['ips']) {
+                nodesHostIp['ips'][key] = _.uniq(nodesHostIp['ips'][key]);
             }
             if (nodeCnt > 0) {
                 infraCmn.saveNodesHostIPToRedis(nodesHostIp,
