@@ -293,7 +293,8 @@ function getvRouterSummaryConfigUVEData (configData, vrConf, nodeList, addGen,
         'VrouterAgent:total_interface_count',
         'VrouterAgent:down_interface_count', 'VrouterAgent:connected_networks',
         'VrouterAgent:control_ip', 'VrouterAgent:build_info',
-        'VrouterStatsAgent:cpu_share', 'NodeStatus'];
+        'VrouterStatsAgent:cpu_share', 'NodeStatus',
+        'VrouterAgent:sandesh_http_port'];
     var postData = {};
     if (null != nodeList) {
         var nodeCnt = nodeList.length;
@@ -929,10 +930,22 @@ function saveNodesHostIPToRedis (data, nodeType, callback)
     var hash = 'node-hash';
     var portList = proxyApi.getAllowedProxyPortListByNodeType(nodeType);
     for (key in data['hosts']) {
-        data['hosts'][key] = portList;
+        if ((data['hosts'][key] instanceof Array) &&
+            (portList instanceof Array)) {
+            data['hosts'][key] = data['hosts'][key].concat(portList);
+        } else {
+            /* We must not come here */
+            data['hosts'][key] = portList;
+        }
     }
     for (key in data['ips']) {
-        data['ips'][key] = portList;
+        if ((data['ips'][key] instanceof Array) &&
+            (portList instanceof Array)) {
+            data['ips'][key] = data['ips'][key].concat(portList);
+        } else {
+            /* We must not come here */
+            data['ips'][key] = portList;
+        }
     }
     data = JSON.stringify(data);
     if (null == redisInfraClient) {

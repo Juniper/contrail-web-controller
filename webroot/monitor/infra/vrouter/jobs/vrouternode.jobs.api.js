@@ -626,11 +626,26 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                 nodeCnt = 0;
             }
             for (var i = 0; i < nodeCnt; i++) {
+                var httpSandeshPort = null;
+                try {
+                    httpSandeshPort =
+                        resultJSON[i]['value']['VrouterAgent']['sandesh_http_port'];
+                    httpSandeshPort = httpSandeshPort.toString();
+                } catch(e) {
+                    httpSandeshPort = null;
+                }
                 nodesHostIp['hosts'][resultJSON[i]['name']] = [];
+                if (null != httpSandeshPort) {
+                    nodesHostIp['hosts'][resultJSON[i]['name']] =
+                        [httpSandeshPort];
+                }
                 try {
                     var configIp =
                         resultJSON[i]['value']['ConfigData']['virtual-router']['virtual_router_ip_address'];
                     nodesHostIp['ips'][configIp] = [];
+                    if (null != httpSandeshPort) {
+                        nodesHostIp['ips'][configIp] = [httpSandeshPort];
+                    }
                 } catch(e) {
                     logutils.logger.error("vRouter Config IP parse error:" + e);
                 }
@@ -645,6 +660,9 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                 }
                 for (var j = 0; j < uveIpsCnt; j++) {
                     nodesHostIp['ips'][uveIps[j]] = [];
+                    if (null != httpSandeshPort) {
+                        nodesHostIp['ips'][uveIps[j]] = [httpSandeshPort];
+                    }
                 }
             }
             if (nodeCnt > 0) {
