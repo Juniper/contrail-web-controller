@@ -3,6 +3,9 @@
         #windowEditGblConfig .rule-item-header{
             padding:0px 0px 0px 8px;
         }
+        #gridGlobalConfig .slick-cell.l0.r0{
+            color:#478fca;
+        }
     </style>
     <div class="row-fluid">
         <div class="row-fluid">
@@ -34,17 +37,37 @@
                                         <div class="control-group">
                                             <label class="control-label">VxLAN Identifier Mode</label>
                                             <div class="controls">
-                                                <div class="row-fluid">
-                                                    <div id="ddVxLan" class="span4"></div>
+                                                <div class="row-fluid padding-top-5">
+                                                     <div class ="pull-left">
+                                                         <input id="chkAuto" type="radio" name="vxlanMode"
+                                                            value="automatic" checked class="ace-input  margin-right-10">
+                                                         </input>
+                                                         <span class="ace-lbl">&nbsp;</span>
+                                                     </div>
+                                                     <label
+                                                         onclick="$('\#chkAuto').click()" class="pull-left hyperlink-active blue" style="margin-right:50px;">
+                                                         Auto Configured
+                                                     </label>
+                                                     <div class="pull-left">
+                                                         <input id="chkManual"
+                                                             type="radio" name="vxlanMode"
+                                                             value="configured" class="ace-input  margin-right-10">
+                                                         </input>
+                                                         <span class="ace-lbl ">&nbsp;</span>
+                                                     </div>
+                                                     <label class="hyperlink-active blue"
+                                                         onclick="$('\#chkManual').click()">
+                                                         User Configured
+                                                     </label>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="rule-item-header margin-0-0-10 span6" style="margin-left:30px !important;width:45.5%">
+                                        <div class="rule-item-header margin-0-0-10 span6" style="margin-left:30px !important;width:66%">
                                             <div class="row-fluid">
                                                 <div class="span10">
-                                                    <h6>Encapsulation Priority</h6>
+                                                    <h6 class="blue">Encapsulation Priority Order</h6>
                                                 </div>
-                                                <div class="span1">
+                                                <div class="span1 pull-right">
                                                     <div title="Add Encapsulation Priority below" class="margin-5 padding-10-0" ><i class="icon-plus pull-left" onclick="appendEPEntry(this, true);"></i></div>
                                                 </div>
                                             </div>
@@ -74,25 +97,29 @@
                                             <label class="control-label">Global ASN</label>
                                             <div class="controls">
                                                 <div class="row-fluid">
-                                                    <input id="txtgasn" class="span4" type="text" placeholder="0 - 65535" name="txtgasn" value=""></input>
+                                                    <input id="txtgasn" class="span6" style="width:50%" type="text" placeholder="0 - 65535" name="txtgasn" value=""></input>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="control-group">
-                                            <label class="control-label">iBGP Auto Mesh</label>
+                                            <label class="control-label">Enable iBGP Auto Mesh</label>
                                             <div class="controls">
                                                 <div class="row-fluid">
-                                                    <div id="ddAutoMesh" class="span4"></div>
+                                                    <input id="chk_ibgp_auto_mesh"
+                                                        type="checkbox" name="chk_ibgp_auto_mesh"
+                                                         class="ace-input  margin-right-10">
+                                                    </input>
+                                                    <span class="ace-lbl ">&nbsp;</span>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="rule-item-header margin-0-0-10 span6" style="margin-left:70px !important;width:40%">
+                                        <div class="rule-item-header margin-0-0-10 span6" style="margin-left:30px !important;width:66%">
                                             <div class="row-fluid">
                                                 <div class="span10">
-                                                    <h6>IP Fabric Subnets</h6>
+                                                    <h6 class="blue">IP Fabric Subnets</h6>
                                                 </div>
-                                                <div class="pull-left" style="margin-left:5px">
-                                                    <div title="Add IP Fabric Subnets below" class="margin-5 padding-10-0" style="margin-left:10px !important;"><i class="icon-plus pull-left" onclick="appendSubnetEntry(this, true);"></i></div>
+                                                <div class="span1 pull-right" style="margin-left:5px">
+                                                    <div title="Add IP Fabric Subnets below" class="margin-5 padding-10-0"><i class="icon-plus pull-left" onclick="appendSubnetEntry(this, true);"></i></div>
                                                 </div>
                                             </div>
                                         </div>

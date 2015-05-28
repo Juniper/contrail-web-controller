@@ -17,7 +17,6 @@ function ForwardingOptionsConfigObj() {
 	this.validate = validate;
     //Variable definitions
     //Dropdowns
-    var ddVxLan;
 
     //Buttons
     var btnSaveFwdOptions, btnCnfSaveCancel, btnCnfSaveOK;
@@ -37,7 +36,7 @@ function initComponents() {
     $("#gridGlobalConfig").contrailGrid({
         header : {
             title : {
-                text : 'Global Config Options',
+                text : 'Global Config',
             },
             customControls: ['<a id="btnEditGblConfig" onclick="showGblConfigEditWindow();return false;" title="Edit Global Config"><i class="icon-edit"></i></a>']
         },
@@ -46,15 +45,15 @@ function initComponents() {
             {
                 id: "property",
                 field: "property",
-                name: "",
-                minWidth : 60,
+                name: "Configuration Option",
+                maxWidth : 300,
                 sortable: false
             },
             {
                 id: "value",
                 field: "value",
-                name: "",
-                minWidth : 60,
+                name: "Value",
+                maxWidth : 150,
                 sortable: false,
                 formatter: function(r, c, v, cd, dc) {
                     if(dc.property === 'Encapsulation Priority Order') {
@@ -125,14 +124,6 @@ function initComponents() {
     });
 
     gridGlobalConfig = $("#gridGlobalConfig").data('contrailGrid');
-
-    ddVxLan = $("#ddVxLan").contrailDropdown({
-        data: [{id:"automatic", text:'Auto Configured'}, {id:"configured", text:'User Configured'}]
-    });
-    
-    $("#ddAutoMesh").contrailDropdown({
-        data : [{id:"enabled", text:'Enabled'}, {id:"disabled", text:'Disabled'}]
-    });
     
 	confirmMainSave = $("#confirmMainSave");
 	confirmMainSave.modal({backdrop:'static', keyboard: false, show:false});
@@ -162,7 +153,7 @@ function getGasnJSON() {
 
 function getiBGPAutoMeshJSON() {
     var ibgpAutoMeshObj = {};
-    var autoMeshCkd =  $('#ddAutoMesh').data('contrailDropdown').value() === 'enabled' ? true : false;
+    var autoMeshCkd =  $('#chk_ibgp_auto_mesh')[0].checked;
     ibgpAutoMeshObj = {
         "global-system-config":{
             "_type":ggasnObj._type,
@@ -240,7 +231,7 @@ function initActions() {
         var ajaxArry = [];
         var fwdOptnURL, fwdOptnActionType;;
         globalVRouterConfig["global-vrouter-config"] = {};
-        var vxlanid = $(ddVxLan).val();
+        var vxlanid = $('input:radio[name=vxlanMode]:checked').val();
         globalVRouterConfig["global-vrouter-config"]["vxlan_network_identifier_mode"] = vxlanid;
         
         var priorities = [];
@@ -294,7 +285,7 @@ function initActions() {
                data : JSON.stringify(globalVRouterConfig)
             }));
         }
-        var autoMeshCkd =  $('#ddAutoMesh').data('contrailDropdown').value() === 'enabled' ? true : false;
+        var autoMeshCkd =  $('#chk_ibgp_auto_mesh')[0].checked;
         var isASNSerialFlow = ($("#txtgasn").val().trim() !== ggasn.toString() && isiBGPAutoMesh != autoMeshCkd) ? true : false;
         if(isASNSerialFlow) {
             doAjaxCall("/api/tenants/admin/config/global-asn", "PUT", JSON.stringify(getGasnJSON()), "successASNUpdate", "failureASNUpdate");
@@ -381,18 +372,17 @@ function handleCommitFailure(result) {
 }
 
 function setEditPopupData() {
-    $("#ddVxLan").data("contrailDropdown").value(actVxlan);
+    $('input:radio[name="vxlanMode"][value="' + actVxlan + '"]').attr('checked',true);
     $("#epTuples").html("");
     for(var i=0; i<actPriorities.length; i++) {
         var epEntry = createEPEntry(actPriorities[i], i);
         $("#epTuples").append(epEntry);
     }
     $('#txtgasn').val(ggasn);
-    var ddAutoMesh = $('#ddAutoMesh').data('contrailDropdown');
     if(isiBGPAutoMesh) {
-        ddAutoMesh.value('enabled');
+         $('#chk_ibgp_auto_mesh').attr('checked', 'checked');
     } else {
-        ddAutoMesh.value('disabled');
+        $('#chk_ibgp_auto_mesh').removeAttr('checked');
     }
     $("#subnetTuples").html("");
     for(var i=0; i<ipFabricSubnets.length; i++) {
@@ -404,7 +394,6 @@ function setEditPopupData() {
 function populateData(result) {
 	var vxLanIdentifierModeLabels = ["Auto Configured", "User Configured"];
 	var vxLanIdentifierModeValues = ["automatic", "configured"];
-	var encapsulationMap = {"MPLSoGRE":"MPLS Over GRE", "MPLSoUDP":"MPLS Over UDP", "VXLAN":"VxLAN"};
     var gridDS = [];
     var priorities;
     $("#epTuples").html("");
@@ -414,10 +403,10 @@ function populateData(result) {
 		configObj["global-vrouter-config"] = result["global-vrouter-config"];
 		if(null !== gvrConfig["vxlan_network_identifier_mode"] && 
 			typeof gvrConfig["vxlan_network_identifier_mode"] !== "undefined") {
-			$("#ddVxLan").data("contrailDropdown").value(gvrConfig["vxlan_network_identifier_mode"]);
+            actVxlan = gvrConfig["vxlan_network_identifier_mode"];
 		} else {
 			//Set default 'automatic' for VxLANIdentifierMode
-			$("#ddVxLan").data("contrailDropdown").value(vxLanIdentifierModeValues[0]);
+            actVxlan = vxLanIdentifierModeValues[0];
 		}
 		if(null !== gvrConfig["encapsulation_priorities"] && 
 			typeof gvrConfig["encapsulation_priorities"] !== "undefined" &&
@@ -436,7 +425,7 @@ function populateData(result) {
 		}
 	} else {
 		//Set default 'automatic' for VxLANIdentifierMode
-		$("#ddVxLan").data("contrailDropdown").value(vxLanIdentifierModeValues[0]);
+        actVxlan = vxLanIdentifierModeValues[0];
 		//Add default MPLSoGRE even if nothing is configured. TBD
 		var epEntry = createEPEntry("MPLSoUDP", 0);
 		$("#epTuples").append(epEntry);
@@ -445,17 +434,9 @@ function populateData(result) {
 		epEntry = createEPEntry("VXLAN", 2);
 		$("#epTuples").append(epEntry);
 	}
-    $('#txtgasn').val(ggasn);
-    var ddAutoMesh = $('#ddAutoMesh').data('contrailDropdown');
-    if(isiBGPAutoMesh) {
-        ddAutoMesh.value('enabled');
-    } else {
-        ddAutoMesh.value('disabled');
-    }
     //prepare grid data
-    var ddVxLan = $("#ddVxLan").data("contrailDropdown");
-    gridDS.push({'property' : 'VxLAN Identifier Mode', 'value' : ddVxLan.text()});
-    actVxlan = ddVxLan.value();
+    var vxLanText = (actVxlan === vxLanIdentifierModeValues[0] ) ? vxLanIdentifierModeLabels[0] : vxLanIdentifierModeLabels[1];
+    gridDS.push({'property' : 'VxLAN Identifier Mode', 'value' : vxLanText});
     if(priorities != null) {
         actPriorities = priorities;
         var gridPriorities = [];
@@ -527,7 +508,7 @@ function createEPEntry(ep, len) {
 
     var divPriorities = document.createElement("div");
     divPriorities.className = "span5 margin-0-0-5";
-    divPriorities.setAttribute("style", "width: 44%");
+    divPriorities.setAttribute("style", "width: 44%; margin-left:150px !important;");
     divPriorities.appendChild(selectPriorities);
     
     var iBtnAddRule = document.createElement("i");
@@ -640,8 +621,8 @@ function createSubnetEntry(subnet, len) {
     inputTxtPoolName.setAttribute("placeholder", "CIDR");
     inputTxtPoolName.setAttribute("id","subnetTuples_"+id+"_txtCIDR");
     var divPoolName = document.createElement("div");
-    divPoolName.className = "span3";
-    divPoolName.setAttribute("style", "width:38%");
+    divPoolName.className = "span5";
+    divPoolName.setAttribute("style", "width: 44%; margin-left:110px !important;");
     divPoolName.appendChild(inputTxtPoolName);
 
     
@@ -688,7 +669,7 @@ function validateSubnetEntry() {
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var cidr =
-                $($($($("#subnetTuples").children()[i]).find(".span3")[0]).find("input")).val().trim();
+                $($($($("#subnetTuples").children()[i]).find(".span5")[0]).find("input")).val().trim();
             if (typeof cidr === "undefined" || cidr === "") {
                 showInfoWindow("Enter CIDR", "Input required");
                 return false;
@@ -739,7 +720,7 @@ function clearSubnetEntries() {
 }
 
 function validate() {
-    var vxlanid = $(ddVxLan).val();
+    var vxlanid = $('input:radio[name=vxlanMode]:checked').val();
     var priorities = [];
     var epTuples = $("#epTuples")[0].children;
     if (epTuples && epTuples.length > 0) {
@@ -758,6 +739,9 @@ function validate() {
         });
         if(priorities.length != unique.length){
             showInfoWindow("Encapsulation cannot be same.", "Input Required");
+            return false;
+        }
+        if(validateSubnetEntry() === false) {
             return false;
         }
     }
@@ -787,12 +771,6 @@ function destroy() {
     if(isSet(btnCnfSaveOK)) {
         btnCnfSaveOK.remove();
         btnCnfSaveOK = $();
-    }
-    
-    ddVxLan = $("#ddVxLan").data("contrailDropdown");
-    if(isSet(ddVxLan)) {
-        ddVxLan.destroy();
-        ddVxLan = $();
     }
 
     confirmMainSave = $("#confirmMainSave");
