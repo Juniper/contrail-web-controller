@@ -48,7 +48,6 @@ function VirtualNetworkConfig() {
     var ajaxParam;
     var dynamicID;
     var selectedProuters;
-    var getUUIDCallCount;
     var vxlan_identifier_mode;
 
     //Method definitions
@@ -80,7 +79,6 @@ function VirtualNetworkConfig() {
     this.getDNSStatus = getDNSStatus;
     this.getAllDNSServer = getAllDNSServer;
     this.dynamicID = dynamicID;
-    this.getUUIDCallCount = getUUIDCallCount;
     this.vxlan_identifier_mode = vxlan_identifier_mode;
     this.destroy = destroy;
 }
@@ -107,7 +105,6 @@ function fetchData() {
 
 function initComponents() {
     dynamicID = 0;
-    getUUIDCallCount = 200;
     vxlan_identifier_mode = "automatic";
     $("#gridVN").contrailGrid({
         header : {
@@ -1900,10 +1897,10 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
         var vnUUIDObj = {};
         var sendUUIDArr = [];
         vnUUIDObj.type = "virtual-network";
-        sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 50);
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(50, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
         param.allUUID = allUUID;
@@ -1911,7 +1908,7 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
             "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
 	} else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
-            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam);
 	}
 }
 
@@ -1930,10 +1927,10 @@ function successHandlerForGridVNLoop(result, param){
         var vnUUIDObj = {};
         var sendUUIDArr = [];
         vnUUIDObj.type = "virtual-network";
-        sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 200);
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(200, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
         param.allUUID = allUUID;
@@ -1941,13 +1938,16 @@ function successHandlerForGridVNLoop(result, param){
             "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
     } else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
-            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, allUUID);        
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam);        
     }
     successHandlerForGridVNRow(result);
     gridVN.showGridMessage('loading');
 }
 
-function successHandlerForAppendShared(result){
+function successHandlerForAppendShared(result, param){
+    if(param != ajaxParam){
+        return;
+    }
     var uniqueNetwork = [];
     var vnData = $("#gridVN").data("contrailGrid")._dataView.getItems();
     for(var i=0;i<result.length;i++){

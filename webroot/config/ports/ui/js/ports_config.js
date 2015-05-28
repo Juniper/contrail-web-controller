@@ -44,7 +44,6 @@ function portsConfigObj() {
     var mac_address;
     var ip_address;
     var selectedParentVMIObject;
-    var getPortUUIDCallCount;
             
     //Method definitions
     this.load = load;
@@ -72,7 +71,6 @@ function portsConfigObj() {
     this.allfloatingIP = allfloatingIP;
     this.allNetworkData = allNetworkData;
     this.currentVNSubnetDetail = currentVNSubnetDetail;
-    this.getPortUUIDCallCount = getPortUUIDCallCount;
     this.mac_address = mac_address;
     this.ip_address = ip_address;
     this.selectedParentVMIObject = selectedParentVMIObject;
@@ -121,7 +119,6 @@ function groupBy( array , f )
 }
 
 function initComponents() {
-    getPortUUIDCallCount = 200;
     var deletePortsDropdownTemplate = contrail.getTemplate4Id('delete-port-action-template');
     var columnsToBeAddedDynamically = [];
     var displayOwnerNameColumn = {
@@ -759,7 +756,7 @@ function initActions() {
             }
         
         
-        console.log(JSON.stringify(portConfig));
+        //console.log(JSON.stringify(portConfig));
         if (mode === "add") {
             doAjaxCall("/api/tenants/config/ports", "POST", JSON.stringify(portConfig),
                 "createPortsSuccessCb", "createPortsFailureCb");
@@ -1177,10 +1174,10 @@ function successHandlerForAllPortUUIDGet(allUUID, cbparam)
         var vmiUUIDObj = {};
         var sendUUIDArr = [];
         vmiUUIDObj.type = "virtual-machine-interface";
-        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 50);
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(50, allUUID.length);
         var param = {};
         param.allUUID = allUUID;
         param.cbparam = cbparam;
@@ -1207,10 +1204,10 @@ function successHandlerForgridPorts(result , param) {
         var vmiUUIDObj = {};
         var sendUUIDArr = [];
         vmiUUIDObj.type = "virtual-machine-interface";
-        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 200);
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(200, allUUID.length);
         var param = {};
         param.allUUID = allUUID;
         param.cbparam = cbparam;
@@ -1949,7 +1946,6 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
 
                         subInterfaceParentValObj.virtual_network_refs = ip["virtual_network_refs"][0]["to"];
                         var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
-                        console.log("inc:"+JSON.stringify(value));
                         subInterfaceParentDatas.push({"text":subInterfaceParentText, "value":JSON.stringify(value)});
                         /*if(ip["virtual_machine_interface_device_owner"] == "compute:nova"){
                             //take it from VMR
@@ -1964,7 +1960,6 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
                     }
                         if(ip["uuid"] == selectedPortUUID && enableSubInterfaceFlag == "true"){
                             var value = {"uuid":ip["uuid"],"to":ip["fq_name"]};
-                            console.log(JSON.stringify(value));
                             subnetValue = JSON.stringify(value);
                         }
                 }
