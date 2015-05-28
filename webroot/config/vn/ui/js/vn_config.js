@@ -1900,10 +1900,10 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
         var vnUUIDObj = {};
         var sendUUIDArr = [];
         vnUUIDObj.type = "virtual-network";
-        sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 50);
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(50, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
         param.allUUID = allUUID;
@@ -1930,10 +1930,10 @@ function successHandlerForGridVNLoop(result, param){
         var vnUUIDObj = {};
         var sendUUIDArr = [];
         vnUUIDObj.type = "virtual-network";
-        sendUUIDArr = allUUID.slice(0, getUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 200);
         vnUUIDObj.uuidList = sendUUIDArr;
         vnUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(200, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
         param.allUUID = allUUID;
