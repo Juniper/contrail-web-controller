@@ -194,14 +194,6 @@ define([
                         return tooltipContent({
                             info: [
                                 {label: 'Project', value: virtualNetworkName[0] + ':' + virtualNetworkName[1]},
-                                {
-                                    label: 'Traffic In',
-                                    value: formatNumberByCommas(viewElement.attributes.nodeDetails.more_attr.in_tpkts) + ' packets | ' + formatBytes(viewElement.attributes.nodeDetails.more_attr.in_bytes)
-                                },
-                                {
-                                    label: 'Traffic Out',
-                                    value: formatNumberByCommas(viewElement.attributes.nodeDetails.more_attr.out_tpkts) + ' packets  |  ' + formatBytes(viewElement.attributes.nodeDetails.more_attr.out_bytes)
-                                },
                                 {label: 'Instance Count', value: viewElement.attributes.nodeDetails.more_attr.vm_cnt}
                             ],
                             iconClass: 'icon-contrail-virtual-network',
@@ -296,8 +288,7 @@ define([
                         return tooltipContent({
                             info: [
                                 {label: 'UUID', value: viewElement.attributes.nodeDetails['fqName']},
-                                {label: 'Network', value: srcVNDetails.name},
-                                {label: 'Interface Count', value: srcVNDetails.more_attr.interface_list.length}
+                                {label: 'Network', value: srcVNDetails.name}
                             ],
                             iconClass: 'icon-contrail-virtual-machine font-size-30'
                         });
@@ -345,13 +336,13 @@ define([
                                     });
                                     data.push({
                                         label: "Traffic In",
-                                        value: formatNumberByCommas(in_stats[i].pkts) + " packets | " + formatBytes(in_stats[i].bytes)
+                                        value: cowu.addUnits2Packets(in_stats[i].pkts, false, null, 1) + " | " + formatBytes(in_stats[i].bytes)
                                     });
                                     for (var j = 0; j < out_stats.length; j++) {
                                         if (src == out_stats[j].src && dst == out_stats[j].dst) {
                                             data.push({
                                                 label: "Traffic Out",
-                                                value: formatNumberByCommas(out_stats[j].pkts) + " packets | " + formatBytes(out_stats[i].bytes)
+                                                value: cowu.addUnits2Packets(out_stats[j].pkts, false, null, 1) + " | " + formatBytes(out_stats[i].bytes)
                                             });
                                         }
                                     }
@@ -363,13 +354,13 @@ define([
                                     });
                                     data.push({
                                         label: "Traffic In",
-                                        value: formatNumberByCommas(in_stats[i].pkts) + " packets | " + formatBytes(in_stats[i].bytes)
+                                        value: cowu.addUnits2Packets(in_stats[i].pkts, false, null, 1) + " | " + formatBytes(in_stats[i].bytes)
                                     });
                                     for (var j = 0; j < out_stats.length; j++) {
                                         if (src == out_stats[j].dst && dst == out_stats[j].src) {
                                             data.push({
                                                 label: "Traffic Out",
-                                                value: formatNumberByCommas(out_stats[j].pkts) + " packets | " + formatBytes(out_stats[i].bytes)
+                                                value: cowu.addUnits2Packets(out_stats[j].pkts, false, null, 1) + " | " + formatBytes(out_stats[i].bytes)
                                             });
                                         }
                                     }
@@ -413,7 +404,7 @@ define([
                         return tooltipContent({info: data, iconClass: 'icon-long-arrow-right'});
                     },
                     dimension: {
-                        width: 355
+                        width: 400
                     }
                 }
             };

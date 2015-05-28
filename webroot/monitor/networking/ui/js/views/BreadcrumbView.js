@@ -48,6 +48,10 @@ define([
             contrailListModel.onAllRequestsComplete.subscribe(function() {
                 populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
             });
+        },
+
+        renderInstanceBreadcrumbDropdown: function(networkSelectedValueData, instanceUUID, initCB) {
+            populateInstanceBreadcrumbDropdown(networkSelectedValueData, instanceUUID, initCB);
         }
 
     });
@@ -222,6 +226,11 @@ define([
         } else {
             //TODO - Empty message - that.$el.html(ctwm.NO_PROJECT_FOUND);
         }
+    };
+
+    var populateInstanceBreadcrumbDropdown = function(networkSelectedValueData, instanceUUID, initCB) {
+        pushBreadcrumb([instanceUUID]);
+        initCB(networkSelectedValueData);
     };
 
     var getDomainFromFQN = function(fqName) {
