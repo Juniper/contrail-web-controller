@@ -183,7 +183,7 @@ monitorInfraComputeSummaryClass = (function() {
                     try{
                         cgrid._dataView.updateData(filteredNodes);
                     } catch(e) {
-                        cgrid._dataView.setItems(filteredNodes);
+                        cgrid._dataView.setData(filteredNodes);
                     }
                 }
             }, 500);
