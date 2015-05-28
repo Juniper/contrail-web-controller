@@ -49,7 +49,8 @@ define([
                                 title: ctwm.NO_NETWORK_FOUND,
                                 iconClass: false,
                                 defaultErrorMessage: false,
-                                navLinks: [ctwc.CONFIGURE_NETWORK_LINK_CONFIG]
+                                defaultNavLinks: false
+                                //navLinks: [ctwc.CONFIGURE_NETWORK_LINK_CONFIG]
                             });
 
                         $(selectorId).html(notFoundTemplate(notFoundConfig));
