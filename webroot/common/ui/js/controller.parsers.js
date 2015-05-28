@@ -198,7 +198,9 @@ define([
                         interface['floatingIP'].push(contrail.format('{0} ({1} / {2})', fipObj['ip_address'], formatBytes(ifNull(fipObj['in_bytes'], '-')), formatBytes(ifNull(fipObj['out_bytes'], '-'))));
                     });
 
-                    interface['if_stats']['throughput'] = interface['if_stats']['in_bw_usage'] +  interface['if_stats']['out_bw_usage'];
+                    if(contrail.checkIfExist(interface['if_stats'])) {
+                        interface['if_stats']['throughput'] = interface['if_stats']['in_bw_usage'] + interface['if_stats']['out_bw_usage'];
+                    }
 
                     interfaceMap[interface['name']] = interface;
                 }
