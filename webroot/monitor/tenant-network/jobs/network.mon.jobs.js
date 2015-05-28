@@ -2561,7 +2561,7 @@ function processCPULoadFlowSeries (pubChannel, saveChannelKey, jobData, done)
                 tableName = 'StatTable.ComputeCpuState.cpu_info';
                 selectArr.push("cpu_info.used_sys_mem");
                 selectArr.push("cpu_info.one_min_cpuload");
-                whereClause = [{'Source':source}];
+                whereClause = [{'name':source}];
                 break;
             case 'contrail-api':
             case 'contrail-schema':
