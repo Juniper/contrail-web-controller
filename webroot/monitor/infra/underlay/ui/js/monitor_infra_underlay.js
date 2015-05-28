@@ -11,7 +11,7 @@ var VROUTER = 'virtual-router';
 var VIRTUALMACHINE = 'virtual-machine';
 var timeout;
 var expanded = true;
-
+var underlayLastInteracted;
 function underlayRenderer() {
     this.load = function(obj) {
         this.configTemplate = Handlebars.compile($("#visualization-template").html());
@@ -2085,6 +2085,7 @@ underlayView.prototype.updateWhereClause = function () {
 }
 
 underlayView.prototype.renderTracePath = function(options) {
+    underlayLastInteracted = new Date().getTime();
     var _this = this;
     var nodeType = $("#underlay_topology").data('nodeType');
     var nodeName = $("#underlay_topology").data('nodeName');
@@ -2221,6 +2222,7 @@ underlayView.prototype.renderTracePath = function(options) {
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowId,targetElement){
                             if(typeof underlayRenderer == 'object') {
+                                underlayLastInteracted = new Date().getTime();
                                 $("#vrouterflows div.selected-slick-row").each(function(idx,obj){
                                     $(obj).removeClass('selected-slick-row');
                                 });
@@ -2233,6 +2235,7 @@ underlayView.prototype.renderTracePath = function(options) {
                         iconClass: 'icon-contrail-reverse-flow',
                         onClick: function(rowId,targetElement){
                             if(typeof underlayRenderer == 'object') {
+                                underlayLastInteracted = new Date().getTime();
                                 $("#vrouterflows div.selected-slick-row").each(function(idx,obj){
                                     $(obj).removeClass('selected-slick-row');
                                 });
@@ -2260,10 +2263,10 @@ underlayView.prototype.renderTracePath = function(options) {
                     empty: {
                         text: 'No Flows to display'
                     }, 
-                    errorGettingData: {
+                    error: {
                         type: 'error',
                         iconClasses: 'icon-warning',
-                        text: 'Error in getting Data.'
+                        text: 'Error in fetching details.'
                     }
                 }
             },footer:false
@@ -2275,19 +2278,26 @@ underlayView.prototype.renderTracePath = function(options) {
             computeNodeInfo['ip'] = getValueByJsonPath(result,'VrouterAgent;self_ip_list;0',getValueByJsonPath(result,'ConfigData;virtual-router;virtual_router_ip_address'));
             computeNodeInfo['introspectPort'] = getValueByJsonPath(result,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
             $.ajax({
-                url:monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) + '&introspectPort=' + computeNodeInfo['introspectPort'],
+                url:monitorInfraUrls['VROUTER_FLOWS'] + '?ip=' + getIPOrHostName(computeNodeInfo) + '&introspectPort=' + computeNodeInfo['introspectPort']+'&startAt='+new Date().getTime(),
             }).done(function(response){
+                if($.deparam(this.url)['startAt'] != null && underlayLastInteracted > $.deparam(this.url)['startAt'])
+                    return;
+                $("#vrouterflows").find('.grid-header-icon-loading').hide();
                 if(response != null && response[0] != null && response[0]['FlowRecordsResp'] != null 
                         && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
                     $("#btnNextFlows").attr('disabled','disabled'); 
                 dataView.setData(monitorInfraComputeFlowsClass.parseFlowsData(response));
             }).fail(function(error){
+                if($.deparam(this.url)['startAt'] != null && underlayLastInteracted > $.deparam(this.url)['startAt'])
+                    return;
+                $("#vrouterflows").find('.grid-header-icon-loading').hide();
                 if(vrouterflowsGrid != null)
                     vrouterflowsGrid.showGridMessage('error');
             });
         }).fail(function(error){
             if(vrouterflowsGrid != null)
                 vrouterflowsGrid.showGridMessage('error');
+            $("#vrouterflows").find('.grid-header-icon-loading').hide();
         });
         $("#btnNextFlows").click(function(){
             if(flowKeyStack.length > 0 && flowKeyStack[flowKeyStack.length - 1] != null){
@@ -2337,6 +2347,7 @@ underlayView.prototype.renderTracePath = function(options) {
         dataTextField: "text",
         dataValueField: "value",
         change: function(e) {
+            underlayLastInteracted = new Date().getTime();
             if($('#vrouterRadiobtn').is(':checked') == true) {
                 $("#prevNextBtns").toggleClass('show hide');
                 var vRouterData = {name:e['val']};
@@ -2420,6 +2431,7 @@ underlayView.prototype.renderTracePath = function(options) {
     }
     $('input[name="flowtype"]').change(function(){
         var ajaxConfig = {},selItem = {};
+        underlayLastInteracted = new Date().getTime();
         if($('#vrouterRadiobtn').is(':checked') == true) {
             $("#prevNextBtns").toggleClass('show hide');
             if(computeNodeCombobox.length > 0) {
@@ -2451,7 +2463,8 @@ underlayView.prototype.renderTracePath = function(options) {
                 toTimeUTC: 'now',
                 queryId: randomUUID(),
                 async: true,
-                table:'FlowRecordTable'
+                table:'FlowRecordTable',
+                startAt: new Date().getTime(),
         };
         var vmData = instMap[name];
         var intfData = getValueByJsonPath(vmData,'more_attributes;interface_list',[]);
@@ -3372,7 +3385,7 @@ function doTraceFlowRequest (postData) {
     var progressBar = $("#network_topology").find('.topology-visualization-loading');
     $(progressBar).show();
     $(progressBar).css('margin-bottom',$(progressBar).parent().height());
-    
+    postData['startAt'] = new Date().getTime();
     $.ajax({
         url:'/api/tenant/networking/trace-flow',
         type:'POST',
@@ -3381,6 +3394,9 @@ function doTraceFlowRequest (postData) {
             data: postData
         }
     }).done(function(response) {
+        if(postData['startAt'] != null && underlayLastInteracted > postData['startAt'])
+            return;
+        $(progressBar).hide();
         if(typeof underlayRenderer === 'object') {
             underlayRenderer.getModel().setFlowPath(response);
         }
@@ -3397,6 +3413,9 @@ function doTraceFlowRequest (postData) {
         if(typeof response != 'string')
             $('html,body').animate({scrollTop:0}, 500);
     }).fail(function(error,status) {
+        if(postData['startAt'] != null && underlayLastInteracted > postData['startAt'])
+            return;
+        $(progressBar).hide();
         if(typeof underlayRenderer == 'object') {
             underlayRenderer.getView().resetTopology(false);
         }
@@ -3405,7 +3424,5 @@ function doTraceFlowRequest (postData) {
         } else if (status != 'success') {
             showInfoWindow('Error in fetching details','Error');
         } 
-    }).always(function(ajaxObj,status) {
-       $(progressBar).hide();
     });
 }
