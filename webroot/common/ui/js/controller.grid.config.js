@@ -113,7 +113,7 @@ define([
                         return '-';
                     }
                 },
-                minWidth: 150,
+                minWidth: 250,
                 searchable: true,
                 events: {
                     onClick: onClickGrid
@@ -126,7 +126,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return getMultiValueStr(dc['vn']);
                 },
-                minWidth: 150,
+                minWidth: 250,
                 searchable: true
             },
             {
@@ -310,7 +310,9 @@ define([
                     successCallback: function (response, contrailListModel) {
                         var statDataList = ctwp.parseInstanceStats(response[0], type),
                             dataItems = contrailListModel.getItems(),
+                            updatedDataItems = [],
                             statData;
+
                         for (var j = 0; j < statDataList.length; j++) {
                             statData = statDataList[j];
                             for (var i = 0; i < dataItems.length; i++) {
@@ -318,11 +320,12 @@ define([
                                 if (statData['name'] == dataItem['name']) {
                                     dataItem['inBytes60'] = ifNull(statData['inBytes'], 0);
                                     dataItem['outBytes60'] = ifNull(statData['outBytes'], 0);
+                                    updatedDataItems.push(dataItem);
                                     break;
                                 }
                             }
                         }
-                        contrailListModel.updateData(dataItems);
+                        contrailListModel.updateData(updatedDataItems);
                     }
                 },
                 {
@@ -351,7 +354,8 @@ define([
                     },
                     successCallback: function (response, contrailListModel) {
                         var interfaceMap = ctwp.instanceInterfaceDataParser(response),
-                            dataItems = contrailListModel.getItems();
+                            dataItems = contrailListModel.getItems(),
+                            updatedDataItems = [];
 
                         for (var i = 0; i < dataItems.length; i++) {
                             var dataItem = dataItems[i],
@@ -372,39 +376,40 @@ define([
                                 }
                             }
 
-                            throughput = inThroughput + outThroughput;
-                            dataItem['throughput'] = throughput;
-                            dataItem['size'] = throughput;
-                            uveVirtualMachineAgent['interface_details'] = interfaceDetailsList;
-                            dataItem['vn'] = ifNull(jsonPath(interfaceDetailsList, '$...virtual_network'), []);
+                            if(interfaceDetailsList.length > 0) {
+                                throughput = inThroughput + outThroughput;
+                                dataItem['throughput'] = throughput;
+                                dataItem['size'] = throughput;
+                                uveVirtualMachineAgent['interface_details'] = interfaceDetailsList;
+                                dataItem['vn'] = ifNull(jsonPath(interfaceDetailsList, '$...virtual_network'), []);
 
-                            if (dataItem['vn'] != false) {
-                                if (dataItem['vn'].length != 0) {
-                                    dataItem['vnFQN'] = dataItem['vn'][0];
+                                if (dataItem['vn'] != false) {
+                                    if (dataItem['vn'].length != 0) {
+                                        dataItem['vnFQN'] = dataItem['vn'][0];
+                                    }
+                                    dataItem['vn'] = tenantNetworkMonitorUtils.formatVN(dataItem['vn']);
                                 }
-                                dataItem['vn'] = tenantNetworkMonitorUtils.formatVN(dataItem['vn']);
-                            }
 
-                            for (var k = 0; k < interfaceDetailsList.length; k++) {
-                                if (interfaceDetailsList[k]['ip6_active'] == true) {
-                                    if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
-                                        dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
-                                    if (interfaceDetailsList[k]['ip6_address'] != null)
-                                        dataItem['ip'].push(interfaceDetailsList[k]['ip6_address']);
-                                } else {
-                                    if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
-                                        dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
+                                for (var k = 0; k < interfaceDetailsList.length; k++) {
+                                    if (interfaceDetailsList[k]['ip6_active'] == true) {
+                                        if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
+                                            dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
+                                        if (interfaceDetailsList[k]['ip6_address'] != null)
+                                            dataItem['ip'].push(interfaceDetailsList[k]['ip6_address']);
+                                    } else {
+                                        if (interfaceDetailsList[k]['ip_address'] != '0.0.0.0')
+                                            dataItem['ip'].push(interfaceDetailsList[k]['ip_address']);
+                                    }
                                 }
+                                /*
+                                 if (interfaceDetailsList.length > 0) {
+                                 dataItem['vmName'] = interfaceDetailsList[0]['vm_name'];
+                                 }
+                                 */
+                                updatedDataItems.push(dataItem);
                             }
-
-                            /*
-                            if (interfaceDetailsList.length > 0) {
-                                dataItem['vmName'] = interfaceDetailsList[0]['vm_name'];
-                            }
-                            */
                         }
-
-                        contrailListModel.updateData(dataItems);
+                        contrailListModel.updateData(updatedDataItems);
                     }
                 }
             ];

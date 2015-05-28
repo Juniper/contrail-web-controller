@@ -124,7 +124,7 @@ define([
                 ]
             },
             dimension: {
-                width: 370
+                width: 400
             }
         };
     };

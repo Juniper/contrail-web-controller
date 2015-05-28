@@ -109,13 +109,17 @@ define([
                     contrail.setCookie(cowc.COOKIE_PROJECT, projectSelectedValueData.name);
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
-                        function (networkSelectedValueData, networkBreadcrumbChanged) {
-                            self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
+                        function (networkSelectedValueData) {
+                            breadcrumbView.renderInstanceBreadcrumbDropdown(networkSelectedValueData, instanceUUID, function (networkSelectedValueData) {
+                                self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
+                            });
                         }, function (networkSelectedValueData, networkBreadcrumbChanged) {
+                            removeActiveBreadcrumb();
                             self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                         }
                     );
                 }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    removeActiveBreadcrumb();
                     self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });
