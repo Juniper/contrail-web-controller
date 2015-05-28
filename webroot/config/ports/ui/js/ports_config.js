@@ -44,7 +44,6 @@ function portsConfigObj() {
     var mac_address;
     var ip_address;
     var selectedParentVMIObject;
-    var getPortUUIDCallCount;
             
     //Method definitions
     this.load = load;
@@ -72,7 +71,6 @@ function portsConfigObj() {
     this.allfloatingIP = allfloatingIP;
     this.allNetworkData = allNetworkData;
     this.currentVNSubnetDetail = currentVNSubnetDetail;
-    this.getPortUUIDCallCount = getPortUUIDCallCount;
     this.mac_address = mac_address;
     this.ip_address = ip_address;
     this.selectedParentVMIObject = selectedParentVMIObject;
@@ -121,7 +119,6 @@ function groupBy( array , f )
 }
 
 function initComponents() {
-    getPortUUIDCallCount = 200;
     var deletePortsDropdownTemplate = contrail.getTemplate4Id('delete-port-action-template');
     var columnsToBeAddedDynamically = [];
     var displayOwnerNameColumn = {
@@ -1177,10 +1174,10 @@ function successHandlerForAllPortUUIDGet(allUUID, cbparam)
         var vmiUUIDObj = {};
         var sendUUIDArr = [];
         vmiUUIDObj.type = "virtual-machine-interface";
-        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 50);
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(50, allUUID.length);
         var param = {};
         param.allUUID = allUUID;
         param.cbparam = cbparam;
@@ -1207,10 +1204,10 @@ function successHandlerForgridPorts(result , param) {
         var vmiUUIDObj = {};
         var sendUUIDArr = [];
         vmiUUIDObj.type = "virtual-machine-interface";
-        sendUUIDArr = allUUID.slice(0, getPortUUIDCallCount);
+        sendUUIDArr = allUUID.slice(0, 200);
         vmiUUIDObj.uuidList = sendUUIDArr;
         //vmiUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(getPortUUIDCallCount, allUUID.length);
+        allUUID = allUUID.slice(200, allUUID.length);
         var param = {};
         param.allUUID = allUUID;
         param.cbparam = cbparam;
