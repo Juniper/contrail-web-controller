@@ -1018,7 +1018,12 @@ underlayView.prototype.createNode = function(node) {
                 chassis_type = 'switch';
                 break;
             case "virtual-machine":
-                labelNodeName = contrail.truncateText(nodeName,10);
+                if(node.hasOwnProperty('more_attributes') && node.more_attributes.hasOwnProperty('vm_name') &&
+                node.more_attributes.vm_name.trim() !== "" && node.more_attributes.vm_name.trim() !== "-") {
+                    labelNodeName = contrail.truncateText(node.more_attributes.vm_name.trim(),10);
+                } else {    
+                    labelNodeName = contrail.truncateText(nodeName,10);
+                }
                 refY = .9;
                 break;
         }
