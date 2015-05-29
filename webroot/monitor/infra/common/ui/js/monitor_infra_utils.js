@@ -2464,6 +2464,10 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
         $.each(items,function(i,d){
             if(moduleIds.indexOf(d['moduleId']) == -1){
                 moduleIds.push(d['moduleId']);
+                //Exclude getting contrail-tor-agent generators
+                if(d['moduleId'] == 'contrail-tor-agent') {
+                    return;
+                }
                 if(kfiltString != '')
                     kfiltString += ',';
                 kfiltString += '*:' + d['moduleId'] + '*';
