@@ -1104,15 +1104,26 @@ function getVirtualMachinesSummary (req, res, appData)
 
 function getVirtualInterfacesSummary (req, res, appData)
 {
-    var postData = req.body,
-        kfilt = postData['kfilt'],
-        cfilt = postData['cfilt'],
-        url = '/analytics/uves/virtual-machine-interface/*?kfilt=' + kfilt;
+    var reqPostData = req.body,
+        kfilt = reqPostData['kfilt'], cfilt = reqPostData['cfilt'],
+        url = '/analytics/uves/virtual-machine-interface',
+        opServerPostData = {};
+
+    if(kfilt != null && kfilt != '') {
+        opServerPostData['kfilt'] = kfilt.split(",");
+    }
 
     if(cfilt != null && cfilt != '') {
-        url += "&cfilt=" + cfilt;
+        opServerPostData['cfilt'] = cfilt.split(",");
     }
-    sendOpServerResponseByURL(url, req, res, appData);
+
+    opServer.api.post(url, opServerPostData, function(err, data) {
+        if (err || (null == data)) {
+            commonUtils.handleJSONResponse(err, res, null);
+        } else {
+            commonUtils.handleJSONResponse(null, res, data);
+        }
+    });
 }
 
 function vnLinkListed (srcVN, dstVN, dir, vnNodeList)
