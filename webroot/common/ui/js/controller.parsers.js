@@ -43,6 +43,7 @@ define([
         };
 
         this.statsOracleParseFn = function(response,type) {
+            response = contrail.handleIfNull(response, {});
             var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
                 var item = {};
                 var props = STATS_PROP[type];
