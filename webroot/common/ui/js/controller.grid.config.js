@@ -113,7 +113,7 @@ define([
                         return '-';
                     }
                 },
-                minWidth: 250,
+                minWidth: 230,
                 searchable: true,
                 events: {
                     onClick: onClickGrid
@@ -126,7 +126,7 @@ define([
                 formatter: function (r, c, v, cd, dc) {
                     return getMultiValueStr(dc['vn']);
                 },
-                minWidth: 250,
+                minWidth: 230,
                 searchable: true
             },
             {
