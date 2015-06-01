@@ -6,9 +6,26 @@
  * vRouter Interfaces tab
  */
 monitorInfraComputeInterfacesClass = (function() {
+
+    var paginationInfo = {};
+    /*
+     * var vRouterInterfacesDS = new ContrailDataView();
+     * function populatevRouterInterfacesDS(obj) {
+     *     var transportCfg = {
+     *         url:contrail.format(monitorInfraUrls['VROUTER_INTERFACES'], getIPOrHostName(obj),obj['introspectPort'])
+     *     }
+     *     getOutputByPagination(vRouterInterfacesDS, {
+     *         transportCfg: transportCfg,
+     *         paginationServer: 'introspect',
+     *         parseFn: self.parseInterfaceData
+     *     });
+     * }
+     */
     this.parseInterfaceData = function(response) {
         var retArray = [];
         var sandeshData = jsonPath(response,'$..ItfSandeshData');
+        paginationInfo = getIntrospectPaginationInfo(response);
+        updateGridTitleWithPagingInfo($('#gridComputeInterfaces'),paginationInfo);
         var sdata = [];
         if(sandeshData != null){
             $.each(sandeshData,function(idx,obj){
@@ -31,13 +48,14 @@ monitorInfraComputeInterfacesClass = (function() {
                     if(parts[1] != null) {dispVNName += " ("+parts[1]+")";}
                 } 
                 var dispVMName = obj['vm_uuid'] + ' / ' + obj['vm_name'];
-                if(obj['type'] == "vport"){
+                if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
                     if(obj.fip_list != null) {
                         var fipList = [];
                         fipList = ifNull(jsonPath(obj,"$..FloatingIpSandeshList")[0],[]);
                         obj['disp_fip_list'] = floatingIPCellTemplate(fipList);
                     }
                     retArray.push({uuid:obj['uuid'],name:obj['name'],label:obj['label'],active:obj['active'],
+                        type:obj['type'],
                         vn_name:obj['vn_name'],disp_vn_name:dispVNName,vm_uuid:obj['vm_uuid'],
                         vm_name:obj['vm_name'],disp_vm_name:dispVMName,ip_addr:obj['ip_addr'],
                         disp_fip_list:obj['disp_fip_list'],raw_json:rawJson});
@@ -46,17 +64,103 @@ monitorInfraComputeInterfacesClass = (function() {
         }
         return retArray;
     }
+
+    function getPaginationInfo() {
+        return paginationInfo;
+    }
+
+    function resetForm() {
+        $('#gridComputeInterfaces').parent().find("[name='itfMac']").val('');
+        $('#gridComputeInterfaces').parent().find("[name='itfNetwork']").val('');
+        $('#gridComputeInterfaces').parent().find("[name='itfName']").val('');
+        $('#gridComputeInterfaces').parent().find("[name='itfNetwork']").val('');
+        if($('#itfType').length > 0 && $('#itfType').data('contrailDropdown') != null) { 
+            $('#itfType').data('contrailDropdown').value('');
+        }
+    }
+
+    function constructvRouterIntfUrl(obj) {
+        var vRouterIntfURL = monitorInfraUrls['VROUTER_INTERFACES'];
+        var urlParams = {
+            ip : getIPOrHostName(obj),
+            introspectPort : obj['introspectPort'],
+            name:'',
+            type:'',
+            uuid:'',
+            vn:'',
+            mac:'',
+            ipv4_address:'',
+            ipv6_address:'',
+            parent_uuid:''
+        }
+        var itfMacFilter = $('#gridComputeInterfaces').parent().find("[name='itfMac']").val();
+        if(itfMacFilter != null) {
+            urlParams['mac'] = itfMacFilter.trim();
+        }
+        var itfNetworkFilter = $('#gridComputeInterfaces').parent().find("[name='itfNetwork']").val();
+        if(itfNetworkFilter != null) {
+            urlParams['vn'] = itfNetworkFilter.trim();
+        }
+        var itfNameFilter = $('#gridComputeInterfaces').parent().find("[name='itfName']").val();
+        if(itfNameFilter != null) {
+            urlParams['name'] = itfNameFilter.trim();
+        }
+        var itfTypeFilter = $('#gridComputeInterfaces').parent().find("[name='itfType']").val();
+        if(itfTypeFilter != null) {
+            if(itfTypeFilter == 'any') {
+                urlParams['type'] = '';
+            } else {
+                urlParams['type'] = itfTypeFilter.trim();
+            }
+        }
+
+        var itfIPFilter = $('#gridComputeInterfaces').parent().find("[name='itfIP']").val();
+        if(isIPv4(itfIPFilter)) {
+            urlParams['ipv4_address'] = itfIPFilter.trim();
+        }
+        if(isIPv6(itfIPFilter)) {
+            urlParams['ipv6_address'] = itfIPFilter.trim();
+        }
+        return {
+            url: vRouterIntfURL,
+            params:urlParams
+        }
+    }
     
     this.populateInterfaceTab = function (obj) {
         //Push only tab & node parameter in URL
         layoutHandler.setURLHashParams({tab:'interfaces',node:obj['name']},{triggerHashChange:false});
         
         if (!isGridInitialized('#gridComputeInterfaces')) {
+            $('#itfType').contrailDropdown({
+                data: [{
+                    id:'any',
+                    value:'any',
+                    text:'Any'
+                },{
+                    id:'vmi',
+                    value:'vmi',
+                    text:'Virtual Machine Interface'
+                },{
+                    id:'physical',
+                    text:'Physical'
+                },{
+                    id:'logical',
+                    text:'Logical'
+                }]
+            });
+            $('#itfType').select2('val','any');
             $('#gridComputeInterfaces').contrailGrid({
                 header : {
                     title : {
                         text : 'Interfaces'
-                    }
+                    },
+                    customControls: [
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                                    '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>',
+                            ]
                 },
                 columnHeader: {
                    columns:[
@@ -87,6 +191,12 @@ monitorInfraComputeInterfacesClass = (function() {
                                    status = 'Up';
                                return status;
                            }
+                       },
+                       {
+                           field:"type",
+                           name:"Type",
+                           cssClass: 'cell-hyperlink-blue',
+                           minWidth:120
                        },
                        {
                            field:"disp_vn_name",
@@ -162,10 +272,17 @@ monitorInfraComputeInterfacesClass = (function() {
                     dataSource : {
                         remote: {
                             ajaxConfig: {
-                                url: contrail.format(monitorInfraUrls['VROUTER_INTERFACES'], getIPOrHostName(obj),obj['introspectPort']),
+                                url: monitorInfraUrls['VROUTER_INTERFACES']  + '?' + $.param({
+                                      ip: getIPOrHostName(obj),
+                                      introspectPort: obj['introspectPort']}),
                                 type: 'GET'
                             },
                             dataParser: self.parseInterfaceData
+                        },
+                        events: {
+                            onDataBoundCB: function() {
+                                intfGrid.removeGridMessage('loading');
+                            }
                         }
                     },
                     statusMessages: {
@@ -186,6 +303,15 @@ monitorInfraComputeInterfacesClass = (function() {
             })
             intfGrid = $('#gridComputeInterfaces').data('contrailGrid');
             intfGrid.showGridMessage('loading');
+            bindGridPrevNextListeners({
+                gridSel: $('#gridComputeInterfaces'),
+                resetFn: resetForm,
+                paginationInfoFn:getPaginationInfo,
+                obj: obj,
+                getUrlFn: function() {
+                    return constructvRouterIntfUrl(obj);
+                }
+            });
             //applyGridDefHandlers(intfGrid, {noMsg:'No interfaces to display'});
         } else {
             reloadGrid(intfGrid);

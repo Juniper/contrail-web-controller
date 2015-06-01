@@ -5,6 +5,7 @@
 var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     async = require('async'),
+    qs = require('querystring'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
@@ -423,7 +424,13 @@ function getComputeNodeVN (req, res, appData)
     var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRouetrIntrospectPort(introspectPort));
-    commonUtils.createReqObj(dataObjArr, '/Snh_VnListReq?name=');
+    if(queryData['query'] != null && queryData['query']['x'] != null) {
+        commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' + queryData['query']['x']);
+    } else if(queryData['query'] != null && queryData['query']['vnNameFilter'] != null) {
+        commonUtils.createReqObj(dataObjArr, '/Snh_VnListReq?name=' + queryData['query']['vnNameFilter']);
+    } else {
+        commonUtils.createReqObj(dataObjArr, '/Snh_VnListReq?name=');
+    }
 
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
@@ -440,32 +447,65 @@ function getComputeNodeInterface (req, res, appData)
 {
     var queryData = urlMod.parse(req.url, true);
     var url = "";
-    if (queryData.query['ip']) {
-        url = '/Snh_ItfReq?name=' + queryData.query['ip'];
-    } else {
-        url = '/Snh_ItfReq?name=';
+    var urlParamObj = {};
+    urlParamObj['name'] = queryData.query['name'];
+    urlParamObj['type'] = queryData.query['type'];
+    urlParamObj['uuid'] = queryData.query['uuid'];
+    urlParamObj['vn'] = queryData.query['vn'];
+    urlParamObj['mac'] = queryData.query['mac'];
+    urlParamObj['ipv4_address'] = queryData.query['ipv4_address'];
+    urlParamObj['ipv6_address'] = queryData.query['ipv6_address'];
+    urlParamObj['parent_uuid'] = queryData.query['parent_uuid'];
+    if(queryData.query['x']) {
+        urlParamObj['x'] = queryData.query['x'];
     }
-    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
+    if(urlParamObj['x'] == null) {
+        url = '/Snh_ItfReq?' + qs.stringify(urlParamObj);
+    } else {
+        url = '/Snh_PageReq?x=' + urlParamObj['x'];
+    }
+    urlParamObj['url'] = url;
+    if (queryData.query['ip']) {
+        urlParamObj['ip'] = queryData.query['ip'];
+    } 
+    if (queryData.query['introspectPort']) {
+        urlParamObj['introspectPort'] = queryData.query['introspectPort'];
+    } 
+    console.log("Getting urlParamObj as:", urlParamObj);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_INTERFACE,
-                                             url, 0, 1, 0, -1, true, objData);
+                                             url, 0, 1, 0, -1, true, urlParamObj);
 }
 
 function getComputeNodeAcl (req, res, appData)
 {
     var queryData = urlMod.parse(req.url, true);
     var url = "";
-    if (queryData.query['ip']) {
-        url = '/Snh_AclReq?uuid=' + queryData.query['ip'];
-    } else {
-        url = '/Snh_AclReq?uuid=';
+    var urlParamObj = {};
+    if(queryData.query['uuid']) {
+        urlParamObj['uuid'] = queryData.query['uuid'];
+    } 
+    if(queryData.query['x']) {
+        urlParamObj['x'] = queryData.query['x'];
     }
-    var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
+    if (urlParamObj['x'] == null) {
+        url = '/Snh_AclReq?' + qs.stringify(urlParamObj);
+    } else {
+        url = '/Snh_PageReq?x=' + urlParamObj['x'];
+    }
+    urlParamObj['url'] = url;
+    if (queryData.query['ip']) {
+        urlParamObj['ip'] = queryData.query['ip'];
+    } 
+    if (queryData.query['introspectPort']) {
+        urlParamObj['introspectPort'] = queryData.query['introspectPort'];
+    } 
+    // var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_ACL,
-                                             url, 0, 1, 0, -1, true, objData);
+                                             url, 0, 1, 0, -1, true, urlParamObj);
 }
 
 function getComputeNodeAclFlows (req, res, appData)
@@ -523,9 +563,15 @@ function getvRouterUCastRoutes (req, res) {
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRouetrIntrospectPort(introspectPort));
 
+    //If vrfIndex is passed
     if (null != ucIndex) {
-        commonUtils.createReqObj(dataObjArr, '/Snh_Inet4UcRouteReq?vrf_index=' +
-                                 ucIndex);
+        if(req.param('x') == null) {
+            commonUtils.createReqObj(dataObjArr, '/Snh_Inet4UcRouteReq?vrf_index=' +
+                                    ucIndex);
+         } else  {
+            commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' +
+                                    req.param('x'));
+         }
         sendvRouterRoutes(req, res, dataObjArr, vRouterRestAPI);
         return;
     }
@@ -566,8 +612,13 @@ function getvRouterL2Routes (req, res)
                                      infraCmn.getvRouetrIntrospectPort(introspectPort));
 
     if (null != vrfIndex) {
-        commonUtils.createReqObj(dataObjArr, '/Snh_Layer2RouteReq?x=' +
+        if(req.param('x') == null) {
+            commonUtils.createReqObj(dataObjArr, '/Snh_Layer2RouteReq?x=' +
                                  vrfIndex);
+        } else {
+            commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' +
+                                    req.param('x'));
+        }
         sendvRouterRoutes(req, res, dataObjArr, vRouterRestAPI);
         return;
     }
@@ -606,8 +657,13 @@ function getvRouterUCast6Routes (req, res) {
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRouetrIntrospectPort(introspectPort));
     if (null != uc6index) {
-        commonUtils.createReqObj(dataObjArr, '/Snh_Inet6UcRouteReq?vrf_index=' +
-                                 uc6index);
+        if(req.param('x') == null) {
+            commonUtils.createReqObj(dataObjArr, '/Snh_Inet6UcRouteReq?vrf_index=' +
+                                    uc6index);
+        } else {
+            commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' +
+                                    req.param('x'));
+        }
         sendvRouterRoutes(req, res, dataObjArr, vRouterRestAPI);
         return;
     }
@@ -661,8 +717,13 @@ function getvRouterMCastRoutes (req, res) {
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRouetrIntrospectPort(introspectPort));
     if (null != vrfIndex) {
-        commonUtils.createReqObj(dataObjArr, '/Snh_Inet4McRouteReq?vrf_index=' +
-                                 vrfIndex);
+        if(req.param('x') == null) {
+            commonUtils.createReqObj(dataObjArr, '/Snh_Inet4McRouteReq?vrf_index=' +
+                                    vrfIndex);
+        } else {
+            commonUtils.createReqObj(dataObjArr, '/Snh_PageReq?x=' +
+                                    req.param('x'));
+        }
         sendvRouterRoutes(req, res, dataObjArr, vRouterRestAPI);
         return;
     }
@@ -700,7 +761,8 @@ function getvRouterVrfList (req, res)
     var resultArr = [];
 
     urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
-        '/Snh_VrfListReq?name=';
+        // '/Snh_VrfListReq?name=';
+        '/Snh_PageReq?x=begin:-1,end:-1,table:db.vrf.0&name=';
     async.map(urlLists,
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
               function(err, results) {
