@@ -275,6 +275,12 @@
         <callback>nwMonApi.getVirtualNetworksDetails</callback>
     </item>
     <item>
+        <url>/api/tenant/networking/virtual-networks/list</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworksList</callback>
+    </item>
+    <item>
         <url>/api/tenant/networking/virtual-machines/details</url>
         <method>get</method>
         <feature>monitoring</feature>
