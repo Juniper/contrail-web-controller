@@ -2806,6 +2806,21 @@ function getVirtualNetworksDetails (req, res, appData)
     });
 }
 
+//Returns the list of virtual networks for calculating the 
+//vn count in Infra Dashboard
+function getVirtualNetworksList (req, res, appData)
+{
+    var reqPostData = req.body;
+    var url = '/analytics/uves/virtual-networks?cfilt=UveVirtualNetworkAgent';
+    opApiServer.apiGet(url, appData, function(error, data) {
+        if (error) {
+            commonUtils.handleJSONResponse(error, res, null);
+            return;
+         }
+         commonUtils.handleJSONResponse(error, res, data);
+    });
+}
+
 function getInstanceDetails (req, res, appData)
 {
     var getVMCB = instanceDetailsMap[req.session.loggedInOrchestrationMode];
@@ -3109,3 +3124,4 @@ exports.getStats = getStats;
 exports.getvnStatsPerVrouter = getvnStatsPerVrouter;
 exports.getAllVirtualMachines = getAllVirtualMachines;
 exports.getVirtualMachinesFromConfig = getVirtualMachinesFromConfig;
+exports.getVirtualNetworksList = getVirtualNetworksList;

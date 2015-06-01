@@ -22,6 +22,7 @@ function addTabs() {
      * vRouters Tab
      */
     vRouterDashboardTab = (function() {
+        var vnCntFetched = false,vnCnt;
         var ViewModel = function() {
             var self = this;
             self.data = ko.observableArray([]);
@@ -53,6 +54,27 @@ function addTabs() {
         * Takes vRouters data(array) as input and creates/updates chart
         */
         var updateView = function(result) {
+            if(vnCntFetched == false) {
+                vnCntFetched = true;
+                //Issue a call to get Network count
+                $.ajax({
+                    url:'/api/tenant/networking/virtual-networks/list',
+                    type:'POST',
+                    data:{}
+                }).done(function(response) {
+                    $.each(response,function(idx,obj) {
+                        if((obj['name'].indexOf(':default-project:') == -1) && obj['name'] != '__UNKNOWN__') {
+                            if($.isNumeric(vnCnt)) {
+                                vnCnt++;
+                            } else {
+                                vnCnt = 1;
+                            }
+                        }
+                    });
+                    $('#infobox-vns .infobox-data-number').text(vnCnt);
+                });
+            }
+
             var filteredNodes = result['data'];
             var source = result['cfg']['source'];
             if (source == 'generator'){
@@ -104,7 +126,7 @@ function addTabs() {
         this.updatevRouterInfoBoxes = function(){
             var data = viewModel.data();
             var instBuckets,vnBuckets,intfBuckets;
-            var vnCount=0,intfCnt=0,instCnt=0,vns={};
+            var intfCnt=0,instCnt=0;
             var vRouterCF = crossfilter(data);
             $.each(data,function(idx,obj) {
                 if(obj['vRouterType'] != 'tor-agent') {
@@ -114,14 +136,6 @@ function addTabs() {
                 if(obj['vRouterType'] != 'tor-agent' && obj['vRouterType'] != 'tor-service-node') {
                     instCnt += obj['instCnt'];
                 }
-                $.each(obj['vns'],function(idx,val) {
-                    if(vns[val] == null)
-                        vns[val] = true;
-                });
-            });
-            var vnCnt = 0;
-            $.each(vns,function(idx,val) {
-                vnCnt++;
             });
             vnBuckets = bucketizeCFData(vRouterCF,function(d) { return d.vnCnt});
             instBuckets = bucketizeCFData(vRouterCF,function(d) { return d.instCnt});
