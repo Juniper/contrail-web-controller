@@ -2814,6 +2814,7 @@ function getInstanceDetails (req, res, appData)
             commonUtils.handleJSONResponse(err, res, instDetails);
             return;
         });
+        return;
     }
     if(req.session.userRole.indexOf(global.STR_ROLE_ADMIN) > -1) {
         getInstanceDetailsForAdmin(req,appData,function(err, instDetails) {
