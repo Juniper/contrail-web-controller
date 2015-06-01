@@ -441,8 +441,7 @@ var infraMonitorUtils = {
             obj['instCnt'] = getValueByJsonPath(dValue,'VrouterAgent;virtual_machine_list',[]).length;
             obj['intfCnt'] = getValueByJsonPath(dValue,'VrouterAgent;total_interface_count',0);
             
-            obj['vns'] = getValueByJsonPath(dValue,'VrouterAgent;connected_networks',[]);
-            obj['vnCnt'] = obj['vns'].length;
+            obj['vnCnt'] = getValueByJsonPath(dValue,'VrouterAgent;vn_count',0);
             obj['version'] = ifNullOrEmpty(getNodeVersion(getValueByJsonPath(dValue,'VrouterAgent;build_info')),noDataStr);
             //System CPU
             //obj['cpu'] = parseFloat(jsonPath(dValue,'$..CpuLoadInfo.CpuLoadAvg.one_min_avg')[0]);
