@@ -601,7 +601,7 @@ underlayView.prototype.formElementTree = function(prop, propObj, elTree, elMap, 
         {} === prop || false === prop)
         return;
     elTree[prop] = {};
-    var nodeElement = jsonPath(elMap, '$..nodes["' + prop + '"]');
+    var nodeElement = jsonPath(elMap, '$..nodes[' + prop + ']');
 
     if(false !== nodeElement && null !== nodeElement && typeof nodeElement === "object" &&
         nodeElement.length == 1) {
@@ -1336,7 +1336,7 @@ underlayView.prototype.addHighlightToNodesAndLinks = function(nodes, els) {
         for(var i=0; i<nodes.length; i++) {
             var node = nodes[i];
             nodeNames.push(node.name);
-            var node_model_id = jsonPath(elMap, '$.nodes["' + node.name + '"]');
+            var node_model_id = jsonPath(elMap, '$.nodes[' + node.name + ']');
             if(false !== node_model_id && typeof node_model_id === "object" &&
                 node_model_id.length === 1) {
                 node_model_id = node_model_id[0];
@@ -2300,7 +2300,11 @@ underlayView.prototype.renderTracePath = function(options) {
                 if(response != null && response[0] != null && response[0]['FlowRecordsResp'] != null 
                         && response[0]['FlowRecordsResp']['flow_key'] == '0:0:0:0:0.0.0.0:0.0.0.0')
                     $("#btnNextFlows").attr('disabled','disabled'); 
-                dataView.setData(monitorInfraComputeFlowsClass.parseFlowsData(response));
+                var parsedData = monitorInfraComputeFlowsClass.parseFlowsData(response);
+                dataView.setData(parsedData);
+                if(parsedData.length == 0 && vrouterflowsGrid != null) {
+                    vrouterflowsGrid.showGridMessage('empty');
+                }
             }).fail(function(error){
                 if($.deparam(this.url)['startAt'] != null && underlayLastInteracted > $.deparam(this.url)['startAt'])
                     return;
