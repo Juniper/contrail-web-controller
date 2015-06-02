@@ -1917,6 +1917,11 @@ function failureHandlerForAllUUIDGet(result){
     gridVN.showGridMessage('errorGettingData');
 }
 
+function failureHandlerForAppendShared(result){
+    $("#btnCreateVN").removeClass('disabled-link');
+    gridVN.showGridMessage('errorGettingData');
+}
+
 function successHandlerForGridVNLoop(result, param){
     var allUUID = param.allUUID;
     var cbparam = param.cbparam;
@@ -1964,6 +1969,11 @@ function successHandlerForAppendShared(result, param){
     }
     if(uniqueNetwork.length > 0){
         successHandlerForGridVNRow(uniqueNetwork);
+    } else {
+        if (vnData.length <= 0) {
+            gridVN.showGridMessage("empty");
+            return;
+        }
     }
     gridVN.removeGridMessage();
 }
