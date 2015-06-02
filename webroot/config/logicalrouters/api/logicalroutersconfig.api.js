@@ -47,43 +47,29 @@ if (!module.parent)
 /**
  * @listLogicalRouters
  * public function
- * 1. URL /api/tenants/config/lr
+ * 1. URL /api/tenants/config/list-logical-routers
  * 2. Gets list of Logical Routers from config api server
  * 3. Needs tenant / project  id
- * 4. Calls listLogicalRouterCb that process data from config
- *    api server and sends back the http response.
  */
-function listLogicalRouter(request, response, appData)
+function listLogicalRouters (request, response, appData)
 {
     var tenantId = null;
+    var projUUID = null;
     var requestParams = url.parse(request.url, true);
     var logicalRouterListURL = '/logical-routers';
 
     if (requestParams.query && requestParams.query.tenant_id) {
         tenantId = requestParams.query.tenant_id;
         logicalRouterListURL += '?parent_type=project&parent_fq_name_str=' + tenantId.toString();
+    } else if (requestParams.query && requestParams.query.projUUID) {
+        projUUID = requestParams.query.projUUID;
+        logicalRouterListURL += '?parent_id=' + projUUID.toString();
     }
 
     configApiServer.apiGet(logicalRouterListURL, appData,
         function (error, data) {
-            listLogicalRouterCb(error, data, response)
+            commonUtils.handleJSONResponse(error, response, data);
         });
-}
-
-/**
- * @listLogicalRouterCb
- * private function
- * 1. Callback for listLogicalRouter
- * 2. Reads the response of per project Logical Routers from config api server
- *    and sends it back to the client.
- */
-function listLogicalRouterCb(error, lrListData, appData)
-{
-
-    if (error) {
-        commonUtils.handleJSONResponse(error, appData, null);
-        return;
-    }
 }
 
 function vmiFixedIP(error, instanceIPData, vmiData, appData, callback)
@@ -927,7 +913,7 @@ function deleteLogicalRouterCb(error, logicalRouterGetURL, datafromAPI, request,
 
 }
 
-exports.listLogicalRouter = listLogicalRouter;
+exports.listLogicalRouters = listLogicalRouters;
 exports.readLogicalRouter = readLogicalRouter;
 exports.createLogicalRouter = createLogicalRouter;
 exports.updateLogicalRouter = updateLogicalRouter;
