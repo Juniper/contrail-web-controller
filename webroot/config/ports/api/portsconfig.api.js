@@ -2707,47 +2707,10 @@ function vmiDelLogicalRout (error, results, vmiData, appData, callback)
 }
 
 /**
- * @listVirtualMachinesCb
- * private function
- * 1. Callback for listVirtualMachines
- * 2. Reads the response of vm list from config api server
- *    and sends it back to the client.
- */
-function listVirtualMachinesCb (error, vmListData, response, appData)
-{
-    var dataObjArr     = [];
-    if ("virtual-machines" in vmListData && vmListData["virtual-machines"].length > 0) {
-        for (var i = 0; i < vmListData["virtual-machines"].length; i++) {
-            var vmData = vmListData["virtual-machines"][i];
-            getUrl = '/virtual-machine/' + vmData['uuid'];
-            commonUtils.createReqObj(dataObjArr, getUrl,
-                global.HTTP_REQUEST_GET, null, null, null,
-                appData);
-        }
-        async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-                function(error, results) {
-                    if (error) {
-                        commonUtils.handleJSONResponse(error, response, null);
-                        return;
-                    } else {
-                        commonUtils.handleJSONResponse(error, response, results);
-                        return;
-                    }
-                });
-    } else {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-}
-
-/**
  * @listVirtualMachines
  * public function
  * 1. URL /api/tenants/config/virtual-machines
  * 2. Gets list of virtual machines from config api server
- * 3. Calls listVirtualMachinesCb that process data from config
- *    api server and sends back the http response.
  */
 function listVirtualMachines (request, response, appData)
 {
@@ -2755,12 +2718,7 @@ function listVirtualMachines (request, response, appData)
 
     configApiServer.apiGet(vmListURL, appData,
         function(error, data) {
-            if (error) {
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            } else {
-                listVirtualMachinesCb(error, data, response, appData)
-            }
+            commonUtils.handleJSONResponse(error, response, data);
         });
 }
 
