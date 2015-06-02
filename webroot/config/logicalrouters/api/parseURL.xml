@@ -14,6 +14,12 @@
     <!-- 1. List Security Group -
     -->
     <item>
+        <url>/api/tenants/config/list-logical-routers</url>
+        <method>get</method>
+        <feature>logicalroutersconfig</feature>
+        <callback>logicalroutersconfigapi.listLogicalRouters</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/logicalrouter</url>
         <method>post</method>
         <feature>logicalroutersconfig</feature>

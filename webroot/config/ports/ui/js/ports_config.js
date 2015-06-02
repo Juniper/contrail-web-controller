@@ -1761,7 +1761,7 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
-        url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
+        url:"/api/tenants/config/list-logical-routers?projUUID="+selectedProjectVal,
         timeout:300000,
         type:"GET"
     });
@@ -1985,11 +1985,14 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
                 computeUUID.push({"text":text,"value":JSON.stringify(valArr)});
             }
             
-            if(results[4][0] != null && results[4][0] != "" && results[4][0]["data"] && results[4][0]["data"].length > 0) {
-                var logicalRouter = results[4][0]["data"];
-                for(var lrInc = 0; lrInc < logicalRouter.length; lrInc++){
+            if(results[4][0] != null && results[4][0] != "" &&
+               results[4][0]["logical-routers"] &&
+               results[4][0]["logical-routers"].length > 0) {
+                var logicalRouters = results[4][0]['logical-routers'];
+                var logicalRoutersCnt = logicalRouters.length;
+                for(var lrInc = 0; lrInc < logicalRoutersCnt; lrInc++){
                     // take it from logical router
-                    var localLogicalRout = logicalRouter[lrInc]["logical-router"]
+                    var localLogicalRout = logicalRouters[lrInc];
                     var text = localLogicalRout["fq_name"][2] + " (" + localLogicalRout["uuid"] + ")";
                     var valArr = [];
                     valArr.push({"to":localLogicalRout["fq_name"], "uuid":localLogicalRout["uuid"]});
