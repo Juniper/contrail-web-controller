@@ -197,7 +197,8 @@ monitorInfraComputeNetworksClass = (function() {
                             text: 'Error in getting Data.'
                         }
                     }
-                }
+                },
+                footer : false
             });
             vnGrid = $('#gridComputeVN').data('contrailGrid');
             vnGrid.showGridMessage('loading');

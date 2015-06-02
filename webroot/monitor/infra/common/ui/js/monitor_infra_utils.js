@@ -997,8 +997,10 @@ var infraMonitorUtils = {
                 }
             }
             var cbMsgType = $('#msgType').data('contrailCombobox');
-            cbMsgType.setData(msgTypeStatsList);
-            cbMsgType.value('');
+            if(cbMsgType != null) {
+                cbMsgType.setData(msgTypeStatsList);
+                cbMsgType.value('');
+            }
         }
        
         function fetchLastLogtimeAndCallLoadLogs(timerId,nodeType){
@@ -2853,7 +2855,9 @@ function updateGridTitleWithPagingInfo(gridSel,pagingInfo) {
         var totalCnt = parseInt(extractedData[3]);
         currentTitle += contrail.format(' ({0} - {1} of {2})',startCnt+1,endCnt+1,totalCnt);
     } else {
-        currentTitle += ' (' + pagingInfo['entries'] + ')';
+        if(pagingInfo['entries'] != null) {
+            currentTitle += ' (' + pagingInfo['entries'] + ')';
+        }
     }
     gridHeaderTextElem.text(currentTitle);
 }
