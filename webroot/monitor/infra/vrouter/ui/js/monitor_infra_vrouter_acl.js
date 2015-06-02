@@ -294,7 +294,8 @@ monitorInfraComputeACLClass = (function() {
                             text: 'Error in getting Data.'
                         }
                     }
-                }
+                },
+                footer : false
             })
             aclGrid = $('#gridComputeACL').data('contrailGrid');
             aclGrid.showGridMessage('loading');

@@ -486,13 +486,7 @@ monitorInfraComputeRoutesClass = (function() {
                             }
                         }
                     },
-                    footer: {
-                        pager : {
-                            options : {
-                                pageSize : 100,
-                            }
-                        }
-                    }
+                    footer:false
                 });
                 bindGridPrevNextListeners({
                     gridSel: $('#gridvRouterUnicastRoutes'),
@@ -535,7 +529,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  searchFn:function(d){
                                      return d['prefix'];
                                  },
-                                 minWidth:5
+                                 minWidth:150
                              },
                              {
                                  field:"next_hop",
@@ -544,7 +538,7 @@ monitorInfraComputeRoutesClass = (function() {
                                  formatter:function(r,c,v,cd,dc){
                                      return bgpMonitor.getNextHopType(dc);
                                  },
-                                 minWidth:5
+                                 minWidth:100
                              },
                              {
                                  field:"label",
@@ -596,7 +590,8 @@ monitorInfraComputeRoutesClass = (function() {
                                 text: 'Error in getting Data.'
                             }
                         }
-                    }
+                    },
+                    footer:false
                 });
                 bindGridPrevNextListeners({
                     gridSel: $('#gridvRouterMulticastRoutes'),
@@ -700,7 +695,8 @@ monitorInfraComputeRoutesClass = (function() {
                                 text: 'Error in getting Data.'
                             }
                         }
-                    }
+                    },
+                    footer:false
                 });
                 bindGridPrevNextListeners({
                     gridSel: $('#gridvRouterL2Routes'),
@@ -808,7 +804,8 @@ monitorInfraComputeRoutesClass = (function() {
                                 text: 'Error in getting Data.'
                             }
                         }
-                    }
+                    },
+                    footer:false
                 });
                 routesGrid = $('#gridvRouterIpv6Routes').data('contrailGrid');
                 routesGrid.showGridMessage('loading');
