@@ -216,8 +216,18 @@ monitorInfraComputeDetailsClass = (function() {
                 /*End of Selenium Testing*/
                 var ipList = getVrouterIpAddressList(computeNodeData);
                 var ipDeferredObj = $.Deferred();
-                var introspectPort = getValueByJsonPath(computeNodeData,'VrouterAgent;sandesh_http_port','8085');
-                getReachableIp(ipList,introspectPort,ipDeferredObj);
+                //In case of tor-agent, if sandesh_http_port is not available in UVE, disable introspect link
+                var introspectPort;
+                if(parsedData['vRouterType'] == 'tor-agent') {
+                    introspectPort = getValueByJsonPath(computeNodeData,'VrouterAgent;sandesh_http_port',null);
+                } else {
+                    introspectPort = getValueByJsonPath(computeNodeData,'VrouterAgent;sandesh_http_port','8085');
+                }
+                if(introspectPort != null) {
+                    getReachableIp(ipList,introspectPort,ipDeferredObj);
+                } else {
+                    ipDeferredObj.resolve(null);
+                }
                 ipDeferredObj.done(function(nodeIp){
                     if(nodeIp != null && nodeIp != noDataStr) {  
                         $('#linkIntrospect').unbind('click');
