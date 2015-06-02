@@ -550,6 +550,7 @@ function createFloatingIPDataObject (response,portConfig, fqname)
  */
 function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRouterData, appData, callback)
 {
+    var instIpPostDataObjArr = [];
     if (error) {
         callback(error, null);
         return;
@@ -570,7 +571,7 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
         for (var i = 0; i < fixedIpPoolRefLen; i++) {
             var responceData = {};
             responceData = createFixedIPDataObject(responceData,portConfig,fixedIpPoolRef[i]);
-            commonUtils.createReqObj(DataObjectArr, instanceCreateURL,
+            commonUtils.createReqObj(instIpPostDataObjArr, instanceCreateURL,
                                      global.HTTP_REQUEST_POST,
                                      commonUtils.cloneObj(responceData), null, null,
                                      appData);
@@ -656,7 +657,7 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
         //body.netID = portConfig["virtual-machine-interface"]["virtual_network_refs"][0]["uuid"];
         body.vmUUID = orginalPortData["virtual-machine-interface"]["virtual_machine_refs"][0]["uuid"];
         attachVMICompute(req, body, function (novaError, results){
-            updateAvailableDataforCreate(DataObjectArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, function(error, result){
+            updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, function(error, result){
                 if(novaError != null){
                     if(error != null){
                         error.messages += "<br>" +novaError.messages;
@@ -668,14 +669,15 @@ function portSendResponse (error, req, portConfig, orginalPortData, apiLogicalRo
             });
         });
     } else {
-        updateAvailableDataforCreate(DataObjectArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, function(error, result){
+        updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, function(error, result){
             callback(error, result);
         });
     }
 }
 
-function updateAvailableDataforCreate(DataObjectArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, callback)
+function updateAvailableDataforCreate(DataObjectArr, instIpPostDataObjArr, portConfig, staticIpPoolRefLen, fixedIpPoolRefLen, appData, callback)
 {
+    async.map(instIpPostDataObjArr, createInstIP, function(err, result) {
     if (DataObjectArr.length === 0) {
         callback(null, portConfig)
         return;
@@ -695,8 +697,10 @@ function updateAvailableDataforCreate(DataObjectArr, portConfig, staticIpPoolRef
                 portConfig["virtual-machine-interface"]["interface_route_table_refs"] = [];
                 for (var i = fixedIpPoolRefLen; i < (fixedIpPoolRefLen+staticIpPoolRefLen); i++) {
                     portConfig["virtual-machine-interface"]["interface_route_table_refs"][i-fixedIpPoolRefLen] = {}
-                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i-fixedIpPoolRefLen]["to"] = results[i]["interface-route-table"]["fq_name"];
-                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i-fixedIpPoolRefLen]["uuid"] = results[i]["interface-route-table"]["uuid"];
+                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i-fixedIpPoolRefLen]["to"]
+                    = results[i-fixedIpPoolRefLen]["interface-route-table"]["fq_name"];
+                    portConfig["virtual-machine-interface"]["interface_route_table_refs"][i-fixedIpPoolRefLen]["uuid"]
+                    = results[i-fixedIpPoolRefLen]["interface-route-table"]["uuid"];
                 }
 
                 var portPutURL = '/virtual-machine-interface/'+portConfig['virtual-machine-interface']['uuid'];
@@ -717,6 +721,7 @@ function updateAvailableDataforCreate(DataObjectArr, portConfig, staticIpPoolRef
                 }
             }
     });
+  });
 
 }
 
@@ -1029,6 +1034,31 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
         callback(error, result)
     });
 }
+
+function createInstIP (dataObj, callback)
+{
+    var reqUrl = dataObj['reqUrl'];
+    var data = dataObj['data'];
+    var appData = dataObj['appData'];
+    configApiServer.apiPost(reqUrl, data, appData, function(err, result) {
+        if (null != err) {
+            if ('v6' != data['instance-ip']['instance_ip_family']) {
+                data['instance-ip']['instance_ip_family'] = 'v6';
+                configApiServer.apiPost(reqUrl, data, appData,
+                                        function(err, result) {
+                    callback(err, result);
+                    return;
+                });
+            } else {
+                callback(err, result);
+                return;
+            }
+        } else {
+            callback(err, result);
+        }
+    });
+}
+
 
 /**
  * @processDataObjects
