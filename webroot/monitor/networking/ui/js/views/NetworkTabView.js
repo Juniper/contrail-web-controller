@@ -33,6 +33,7 @@ define([
                                 view: "TabsView",
                                 viewConfig: {
                                     theme: 'classic',
+                                    active: 1,
                                     activate: function (e, ui) {
                                         var selTab = $(ui.newTab.context).text();
                                         if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {

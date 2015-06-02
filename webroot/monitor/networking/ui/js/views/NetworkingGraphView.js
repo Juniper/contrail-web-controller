@@ -309,8 +309,9 @@ define([
             }
         }
 
-        connectedGraphView.setDimensions(Math.max($(selectorId).width(), connectedGraphWidth) + cowc.GRAPH_MARGIN_RIGHT,
-            connectedGraphHeight + cowc.GRAPH_MARGIN_BOTTOM, 1);
+        connectedGraphView.setDimensions(connectedGraphWidth, connectedGraphHeight, 1);
+
+        $(connectedSelectorId).width(connectedGraphWidth);
 
         $(selectorId).parent().height(adjustedHeight);
         $(selectorId).parent().css('width', '100%');
