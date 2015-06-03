@@ -1761,7 +1761,7 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
         type:"GET"
     });
     getAjaxs[4] = $.ajax({
-        url:"/api/admin/config/get-data?type=logical-router&fqnUUID="+selectedProjectVal,
+        url:"/api/tenants/config/list-logical-routers?projUUID="+selectedProjectVal,
         timeout:300000,
         type:"GET"
     });
@@ -1973,23 +1973,27 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
             }
 
             var vmArray = [];
-            if(results[6][0] != null && results[6][0] != "" && results[6][0].length > 0) {
-                vmArray = results[6][0];
+            if(results[6][0] != null && results[6][0] != "" &&
+               (null != results[6][0]['virtual-machines'])) {
+                vmArray = results[6][0]['virtual-machines'];
             }
             var vmArrayLen = vmArray.length;
             for(var j=0;j < vmArrayLen;j++){
-                var vm = vmArray[j]["virtual-machine"];
+                var vm = vmArray[j];
                 var text = vm["uuid"];
                 var valArr = [];
                 valArr.push({"to":vm["fq_name"], "uuid":vm["uuid"]});
                 computeUUID.push({"text":text,"value":JSON.stringify(valArr)});
             }
             
-            if(results[4][0] != null && results[4][0] != "" && results[4][0]["data"] && results[4][0]["data"].length > 0) {
-                var logicalRouter = results[4][0]["data"];
-                for(var lrInc = 0; lrInc < logicalRouter.length; lrInc++){
+            if(results[4][0] != null && results[4][0] != "" &&
+               results[4][0]["logical-routers"] &&
+               results[4][0]["logical-routers"].length > 0) {
+                var logicalRouters = results[4][0]['logical-routers'];
+                var logicalRoutersCnt = logicalRouters.length;
+                for(var lrInc = 0; lrInc < logicalRoutersCnt; lrInc++){
                     // take it from logical router
-                    var localLogicalRout = logicalRouter[lrInc]["logical-router"]
+                    var localLogicalRout = logicalRouters[lrInc];
                     var text = localLogicalRout["fq_name"][2] + " (" + localLogicalRout["uuid"] + ")";
                     var valArr = [];
                     valArr.push({"to":localLogicalRout["fq_name"], "uuid":localLogicalRout["uuid"]});
