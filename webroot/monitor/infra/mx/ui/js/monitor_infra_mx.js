@@ -2073,13 +2073,22 @@ mxController.prototype.getModelData = function(cfg) {
         callback : function (response) {
             //removing the progress bar
             $("#network_topology").find('.topology-visualization-loading').hide();
-            topologyCallback(response);
+            if(null != response) {
+                topologyCallback(response);
+            } else {
+                showEmptyInfo('network_topology');
+            }
+
         },
         //Calling the force refresh call on failure of the cache call
         failureCallback : function (err) {
             $("#network_topology").find('.topology-visualization-loading').hide();
+            showEmptyInfo('network_topology');
         }
     };
+    function showEmptyInfo(container) {
+        $("#"+container).html('<div class="display-nonodes">No Physical Routers found</div>');
+    }
     function topologyCallback(response){
         globalObj['topologyResponse'] = response;
         _this.getModel().processData(response);
