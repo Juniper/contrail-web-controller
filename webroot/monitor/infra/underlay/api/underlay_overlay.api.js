@@ -361,10 +361,18 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
         linkDataLen = prouterData.length;
         for (var j = 0; j < linkDataLen; j++) {
             if (links[i]['remote_system_name'] == prouterData[j]['name']) {
-                var isLinkvRouter =
-                    isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']['link_table']);
-                if (true == isLinkvRouter) {
-                    return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
+                if ((null != prouterData[j]) &&
+                    (null != prouterData[j]['value']) &&
+                    (null != prouterData[j]['value']['PRouterLinkEntry']) &&
+                    (null !=
+                     prouterData[j]['value']['PRouterLinkEntry']
+                                   ['link_table'])) {
+                    var isLinkvRouter =
+                        isvRouterLink(prouterData[j]['value']['PRouterLinkEntry']
+                                                    ['link_table']);
+                    if (true == isLinkvRouter) {
+                        return ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
+                    }
                 }
             }
         }
@@ -1394,8 +1402,13 @@ function fillNodeIfStats (node1, node2, pRouterData, vrouterData)
     }
     resultJSON['node0']['node_name'] = node1;
     resultJSON['node1']['node_name'] = node2;
-    var links = pData[node1FoundIndex]['value']['PRouterLinkEntry']['link_table'];
-    var linkCnt = links.length;
+    var linkCnt = 0;
+    try {
+        var links = pData[node1FoundIndex]['value']['PRouterLinkEntry']['link_table'];
+        linkCnt = links.length;
+    } catch(e) {
+        linkCnt = 0;
+    }
     var index = 0;
     for (var j = 0; j < linkCnt; j++) {
         if (node2 == links[j]['remote_system_name']) {
