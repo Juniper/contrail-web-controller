@@ -2351,7 +2351,9 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
     if(dsObj['getFromCache'] == null || dsObj['getFromCache'] == true){
         obj['transportCfg'] = { 
                 url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'],
-                type:'GET'
+                type:'GET',
+                //set the default timeout as 5 mins
+                timeout:300000
             }
         defferedObj.done(function(){
             dsObj['getFromCache'] = false;
