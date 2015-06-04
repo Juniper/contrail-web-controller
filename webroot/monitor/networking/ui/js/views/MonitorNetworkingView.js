@@ -67,6 +67,10 @@ define([
                         self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                     });
                 }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                        projectFQN = domain + ':' + projectSelectedValueData.name;
+
+                    ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
                     self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });
@@ -120,6 +124,10 @@ define([
                     );
                 }, function (projectSelectedValueData, projectBreadcrumbChanged) {
                     removeActiveBreadcrumb();
+                    var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                        projectFQN = domain + ':' + projectSelectedValueData.name;
+
+                    ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
                     self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });

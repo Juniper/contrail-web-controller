@@ -98,15 +98,18 @@ define([
                             name: domainDropdownElement.data('contrailDropdown').text(),
                             value: domainDropdownElement.data('contrailDropdown').value()
                         };
-
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        setTimeout(function() {
+                            (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        }, 100);
                         destroyBreadcrumbDropdownDOM(ctwl.PROJECTS_BREADCRUMB_DROPDOWN);
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     }
                 }).data('contrailDropdown');
 
                 domainDropdown.text(selectedValueData.name);
-                initCB(selectedValueData, false);
+                setTimeout(function() {
+                    initCB(selectedValueData, false);
+                }, 100);
             }
 
 
@@ -158,13 +161,17 @@ define([
                             name: e.object['name'],
                             value: e.object['value']
                         };
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        setTimeout(function() {
+                            (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        }, 100);
                         destroyBreadcrumbDropdownDOM(ctwl.NETWORKS_BREADCRUMB_DROPDOWN);
                     }
                 }).data('contrailDropdown');
 
                 projectDropdown.text(selectedValueData.name);
-                initCB(selectedValueData, false);
+                setTimeout(function() {
+                    initCB(selectedValueData, false);
+                }, 100);
             }
 
         } else {
@@ -214,13 +221,16 @@ define([
                             name: networkDropdownElement.data('contrailDropdown').text(),
                             value: networkDropdownElement.data('contrailDropdown').value()
                         };
-
-                        (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        setTimeout(function() {
+                            (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
+                        }, 100)
                     }
                 }).data('contrailDropdown');
 
                 networkDropdown.text(selectedValueData.name);
-                initCB(selectedValueData, false);
+                setTimeout(function() {
+                    initCB(selectedValueData, false);
+                }, 100);
             }
 
         } else {
@@ -230,7 +240,9 @@ define([
 
     var populateInstanceBreadcrumbDropdown = function(networkSelectedValueData, instanceUUID, initCB) {
         pushBreadcrumb([instanceUUID]);
-        initCB(networkSelectedValueData);
+        setTimeout(function() {
+            initCB(networkSelectedValueData);
+        }, 100);
     };
 
     var getDomainFromFQN = function(fqName) {

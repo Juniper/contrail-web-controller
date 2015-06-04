@@ -283,18 +283,49 @@ define([
                     },
                     content: function (element, jointObject) {
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                            actions = [],
                             srcVNDetails = viewElement.attributes.nodeDetails.srcVNDetails;
+
+                        actions.push({
+                            text: 'View',
+                            iconClass: 'icon-external-link'
+                        });
 
                         return tooltipContent({
                             info: [
                                 {label: 'UUID', value: viewElement.attributes.nodeDetails['fqName']},
                                 {label: 'Network', value: srcVNDetails.name}
                             ],
-                            iconClass: 'icon-contrail-virtual-machine font-size-30'
+                            iconClass: 'icon-contrail-virtual-machine font-size-30',
+                            actions: actions
                         });
                     },
                     dimension: {
                         width: 355
+                    },
+                    actionsCallback: function (element, jointObject) {
+                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                            actions = [];
+
+                        actions.push({
+                            callback: function (key, options) {
+                                var srcVN = viewElement.attributes.nodeDetails.srcVNDetails.name;
+                                loadFeature({
+                                    p: 'mon_networking_instances',
+                                    q: {
+                                        type: 'instance',
+                                        view: 'details',
+                                        focusedElement: {
+                                            fqName: srcVN,
+                                            uuid: viewElement.attributes.nodeDetails['fqName'],
+                                            type: ctwc.GRAPH_ELEMENT_NETWORK
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                        return actions;
                     }
                 },
                 link: {
@@ -401,7 +432,7 @@ define([
                             }
                         }
 
-                        return tooltipContent({info: data, iconClass: 'icon-long-arrow-right'});
+                        return tooltipContent({info: data, iconClass: 'icon-resize-horizontal'});
                     },
                     dimension: {
                         width: 400
