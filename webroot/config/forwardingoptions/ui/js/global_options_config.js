@@ -120,7 +120,8 @@ function initComponents() {
                     text: 'Error in getting Global Config.'
                 }
             }
-        }
+        },
+        footer : false
     });
 
     gridGlobalConfig = $("#gridGlobalConfig").data('contrailGrid');

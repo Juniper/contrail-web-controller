@@ -122,7 +122,8 @@
                         text: 'Error in getting Project Quotas.' 
                     }
                }                          
-            }
+            },
+            footer: false
         });
         gridQuotas = $("#gridQuotas").data('contrailGrid');   
         gridQuotas.showGridMessage('loading');
