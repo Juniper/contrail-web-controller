@@ -704,8 +704,8 @@ function initActions() {
                 routeTargets.push({RouteTarget:rt + ":" + asn});
             }
         }        
+        vnConfig["virtual-network"]["route_target_list"] = {};
         if (routeTargets && routeTargets.length > 0) {
-            vnConfig["virtual-network"]["route_target_list"] = {};
             vnConfig["virtual-network"]["route_target_list"]["route_target"] = [];
             for (var i = 0; i < routeTargets.length; i++) {
                 var routeTarget = routeTargets[i].RouteTarget;
@@ -1899,7 +1899,7 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
         vnUUIDObj.type = "virtual-network";
         sendUUIDArr = allUUID.slice(0, 50);
         vnUUIDObj.uuidList = sendUUIDArr;
-        vnUUIDObj.fields = ["floating_ip_pools"];
+        vnUUIDObj.fields = ["floating_ip_pools","physical_router_back_refs"];
         allUUID = allUUID.slice(50, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
@@ -1908,7 +1908,7 @@ function successHandlerForAllUUIDGet(allUUID, cbparam)
             "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
 	} else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
-            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam);
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam, 300000);
 	}
 }
 
@@ -1932,10 +1932,10 @@ function successHandlerForGridVNLoop(result, param){
         var vnUUIDObj = {};
         var sendUUIDArr = [];
         vnUUIDObj.type = "virtual-network";
-        sendUUIDArr = allUUID.slice(0, 200);
+        sendUUIDArr = allUUID.slice(0, 600);
         vnUUIDObj.uuidList = sendUUIDArr;
-        vnUUIDObj.fields = ["floating_ip_pools"];
-        allUUID = allUUID.slice(200, allUUID.length);
+        vnUUIDObj.fields = ["floating_ip_pools", "physical_router_back_refs"];
+        allUUID = allUUID.slice(600, allUUID.length);
         var param = {};
         param.cbparam = cbparam;
         param.allUUID = allUUID;
@@ -1943,7 +1943,7 @@ function successHandlerForGridVNLoop(result, param){
             "successHandlerForGridVNLoop", "successHandlerForGridVNLoop", null, param);
     } else {
         doAjaxCall("/api/tenants/config/shared-virtual-networks/", 
-            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam);        
+            "GET", null, "successHandlerForAppendShared", "failureHandlerForAppendShared", null, cbparam, 300000);
     }
     successHandlerForGridVNRow(result);
     gridVN.showGridMessage('loading');

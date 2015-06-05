@@ -1135,49 +1135,59 @@ function physicalInterfacesConfig() {
     
     function fetchVirtualNetworks() {
         var postData = {};
-        postData.data = [];
-        postData.data.push({type : 'virtual-networks', fields : ['network_ipam_refs']});
-        doAjaxCall('/api/tenants/config/get-config-details','POST', JSON.stringify(postData), 'successHandlerForVN', 'failureHandlerForVN', null, null, ajaxTimeout);
+        postData.data = {fields : ['network_ipam_refs']};
+        doAjaxCall('/api/tenants/config/vn-list-details','POST', JSON.stringify(postData), 'successHandlerForVN', 'failureHandlerForVN', null, null, ajaxTimeout);
     }
     
     window.successHandlerForVN = function(result) {
          var vnDataSrc = [{text : 'None', value : 'none'}];
-         if(result != null && result.length > 0 && result[0]['virtual-networks'] != null && result[0]['virtual-networks'].length > 0) {
-             var vns =  result[0]['virtual-networks'];
-             for(var i = 0; i < vns.length; i++) {
-                 var vn = vns[i]['virtual-network'];
-                 var fqn = vn.fq_name;
-                 var subnetStr = '';
-                 var subnetUUID = '';
-                 var field = 'network_ipam_refs';
-                 if(field in vn && vn[field].length > 0) {
-                    if(vn[field][0].attr != null && vn[field][0].attr.ipam_subnets != null
-                        && vn[field][0].attr.ipam_subnets.length > 0) {
-                        subnetUUID = vn[field][0].attr.ipam_subnets[0].subnet_uuid;
-                    }
-                    for(var k = 0; k < vn[field].length; k++) {
-                        var ipam = vn[field][k];
-                        if(ipam.attr != null && ipam.attr.ipam_subnets != null
-                            && ipam.attr.ipam_subnets.length > 0) {
-                            var ipamRefs = ipam.attr.ipam_subnets;
-                            for(var j = 0; j < ipamRefs.length; j++) {
-                                if('subnet' in ipamRefs[j]) {
-                                    var subnet = ipamRefs[j].subnet;
-                                    var cidr = subnet.ip_prefix + '/' + subnet.ip_prefix_len;
-                                    if(subnetStr === '') {
-                                        subnetStr = cidr;
-                                    } else {
-                                        subnetStr += ', ' + cidr;
+         var data = result.data;
+         if(data != null && data['virtual-networks'] != null && data['virtual-networks'].length > 0) {
+             var vns =  data['virtual-networks'];
+             if(!result.isList) {
+                 for(var i = 0; i < vns.length; i++) {
+                     var vn = vns[i]['virtual-network'];
+                     var fqn = vn.fq_name;
+                     var subnetStr = '';
+                     var subnetUUID = '';
+                     var field = 'network_ipam_refs';
+                     if(field in vn && vn[field].length > 0) {
+                        if(vn[field][0].attr != null && vn[field][0].attr.ipam_subnets != null
+                            && vn[field][0].attr.ipam_subnets.length > 0) {
+                            subnetUUID = vn[field][0].attr.ipam_subnets[0].subnet_uuid;
+                        }
+                        for(var k = 0; k < vn[field].length; k++) {
+                            var ipam = vn[field][k];
+                            if(ipam.attr != null && ipam.attr.ipam_subnets != null
+                                && ipam.attr.ipam_subnets.length > 0) {
+                                var ipamRefs = ipam.attr.ipam_subnets;
+                                for(var j = 0; j < ipamRefs.length; j++) {
+                                    if('subnet' in ipamRefs[j]) {
+                                        var subnet = ipamRefs[j].subnet;
+                                        var cidr = subnet.ip_prefix + '/' + subnet.ip_prefix_len;
+                                        if(subnetStr === '') {
+                                            subnetStr = cidr;
+                                        } else {
+                                            subnetStr += ', ' + cidr;
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                 }
-                 var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
-                 if(subnetStr != '') {
-                     textVN += ' (' + subnetStr + ')';
+                     }
+                     var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
+                     if(subnetStr != '') {
+                         textVN += ' (' + subnetStr + ')';
+                     }
                      var vnData = {fqName : fqn, subnetId : subnetUUID};
+                     vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
+                 }
+             } else {
+                 for(var i = 0; i < vns.length; i++) {
+                     var vn = vns[i];
+                     var fqn = vn.fq_name;
+                     var textVN = fqn[2] + " (" + fqn[0] + ":" + fqn[1] + ")";
+                     var vnData = {fqName : fqn, subnetId : ''};
                      vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
                  }
              }
@@ -1224,15 +1234,19 @@ function physicalInterfacesConfig() {
             for(var i = 0; i < result.length; i++) {
                 if(result[i]['virtual-machine-interface'] != null) {
                     var vmi = result[i]['virtual-machine-interface'];
-                    var txt = getMacAddress(vmi.virtual_machine_interface_mac_addresses);
-                    var fixedIp = vmi.instance_ip_address != null && vmi.instance_ip_address.length > 0 ? vmi.instance_ip_address[0] : '';
-                    var txtVMI = '';
-                    if(fixedIp != '') {
-                        txtVMI = txt + ' (' + fixedIp + ')';
-                    } else {
-                        txtVMI = txt;
+                    var owner = vmi['virtual_machine_interface_device_owner'];
+                    var subInf = vmi["virtual_machine_interface_properties"];
+                    if((owner == null || owner == "") && (subInf == null || (subInf != null && subInf["sub_interface_vlan_tag"] == null))) {
+                        var txt = getMacAddress(vmi.virtual_machine_interface_mac_addresses);
+                        var fixedIp = vmi.instance_ip_address != null && vmi.instance_ip_address.length > 0 ? vmi.instance_ip_address[0] : '';
+                        var txtVMI = '';
+                        if(fixedIp != '') {
+                            txtVMI = txt + ' (' + fixedIp + ')';
+                        } else {
+                            txtVMI = txt;
+                        }
+                        vmiDataSrc.push({text : txtVMI, value : JSON.stringify(vmi.fq_name), ip : fixedIp, data:JSON.stringify(vmi)});
                     }
-                    vmiDataSrc.push({text : txtVMI, value : JSON.stringify(vmi.fq_name), ip : fixedIp, data:JSON.stringify(vmi)});
                 }
             }
             if ($("[id$=serverMac]").length > 0){
@@ -1656,6 +1670,8 @@ function physicalInterfacesConfig() {
                     showInfoWindow('Invald IP ' + ip , "Invalid input in Server Details");
                     return false;
                 }
+            }
+            if(subNets.length > 0) {
                 var isInSubnetRange = false;
                 for(var j =0 ; j < subNets.length; j++){
                     if(isIPBoundToRange(subNets[j], ip)){
