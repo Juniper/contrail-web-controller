@@ -153,6 +153,7 @@
     <item>
         <url>/api/tenants/config/shared-virtual-networks</url>
         <method>get</method>
+        <timeout>300</timeout>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.getSharedVirtualNetworks</callback>
     </item>
@@ -167,6 +168,12 @@
         <method>get</method>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.getAllVirtualNetworksWFields</callback>
+    </item>
+     <item>
+        <url>/api/tenants/config/vn-list-details</url>
+        <method>post</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getVNListOrDetails</callback>
     </item>
 </urlLists>
 

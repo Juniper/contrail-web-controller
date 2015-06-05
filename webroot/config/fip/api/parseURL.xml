@@ -49,6 +49,7 @@
     <item>
         <url>/api/tenants/config/floating-ip-pools/:id</url>
         <method>get</method>
+        <timeout>300</timeout>
         <feature>fipconfig</feature>
         <callback>fipconfigapi.listFloatingIpPools</callback>
     </item>

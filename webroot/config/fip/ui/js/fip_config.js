@@ -568,6 +568,7 @@ function showFIPEditWindow(mode) {
         var getAjaxs = [];
         getAjaxs[0] = $.ajax({
             url:"/api/tenants/config/floating-ip-pools/" + selectedProject,
+            timeout:300000,
             type:"GET"
         });
         $.when.apply($, getAjaxs).then(
