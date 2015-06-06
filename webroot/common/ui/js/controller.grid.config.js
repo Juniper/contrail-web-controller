@@ -107,10 +107,12 @@ define([
                 field: 'vmName',
                 name: 'Instance',
                 formatter: function (r, c, v, cd, dc) {
-                    if(contrail.checkIfExist(dc['vmName'])) {
-                        return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
-                    } else {
+                    if(!contrail.checkIfExist(dc['vmName'])) {
                         return '-';
+                    } else if(!contrail.checkIfExist(dc['vnFQN']) || ctwp.isServiceVN(dc['vnFQN'])){
+                        return '<div class="cell-no-link">' + cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc}) + '</div>';
+                    } else {
+                        return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
                     }
                 },
                 minWidth: 230,
@@ -590,7 +592,7 @@ define([
         } else if ($.inArray(name, ['instance']) > -1) {
             fqName = selRowDataItem['vnFQN'];
             uuid = selRowDataItem['name'];
-            if(contrail.checkIfExist(fqName)) {
+            if(contrail.checkIfExist(fqName) && !ctwp.isServiceVN(fqName)) {
                 ctwgrc.setInstanceURLHashParams(null, fqName, uuid, true);
             }
         }

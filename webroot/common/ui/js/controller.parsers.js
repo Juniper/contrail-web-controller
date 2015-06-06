@@ -6,9 +6,10 @@ define([
     'underscore'
 ], function (_) {
     var CTParsers = function() {
+        var self = this;
         this.networkDataParser = function(response) {
             var retArr = $.map(ifNull(response['data']['value'], response), function (currObject) {
-                if(!isServiceVN(currObject['name'])) {
+                if(!self.isServiceVN(currObject['name'])) {
                     currObject['rawData'] = $.extend(true, {}, currObject);
                     currObject['url'] = '/api/tenant/networking/virtual-network/summary?fqNameRegExp=' + currObject['name'];
                     /*
@@ -312,7 +313,7 @@ define([
 
         this.parseNetwork4Breadcrumb = function(response) {
             return  $.map(response['virtual-networks'], function (n, i) {
-                if (!isServiceVN(n.fq_name.join(':'))) {
+                if (!self.isServiceVN(n.fq_name.join(':'))) {
                     return {
                         fq_name: n.fq_name.join(':'),
                         name: n.fq_name[2],
@@ -411,16 +412,16 @@ define([
             });
             return retArr;
         };
-    };
 
-    function isServiceVN(vnFQN) {
-        var fqnArray = vnFQN.split(":");
+        this.isServiceVN = function (vnFQN) {
+            var fqnArray = vnFQN.split(":");
 
-        if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
-            return true;
-        }
+            if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
+                return true;
+            }
 
-        return false;
+            return false;
+        };
     };
 
     return CTParsers;

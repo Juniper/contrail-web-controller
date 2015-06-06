@@ -89,44 +89,49 @@ define([
         }
     };
 
-    function onScatterChartClick(chartConfig) {
+    function onScatterChartClick (chartConfig) {
         var instanceUUID = chartConfig['name'],
             networkFQN = chartConfig['vnFQN'];
-
-        ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, true);
+        if (contrail.checkIfExist(networkFQN) && !ctwp.isServiceVN(networkFQN)) {
+            ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, true);
+        }
     };
 
     function getInstanceTooltipConfig(data) {
-        var vmUUID = data.name;
+        var vmUUID = data.name,
+            vnFQN = data.vnFQN,
+            tooltipConfig = {
+                title: {
+                    name: vmUUID,
+                    type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE
+                },
+                content: {
+                    iconClass: 'icon-contrail-virtual-machine font-size-30',
+                    info: [
+                        {label: 'Name', value: data.vmName},
+                        {label: 'UUID', value: vmUUID},
+                        //{label: 'Network', value: data.vnFQN},
+                        {label:'CPU Utilization', value: d3.format('.02f')(data['x']) + " %"},
+                        {label:'Memory Usage', value: formatBytes(data['y'] * 1024, false, null, 1)},
+                        {label:'Throughput', value:formatThroughput(data['throughput'])}
+                    ]
+                },
+                dimension: {
+                    width: 400
+                }
+            };
+        if (contrail.checkIfExist(vnFQN) && !ctwp.isServiceVN(vnFQN)) {
+            tooltipConfig['content']['actions'] = [
+                {
+                    type: 'link',
+                    text: 'View',
+                    iconClass: 'icon-external-link',
+                    callback: onScatterChartClick
+                }
+            ];
+        }
 
-        return {
-            title: {
-                name: vmUUID,
-                type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE
-            },
-            content: {
-                iconClass: 'icon-contrail-virtual-machine font-size-30',
-                info: [
-                    {label: 'Name', value: data.vmName},
-                    {label: 'UUID', value: vmUUID},
-                    //{label: 'Network', value: data.vnFQN},
-                    {label:'CPU Utilization', value: d3.format('.02f')(data['x']) + " %"},
-                    {label:'Memory Usage', value: formatBytes(data['y'] * 1024, false, null, 1)},
-                    {label:'Throughput', value:formatThroughput(data['throughput'])}
-                ],
-                actions: [
-                    {
-                        type: 'link',
-                        text: 'View',
-                        iconClass: 'icon-external-link',
-                        callback: onScatterChartClick
-                    }
-                ]
-            },
-            dimension: {
-                width: 400
-            }
-        };
+        return tooltipConfig;
     };
 
     return InstanceListView;
