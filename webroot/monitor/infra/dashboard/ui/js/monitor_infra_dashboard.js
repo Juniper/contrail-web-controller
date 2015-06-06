@@ -110,6 +110,9 @@ function addTabs() {
             $.each(data,function(idx,obj) {
                 if(obj['vRouterType'] != 'tor-agent') {
                     intfCnt += obj['intfCnt'];
+                }
+                //Excluding considering instance count from TOR Service Node & ToR Agent
+                if(obj['vRouterType'] != 'tor-agent' && obj['vRouterType'] != 'tor-service-node') {
                     instCnt += obj['instCnt'];
                 }
                 $.each(obj['vns'],function(idx,val) {
