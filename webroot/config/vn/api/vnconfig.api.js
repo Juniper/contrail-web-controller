@@ -1045,7 +1045,8 @@ function createVirtualNetwork (request, response, appData)
     physicalRouters = vnConfigData["virtual-network"]['physical-routers'];
     delete vnConfigData["virtual-network"]['physical-routers'];
 
-    if ('route_target_list' in vnPostData['virtual-network']) {
+    if ('route_target_list' in vnPostData['virtual-network'] &&
+       'route_target' in vnPostData['virtual-network']['route_target_list']) {
         if (!(vnPostData['virtual-network']['route_target_list']
                       ['route_target'][0].length)) {
             delete vnPostData['virtual-network']['route_target_list'];
@@ -2352,6 +2353,9 @@ function getAllVirtualNetworksWFields (req, res, appData)
     var projUUID = req.param('uuid');
     var vnURL = '/virtual-networks?detail=true&fields=' +
         'network_ipam_refs,is_shared';
+    if (projUUID != null) {
+        vnURL += '&parent_id=' + projUUID;
+    }
     var resultJSON = [];
     var tmpVNUUIDs = {};
     configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
@@ -2360,7 +2364,9 @@ function getAllVirtualNetworksWFields (req, res, appData)
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
-        var vns = vnDetails['virtual-networks'];
+        var resultJSON = vnDetails['virtual-networks'];
+        /*
+        // We will not get VNs acroos project now
         var vnCnt = vns.length;
         var vnUUID = null;
         for (var i = 0; i < vnCnt; i++) {
@@ -2379,12 +2385,48 @@ function getAllVirtualNetworksWFields (req, res, appData)
                 }
             }
         }
+        */
         if (!resultJSON.length) {
             commonUtils.handleJSONResponse(null, res, resultJSON);
             return;
         }
         async.map(resultJSON, vnGetSubnetResponseAsync, function(error, data) {
             commonUtils.handleJSONResponse(error, res, data);
+        });
+    });
+}
+
+function getVNListOrDetails (req, res, appData)
+{
+    var resultJSON = {};
+    var body = req.body;
+    var fields = body['fields'];
+
+    var vnCountUrl = '/virtual-networks?count=true';
+    configApiServer.apiGet(vnCountUrl, appData, function(err, vnCountData) {
+        if ((null != err) || (null == vnCountData) ||
+            (null == vnCountData['virtual-networks']) ||
+            (null == vnCountData['virtual-networks']['count'])) {
+            commonUtils.handleJSONResponse(err, res, null);
+            return;
+        }
+        var vnCnt = vnCountData['virtual-networks']['count'];
+        if (vnCnt > 1000) {
+            /* If vn count is more than 8k, we will send only list, not whole
+             * data
+             */
+            vnUrl = '/virtual-networks';
+            resultJSON['isList'] = true;
+        } else {
+            vnUrl = '/virtual-networks?detail=true';
+            resultJSON['isList'] = false;
+            if (fields != null) {
+                vnUrl += ',fields=' + fields.join(',');
+            }
+        }
+        configApiServer.apiGet(vnUrl, appData, function(err, vnData) {
+            resultJSON['data'] = vnData;
+            commonUtils.handleJSONResponse(err, res, resultJSON);
         });
     });
 }
@@ -2409,4 +2451,5 @@ exports.getPagedVirtualNetworks      = getPagedVirtualNetworks;
 exports.getAllVirtualNetworksWFields = getAllVirtualNetworksWFields;
 exports.fipPoolDelete                = fipPoolDelete;
 exports.getVirtualNetworkCb          = getVirtualNetworkCb;
+exports.getVNListOrDetails           = getVNListOrDetails;
 

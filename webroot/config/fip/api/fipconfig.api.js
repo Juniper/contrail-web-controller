@@ -151,9 +151,10 @@ function getFipsForProjectCb (results, response, appData)
                 try {
                     var vmiUUID =
                         instIpsData[i]['instance-ip']['virtual_machine_interface_refs'][0]['uuid'];
-                    if (null != vmiUUID) {
-                        instIPObjs[vmiUUID] = instIpsData[i]['instance-ip'];
+                    if (null == instIPObjs[vmiUUID]) {
+                        instIPObjs[vmiUUID] = [];
                     }
+                    instIPObjs[vmiUUID].push(instIpsData[i]['instance-ip']);
                 } catch(e) {
                 }
             }
@@ -171,16 +172,22 @@ function getFipsForProjectCb (results, response, appData)
                     vmiRefsCnt = 0;
                 }
                 for (var j = 0; j < vmiRefsCnt; j++) {
-                    if (null == instIPObjs[vmiRefs[j]['uuid']]) {
+                    var instIpList = instIPObjs[vmiRefs[j]['uuid']];
+                    if (null == instIpList) {
                         continue;
+                    }
+                    var fixedIpLen = instIpList.length;
+                    var fixedIpArray = [];
+                    for (var k = 0; k < fixedIpLen; k++) {
+                        fixedIpArray.push({'fixedip': {'ip':
+                                          instIpList[k]['instance_ip_address']}});
                     }
                     fipAggList['floating_ip_back_refs'][i]['floating-ip']
                               ['virtual_machine_interface_refs'][j]
                               ['instance_ip_back_refs'] = [];
                     fipAggList['floating_ip_back_refs'][i]['floating-ip']
                               ['virtual_machine_interface_refs'][j]
-                              ['instance_ip_back_refs'].push({'fixedip': {'ip':
-                                    instIPObjs[vmiRefs[j]['uuid']]['instance_ip_address']}});
+                              ['instance_ip_back_refs'] = fixedIpArray;
                 }
             }
             commonUtils.handleJSONResponse(null, response, fipAggList);
@@ -370,6 +377,8 @@ function getFloatingIpPoolsByProject (request, appData, callback)
          * TODO - Add Language independent error code and return
          */
     }
+    projectURL += '?fields=floating_ip_pool_refs';
+
     configApiServer.apiGet(projectURL, appData,
                          function(error, data) {
                          getFipPoolsForProjectCb(error, data, appData, callback);
@@ -388,51 +397,34 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
     var fipPool = {};
     var dataObjArr = [];
     fipPool['floating_ip_pool_refs'] = [];
-    configApiServer.apiGet(vnListURL, appData, function(err, vnList) {
+    var vnURL =
+        '/virtual-networks?detail=true&fields=router_external,' +
+        'floating_ip_pools,network_ipam_refs';
+    configApiServer.apiGet(vnURL, appData, function(err, vnList) {
         if ((null != err) || (null == vnList) || 
             (null == vnList['virtual-networks'])) {
             callback(err, fipPool);
             return;
         }
-        var vns = vnList['virtual-networks'];
-        var vnCnt = vns.length;
-        for (var i = 0; i < vnCnt; i++) {
-            var vnURL = '/virtual-network/' + vns[i]['uuid'] +
-            '?exclude_back_refs=true';
-            commonUtils.createReqObj(dataObjArr, vnURL, global.HTTP_REQUEST_GET,
-                                     null, null, null, appData);
-        }
-        if (!dataObjArr.length) {
-            callback(null, fipPool);
-            return;
-        }
-        async.map(dataObjArr, 
-                  commonUtils.getAPIServerResponse(configApiServer.apiGet,
-                                                   true),
-                  function(error, results) {
-            if ((null != error) || (null == results)) {
-                callback(error, fipPool);
-                return;
-            }
-            var resCnt = results.length;
-            for (i = 0; i < resCnt; i++) {
-                try {
-                    var vn = results[i]['virtual-network'];
-                    if ((true == vn['router_external']) &&
-                        (null != vn['floating_ip_pools'])) {
-                        var subnets = parseVNSubnets(results[i]);
-                        var fipCnt = vn['floating_ip_pools'].length;
-                        for(var j = 0; j < fipCnt ; j++) {  
-                            vn['floating_ip_pools'][j]['subnets'] =  subnets;                       
-                            fipPool['floating_ip_pool_refs'].push(vn['floating_ip_pools'][j]);                                
-                        }    
+        var results = vnList['virtual-networks'];
+        var resCnt = results.length;
+        for (i = 0; i < resCnt; i++) {
+            try {
+                var vn = results[i]['virtual-network'];
+                if ((true == vn['router_external']) &&
+                    (null != vn['floating_ip_pools'])) {
+                    var subnets = parseVNSubnets(results[i]);
+                    var fipCnt = vn['floating_ip_pools'].length;
+                    for(var j = 0; j < fipCnt ; j++) {
+                        vn['floating_ip_pools'][j]['subnets'] =  subnets;
+                        fipPool['floating_ip_pool_refs'].push(vn['floating_ip_pools'][j]);
                     }
-                } catch(e) {
-                    continue;
                 }
+            } catch(e) {
+                continue;
             }
-            callback(null, fipPool);
-        });
+        }
+        callback(null, fipPool);
     });
 }
 
