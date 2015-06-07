@@ -818,6 +818,14 @@ function physicalInterfacesConfig() {
         }
         return '';
     }
+
+    function getActInterfaceName(name) {
+       var actName = name;
+       if(name.indexOf('__') != -1){
+           actName = name.replace('__',':');
+       }
+       return actName;
+    }
         
     function handleInterfaceName(name) {
         var actName = name;
@@ -1350,7 +1358,7 @@ function physicalInterfacesConfig() {
                 var lInterfaceNames = '';
                 if(lInfs != null) {
                     for(var j = 0; j < lInfs.length;j++) {
-                        var lInterfaceName = lInfs[j].to[3]; 
+                        var lInterfaceName = getActInterfaceName(lInfs[j].to[3]);
                         if(lInterfaceNames === ''){
                             lInterfaceNames = lInterfaceName;
                         } else {
@@ -1419,14 +1427,14 @@ function physicalInterfacesConfig() {
     }
     
     function prepareLIData(result) {
-        gridPhysicalInterfaces.removeGridMessage();
+        //gridPhysicalInterfaces.removeGridMessage();
         var gridDS = [];        
         if(result!= null && result.length > 0) {
             for(var i = 0; i < result.length; i++) {
                 var lInterface = result[i]['logical-interface'];
                 var liName = lInterface.display_name != null ? lInterface.display_name : lInterface.name;
                 var liDetails = getLogicalInterfaceDetails(lInterface);
-                var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : lInterface.fq_name[2];
+                var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : getActInterfaceName(lInterface.fq_name[2]);
                 var serverString = '';
                 var vmiDetails = liDetails.vmiDetails;
                 if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
@@ -1488,7 +1496,7 @@ function physicalInterfacesConfig() {
                     var lInterface = result[j]['logical-interface'];
                     var liName = lInterface.display_name != null ? lInterface.display_name : lInterface.name;
                     var liDetails = getLogicalInterfaceDetails(lInterface);
-                    var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : lInterface.fq_name[2];
+                    var parentName = lInterface.parent_type == 'physical-router' ? lInterface.fq_name[1] : getActInterfaceName(lInterface.fq_name[2]);
                     var serverString = '';
                     var vmiDetails = liDetails.vmiDetails;
                     if(vmiDetails == null || vmiDetails == '-' || vmiDetails.length < 1){
@@ -1532,9 +1540,12 @@ function physicalInterfacesConfig() {
         prepareLIDataWithPI(result);
         //issue logical interfaces per 200 physical interfaces call one at a time
         if(piUUID.length > cbparam.actCnt) {
+            gridPhysicalInterfaces.showGridMessage('loading');
             var newCnt = cbparam.actCnt + liChunkCnt;
             var newChunk = piUUID.slice(cbparam.actCnt, newCnt);
             fetchLIWithPIChunk(newChunk, newCnt);
+        } else {
+            gridPhysicalInterfaces.removeGridMessage();
         }
     }
 
