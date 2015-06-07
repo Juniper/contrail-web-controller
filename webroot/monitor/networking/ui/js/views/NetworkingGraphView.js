@@ -80,7 +80,7 @@ define([
                     $(connectedSelectorId).data('graph-size', directedGraphSize);
                     $(connectedSelectorId).data('joint-object', jointObject);
 
-                    adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId);
+                    adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, true);
                     panConnectedGraph2Center(focusedElement, connectedSelectorId);
 
                     highlightElement4ZoomedElement(connectedSelectorId, jointObject, graphConfig);
@@ -150,7 +150,7 @@ define([
                             return function(event) {
                                 var focusedElement = graphConfig.focusedElement;
                                 $(this).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
-                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId);
+                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
                                 panConnectedGraph2Center(focusedElement, connectedSelectorId)
                             }
                         }
@@ -284,7 +284,7 @@ define([
         };
     };
 
-    function adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId) {
+    function adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, initResizeFlag) {
         var resizeFlag = ($(selectorId).parents('.visualization-container').find('.icon-resize-small').is(':visible')),
             tabHeight = resizeFlag ? 155 : 435, //TODO - move to constants
             minHeight = 300,
@@ -317,6 +317,13 @@ define([
             }
         }
 
+        if (initResizeFlag && ((connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP - adjustedHeight) > 20)) {
+            $(selectorId).parents('.visualization-container').find('.icon-resize-full')
+                .removeClass('icon-resize-full').addClass('icon-resize-small');
+
+            adjustedHeight = window.innerHeight - 155;
+        }
+
         connectedGraphView.setDimensions(connectedGraphWidth, connectedGraphHeight, 1);
 
         $(connectedSelectorId).width(connectedGraphWidth);
@@ -345,8 +352,13 @@ define([
             panX = (availableGraphWidth - connectedGraphWidth) / 2,
             panY = (availableGraphHeight - connectedGraphHeight) / 2;
 
-        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT && (connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP) > availableGraphHeight) {
-            panY = 35 - cowc.GRAPH_MARGIN_TOP;
+        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
+            if ((connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP) > availableGraphHeight) {
+                panY = 35 - cowc.GRAPH_MARGIN_TOP;
+            }
+            if ((connectedGraphWidth - cowc.GRAPH_MARGIN_LEFT - cowc.GRAPH_MARGIN_RIGHT) > availableGraphWidth) {
+                panX = 35 - cowc.GRAPH_MARGIN_LEFT;
+            }
         }
 
         $(connectedSelectorId).panzoom("resetPan");
