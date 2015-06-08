@@ -700,7 +700,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
         }
     }
 
-    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0/0", disabled : true }]},
+    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"-1/0", disabled : true, parent :"CIDR"}]},
         {text : 'SecurityGroup', id : 'SecurityGroup', children : allSG});
     dsSrcDest = mainDS;
     $(remoteAddr).contrailDropdown({
@@ -719,16 +719,16 @@ function createSGRuleEntry(rule, id, element,SGData) {
     });
     $(remoteAddr).data("contrailDropdown").setData(mainDS);
     $(remoteAddr).data("contrailDropdown").value(mainDS[0].children[0].value);
-
+    var ra = $(remoteAddr).data("contrailDropdown");
+    verifyRASelectedItem("0.0.0.0/0",ra,"","CIDR");
     if (null !== rule && typeof rule !== "undefined") {//edit
         var formatedRuleData = formatedRule(rule);
         $(selectDirection).data("contrailDropdown").value(formatedRuleData.direction);
         $(selectProtocol).data("contrailDropdown").value(formatedRuleData.protocol);
         $(selectEther).data("contrailDropdown").value(formatedRuleData.etherType);
-        var ra = $(remoteAddr).data("contrailDropdown");
-        if(formatedRuleData.remoteAddress == "::/0") {
-            formatedRuleData.remoteAddress = "0.0.0.0/0";
-        }
+        //if(formatedRuleData.remoteAddress == "::/0") {
+        //    formatedRuleData.remoteAddress = "0.0.0.0/0";
+        //}
         verifyRASelectedItem(formatedRuleData.remoteAddress,ra,"",formatedRuleData.remoteType);
         $(inputTxtRemotePorts).val(formatedRuleData.remotePort);
     }
@@ -1203,9 +1203,9 @@ function successHandlerForgridSGRow(result) {
         } 
         sgIDText = sgID;
         if (sgIDText == "") {
-            sgIDText =  "Auto Configure";
+            sgIDText =  "Auto Configured ";
             if(typeof eachSG.security_group_id != "undefined" && typeof eachSG.security_group_id != "undefined"){
-                sgIDText +=  " ("+ eachSG.security_group_id+")";
+                sgIDText +=  "("+ eachSG.security_group_id+")";
             }
         }
         var sgUUID = eachSG.uuid;
@@ -1402,7 +1402,7 @@ function showsgEditWindow(mode, rowIndex) {
                 var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv4"}');
                 var ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
                 $("#sGRuleTuples").append(ruleEntry);
-                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
+                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"::","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
                 ruleEntry = "";
                 dynamicID++;
                 ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
