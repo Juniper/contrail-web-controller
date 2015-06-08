@@ -33,7 +33,7 @@ var configJsonModifyObj = {
         'preProcessCB': {
             'applyOnOldJSON': modifySecurityGroupConfigData,
         },
-        'optFields': ['security_group_entries'],
+        'optFields': ['security_group_entries', 'configured_security_group_id'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'virtual-DNS': {

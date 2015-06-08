@@ -700,7 +700,7 @@ function createSGRuleEntry(rule, id, element,SGData) {
         }
     }
 
-    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"0.0.0.0/0", disabled : true }]},
+    mainDS.push({text : 'CIDR', id :'subnet',  children : [{text:'Enter a CIDR', value:"-1/0", disabled : true, parent :"CIDR"}]},
         {text : 'SecurityGroup', id : 'SecurityGroup', children : allSG});
     dsSrcDest = mainDS;
     $(remoteAddr).contrailDropdown({
@@ -726,9 +726,9 @@ function createSGRuleEntry(rule, id, element,SGData) {
         $(selectProtocol).data("contrailDropdown").value(formatedRuleData.protocol);
         $(selectEther).data("contrailDropdown").value(formatedRuleData.etherType);
         var ra = $(remoteAddr).data("contrailDropdown");
-        if(formatedRuleData.remoteAddress == "::/0") {
-            formatedRuleData.remoteAddress = "0.0.0.0/0";
-        }
+        //if(formatedRuleData.remoteAddress == "::/0") {
+        //    formatedRuleData.remoteAddress = "0.0.0.0/0";
+        //}
         verifyRASelectedItem(formatedRuleData.remoteAddress,ra,"",formatedRuleData.remoteType);
         $(inputTxtRemotePorts).val(formatedRuleData.remotePort);
     }
@@ -1399,10 +1399,10 @@ function showsgEditWindow(mode, rowIndex) {
             if (mode === "add") {
                 windowCreateSG.find('.modal-header-title').text('Create Security Group');
                 $(txtRuleName).focus();
-                var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv4"}');
+                var rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"-1","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv4"}');
                 var ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
                 $("#sGRuleTuples").append(ruleEntry);
-                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"0.0.0.0","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
+                rule = JSON.parse('{"direction":">","protocol":"any","dst_addresses":[{"security_group":null,"subnet":{"ip_prefix":"-1","ip_prefix_len":0}}],"dst_ports":[{"end_port":65535,"start_port":0}],"src_addresses":[{"security_group":"local","subnet":null}],"src_ports":[{"end_port":65535,"start_port":0}],"ethertype":"IPv6"}');
                 ruleEntry = "";
                 dynamicID++;
                 ruleEntry = createSGRuleEntry(rule, dynamicID,"sGRuleTuples",sgData);
