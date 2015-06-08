@@ -298,7 +298,8 @@ monitorInfraComputeInterfacesClass = (function() {
                             text: 'Error in getting Data.'
                         }
                     }
-                }
+                },
+                footer : false
                 //change:onIntfChange,
             })
             intfGrid = $('#gridComputeInterfaces').data('contrailGrid');
