@@ -3043,9 +3043,7 @@ function isNTPUnsynced (nodeStatus){
 
 function updateGridTitleWithPagingInfo(gridSel,pagingInfo) {
     var gridHeaderTextElem = $(gridSel).find('.grid-header-text');
-    var currentTitle = gridHeaderTextElem.text().trim();
-    currentTitle = currentTitle.replace(/\(.*\)/,'');
-    currentTitle = currentTitle.trim();
+    var pageInfoTitle = '';
     var entriesText = pagingInfo['entries'];
     var extractedData;
     if(typeof(entriesText) == 'string' ) {
@@ -3056,13 +3054,18 @@ function updateGridTitleWithPagingInfo(gridSel,pagingInfo) {
         var startCnt = parseInt(extractedData[1]);
         var endCnt = parseInt(extractedData[2]);
         var totalCnt = parseInt(extractedData[3]);
-        currentTitle += contrail.format(' ({0} - {1} of {2})',startCnt+1,endCnt+1,totalCnt);
+        pageInfoTitle = contrail.format(' ({0} - {1} of {2})',startCnt+1,endCnt+1,totalCnt);
     } else {
         if(pagingInfo['entries'] != null) {
-            currentTitle += ' (' + pagingInfo['entries'] + ')';
+            pageInfoTitle = ' (' + pagingInfo['entries'] + ')';
         }
     }
-    gridHeaderTextElem.text(currentTitle);
+    if(gridHeaderTextElem.find('span').length == 0) {
+        gridHeaderTextElem.append($('<span>',{}));
+    } else {
+        gridHeaderTextElem.find('span').text('');
+    }
+    gridHeaderTextElem.find('span').text(pageInfoTitle);
 }
 
 function onPrevNextClick(obj,cfg) {
@@ -3076,9 +3079,18 @@ function onPrevNextClick(obj,cfg) {
     //Populate last_page based on entries and first_page
     paginationInfo['last_page'] = paginationInfo['first_page'];
     var xStrFormat = /(begin:)\d+(,end:)\d+(,table:.*)/;
+    var entriesFormat = /.*\/(\d+)/;
+    var totalCnt;
+    if(paginationInfo['entries'].match(entriesFormat) instanceof Array) {
+        var patternResults = paginationInfo['entries'].match(entriesFormat);
+        //Get the total count from entries as with some filter applied,total count will not be same as table size
+        totalCnt = parseInt(patternResults[1]);
+    } 
     if(paginationInfo['last_page'].match(xStrFormat) instanceof Array) {
-        var totalCnt = parseInt(paginationInfo['table_size']);
-        paginationInfo['last_page'] = paginationInfo['last_page'].replace(xStrFormat,'$1' + (totalCnt - (totalCnt%100)) + '$2' + (totalCnt-1) + '$3');
+        if(totalCnt == null) {
+            totalCnt = parseInt(paginationInfo['table_size']);
+        }
+        paginationInfo['last_page'] = paginationInfo['last_page'].replace(xStrFormat,'$1' + (totalCnt - (totalCnt%100)) + '$2' + ((totalCnt - (totalCnt%100)) + 99)+ '$3');
     }
     var getUrlFn = ifNull(cfg['getUrlFn'],$.noop);
     var dirType = ifNull(cfg['dirType'],'');
