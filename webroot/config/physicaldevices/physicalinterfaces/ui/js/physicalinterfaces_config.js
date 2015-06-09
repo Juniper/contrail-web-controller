@@ -1682,7 +1682,7 @@ function physicalInterfacesConfig() {
                     return false;
                 }
             }
-            if(subNets.length > 0) {
+            if(subNets.length > 0 && ip != '') {
                 var isInSubnetRange = false;
                 for(var j =0 ; j < subNets.length; j++){
                     if(isIPBoundToRange(subNets[j], ip)){
