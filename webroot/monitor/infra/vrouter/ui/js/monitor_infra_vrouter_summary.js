@@ -43,14 +43,16 @@ monitorInfraComputeSummaryClass = (function() {
           filteredNodeNames.push(obj['name']);
         });
         computeNodesGrid = $('#divcomputesgrid').data('contrailGrid');
-        computeNodesGrid._dataView.setFilterArgs({
-            filteredNodeNames:filteredNodeNames
-        });
-        computeNodesGrid._dataView.setFilter(function(item,args) {
-            if($.inArray(item['name'],args['filteredNodeNames']) > -1)
-                return true;
-            return false;
-        });
+        if(computeNodesGrid != null && computeNodesGrid._dataView != null) {
+            computeNodesGrid._dataView.setFilterArgs({
+                filteredNodeNames:filteredNodeNames
+            });
+            computeNodesGrid._dataView.setFilter(function(item,args) {
+                if($.inArray(item['name'],args['filteredNodeNames']) > -1)
+                    return true;
+                return false;
+            });
+        }
         
         //update the header
         var totalCnt = vRoutersDataSource.getItems().length;
@@ -62,7 +64,7 @@ monitorInfraComputeSummaryClass = (function() {
         var vRouterData = result['data'];
         var source = result['cfg']['source'];
         //Do not update crossfilters if the update request also came from crossfilter or because of a generator update
-        if(source == 'crossfilter' || source == 'generator'){
+        if(source == 'crossfilter') {
             return;
         }
         $('.chart > svg').remove();
@@ -151,10 +153,12 @@ monitorInfraComputeSummaryClass = (function() {
     function updatevRouterSummaryCharts(result){
         var filteredNodes = result['data'];
         var source = result['cfg']['source'];
-        //if the callback is because of an update to generator then dont update the charts
-        if(source == 'generator'){
-            return;
-        }
+        //If the callback is because of an update to generator then dont update the charts
+        //Putting this check is not updating the charts on coming to this page and local cache is already available with 
+        //generators information
+        // if(source == 'generator'){
+        //     return;
+        // }
         updateChartsForSummary(filteredNodes,'compute');
     }
         
