@@ -6,9 +6,8 @@ define([
     'underscore',
     'backbone',
     'contrail-graph-model',
-    'joint',
     'graph-view'
-], function (_, Backbone, ContrailGraphModel, Joint, GraphView) {
+], function (_, Backbone, ContrailGraphModel, GraphView) {
     var NetworkingGraphView = Backbone.View.extend({
         render: function () {
             var graphTemplate = contrail.getTemplate4Id(cowc.TMPL_NETWORKING_GRAPH_VIEW),
