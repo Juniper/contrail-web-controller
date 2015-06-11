@@ -48,6 +48,16 @@ monitorInfraComputeInterfacesClass = (function() {
                     if(parts[1] != null) {dispVNName += " ("+parts[1]+")";}
                 } 
                 var dispVMName = obj['vm_uuid'] + ' / ' + obj['vm_name'];
+                if(obj['vm_uuid'] == "" && obj['vm_name'] == "") {
+                    dispVMName = '';
+                }
+                obj['dispName'] = obj['name'];
+                if(new RegExp(/logical-port|remote-physical-port/).test(obj['type'])) {
+                    var parts = obj['name'].split(":"); 
+                    if(parts.length == 3){ 
+                        obj['dispName'] = contrail.format('{0} ({1}:{2})',parts[2],parts[0],parts[1]);
+                    } 
+                } 
                 if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
                     if(obj.fip_list != null) {
                         var fipList = [];
@@ -55,6 +65,7 @@ monitorInfraComputeInterfacesClass = (function() {
                         obj['disp_fip_list'] = floatingIPCellTemplate(fipList);
                     }
                     retArray.push({uuid:obj['uuid'],name:obj['name'],label:obj['label'],active:obj['active'],
+                        dispName: obj['dispName'],
                         type:obj['type'],
                         vn_name:obj['vn_name'],disp_vn_name:dispVNName,vm_uuid:obj['vm_uuid'],
                         vm_name:obj['vm_name'],disp_vm_name:dispVMName,ip_addr:obj['ip_addr'],
@@ -165,7 +176,7 @@ monitorInfraComputeInterfacesClass = (function() {
                 columnHeader: {
                    columns:[
                        {
-                           field:"name",
+                           field:"dispName",
                            name:"Name",
                            minWidth:125
                        },
@@ -195,8 +206,17 @@ monitorInfraComputeInterfacesClass = (function() {
                        {
                            field:"type",
                            name:"Type",
-                           cssClass: 'cell-hyperlink-blue',
-                           minWidth:120
+                           formatter: function(r,c,v,cd,dc) {
+                              var typeMapping = { 'vport' : 'Virtual Machine Interface',
+                                            'remote-physical-port' : 'Physical',
+                                            'logical-port'         : 'Logical'};
+                              if(typeMapping[dc['type']] != null) {
+                                 return typeMapping[dc['type']]; 
+                              } else {
+                                 return dc['type'];
+                              }
+                           },
+                           minWidth:130
                        },
                        {
                            field:"disp_vn_name",
@@ -244,8 +264,10 @@ monitorInfraComputeInterfacesClass = (function() {
                            },
                            events: {
                               onClick: function(e,dc) {
+                                if(dc['vm_name'] != null && dc['vm_name'].trim() != '') {
                                   setInstanceURLHashParams(null, dc['vn_name'], dc['vm_uuid'], true);
                                   //layoutHandler.setURLHashParams({vmName:dc['vm_name'],fqName:dc['vm_uuid'],srcVN:dc['vn_name']},{p:'mon_networking_instances',merge:false,triggerHashChange:true});
+                                }
                               }
                            },
                            minWidth:200
