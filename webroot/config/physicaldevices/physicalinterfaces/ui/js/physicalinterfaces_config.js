@@ -393,7 +393,7 @@ function physicalInterfacesConfig() {
                     data : JSON.stringify(prepareVMIPostObject(postObjInput))
                 }));
             }
-            var setVMRefsToVMIAjaxs = [];
+            //var setVMRefsToVMIAjaxs = [];
             var defer = $.when.apply($, portCreateAjaxs);
             defer.done(function(){
                 
@@ -404,31 +404,35 @@ function physicalInterfacesConfig() {
                         if(result != null && result['virtual-machine-interface']
                                 && result['virtual-machine-interface']['fq_name']) {
                             vmiDetails.push(result);
-                            var vmiId = result['virtual-machine-interface']['fq_name'][2];
+                            /*var vmiId = result['virtual-machine-interface']['fq_name'][2];
                             setVMRefsToVMIAjaxs.push($.ajax({
                                 url : '/api/tenants/config/map-virtual-machine-refs/' + vmiId +'/null',
                                 type : "GET"
-                            }));
+                            }));*/
                         } else {
                             fetchInterfaces();
                         }
                     });
+                    if(vmiDetails.length >= 1) {
+                        createUpdatePhysicalInterface();
+                    }
                 } else {
                     var result = arguments[0];
                     if(result != null && result['virtual-machine-interface']
                             && result['virtual-machine-interface']['fq_name']) {
                         vmiDetails.push(result);
-                        var vmiId = result['virtual-machine-interface']['fq_name'][2];
+                        /*var vmiId = result['virtual-machine-interface']['fq_name'][2];
                         setVMRefsToVMIAjaxs.push($.ajax({
                             url : '/api/tenants/config/map-virtual-machine-refs/' + vmiId +'/null',
                             type : "GET"
-                        }));
+                        }));*/
+                        createUpdatePhysicalInterface();
                     } else {
                         fetchInterfaces();
                     }
                 }
                 
-                $.when.apply($,setVMRefsToVMIAjaxs).then(
+                /*$.when.apply($,setVMRefsToVMIAjaxs).then(
                     function(response){
                         //On successful creation of VMs create the Logical Interface
                         createUpdatePhysicalInterface();
@@ -439,7 +443,7 @@ function physicalInterfacesConfig() {
                         showInfoWindow(r[0].responseText,r[2]);
                         fetchInterfaces();
                     }
-                );
+                );*/
             }).fail(function(){
                  //failure
                  var r = arguments;
@@ -457,7 +461,8 @@ function physicalInterfacesConfig() {
                 && result['virtual-machine-interface']['fq_name']) {
                 vmiDetails = [result];
                 var vmiId = result['virtual-machine-interface']['fq_name'][2];
-                setVirtualMachineRefsToVMI(vmiId);
+                /*setVirtualMachineRefsToVMI(vmiId);*/
+                createUpdatePhysicalInterface();
                 if ($('#ddLIType').data('contrailDropdown').value() === 'l3' && $('#txtSubnet').val().trim() != '') {
                     setVMIRefsToSubnet(vmiId);
                 }
@@ -496,7 +501,7 @@ function physicalInterfacesConfig() {
 
         }
 
-        function setVirtualMachineRefsToVMI(vmiId) {
+        /*function setVirtualMachineRefsToVMI(vmiId) {
             doAjaxCall('/api/tenants/config/map-virtual-machine-refs/' + vmiId +'/null', 'GET', null,
                 'successHandlerForVMRefToVMI', 'failureHandlerForVMRefToVMI', null, null);
         }
@@ -511,7 +516,7 @@ function physicalInterfacesConfig() {
 
         window.failureHandlerForVMRefToVMI = function(error) {
             fetchInterfaces();
-        }
+        }*/
         
         $('#btnDeletePhysicalInterface').click(function(){
              if(!$(this).hasClass('disabled-link')) {
@@ -1087,16 +1092,16 @@ function physicalInterfacesConfig() {
         $('#l2ServerPanel').removeClass('hide').addClass('show'); 
         fetchVirtualNetworkInternals('none');
         gblSelRow = null;
-        clearServerDetailsGrid();
+        clearServerDetailsGrid('none');
         $('#panel_clear_ports').removeClass('show').addClass('hide');
     }
     
-    function clearServerDetailsGrid(){
+    function clearServerDetailsGrid(show){
       //Remove all the rows in the grid.
         $("[id$=serverMac]").remove();
         $("[id$=serverIp]").remove();
         $(".rule-item").remove();
-        if($('#ddVN').data('contrailDropdown').value() == 'none'){
+        if($('#ddVN').data('contrailDropdown').value() == 'none' || (show != null && show == 'none')){
             $('#btnAddServer').hide();
         } else {
             $('#btnAddServer').show();
