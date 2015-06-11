@@ -2880,12 +2880,12 @@ function onPrevNextClick(obj,cfg) {
     var xStrFormat = /(begin:)\d+(,end:)\d+(,table:.*)/;
     var entriesFormat = /.*\/(\d+)/;
     var totalCnt;
-    if(paginationInfo['entries'].match(entriesFormat) instanceof Array) {
+    if(paginationInfo['entries'] != null && paginationInfo['entries'].match(entriesFormat) instanceof Array) {
         var patternResults = paginationInfo['entries'].match(entriesFormat);
         //Get the total count from entries as with some filter applied,total count will not be same as table size
         totalCnt = parseInt(patternResults[1]);
     } 
-    if(paginationInfo['last_page'].match(xStrFormat) instanceof Array) {
+    if(paginationInfo['last_page'] != null && paginationInfo['last_page'].match(xStrFormat) instanceof Array) {
         if(totalCnt == null) {
             totalCnt = parseInt(paginationInfo['table_size']);
         }
