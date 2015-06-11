@@ -313,6 +313,15 @@ monitorInfraComputeInterfacesClass = (function() {
                     return constructvRouterIntfUrl(obj);
                 }
             });
+            var interfaceGridObj = $("#gridComputeInterfaces").data('contrailGrid');
+            function adjustInterfaceGridRowHeight() {
+                if($('#gridComputeInterfaces').find('.input-searchbox input').val() != null && interfaceGridObj != null)
+                    interfaceGridObj.adjustAllRowHeight();
+            }
+            if(interfaceGridObj != null) {
+                interfaceGridObj._dataView.onDataUpdate.unsubscribe(adjustInterfaceGridRowHeight);
+                interfaceGridObj._dataView.onDataUpdate.subscribe(adjustInterfaceGridRowHeight);
+            }
             //applyGridDefHandlers(intfGrid, {noMsg:'No interfaces to display'});
         } else {
             reloadGrid(intfGrid);
