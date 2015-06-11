@@ -146,18 +146,16 @@ monitorInfraComputeInterfacesClass = (function() {
             $('#itfType').contrailDropdown({
                 data: [{
                     id:'any',
-                    value:'any',
                     text:'Any'
                 },{
                     id:'vmi',
-                    value:'vmi',
-                    text:'Virtual Machine Interface'
+                    text:'vport'
                 },{
                     id:'physical',
-                    text:'Physical'
+                    text:'remote-physical-port'
                 },{
                     id:'logical',
-                    text:'Logical'
+                    text:'logical-port'
                 }]
             });
             $('#itfType').select2('val','any');
@@ -206,16 +204,6 @@ monitorInfraComputeInterfacesClass = (function() {
                        {
                            field:"type",
                            name:"Type",
-                           formatter: function(r,c,v,cd,dc) {
-                              var typeMapping = { 'vport' : 'Virtual Machine Interface',
-                                            'remote-physical-port' : 'Physical',
-                                            'logical-port'         : 'Logical'};
-                              if(typeMapping[dc['type']] != null) {
-                                 return typeMapping[dc['type']]; 
-                              } else {
-                                 return dc['type'];
-                              }
-                           },
                            minWidth:130
                        },
                        {
