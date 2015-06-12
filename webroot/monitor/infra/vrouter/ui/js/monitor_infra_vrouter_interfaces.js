@@ -55,7 +55,7 @@ monitorInfraComputeInterfacesClass = (function() {
                 if(new RegExp(/logical-port|remote-physical-port/).test(obj['type'])) {
                     var parts = obj['name'].split(":"); 
                     if(parts.length == 3){ 
-                        obj['dispName'] = contrail.format('{0} ({1}:{2})',parts[2],parts[0],parts[1]);
+                        obj['dispName'] = contrail.format('{0}<br/> ({1}:{2})',parts[2],parts[0],parts[1]);
                     } 
                 } 
                 if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
@@ -178,7 +178,10 @@ monitorInfraComputeInterfacesClass = (function() {
                        {
                            field:"dispName",
                            name:"Name",
-                           minWidth:125
+                           minWidth:125,
+                           formatter:function(r,c,v,cd,dc) {
+                               return v;
+                           }
                        },
                        {
                            field:"label",
