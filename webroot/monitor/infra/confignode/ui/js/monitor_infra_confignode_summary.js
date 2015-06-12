@@ -130,7 +130,8 @@ monitorInfraConfigSummaryClass = (function() {
                     {
                         field:"memory",
                         name:"Memory",
-                        minWidth:150
+                        minWidth:150,
+                        sortField:"y"
                     }
                 ],
             }
