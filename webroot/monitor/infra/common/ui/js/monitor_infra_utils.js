@@ -724,9 +724,12 @@ var infraMonitorUtils = {
             } else {
                 obj['ip'] = noDataStr;
             }
-            obj['availableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
-            obj['usedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
-            obj['analyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
+            obj['dbSpaceAvailable'] = dbSpaceAvailable;
+            obj['dbSpaceUsed'] = dbSpaceUsed;
+            obj['analyticsDbSize'] = analyticsDbSize;
+            obj['formattedAvailableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
+            obj['formattedUsedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
+            obj['formattedAnalyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
             //Use the db usage percentage for bubble size
             obj['usedPercentage'] = (obj['y'] * 100) / (obj['y']+obj['x']);
             obj['size'] = obj['usedPercentage']  ;

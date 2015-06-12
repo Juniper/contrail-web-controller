@@ -342,7 +342,8 @@ monitorInfraComputeSummaryClass = (function() {
                     {
                         field:"memory",
                         name:"Memory",
-                        minWidth:110
+                        minWidth:110,
+                        sortField:"resMemory"
                     },
                     {
                         field:"vnCnt",

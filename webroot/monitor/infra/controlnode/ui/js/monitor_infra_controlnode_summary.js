@@ -126,7 +126,8 @@ monitorInfraControlSummaryClass = (function() {
                     {
                         field:"memory",
                         name:"Memory",
-                        minWidth:110
+                        minWidth:110,
+                        sortField:"y"
                     },
                     {
                         field:"establishedPeerCount",
