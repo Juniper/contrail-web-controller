@@ -293,8 +293,8 @@ define([
             }
             var response = responseArray[0],
                 rawdata = response['flow-series'],
-                inBytes = {key: "In Bytes", values: [], color: d3_category5[0]}, outBytes = {
-                    key: "Out Bytes",
+                inBytes = {key: "In Traffic", values: [], color: d3_category5[0]}, outBytes = {
+                    key: "Out Traffic",
                     values: [],
                     color: d3_category5[1]
                 },

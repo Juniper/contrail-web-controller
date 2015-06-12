@@ -79,7 +79,7 @@ define([
                                                 modelConfig: {
                                                     remote: {
                                                         ajaxConfig: {
-                                                            url: ctwc.get(ctwc.URL_NETWORK_TRAFFIC_STATS, 60, networkFQN, 120),
+                                                            url: ctwc.get(ctwc.URL_NETWORK_TRAFFIC_STATS, 120, networkFQN, 120),
                                                             type: 'GET'
                                                         },
                                                         dataParser: ctwp.vnTrafficStatsParser

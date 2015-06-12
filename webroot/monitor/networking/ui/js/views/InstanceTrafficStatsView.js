@@ -81,7 +81,7 @@ define([
                     modelConfig: {
                         remote: {
                             ajaxConfig: {
-                                url: ctwc.get(ctwc.URL_INSTANCE_TRAFFIC_STATS, 60, networkFQN, 120, interfaceIpAddress, instanceUUID, interfaceName),
+                                url: ctwc.get(ctwc.URL_INSTANCE_TRAFFIC_STATS, 120, networkFQN, 120, interfaceIpAddress, instanceUUID, interfaceName),
                                 type: 'GET'
                             },
                             dataParser: ctwp.vmTrafficStatsParser

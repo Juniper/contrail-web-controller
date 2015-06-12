@@ -150,7 +150,7 @@ define([
                                 var focusedElement = graphConfig.focusedElement;
                                 $(this).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
                                 adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
-                                panConnectedGraph2Center(focusedElement, connectedSelectorId)
+                                $(connectedSelectorId).panzoom('reset');
                             }
                         }
                     }
@@ -360,7 +360,6 @@ define([
             }
         }
 
-        $(connectedSelectorId).panzoom("resetPan");
         $(connectedSelectorId).panzoom("pan", panX, panY, { relative: true });
         $(connectedSelectorId).css({'backface-visibility':'initial'});
     };
