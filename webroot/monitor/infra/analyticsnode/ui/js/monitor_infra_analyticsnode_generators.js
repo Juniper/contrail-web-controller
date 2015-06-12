@@ -32,12 +32,13 @@ monitorInfraAnalyticsGeneratorsClass = (function() {
                         messages += parseInt(msgStats[i]["messages"]); 
                     }
                 } 
-                msgsBytes = formatBytes(msgsBytes);
+                var formattedMsgBytes = formatBytes(msgsBytes);
                 
                 ret.push({name:name,
                     status:status,
                     messages:messages,
                     bytes:msgsBytes,
+                    formattedMsgBytes:formattedMsgBytes,
                     raw_json:rawJson});
             });
         }
@@ -79,9 +80,10 @@ monitorInfraAnalyticsGeneratorsClass = (function() {
                              name:"Messages"
                          },
                          {
-                             field:"bytes",
+                             field:"formattedMsgBytes",
                              name:"Bytes",
-                             width:140
+                             width:140,
+                             sortField:"bytes"
                          }
                      ],
                 },

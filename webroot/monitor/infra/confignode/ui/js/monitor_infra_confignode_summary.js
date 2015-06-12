@@ -50,7 +50,7 @@ monitorInfraConfigSummaryClass = (function() {
             columnHeader: {
                 columns:[
                     {
-                        field:"hostName",
+                        field:"name",
                         name:"Host name",
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
@@ -130,7 +130,8 @@ monitorInfraConfigSummaryClass = (function() {
                     {
                         field:"memory",
                         name:"Memory",
-                        minWidth:150
+                        minWidth:150,
+                        sortField:"y"
                     }
                 ],
             }
