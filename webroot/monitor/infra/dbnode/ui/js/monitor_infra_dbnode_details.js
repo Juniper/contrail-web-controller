@@ -85,9 +85,9 @@ monitorInfraDbDetailsClass = (function() {
                 ]);
                 databaseNodeDashboardInfo = databaseNodeDashboardInfo.concat(
                         [{lbl:'Database Usage', value:" "},
-                          {lbl:INDENT_RIGHT+'Available Space', value:parsedData['availableSpace']},
-                          {lbl:INDENT_RIGHT+'Used Space', value:parsedData['usedSpace'] + ' (' + parsedData['usedPercentage'].toFixed(2) + ' %)' },
-                          {lbl:INDENT_RIGHT+'Analytics DB Size', value:parsedData['analyticsDbSize']}
+                          {lbl:INDENT_RIGHT+'Available Space', value:parsedData['formattedAvailableSpace']},
+                          {lbl:INDENT_RIGHT+'Used Space', value:parsedData['formattedUsedSpace'] + ' (' + parsedData['usedPercentage'].toFixed(2) + ' %)' },
+                          {lbl:INDENT_RIGHT+'Analytics DB Size', value:parsedData['formattedAnalyticsDbSize']}
 //                          {lbl:INDENT_RIGHT+'Usage', value:parsedData['usedPercentage'].toFixed(2) + ' %'}
                 ]);
                 /*Selenium Testing*/
