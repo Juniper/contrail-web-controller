@@ -46,6 +46,7 @@ define([
                                 view: "ScatterChartView",
                                 viewConfig: {
                                     class: "port-distribution-chart",
+                                    loadChartInChunks: true,
                                     parseFn: function (chartData) {
                                         var portData = constructDataForPortDist(chartData, getURLConfigForGrid(hashParams)),
                                             portTitle = (hashParams['portType'] == 'src') ? ctwl.SOURCE_PORT : ctwl.DESTINATION_PORT,
