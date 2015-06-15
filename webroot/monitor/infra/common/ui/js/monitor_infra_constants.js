@@ -10,7 +10,7 @@ var analyticsNodeTabs = ['details', 'generators', 'qequeries', 'console'];
 var configNodeTabs = ['details', 'console', 'generators', 'qequeries'];
 var dbNodeTabs = ['details'];
 
-var excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr',
+var excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr','contrail-snmp-collector','contrail-topology',
     'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel'];
 var vRouterDashboardChartInitialized = false;
 var controlNodesDashboardChartInitialized = false;
