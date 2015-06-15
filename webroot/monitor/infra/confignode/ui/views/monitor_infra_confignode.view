@@ -55,7 +55,7 @@
                                     <div id="apiServer-sparklines" class="span4 apiServer-chart-link sparklines-box">
                                         <p class="sparkline-title">API Server</p>
                                         <div class="row-fluid">
-                                           <span class="span6"><small>CPU Utilization</small></span>
+                                           <span class="span6"><small>{{getInfraDetailsPageCPUChartTitle}}</small></span>
                                            <span id="contrail-api-cpu-share_sparkline" class="span6 pull-right"></span>
                                        </div>
                                        <div class="row-fluid">
@@ -66,7 +66,7 @@
                                     <div id="serviceMonitor-sparklines" class="span4 serviceMonitor-chart-link sparklines-box">
                                         <p class="sparkline-title">Service Monitor</p>
                                         <div class="row-fluid">
-                                           <span class="span6"><small>CPU Utilization</small></span> <span id="contrail-svc-monitor-cpu-share_sparkline" class="span6 pull-right"></span>
+                                           <span class="span6"><small>{{getInfraDetailsPageCPUChartTitle}}</small></span> <span id="contrail-svc-monitor-cpu-share_sparkline" class="span6 pull-right"></span>
                                         </div>
                                         <div class="row-fluid">
                                            <span class="span6"><small>Memory</small></span>
@@ -76,7 +76,7 @@
                                     <div id="schema-sparklines" class="span4 schema-chart-link sparklines-box">
                                         <p class="sparkline-title">Schema Transformer</p>
                                         <div class="row-fluid">
-                                           <span class="span6"><small>CPU Utilization</small></span>
+                                           <span class="span6"><small>{{getInfraDetailsPageCPUChartTitle}}</small></span>
                                            <span id="contrail-schema-cpu-share_sparkline" class="span6 pull-right"></span>
                                        </div>
                                        <div class="row-fluid">
