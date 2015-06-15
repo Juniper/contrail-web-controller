@@ -60,7 +60,7 @@
                                         <div id="control-sparklines" class="span4 control-chart-link sparklines-box">
                                             <p class="sparkline-title">Control Node</p>
                                             <div class="row-fluid">
-                                               <span class="span6"><small>CPU Utilization</small></span>
+                                               <span class="span6"><small>{{getInfraDetailsPageCPUChartTitle}}</small></span>
                                                <span id="contrail-control-cpu-share_sparkline" class="span6 pull-right"></span>
                                             </div>
                                             <div class="row-fluid">

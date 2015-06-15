@@ -42,28 +42,28 @@ monitorInfraConfigDetailsClass = (function() {
                         var slConfig;
                         startTime = endTime - 600000;
                         slConfig = {startTime: startTime, endTime: endTime};
-                        $('#apiServer-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#apiServer-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-api-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-api-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        $('#serviceMonitor-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#serviceMonitor-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-svc-monitor-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-svc-monitor-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        $('#schema-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#schema-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                             {name: 'contrail-schema-cpu-share', color: 'blue-sparkline'},
                             {name: 'contrail-schema-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        endWidgetLoading('config-sparklines' + '_' + obj.name);
-                        $('#apiServer-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        endWidgetLoading('config-sparklines');
+                        $('#apiServer-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-api', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines' + '_' + obj.name, showWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                        $('#serviceMonitor-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        }, parser: "parseProcessMemCPUData", parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'apiServer-sparklines', showWidgetIds: ['apiServer-chart' + '-box'], hideWidgetIds: ['serviceMonitor-chart' + '-box', 'schema-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
+                        $('#serviceMonitor-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-svc-monitor', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines' + '_' + obj.name, showWidgetIds: ['serviceMonitor-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'schema-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
-                        $('#schema-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'serviceMonitor-sparklines', showWidgetIds: ['serviceMonitor-chart' + '-box'], hideWidgetIds: ['apiServer-chart' + '-box', 'schema-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
+                        $('#schema-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-schema', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines' + '_' + obj.name, showWidgetIds: ['schema-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['apiServer-chart' + '_' + obj.name + '-box', 'serviceMonitor-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'schema-sparklines', showWidgetIds: ['schema-chart' + '-box'], hideWidgetIds: ['apiServer-chart' + '-box', 'serviceMonitor-chart' + '-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
                     });
                     
                 });
