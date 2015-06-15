@@ -53,21 +53,21 @@ monitorInfraComputeDetailsClass = (function() {
                     }).done(function (resultJSON) {
                         var cpuMemStats = infraMonitorUtils.parseCpuMemStats(resultJSON,nodetype);
                         
-                        $('#vrouter-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value':[
+                        $('#vrouter-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value':[
                             {name: 'contrail-vrouter-agent-cpu-share', color: 'blue-sparkline'}, 
                             {name: 'contrail-vrouter-agent-mem-res', color: 'green-sparkline'}
                         ]}, slConfig);
-                        $('#system-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value':[
+                        $('#system-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value':[
                             {name: 'contrail-vrouter-agent-one-min-cpuload', color: 'blue-sparkline'}, 
                             {name: 'contrail-vrouter-agent-used-sys-mem', color: 'green-sparkline'}
                         ]}, slConfig);
-                        endWidgetLoading('vrouter-sparklines' + '_' + obj.name);
-                        $('#vrouter-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        endWidgetLoading('vrouter-sparklines');
+                        $('#vrouter-chart').initMemCPULineChart($.extend({url:function() {
                             return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'vrouter-sparklines' + '_' + obj.name, showWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['system-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}), 110);
-                        $('#system-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'vrouter-sparklines', showWidgetIds: ['vrouter-chart-box'], hideWidgetIds: ['system-chart-box'], titles: {memTitle:'Memory',cpuTitle:infraDetailsPageCPUChartTitle}}), 110);
+                        $('#system-chart').initMemCPULineChart($.extend({url:function() {
                             return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-vrouter-agent', '30', '10', obj['name'], endTime);
-                        }, parser: "parseSystemMemCPUData", plotOnLoad: false, lineChartId: 'system-sparklines' + '_' + obj.name, showWidgetIds: ['system-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
+                        }, parser: "parseSystemMemCPUData", plotOnLoad: false, lineChartId: 'system-sparklines', showWidgetIds: ['system-chart' + '_' + obj.name + '-box'], hideWidgetIds: ['vrouter-chart' + '_' + obj.name + '-box'], titles: {memTitle:'Memory',cpuTitle:'Avg CPU Load'}}),110);
                     });
                 });
                 var procStateList, overallStatus = noDataStr;

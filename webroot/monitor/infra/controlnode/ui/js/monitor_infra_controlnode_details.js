@@ -44,14 +44,14 @@ monitorInfraControlDetailsClass = (function() {
                         var slConfig;
                         startTime = endTime - 600000;
                         slConfig = {startTime: startTime, endTime: endTime};
-                        $('#control-sparklines' + '_' + obj.name).initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
+                        $('#control-sparklines').initMemCPUSparkLines(cpuMemStats, 'parseMemCPUData4SparkLines', {'value': [
                              {name: 'contrail-control-cpu-share', color: 'blue-sparkline'},
                              {name: 'contrail-control-mem-res', color: 'green-sparkline'}
                          ]}, slConfig);
-                        endWidgetLoading('control-sparklines' + '_' + obj.name);
-                        $('#control-chart' + '_' + obj.name).initMemCPULineChart($.extend({url:function() {
+                        endWidgetLoading('control-sparklines');
+                        $('#control-chart').initMemCPULineChart($.extend({url:function() {
                             return  contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-control', '30', '10', obj['name'], endTime);
-                        }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines' + '_' + obj.name, showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                        }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'control-sparklines', showWidgetIds: [], hideWidgetIds: [], titles: {memTitle:'Memory',cpuTitle:infraDetailsPageCPUChartTitle}}),110);
                     });
                     
                 });
