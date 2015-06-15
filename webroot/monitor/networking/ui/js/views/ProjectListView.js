@@ -43,23 +43,20 @@ define([
                             {
                                 elementId: ctwl.PROJECTS_SCATTER_CHART_ID,
                                 title: ctwl.TITLE_PROJECTS,
-                                view: "ScatterChartView",
+                                view: "ZoomScatterChartView",
                                 viewConfig: {
-                                    class: "port-distribution-chart",
                                     loadChartInChunks: true,
-                                    parseFn: function (response) {
-                                        return {
-                                            d: [{
-                                                key: 'Projects',
-                                                values: response
-                                            }],
-                                            xLbl: 'Interfaces',
-                                            yLbl: 'Networks',
-                                            forceX: [0, 5],
-                                            forceY: [0, 10],
-                                            chartOptions: {tooltipFn: getProjectTooltipConfig, clickFn: onScatterChartClick},
-                                            hideLoadingIcon: false
-                                        }
+                                    chartOptions: {
+                                        xLabel: 'Interfaces',
+                                        yLabel: 'Networks',
+                                        forceX: [0, 5],
+                                        forceY: [0, 10],
+                                        dataParser: function (response) {
+                                            return response;
+                                        },
+                                        tooltipConfigCB: getProjectTooltipConfig,
+                                        clickCB: onScatterChartClick,
+                                        sizeFieldName: 'throughput'
                                     }
                                 }
                             },

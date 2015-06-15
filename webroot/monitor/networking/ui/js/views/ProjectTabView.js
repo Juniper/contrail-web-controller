@@ -37,7 +37,7 @@ define([
                                     activate: function (e, ui) {
                                         var selTab = $(ui.newTab.context).text();
                                         if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                                            $('#' + ctwl.PROJECT_PORTS_SCATTER_CHART_ID).find('svg').trigger('refresh');
+                                            $('#' + ctwl.PROJECT_PORTS_SCATTER_CHART_ID).trigger('refresh');
                                         } else if (selTab == ctwl.TITLE_NETWORKS) {
                                             $('#' + ctwl.PROJECT_NETWORK_GRID_ID).data('contrailGrid').refreshView();
                                         } else if (selTab == ctwl.TITLE_INSTANCES) {
@@ -68,9 +68,8 @@ define([
                                         {
                                             elementId: ctwl.PROJECT_PORTS_SCATTER_CHART_ID,
                                             title: ctwl.TITLE_PORT_DISTRIBUTION,
-                                            view: "ScatterChartView",
+                                            view: "ZoomScatterChartView",
                                             viewConfig: {
-                                                class: "port-distribution-chart",
                                                 modelConfig: {
                                                     remote: {
                                                         ajaxConfig: {
@@ -83,52 +82,46 @@ define([
                                                         ucid: ctwc.get(ctwc.UCID_PROJECT_VN_PORT_STATS_LIST, projectFQN)
                                                     }
                                                 },
-                                                parseFn: function (responseArray) {
-                                                    var response = responseArray[0];
-                                                    var retObj = {
-                                                        d: [{
-                                                            key: 'Source Port',
-                                                            values: response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
+                                                chartOptions: {
+                                                    xLabel: ctwl.X_AXIS_TITLE_PORT,
+                                                    yLabel: ctwl.Y_AXIS_TITLE_BW,
+                                                    forceX: [0, 1000],
+                                                    dataParser: function (responseArray) {
+                                                        var response = responseArray[0],
+                                                            srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
                                                                 startTime: response['startTime'],
                                                                 endTime: response['endTime'],
                                                                 bandwidthField: 'outBytes',
                                                                 flowCntField: 'outFlowCount',
-                                                                portField: 'sport'
-                                                            }) : []
-                                                        },
-                                                            {
-                                                                key: 'Destination Port',
-                                                                values: response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
-                                                                    startTime: response['startTime'],
-                                                                    endTime: response['endTime'],
-                                                                    bandwidthField: 'inBytes',
-                                                                    flowCntField: 'inFlowCount',
-                                                                    portField: 'dport'
-                                                                }) : []
-                                                            }],
-                                                        forceX: [0, 1000],
-                                                        xLblFormat: d3.format(''),
-                                                        yDataType: 'bytes',
-                                                        fqName: projectFQN,
-                                                        yLbl: ctwl.Y_AXIS_TITLE_BW,
-                                                        link: {
-                                                            hashParams: {
-                                                                q: {
-                                                                    view: 'list',
-                                                                    type: 'project',
-                                                                    fqName: projectFQN,
-                                                                    context: 'domain'
-                                                                }
-                                                            }
-                                                        },
-                                                        chartOptions: {
-                                                            clickFn: onScatterChartClick,
-                                                            tooltipFn: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick)
-                                                        },
-                                                        title: ctwl.TITLE_PORT_DISTRIBUTION,
-                                                        xLbl: ctwl.X_AXIS_TITLE_PORT
-                                                    };
-                                                    return retObj;
+                                                                portField: 'sport',
+                                                                portYype: "src",
+                                                                fqName: projectFQN
+                                                            }) : [],
+                                                            dstPortData = response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
+                                                                startTime: response['startTime'],
+                                                                endTime: response['endTime'],
+                                                                bandwidthField: 'inBytes',
+                                                                flowCntField: 'inFlowCount',
+                                                                portField: 'dport',
+                                                                portYype: "src",
+                                                                fqName: projectFQN
+                                                            }) : [],
+                                                            chartData = [];
+
+                                                        chartData = chartData.concat(srcPortdata);
+                                                        chartData = chartData.concat(dstPortData);
+
+                                                        return chartData;
+                                                    },
+                                                    tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                                    clickCB: onScatterChartClick,
+                                                    sizeFieldName: 'flowCnt',
+                                                    xLabelFormat: d3.format(','),
+                                                    yLabelFormat: function(yValue) {
+                                                        var formattedValue = formatBytes(yValue, false, null, 1);
+                                                        return formattedValue;
+                                                    },
+                                                    margin: {left: 70}
                                                 }
                                             }
                                         }

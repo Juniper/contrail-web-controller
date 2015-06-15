@@ -20,7 +20,8 @@ define([
             var ucid = ctwc.get(ctwc.UCID_INSTANCE_INTERFACE_LIST, networkFQN, instanceUUID);
 
             if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {
-                viewModel = modelMap[viewConfig['modelKey']]
+                //TODO: Create a model from data coming from ModelMap
+                viewModel = modelMap[viewConfig['modelKey']];
                 if (!(viewModel.isRequestInProgress())) {
                     interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
                     cowu.renderView4Config(that.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
@@ -98,6 +99,9 @@ define([
                         ajaxConfig: interfacesAjaxConfig,
                         dataParser: ctwp.interfaceDataParser
                     },
+                    vlRemoteConfig: {
+                        vlRemoteList: ctwgc.getInterfaceStatsLazyRemoteConfig()
+                    },
                     cacheConfig : {
                         ucid: ucid
                     }
@@ -146,7 +150,43 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
+                                                    key: 'virtual_network',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'vm_name',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
                                                     key: 'active',
+                                                    templateGenerator: 'TextGenerator'
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    class: 'span6',
+                                    rows: [
+                                        {
+                                            title: ctwl.TITLE_TRAFFIC_DETAILS,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'if_stats.throughput',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'throughput'
+                                                    }
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            title: ctwl.TITLE_FLOATING_IPS,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'floatingIP',
                                                     templateGenerator: 'TextGenerator'
                                                 }
                                             ]

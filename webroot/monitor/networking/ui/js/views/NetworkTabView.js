@@ -33,10 +33,11 @@ define([
                                 view: "TabsView",
                                 viewConfig: {
                                     theme: 'classic',
+                                    active: 1,
                                     activate: function (e, ui) {
                                         var selTab = $(ui.newTab.context).text();
                                         if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                                            $('#' + ctwl.NETWORK_PORT_DIST_ID).find('svg').trigger('refresh');
+                                            $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
                                         } else if (selTab == ctwl.TITLE_INSTANCES) {
                                             $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').refreshView();
                                         } else if (selTab == ctwl.TITLE_TRAFFIC_STATISTICS) {
@@ -78,7 +79,7 @@ define([
                                                 modelConfig: {
                                                     remote: {
                                                         ajaxConfig: {
-                                                            url: ctwc.get(ctwc.URL_NETWORK_TRAFFIC_STATS, 60, networkFQN, 120),
+                                                            url: ctwc.get(ctwc.URL_NETWORK_TRAFFIC_STATS, 120, networkFQN, 120),
                                                             type: 'GET'
                                                         },
                                                         dataParser: ctwp.vnTrafficStatsParser
@@ -93,9 +94,8 @@ define([
                                         {
                                             elementId: ctwl.NETWORK_PORT_DIST_ID,
                                             title: ctwl.TITLE_PORT_DISTRIBUTION,
-                                            view: "ScatterChartView",
+                                            view: "ZoomScatterChartView",
                                             viewConfig: {
-                                                class: "port-distribution-chart",
                                                 modelConfig: {
                                                     remote: {
                                                         ajaxConfig: {
@@ -108,52 +108,46 @@ define([
                                                         ucid: ctwc.get(ctwc.UCID_PROJECT_VN_PORT_STATS_LIST, networkFQN)
                                                     }
                                                 },
-                                                parseFn: function (responseArray) {
-                                                    var response = responseArray[0];
-                                                    var retObj = {
-                                                        d: [{
-                                                            key: 'Source Port',
-                                                            values: response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
+                                                chartOptions: {
+                                                    xLabel: ctwl.X_AXIS_TITLE_PORT,
+                                                    yLabel: ctwl.Y_AXIS_TITLE_BW,
+                                                    forceX: [0, 1000],
+                                                    dataParser: function (responseArray) {
+                                                        var response = responseArray[0],
+                                                            srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
                                                                 startTime: response['startTime'],
                                                                 endTime: response['endTime'],
                                                                 bandwidthField: 'outBytes',
                                                                 flowCntField: 'outFlowCount',
-                                                                portField: 'sport'
-                                                            }) : []
-                                                        },
-                                                            {
-                                                                key: 'Destination Port',
-                                                                values: response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
-                                                                    startTime: response['startTime'],
-                                                                    endTime: response['endTime'],
-                                                                    bandwidthField: 'inBytes',
-                                                                    flowCntField: 'inFlowCount',
-                                                                    portField: 'dport'
-                                                                }) : []
-                                                            }],
-                                                        forceX: [0, 1000],
-                                                        xLblFormat: d3.format(''),
-                                                        yDataType: 'bytes',
-                                                        fqName: networkFQN,
-                                                        yLbl: ctwl.Y_AXIS_TITLE_BW,
-                                                        link: {
-                                                            hashParams: {
-                                                                q: {
-                                                                    view: 'list',
-                                                                    type: 'network',
-                                                                    fqName: networkFQN,
-                                                                    context: 'domain'
-                                                                }
-                                                            }
-                                                        },
-                                                        chartOptions: {
-                                                            clickFn: onScatterChartClick,
-                                                            tooltipFn: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick)
-                                                        },
-                                                        title: ctwl.TITLE_PORT_DISTRIBUTION,
-                                                        xLbl: ctwl.X_AXIS_TITLE_PORT
-                                                    };
-                                                    return retObj;
+                                                                portField: 'sport',
+                                                                portYype: "src",
+                                                                fqName: networkFQN
+                                                            }) : [],
+                                                            dstPortData = response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
+                                                                startTime: response['startTime'],
+                                                                endTime: response['endTime'],
+                                                                bandwidthField: 'inBytes',
+                                                                flowCntField: 'inFlowCount',
+                                                                portField: 'dport',
+                                                                portYype: "src",
+                                                                fqName: networkFQN
+                                                            }) : [],
+                                                            chartData = [];
+
+                                                        chartData = chartData.concat(srcPortdata);
+                                                        chartData = chartData.concat(dstPortData);
+
+                                                        return chartData;
+                                                    },
+                                                    tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                                    clickCB: onScatterChartClick,
+                                                    sizeFieldName: 'flowCnt',
+                                                    xLabelFormat: d3.format(','),
+                                                    yLabelFormat: function(yValue) {
+                                                        var formattedValue = formatBytes(yValue, false, null, 1);
+                                                        return formattedValue;
+                                                    },
+                                                    margin: {left: 70}
                                                 }
                                             }
                                         },

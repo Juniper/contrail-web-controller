@@ -75,8 +75,9 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     detail: {
-                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER)
-                    }
+                        template: cowu.generateDetailTemplateHTML(getNetworkDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, '{{{formatGridJSON2HTML this.rawData}}}')
+                    },
+                    fixedRowHeight: 30
                 },
                 dataSource: {
                     remote: {
@@ -183,14 +184,6 @@ define([
                                                     templateGeneratorConfig: {
                                                         formatter: 'byte'
                                                     }
-                                                },
-                                                {
-                                                    key: 'in_tpkts',
-                                                    templateGenerator: 'TextGenerator'
-                                                },
-                                                {
-                                                    key: 'out_tpkts',
-                                                    templateGenerator: 'TextGenerator'
                                                 }
                                             ]
                                         }

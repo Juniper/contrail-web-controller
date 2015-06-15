@@ -51,20 +51,20 @@ define([
                             {
                                 elementId: ctwl.NETWORKS_PORTS_SCATTER_CHART_ID,
                                 title: ctwl.TITLE_NETWORKS,
-                                view: "ScatterChartView",
+                                view: "ZoomScatterChartView",
                                 viewConfig: {
-                                    class: "port-distribution-chart",
                                     loadChartInChunks: true,
-                                    parseFn: function (response) {
-                                        return {
-                                            d: [{key: 'Networks', values: response}],
-                                            xLbl: 'Interfaces',
-                                            yLbl: 'Connected Networks',
-                                            forceX: [0, 5],
-                                            forceY: [0, 10],
-                                            chartOptions: {tooltipFn: getNetworkTooltipConfig, clickFn: onScatterChartClick},
-                                            hideLoadingIcon: false
-                                        }
+                                    chartOptions: {
+                                        xLabel: 'Interfaces',
+                                        yLabel: 'Connected Networks',
+                                        forceX: [0, 5],
+                                        forceY: [0, 10],
+                                        dataParser: function (response) {
+                                            return response;
+                                        },
+                                        tooltipConfigCB: getNetworkTooltipConfig,
+                                        clickCB: onScatterChartClick,
+                                        sizeFieldName: 'throughput'
                                     }
                                 }
                             },

@@ -1104,15 +1104,26 @@ function getVirtualMachinesSummary (req, res, appData)
 
 function getVirtualInterfacesSummary (req, res, appData)
 {
-    var postData = req.body,
-        kfilt = postData['kfilt'],
-        cfilt = postData['cfilt'],
-        url = '/analytics/uves/virtual-machine-interface/*?kfilt=' + kfilt;
+    var reqPostData = req.body,
+        kfilt = reqPostData['kfilt'], cfilt = reqPostData['cfilt'],
+        url = '/analytics/uves/virtual-machine-interface',
+        opServerPostData = {};
+
+    if(kfilt != null && kfilt != '') {
+        opServerPostData['kfilt'] = kfilt.split(",");
+    }
 
     if(cfilt != null && cfilt != '') {
-        url += "&cfilt=" + cfilt;
+        opServerPostData['cfilt'] = cfilt.split(",");
     }
-    sendOpServerResponseByURL(url, req, res, appData);
+
+    opServer.api.post(url, opServerPostData, function(err, data) {
+        if (err || (null == data)) {
+            commonUtils.handleJSONResponse(err, res, null);
+        } else {
+            commonUtils.handleJSONResponse(null, res, data);
+        }
+    });
 }
 
 function vnLinkListed (srcVN, dstVN, dir, vnNodeList)
@@ -2795,6 +2806,21 @@ function getVirtualNetworksDetails (req, res, appData)
     });
 }
 
+//Returns the list of virtual networks for calculating the 
+//vn count in Infra Dashboard
+function getVirtualNetworksList (req, res, appData)
+{
+    var reqPostData = req.body;
+    var url = '/analytics/uves/virtual-networks?cfilt=UveVirtualNetworkAgent';
+    opApiServer.apiGet(url, appData, function(error, data) {
+        if (error) {
+            commonUtils.handleJSONResponse(error, res, null);
+            return;
+         }
+         commonUtils.handleJSONResponse(error, res, data);
+    });
+}
+
 function getInstanceDetails (req, res, appData)
 {
     var getVMCB = instanceDetailsMap[req.session.loggedInOrchestrationMode];
@@ -2982,6 +3008,9 @@ function getStats(req, res) {
     } else if ('virtual-network' == type) {
         table = 'StatTable_UveVirtualNetworkAgent_vn_stats';
         context = 'vn';
+    } else if ('virtual-machine-interface' == type) {
+        table = 'StatTable_UveVMInterfaceAgent_if_stats';
+        context = 'vm';
     }
 
     if (uuids.indexOf(',') > -1) {
@@ -3009,7 +3038,7 @@ function getStats(req, res) {
         queryJSON['select_fields'].splice(flowCountIdx, 1);
     }
 
-    //logutils.logger.debug("########### Query json is " + JSON.stringify(queryJSON));
+    //logutils.logger.debug("Query json is " + JSON.stringify(queryJSON));
 
     /*{"table":"StatTable.VirtualMachineStats.if_stats","start_time":1410335210823000,"end_time":1410535210823000,
         "select_fields":["SUM(if_stats.out_bytes)","SUM(if_stats.in_bytes)","SUM(if_stats.out_pkts)","SUM(if_stats.in_pkts)","name"],
@@ -3095,3 +3124,4 @@ exports.getStats = getStats;
 exports.getvnStatsPerVrouter = getvnStatsPerVrouter;
 exports.getAllVirtualMachines = getAllVirtualMachines;
 exports.getVirtualMachinesFromConfig = getVirtualMachinesFromConfig;
+exports.getVirtualNetworksList = getVirtualNetworksList;

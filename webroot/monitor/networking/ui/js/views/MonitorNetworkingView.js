@@ -67,6 +67,10 @@ define([
                         self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                     });
                 }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                        projectFQN = domain + ':' + projectSelectedValueData.name;
+
+                    ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
                     self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });
@@ -109,13 +113,21 @@ define([
                     contrail.setCookie(cowc.COOKIE_PROJECT, projectSelectedValueData.name);
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
-                        function (networkSelectedValueData, networkBreadcrumbChanged) {
-                            self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
+                        function (networkSelectedValueData) {
+                            breadcrumbView.renderInstanceBreadcrumbDropdown(networkSelectedValueData, instanceUUID, function (networkSelectedValueData) {
+                                self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
+                            });
                         }, function (networkSelectedValueData, networkBreadcrumbChanged) {
+                            removeActiveBreadcrumb();
                             self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
                         }
                     );
                 }, function (projectSelectedValueData, projectBreadcrumbChanged) {
+                    removeActiveBreadcrumb();
+                    var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                        projectFQN = domain + ':' + projectSelectedValueData.name;
+
+                    ctwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
                     self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
                 });
             });

@@ -31,7 +31,18 @@ define([
     });
 
     function getFlowListViewConfig(hashParams) {
-        var url = constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']}));
+        var url = constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
+            portRange = [], startPort, endPort;
+
+        if (hashParams['port'].indexOf('-') > -1) {
+            portRange = hashParams['port'].split("-");
+            startPort = parseInt(portRange[0]);
+            endPort = parseInt(portRange[1]);
+            //TODO pushBreadcrumb([viewConfig['fqName'],portTitle + 's (' + viewConfig['port'] + ')']);
+        } else {
+            portRange = [hashParams['port'], hashParams['port']];
+            //TODO pushBreadcrumb([viewConfig['fqName'],portTitle + ' ' + viewConfig['port']]);
+        }
 
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_FLOW_LIST_ID]),
@@ -43,72 +54,49 @@ define([
                             {
                                 elementId: ctwl.FLOWS_SCATTER_CHART_ID,
                                 title: ctwl.TITLE_FLOWS,
-                                view: "ScatterChartView",
+                                view: "ZoomScatterChartView",
                                 viewConfig: {
-                                    class: "port-distribution-chart",
-                                    parseFn: function (chartData) {
-                                        var portData = constructDataForPortDist(chartData, getURLConfigForGrid(hashParams)),
-                                            portTitle = (hashParams['portType'] == 'src') ? ctwl.SOURCE_PORT : ctwl.DESTINATION_PORT,
-                                            portRange = [], startPort, endPort,
-                                            portDistributionParams = $.deparamURLArgs(url),
-                                            valueField, portType,
-                                            portType = 'port', flowCntField = 'flowCnt';
+                                    loadChartInChunks: true,
+                                    chartOptions: {
+                                        xLabel: ctwl.X_AXIS_TITLE_PORT,
+                                        yLabel: ctwl.Y_AXIS_TITLE_BW,
+                                        forceX: [startPort, endPort],
+                                        dataParser: function (response) {
+                                            var portData = constructDataForPortDist(response, getURLConfigForGrid(hashParams)),
+                                                portDistributionParams = $.deparamURLArgs(url),
+                                                portType = 'port', flowCntField = 'flowCnt',
+                                                chartData = [];
 
-                                        if (hashParams['port'].indexOf('-') > -1) {
-                                            portRange = hashParams['port'].split("-");
-                                            startPort = parseInt(portRange[0]);
-                                            endPort = parseInt(portRange[1]);
-                                            //TODO pushBreadcrumb([viewConfig['fqName'],portTitle + 's (' + viewConfig['port'] + ')']);
-                                        } else {
-                                            portRange = [hashParams['port'], hashParams['port']];
-                                            //TODO pushBreadcrumb([viewConfig['fqName'],portTitle + ' ' + viewConfig['port']]);
-                                        }
-
-                                        portData = $.map(portData, function (currObj, idx) {
-                                            if (currObj[portType] >= portRange[0] && currObj[portType] <= parseInt(portRange[1])) {
-                                                return currObj;
-                                            }
-                                            else {
-                                                return null;
-                                            }
-                                        });
-
-                                        portData = tenantNetworkMonitorUtils.parsePortDistribution(portData, $.extend({
-                                            startTime: portDistributionParams['startTime'],
-                                            endTime: portDistributionParams['endTime'],
-                                            bandwidthField: 'bytes',
-                                            flowCntField: flowCntField,
-                                            portField: 'port',
-                                            startPort: startPort,
-                                            endPort: endPort
-                                        }, {portType: hashParams['portType']}));
-
-                                        var retObj = {
-                                            d: [{key: ctwl.SOURCE_PORT, values: portData}],
-                                            forceX: [startPort, endPort],
-                                            xLblFormat: d3.format(''),
-                                            yDataType: 'bytes',
-                                            fqName: hashParams['fqName'],
-                                            yLbl: ctwl.Y_AXIS_TITLE_BW,
-                                            link: {
-                                                hashParams: {
-                                                    q: {
-                                                        view: 'list',
-                                                        type: 'network',
-                                                        fqName: hashParams['fqName'],
-                                                        context: 'domain'
-                                                    }
+                                            portData = $.map(portData, function (currObj, idx) {
+                                                if (currObj[portType] >= portRange[0] && currObj[portType] <= parseInt(portRange[1])) {
+                                                    return currObj;
+                                                } else {
+                                                    return null;
                                                 }
-                                            },
-                                            chartOptions: {
-                                                clickFn: onScatterChartClick,
-                                                tooltipFn: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick)
-                                            },
-                                            title: ctwl.TITLE_PORT_DISTRIBUTION,
-                                            xLbl: ctwl.X_AXIS_TITLE_PORT
-                                        };
+                                            });
 
-                                        return retObj;
+                                            portData = ctwp.parsePortDistribution(portData, $.extend({
+                                                startTime: portDistributionParams['startTime'],
+                                                endTime: portDistributionParams['endTime'],
+                                                bandwidthField: 'bytes',
+                                                flowCntField: flowCntField,
+                                                portField: 'port',
+                                                startPort: startPort,
+                                                endPort: endPort
+                                            }, { portType: hashParams['portType'], fqName: hashParams['fqName']}));
+
+                                            chartData = chartData.concat(portData);
+                                            return chartData;
+                                        },
+                                        tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                        clickCB: onScatterChartClick,
+                                        sizeFieldName: 'flowCnt',
+                                        xLabelFormat: d3.format(','),
+                                        yLabelFormat: function(yValue) {
+                                            var formattedValue = formatBytes(yValue, false, null, 1);
+                                            return formattedValue;
+                                        },
+                                        margin: {left: 70}
                                     }
                                 }
                             }

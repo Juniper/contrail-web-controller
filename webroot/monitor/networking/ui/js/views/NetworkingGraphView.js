@@ -6,9 +6,8 @@ define([
     'underscore',
     'backbone',
     'contrail-graph-model',
-    'joint',
     'graph-view'
-], function (_, Backbone, ContrailGraphModel, Joint, GraphView) {
+], function (_, Backbone, ContrailGraphModel, GraphView) {
     var NetworkingGraphView = Backbone.View.extend({
         render: function () {
             var graphTemplate = contrail.getTemplate4Id(cowc.TMPL_NETWORKING_GRAPH_VIEW),
@@ -17,12 +16,15 @@ define([
                 configGraph = viewConfig['configGraph'],
                 selectorId = '#networking-graph',
                 connectedSelectorId = '#graph-connected-elements',
-                configSelectorId = '#graph-config-elements';
+                configSelectorId = '#graph-config-elements',
+                self = this;
 
-            this.$el.html(graphTemplate);
+            self.$el.html(graphTemplate());
+            setTimeout(function(){
+                var connectedGraphView = self.renderConnectedGraph(connectedGraph, selectorId, connectedSelectorId, configSelectorId);
+                self.renderConfigGraph(configGraph, configSelectorId, connectedGraphView);
+            }, 100);
 
-            var connectedGraphView = this.renderConnectedGraph(connectedGraph, selectorId, connectedSelectorId, configSelectorId);
-            this.renderConfigGraph(configGraph, configSelectorId, connectedGraphView);
         },
 
         renderConnectedGraph: function (graphConfig, selectorId, connectedSelectorId, configSelectorId) {
@@ -43,13 +45,16 @@ define([
                 },
                 controlPanel: getControlPanelConfig(graphConfig, selectorId, connectedSelectorId, configSelectorId),
                 successCallback: function (jointObject, directedGraphSize) {
-                    if (jointObject.graph.attributes.focusedElement.type == 'project' && jointObject.graph.elementsDataObj.elements.length == 0) {
+                    if(!contrail.checkIfExist(jointObject) || !contrail.checkIfExist(jointObject.graph.elementsDataObj)) {
+                        return;
+                    } else if (jointObject.graph.attributes.focusedElement.type == 'project' && jointObject.graph.elementsDataObj.elements.length == 0) {
                         var notFoundTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                             notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
                                 title: ctwm.NO_NETWORK_FOUND,
                                 iconClass: false,
                                 defaultErrorMessage: false,
-                                navLinks: [ctwc.CONFIGURE_NETWORK_LINK_CONFIG]
+                                defaultNavLinks: false
+                                //navLinks: [ctwc.CONFIGURE_NETWORK_LINK_CONFIG]
                             });
 
                         $(selectorId).html(notFoundTemplate(notFoundConfig));
@@ -59,7 +64,8 @@ define([
                             notFoundConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
                                 title: ctwm.NO_VM_FOUND,
                                 iconClass: false,
-                                defaultErrorMessage: false
+                                defaultErrorMessage: false,
+                                defaultNavLinks: false
                             });
 
                         $(selectorId).html(notFoundTemplate(notFoundConfig));
@@ -73,7 +79,7 @@ define([
                     $(connectedSelectorId).data('graph-size', directedGraphSize);
                     $(connectedSelectorId).data('joint-object', jointObject);
 
-                    adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId);
+                    adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, true);
                     panConnectedGraph2Center(focusedElement, connectedSelectorId);
 
                     highlightElement4ZoomedElement(connectedSelectorId, jointObject, graphConfig);
@@ -139,13 +145,16 @@ define([
                     iconClass: 'icon-resize-full',
                     title: 'Resize',
                     events: {
-                        click: function() {
-                            return function(event) {
-                                var focusedElement = graphConfig.focusedElement;
-                                $(this).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
-                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId);
-                                panConnectedGraph2Center(focusedElement, connectedSelectorId)
-                            }
+                        click: function (e, self, controlPanelSelector) {
+                            $(self).find('i').addClass('icon-spin icon-spinner');
+                            setTimeout(function() {
+                                $(self).find('i').removeClass('icon-spin icon-spinner');
+                                $(self).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
+                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
+                                $(connectedSelectorId).panzoom('reset');
+                                $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
+                                $(self).removeClass('refreshing');
+                            }, 1000);
                         }
                     }
                 },
@@ -156,16 +165,25 @@ define([
                     },
                     title: 'Change Direction',
                     events: {
-                        click: function() {
-                            return function (event) {
-                                var jointObject = $(connectedSelectorId).data('joint-object'),
-                                    connectedGraphView = jointObject.paper;
+                        click: function (e, self, controlPanelSelector) {
+                            var jointObject = $(connectedSelectorId).data('joint-object'),
+                                connectedGraphView = jointObject.paper;
 
-                                if ($(this).find('i').hasClass('icon-align-left')) {
+                            if ($(self).find('i').hasClass('icon-align-left')) {
+                                $(self).find('i').removeClass('icon-align-left').toggleClass('icon-spin icon-spinner');
+                                setTimeout(function(){
                                     connectedGraphView.model.reLayoutGraph(ctwc.GRAPH_DIR_LR);
-                                } else if ($(this).find('i').hasClass('icon-align-center')) {
+                                    //Hack to set width for Webkit browser
+                                    var width = $(connectedSelectorId + ' svg').attr('width');
+                                    $(connectedSelectorId + ' svg').attr('width', width);
+                                }, 1500)
+                            } else if ($(self).find('i').hasClass('icon-align-center')) {
+                                $(self).find('i').removeClass('icon-align-center').toggleClass('icon-spin icon-spinner');
+                                setTimeout(function() {
                                     connectedGraphView.model.reLayoutGraph(ctwc.GRAPH_DIR_TB);
-                                }
+                                    var width = $(connectedSelectorId + ' svg').attr('width');
+                                    $(connectedSelectorId + ' svg').attr('width', width);
+                                }, 1500);
                             }
                         }
                     }
@@ -174,15 +192,13 @@ define([
                     iconClass: 'icon-repeat',
                     title: 'Refresh',
                     events: {
-                        click: function() {
-                            return function (event) {
-                                var jointObject = $(connectedSelectorId).data('joint-object'),
-                                    connectedGraphView = jointObject.paper;
+                        click: function (e, self, controlPanelSelector) {
+                            var jointObject = $(connectedSelectorId).data('joint-object'),
+                                connectedGraphView = jointObject.paper;
 
-                                if ($(this).find('i').hasClass('icon-repeat')) {
-                                    $(this).find('i').removeClass('icon-repeat').toggleClass('icon-spin icon-spinner');
-                                    connectedGraphView.refreshData();
-                                }
+                            if ($(self).find('i').hasClass('icon-repeat')) {
+                                $(self).find('i').removeClass('icon-repeat').toggleClass('icon-spin icon-spinner');
+                                connectedGraphView.refreshData();
                             }
                         }
                     }
@@ -196,7 +212,7 @@ define([
             fqName = graphconfig.focusedElement.name.fqName;
 
         return function (response, elementMap, rankDir) {
-            var connectedElements = [],
+            var elements4ConnectedGraph = [],
                 zoomedElements = [],
                 nodes = response['nodes'],
                 zoomedNodeElement = null,
@@ -204,7 +220,56 @@ define([
                 zoomedNode = null;
 
             if (focusedElementType == ctwc.GRAPH_ELEMENT_PROJECT) {
-                createNodeElements(nodes, connectedElements, elementMap);
+                createNodeElements(nodes, elements4ConnectedGraph, elementMap);
+                createLinkElements(links, elements4ConnectedGraph, elementMap);
+                var linkedElements = elementMap['linkedElements'],
+                    nodeSeparation = 90, groupedElements = [],
+                    groupedElementsCount, maxRowCount,
+                    groupedParentWidth, groupedParentHeight;
+
+                if(linkedElements.length > 0) {
+                    return {
+                        elements: elements4ConnectedGraph,
+                        nodes: nodes,
+                        links: links,
+                        zoomedNodeElement: zoomedNodeElement,
+                        zoomedElements: zoomedElements
+                    };
+                } else {
+                    groupedElements = elements4ConnectedGraph;
+                    groupedElementsCount = groupedElements.length;
+                    maxRowCount = Math.ceil(Math.sqrt(groupedElementsCount));
+                    groupedParentWidth = maxRowCount * nodeSeparation;
+                    groupedParentHeight = maxRowCount * nodeSeparation;
+
+                    for(var i = 0; i < groupedElements.length; i++) {
+                        var groupedElement = groupedElements[i],
+                            position = getGroupedElementPosition(i, maxRowCount, nodeSeparation);
+
+                        groupedElement.attributes.position.x = position.x;
+                        groupedElement.attributes.position.y = position.y;
+                    }
+
+                    if(groupedElements.length > 0) {
+                        var groupParentElement = new joint.shapes.contrail.GroupParentElement({
+                            size: {width: groupedParentWidth, height: groupedParentHeight},
+                            attrs: {
+                                rect: {width: groupedParentWidth, height: groupedParentHeight}
+                            }
+                        });
+
+                        linkedElements.push(groupParentElement);
+                    }
+
+                    return {
+                        elements: linkedElements,
+                        nodes: nodes,
+                        links: links,
+                        zoomedNodeElement: groupParentElement,
+                        zoomedElements: groupedElements
+                    };
+                }
+
             } else {
                 var zoomedNodeKey = null,
                     options = null;
@@ -227,7 +292,7 @@ define([
                             height: options['heightZoomedElement']
                         });
 
-                        connectedElements.push(zoomedNodeElement);
+                        elements4ConnectedGraph.push(zoomedNodeElement);
                         elementMap.node[fqName] = zoomedNodeElement.id;
 
                         if (rankDir == ctwc.GRAPH_DIR_TB) {
@@ -241,52 +306,61 @@ define([
                 });
 
                 nodes.splice(zoomedNodeKey, 1);
-                createNodeElements(nodes, connectedElements, elementMap);
-            }
-            createLinkElements(links, connectedElements, elementMap);
+                createNodeElements(nodes, elements4ConnectedGraph, elementMap);
+                createLinkElements(links, elements4ConnectedGraph, elementMap);
 
-            return {
-                elements: connectedElements,
-                nodes: nodes,
-                links: links,
-                zoomedNodeElement: zoomedNodeElement,
-                zoomedElements: zoomedElements
-            };
+                return {
+                    elements: elements4ConnectedGraph,
+                    nodes: nodes,
+                    links: links,
+                    zoomedNodeElement: zoomedNodeElement,
+                    zoomedElements: zoomedElements
+                };
+            }
         };
     };
 
+    function getGroupedElementPosition(index, maxRowCount, nodeSeparation) {
+        index = index + 1;
+
+        var row = Math.floor(index / maxRowCount),
+            column = index % maxRowCount;
+
+        return {
+            x: nodeSeparation * (column == 0 ? (maxRowCount - 1) : (column - 1)),
+            y: nodeSeparation * (column == 0 ? (row - 1) : row)
+        }
+    };
+
     function getElements4ConfigGraph(response, elementMap) {
-        var configElements = [],
+        var elements4ConfigGraph = [],
             collections = {},
             configData = response['configData'],
             configSVGHeight = 0;
 
         createNodes4ConfigData(configData, collections);
 
-        configSVGHeight = createCollectionElements(collections, configElements, elementMap);
+        configSVGHeight = createCollectionElements(collections, elements4ConfigGraph, elementMap);
 
         return {
-            elements: configElements,
+            elements: elements4ConfigGraph,
             configSVGHeight: configSVGHeight
         };
     };
 
-    function adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId) {
-        /*
-         * Height logic (graphHeight[g], availableHeight[g], minHeight[m])
-         * a < m     = m
-         * g < m < a = m
-         * m < g < a = g
-         * m < a < g = a
-         */
-
+    function adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, initResizeFlag) {
         var resizeFlag = ($(selectorId).parents('.visualization-container').find('.icon-resize-small').is(':visible')),
             tabHeight = resizeFlag ? 155 : 435, //TODO - move to constants
             minHeight = 300,
             availableHeight = window.innerHeight - tabHeight,
             directedGraphSize = $(connectedSelectorId).data('graph-size'),
-            jointObject = $(connectedSelectorId).data('joint-object'),
-            connectedGraphView = jointObject.paper,
+            jointObject = $(connectedSelectorId).data('joint-object');
+
+        if(!contrail.checkIfExist(jointObject)) {
+            return;
+        }
+
+        var connectedGraphView = jointObject.paper,
             connectedGraphWidth = contrail.checkIfKeyExistInObject(true, directedGraphSize, 'width') ? directedGraphSize.width : 0,
             connectedGraphHeight = contrail.checkIfKeyExistInObject(true, directedGraphSize, 'height') ? directedGraphSize.height : 0,
             configGraphHeight = $(configSelectorId + ' svg').attr('height'),
@@ -307,8 +381,16 @@ define([
             }
         }
 
-        connectedGraphView.setDimensions(Math.max($(selectorId).width(), connectedGraphWidth) + cowc.GRAPH_MARGIN_RIGHT,
-            connectedGraphHeight + cowc.GRAPH_MARGIN_BOTTOM, 1);
+        if (initResizeFlag && ((connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP - adjustedHeight) > 20)) {
+            $(selectorId).parents('.visualization-container').find('.icon-resize-full')
+                .removeClass('icon-resize-full').addClass('icon-resize-small');
+
+            adjustedHeight = window.innerHeight - 155;
+        }
+
+        connectedGraphView.setDimensions(connectedGraphWidth, connectedGraphHeight, 1);
+
+        $(connectedSelectorId).width(connectedGraphWidth);
 
         $(selectorId).parent().height(adjustedHeight);
         $(selectorId).parent().css('width', '100%');
@@ -334,8 +416,13 @@ define([
             panX = (availableGraphWidth - connectedGraphWidth) / 2,
             panY = (availableGraphHeight - connectedGraphHeight) / 2;
 
-        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT && (connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP) > availableGraphHeight) {
-            panY = 35 - cowc.GRAPH_MARGIN_TOP;
+        if (focusedElement.type == ctwc.GRAPH_ELEMENT_PROJECT) {
+            if ((connectedGraphHeight - cowc.GRAPH_MARGIN_BOTTOM - cowc.GRAPH_MARGIN_TOP) > availableGraphHeight) {
+                panY = 35 - cowc.GRAPH_MARGIN_TOP;
+            }
+            if ((connectedGraphWidth - cowc.GRAPH_MARGIN_LEFT - cowc.GRAPH_MARGIN_RIGHT) > availableGraphWidth) {
+                panX = 35 - cowc.GRAPH_MARGIN_LEFT;
+            }
         }
 
         $(connectedSelectorId).panzoom("resetPan");
@@ -366,7 +453,7 @@ define([
 
     var createVirtualMachineLink = function(position, size){
         var rect = new joint.shapes.basic.Rect({
-            type: 'VirtualMachineLink',
+            type: 'VirtualMachineLink no-drag-element',
             position: position, size: size,
             attrs: {rect:{stroke: '#3182bd', opacity: 1, fill: '#3182bd'}}
         });
@@ -402,6 +489,7 @@ define([
             elementMap.node[vmList[i]] = vmNode.id;
             xFactor++;
             zoomedElements.push(vmNode);
+            zoomedNodeElement.embed(vmNode);
         }
 
         return zoomedElements;
@@ -421,15 +509,16 @@ define([
             yOrigin = vmMargin / 2,
             position = {},
             size = {width: vmWidth, height: vmHeight},
-            virtualMachineCommonLinkPosition = {}, virtualMachineCommonLinkSize = {},
-            virtualMachineLinkPosition = {}, virtualMachineLinkSize = {};
+            virtualMachineCommonLinkPosition = {}, virtualMachineCommonLinkSize = {}, virtualMachineCommonLinkNode,
+            virtualMachineLinkPosition = {}, virtualMachineLinkSize = {}, virtualMachineLinkNode;
 
         var xFactor = 0, yFactor = 0, linkThickness = 1, rectThickness = 2, horizontalAdjustFactor = 6;
         if(vmLength !== 0){
             virtualMachineCommonLinkPosition = {x: xOrigin - vmWidth/2, y: yOrigin + ySeparation - horizontalAdjustFactor};
             virtualMachineCommonLinkSize = {width: vmLength * xSeparation + vmWidth/2, height: rectThickness};
-
-            zoomedElements.push(createVirtualMachineLink(virtualMachineCommonLinkPosition, virtualMachineCommonLinkSize));
+            virtualMachineCommonLinkNode = createVirtualMachineLink(virtualMachineCommonLinkPosition, virtualMachineCommonLinkSize);
+            zoomedElements.push(virtualMachineCommonLinkNode);
+            zoomedNodeElement.embed(virtualMachineCommonLinkNode);
         }
 
         for (var i = 0; i < vmLength; i++) {
@@ -437,10 +526,13 @@ define([
             vmNode = createVirtualMachineNode(position, size, vmList[i], options['srcVNDetails']);
             elementMap.node[vmList[i]] = vmNode.id;
             zoomedElements.push(vmNode);
+            zoomedNodeElement.embed(vmNode);
 
             virtualMachineLinkPosition = {x: xOrigin + (xSeparation * xFactor)+ vmWidth/2 +1, y: yOrigin + ((ySeparation) * yFactor) + vmHeight};
             virtualMachineLinkSize = {width: linkThickness, height: (ySeparation/2) - 6};
-            zoomedElements.push(createVirtualMachineLink(virtualMachineLinkPosition, virtualMachineLinkSize));
+            virtualMachineLinkNode = createVirtualMachineLink(virtualMachineLinkPosition, virtualMachineLinkSize);
+            zoomedElements.push(virtualMachineLinkNode);
+            zoomedNodeElement.embed(virtualMachineLinkNode);
 
             xFactor++;
         }
@@ -462,8 +554,8 @@ define([
             yOrigin = vmMargin / 2,
             position = {},
             size = {width: vmWidth, height: vmHeight},
-            virtualMachineCommonLinkPosition = {}, virtualMachineCommonLinkSize = {},
-            virtualMachineLinkPosition = {}, virtualMachineLinkSize = {};
+            virtualMachineCommonLinkPosition = {}, virtualMachineCommonLinkSize = {}, virtualMachineCommonLinkNode,
+            virtualMachineLinkPosition = {}, virtualMachineLinkSize = {}, virtualMachineLinkNode;
 
         var centerLineHeight = 0.1,
             xFactor = 0, yFactor = -1,
@@ -472,7 +564,9 @@ define([
         if(vmLength !== 0){
             virtualMachineCommonLinkPosition = {x: xOrigin + vmWidth + xSeparation/2, y: yOrigin - vmMargin/2};
             virtualMachineCommonLinkSize = {width: rectThickness, height: vmLength * ySeparation};
-            zoomedElements.push(createVirtualMachineLink(virtualMachineCommonLinkPosition, virtualMachineCommonLinkSize));
+            virtualMachineCommonLinkNode = createVirtualMachineLink(virtualMachineCommonLinkPosition, virtualMachineCommonLinkSize)
+            zoomedElements.push(virtualMachineCommonLinkNode);
+            zoomedNodeElement.embed(virtualMachineCommonLinkNode);
         }
 
         for (var i = 0; i < vmLength; i++) {
@@ -484,10 +578,13 @@ define([
             vmNode = createVirtualMachineNode(position, size, vmList[i], options['srcVNDetails']);
             elementMap.node[vmList[i]] = vmNode.id;
             zoomedElements.push(vmNode);
+            zoomedNodeElement.embed(vmNode);
 
             virtualMachineLinkPosition = {x: xOrigin + vmWidth + 2, y: yOrigin + ((ySeparation) * yFactor) + vmHeight/2};
             virtualMachineLinkSize = {width: xSeparation/2 - 2, height: linkThickness};
-            zoomedElements.push(createVirtualMachineLink(virtualMachineLinkPosition, virtualMachineLinkSize));
+            virtualMachineLinkNode = createVirtualMachineLink(virtualMachineLinkPosition, virtualMachineLinkSize)
+            zoomedElements.push(virtualMachineLinkNode);
+            zoomedNodeElement.embed(virtualMachineLinkNode);
         }
 
         return zoomedElements;
@@ -499,6 +596,10 @@ define([
             elementNodeId = cellView.model.id,
             bottomContainerElement = $('#' + ctwl.BOTTOM_CONTENT_CONTAINER),
             tabConfig = {};
+
+        setTimeout(function() {
+            $('.popover').remove();
+        }, cowc.TOOLTIP_DELAY);
 
         switch (elementNodeType) {
             case ctwc.GRAPH_ELEMENT_NETWORK:
@@ -579,6 +680,10 @@ define([
             elementNodeType= dblClickedElement.elementType,
             elementNodeId = cellView.model.id;
 
+        setTimeout(function() {
+            $('.popover').remove();
+        }, cowc.TOOLTIP_DELAY);
+
         switch (elementNodeType) {
             case ctwc.GRAPH_ELEMENT_NETWORK:
                 loadFeature({
@@ -625,10 +730,10 @@ define([
 
             switch (focusedElementType) {
                 case ctwc.GRAPH_ELEMENT_PROJECT:
-                    if (contrail.checkIfExist(currentHashParams.clickedElement)) {
-                        removeFaint4AllElements();
-                        removeHighlight4AllElements();
+                    removeFaint4AllElements();
+                    removeHighlight4AllElements();
 
+                    if (contrail.checkIfExist(currentHashParams.clickedElement)) {
                         var projectFQN = graphConfig.focusedElement.name.fqName,
                             projectUUID = ctwu.getUUIDByName(projectFQN);
 
@@ -701,14 +806,16 @@ define([
     };
 
     var highlightNetwork4ZoomedElement = function(connectedSelectorId, graphConfig) {
-        faintAllElements();
-        highlightSVGElements([$('g.ZoomedElement')]);
+        faintElements([$(connectedSelectorId).find('div.font-element')]);
+        faintSVGElements([$(connectedSelectorId).find('g.element'), $(connectedSelectorId).find('g.link')]);
         highlightElements([$('div.VirtualMachine')]);
-        highlightSVGElements([$('g.VirtualMachine'), $('.VirtualMachineLink')]);
+        highlightSVGElements([$('g.ZoomedElement'), $('g.VirtualMachine'), $('.VirtualMachineLink')]);
     };
 
     var highlightInstance4ZoomedElement = function(connectedSelectorId, graphConfig) {
-        faintAllElements();
+        faintElements([$(connectedSelectorId).find('div.font-element')]);
+        faintSVGElements([$(connectedSelectorId).find('g.element'), $(connectedSelectorId).find('g.link')]);
+        highlightElements
         highlightSVGElements([$('g.ZoomedElement')]);
 
         var jointObject = $(connectedSelectorId).data('joint-object'),
@@ -853,6 +960,18 @@ define([
     var highlightSVGElements = function(elements) {
         $.each(elements, function (elementKey, elementValue) {
             $(elementValue).removeClassSVG('fainted').addClassSVG('highlighted');
+        });
+    };
+
+    var faintElements = function(elements) {
+        $.each(elements, function (elementKey, elementValue) {
+            $(elementValue).removeClass('highlighted').addClass('fainted');
+        });
+    };
+
+    var faintSVGElements = function(elements) {
+        $.each(elements, function (elementKey, elementValue) {
+            $(elementValue).removeClassSVG('highlighted').addClassSVG('fainted');
         });
     };
 
