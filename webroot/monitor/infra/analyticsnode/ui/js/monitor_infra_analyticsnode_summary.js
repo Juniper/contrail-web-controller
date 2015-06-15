@@ -138,7 +138,8 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         id:"analyticsMem",
                         sortable:true,
                         name:"Memory",
-                        minWidth:150
+                        minWidth:150,
+                        sortField:"y"
                     },
                     {
                         field:"genCount",

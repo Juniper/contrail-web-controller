@@ -51,7 +51,7 @@ monitorInfraDatabaseSummaryClass = (function() {
             columnHeader: {
                 columns:[
                     {
-                        field:"hostName",
+                        field:"name",
                         name:"Host name",
                         formatter:function(r,c,v,cd,dc) {
                            return cellTemplateLinks({cellText:'name',name:'name',statusBubble:true,rowData:dc});
@@ -99,19 +99,22 @@ monitorInfraDatabaseSummaryClass = (function() {
                         }
                     },
                     {
-                        field:"availableSpace",
+                        field:"formattedAvailableSpace",
                         name:"Available Space",
-                        minWidth:110
+                        minWidth:110,
+                        sortField:"dbSpaceAvailable"
                     },
                     {
-                        field:"usedSpace",
+                        field:"formattedUsedSpace",
                         name:"Used Space",
-                        minWidth:110
+                        minWidth:110,
+                        sortField:"dbSpaceUsed"
                     },
                     {
-                        field:"analyticsDbSize",
+                        field:"formattedAnalyticsDbSize",
                         name:"Analytics DB Size",
-                        minWidth:110
+                        minWidth:110,
+                        sortField:"analyticsDbSize"
                     },
                     
                 ],
