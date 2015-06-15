@@ -52,13 +52,13 @@ monitorInfraAnalyticsDetailsClass = (function() {
                     endWidgetLoading('analytics-sparklines');
                     $('#collector-chart').initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-collector', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'collector-sparklines', showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: true, lineChartId: 'collector-sparklines', showWidgetIds: ['collector-chart-box'], hideWidgetIds: ['queryengine-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
                     $('#queryengine-chart').initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-query-engine', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'queryengine-sparklines', showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'queryengine-sparklines', showWidgetIds: ['queryengine-chart-box'], hideWidgetIds: ['collector-chart-box', 'opServer-chart-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
                     $('#opServer-chart').initMemCPULineChart($.extend({url:function() {
                         return contrail.format(monitorInfraUrls['FLOWSERIES_CPU'], 'contrail-analytics-api', '30', '10', obj['name'], endTime);
-                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'opServer-sparklines', showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle:'% CPU Utilization'}}),110);
+                    }, parser: "parseProcessMemCPUData", plotOnLoad: false, lineChartId: 'opServer-sparklines', showWidgetIds: ['opServer-chart-box'], hideWidgetIds: ['collector-chart-box', 'queryengine-chart-box'], titles: {memTitle:'Memory',cpuTitle: infraDetailsPageCPUChartTitle}}),110);
                 });
                 var procStateList, overallStatus = noDataStr;
                 var analyticsProcessStatusList = [];
