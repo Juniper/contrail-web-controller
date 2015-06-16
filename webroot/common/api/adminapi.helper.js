@@ -27,93 +27,19 @@ function parseBGPRoutingInstanceResponse (bgpRoutInstRes)
 
     try {
         var bgpRoutInst = 
-            bgpRoutInstRes['ShowRoutingInstanceResp']['instances'][0]['list'][0]['ShowRoutingInstance'];
+            bgpRoutInstRes['ShowRoutingInstanceSummaryResp']['instances'][0]['list'][0]['ShowRoutingInstance'];
         var count = bgpRoutInst.length;
     } catch(e) {
         return results;
     }
     for (var i = 0; i < count; i++) {
         results[i] = {};
-        results[i]['export_target'] = [];
-        try {
-	        var expTgt = bgpRoutInst[i]['export_target'][0]['list'];
-	        var expTgtLen = expTgt.length;
-	        for (var j = 0; j < expTgtLen; j++) {
-	            results[i]['export_target'][j] = {};
-	            try {
-	                results[i]['export_target'][j] = 
-	                    commonUtils.getSafeDataToJSONify(expTgt[j]['element'][0]);
-	            } catch(e) {
-	                results[i]['export_target'][j] = global.RESP_DATA_NOT_AVAILABLE;
-	            }
-	        }
-	    } catch(e) {
-	    }  
-        try {
-            var importTgt = bgpRoutInst[i]['import_target'][0]['list'];
-            var importTgtLen = importTgt.length;
-	        results[i]['import_target'] = [];
-	        for (j = 0; j < importTgtLen; j++) {
-	            results[i]['import_target'][j] = {};
-	            try {
-	                results[i]['import_target'][j] = 
-	                   commonUtils.getSafeDataToJSONify(importTgt[j]['element'][0]);
-	            } catch(e) {
-	                results[i]['import_target'][j] = global.RESP_DATA_NOT_AVAILABLE;
-	            }
-	        }
-	    } catch(e) {
-	       results[i]['import_target'] = [];
-	    }
 	    try {
             results[i]['name'] = 
                 commonUtils.getSafeDataToJSONify(bgpRoutInst[i]['name'][0]['_']);
         } catch(e) {
             results[i]['name'] = global.RESP_DATA_NOT_AVAILABLE;
         }
-        try {
-            results[i]['virtual_network'] = 
-                commonUtils.getSafeDataToJSONify(bgpRoutInst[i]['virtual_network'][0]['_']);
-        } catch(e) {
-            results[i]['virtual_network'] = global.RESP_DATA_NOT_AVAILABLE;
-        }
-        try {
-	        var routTabl = bgpRoutInst[i]['tables'][0]['list'];
-	        var routTablLen = routTabl.length;
-	        results[i]['tables'] = [];
-	        for (j = 0; j < routTablLen; j++) {
-	            results[i]['tables'][j] = {};
-	            var shRoutInst = routTabl[j]['ShowRoutingInstanceTable'][0];
-	            results[i]['tables'][j]['active_paths'] = 
-	               commonUtils.getSafeDataToJSONify(shRoutInst['active_paths'][0]['_']);
-	            try {
-	                results[i]['tables'][j]['name'] = 
-	                   commonUtils.getSafeDataToJSONify(shRoutInst['name'][0]['_']);
-	            } catch(e) {
-	                results[i]['tables'][j]['name'] = global.RESP_DATA_NOT_AVAILABLE;
-	            }
-	            var peerList = shRoutInst['peers'][0]['list'];
-	            var peerListLen = peerList.length;
-	            results[i]['tables'][j]['peers'] = [];
-	            for (var k = 0; k < peerListLen; k++) {
-	                results[i]['tables'][j]['peers'][k] = {};
-	                try {
-	                    results[i]['tables'][j]['peers'][k]['element'] = 
-	                       commonUtils.getSafeDataToJSONify(peerList[k]['element'][0]);
-	                } catch(e) {
-	                    results[i]['tables'][j]['peers'][k]['element'] = global.RESP_DATA_NOT_AVAILABLE;
-	                }
-	            }
-	            try {
-	                results[i]['tables'][j]['total_paths'] =  
-	                   commonUtils.getSafeDataToJSONify(shRoutInst['total_paths'][0]['_']);
-	            } catch(e) {
-	                results[i]['tables'][j]['total_paths'] = global.RESP_DATA_NOT_AVAILABLE;
-	            }
-	        }
-	    } catch(e) {
-	        results[i]['tables'] = [];
-	    }
     }
     return results;
 }
