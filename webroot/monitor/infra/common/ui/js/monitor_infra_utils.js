@@ -728,7 +728,8 @@ var infraMonitorUtils = {
             obj['formattedUsedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
             obj['formattedAnalyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
             //Use the db usage percentage for bubble size
-            obj['usedPercentage'] = (obj['y'] * 100) / (obj['y']+obj['x']);
+            var usedPercentage = (obj['y'] * 100) / (obj['y']+obj['x']);
+            obj['usedPercentage'] = $.isNumeric(usedPercentage)? usedPercentage : 0 ;
             obj['size'] = obj['usedPercentage']  ;
             obj['shape'] = 'circle';
             obj['type'] = 'dbNode';
@@ -2438,14 +2439,14 @@ function getNodeTooltipContents(currObj) {
 //Tooltip contents to show for database nodes
 function getDbNodeTooltipContents(currObj) {
     var tooltipContents = [
-        {lbl:'Host Name', value: currObj['name']},
-//        {lbl:'Version', value:currObj['version']},
-        {lbl:'Disk Space', value: '',options:{noLabelColon:true}},
-        {lbl:'Available', value:currObj['availableSpace']},
-        {lbl:'Used', value:currObj['usedSpace']},
-        {lbl:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'},
-        {lbl:'Analytics DB', value:'',options:{noLabelColon:true}},
-        {lbl:'Used', value:currObj['analyticsDbSize']},
+        {label:'Host Name', value: currObj['name']},
+//        {label:'Version', value:currObj['version']},
+        {label:'Disk Space', value: '',options:{noLabelColon:true}},
+        {label:'Available', value:currObj['formattedAvailableSpace']},
+        {label:'Used', value:currObj['formattedUsedSpace']},
+        {label:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'},
+        {label:'Analytics DB', value:'',options:{noLabelColon:true}},
+        {label:'Used', value:currObj['formattedAnalyticsDbSize']},
         
     ];
     return tooltipContents;
