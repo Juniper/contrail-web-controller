@@ -2343,6 +2343,10 @@ Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
     return new Handlebars.SafeString(html);
 });
 
+Handlebars.registerHelper('getInfraDetailsPageCPUChartTitle',function() {
+    return infraDetailsPageCPUChartTitle;
+})
+
 function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
     if(dsObj['getFromCache'] == null || dsObj['getFromCache'] == true){
