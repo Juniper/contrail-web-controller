@@ -597,17 +597,19 @@ function getControlNodeRoutingInstanceList (req, res, appData)
     var hostname = queryData.query['hostname'];
 
     var url = ip + '@' + global.SANDESH_CONTROL_NODE_PORT + '@' +
-                    '/Snh_ShowRoutingInstanceReq?name=';
+                    '/Snh_ShowRoutingInstanceSummaryReq?';
     var urlLists = [];
     urlLists[0] = [url];
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+    var params = {'isRawData': true};
+
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
+                                                              false, params),
             function(err, results) {
-        if (!err) {
-            var resultJSON = {};
-            adminApiHelper.processControlNodeRoutingInstanceList(resultJSON, results);
-            commonUtils.handleJSONResponse(null, res, resultJSON);
+        if ((null == err) && (null != results) && (null != results[0])) {
+            var isJson = false;
+            commonUtils.handleJSONResponse(err, res, results[0], isJson);
         } else {
-            commonUtils.handleJSONResponse(err, res, resultJSON);
+            commonUtils.handleJSONResponse(err, res, null);
         }
     });
 }
