@@ -597,7 +597,7 @@ function getControlNodeRoutingInstanceList (req, res, appData)
     var hostname = queryData.query['hostname'];
 
     var url = ip + '@' + global.SANDESH_CONTROL_NODE_PORT + '@' +
-                    '/Snh_ShowRoutingInstanceReq?name=';
+                    '/Snh_ShowRoutingInstanceSummaryReq?';
     var urlLists = [];
     urlLists[0] = [url];
     async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
