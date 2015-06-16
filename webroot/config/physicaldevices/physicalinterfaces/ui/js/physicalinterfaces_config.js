@@ -1361,6 +1361,7 @@ function physicalInterfacesConfig() {
                 var piName = pInterface.display_name != null ? pInterface.display_name : pInterface.name;
                 var lInfs = pInterface["logical_interfaces"];
                 var lInterfaceNames = '';
+                var liDetails = [];
                 if(lInfs != null) {
                     for(var j = 0; j < lInfs.length;j++) {
                         var lInterfaceName = getActInterfaceName(lInfs[j].to[3]);
@@ -1369,11 +1370,12 @@ function physicalInterfacesConfig() {
                         } else {
                             lInterfaceNames += ',' + lInterfaceName;
                         }
+                        liDetails.push({'name' : lInterfaceName, 'uuid': lInfs[j].uuid});
                     }
                     piUUID.push(pInterface.uuid);
-                    setPhysicalInterfaceDataItem(piDataSrc, pInterface, piName, lInterfaceNames);
+                    setPhysicalInterfaceDataItem(piDataSrc, pInterface, piName, lInterfaceNames, liDetails);
                 } else {
-                    setPhysicalInterfaceDataItem(gridDS, pInterface, piName, lInterfaceNames);
+                    setPhysicalInterfaceDataItem(gridDS, pInterface, piName, lInterfaceNames, liDetails);
                 }
                 pInterfaceDS.push({text : piName, value : pInterface.uuid, parent : 'physical_interface'});
             }
@@ -1395,7 +1397,7 @@ function physicalInterfacesConfig() {
         }
     }
 
-    function setPhysicalInterfaceDataItem(ds, pInterface, piName, lInterfaceNames) {
+    function setPhysicalInterfaceDataItem(ds, pInterface, piName, lInterfaceNames, liDetails) {
         ds.push({
             uuid : pInterface.uuid,
             name : piName,
@@ -1406,9 +1408,26 @@ function physicalInterfacesConfig() {
             server : '-',
             servers_display : '-',
             vn : '-',
-            li_type : '-'
+            li_type : '-',
+            liDetails : liDetails
         });
     }
+
+    Handlebars.registerHelper("showLIDetails",function(liDetails,options) {
+        var returnHtml = '';
+        for(k=0;k<liDetails.length;k++){
+            if(k%2 == 1){
+                returnHtml += '<div class="row-fluid bgCol">';
+            } else {
+                returnHtml += '<div class="row-fluid">';
+            }
+            returnHtml += '<div class="span3">' +liDetails[k]['name'] +' </div>';
+            returnHtml += '<div class="span3">' +liDetails[k]['uuid'] +' </div>';
+            returnHtml += '</div>';
+        }
+        return returnHtml;
+    });
+
     //fetches all logical interfaces under selected physical router 
     function fetchLogicalInterfaces() {
         var postObj = {};

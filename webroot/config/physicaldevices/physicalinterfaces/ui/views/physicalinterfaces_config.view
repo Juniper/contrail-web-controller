@@ -1,5 +1,6 @@
 <script type="text/x-handlebars-template" id="gridPhysicalInterfacesDetailTemplate">
-    <div>
+    <div class="row-fluid">
+        <label><h6><b>Interface Properties</b></h6></label>
         <div class="row-fluid">
             <div class="row-fluid">
                 <div class="span2"><label>Name</label></div>
@@ -13,10 +14,6 @@
                 <div class="span2"><label>Parent</label></div>
                 <div class="span10">{{parent}}</div>
             </div>
-            <div class="row-fluid {{{showHidePIDetails type}}}">
-                <div class="span2"><label>Logical Interfaces</label></div>
-                <div class="span10">{{lInterfaces}}</div>
-            </div> 
             <div class="row-fluid {{{showHideLIDetails type}}}">
                 <div class="span2"><label>Logical Interface Type</label></div>
                 <div class="span10"> {{li_type}}</div>
@@ -38,6 +35,22 @@
                 <div class="span10"> {{subnetCIDRArr}}</div>
             </div>
         </div>
+        {{#IfCompare liDetails null operator="!="}}
+            {{#IfCompare liDetails.length 0 operator=">"}}
+                    <label><h6><b>Logical Interface Details</b></h6></label>
+                    <div class="row-fluid">
+                        <div class="row-fluid bgCol">
+                            <div class="span3">
+                                <label>Name</label>
+                            </div>
+                            <div class="span3">
+                                <label>UUID</label>
+                            </div>
+                        </div>
+                    </div>
+                    {{{showLIDetails liDetails}}}
+            {{/IfCompare}}
+        {{/IfCompare}}
     </div>
 </script>
 <script type="text/x-handlebars-template" id="physicalinterfaces-config-template">
