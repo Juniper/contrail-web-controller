@@ -724,11 +724,13 @@ var infraMonitorUtils = {
             obj['dbSpaceAvailable'] = dbSpaceAvailable;
             obj['dbSpaceUsed'] = dbSpaceUsed;
             obj['analyticsDbSize'] = analyticsDbSize;
-            obj['formattedAvailableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
-            obj['formattedUsedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
-            obj['formattedAnalyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
+            obj['formattedAvailableSpace'] = $.isNumeric(dbSpaceAvailable)? formatBytes(dbSpaceAvailable * 1024) : '-';
+            obj['formattedUsedSpace'] = $.isNumeric(dbSpaceUsed)? formatBytes(dbSpaceUsed * 1024) : '-';
+            obj['formattedAnalyticsDbSize'] = $.isNumeric(analyticsDbSize)? formatBytes(analyticsDbSize * 1024) : '-';
             //Use the db usage percentage for bubble size
-            obj['usedPercentage'] = (obj['y'] * 100) / (obj['y']+obj['x']);
+            var usedPercentage = (obj['y'] * 100) / (obj['y']+obj['x']);
+            obj['usedPercentage'] = usedPercentage;
+            obj['formattedUsedPercentage'] = $.isNumeric(usedPercentage)? usedPercentage.toFixed(2) + ' %': '-' ;
             obj['size'] = obj['usedPercentage']  ;
             obj['shape'] = 'circle';
             obj['type'] = 'dbNode';
@@ -2441,11 +2443,11 @@ function getDbNodeTooltipContents(currObj) {
         {lbl:'Host Name', value: currObj['name']},
 //        {lbl:'Version', value:currObj['version']},
         {lbl:'Disk Space', value: '',options:{noLabelColon:true}},
-        {lbl:'Available', value:currObj['availableSpace']},
-        {lbl:'Used', value:currObj['usedSpace']},
-        {lbl:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'},
+        {lbl:'Available', value:currObj['formattedAvailableSpace']},
+        {lbl:'Used', value:currObj['formattedUsedSpace']},
+        {lbl:'Usage', value:currObj['formattedUsedPercentage']},
         {lbl:'Analytics DB', value:'',options:{noLabelColon:true}},
-        {lbl:'Used', value:currObj['analyticsDbSize']},
+        {lbl:'Used', value:currObj['formattedAnalyticsDbSize']},
         
     ];
     return tooltipContents;
