@@ -435,10 +435,10 @@ function getComputeNodeVN (req, res, appData)
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
               function(err, data) {
-        if (!err) {
+        if ((null == err) && (null != data)) {
             commonUtils.handleJSONResponse(null, res, data);
         } else {
-            commonUtils.handleJSONResponse(err, res, []);
+            infraCmn.sendServerRetrieveError(res);
         }
     });
 }
@@ -471,7 +471,6 @@ function getComputeNodeInterface (req, res, appData)
     if (queryData.query['introspectPort']) {
         urlParamObj['introspectPort'] = queryData.query['introspectPort'];
     } 
-    console.log("Getting urlParamObj as:", urlParamObj);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_INTERFACE,
@@ -589,12 +588,12 @@ function getvRouterUCastRoutes (req, res) {
         }
         async.map(dataObjArr,
                   commonUtils.getServerRespByRestApi(vRouterRestAPI,
-                                                     true),
+                                                     false),
                   function(err, data) {
-            if (data) {
+            if ((null == err) && (null != data)) {
                 commonUtils.handleJSONResponse(null, res, data);
             } else {
-                commonUtils.handleJSONResponse(null, res, []);
+                infraCmn.sendServerRetrieveError(res);
             }
         });
     });
@@ -636,12 +635,12 @@ function getvRouterL2Routes (req, res)
         }
         async.map(dataObjArr,
                   commonUtils.getServerRespByRestApi(vRouterRestAPI,
-                                                     true),
+                                                     false),
                   function(err, data) {
-            if (data) {
+            if ((null == err) && (null != data)) {
                 commonUtils.handleJSONResponse(null, res, data);
             } else {
-                commonUtils.handleJSONResponse(null, res, []);
+                infraCmn.sendServerRetrieveError(res);
             }
         });
     });
@@ -683,10 +682,10 @@ function getvRouterUCast6Routes (req, res) {
                   commonUtils.getServerRespByRestApi(vRouterRestAPI,
                                                      true),
                   function(err, data) {
-            if (data) {
+            if ((null == err) && (null != data)) {
                 commonUtils.handleJSONResponse(null, res, data);
             } else {
-                commonUtils.handleJSONResponse(null, res, []);
+                infraCmn.sendServerRetrieveError(res);
             }
         });
     });
@@ -696,12 +695,12 @@ function sendvRouterRoutes (req, res, dataObjArr, vRouterRestAPI)
 {
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI,
-                                                 true),
+                                                 false),
         function(err, data) {
-        if (data) {
+        if ((null == err) && (null != data)) {
             commonUtils.handleJSONResponse(null, res, data);
         } else {
-            commonUtils.handleJSONResponse(null, res, []);
+            infraCmn.sendServerRetrieveError(res);
         }
     });
 }
@@ -741,12 +740,12 @@ function getvRouterMCastRoutes (req, res) {
         }
         async.map(dataObjArr,
                   commonUtils.getServerRespByRestApi(vRouterRestAPI,
-                                                     true),
+                                                     false),
                   function(err, data) {
-            if (data) {
+            if ((null == err) && (null != data)) {
                 commonUtils.handleJSONResponse(null, res, data);
             } else {
-                commonUtils.handleJSONResponse(null, res, []);
+                infraCmn.sendServerRetrieveError(res);
             }
         });
     });

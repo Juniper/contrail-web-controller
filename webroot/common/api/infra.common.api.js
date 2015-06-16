@@ -576,12 +576,12 @@ function sortUVEList (uveEntry1, uveEntry2)
 function sendSandeshRequest (req, res, dataObjArr, restAPI)
 {
     async.map(dataObjArr,
-              commonUtils.getServerRespByRestApi(restAPI, true),
+              commonUtils.getServerRespByRestApi(restAPI, false),
               function(err, data) {
-        if (data) {
+        if ((null == err) && (null != data)) {
             commonUtils.handleJSONResponse(null, res, data);
         } else {
-            commonUtils.handleJSONResponse(null, res, []);
+            sendServerRetrieveError(res);
         }
     });
 }
@@ -1005,6 +1005,12 @@ function getvRtrIntrospectPortByJobData (jobData)
     return global.SANDESH_COMPUTE_NODE_PORT;
 }
 
+function sendServerRetrieveError (res)
+{
+    var error = new appErrors.RESTServerError(global.STR_CACHE_RETRIEVE_ERROR);
+    commonUtils.handleJSONResponse(error, res, null);
+}
+
 exports.dovRouterListProcess = dovRouterListProcess;
 exports.checkAndGetSummaryJSON = checkAndGetSummaryJSON;
 exports.getvRouterList = getvRouterList;
@@ -1028,3 +1034,5 @@ exports.getvRouetrIntrospectPort = getvRouetrIntrospectPort;
 exports.fillIntrospectPortInJobData = fillIntrospectPortInJobData;
 exports.getvRouetrIntrospectPortByReq = getvRouetrIntrospectPortByReq;
 exports.getvRtrIntrospectPortByJobData = getvRtrIntrospectPortByJobData;
+exports.sendServerRetrieveError = sendServerRetrieveError;
+
