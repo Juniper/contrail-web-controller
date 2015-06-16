@@ -727,11 +727,13 @@ var infraMonitorUtils = {
             obj['dbSpaceAvailable'] = dbSpaceAvailable;
             obj['dbSpaceUsed'] = dbSpaceUsed;
             obj['analyticsDbSize'] = analyticsDbSize;
-            obj['formattedAvailableSpace'] = formatBytes($.isNumeric(dbSpaceAvailable)? dbSpaceAvailable * 1024 : 0);
-            obj['formattedUsedSpace'] = formatBytes($.isNumeric(dbSpaceUsed)? dbSpaceUsed * 1024 : 0);
-            obj['formattedAnalyticsDbSize'] = formatBytes($.isNumeric(analyticsDbSize)? analyticsDbSize * 1024 : 0);
+            obj['formattedAvailableSpace'] = $.isNumeric(dbSpaceAvailable)? formatBytes(dbSpaceAvailable * 1024) : '-';
+            obj['formattedUsedSpace'] = $.isNumeric(dbSpaceUsed)? formatBytes(dbSpaceUsed * 1024) : '-';
+            obj['formattedAnalyticsDbSize'] = $.isNumeric(analyticsDbSize)? formatBytes(analyticsDbSize * 1024) : '-';
             //Use the db usage percentage for bubble size
-            obj['usedPercentage'] = (obj['y'] * 100) / (obj['y']+obj['x']);
+            var usedPercentage = (obj['y'] * 100) / (obj['y']+obj['x']);
+            obj['usedPercentage'] = usedPercentage;
+            obj['formattedUsedPercentage'] = $.isNumeric(usedPercentage)? usedPercentage.toFixed(2) + ' %': '-' ;
             obj['size'] = obj['usedPercentage']  ;
             obj['shape'] = 'circle';
             obj['type'] = 'dbNode';
@@ -2646,11 +2648,11 @@ function getDbNodeTooltipContents(currObj) {
         {label:'Host Name', value: currObj['name']},
 //        {label:'Version', value:currObj['version']},
         {label:'Disk Space', value: '',options:{noLabelColon:true}},
-        {label:'Available', value:currObj['availableSpace']},
-        {label:'Used', value:currObj['usedSpace']},
-        {label:'Usage', value:currObj['usedPercentage'].toFixed(2) + ' %'},
+        {label:'Available', value:currObj['formattedAvailableSpace']},
+        {label:'Used', value:currObj['formattedUsedSpace']},
+        {label:'Usage', value:currObj['formattedUsedPercentage']},
         {label:'Analytics DB', value:'',options:{noLabelColon:true}},
-        {label:'Used', value:currObj['analyticsDbSize']},
+        {label:'Used', value:currObj['formattedAnalyticsDbSize']},
         
     ];
     return tooltipContents;
