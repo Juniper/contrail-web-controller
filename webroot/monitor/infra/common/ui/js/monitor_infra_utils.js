@@ -2427,10 +2427,10 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
 //Default tooltip contents to show for infra nodes
 function getNodeTooltipContents(currObj) {
     var tooltipContents = [
-        {label:'Host Name', value: currObj['name']},
-        {label:'Version', value:currObj['version']},
-        {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
-        {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
+        {lbl:'Host Name', value: currObj['name']},
+        {lbl:'Version', value:currObj['version']},
+        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
+        {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
     ];
     return tooltipContents;
 }
