@@ -395,6 +395,7 @@ function setEditPopupData() {
 function populateData(result) {
 	var vxLanIdentifierModeLabels = ["Auto Configured", "User Configured"];
 	var vxLanIdentifierModeValues = ["automatic", "configured"];
+    var encapsulationMap = {"MPLSoGRE":"MPLS Over GRE", "MPLSoUDP":"MPLS Over UDP", "VXLAN":"VxLAN"};
     var gridDS = [];
     var priorities;
     $("#epTuples").html("");
@@ -442,7 +443,7 @@ function populateData(result) {
         actPriorities = priorities;
         var gridPriorities = [];
         for(var i = 0; i < priorities.length; i++) {
-            gridPriorities.push(priorities[i]);
+            gridPriorities.push(encapsulationMap[priorities[i]]);
         }
         gridDS.push({'property' : 'Encapsulation Priority Order', 
             'value' : gridPriorities});
