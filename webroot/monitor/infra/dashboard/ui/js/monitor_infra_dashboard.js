@@ -84,11 +84,11 @@ function addTabs() {
             var chartObj = {};
             var chartsData = {
                 title: 'vRouters',
-                // d: splitNodesToSeriesByColor(data, chartsLegend),
-                d: [{
-                    key: 'Virtual Routers',
-                    values: data
-                }],
+                 d: splitNodesToSeriesByColor(data, chartsLegend),
+//                d: [{
+//                    key: 'Virtual Routers',
+//                    values: data
+//                }],
                 chartOptions: {
                     // dataSplitFn: function(data) {
                     //                     return splitNodesToSeriesByColor(data, chartsLegend);
@@ -207,11 +207,11 @@ function addTabs() {
                     xPositive: true,
                     addDomainBuffer: true
                 },
-                // d: splitNodesToSeriesByColor(data,chartsLegend)
-                d: [{
-                    key: 'Control Nodes',
-                    values: data
-                }],
+                 d: splitNodesToSeriesByColor(data,chartsLegend)
+//                d: [{
+//                    key: 'Control Nodes',
+//                    values: data
+//                }],
             };
             $('#ctrlNodeStats-header').initWidgetHeader({
                 title: 'Control Nodes',
@@ -273,10 +273,11 @@ function addTabs() {
                         xPositive: true,
                         addDomainBuffer: true
                     },
-                    d: [{
-                        key: 'Analytics Nodes',
-                        values: data
-                    }]
+                    d: splitNodesToSeriesByColor(data,chartsLegend)
+//                    d: [{
+//                        key: 'Analytics Nodes',
+//                        values: data
+//                    }]
                 };
                 $('#analyticNode-bubble').initScatterChart(chartsData);
             } else {
@@ -329,10 +330,11 @@ function addTabs() {
                         xPositive: true,
                         addDomainBuffer: true
                     },
-                    d: [{
-                        key: 'Config Nodes',
-                        values: data
-                    }]
+                    d: splitNodesToSeriesByColor(data,chartsLegend)
+//                    d: [{
+//                        key: 'Config Nodes',
+//                        values: data
+//                    }]
                 };
                 $('#configNode-bubble').initScatterChart(chartsData);
             } else {
