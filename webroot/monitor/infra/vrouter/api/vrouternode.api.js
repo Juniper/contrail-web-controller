@@ -763,18 +763,16 @@ function getvRouterVrfList (req, res)
     urlLists[0] = ip + '@' + infraCmn.getvRouetrIntrospectPort(introspectPort) + '@' +
         // '/Snh_VrfListReq?name=';
         '/Snh_PageReq?x=begin:-1,end:-1,table:db.vrf.0&name=';
+    var params = {'isRawData': true}
     async.map(urlLists,
-              commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
+            commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, false, params),
               function(err, results) {
-        var data = jsonPath(results, "$..VrfSandeshData");
-        if (data.length == 0) {
-            commonUtils.handleJSONResponse(null, res, []);
-            return;
+        if ((null == err) && (null != results) && (null != results[0])) {
+            commonUtils.handleJSONResponse(null, res, results[0],false);
+        } else {
+            commonUtils.handleJSONResponse(err, res, null);
         }
-        lastIndex = commonUtils.createJSONBySandeshResponseArr(resultArr,
-                                                               data[0],
-                                                               lastIndex);
-        commonUtils.handleJSONResponse(null, res, resultArr);
+        
     });
 }
 

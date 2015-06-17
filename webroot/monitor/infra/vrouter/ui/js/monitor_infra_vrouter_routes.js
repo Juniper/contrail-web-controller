@@ -175,18 +175,19 @@ monitorInfraComputeRoutesClass = (function() {
                 dataSource: {
                     type: 'remote',
                      url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(obj), obj['introspectPort']),
+                     dataType: 'xml',
+                     async: true,
                      parse:function(response){
                          var ret = [];
-                         if(!(response instanceof Array)){
-                            response = [response];
-                         }
-                         $.each(response,function(idx,obj){
-                            var ucIndex = ifNull(obj.ucindex,'');
-                            var mcIndex = ifNull(obj.mcindex,'');
-                            var l2Index = ifNull(obj.l2index,'');
-                            var uc6Index = ifNull(obj.uc6index,'');
-                            var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
-                            ret.push({name:obj.name,value:value}) 
+                         var vrfs = response.getElementsByTagName('VrfSandeshData');
+                         $.each(vrfs,function(idx,vrfXmlObj){
+                             var name = getValueByJsonPath(vrfXmlObj.getElementsByTagName('name'),'0;innerHTML','');
+                             var ucIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('ucindex'),'0;innerHTML','');
+                             var mcIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('mcindex'),'0;innerHTML','');
+                             var l2Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('l2index'),'0;innerHTML','');
+                             var uc6Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('uc6index'),'0;innerHTML','');
+                             var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
+                             ret.push({name:name,value:value});
                          });
                          //Intialize the grid
                          window.setTimeout(function() { initUnicastRoutesGrid(ret[0]); },200);
