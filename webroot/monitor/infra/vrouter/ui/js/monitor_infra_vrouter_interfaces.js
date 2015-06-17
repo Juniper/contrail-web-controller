@@ -52,12 +52,26 @@ monitorInfraComputeInterfacesClass = (function() {
                     dispVMName = '';
                 }
                 obj['dispName'] = obj['name'];
-                if(new RegExp(/logical-port|remote-physical-port/).test(obj['type'])) {
+                if(new RegExp(/remote-physical-port/).test(obj['type'])) {
                     var parts = obj['name'].split(":"); 
-                    if(parts.length == 3){ 
+                    if(parts.length == 3) {
+                        if(parts[0] == 'default-global-system-config') {
+                            obj['dispName'] = contrail.format('{0}<br/> ({1})',parts[2],parts[1]);
+                        } else {
                         obj['dispName'] = contrail.format('{0}<br/> ({1}:{2})',parts[2],parts[0],parts[1]);
+                        }
                     } 
                 } 
+                if(new RegExp(/logical-port/).test(obj['type'])) {
+                    var parts = obj['name'].split(":");
+                    if(parts.length == 4) {
+                        if(parts[0] == 'default-global-system-config') {
+                            obj['dispName'] = contrail.format('{0}<br/> ({1}:{2})',parts[3],parts[1],parts[2]);
+                        } else {
+                        obj['dispName'] = contrail.format('{0}<br/> ({1}:{2}:{3})',parts[3],parts[0],parts[1],parts[2]);
+                        }
+                    }
+                }
                 if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
                     if(obj.fip_list != null) {
                         var fipList = [];
