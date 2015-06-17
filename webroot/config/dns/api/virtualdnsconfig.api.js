@@ -909,6 +909,9 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
             }
         }
         results[i]['network-ipam']['network_ipam_mgmt'] = ipamNwIpamMgmtRefObj;
+        if(results[i]['network-ipam']["virtual_network_back_refs"] != null) {
+            delete results[i]['network-ipam']["virtual_network_back_refs"];
+        }
         commonUtils.createReqObj(dataObjArr, ipamURL, global.HTTP_REQUEST_PUT,
             results[i], null, null, appData);
     }
