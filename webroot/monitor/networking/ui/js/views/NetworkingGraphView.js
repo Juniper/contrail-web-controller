@@ -445,7 +445,7 @@ define([
             virtualMachineCommonLinkPosition = {}, virtualMachineCommonLinkSize = {},
             virtualMachineLinkPosition = {}, virtualMachineLinkSize = {};
 
-        var xFactor = 0, yFactor = 0, linkThickness = 1, rectThickness = 2, horizontalAdjustFactor = 6;
+        var xFactor = 0, yFactor = 0, linkThickness = 2, rectThickness = 2, horizontalAdjustFactor = 6;
         if(vmLength !== 0){
             virtualMachineCommonLinkPosition = {x: xOrigin - vmWidth/2, y: yOrigin + ySeparation - horizontalAdjustFactor};
             virtualMachineCommonLinkSize = {width: vmLength * xSeparation + vmWidth/2, height: rectThickness};
@@ -488,7 +488,7 @@ define([
 
         var centerLineHeight = 0.1,
             xFactor = 0, yFactor = -1,
-            linkThickness = 1, rectThickness = 2;
+            linkThickness = 2, rectThickness = 2;
 
         if(vmLength !== 0){
             virtualMachineCommonLinkPosition = {x: xOrigin + vmWidth + xSeparation/2, y: yOrigin - vmMargin/2};
