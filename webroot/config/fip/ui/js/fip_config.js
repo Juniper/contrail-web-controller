@@ -564,7 +564,6 @@ function showFIPEditWindow(mode) {
         $("#numPanel").removeClass('hide');       
         $("#specificIPPanel").addClass('hide');   
         $("#btnCreatefipOK").text('Save');     
-        $("#btnCreatefipOK").removeAttr('disabled');        
         var getAjaxs = [];
         getAjaxs[0] = $.ajax({
             url:"/api/tenants/config/floating-ip-pools/" + selectedProject,
@@ -574,6 +573,7 @@ function showFIPEditWindow(mode) {
         $.when.apply($, getAjaxs).then(
             function () {
                 //all success
+                $("#btnCreatefipOK").removeAttr('disabled');
                 var results = arguments;
                 var fipPools = [];
                 configObj["floating-ip-pools"] = [];
@@ -589,8 +589,6 @@ function showFIPEditWindow(mode) {
                     }
                 }
 
-                windowCreatefip.find('.modal-header-title').text("Allocate Floating IP");
-                windowCreatefip.modal('show');
                 //todo: ddFipPool.data("contrailDropdown").focus();
                 if(fipPools.length > 0){
                     $("#ddFipPool").data("contrailDropdown").setData(fipPools);
@@ -602,8 +600,13 @@ function showFIPEditWindow(mode) {
             },
             function () {
                 $("#btnCreatefipOK").attr("disabled","disabled");
+                windowCreatefip.modal('hide');
+                showInfoWindow("Error fetching floating ip pool", "Error");
+                return false;
             });
     }
+    windowCreatefip.find('.modal-header-title').text("Allocate Floating IP");
+    windowCreatefip.modal('show');
 
 }
 
@@ -619,6 +622,8 @@ function fipAssociateWindow(rowIndex) {
         gridfip.showGridMessage("errorGettingData");
         return;
     }
+    $("#btnAssociatePopupOK").attr("disabled","disabled");
+    ddAssociate.data("contrailDropdown").setData([]);
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
         url:"/api/tenants/config/get-virtual-machine-details?proj_uuid=" + selectedProject,
@@ -627,6 +632,7 @@ function fipAssociateWindow(rowIndex) {
     $.when.apply($, getAjaxs).then(
         function () {
             //all success
+            $("#btnAssociatePopupOK").removeAttr('disabled');
             var results = arguments;
             var vmi = [];
             if(results[0] != null && results[0].length > 0) {
@@ -654,17 +660,19 @@ function fipAssociateWindow(rowIndex) {
                 $("#ddAssociate").data("contrailDropdown").enable(false);
                 $("#btnAssociatePopupOK").attr("disabled","disabled");
             }
-            windowAssociate.find('.modal-header-title').text("Associate Floating IP");
             var selectedRow = $("#gridfip").data("contrailGrid")._dataView.getItem(rowIndex);
             $('#btnAssociatePopupOK').data('uuid',selectedRow.uuid);
-            windowAssociate.modal('show');
         },
         function () {
             //If atleast one api fails
             //var results = arguments;
+            $("#btnAssociatePopupOK").attr("disabled","disabled");
+            windowAssociate.modal('hide');
             showInfoWindow("Error fetching VM interfaces", "Error");
             return false;
         });
+    windowAssociate.find('.modal-header-title').text("Associate Floating IP");
+    windowAssociate.modal('show');
 }
 
 function createFIPSuccessMultiple() {

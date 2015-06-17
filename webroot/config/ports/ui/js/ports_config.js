@@ -1722,7 +1722,7 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
     var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
     var selectedProject = $("#ddProjectSwitcher").data("contrailDropdown").text();
     var selectedProjectVal = $("#ddProjectSwitcher").data("contrailDropdown").value();
-
+    $("#btnCreatePortsOK").attr("disabled","disabled");
     if(!isValidDomainAndProject(selectedDomain, selectedProject)) {
         gridPorts.showGridMessage('errorGettingData');
         return;
@@ -1777,11 +1777,11 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
             //all success
             clearValuesFromDomElements();
             var results = arguments;
-
             //Security Group
             var securityGroupsData = [];
             var allSG = [];
             var sgValue = [];
+            $("#btnCreatePortsOK").removeAttr('disabled');
             securityGroupsData = results[0][0]["security-groups"];
             for (var i = 0; i < securityGroupsData.length; i++) {
                 var sg = securityGroupsData[i];
@@ -2169,6 +2169,9 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
         function () {
             //If atleast one api fails
             var results = arguments;
+            $("#btnCreatePortsOK").removeAttr('disabled');
+            windowCreatePorts.modal('hide');
+            showInfoWindow("Error fetching data", "Error");
         });
     windowCreatePorts.modal("show");
     windowCreatePorts.find('.modal-body').scrollTop(0);
