@@ -127,15 +127,21 @@ monitorInfraControlRoutesClass = (function() {
          $( "#ddRoutingInstance").contrailDropdown({
              defaultValue:'All',
              dataSource: {
+                 dataType:'xml',
                  type:'remote',
                  url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(obj)),
                  async:true,
                  parse:function(response){
-                   var ret = []
-                   ret =['All'].concat(response['routeInstances']);
-                   return ret; 
+                     var ret = ['All'];
+                     if(response != null){
+                         $(response.getElementsByTagName("name")).each(function(){
+                             ret.push(this.innerHTML);
+                         });
+                     }
+                     return ret;
+                     
                  },
-                 timeout:300
+                 timeout:300000
              },
          });
          var ddRoutingInstance = $( "#ddRoutingInstance").data('contrailDropdown');
@@ -241,7 +247,8 @@ monitorInfraControlRoutesClass = (function() {
             var url =  monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(obj) + '&' + $.param(routeQueryString);
             var ajaxConfig = {
                     url: url,
-                    type: 'GET'
+                    type: 'GET',
+                    timeout:300000
                 };
             $('#btnRouteReset').on('click', function () {
                 setDefaults();
@@ -340,7 +347,8 @@ monitorInfraControlRoutesClass = (function() {
                                     routeQueryString['limit'] = '50';
                                     return monitorInfraUrls['CONTROLNODE_ROUTES'] + '?ip=' + getIPOrHostName(obj) + '&' + $.param(routeQueryString)
                                 }(),
-                                type: 'GET'
+                                type: 'GET',
+                                timeout:300000
                             },
                             dataParser: function(response){
                                 var selValues = {};
