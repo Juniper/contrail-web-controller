@@ -322,9 +322,9 @@ function getComputeNodeInterface (pubChannel, saveChannelKey,
     commonUtils.createReqObj(dataObjArr,jobData.taskData.appData.url);
     
     async.map(dataObjArr,
-              commonUtils.getServerRespByRestApi(vRouterRestAPI, true),
+              commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
               commonUtils.doEnsureExecution(function(err, data) {
-        if (data) {
+        if ((null == err) && (null != data)) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                         global.HTTP_STATUS_RESP_OK,
                                         JSON.stringify(data),
@@ -431,7 +431,6 @@ function processComputeNodeInterface (pubChannel, saveChannelKey,
 {
     /* We get the interface details from Sandesh */
     var url = jobData.taskData.url;
-    console.log("jobData.taskData.url as:", jobData.taskData);
     getComputeNodeInterface(pubChannel, saveChannelKey,
                                         jobData.taskData.appData.ip, jobData, done);
 }
@@ -504,7 +503,6 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
 
     pos = reqUrl.length;
     var nodeIp = url.slice(pos);
-    console.log("jobData.taskData.url as:", jobData.taskData);
     nodeIp = jobData.taskData.appData.ip;
     if ((nodeIp == null) || (nodeIp.length == 0)) {
         allDetails = true;
@@ -651,8 +649,8 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                         }
                     }
                 } catch(e) {
-                    logutils.logger.error("vRouter Control IP parse error:" +
-                                          e);
+                    //logutils.logger.error("vRouter Control IP parse error:" +
+                     //                     e);
                 }
                 var uveIpsCnt = 0;
                 try {
@@ -660,7 +658,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                         resultJSON[i]['value']['VrouterAgent']['self_ip_list'];
                     uveIpsCnt = uveIps.length;
                 } catch(e) {
-                    logutils.logger.error("vRouter UVE IP parse error:" + e);
+                    //logutils.logger.error("vRouter UVE IP parse error:" + e);
                     uveIpsCnt = 0;
                 }
                 for (var j = 0; j < uveIpsCnt; j++) {
