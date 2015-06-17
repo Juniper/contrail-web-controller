@@ -393,7 +393,7 @@ var infraMonitorUtils = {
             var d = result[i];
             var dValue = result[i]['value'];
             obj['cpu'] = parseFloat(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;cpu_share','--'));
-            obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(2)) : '-';
+            obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(2)) : NaN;
             obj['ip'] = getValueByJsonPath(dValue,'VrouterAgent;control_ip','-');
             obj['xField'] = 'cpu';
             obj['yField'] = 'resMemory';
@@ -422,7 +422,7 @@ var infraMonitorUtils = {
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
             //Used for plotting in scatterChart
             obj['resMemory'] = getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;res','-');
-            obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(parseFloat(obj['resMemory']/1024).toFixed(2)) : '-';
+            obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(parseFloat(obj['resMemory']/1024).toFixed(2)) : NaN;
             obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024;
             obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
@@ -2429,7 +2429,7 @@ function getNodeTooltipContents(currObj) {
     var tooltipContents = [
         {lbl:'Host Name', value: currObj['name']},
         {lbl:'Version', value:currObj['version']},
-        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : currObj['cpu']},
+        {lbl:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
         {lbl:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
     ];
     return tooltipContents;
