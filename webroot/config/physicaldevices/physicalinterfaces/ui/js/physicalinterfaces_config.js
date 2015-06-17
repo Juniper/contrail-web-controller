@@ -737,6 +737,7 @@ function physicalInterfacesConfig() {
     }
     
     function populateCreateEditWindow(m, index) {
+        $("#btnAddPhysicalInterfaceOk").attr("disabled","disabled");
         mode = m;
         clearCreateEditWindow();
         prepareAccordionData();
@@ -1204,9 +1205,11 @@ function physicalInterfacesConfig() {
                      vnDataSrc.push({ text : textVN, value : vn.uuid, data : JSON.stringify(vnData)});
                  }
              }
+             $("#btnAddPhysicalInterfaceOk").removeAttr('disabled');
          } else {
              vnDataSrc.push({text : 'No Virtual Network found', value : 'empty'});
          }
+         $("#btnAddPhysicalInterfaceOk").removeAttr('disabled');
          var ddVN = $('#ddVN').data('contrailDropdown');         
          ddVN.setData(vnDataSrc);
          if(gblSelRow != null && gblSelRow.vn != '-') {
