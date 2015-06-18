@@ -151,9 +151,9 @@ function dnsRecordsDynamicConfig(){
         var ds = [];
         if(e && e.length > 0 && e[0] && e[0].VirtualDnsRecordsResponse && e[0].VirtualDnsRecordsResponse.records && e[0].VirtualDnsRecordsResponse.records.list){
             var nextRecSetKey = e[0].VirtualDnsRecordsResponse.getnext_record_set;
-            if(nextRecSetKey != null && $.isEmptyObject(nextRecSetKey)){
+            if(nextRecSetKey == "" || nextRecSetKey != null && $.isEmptyObject(nextRecSetKey)){
                $("#btnNextRecords").attr('disabled', 'disabled');
-            } 
+            }
             prevNextCache.push(nextRecSetKey);
             var res = e[0].VirtualDnsRecordsResponse.records.list.VirtualDnsRecordTraceData;
             if(res){
