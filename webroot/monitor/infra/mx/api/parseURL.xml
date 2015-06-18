@@ -20,4 +20,10 @@
         <feature>mxviz</feature>
         <callback>mxVizApi.getPRouterChassisInfo</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/mx/fabric/stats</url>
+        <method>get</method>
+        <feature>mxviz</feature>
+        <callback>mxVizApi.getPRouterFabricStats</callback>
+    </item>
 </urlLists>
