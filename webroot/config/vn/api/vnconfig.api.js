@@ -364,7 +364,9 @@ function getSharedVirtualNetworks (req, res, appData)
 {
     var resultJSON = [];
     var vnObjArr = [];
-    var vnURL = '/virtual-networks?detail=true&field=shared';
+    var vnURL = '/virtual-networks?detail=true&fields=' +
+        'physical_router_back_refs,floating_ip_pools' +
+        '&filters=is_shared==true';
     configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
         if ((null != err) || (null == vnDetails) || 
             (null == vnDetails['virtual-networks'])) {
@@ -374,11 +376,7 @@ function getSharedVirtualNetworks (req, res, appData)
         var vns = vnDetails['virtual-networks'];
         var vnCnt = vns.length;
         for (var i = 0; i < vnCnt; i++) {
-            if ((null != vns[i]['virtual-network']) &&
-                (null != vns[i]['virtual-network']['is_shared']) &&
-                (true == vns[i]['virtual-network']['is_shared'])) {
-                vnObjArr.push({'data':vns[i], 'appData': appData});
-            }
+            vnObjArr.push({'data':vns[i], 'appData': appData});
         }
         async.map(vnObjArr, parseSharedVN, function (err, data) {
             commonUtils.handleJSONResponse(null, res, data);
@@ -397,7 +395,7 @@ function getExternalVirtualNetworks (req, res, appData)
 {
     var resultJSON = [];
     var vnObjArr = [];
-    var vnURL = '/virtual-networks?detail=true&field=router';
+    var vnURL = '/virtual-networks?detail=true&filters=router_external==true';
     configApiServer.apiGet(vnURL, appData, function(err, vnDetails) {
         if ((null != err) || (null == vnDetails) ||
             (null == vnDetails['virtual-networks'])) {
@@ -407,11 +405,7 @@ function getExternalVirtualNetworks (req, res, appData)
         var vns = vnDetails['virtual-networks'];
         var vnCnt = vns.length;
         for (var i = 0; i < vnCnt; i++) {
-            if ((null != vns[i]['virtual-network']) &&
-                (null != vns[i]['virtual-network']['router_external']) &&
-                (true == vns[i]['virtual-network']['router_external'])) {
-                vnObjArr.push({'data':vns[i], 'appData': appData});
-            }
+            vnObjArr.push({'data':vns[i], 'appData': appData});
         }
         async.map(vnObjArr, parseSharedVN, function (err, data) {
             commonUtils.handleJSONResponse(null, res, data);
@@ -2346,6 +2340,63 @@ function vnGetSubnetResponseAsync (vnObj, callback)
     });
 }
 
+function getAllVirtualNetworks (req, res, appData)
+{
+    var resultJSON = [];
+    var vnObjArr = [];
+    var projUUID = req.param('uuid');
+    var vnURL = '/virtual-networks?detail=true&fields=' +
+        'network_ipam_refs';
+    var dataObjArr = [];
+
+    if (projUUID != null) {
+        vnURL += '&parent_id=' + projUUID;
+    }
+    commonUtils.createReqObj(dataObjArr, vnURL,
+                             global.HTTP_REQUEST_GET, null, null, null,
+                             appData);
+    vnURL = '/virtual-networks?detail=true&fields=network_ipam_refs&' +
+        'filters=is_shared==true';
+    commonUtils.createReqObj(dataObjArr, vnURL,
+                             global.HTTP_REQUEST_GET, null, null, null,
+                             appData);
+
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
+              function(error, results) {
+        var vnConfigDetails = [];
+        if ((null != results) && (null != results[0]) &&
+            (null != results[0]['virtual-networks']) &&
+            (results[0]['virtual-networks'].length > 0)) {
+            vnConfigDetails = results[0]['virtual-networks'];
+        }
+        var vnConfigDetailsCnt = vnConfigDetails.length;
+        var tmpVNObjs = {};
+        for (var i = 0; i < vnConfigDetailsCnt; i++) {
+            tmpVNObjs[vnConfigDetails[i]['virtual-network']['uuid']] =
+                vnConfigDetails[i];
+        }
+        if ((null != results) && (null != results[1]) &&
+            (null != results[1]['virtual-networks']) &&
+            (results[1]['virtual-networks'].length > 0)) {
+            var sharedVNData = results[1]['virtual-networks'];
+            var sharedVNDataCnt = sharedVNData.length;
+            for (var i = 0; i < sharedVNDataCnt; i++) {
+                if (null == tmpVNObjs[sharedVNData[i]['virtual-network']['uuid']]) {
+                    vnConfigDetails.push(sharedVNData[i]);
+                }
+            }
+        }
+        if (!vnConfigDetails.length) {
+            commonUtils.handleJSONResponse(error, res, vnConfigDetails);
+            return;
+        }
+        async.map(vnConfigDetails, vnGetSubnetResponseAsync, function(error, data) {
+            commonUtils.handleJSONResponse(error, res, data);
+        });
+    });
+}
+
 function getAllVirtualNetworksWFields (req, res, appData)
 {
     var resultJSON = [];
@@ -2452,4 +2503,5 @@ exports.getAllVirtualNetworksWFields = getAllVirtualNetworksWFields;
 exports.fipPoolDelete                = fipPoolDelete;
 exports.getVirtualNetworkCb          = getVirtualNetworkCb;
 exports.getVNListOrDetails           = getVNListOrDetails;
+exports.getAllVirtualNetworks        = getAllVirtualNetworks;
 
