@@ -645,8 +645,9 @@ function getControlNodeRoutes (req, res, appData)
 
     url =  '/Snh_ShowRouteReq?routing_table=' + encodeURIComponent(routingTable) +
         '&routing_instance=' + encodeURIComponent(routingInst) +
-        '&prefix=' + encodeURIComponent(prefix) + '&start_routing_instance=' +
-        '&start_routing_table=&start_prefix=&count=' + count;
+        '&prefix=' + encodeURIComponent(prefix) + '&longer_match=&count=' +
+        count + '&start_routing_table=' +
+        '&start_routing_instance=&start_prefix=';
 
     var resultJSON = [];
     var bgpRtrRestAPI =
