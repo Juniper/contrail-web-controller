@@ -65,7 +65,7 @@ computeNodeView = function () {
     
     this.getComputeNodeDetails = function(deferredObj,obj) {
         $.ajax({
-            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'] , obj['name'])
+            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'] , obj['name'],true)
         }).done(function(result) {
             deferredObj.resolve(result);
         });
