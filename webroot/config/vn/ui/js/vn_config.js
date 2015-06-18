@@ -2197,9 +2197,9 @@ function successHandlerForGridVNRow(result) {
         if (routeTargets === false) {
             routeTargets = "-";
         }
-        var ext = "Enabled";
-        if(String(vn["router_external"])== "false")
-            ext = "Disabled";
+        var ext = "Disabled";
+        if(vn["router_external"] != undefined && String(vn["router_external"]) == "true")
+            ext = "Enabled";
         var External = ext;
 
         //Need to do

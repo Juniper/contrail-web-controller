@@ -170,6 +170,12 @@
         <callback>vnconfigapi.getAllVirtualNetworksWFields</callback>
     </item>
      <item>
+        <url>/api/tenants/config/all-virtual-networks</url>
+        <method>get</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getAllVirtualNetworks</callback>
+    </item>
+     <item>
         <url>/api/tenants/config/vn-list-details</url>
         <method>post</method>
         <feature>vnconfig</feature>
