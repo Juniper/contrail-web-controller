@@ -1060,7 +1060,7 @@ function logRouterCreateWindow(mode,rowIndex) {
 
     var getAjaxs = [];
     getAjaxs[0] = $.ajax({
-        url:"/api/tenants/config/all-virtual-networks-fields?uuid="+selectedProject,
+        url:"/api/tenants/config/all-virtual-networks?uuid="+selectedProject,
         type:"GET"
     });
 
