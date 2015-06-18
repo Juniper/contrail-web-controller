@@ -206,7 +206,8 @@ function addTabs() {
                     tooltipFn: bgpMonitor.controlNodetooltipFn,
                     clickFn: bgpMonitor.onControlNodeDrillDown,
                     xPositive: true,
-                    addDomainBuffer: true
+                    addDomainBuffer: true,
+                    showLegend: false
                 },
                 // d: splitNodesToSeriesByColor(data,chartsLegend)
                 d: [{
@@ -272,7 +273,8 @@ function addTabs() {
                         tooltipFn: bgpMonitor.analyticNodeTooltipFn,
                         clickFn: bgpMonitor.onAnalyticNodeDrillDown,
                         xPositive: true,
-                        addDomainBuffer: true
+                        addDomainBuffer: true,
+                        showLegend:false
                     },
                     d: [{
                         key: 'Analytics Nodes',
@@ -328,7 +330,8 @@ function addTabs() {
                         tooltipFn: bgpMonitor.configNodeTooltipFn,
                         clickFn: bgpMonitor.onConfigNodeDrillDown,
                         xPositive: true,
-                        addDomainBuffer: true
+                        addDomainBuffer: true,
+                        showLegend: false
                     },
                     d: [{
                         key: 'Config Nodes',
@@ -378,12 +381,14 @@ function addTabs() {
                         tooltipFn : bgpMonitor.dbNodeTooltipFn,
                         clickFn : bgpMonitor.onDbNodeDrillDown,
                         xPositive : true,
-                        addDomainBuffer : true
+                        addDomainBuffer : true,
+                        showLegend: false
                     },
-                    d : [ {
-                        key : 'Database Nodes',
-                        values : data
-                    } ]
+                    d: splitNodesToSeriesByColor(data, chartsLegend)
+//                    d : [ {
+//                        key : 'Database Nodes',
+//                        values : data
+//                    } ]
                 };
                 $('#dbNode-bubble').initScatterChart(chartsData);
             } else {
