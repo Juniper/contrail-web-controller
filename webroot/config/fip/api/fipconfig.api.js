@@ -398,8 +398,8 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
     var dataObjArr = [];
     fipPool['floating_ip_pool_refs'] = [];
     var vnURL =
-        '/virtual-networks?detail=true&fields=router_external,' +
-        'floating_ip_pools,network_ipam_refs';
+        '/virtual-networks?detail=true&fields=' +
+        'floating_ip_pools,network_ipam_refs&filters=router_external==true';
     configApiServer.apiGet(vnURL, appData, function(err, vnList) {
         if ((null != err) || (null == vnList) || 
             (null == vnList['virtual-networks'])) {
@@ -411,8 +411,7 @@ function getFloatingIpPoolsByVNLists (request, appData, callback)
         for (i = 0; i < resCnt; i++) {
             try {
                 var vn = results[i]['virtual-network'];
-                if ((true == vn['router_external']) &&
-                    (null != vn['floating_ip_pools'])) {
+                if (null != vn['floating_ip_pools']) {
                     var subnets = parseVNSubnets(results[i]);
                     var fipCnt = vn['floating_ip_pools'].length;
                     for(var j = 0; j < fipCnt ; j++) {
