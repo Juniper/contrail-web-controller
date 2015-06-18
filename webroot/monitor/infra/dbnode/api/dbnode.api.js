@@ -196,10 +196,13 @@ function postProcessDatabaseNodeSummary (dbUVEData)
         }
     }
     for (key in tmpConfigObjs) {
-        resultJSON[resCnt] = {};
-        resultJSON[resCnt]['name'] = key;
-        resultJSON[resCnt]['value'] = {};
-        resultJSON[resCnt]['value']['ConfigData'] = tmpConfigObjs[key];
+        
+        resultJSON.push({
+                name:key,
+                value: {
+                    ConfigData : tmpConfigObjs[key]
+                }
+        });
     }
     return resultJSON;
 }
