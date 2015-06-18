@@ -133,7 +133,7 @@ define([
                     enabled: true,
                     selectorId: connectedSelectorId,
                     config: {
-                        onReset: function() {
+                        onReset: function(e, panzoom, matrix) {
                             var focusedElement = graphConfig.focusedElement;
                             panConnectedGraph2Center(focusedElement, connectedSelectorId)
                         }
@@ -362,6 +362,20 @@ define([
 
         $(connectedSelectorId).panzoom("pan", panX, panY, { relative: true });
         $(connectedSelectorId).css({'backface-visibility':'initial'});
+
+        var screenWidth = $(connectedSelectorId).parents('.col1').width(),
+            screenHeight = $(connectedSelectorId).parents('.col1').height(),
+            screenOffsetTop = $(connectedSelectorId).parent().offset().top,
+            screenOffsetLeft = $(connectedSelectorId).parent().offset().left,
+            focal = {
+                clientX: screenOffsetLeft + screenWidth / 2,
+                clientY: screenOffsetTop + screenHeight / 2
+            };
+
+        //Safari related hack to orient the graph correctly
+        $(connectedSelectorId).panzoom('zoom', true, {focal: focal, increment: 0.01});
+        $(connectedSelectorId).panzoom('zoom', false, {focal: focal, increment: 0.01});
+
     };
 
     var createVirtualMachineNode = function(position, size, node, srcVNDetails) {
