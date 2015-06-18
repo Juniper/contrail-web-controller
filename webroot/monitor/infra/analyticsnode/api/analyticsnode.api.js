@@ -240,6 +240,7 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
     var lastIndex = 0;
     var collDataLen = 0;
     var genDataLen = 0;
+    var tmpConfigObjs = {};
     try {
         try {
             var genData = genUVEData['value'];
@@ -287,6 +288,23 @@ function postProcessAnalyticsNodeSummaryJSON (collUVEData, genUVEData,
           } catch(e) {
               continue;
           }
+        }
+        var configLen = configData.length;
+        for (var i = 0; i < configLen; i++) {
+            tmpConfigObjs[configData[i]['analytics-node']['fq_name'][1]] =
+                configData[i]['analytics-node'];
+        }
+        var resCnt = resultJSON.length;
+        for (i = 0; i < resCnt; i++) {
+            if (null != tmpConfigObjs[resultJSON[i]['name']]) {
+                delete tmpConfigObjs[resultJSON[i]['name']];
+            }
+        }
+        for (key in tmpConfigObjs) {
+            resultJSON[resCnt] = {};
+            resultJSON[resCnt]['name'] = key;
+            resultJSON[resCnt]['value'] = {};
+            resultJSON[resCnt]['value']['ConfigData'] = tmpConfigObjs[key];
         }
     } catch(e) {
         logutils.logger.error("In postProcessAnalyticsNodeSummaryJSON: " +
