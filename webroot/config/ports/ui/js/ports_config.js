@@ -1735,7 +1735,7 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
     });
     if(mode === "add") {
         getAjaxs[1] = $.ajax({
-            url:"/api/tenants/config/all-virtual-networks-fields?uuid="+selectedProjectVal,
+            url:"/api/tenants/config/all-virtual-networks?uuid="+selectedProjectVal,
             timeout:300000,
             type:"GET"
             
