@@ -891,17 +891,19 @@ function select2Query(query) {
     if(query.term != undefined) {
         data.results.push({ id : query.term, text : query.term, parent : grpName});
         this.data = [];
-        $.extend(true, this.data, dsSrcDest);
-        for(var i = 0; i < this.data.length;i++) {
-            var children = [] ;
-            $.extend(true, children, this.data[i].children);;
+        var filteredResults = [];
+        for(var i = 0; i < dsSrcDest.length;i++) {
+            var children = dsSrcDest[i]['children'];
+            filteredResults[i] = {
+                text: dsSrcDest[i]['text'],
+                children: []
+            };
             for(var j = 0; j < children.length; j++) {
-                if(children[j].text.indexOf(query.term) == -1 && children[j].disabled != true) {
-                    var newIndex = getIndexOf(this.data[i].children, children[j].value);
-                    this.data[i].children.splice(newIndex, 1);
+                if(children[j].text.indexOf(query.term) != -1 || children[j].disabled == true) {
+                    filteredResults[i].children.push(dsSrcDest[i].children[j]);
                 }
             }
-            data.results.push(this.data[i]);
+            data.results.push(filteredResults[i]);
         }
         if(query.term != '') {
             addNewTermDataSource(grpName, query.term, data.results);
