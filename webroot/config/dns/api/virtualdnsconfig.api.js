@@ -897,14 +897,14 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
             if (vdnsIpamRef['oper'] == 'add') {
             	ipamNwIpamMgmtRefObj.ipam_dns_method = "virtual-dns-server";
             	ipamNwIpamMgmtRefObj.ipam_dns_server = {};
-    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
+    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = {};
             	ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name = 
             		vdnsConfig['virtual-DNS']['fq_name'][0] + ":" +
             		vdnsConfig['virtual-DNS']['fq_name'][1];
             } else {
             	ipamNwIpamMgmtRefObj.ipam_dns_method = "none";
             	ipamNwIpamMgmtRefObj.ipam_dns_server = {};
-    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
+    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = {};
             	ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name = null; 
             }
         }
