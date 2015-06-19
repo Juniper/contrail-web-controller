@@ -1106,7 +1106,7 @@ function processDataObjects (error, DataObjectArr, DataObjectDelArr, DataSRObjec
             });
         });
     } else if (boolDeviceOwnerChange == true) {
-        deviceOwnerChange(error, [], DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(error, data, DataObjectArr){
+        deviceOwnerChange(error, [], DataObjectArr, DataObjectLenDetail, portPutData, vmiData, request, appData, function(novaError, data, DataObjectArr){
             if (novaError != null) {
                 deleteAllReference(DataObjectDelArr, DataSRObjectArr, portPutURL, portPutData, boolDeviceOwnerChange, appData, function(error, results){
                     if (novaError != null) {
@@ -1478,7 +1478,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                 delete portPutData['virtual-machine-interface']['virtual_machine_refs'];
                             }
                             if ('virtual_machine_interface_device_owner' in portPutData['virtual-machine-interface']) {
-                                delete portPostData["virtual-machine-interface"]["virtual_machine_interface_device_owner"];
+                                delete portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"];
                             }
                             callback(error, rtData, DataObjectArr);
                             return;
