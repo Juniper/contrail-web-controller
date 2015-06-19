@@ -1491,8 +1491,8 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     var displayOwnerName = devOwner;
     var logicalInterfaceName = "";
     if(devOwner == "network:router_interface"){
-        if("logical_router_back_refs" in portData && portData["logical_router_back_refs"].length >= 0 ){
             deviceOwnerValue = "router";
+        if("logical_router_back_refs" in portData && portData["logical_router_back_refs"].length > 0 ){
             //devOwnerName = "Router";
             var deviceUUIDArr = [];
             deviceUUIDArr.push({"to":portData["logical_router_back_refs"][0]["to"],"uuid":portData["logical_router_back_refs"][0]["uuid"]});
@@ -2075,7 +2075,11 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
                 if(!isVCenter()) {
                     $("#ddDeviceOwnerName").data("contrailDropdown").value(mapedData.deviceOwnerValue);
                     updateDevice();
-                    $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
+                    if(mapedData.deviceOwnerValue == "compute") {
+                        $("#ddDeviceOwnerUUID").data("contrailCombobox").value(mapedData.deviceOwnerUUIDValue);
+                    } else if(mapedData.deviceOwnerValue == "router") {
+                        $("#ddDeviceOwnerUUIDRouter").data("contrailDropdown").value(mapedData.deviceOwnerUUIDValue);
+                    }
                 }
                 if(mapedData.sgMSValues.length > 0){
                     $("#is_SG")[0].checked = true;
@@ -2969,7 +2973,7 @@ function destroy() {
         ddDeviceOwnerUUID.destroy();
         ddDeviceOwnerUUID = $();
     }
-    ddDeviceOwnerUUIDRouter = $("#contrailDropdown").data("contrailCombobox");
+    ddDeviceOwnerUUIDRouter = $("#ddDeviceOwnerUUIDRouter").data("contrailDropdown");
     if(isSet(ddDeviceOwnerUUIDRouter)) {
         ddDeviceOwnerUUIDRouter.destroy();
         ddDeviceOwnerUUIDRouter = $();
