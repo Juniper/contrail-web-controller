@@ -2228,11 +2228,17 @@ function validate() {
         showInfoWindow("Device Owner UUID cannot be empty.", "Invalid Input");
         return false
     }
-    if(deviceName == "compute" && $("#is_subInterface")[0].checked){
-        showInfoWindow("Subinterface cannot be assigned along with Compute Device Owner.", "Invalid Input");
-        return false
-    }
     if ($("#is_subInterface")[0].checked) {
+        if(deviceName == "compute") {
+            showInfoWindow("Subinterface cannot be assigned along with Compute Device Owner.", "Invalid Input");
+            return false;
+        } else if(deviceName == "router") {
+            showInfoWindow("Subinterface cannot be assigned along with Router.", "Invalid Input");
+            return false;
+        } else if(deviceName != "" && deviceName != "None") {
+            showInfoWindow("Subinterface cannot be assigned along with " + deviceName + "." , "Invalid Input");
+            return false;
+        }
         if(!isNumber($("#txtVlan").val().trim())){
             showInfoWindow("VLAN has to be a number.", "Invalid Input");
             return false
