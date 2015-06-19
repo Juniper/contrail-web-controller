@@ -735,7 +735,7 @@ function updateVirtualDnsAssocIpamRead(error, vdnsConfig, vdnsPostData,
         return;
     }
 
-    vdnsConfig['virtual-DNS']['ipam_uuid'] = {};
+    vdnsConfig['virtual-DNS']['ipams'] = [];
 
     try {
         if ((!('network_ipam_back_refs' in vdnsPostData['virtual-DNS'])) ||
@@ -747,39 +747,34 @@ function updateVirtualDnsAssocIpamRead(error, vdnsConfig, vdnsPostData,
         callback(null, null);
         return;
     }
-
     if ((!(['network_ipam_back_refs'] in vdnsConfig['virtual-DNS']) ||
         (!vdnsConfig['virtual-DNS']['network_ipam_back_refs'].length))
         && curCfgAllDel) {
         callback(null, null);
         return;
     }
-
     if ((!['network_ipam_back_refs'] in vdnsConfig['virtual-DNS']) && !curCfgAllDel) {
     	vdnsConfig['virtual-DNS']['network_ipam_back_refs'] = [];
     	ipamUIRef = vdnsPostData['virtual-DNS']['network_ipam_back_refs'];
     	ipamUIRefLen = ipamUIRef.length;
         for (i = 0; i < ipamUIRefLen; i++) {
             uuid = ipamUIRef[i]['uuid'];
-            vdnsConfig['virtual-DNS']['ipam_uuid'][uuid] =
-            {'to':ipamUIRef[i]['to'],
-                'attr':ipamUIRef[i]['attr'],
-                'uuid':uuid,
-                'oper':'add'
-            };
-            reqUrl = '/network-ipam/' + uuid;
-            commonUtils.createReqObj(dataObjArr, reqUrl,
-                global.HTTP_REQUEST_GET, null, null, null,
-                appData);
+            vdnsConfig['virtual-DNS']['ipams'].push(
+                {   'to':ipamUIRef[i]['to'],
+                    'attr':ipamUIRef[i]['attr'],
+                    'uuid':uuid,
+                    'oper':'add'
+                }
+            );
         }
-        async.map(dataObjArr,
-            commonUtils.getAPIServerResponse(configApiServer.apiGet,
-                false),
-            function (error, results) {
-                updateVirtualDnsUpdateIpams(error, results,
-                		vdnsConfig, vdnsId, appData, callback);
-            });
+        updateVirtualDnsUpdateIpams(error, vdnsConfig, vdnsId, appData, callback);
         return;
+    }
+    ipamUIRef = vdnsPostData['virtual-DNS']['network_ipam_back_refs'];
+    ipamUIRefLen = ipamUIRef != null ? ipamUIRef.length : 0;
+    var uiUUIDs = [];
+    for (i = 0; i < ipamUIRefLen; i++) {
+        uiUUIDs.push(ipamUIRef[i]['uuid']);
     }
 
     if (['network_ipam_back_refs'] in vdnsConfig['virtual-DNS'] &&
@@ -788,54 +783,34 @@ function updateVirtualDnsAssocIpamRead(error, vdnsConfig, vdnsPostData,
     	ipamRefLen = ipamRef.length;
         for (i = 0; i < ipamRefLen; i++) {
             uuid = ipamRef[i]['uuid'];
-            if (vdnsConfig['virtual-DNS']['ipam_uuid'][uuid] == null) {
-                reqUrl = '/network-ipam/' + uuid;
-                commonUtils.createReqObj(dataObjArr, reqUrl,
-                    global.HTTP_REQUEST_GET, null, null,
-                    null, appData);
+            if(uiUUIDs.indexOf(uuid) > -1) {
+                continue;
             }
-            vdnsConfig['virtual-DNS']['ipam_uuid'][uuid] =
-            {'to':ipamRef[i]['to'],
-                'attr':null,
-                'uuid':ipamRef[i]['attr'],
-                'oper':'delete'
-            };
+            vdnsConfig['virtual-DNS']['ipams'].push(
+                {'to':ipamRef[i]['to'],
+                    'attr':null,
+                    'uuid':uuid,
+                    'oper':'delete'
+                }
+            );
         }
-        if (curCfgAllDel) {
-            async.map(dataObjArr,
-                commonUtils.getAPIServerResponse(configApiServer.apiGet,
-                    false),
-                function (error, results) {
-                    updateVirtualDnsUpdateIpams(error, results,
-                    		vdnsConfig, vdnsId, appData, callback);
-                });
+        if(curCfgAllDel) {
+            updateVirtualDnsUpdateIpams(error, vdnsConfig, vdnsId, appData, callback);
             return;
         }
     }
 
-    ipamUIRef = vdnsPostData['virtual-DNS']['network_ipam_back_refs'];
-    ipamUIRefLen = ipamUIRef.length;
     for (i = 0; i < ipamUIRefLen; i++) {
         uuid = ipamUIRef[i]['uuid'];
-        if (vdnsConfig['virtual-DNS']['ipam_uuid'][uuid] == null) {
-            reqUrl = '/network-ipam/' + uuid;
-            commonUtils.createReqObj(dataObjArr, reqUrl,
-                global.HTTP_REQUEST_GET, null, null, null,
-                appData);
-        }
-        vdnsConfig['virtual-DNS']['ipam_uuid'][uuid] =
-        {'to':ipamUIRef[i]['to'],
-            'attr':ipamUIRef[i]['attr'],
-            'uuid':uuid,
-            'oper':'add'
-        };
+        vdnsConfig['virtual-DNS']['ipams'].push(
+            {   'to':ipamUIRef[i]['to'],
+                'attr':ipamUIRef[i]['attr'],
+                'uuid':uuid,
+                'oper':'add'
+            }
+        );
     }
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function (error, results) {
-            updateVirtualDnsUpdateIpams(error, results,
-            		vdnsConfig, vdnsId, appData, callback);
-        });
+    updateVirtualDnsUpdateIpams(error, vdnsConfig, vdnsId, appData, callback);
     return;
 }
 
@@ -844,7 +819,7 @@ function updateVirtualDnsAssocIpamRead(error, vdnsConfig, vdnsPostData,
  * private function
  * Updates Virtual DNSs references from Ipams
  */
-function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
+function updateVirtualDnsUpdateIpams(error, vdnsConfig,
                                      vdnsId, appData, callback) 
 {
     var ipamRef = null;
@@ -861,17 +836,19 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
         callback(error, null);
         return;
     }
-
-    ipamLen = results.length;
-
+    var ipams = vdnsConfig['virtual-DNS']['ipams'];
+    ipamLen = ipams.length;
     for (i = 0; i < ipamLen; i++) {
-    	ipamUUID = results[i]['network-ipam']['uuid'];
-        vdnsIpamRef = vdnsConfig['virtual-DNS']['ipam_uuid'][ipamUUID];
+        var ipam = ipams[i];
+        ipamUUID = ipam['uuid'];
         ipamURL = '/network-ipam/' + ipamUUID;
-        results[i]['network-ipam']['virtual_DNS_refs'] = [];
-
-        ipamVdnsRef = results[i]['network-ipam']['virtual_DNS_refs'];
-        if (vdnsIpamRef['oper'] == 'add') {
+        var putIPAMPayload = {};
+        putIPAMPayload['network-ipam'] = {};
+        putIPAMPayload['network-ipam']['fq_name'] = ipam['to'];
+        putIPAMPayload['network-ipam']['uuid'] = ipam['uuid'];
+        putIPAMPayload['network-ipam']['virtual_DNS_refs'] = [];
+        ipamVdnsRef = putIPAMPayload['network-ipam']['virtual_DNS_refs'];
+        if (ipam['oper'] == 'add') {
         	vdnsIpamRefObj =
             {
                 to:vdnsConfig['virtual-DNS']['fq_name'],     
@@ -889,28 +866,23 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
                 }
             }
         }
-        var ipamNwIpamMgmtRefObj = results[i]['network-ipam']['network_ipam_mgmt'];
-        if(null == ipamNwIpamMgmtRefObj || typeof ipamNwIpamMgmtRefObj === "undefined") {
-        	ipamNwIpamMgmtRefObj = {};
+        putIPAMPayload['network-ipam']['network_ipam_mgmt'] = {};
+        var ipamNwIpamMgmtRefObj = putIPAMPayload['network-ipam']['network_ipam_mgmt'];
+        if (ipam['oper'] == 'add') {
+            ipamNwIpamMgmtRefObj.ipam_dns_method = "virtual-dns-server";
+            ipamNwIpamMgmtRefObj.ipam_dns_server = {};
+            ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
+            ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name =
+                vdnsConfig['virtual-DNS']['fq_name'][0] + ":" +
+                vdnsConfig['virtual-DNS']['fq_name'][1];
+        } else {
+            ipamNwIpamMgmtRefObj.ipam_dns_method = "none";
+            ipamNwIpamMgmtRefObj.ipam_dns_server = {};
+            ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
+            ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name = null;
         }
-        if(null != ipamNwIpamMgmtRefObj && typeof ipamNwIpamMgmtRefObj !== "undefined") {
-            if (vdnsIpamRef['oper'] == 'add') {
-            	ipamNwIpamMgmtRefObj.ipam_dns_method = "virtual-dns-server";
-            	ipamNwIpamMgmtRefObj.ipam_dns_server = {};
-    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
-            	ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name = 
-            		vdnsConfig['virtual-DNS']['fq_name'][0] + ":" +
-            		vdnsConfig['virtual-DNS']['fq_name'][1];
-            } else {
-            	ipamNwIpamMgmtRefObj.ipam_dns_method = "none";
-            	ipamNwIpamMgmtRefObj.ipam_dns_server = {};
-    			ipamNwIpamMgmtRefObj.ipam_dns_server.tenant_dns_server_address = null;
-            	ipamNwIpamMgmtRefObj.ipam_dns_server.virtual_dns_server_name = null; 
-            }
-        }
-        results[i]['network-ipam']['network_ipam_mgmt'] = ipamNwIpamMgmtRefObj;
         commonUtils.createReqObj(dataObjArr, ipamURL, global.HTTP_REQUEST_PUT,
-            results[i], null, null, appData);
+            putIPAMPayload, null, null, appData);
     }
 
     async.map(dataObjArr,
