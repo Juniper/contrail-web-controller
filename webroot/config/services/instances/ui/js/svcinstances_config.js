@@ -1687,7 +1687,6 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             var svcTemplatesLen = 0;
             if(svcTemplateObjs != "false" && svcTemplateObjs != false)
                 var svcTemplatesLen = svcTemplateObjs.length;
-
             for (var i = 0; i < svcTemplatesLen; i++) {
                 var svcMode = (svcTemplateObjs[i].service_template_properties.service_mode == null) ? 
                            "Service Mode is Inactive" : svcTemplateObjs[i].service_template_properties.service_mode;
@@ -1738,6 +1737,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 return;
             }
             networks = []; 
+            var currentProjectname = $("#ddProjectSwitcher").data("contrailDropdown").text();
             for(var j=0;j < results[1][0]['virtual-networks'].length;j++){
                 var val="";
                 var networklen = results[1][0]['virtual-networks'][j].fq_name.length; 
@@ -1748,7 +1748,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                     }
                 }
                 var networkText = "";
-                if(results[1][0]['virtual-networks'][j].fq_name[1] != $("#ddProjectSwitcher").data("contrailDropdown").text()){
+                if(results[1][0]['virtual-networks'][j].fq_name[1] != currentProjectname){
                     networkText = results[1][0]['virtual-networks'][j].fq_name[2] +" ("+results[1][0]['virtual-networks'][j].fq_name[0]+":"+results[1][0]['virtual-networks'][j].fq_name[1]+")";
                 } else {
                     networkText = results[1][0]['virtual-networks'][j].fq_name[2];
