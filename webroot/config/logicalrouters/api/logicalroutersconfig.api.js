@@ -265,6 +265,7 @@ function createLogicalRouter(request, response, appData)
                 var uuid = UUID.create();
                 vmidata["virtual-machine-interface"]["fq_name"][2] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
+                vmidata["virtual-machine-interface"]["uuid"] = uuid['hex'];
                 vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
             }
             allDataArr.push({
@@ -557,6 +558,7 @@ function readLogicalRouterToUpdate(error, logicalRouterURL, orginalDataFromUI, l
                 if(vmidata['virtual-machine-interface']['fq_name'].length == 2) {
                     vmidata["virtual-machine-interface"]["fq_name"][2] = uuid['hex'];
                     vmidata["virtual-machine-interface"]["display_name"] = uuid['hex'];
+                    vmidata["virtual-machine-interface"]["uuid"] = uuid['hex'];
                     vmidata["virtual-machine-interface"]["name"] = uuid['hex'];
                 }
                 allDataArr.push({
