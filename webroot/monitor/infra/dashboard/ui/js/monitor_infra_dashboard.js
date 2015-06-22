@@ -289,7 +289,8 @@ function addTabs() {
                     title:'Analytics Nodes',
                     template:'analyticnode-dashboard-tab',
                     dataSourceObj:'analyticsNodeDS',
-                    viewModel:viewModel
+                    viewModel:viewModel,
+                    tabId:'AnalyticsNode'
                 });
     }());
 
