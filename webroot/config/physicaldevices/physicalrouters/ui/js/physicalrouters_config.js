@@ -253,11 +253,15 @@ function physicalRoutersConfig() {
         $('#addPhysicalRouterWindow').find(".modal-header-title").text('Add Physical Router');
         
         
-        //Initializing the bgp router dropdown[id^=jander]
-        $('[id^=ddBgpRouter]').contrailDropdown({
-            dataTextField:'text',
-            dataValueField:'value',
-        }); 
+        //Initializing the bgp router dropdown
+        var ddBGPRouters = $('[id^=ddBgpRouter]');
+        $.each(ddBGPRouters,function(i,d){
+            $(d).contrailDropdown({
+                dataTextField:'text',
+                dataValueField:'value',
+            });
+        });
+         
         var ddBgp =  $('[id^=ddBgpRouter]').data('contrailDropdown');
 
         //initializing physical router type multi select
@@ -315,17 +319,19 @@ function physicalRoutersConfig() {
         $('#confirmMainDelete').modal({backdrop:'static',keyboard:false,show:false});
         $('#confirmMainDelete').find(".modal-header-title").text('Confirm');  
         
-        $('[id^=ddSnmpSecurityLevel]').contrailDropdown({
-            dataTextField:'text',
-            dataValueField:'value',
-            change:onSnmpSecurityLevelChange
+        var ddSNMPSecurityLevels = $('[id^=ddSnmpSecurityLevel]');
+        $.each(ddSNMPSecurityLevels,function(i,d){
+            $(d).contrailDropdown({
+                dataTextField:'text',
+                dataValueField:'value',
+                data:[{ text : 'None', value : 'none'},
+                      { text : 'Auth', value : SNMP_AUTH},
+                      { text : 'AuthPriv', value : SNMP_AUTHPRIV}
+                      ],
+                change:onSnmpSecurityLevelChange
+            });
         });
-        var snmpLevelDS = [{ text : 'None', value : 'none'},
-                        { text : 'Auth', value : SNMP_AUTH},
-                        { text : 'AuthPriv', value : SNMP_AUTHPRIV}
-                        ];
-        var ddSnmpSecurityLevel = $('[id^=ddSnmpSecurityLevel]').data('contrailDropdown');
-        ddSnmpSecurityLevel.setData(snmpLevelDS);
+        
     }
     
     function onSNMPVersionChange(e){
@@ -354,8 +360,8 @@ function physicalRoutersConfig() {
         }
     }
     
-    function onSnmpSecurityLevelChange(e){
-        var level = e.added.value;
+    function onSnmpSecurityLevelChange(e,value){
+        var level = (e)? e.added.value : value;
         if(level === "auth") {//Show only auth 
             $('#snmpAuthDiv' + currAddEditType).removeClass('hide').addClass('show');
             $('#snmpPrivDiv' + currAddEditType).removeClass('show').addClass('hide');  
@@ -607,6 +613,10 @@ function physicalRoutersConfig() {
                         } else {
                             if($('#vRouterTorAgentFields' + currAddEditType).length > 0){
                                 $('#vRouterTorAgentFields' + currAddEditType).removeClass('hide').addClass('show');
+                                if($('#ddTorAgentName' + torAgentCount + currAddEditType).data('contrailCombobox') != null)
+                                    $('#ddTorAgentName' + torAgentCount + currAddEditType).data('contrailCombobox').value('');
+                                if($('#ddTsnName' + tsnCount + currAddEditType).data('contrailCombobox') != null)
+                                    $('#ddTsnName' + tsnCount + currAddEditType).data('contrailCombobox').value('');
                             }
                         }
                     } else if(vrouterType == 'tor-agent'){
@@ -671,12 +681,19 @@ function physicalRoutersConfig() {
                 }
                 if(gblSelRow.snmpV3SecurityLevel != '-' && $("#ddSnmpSecurityLevel" + currAddEditType).length > 0){
                     $("#ddSnmpSecurityLevel" + currAddEditType).data('contrailDropdown').value(gblSelRow.snmpV3SecurityLevel);
+                    onSnmpSecurityLevelChange(null,gblSelRow.snmpV3SecurityLevel);
                 }
                 if(gblSelRow.snmpv3AuthProtocol != '-' && $("#txtSnmpAuthProtocol" + currAddEditType).length > 0){
                     $("#txtSnmpAuthProtocol" + currAddEditType).val(gblSelRow.snmpv3AuthProtocol);
                 }
+                if(gblSelRow.snmpv3AuthPasswd != '-' && $("#txtSnmpAuthPassword" + currAddEditType).length > 0){
+                    $("#txtSnmpAuthPassword" + currAddEditType).val(gblSelRow.snmpv3AuthPasswd);
+                }
                 if(gblSelRow.snmpv3PrivProtocol != '-' && $("#txtSnmpPrivProtocol" + currAddEditType).length > 0){
                     $("#txtSnmpPrivProtocol" + currAddEditType).val(gblSelRow.snmpv3PrivProtocol);
+                }
+                if(gblSelRow.snmpv3PrivPasswd != '-' && $("#txtSnmpPrivPassword" + currAddEditType).length > 0){
+                    $("#txtSnmpPrivPassword" + currAddEditType).val(gblSelRow.snmpv3PrivPasswd);
                 }
                 if(gblSelRow.snmpv3Context != '-' && $("#txtContext" + currAddEditType).length > 0){
                     $("#txtContext" + currAddEditType).val(gblSelRow.snmpv3Context);
@@ -912,7 +929,7 @@ function physicalRoutersConfig() {
                 postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_level'] = securityLevel;
                 if($("#txtSecurityEngineId" + currAddEditType).val().trim() != '')
                     postObject["physical-router"]['physical_router_snmp_credentials']['v3_security_engine_id'] = $("#txtSecurityEngineId" + currAddEditType).val().trim();
-                if (securityLevel == SNMP_AUTH) {
+                if (securityLevel == SNMP_AUTH || securityLevel == SNMP_AUTHPRIV) {
                     postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_protocol'] = $("#txtSnmpAuthProtocol" + currAddEditType).val().trim();
                     postObject["physical-router"]['physical_router_snmp_credentials']['v3_authentication_password'] = $("#txtSnmpAuthPassword" + currAddEditType).val().trim();
                 } 
@@ -1173,7 +1190,7 @@ function physicalRoutersConfig() {
                     password = credentials['password'];
                 }
                 var junosServicePorts = rowData["physical_router_junos_service_ports"]? ifNull(rowData["physical_router_junos_service_ports"]["service_port"],'-') : '-' ;
-                var snmpCredentials = rowData['physical_router_snmp_credentials'];
+                var snmpCredentials = ifNullOrEmptyObject(rowData['physical_router_snmp_credentials'],null);
                 var isSNMPManaged = false;
                 var snmpVersion = '-';
                 var snmpLocalPort = '-';
@@ -1207,7 +1224,7 @@ function physicalRoutersConfig() {
                         snmpV3SecurityName = snmpCredentials['v3_security_name'] ? snmpCredentials['v3_security_name'] : '-';
                         snmpV3SecurityLevel = snmpCredentials['v3_security_level']  ? snmpCredentials['v3_security_level'] : '-';
                         snmpV3SecurityEngineId = snmpCredentials['v3_security_engine_id'] ? snmpCredentials['v3_security_engine_id'] : '-';
-                        if (snmpV3SecurityLevel == SNMP_AUTH) {
+                        if (snmpV3SecurityLevel == SNMP_AUTH || snmpV3SecurityLevel == SNMP_AUTHPRIV) {
                             snmpv3AuthProtocol = snmpCredentials['v3_authentication_protocol'] ? snmpCredentials['v3_authentication_protocol'] : '-';
                             snmpv3AuthPasswd = snmpCredentials['v3_authentication_password'] ? snmpCredentials['v3_authentication_password'] : '-'
                         }
