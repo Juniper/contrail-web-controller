@@ -748,6 +748,7 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
     var data = pRouterData['value'];
     var prouterCnt = data.length;
     var topoData = {};
+    var tmpTopoObjs = {};
     topoData['nodes'] = [];
     topoData['links'] = [];
     topoData['errors'] = {'configNotFound': [], 'uveNotFound': []};
@@ -850,6 +851,32 @@ function getCompletePhysicalTopology (appData, pRouterData, prConfigData, callba
                     topoData['links'][idx2]['more_attributes'].push(pRouterLinkTable[j]);
                 }
             }
+        }
+    }
+    /* Now check if any of the config node we missed out */
+    var topoNodesCnt = 0;
+    topoNodesCnt = topoData['nodes'].length;
+    for (var i = 0; i < topoNodesCnt; i++) {
+        if ((null != topoData['nodes'][i]) &&
+            (null != topoData['nodes'][i]['name'])) {
+            tmpTopoObjs[topoData['nodes'][i]['name']] = {};
+        }
+    }
+    var prConfigCnt = 0;
+    try {
+        var prConfig = prConfigData['physical-routers'];
+        prConfigCnt = prConfig.length;
+    } catch(e) {
+        prConfigCnt = 0;
+    }
+    for (var i = 0; i < prConfigCnt; i++) {
+        try {
+            var prConfigName = prConfig[i]['physical-router']['fq_name'][1];
+        } catch(e) {
+            continue;
+        }
+        if (null == tmpTopoObjs[prConfigName]) {
+            topoData['errors']['uveNotFound'].push(prConfigName);
         }
     }
     topoData['nodes'] = buildNodeChassisType(topoData['nodes'], pRouterData);
