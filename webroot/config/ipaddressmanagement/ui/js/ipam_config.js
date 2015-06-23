@@ -326,6 +326,12 @@ function initActions() {
             if (dnsMethod == "virtual-dns-server") {
                 ipam["network-ipam"]["network_ipam_mgmt"]["ipam_dns_server"]["tenant_dns_server_address"] = {};
                 ipam["network-ipam"]["network_ipam_mgmt"]["ipam_dns_server"]["virtual_dns_server_name"] = selectedvDNStxt;
+                ipam["network-ipam"]["network_ipam_mgmt"]["dhcp_option_list"] = {};
+                ipam["network-ipam"]["network_ipam_mgmt"]["dhcp_option_list"]["dhcp_option"] = [];
+                if (ntpIp.length) {
+                    ipam["network-ipam"]["network_ipam_mgmt"]["dhcp_option_list"]["dhcp_option"].push(
+                        {dhcp_option_name:"4", dhcp_option_value:ntpIp});
+                }
                 ipam["network-ipam"]["virtual_DNS_refs"][0] = {};
                 var dnsFaqName = [];
                 dnsFaqName = selectedvDNStxt.split(':');
