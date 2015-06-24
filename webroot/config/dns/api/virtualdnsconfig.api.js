@@ -875,7 +875,7 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
         	vdnsIpamRefObj =
             {
                 to:vdnsConfig['virtual-DNS']['fq_name'],     
-                attr:{'sequence': { 'major': 0, 'minor': 0}},
+                attr:null,
                 uuid:vdnsConfig['virtual-DNS']['uuid']
             };
             ipamVdnsRef.push(vdnsIpamRefObj);
