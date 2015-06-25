@@ -34,6 +34,8 @@ var jsonPath    = require('JSONPath').eval;
 var infraCmn    = require('../../../common/api/infra.common.api');
 var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
+var discCli     = require(process.mainModule.exports["corePath"] +
+                          '/src/serverroot/common/discoveryclient.api');
 
 /**
  * Bail out if called directly as "nodejs virtualdnsconfig.api.js"
@@ -989,36 +991,42 @@ function getVirtualDNSSandeshRecords (req, res, appData)
 {
     var dataObjArr = [];
     var dataIPObjArr = [];
-    var reqUrl = '/analytics/uves/dns-node/*';
     var dnsName = req.param('dnsfqn');
-    commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null,
-                             opApiServer, null, appData);
-    async.map(dataObjArr,
-              commonUtils.getServerResponseByRestApi(opApiServer, false),
-              function(err, dnsNodes) {
-        var ips = jsonPath(dnsNodes, "$..self_ip_list");
-        if (!ips.length) {
+
+    var discServ = discCli.getServiceRespDataList();
+    if ((null == discServ) ||
+        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]) ||
+        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']) ||
+        (null == discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
+                         [global.DISC_SERVICE_TYPE_DNS_SERVER]) ||
+        (!discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
+                  [global.DISC_SERVICE_TYPE_DNS_SERVER].length)) {
+        var error = new appErrors.RESTServerError('We did not get discovery ' +
+                                                  'server response for ' +
+                                                  'service dns-server');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    var vdnsDiscData = discServ[global.DISC_SERVICE_TYPE_DNS_SERVER]['data']
+                               [global.DISC_SERVICE_TYPE_DNS_SERVER];
+    var vdnsDiscDataCnt = vdnsDiscData.length;
+    for (var i = 0; i < vdnsDiscDataCnt; i++) {
+        dataIPObjArr.push({'ip': vdnsDiscData[i]['ip-address'],
+                           'dnsName': dnsName});
+    }
+    async.map(dataIPObjArr, getVirtualDNSSandeshRecordsCB, function(err, data) {
+        if ((null != err) || (null == data)) {
             commonUtils.handleJSONResponse(null, res, []);
             return;
         }
-        var ipCnt = ips[0].length;
-        for (var i = 0; i < ipCnt; i++) {
-            dataIPObjArr.push({'ip': ips[0][i], 'dnsName': dnsName});
-        }
-        async.map(dataIPObjArr, getVirtualDNSSandeshRecordsCB, function(err, data) {
-            if ((null != err) || (null == data)) {
-                commonUtils.handleJSONResponse(null, res, []);
+        var cnt = data.length;
+        for (var i = 0; i < cnt; i++) {
+            if ((null != data[i]) && (null == data[i]['err']) && (null != data[i]['data'])) {
+                commonUtils.handleJSONResponse(null, res, data[i]['data']);
                 return;
             }
-            var cnt = data.length;
-            for (var i = 0; i < cnt; i++) {
-                if ((null != data[i]) && (null == data[i]['err']) && (null != data[i]['data'])) {
-                    commonUtils.handleJSONResponse(null, res, data[i]['data']);
-                    return;
-                }
-            }
-            commonUtils.handleJSONResponse(null, res, []);
-        });
+        }
+        commonUtils.handleJSONResponse(null, res, []);
     });
 }
 
