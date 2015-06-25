@@ -22,6 +22,10 @@ var opApiServer = rest.getAPIServer({
     port:config.analytics.server_port
 });
 
+//Needs to be moved to web-core globals
+var PRouterFieldPrefix = "enterprise.juniperNetworks.fabricMessageExt.edges.";
+var PRouterStatsTableName = "StatTable.TelemetryStream." + PRouterFieldPrefix + "class_stats.transmit_counts";
+
 function getPRouterChassisInfo(req, res, appData) {
     var url = '/analytics/uves/prouters';
     opApiServer.api.get(url, function (error, uveData) {
@@ -142,14 +146,13 @@ function executeQueryString (queryJSON, callback)
     });
 }
 
-function parsePRoutersFabricData(data) {
+function parsePRouterFabricStatsData(data) {
     var len = 0;
     var statsData, aggregate = {};
     var resultJSON = [];
-    var PRouterFieldFPrefix = "enterprise.juniperNetworks.fabricMessageExt.edges.";
     var keys = [
-        PRouterFieldFPrefix + "class_stats.transmit_counts.packets",
-        PRouterFieldFPrefix + "class_stats.transmit_counts.bytes"
+        PRouterFieldPrefix + "class_stats.transmit_counts.packets",
+        PRouterFieldPrefix + "class_stats.transmit_counts.bytes"
     ];
 
     if ((data != null) && (data['value']) && (data['value'].length)) {
@@ -167,19 +170,33 @@ function parsePRoutersFabricData(data) {
 
                     resultJSON[i]["DIF(" + keys[k] + ")"] = statsData[i]["MAX(" + keys[k] + ")"] - statsData[i]["MIN(" + keys[k] + ")"];
 
-                    if(statsData[i][PRouterFieldFPrefix + "src_type"] == "Linecard" &&
-                        statsData[i][PRouterFieldFPrefix + "dst_type"] == "Linecard") {
-                        var src_slot = statsData[i][PRouterFieldFPrefix + "src_slot"];
-                        var src_pfe = statsData[i][PRouterFieldFPrefix + "src_pfe"];
-                        var dst_slot = statsData[i][PRouterFieldFPrefix + "dst_slot"];
-                        var dst_pfe = statsData[i][PRouterFieldFPrefix + "dst_pfe"];
-
+                    if((statsData[i][PRouterFieldPrefix + "src_type"] == "Linecard") || (statsData[i][PRouterFieldPrefix + "src_type"] == "Switch_Fabric") &&
+                        (statsData[i][PRouterFieldPrefix + "dst_type"] == "Linecard") || (statsData[i][PRouterFieldPrefix + "dst_type"] == "Switch_Fabric")) {
+                        var src_slot, src_pfe, dst_slot, dst_pfe;
+                        /**
+                         * if src_type or dst_type is Switch Fabric, slot and pfe attributes will be null.
+                         * for now setting slot as "switch_fabric" and pfe as 0
+                         */
+                        if (statsData[i][PRouterFieldPrefix + "src_type"] == "Switch_Fabric") {
+                            src_slot = "switch_fabric";
+                            src_pfe = 0;
+                        } else {
+                            src_slot = statsData[i][PRouterFieldPrefix + "src_slot"];
+                            src_pfe = statsData[i][PRouterFieldPrefix + "src_pfe"];
+                        }
+                        if (statsData[i][PRouterFieldPrefix + "dst_type"] == "Switch_Fabric") {
+                            dst_slot = "switch_fabric";
+                            dst_pfe = 0;
+                        } else {
+                            dst_slot = statsData[i][PRouterFieldPrefix + "dst_slot"];
+                            dst_pfe = statsData[i][PRouterFieldPrefix + "dst_pfe"];
+                        }
                         /**
                          * SRC_SLOT, SRC_PFE based aggregation
                          * sum total of per key based values from src_slot, src_pfe to all other slot, pfe combinations
                          * aggregate.src_aggregate stores the sum of values of each key from keys.
                          */
-                        if(src_slot != "undefined" && src_pfe != "undefined") {
+                        if(src_slot != null && src_pfe != null) {
                             if(src_slot in aggregate.src_aggregate) {
                                 if(src_pfe in aggregate.src_aggregate[src_slot]) { //Check for PFE entry
                                     if("SUM(" + keys[k] + ")" in aggregate.src_aggregate[src_slot][src_pfe]) { //Check for key
@@ -202,7 +219,7 @@ function parsePRoutersFabricData(data) {
                          * sum total of per key based values from dst_slot, dst_pfe to all other slot, pfe combinations
                          * aggregate.dst_aggregate stores the sum of values of each key from keys.
                          */
-                        if(dst_slot != "undefined" && dst_pfe!= "undefined") {
+                        if(dst_slot != null && dst_pfe!= null) {
                             if(dst_slot in aggregate.dst_aggregate) {
                                 if(dst_pfe in aggregate.dst_aggregate[dst_slot]) {
                                     if("SUM(" + keys[k] + ")" in aggregate.dst_aggregate[dst_slot][dst_pfe]) {
@@ -229,23 +246,23 @@ function parsePRoutersFabricData(data) {
 }
 
 function sendQueryRequestAndGetData(req, res, appData) {
-    var PRouterFieldFPrefix = 'enterprise.juniperNetworks.fabricMessageExt.edges.';
+    //var PRouterFieldPrefix = 'enterprise.juniperNetworks.fabricMessageExt.edges.';
     var whereClauseArray = [];
     var selectArr = [
-            "MAX("+ PRouterFieldFPrefix + "class_stats.transmit_counts.packets)",
-            "MIN("+ PRouterFieldFPrefix + "class_stats.transmit_counts.packets)",
-            "MAX("+ PRouterFieldFPrefix + "class_stats.transmit_counts.bytes)",
-            "MIN("+ PRouterFieldFPrefix + "class_stats.transmit_counts.bytes)",
-            PRouterFieldFPrefix + "src_slot",
-            PRouterFieldFPrefix + "src_type",
-            PRouterFieldFPrefix + "src_pfe",
-            PRouterFieldFPrefix + "dst_slot",
-            PRouterFieldFPrefix + "dst_type",
-            PRouterFieldFPrefix + "dst_pfe",
-            PRouterFieldFPrefix + "class_stats.priority",
+            "MAX("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
+            "MIN("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
+            "MAX("+ PRouterFieldPrefix + "class_stats.transmit_counts.bytes)",
+            "MIN("+ PRouterFieldPrefix + "class_stats.transmit_counts.bytes)",
+            PRouterFieldPrefix + "src_slot",
+            PRouterFieldPrefix + "src_type",
+            PRouterFieldPrefix + "src_pfe",
+            PRouterFieldPrefix + "dst_slot",
+            PRouterFieldPrefix + "dst_type",
+            PRouterFieldPrefix + "dst_pfe",
+            PRouterFieldPrefix + "class_stats.priority",
             "Source"
         ],
-        tableName = "StatTable.TelemetryStream.enterprise.juniperNetworks.fabricMessageExt.edges.class_stats.transmit_counts";
+        tableName = PRouterStatsTableName;
 
     if(appData.queryFields.source) {
         for (var key in appData.queryFields) {
@@ -253,8 +270,10 @@ function sendQueryRequestAndGetData(req, res, appData) {
                 (typeof appData.queryFields[key] == "number" && !isNaN(appData.queryFields[key]))){
                 if(key == "source") {
                     whereClauseArray.push(createWhereClause("Source", appData.queryFields[key], 1))
+                } else if(key == "priority") {
+                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + "class_stats." + key, appData.queryFields[key], 1))
                 } else {
-                    whereClauseArray.push(createWhereClause(PRouterFieldFPrefix + key, appData.queryFields[key], 1))
+                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + key, appData.queryFields[key], 1))
                 }
             }
         }
@@ -284,7 +303,7 @@ function sendQueryRequestAndGetData(req, res, appData) {
             if (null != err) {
                 commonUtils.handleJSONResponse(err, res, null);
             }else{
-                resultJSON = parsePRoutersFabricData(resultJSON);
+                resultJSON = parsePRouterFabricStatsData(resultJSON);
                 commonUtils.handleJSONResponse(null, res, resultJSON);
                 return;
             }
@@ -311,6 +330,11 @@ function getPRouterFabricStats(req, res) {
     var dstSlot         = parseInt(req.query['dst_slot']);
     var srcPfe          = parseInt(req.query['src_pfe']);
     var dstPfe          = parseInt(req.query['dst_pfe']);
+    var priority        = req.query['priority'];
+
+    if(srcType == "Switch_Fabric" || dstType == "Switch_Fabric") {
+        priority = null; // priority cannot be combined with above device types.
+    }
     var appData = {
         queryFields: {
             source: source,
@@ -319,11 +343,153 @@ function getPRouterFabricStats(req, res) {
             src_slot: srcSlot,
             dst_slot: dstSlot,
             src_pfe: srcPfe,
-            dst_pfe: dstPfe
+            dst_pfe: dstPfe,
+            priority: priority
         }
     };
     sendQueryRequestAndGetData(req, res, appData);
 }
 
+/**
+ * This function takes the fabric stats TS query and create a hash with T(timestamp) as the key.
+ * each of the items then gets passed to parsePRouterFabricStatsData to calculate the aggregate based on source and destination
+ * response JSON data gets formatted with aggregates for individual PFEs and corresponding timestamp.
+ * @param data
+ */
+function parsePRouterFabricTSData(data) {
+    var TSData = {},
+        TSList = [],
+        resultJSON = [];
+
+    if ((data != null) && (data['value']) && (data['value'].length)) {
+        var statsData = data.value;
+        var len = statsData.length;
+
+        for(var i=0; i<len; i++) {
+            var ts = statsData[i]["T="];
+            if(!(ts in TSData)) {
+                TSData[ts] = [];
+                TSList.push(ts);
+            }
+            TSData[ts].push(statsData[i]);
+        }
+        for(var i=0; i<TSList.length; i ++) {
+            var ts = TSList[i];
+            var stats = parsePRouterFabricStatsData({value:TSData[ts]});
+            resultJSON.push({
+                ts: ts,
+                values: stats.aggregate
+            });
+        }
+    }
+    return resultJSON;
+}
+
+function sendQueryRequestAndGetTSData(req, res, appData) {
+    var whereClauseArray = [];
+    var selectArr = [
+            "MAX("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
+            "MIN("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
+            "MAX("+ PRouterFieldPrefix + "class_stats.transmit_counts.bytes)",
+            "MIN("+ PRouterFieldPrefix + "class_stats.transmit_counts.bytes)",
+            PRouterFieldPrefix + "src_slot",
+            PRouterFieldPrefix + "src_type",
+            PRouterFieldPrefix + "src_pfe",
+            PRouterFieldPrefix + "dst_slot",
+            PRouterFieldPrefix + "dst_type",
+            PRouterFieldPrefix + "dst_pfe",
+            PRouterFieldPrefix + "class_stats.priority",
+            "Source",
+            "T=" + appData.queryFields.t
+        ],
+        tableName = PRouterStatsTableName;
+
+    if(appData.queryFields.whereClause.source) {
+        for (var key in appData.queryFields.whereClause) {
+            if((typeof appData.queryFields.whereClause[key] == "string" && null != appData.queryFields.whereClause[key]) ||
+                (typeof appData.queryFields.whereClause[key] == "number" && !isNaN(appData.queryFields.whereClause[key]))){
+                if(key == "source") {
+                    whereClauseArray.push(createWhereClause("Source", appData.queryFields.whereClause[key], 1))
+                } else if(key == "priority") {
+                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + "class_stats." + key, appData.queryFields.whereClause[key], 1))
+                } else {
+                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + key, appData.queryFields.whereClause[key], 1))
+                }
+            }
+        }
+        var timeObj = createTimeQueryJsonObj(appData.queryFields.mins_since, appData.queryFields.end_time);
+        var whereClause = [whereClauseArray];
+        var queryJSON = formatQueryStringWithWhereClause(tableName, whereClause, selectArr, timeObj);
+
+        executeQueryString(queryJSON, commonUtils.doEnsureExecution(function (err, resultJSON) {
+            logutils.logger.debug("PRouter Stats Query completed at:" + new Date());
+            if (null != err) {
+                commonUtils.handleJSONResponse(err, res, null);
+            }else{
+                resultJSON = parsePRouterFabricTSData(resultJSON);
+                commonUtils.handleJSONResponse(null, res, resultJSON);
+                return;
+            }
+        }, global.DEFAULT_MIDDLEWARE_API_TIMEOUT));
+
+    } else {
+        //Source is must.
+        logutils.logger.debug("Source is must for PRouter fabric stats query");
+        var error = {
+            responseCode: global.HTTP_STATUS_BAD_REQUEST,
+            message: "require source field set in query",
+            stack: {}
+        };
+        commonUtils.handleJSONResponse(error, res, null);
+    }
+
+
+}
+
+function getPRouterFabricTSStats(req, res) {
+
+    var source          = req.query['source'];
+    var srcType         = req.query['src_type']
+    var dstType         = req.query['dst_type'];
+    var srcSlot         = parseInt(req.query['src_slot']);
+    var dstSlot         = parseInt(req.query['dst_slot']);
+    var srcPfe          = parseInt(req.query['src_pfe']);
+    var dstPfe          = parseInt(req.query['dst_pfe']);
+    var priority        = req.query['priority'];
+    var minsSince       = req.query['mins_since'];
+    var endTime         = req.query['end_time'];
+    var t               = req.query['T'];
+
+    if(null == minsSince || minsSince == 'undefined') {
+        minsSince = 10; //Default 10m
+    }
+    if(null ==t || t== 'undefined') {
+        t = 60;  //Default aggregation 60s
+    }
+    if(srcType == "Switch_Fabric" || dstType == "Switch_Fabric") {
+        priority = null; // priority cannot be combined with above device types.
+    }
+
+    var appData = {
+        queryFields: {
+            whereClause: {
+                source: source,
+                src_type: srcType,
+                dst_type: dstType,
+                src_slot: srcSlot,
+                dst_slot: dstSlot,
+                src_pfe: srcPfe,
+                dst_pfe: dstPfe,
+                priority: priority
+            },
+            mins_since: minsSince,
+            end_time: endTime,
+            t: t
+        }
+    };
+    sendQueryRequestAndGetTSData(req, res, appData);
+}
+
 exports.getPRouterChassisInfo = getPRouterChassisInfo;
 exports.getPRouterFabricStats = getPRouterFabricStats;
+exports.getPRouterFabricTSStats = getPRouterFabricTSStats;
