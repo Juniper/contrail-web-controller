@@ -156,7 +156,7 @@ monitorInfraComputeRoutesClass = (function() {
         var cboVRF;
         var selectedRoute;
         var tabFilter =  $('#' + computeNodeTabStrip).data('tabFilter');
-        var filters;
+        var filters,vrfDefObj = $.Deferred();
         if(tabFilter != null && tabFilter['tab'] == 'routes'){
             filters = tabFilter['filters'];
             $('#' + computeNodeTabStrip).removeData('tabFilter');
@@ -166,6 +166,7 @@ monitorInfraComputeRoutesClass = (function() {
         }
         if(isDropdownInitialized('comboVRF')) {
             cboVRF = $('#comboVRF').data('contrailDropdown');
+            vrfDefObj.resolve();
 //            cboVRF.select(function(dataItem) {
 //                return dataItem.name === selectedRoute;
 //            });
@@ -175,22 +176,25 @@ monitorInfraComputeRoutesClass = (function() {
                 dataSource: {
                     type: 'remote',
                      url: contrail.format(monitorInfraUrls['VROUTER_VRF_LIST'], getIPOrHostName(obj), obj['introspectPort']),
+                     dataType: 'xml',
+                     async: true,
                      parse:function(response){
-                         var ret = [];
-                         if(!(response instanceof Array)){
-                            response = [response];
-                         }
-                         $.each(response,function(idx,obj){
-                            var ucIndex = ifNull(obj.ucindex,'');
-                            var mcIndex = ifNull(obj.mcindex,'');
-                            var l2Index = ifNull(obj.l2index,'');
-                            var uc6Index = ifNull(obj.uc6index,'');
-                            var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
-                            ret.push({name:obj.name,value:value}) 
-                         });
-                         //Intialize the grid
-                         window.setTimeout(function() { initUnicastRoutesGrid(ret[0]); },200);
-                         return ret; 
+                      if(response != null) {
+                          var ret = [];
+                          var vrfs = response.getElementsByTagName('VrfSandeshData');
+                          $.each(vrfs,function(idx,vrfXmlObj){
+                              var name = getValueByJsonPath(vrfXmlObj.getElementsByTagName('name'),'0;innerHTML','');
+                              var ucIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('ucindex'),'0;innerHTML','');
+                              var mcIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('mcindex'),'0;innerHTML','');
+                              var l2Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('l2index'),'0;innerHTML','');
+                              var uc6Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('uc6index'),'0;innerHTML','');
+                              var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
+                              ret.push({name:name,value:value});
+                          });
+                          //Intialize the grid
+                          window.setTimeout(function() { vrfDefObj.resolve();initUnicastRoutesGrid(ret[0]); },200);
+                          return ret; 
+                      }
                      }
                  },
                 dropdownCssClass: 'select2-large-width',
@@ -205,7 +209,54 @@ monitorInfraComputeRoutesClass = (function() {
             $('input[name="routeType"]').change(onRouteTypeChange);
         }
         if(selectedRoute != null) {
-             cboVRF.text(selectedRoute);
+             vrfDefObj.done(function(){
+                 setVrfAndPopulateRoutes();
+             });
+             if(vrfDefObj.state() != 'pending') {
+                 setVrfAndPopulateRoutes();
+             }
+             function setVrfAndPopulateRoutes() {
+                 cboVRF.text(selectedRoute);
+                 var selectedData = {};
+                 var data = $("#comboVRF").data('contrailDropdown').getAllData();
+                 for(var i = 0; i < data.length; i++) {
+                     if(data[i].name === selectedRoute){
+                         selectedData = data[i];
+                         break;
+                     }
+                 }
+                 var gridId = 'gridvRouterUnicastRoutes';
+                 var gridRenderFn = initUnicastRoutesGrid;
+                 var urlConstructFn = constructvRouterUnicastRouteURL;
+                 if ($('#rdboxUnicast').is(':checked') == true) {
+                     gridId = 'gridvRouterUnicastRoutes';
+                     gridRenderFn = initUnicastRoutesGrid;
+                     urlConstructFn = constructvRouterUnicastRouteURL;
+                 } else if ($('#rdboxMulticast').is(':checked') == true) {
+                     gridId = 'gridvRouterMulticastRoutes';
+                     gridRenderFn = initMulticastRoutesGrid;
+                     urlConstructFn = constructvRouterMulticastURL;
+                 } else if ($('#rdboxL2').is(':checked') == true) {
+                     gridId = 'gridvRouterL2Routes';
+                     gridRenderFn = initL2RoutesGrid;
+                     urlConstructFn = constructvRouterL2RouteURL;
+                 } else if ($("#rdboxIpv6").is(':checked') ==  true) {
+                     gridId = 'gridvRouterIpv6Routes';
+                     gridRenderFn = initIPv6Grid;
+                     urlConstructFn = constructvRouterUnicast6RouteURL;
+                 }
+                 if (!isGridInitialized($('#'+gridId))) {
+                     gridRenderFn(selectedData);
+                 } else if ($('#'+gridId).data('contrailGrid') != null){
+                     var routeGrid = $('#'+gridId).data('contrailGrid');
+                     var newAjaxConfig = urlConstructFn(selectedData);
+                     routeGrid.setRemoteAjaxConfig({
+                         url: newAjaxConfig['url'] + '?' + $.param(newAjaxConfig['params']),
+                         type: 'Get'
+                     });
+                     reloadGrid(routeGrid);
+                 }
+             }
         }
         function destroyAndHide(currentTypeDivId){
             $(currentTypeDivId).data("contrailGrid").destroy();
