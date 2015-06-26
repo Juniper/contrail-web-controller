@@ -26,4 +26,10 @@
         <feature>mxviz</feature>
         <callback>mxVizApi.getPRouterFabricStats</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/mx/fabric/tsstats</url>
+        <method>get</method>
+        <feature>mxviz</feature>
+        <callback>mxVizApi.getPRouterFabricTSStats</callback>
+    </item>
 </urlLists>
