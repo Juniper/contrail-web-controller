@@ -11,6 +11,18 @@
         <path>./networking.graph.api.js</path>
     </require>
     <item>
+        <url>/api/tenant/monitoring/project-connected-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getProjectConnectedGraph</callback>
+    </item>
+    <item>
+        <url>/api/tenant/monitoring/project-config-graph</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>netGraphApi.getProjectConfigGraph</callback>
+    </item>
+    <item>
         <url>/api/tenant/monitoring/network-connected-graph</url>
         <method>get</method>
         <feature>monitoring</feature>
@@ -23,16 +35,16 @@
         <callback>netGraphApi.getNetworkConfigGraph</callback>
     </item>
     <item>
-        <url>/api/tenant/monitoring/project-connected-graph</url>
+        <url>/api/tenant/monitoring/instance-connected-graph</url>
         <method>get</method>
         <feature>monitoring</feature>
-        <callback>netGraphApi.getProjectConnectedGraph</callback>
+        <callback>netGraphApi.getInstanceConnectedGraph</callback>
     </item>
     <item>
-        <url>/api/tenant/monitoring/project-config-graph</url>
+        <url>/api/tenant/monitoring/instance-config-graph</url>
         <method>get</method>
         <feature>monitoring</feature>
-        <callback>netGraphApi.getProjectConfigGraph</callback>
+        <callback>netGraphApi.getInstanceConfigGraph</callback>
     </item>
 </urlLists>
 

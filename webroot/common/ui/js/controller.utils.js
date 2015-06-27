@@ -69,8 +69,8 @@ define([
             });
         };
 
-        self.getNetworkingGraphConfig = function (url, elementNameObject, keySuffix, type) {
-            return {
+        self.getMNConnnectedGraphConfig = function (url, elementNameObject, keySuffix, type) {
+            var graphConfig = {
                 remote: {
                     ajaxConfig: {
                         url: url,
@@ -85,7 +85,36 @@ define([
                     name: elementNameObject
                 }
             };
+
+            if(type ==  ctwc.GRAPH_ELEMENT_NETWORK || type ==  ctwc.GRAPH_ELEMENT_INSTANCE) {
+                graphConfig['vlRemoteConfig'] = {
+                    vlRemoteList: ctwgc.getNetworkVMDetailsLazyRemoteConfig()
+                };
+            }
+
+            return graphConfig;
         };
+
+        self.getMNConfigGraphConfig = function (url, elementNameObject, keySuffix, type) {
+            var graphConfig = {
+                remote: {
+                    ajaxConfig: {
+                        url: url,
+                        type: 'GET'
+                    }
+                },
+                cacheConfig: {
+                    ucid: ctwc.UCID_PREFIX_MN_GRAPHS + elementNameObject.fqName + keySuffix
+                },
+                focusedElement: {
+                    type: type,
+                    name: elementNameObject
+                }
+            };
+
+            return graphConfig;
+        };
+
         self.getHeatChartClickFn = function(selector, response) {
             // TODO: Implement click out function for instance port map
             return function(clickData) {}
@@ -93,7 +122,7 @@ define([
 
         self.getInstanceTabViewConfig = function (viewConfig) {
             var instanceUUID = viewConfig['instanceUUID'],
-                instanceDetailsUrl = ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
+                instanceDetailsUrl = ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
                 networkFQN = viewConfig['networkFQN'],
                 tabsToDisplay = viewConfig['tabsToDisplay'],
                 tabObjs = [];
@@ -146,7 +175,7 @@ define([
                             view: "HeatChartView",
                             viewConfig: {
                                 ajaxConfig: {
-                                    url: ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
+                                    url: ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
                                     type: 'GET'
                                 },
                                 chartOptions: {getClickFn: self.getHeatChartClickFn}
@@ -280,7 +309,7 @@ define([
                     modelKey: modelKey,
                     remote: {
                         ajaxConfig: {
-                            url: ctwc.get(ctwc.URL_INSTANCE_SUMMARY, instanceUUID),
+                            url: ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
                             type: 'GET'
                         },
                         dataParser: function(response) {

@@ -121,7 +121,8 @@ define([
                                                         var formattedValue = formatBytes(yValue, false, null, 1);
                                                         return formattedValue;
                                                     },
-                                                    margin: {left: 70}
+                                                    margin: {left: 70},
+                                                    noDataMessage: cowc.CHART_NO_DATA_MESSAGE
                                                 }
                                             }
                                         }

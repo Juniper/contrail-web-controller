@@ -56,7 +56,8 @@ define([
                                         },
                                         tooltipConfigCB: getProjectTooltipConfig,
                                         clickCB: onScatterChartClick,
-                                        sizeFieldName: 'throughput'
+                                        sizeFieldName: 'throughput',
+                                        noDataMessage: "No project available."
                                     }
                                 }
                             },

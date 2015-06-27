@@ -1095,11 +1095,36 @@ function getVirtualNetworksSummary (req, res, appData)
     });
 }
 
-function getVirtualMachinesSummary (req, res, appData)
+function getVirtualMachine (req, res, appData)
 {
     var fqNameRegExp = req.query['fqNameRegExp'];
     var url = '/analytics/virtual-machine/' + fqNameRegExp;
     sendOpServerResponseByURL(url, req, res, appData);
+}
+
+
+function getVirtualMachinesSummary (req, res, appData)
+{
+    var reqPostData = req.body,
+        kfilt = reqPostData['kfilt'], cfilt = reqPostData['cfilt'],
+        url = '/analytics/uves/virtual-machine',
+        opServerPostData = {};
+
+    if(kfilt != null && kfilt != '') {
+        opServerPostData['kfilt'] = kfilt.split(",");
+    }
+
+    if(cfilt != null && cfilt != '') {
+        opServerPostData['cfilt'] = cfilt.split(",");
+    }
+
+    opServer.api.post(url, opServerPostData, function(err, data) {
+        if (err || (null == data)) {
+            commonUtils.handleJSONResponse(err, res, null);
+        } else {
+            commonUtils.handleJSONResponse(null, res, data);
+        }
+    });
 }
 
 function getVirtualInterfacesSummary (req, res, appData)
@@ -3110,6 +3135,7 @@ exports.getAllConnNetStatDetails = getAllConnNetStatDetails;
 exports.getPortLevelFlowSeries = getPortLevelFlowSeries;
 exports.getFlowSeriesByCPU = getFlowSeriesByCPU;
 exports.getVirtualNetworksSummary = getVirtualNetworksSummary;
+exports.getVirtualMachine = getVirtualMachine;
 exports.getVirtualMachinesSummary = getVirtualMachinesSummary;
 exports.getVirtualInterfacesSummary = getVirtualInterfacesSummary;
 exports.getNetworkTreeTopology = getNetworkTreeTopology;

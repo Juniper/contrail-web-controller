@@ -104,7 +104,9 @@ define([
                 breadcrumbView = new BreadcrumbView(),
                 hashParams = viewConfig.hashParams,
                 fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null;
+                instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
+                vmName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.vmName')) ? hashParams.focusedElement.vmName : null,
+                instanceName4Breadcrumb = (contrail.checkIfExist(vmName) && vmName != "") ? vmName : instanceUUID;
 
             breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
                 contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
@@ -114,7 +116,7 @@ define([
 
                     breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
                         function (networkSelectedValueData) {
-                            breadcrumbView.renderInstanceBreadcrumbDropdown(networkSelectedValueData, instanceUUID, function (networkSelectedValueData) {
+                            breadcrumbView.renderInstanceBreadcrumbDropdown(networkSelectedValueData, instanceName4Breadcrumb, function (networkSelectedValueData) {
                                 self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
                             });
                         }, function (networkSelectedValueData, networkBreadcrumbChanged) {
@@ -138,9 +140,10 @@ define([
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 project = contrail.getCookie(cowc.COOKIE_PROJECT),
                 networkFQN = domain + ':' + project + ':' + networkObj.name,
-                networkUUID = networkObj.value;
+                networkUUID = networkObj.value,
+                vmName = hashParams['focusedElement']['vmName'];
 
-            ctwgrc.setInstanceURLHashParams(hashParams, networkFQN, instanceUUID, false);
+            ctwgrc.setInstanceURLHashParams(hashParams, networkFQN, instanceUUID, vmName, false);
 
             cowu.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, networkUUID, instanceUUID));
         },

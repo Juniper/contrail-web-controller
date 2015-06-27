@@ -61,7 +61,7 @@ define([
             {
                 field: 'vm_name',
                 name: 'Instance Name',
-                minWidth: 150,
+                minWidth: 200,
                 searchable: true
             },
             {
@@ -247,6 +247,79 @@ define([
                 minWidth: 200
             }
         ];
+
+        this.getNetworkVMDetailsLazyRemoteConfig = function () {
+            return [
+                {
+                    getAjaxConfig: function (responseJSON) {
+                        var nodes = responseJSON['nodes'],
+                            nodeType, uuids, lazyAjaxConfig;
+
+                        uuids = $.map(nodes, function (node) {
+                            nodeType = node['node_type'];
+                            if(nodeType == 'virtual-network') {
+                                return node['more_attributes']['virtualmachine_list'];
+                            }
+                        });
+
+                        lazyAjaxConfig = {
+                            url: ctwc.URL_INSTANCES_SUMMARY,
+                            type: 'POST',
+                            data: JSON.stringify({
+                                kfilt: uuids.join(','),
+                                cfilt: ctwc.FILTERS_COLUMN_VM.join(",")
+                            })
+                        }
+
+                        return lazyAjaxConfig;
+                    },
+                    successCallback: function (response, contrailGraphModel) {
+                        var rawData = contrailGraphModel.rawData,
+                            nodes = rawData['nodes'], vmList = response['value'],
+                            elementMap = contrailGraphModel.elementMap,
+                            vmMap = {}, node, vm, vnMoreAttrs, vnInstanceList, nodeType,
+                            vmUUID, vmValue, nodeName, nodeElementId, nodeElement,
+                            vmElementId, vmElement;
+
+                        for(var j = 0; j < vmList.length; j++) {
+                            vm = vmList[j];
+                            vmMap[vm['name']] = vm['value'];
+                        }
+
+                        for(var i = 0; i < nodes.length; i++) {
+                            node = nodes[i];
+                            nodeName = node['name'];
+                            nodeType = node['node_type'];
+                            nodeElementId = elementMap['node'][nodeName],
+                            nodeElement = contrailGraphModel.getCell(nodeElementId);
+
+                            if(nodeType != 'virtual-network') {
+                                continue;
+                            } else {
+                                vnMoreAttrs = node['more_attributes'];
+                                vnMoreAttrs['virtualmachine_details'] = {};
+                                vnInstanceList =  vnMoreAttrs['virtualmachine_list']
+                                for(var k = 0; k < vnInstanceList.length; k++) {
+                                    vmUUID = vnInstanceList[k];
+                                    vmValue = vmMap[vmUUID];
+                                    vmElementId = elementMap['node'][vmUUID];
+                                    vmElement = contrailGraphModel.getCell(vmElementId);
+                                    if(contrail.checkIfExist(vmValue)) {
+                                        vnMoreAttrs['virtualmachine_details'][vmUUID] = vmValue;
+                                    }
+                                    if(contrail.checkIfExist(vmElement)) {
+                                        vmElement["attributes"]['nodeDetails']['uve'] = vmValue;
+                                    }
+                                }
+                                if(contrail.checkIfExist(nodeElement)) {
+                                    nodeElement["attributes"]['nodeDetails']['more_attributes']['virtualmachine_details'] = vnMoreAttrs['virtualmachine_details'];
+                                }
+                            }
+                        }
+                    }
+                }
+            ];
+        };
 
         this.getVNDetailsLazyRemoteConfig = function (type) {
             return [
@@ -638,7 +711,8 @@ define([
 
     function onClickGrid(e, selRowDataItem) {
         var name = $(e.target).attr('name'),
-            fqName, uuid;
+            fqName, uuid, vmName;
+
         if ($.inArray(name, ['project']) > -1) {
             fqName = selRowDataItem['name'];
             ctwgrc.setProjectURLHashParams(null, fqName, true)
@@ -650,8 +724,9 @@ define([
         } else if ($.inArray(name, ['instance']) > -1) {
             fqName = selRowDataItem['vnFQN'];
             uuid = selRowDataItem['name'];
+            vmName = selRowDataItem['vmName'];
             if(contrail.checkIfExist(fqName) && !ctwp.isServiceVN(fqName)) {
-                ctwgrc.setInstanceURLHashParams(null, fqName, uuid, true);
+                ctwgrc.setInstanceURLHashParams(null, fqName, uuid, vmName, true);
             }
         }
     };

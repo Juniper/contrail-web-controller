@@ -50,8 +50,8 @@ define([
             });
         },
 
-        renderInstanceBreadcrumbDropdown: function(networkSelectedValueData, instanceUUID, initCB) {
-            populateInstanceBreadcrumbDropdown(networkSelectedValueData, instanceUUID, initCB);
+        renderInstanceBreadcrumbDropdown: function(networkSelectedValueData, instanceName, initCB) {
+            populateInstanceBreadcrumbDropdown(networkSelectedValueData, instanceName, initCB);
         }
 
     });
@@ -238,8 +238,8 @@ define([
         }
     };
 
-    var populateInstanceBreadcrumbDropdown = function(networkSelectedValueData, instanceUUID, initCB) {
-        pushBreadcrumb([instanceUUID]);
+    var populateInstanceBreadcrumbDropdown = function(networkSelectedValueData, instanceName, initCB) {
+        pushBreadcrumb([instanceName]);
         setTimeout(function() {
             initCB(networkSelectedValueData);
         }, 100);

@@ -162,8 +162,8 @@ define([
         };
 
         this.getConnectedGraphTooltipConfig = function () {
-            var tooltipTitle = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_TITLE),
-                tooltipContent = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_CONTENT);
+            var tooltipTitleTmpl = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_TITLE),
+                tooltipContentTmpl = contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_CONTENT);
 
             return {
                 VirtualNetwork: {
@@ -171,7 +171,7 @@ define([
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
                             virtualNetworkName = viewElement.attributes.nodeDetails['name'].split(':')[2];
 
-                        return tooltipTitle({name: virtualNetworkName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK});
+                        return tooltipTitleTmpl({name: virtualNetworkName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK});
 
                     },
                     content: function (element, jointObject) {
@@ -191,10 +191,12 @@ define([
                             });
                         }
 
-                        return tooltipContent({
+                        return tooltipContentTmpl({
                             info: [
                                 {label: 'Project', value: virtualNetworkName[0] + ':' + virtualNetworkName[1]},
-                                {label: 'Instance Count', value: viewElement.attributes.nodeDetails.more_attr.vm_cnt}
+                                {label: 'Instance Count', value: viewElement.attributes.nodeDetails.more_attributes.vm_count},
+                                {label: 'Interface Count', value: viewElement.attributes.nodeDetails.more_attributes.vmi_count},
+                                {label: 'Throughput In/Out', value: formatThroughput(viewElement.attributes.nodeDetails.more_attributes.in_throughput) + " / " + formatThroughput(viewElement.attributes.nodeDetails.more_attributes.out_throughput)},
                             ],
                             iconClass: 'icon-contrail-virtual-network',
                             actions: actions
@@ -239,7 +241,7 @@ define([
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
                             serviceInstanceName = viewElement.attributes.nodeDetails['name'].split(':')[2];
 
-                        return tooltipTitle({name: serviceInstanceName, type: ctwl.TITLE_GRAPH_ELEMENT_SERVICE_INSTANCE});
+                        return tooltipTitleTmpl({name: serviceInstanceName, type: ctwl.TITLE_GRAPH_ELEMENT_SERVICE_INSTANCE});
                     },
                     content: function (element, jointObject) {
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
@@ -250,7 +252,7 @@ define([
                             iconClass: 'icon-cog'
                         });
 
-                        return tooltipContent({
+                        return tooltipContentTmpl({
                             info: [
                                 {label: 'Status', value: viewElement.attributes.nodeDetails['status']}
                             ],
@@ -277,28 +279,50 @@ define([
                 VirtualMachine: {
                     title: function (element, jointObject) {
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                            vmUVE = viewElement.attributes.nodeDetails.uve,
                             virtualMachineName = viewElement.attributes.nodeDetails['fqName'];
 
-                        return tooltipTitle({name: virtualMachineName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE});
+                        if(contrail.checkIfExist(vmUVE)) {
+                            virtualMachineName = vmUVE['UveVirtualMachineAgent']['vm_name'];
+                        }
+
+                        return tooltipTitleTmpl({name: virtualMachineName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE});
                     },
                     content: function (element, jointObject) {
                         var viewElement = jointObject.graph.getCell(element.attr('model-id')),
                             actions = [],
-                            srcVNDetails = viewElement.attributes.nodeDetails.srcVNDetails;
+                            srcVNDetails = viewElement.attributes.nodeDetails.srcVNDetails,
+                            vmUVE = viewElement.attributes.nodeDetails.uve,
+                            tooltipContent, uveVirtualMachineAgent, cpuInfo;
 
                         actions.push({
                             text: 'View',
                             iconClass: 'icon-external-link'
                         });
 
-                        return tooltipContent({
-                            info: [
-                                {label: 'UUID', value: viewElement.attributes.nodeDetails['fqName']},
-                                {label: 'Network', value: srcVNDetails.name}
-                            ],
+                        tooltipContent = {
                             iconClass: 'icon-contrail-virtual-machine font-size-30',
                             actions: actions
-                        });
+                        };
+
+                        if(contrail.checkIfExist(vmUVE)) {
+                            uveVirtualMachineAgent = vmUVE['UveVirtualMachineAgent'];
+                            cpuInfo = uveVirtualMachineAgent.cpu_info;
+                            tooltipContent['info'] = [
+                                {label: 'UUID', value: viewElement.attributes.nodeDetails['fqName']},
+                                {label: 'Network', value: srcVNDetails.name},
+                                {label: 'CPU Utilization', value: contrail.checkIfExist(cpuInfo) ? ((Math.round(cpuInfo.cpu_one_min_avg * 100) / 100) + " %") : '-'},
+                                {label: 'Memory Usage', value: contrail.checkIfExist(cpuInfo) ? formatBytes(cpuInfo.rss, false) : '-'},
+                                {label: 'Interfaces', value: uveVirtualMachineAgent.interface_list.length}
+                            ];
+                        } else {
+                            tooltipContent['info'] = [
+                                {label: 'UUID', value: viewElement.attributes.nodeDetails['fqName']},
+                                {label: 'Network', value: srcVNDetails.name}
+                            ];
+                        }
+
+                        return tooltipContentTmpl(tooltipContent);
                     },
                     dimension: {
                         width: 355
@@ -309,7 +333,10 @@ define([
 
                         actions.push({
                             callback: function (key, options) {
-                                var srcVN = viewElement.attributes.nodeDetails.srcVNDetails.name;
+                                var srcVN = viewElement.attributes.nodeDetails.srcVNDetails.name,
+                                    vmUVE = viewElement.attributes.nodeDetails.uve,
+                                    vmName = contrail.checkIfExist(vmUVE) ? vmUVE['UveVirtualMachineAgent']['vm_name'] : null;
+
                                 loadFeature({
                                     p: 'mon_networking_instances',
                                     q: {
@@ -318,6 +345,7 @@ define([
                                         focusedElement: {
                                             fqName: srcVN,
                                             uuid: viewElement.attributes.nodeDetails['fqName'],
+                                            vmName: vmName,
                                             type: ctwc.GRAPH_ELEMENT_NETWORK
                                         }
                                     }
@@ -335,7 +363,7 @@ define([
                             sourceNetwork = viewElementDetails.src.split(':')[2],
                             destinationNetwork = viewElementDetails.dst.split(':')[2];
 
-                        return tooltipTitle({name: sourceNetwork + ' - ' + destinationNetwork, type: ctwl.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK});
+                        return tooltipTitleTmpl({name: sourceNetwork + ' - ' + destinationNetwork, type: ctwl.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK});
                     },
                     content: function (element, jointObject) {
                         //TODO - This needs some cleanup
@@ -432,7 +460,7 @@ define([
                             }
                         }
 
-                        return tooltipContent({info: data, iconClass: 'icon-resize-horizontal'});
+                        return tooltipContentTmpl({info: data, iconClass: 'icon-resize-horizontal'});
                     },
                     dimension: {
                         width: 400
@@ -633,14 +661,15 @@ define([
 
         };
 
-        this.setInstanceURLHashParams = function(hashParams, networkFQN, instanceUUID, triggerHashChange) {
+        this.setInstanceURLHashParams = function(hashParams, networkFQN, instanceUUID, vmName, triggerHashChange) {
             var hashObj = {
                 type: "instance",
                 view: "details",
                 focusedElement: {
                     fqName: networkFQN,
                     type: ctwc.GRAPH_ELEMENT_NETWORK,
-                    uuid: instanceUUID
+                    uuid: instanceUUID,
+                    vmName: vmName
                 }
             };
 
@@ -649,24 +678,6 @@ define([
             }
 
             layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_instances", merge: false, triggerHashChange: triggerHashChange});
-        };
-
-        this.setInstanceURLHashParams = function(hashParams, networkFQN, instanceUUID, triggerHashChange) {
-            var hashObj = {
-                type: "instance",
-                view: "details",
-                focusedElement: {
-                    fqName: networkFQN,
-                    uuid: instanceUUID,
-                    type: ctwc.GRAPH_ELEMENT_NETWORK
-                }
-            };
-
-            if(contrail.checkIfKeyExistInObject(true, hashParams, 'clickedElement')) {
-                hashObj.clickedElement = hashParams.clickedElement;
-            }
-
-            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_instances", merge: false});
         };
     };
 

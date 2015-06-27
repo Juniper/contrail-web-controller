@@ -66,61 +66,63 @@ function ifLinkStatExists(srcVN, dstVN, stats, resultJSON) {
     return false;
 }
 
-function getLinkStats(resultJSON, vnUVENode, vn, result) {
-    var j = 0;
-    var inStats = jsonPath(vnUVENode, "$..in_stats");
+function getLinkStats(linkMoreAttrs, vnUVENode, vn, result) {
+    var j = 0, inStats = jsonPath(vnUVENode, "$..in_stats"),
+        outStats;
 
     if (inStats.length > 0) {
-        if (null == resultJSON['in_stats']) {
-            resultJSON['in_stats'] = [];
+        if (null == linkMoreAttrs['in_stats']) {
+            linkMoreAttrs['in_stats'] = [];
             j = 0;
         } else {
-            j = resultJSON['in_stats'].length;
+            j = linkMoreAttrs['in_stats'].length;
         }
         var len = inStats[0].length;
         for (var i = 0; i < len; i++) {
             if (ifLinkStatExists(vnUVENode['name'], vn,
-                    resultJSON['in_stats'], result)) {
+                    linkMoreAttrs['in_stats'], result)) {
                 continue;
             }
             if (inStats[0][i]['other_vn'] == vn) {
-                resultJSON['in_stats'][j] = {};
-                resultJSON['in_stats'][j]['src'] = vnUVENode['name'];
-                resultJSON['in_stats'][j]['dst'] = vn;
-                resultJSON['in_stats'][j]['pkts'] = inStats[0][i]['tpkts'];
-                resultJSON['in_stats'][j]['bytes'] = inStats[0][i]['bytes'];
+                linkMoreAttrs['in_stats'][j] = {};
+                linkMoreAttrs['in_stats'][j]['src'] = vnUVENode['name'];
+                linkMoreAttrs['in_stats'][j]['dst'] = vn;
+                linkMoreAttrs['in_stats'][j]['pkts'] = inStats[0][i]['tpkts'];
+                linkMoreAttrs['in_stats'][j]['bytes'] = inStats[0][i]['bytes'];
                 j++;
                 break;
             }
         }
     }
+
     j = 0;
-    var outStats = jsonPath(vnUVENode, "$..out_stats");
+    outStats = jsonPath(vnUVENode, "$..out_stats");
+
     if (outStats.length > 0) {
-        if (null == resultJSON['out_stats']) {
-            resultJSON['out_stats'] = [];
+        if (null == linkMoreAttrs['out_stats']) {
+            linkMoreAttrs['out_stats'] = [];
             j = 0;
         } else {
-            j = resultJSON['out_stats'].length;
+            j = linkMoreAttrs['out_stats'].length;
         }
         len = outStats[0].length;
         for (i = 0; i < len; i++) {
             if (ifLinkStatExists(vnUVENode['name'], vn,
-                    resultJSON['out_stats'], result)) {
+                    linkMoreAttrs['out_stats'], result)) {
                 continue;
             }
             if (outStats[0][i]['other_vn'] == vn) {
-                resultJSON['out_stats'][j] = {};
-                resultJSON['out_stats'][j]['src'] = vnUVENode['name'];
-                resultJSON['out_stats'][j]['dst'] = vn;
-                resultJSON['out_stats'][j]['pkts'] = outStats[0][i]['tpkts'];
-                resultJSON['out_stats'][j]['bytes'] = outStats[0][i]['bytes'];
+                linkMoreAttrs['out_stats'][j] = {};
+                linkMoreAttrs['out_stats'][j]['src'] = vnUVENode['name'];
+                linkMoreAttrs['out_stats'][j]['dst'] = vn;
+                linkMoreAttrs['out_stats'][j]['pkts'] = outStats[0][i]['tpkts'];
+                linkMoreAttrs['out_stats'][j]['bytes'] = outStats[0][i]['bytes'];
                 j++;
                 break;
             }
         }
     }
-    return resultJSON;
+    return linkMoreAttrs;
 }
 
 function getVNPolicyRuleDirection(dir) {
@@ -362,11 +364,9 @@ function parseServiceChainUVE(fqName, resultJSON, scUVE) {
 }
 
 function parseVirtualNetworkUVE(fqName, vnUVE) {
-    var resultJSON = {};
-    resultJSON['nodes'] = [];
-    resultJSON['links'] = [];
+    var resultJSON = { nodes: [], links: [] },
+        vnCnt = vnUVE.length;
 
-    var vnCnt = vnUVE.length;
     for (var i = 0; i < vnCnt; i++) {
         resultJSON = getVirtualNetworkNode(fqName, resultJSON, vnUVE[i]);
     }
@@ -375,8 +375,9 @@ function parseVirtualNetworkUVE(fqName, vnUVE) {
 
 function updateVNStatsBySIData(scResultJSON, vnUVE) {
     try {
-        var links = scResultJSON['links'];
-        var linksCnt = links.length;
+        var links = scResultJSON['links'],
+            linksCnt = links.length;
+
     } catch (e) {
         return scResultJSON;
     }
@@ -394,23 +395,20 @@ function updateVNStatsBySIData(scResultJSON, vnUVE) {
 }
 
 function getVNStatsBySIData(links, scResultJSON, vnUVE) {
-    var src = links['src'];
-    var dst = links['dst'];
-    var dir = links['dir'];
+    var src = links['src'],
+        dst = links['dst'],
+        dir = links['dir'];
 
     try {
-        var scLinks = scResultJSON['links'];
-        var linksCnt = scLinks.length;
+        var scLinks = scResultJSON['links'],
+            linksCnt = scLinks.length;
 
         for (var i = 0; i < linksCnt; i++) {
             try {
                 if (null == scLinks[i]['service_inst']) {
-                    if (((scResultJSON['links'][i]['src'] == links['src']) &&
-                        (scResultJSON['links'][i]['dst'] == links['dst'])) ||
-                        ((scResultJSON['links'][i]['src'] == links['dst']) &&
-                        (scResultJSON['links'][i]['dst'] == links['src']))) {
-                        links['more_attributes'] =
-                            scResultJSON['links'][i]['more_attributes'];
+                    if (((scResultJSON['links'][i]['src'] == links['src']) && (scResultJSON['links'][i]['dst'] == links['dst'])) ||
+                        ((scResultJSON['links'][i]['src'] == links['dst']) && (scResultJSON['links'][i]['dst'] == links['src']))) {
+                        links['more_attributes'] = scResultJSON['links'][i]['more_attributes'];
                         scResultJSON['links'].splice(i, 1);
                         return 1;
                     }
@@ -422,8 +420,8 @@ function getVNStatsBySIData(links, scResultJSON, vnUVE) {
     } catch (e) {
     }
     /* Now check if we have any stat in UVE */
-    var srcVNUVE = getVNUVEByVNName(vnUVE, links['src']);
-    var destVNUVE = getVNUVEByVNName(vnUVE, links['dst']);
+    var srcVNUVE = getVNUVEByVNName(vnUVE, links['src']),
+        destVNUVE = getVNUVEByVNName(vnUVE, links['dst']);
 
     links['more_attributes'] = {};
     getVNStats(links, srcVNUVE, "in_stats", links['src'], links['dst']);
@@ -460,103 +458,46 @@ function getVNStats(links, vnUVE, jsonP, src, dest) {
 }
 
 function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
-    var i = 0, j = 0;
-
-    var nodeCnt = resultJSON['nodes'].length;
-    var linkCnt = resultJSON['links'].length;
+    var i = 0, j = 0, nodeCnt = resultJSON['nodes'].length,
+        linkCnt = resultJSON['links'].length,
+        uveVirtualNetworkAgent;
 
     resultJSON['nodes'][nodeCnt] = {};
     resultJSON['nodes'][nodeCnt]['name'] = vnUVENode['name'];
-    resultJSON['nodes'][nodeCnt]['more_attr'] = {};
+    resultJSON['nodes'][nodeCnt]['more_attributes'] = {vm_count: 0, vmi_count: 0, in_throughput: 0, out_throughput: 0, virtualmachine_list: []};
+    //resultJSON['nodes'][nodeCnt]['raw_uve_data'] = vnUVENode['value'];
+
     try {
-        var inBytes = jsonPath(vnUVENode, "$..in_bytes");
-        if (inBytes.length > 0) {
-            inBytes = inBytes[0];
-        } else {
-            inBytes = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['in_bytes'] = inBytes;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['in_bytes'] = 0;
-    }
-    try {
-        var inPkts = jsonPath(vnUVENode, "$..in_tpkts");
-        if (inPkts.length > 0) {
-            inPkts = inPkts[0];
-        } else {
-            inPkts = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['in_tpkts'] = inPkts;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['in_tpkts'] = 0;
-    }
-    try {
-        var outBytes = jsonPath(vnUVENode, "$..out_bytes");
-        if (outBytes.length > 0) {
-            outBytes = outBytes[0];
-        } else {
-            outBytes = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['out_bytes'] = outBytes;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['out_bytes'] = 0;
-    }
-    try {
-        var outPkts = jsonPath(vnUVENode, "$..out_tpkts");
-        if (outPkts.length > 0) {
-            outPkts = outPkts[0];
-        } else {
-            outPkts = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['out_tpkts'] = outPkts;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['out_tpkts'] = 0;
-    }
-    try {
-        var vmList = jsonPath(vnUVENode, "$..virtualmachine_list");
-        if (vmList.length > 0) {
-            vmCnt = vmList[0].length;
-            resultJSON['nodes'][nodeCnt]['more_attr']['virtualmachine_list'] = vmList[0];
-        } else {
-            vmCnt = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['vm_cnt'] = vmCnt;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['vm_cnt'] = 0;
-        resultJSON['nodes'][nodeCnt]['more_attr']['virtualmachine_list'] = [];
-    }
-    try {
-        var interfaceList = jsonPath(vnUVENode, "$..interface_list");
-        if (interfaceList.length > 0) {
-            resultJSON['nodes'][nodeCnt]['more_attr']['interface_list'] = interfaceList[0];
+        uveVirtualNetworkAgent = vnUVENode['value']['UveVirtualNetworkAgent'];
+        if(uveVirtualNetworkAgent != null) {
+            var vmList = uveVirtualNetworkAgent['virtualmachine_list'],
+                vmiList = uveVirtualNetworkAgent['interface_list'];
+
+            resultJSON['nodes'][nodeCnt]['more_attributes']['vm_count'] = vmList.length;
+            resultJSON['nodes'][nodeCnt]['more_attributes']['vmi_count'] = vmiList.length;
+            resultJSON['nodes'][nodeCnt]['more_attributes']['in_throughput'] = uveVirtualNetworkAgent['in_bandwidth_usage'];
+            resultJSON['nodes'][nodeCnt]['more_attributes']['out_throughput'] = uveVirtualNetworkAgent['out_bandwidth_usage'];
+            resultJSON['nodes'][nodeCnt]['more_attributes']['virtualmachine_list'] = uveVirtualNetworkAgent['virtualmachine_list'];
         }
     } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['interface_list'] = [];
+        logutils.logger.error(e.stack);
     }
+
     try {
         var attachedPolicies = jsonPath(vnUVENode, "$..attached_policies");
         if (attachedPolicies.length > 0) {
-            resultJSON['nodes'][nodeCnt]['more_attr']['attached_policies'] = attachedPolicies[0];
+            resultJSON['nodes'][nodeCnt]['more_attributes']['attached_policies'] = attachedPolicies[0];
         }
     } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['attached_policies'] = [];
-    }
-    try {
-        var fipCnt = jsonPath(vnUVENode, "$..associated_fip_count");
-        if (fipCnt.length > 0) {
-            fipCnt = fipCnt[0];
-        } else {
-            fipCnt = 0;
-        }
-        resultJSON['nodes'][nodeCnt]['more_attr']['fip_cnt'] = fipCnt;
-    } catch (e) {
-        resultJSON['nodes'][nodeCnt]['more_attr']['fip_cnt'] = 0;
+        resultJSON['nodes'][nodeCnt]['more_attributes']['attached_policies'] = [];
     }
 
     var partConnNws = jsonPath(vnUVENode, "$..partially_connected_networks");
+
     if (partConnNws.length > 0) {
-        var len = partConnNws[0].length;
-        var k = 0;
+        var len = partConnNws[0].length,
+            k = 0;
+
         for (var i = 0; i < len; i++) {
             if (((-1 == (vnUVENode['name']).indexOf(fqName)) &&
                 (-1 == (partConnNws[0][i]).indexOf(fqName))) ||
@@ -567,9 +508,7 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
             var index = vnLinkListed(vnUVENode['name'], partConnNws[0][i], 'uni', resultJSON['links']);
 
             if (-1 != index) {
-                getLinkStats(resultJSON['links'][index]['more_attributes'],
-                    vnUVENode, partConnNws[0][i],
-                    resultJSON['links'][index]);
+                getLinkStats(resultJSON['links'][index]['more_attributes'], vnUVENode, partConnNws[0][i], resultJSON['links'][index]);
                 continue;
             }
             index = linkCnt + j;
@@ -583,12 +522,14 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
             j++;
         }
     }
-    var linkCnt = resultJSON['links'].length;
-    var connNws = jsonPath(vnUVENode, "$..connected_networks");
+
+    var linkCnt = resultJSON['links'].length,
+        connNws = jsonPath(vnUVENode, "$..connected_networks");
+
     if (connNws.length > 0) {
         var len = connNws[0].length;
         j = 0, k = 0;
-        resultJSON['nodes'][nodeCnt]['more_attr']['connected_networks'] = connNws;
+        resultJSON['nodes'][nodeCnt]['more_attributes']['connected_networks'] = connNws;
         for (var i = 0; i < len; i++) {
             if ((-1 == (vnUVENode['name']).indexOf(fqName)) || (true == isServiceVN(vnUVENode['name'])) || (true == isServiceVN(connNws[0][i]))) {
                 continue;
@@ -607,10 +548,10 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
             j++;
         }
     }
+
     var nodeCnt = resultJSON['nodes'].length;
     for (i = 0; i < nodeCnt; i++) {
-        resultJSON['nodes'][i]['node_type'] =
-            global.STR_NODE_TYPE_VIRTUAL_NETWORK;
+        resultJSON['nodes'][i]['node_type'] = global.STR_NODE_TYPE_VIRTUAL_NETWORK;
     }
     return resultJSON;
 }
@@ -618,16 +559,15 @@ function getVirtualNetworkNode(fqName, resultJSON, vnUVENode) {
 function getServiceChainNode(fqName, resultJSON, scUVENode) {
     var nodeCnt = resultJSON['nodes'].length,
         linkCnt = resultJSON['links'].length,
-        j = 0;
-
-    var srcVN = scUVENode['value']['UveServiceChainData']['source_virtual_network'],
-        destVN = scUVENode['value']['UveServiceChainData']['destination_virtual_network'];
+        srcVN = scUVENode['value']['UveServiceChainData']['source_virtual_network'],
+        destVN = scUVENode['value']['UveServiceChainData']['destination_virtual_network'],
+        j = 0, found, services;
 
     if ((false == isAllowedVN(fqName, srcVN)) && (false == isAllowedVN(fqName, destVN))) {
         return resultJSON;
     }
 
-    var found = vnNameListed(srcVN, resultJSON['nodes']);
+    found = vnNameListed(srcVN, resultJSON['nodes']);
     if (false == found) {
         if (true == isServiceVN(srcVN)) {
             return;
@@ -637,7 +577,8 @@ function getServiceChainNode(fqName, resultJSON, scUVENode) {
         resultJSON['nodes'][nodeCnt + j]['node_type'] = global.STR_NODE_TYPE_VIRTUAL_NETWORK;
         j++;
     }
-    var found = vnNameListed(destVN, resultJSON['nodes']);
+
+    found = vnNameListed(destVN, resultJSON['nodes']);
     if (false == found) {
         if (true == isServiceVN(destVN)) {
             return;
@@ -648,10 +589,11 @@ function getServiceChainNode(fqName, resultJSON, scUVENode) {
         j++;
     }
 
-    var services = jsonPath(scUVENode, "$..services");
+    services = jsonPath(scUVENode, "$..services");
     services = services[0];
-    var svcCnt = services.length;
-    var nodeCnt = resultJSON['nodes'].length;
+
+    var svcCnt = services.length,
+        nodeCnt = resultJSON['nodes'].length;
 
     j = 0;
     resultJSON['links'][linkCnt] = {};
@@ -674,9 +616,9 @@ function getServiceChainNode(fqName, resultJSON, scUVENode) {
 }
 
 function updateVNNodeStatus(result, configVN, configSI, fqName) {
-    var nodes = result['nodes'];
-    var nodeCnt = nodes.length;
-    var found = false;
+    var nodes = result['nodes'],
+        nodeCnt = nodes.length,
+        found = false;
 
     for (var i = 0; i < nodeCnt; i++) {
         var node = result['nodes'][i]['name'];
@@ -692,8 +634,10 @@ function updateVNNodeStatus(result, configVN, configSI, fqName) {
             result['nodes'][i]['status'] = 'Active';
         }
     }
-    var links = result['links'];
-    var linkCnt = links.length;
+
+    var links = result['links'],
+        linkCnt = links.length;
+
     for (var i = 0; i < linkCnt; i++) {
         if ((false == isAllowedVN(fqName, links[i]['src'])) && (false == isAllowedVN(fqName, links[i]['dst']))) {
             result['links'].splice(i, 1);
@@ -713,7 +657,7 @@ function updateVNNodeStatus(result, configVN, configSI, fqName) {
 function createNWTopoVNNode(vnName, status) {
     var node = {};
     node['name'] = vnName;
-    node['more_attr'] = {};
+    node['more_attributes'] = {};
     node['node_type'] = global.STR_NODE_TYPE_VIRTUAL_NETWORK;
     node['status'] = status;
     return node;
@@ -725,7 +669,7 @@ function setAssociatedPolicys4Network(fqName, scResultJSON) {
     for (i = 0; i < nodes.length; i++) {
         node = nodes[i];
         if (node['name'] == fqName && node['node_type'] == global.STR_NODE_TYPE_VIRTUAL_NETWORK) {
-            attachedPolicies = node['more_attr']['attached_policies'];
+            attachedPolicies = node['more_attributes']['attached_policies'];
             for (var j = 0; attachedPolicies != null && j < attachedPolicies.length; j++) {
                 networkPolicys.push({"fq_name": (attachedPolicies[j]['vnp_name']).split(":")});
             }
@@ -843,16 +787,13 @@ function getNetworkConnectedGraph(req, res, appData) {
         dataObjArr = [], reqUrl;
 
     var cFilters = [
-        'UveVirtualNetworkAgent:out_bytes',
-        'UveVirtualNetworkAgent:in_bytes',
-        'UveVirtualNetworkAgent:out_tpkts',
-        'UveVirtualNetworkAgent:out_tpkts',
-        'UveVirtualNetworkAgent:in_tpkts',
         'UveVirtualNetworkAgent:in_stats',
+        'UveVirtualNetworkAgent:out_stats',
+        'UveVirtualNetworkAgent:in_bandwidth_usage',
+        'UveVirtualNetworkAgent:out_bandwidth_usage',
         'UveVirtualNetworkAgent:virtualmachine_list',
         'UveVirtualNetworkAgent:interface_list',
         'UveVirtualNetworkAgent:associated_fip_count',
-        'UveVirtualNetworkAgent:out_stats',
         'UveVirtualNetworkConfig'
     ];
 
@@ -878,9 +819,8 @@ function getNetworkConnectedGraph(req, res, appData) {
 };
 
 function processNetworkConnectedGraph(fqName, networkData, appData, callback) {
-    var resultJSON = [], vnFound = true;
-
-    var configVN = networkData[2]['virtual-networks'],
+    var resultJSON = [], vnFound = true,
+        configVN = networkData[2]['virtual-networks'],
         configSI = networkData[3]['service-instances'];
 
     try {
@@ -948,16 +888,13 @@ function getProjectConnectedGraph(req, res, appData) {
         dataObjArr = [], reqUrl;
 
     var cFilters = [
-        'UveVirtualNetworkAgent:out_bytes',
-        'UveVirtualNetworkAgent:in_bytes',
-        'UveVirtualNetworkAgent:out_tpkts',
-        'UveVirtualNetworkAgent:out_tpkts',
-        'UveVirtualNetworkAgent:in_tpkts',
         'UveVirtualNetworkAgent:in_stats',
+        'UveVirtualNetworkAgent:out_stats',
+        'UveVirtualNetworkAgent:in_bandwidth_usage',
+        'UveVirtualNetworkAgent:out_bandwidth_usage',
         'UveVirtualNetworkAgent:virtualmachine_list',
         'UveVirtualNetworkAgent:interface_list',
         'UveVirtualNetworkAgent:associated_fip_count',
-        'UveVirtualNetworkAgent:out_stats',
         'UveVirtualNetworkConfig'
     ];
 
@@ -982,10 +919,8 @@ function getProjectConnectedGraph(req, res, appData) {
 }
 
 function processProjectConnectedGraph(fqName, projectData, appData, callback) {
-    var resultJSON = [],
-        vnFound = true;
-
-    var configVN = projectData[2]['virtual-networks'],
+    var resultJSON = [], vnFound = true,
+        configVN = projectData[2]['virtual-networks'],
         configSI = projectData[3]['service-instances'];
 
     try {
@@ -997,16 +932,19 @@ function processProjectConnectedGraph(fqName, projectData, appData, callback) {
     } catch (e) {
         vnFound = false;
     }
+
     if (false == vnFound) {
         callback(null, resultJSON);
         return;
     }
 
     parseAndGetMissingVNsUVEs(fqName, vnUVE, function (err, vnUVE) {
-        var vnResultJSON = parseVirtualNetworkUVE(fqName, vnUVE);
-        var scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
+        var vnResultJSON = parseVirtualNetworkUVE(fqName, vnUVE),
+            scResultJSON = parseServiceChainUVE(fqName, vnResultJSON, scUVE);
+
         scResultJSON = updateVNStatsBySIData(scResultJSON, vnUVE);
         scResultJSON['config-data'] = {'virtual-networks': configVN, 'service-instances': configSI};
+
         updateVNNodeStatus(scResultJSON, configVN, configSI, fqName);
         callback(err, scResultJSON);
     });
@@ -1050,7 +988,11 @@ function processProjectConfigGraph(fqName, projectConfigData, appData, callback)
     });
 }
 
-exports.getNetworkConnectedGraph = getNetworkConnectedGraph;
-exports.getNetworkConfigGraph = getNetworkConfigGraph;
 exports.getProjectConnectedGraph = getProjectConnectedGraph;
 exports.getProjectConfigGraph = getProjectConfigGraph;
+
+exports.getNetworkConnectedGraph = getNetworkConnectedGraph;
+exports.getNetworkConfigGraph = getNetworkConfigGraph;
+
+exports.getInstanceConnectedGraph = getNetworkConnectedGraph;
+exports.getInstanceConfigGraph = getNetworkConfigGraph;

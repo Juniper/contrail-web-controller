@@ -68,7 +68,8 @@ define([
                                         tooltipConfigCB: getInstanceTooltipConfig,
                                         clickCB: onScatterChartClick,
                                         sizeFieldName: 'throughput',
-                                        margin: {left: 60}
+                                        margin: {left: 60},
+                                        noDataMessage: "No virtual machine available."
                                     }
                                 }
                             },
@@ -92,9 +93,11 @@ define([
 
     function onScatterChartClick (chartConfig) {
         var instanceUUID = chartConfig['name'],
-            networkFQN = chartConfig['vnFQN'];
+            networkFQN = chartConfig['vnFQN'],
+            vmName = chartConfig['vmName'];
+
         if (contrail.checkIfExist(networkFQN) && !ctwp.isServiceVN(networkFQN)) {
-            ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, true);
+            ctwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, vmName, true);
         }
     };
 

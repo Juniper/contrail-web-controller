@@ -64,7 +64,8 @@ define([
                                         },
                                         tooltipConfigCB: getNetworkTooltipConfig,
                                         clickCB: onScatterChartClick,
-                                        sizeFieldName: 'throughput'
+                                        sizeFieldName: 'throughput',
+                                        noDataMessage: "No virtual network available."
                                     }
                                 }
                             },

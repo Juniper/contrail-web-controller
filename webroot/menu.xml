@@ -443,7 +443,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Virtual Routers</searchStrings>
-                        </item>              
+                        </item>
             <!--
                         <item>
                             <label>Services</label>
@@ -502,9 +502,9 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Configure Interfaces</searchStrings>
-                        </item>   
+                        </item>
                     </items>
-                </item>                  
+                </item>
                 <item>
                     <label>Networking</label>
                     <access>
@@ -588,7 +588,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </orchModels>
                             </access>
                             <searchStrings>Routers</searchStrings>
-                        </item> 
+                        </item>
                         <item>
                             <label>IP Address Management</label>
                             <hash>config_net_ipam</hash>
@@ -698,7 +698,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
-              
+
                         <!--
                         <item>
                             <label>IPAM</label>

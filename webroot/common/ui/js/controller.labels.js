@@ -211,7 +211,7 @@ define([
         this.TITLE_PORT_MAP = "Port Map";
 
         this.X_AXIS_TITLE_PORT = "Port";
-        this.Y_AXIS_TITLE_BW = "Bandwidth";
+        this.Y_AXIS_TITLE_BW = "Bandwidth (Last 10 mins)";
 
         this.SOURCE_PORT = "Source Port";
         this.DESTINATION_PORT = "Destination Port";

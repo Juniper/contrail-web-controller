@@ -176,8 +176,14 @@
         <callback>nwMonApi.getVirtualNetworksSummary</callback>
     </item>
     <item>
-        <url>/api/tenant/networking/virtual-machine/summary</url>
+        <url>/api/tenant/networking/virtual-machine</url>
         <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualMachine</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-machines/summary</url>
+        <method>post</method>
         <feature>monitoring</feature>
         <callback>nwMonApi.getVirtualMachinesSummary</callback>
     </item>
@@ -257,18 +263,6 @@
         <callback>nwMonApi.getFlowSeriesByCPU</callback>
     </item>
     <item>
-        <url>/api/tenant/networking/virtual-machines</url>
-        <method>get</method>
-        <feature>monitoring</feature>
-        <callback>nwMonApi.getVMDetails</callback>
-    </item>
-    <item>
-        <url>/api/tenant/networking/virtual-machines/details</url>
-        <method>post</method>
-        <feature>monitoring</feature>
-        <callback>nwMonApi.getInstanceDetails</callback>
-    </item>
-    <item>
         <url>/api/tenant/networking/virtual-networks/details</url>
         <method>post</method>
         <feature>monitoring</feature>
@@ -282,7 +276,7 @@
     </item>
     <item>
         <url>/api/tenant/networking/virtual-machines/details</url>
-        <method>get</method>
+        <method>post</method>
         <feature>monitoring</feature>
         <callback>nwMonApi.getInstanceDetails</callback>
     </item>
