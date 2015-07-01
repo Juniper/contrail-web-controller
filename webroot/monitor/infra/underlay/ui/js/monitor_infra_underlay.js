@@ -1123,7 +1123,7 @@ underlayView.prototype.initTooltipConfig = function() {
                 for(var i=0; i<instances.length; i++) {
                     if(instances[i].name === instanceUUID) {
                         var attributes = ifNull(instances[i]['more_attributes'],{}),ipArr = [],vnArr = [];
-                        var interfaceList = tenantNetworkMonitorUtils.getDataBasedOnSource(ifNull(attributes['interface_list'],[]));
+                        var interfaceList = ctwu.getDataBasedOnSource(ifNull(attributes['interface_list'],[]));
                         lbl = "Name";
                         instanceName = attributes['vm_name'];
                         for(var j = 0; j < interfaceList.length; j++) {
@@ -1137,7 +1137,7 @@ underlayView.prototype.initTooltipConfig = function() {
                         if(ipArr.length > 0)
                             vmIp = ipArr.join();
                         if(vnArr.length > 0)
-                            vn = tenantNetworkMonitorUtils.formatVN(vnArr);
+                            vn = ctwu.formatVNName(vnArr);
                         break;
                     }
                 }
@@ -1594,7 +1594,7 @@ underlayView.prototype.initGraphEvents = function() {
                     var ip = [],vnList = [],intfLen = 0,vmName,srcVN = "",instDetails = {},inBytes = 0,outBytes = 0;
                     for(var i = 0; i < instances.length; i++) {
                         if(instances[i]['name'] == nodeDetails['name']) {
-                            var intfList = tenantNetworkMonitorUtils.getDataBasedOnSource(ifNull(instances[i]['more_attributes']['interface_list'],[]));
+                            var intfList = ctwu.getDataBasedOnSource(ifNull(instances[i]['more_attributes']['interface_list'],[]));
                             intfLen = intfList.length;
                             instDetails = instances[i];
                             vmName = instances[i]['more_attributes']['vm_name'];
@@ -2974,13 +2974,13 @@ underlayView.prototype.populateDetailsTab = function(data) {
                 var instanceUUID = getValueByJsonPath(data,'targetElement;attributes;nodeDetails;name','-');
                 var virtualNetwork = getValueByJsonPath(data,'targetElement;attributes;nodeDetails;more_attributes;interface_list;0;virtual_network','-');
                 _this.renderUnderlayTabs();
-                var tabConfig = ctwu.getInstanceTabViewConfig({
+                var tabConfig = ctwvc.getInstanceTabViewConfig({
                     networkFQN: virtualNetwork,
                     instanceUUID: instanceUUID,
                     tabsToDisplay: ['InstanceTrafficStatsView'],
                 });
                 var modelMap = {};
-                modelMap[ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID)] = ctwu.getInstanceTabViewModelConfig(instanceUUID);
+                modelMap[ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID)] = ctwvc.getInstanceTabViewModelConfig(instanceUUID);
                 cowu.renderView4Config($('#underlay_tabstrip'), null, tabConfig, null, null, modelMap);
                 _this.addCommonTabs('contrail-tabs');
             });

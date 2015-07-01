@@ -72,7 +72,7 @@ define([
             response = contrail.handleIfNull(response, {});
             var retArr = $.map(ifNull(response['value'],response), function (obj, idx) {
                 var item = {};
-                var props = STATS_PROP[type];
+                var props = ctwc.STATS_SELECT_FIELDS[type];
                 item['name'] = obj['name'];
                 item['inBytes'] = ifNull(obj[props['inBytes']],'-');
                 item['outBytes'] = ifNull(obj[props['outBytes']],'-');
@@ -174,7 +174,7 @@ define([
                 currObject['uuid'] = currObject['name'];
 
                 var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
-                currObject['vRouter'] = ifNull(tenantNetworkMonitorUtils.getDataBasedOnSource(vRouter), '-');
+                currObject['vRouter'] = ifNull(ctwu.getDataBasedOnSource(vRouter), '-');
                 currObject['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
                 currObject['vn'] = false;
                 currObject['ip'] = [];
@@ -226,7 +226,7 @@ define([
                     });
 
                     if(contrail.checkIfExist(interface['if_stats'])) {
-                        interface['if_stats']['throughput'] = interface['if_stats']['in_bw_usage'] + interface['if_stats']['out_bw_usage'];
+                        interface['throughput'] = interface['in_bw_usage'] + interface['out_bw_usage'];
                     }
 
                     interfaceMap[interface['name']] = interface;
@@ -426,7 +426,7 @@ define([
             response = contrail.handleIfNull(response, {});
             var retArr = $.map(ifNull(response['value'], []), function (obj, idx) {
                 var item = {};
-                var props = STATS_PROP[type];
+                var props = ctwc.STATS_SELECT_FIELDS[type];
                 item['name'] = obj['vm_uuid'];
                 item['inBytes'] = ifNull(obj[props['inBytes']], '-');
                 item['outBytes'] = ifNull(obj[props['outBytes']], '-');
@@ -438,7 +438,7 @@ define([
         this.parseInstanceInterfaceStats = function (response) {
             var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
                 var item = {};
-                var props = STATS_PROP['virtual-machine'];
+                var props = ctwc.STATS_SELECT_FIELDS['virtual-machine'];
                 item['name'] = obj['name'];
                 item['inBytes'] = ifNull(obj[props['inBytes']], '-');
                 item['outBytes'] = ifNull(obj[props['outBytes']], '-');

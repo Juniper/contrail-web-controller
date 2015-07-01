@@ -107,7 +107,7 @@ define([
                     if (!$(selectorId).find('.refresh i').hasClass('icon-repeat')) {
                         setTimeout(function(){
                             $(selectorId).find('.refresh i').removeClass('icon-spin icon-spinner').addClass('icon-repeat');
-                        }, 1000);
+                        }, 200);
                     }
                 }
             };
@@ -167,7 +167,7 @@ define([
                                 $(connectedSelectorId).panzoom('reset');
                                 $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
                                 $(self).removeClass('refreshing');
-                            }, 1000);
+                            }, 200);
                         }
                     }
                 },
@@ -189,14 +189,14 @@ define([
                                     //Hack to set width for Webkit browser
                                     var width = $(connectedSelectorId + ' svg').attr('width');
                                     $(connectedSelectorId + ' svg').attr('width', width);
-                                }, 1500)
+                                }, 200)
                             } else if ($(self).find('i').hasClass('icon-align-center')) {
                                 $(self).find('i').removeClass('icon-align-center').toggleClass('icon-spin icon-spinner');
                                 setTimeout(function() {
                                     connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_TB);
                                     var width = $(connectedSelectorId + ' svg').attr('width');
                                     $(connectedSelectorId + ' svg').attr('width', width);
-                                }, 1500);
+                                }, 200);
                             }
                         }
                     }

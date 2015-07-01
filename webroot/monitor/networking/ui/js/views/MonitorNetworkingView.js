@@ -226,7 +226,7 @@ define([
 
     function getFlowConfig(config) {
         var hashParams = config['hashParams'],
-            url = constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol:['tcp','icmp','udp']}));
+            url = ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol:['tcp','icmp','udp']}));
 
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_FLOW_LIST_ID]),

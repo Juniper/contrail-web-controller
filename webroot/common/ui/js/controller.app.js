@@ -2,7 +2,7 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp;
+var ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc;
 
 require.config({
     baseUrl: '/',
@@ -14,6 +14,7 @@ require.config({
         'controller-utils': 'common/ui/js/controller.utils',
         'controller-messages': 'common/ui/js/controller.messages',
         'controller-parsers': 'common/ui/js/controller.parsers',
+        'controller-view-config': 'common/ui/js/controller.view.config',
         'controller-init': 'common/ui/js/controller.init'
     },
     waitSeconds: 0

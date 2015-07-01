@@ -16,7 +16,7 @@ define([
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: networkPopulateFns.getProjectsURL(ctwc.DEFAULT_DOMAIN),
+                        url: ctwc.getProjectsURL(ctwc.DEFAULT_DOMAIN),
                         type: 'GET'
                     },
                     hlRemoteConfig: ctwgc.getProjectDetailsHLazyRemoteConfig(),

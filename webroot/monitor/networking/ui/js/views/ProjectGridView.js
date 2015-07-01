@@ -15,7 +15,7 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
 
             var projectsRemoteConfig = {
-                url: networkPopulateFns.getProjectsURL(ctwc.DEFAULT_DOMAIN),
+                url: ctwc.getProjectsURL(ctwc.DEFAULT_DOMAIN),
                 type: 'GET'
             };
 

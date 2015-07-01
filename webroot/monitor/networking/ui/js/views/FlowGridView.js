@@ -14,7 +14,7 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
 
             var flowRemoteConfig = {
-                url:constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol:['tcp','icmp','udp']})),
+                url: ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol:['tcp','icmp','udp']})),
                 type: 'GET'
             };
             cowu.renderView4Config(that.$el, this.model, getFlowListViewConfig(flowRemoteConfig, pagerOptions));

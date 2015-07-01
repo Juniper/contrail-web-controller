@@ -5,19 +5,21 @@
 define([
     'underscore',
     'controller-constants',
-    'controller-grid-config',
-    'controller-graph-config',
     'controller-labels',
     'controller-utils',
     'controller-messages',
-    'controller-parsers'
-], function (_, Constants, GridConfig, GraphConfig, Labels, Utils, Messages, Parsers) {
+    'controller-grid-config',
+    'controller-graph-config',
+    'controller-parsers',
+    'controller-view-config'
+], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig) {
     ctwc = new Constants();
     ctwl = new Labels();
+    ctwu = new Utils;
     ctwm = new Messages();
     ctwgc = new GridConfig();
     ctwgrc = new GraphConfig();
     ctwp = new Parsers();
-    ctwu = new Utils;
+    ctwvc = new ViewConfig();
     ctInitComplete = true;
 });

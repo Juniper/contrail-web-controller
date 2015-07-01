@@ -2,24 +2,11 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var topoCache = require('../../monitor/tenant-network/jobs/topoCache.api')
-    , bgpNode = require('../../monitor/infra/controlnode/jobs/controlnode.jobs.api')
-    , computeNode = require('../../monitor/infra/vrouter/jobs/vrouternode.jobs.api')
-    , nwMonJobsApi = require('../../monitor/tenant-network/jobs/network.mon.jobs')
-    , tpoCache     = require('../../monitor/tenant-network/jobs/tpoCache.api')
-    ;
+var bgpNode = require('../../monitor/infra/controlnode/jobs/controlnode.jobs.api'),
+    computeNode = require('../../monitor/infra/vrouter/jobs/vrouternode.jobs.api'),
+    nwMonJobsApi = require('../../monitor/networking/ui/jobs/network.mon.jobs');
 
 var jobsProcess = module.exports;
-
-jobsProcess.processTreeTopoCacheRequestByJob = function (pubChannel, saveChannelKey, jobData, done) {
-    topoCache.processTreeTopoCache(pubChannel, saveChannelKey, jobData, done);
-}
-
-jobsProcess.processNetworkTopologyRequestByJob = function (pubChannel, 
-                                                           saveChannelKey, 
-                                                           jobData, done) {
-    tpoCache.processTreeTopoCache(pubChannel, saveChannelKey, jobData, done);
-}
 
 jobsProcess.processControlNodeRequestByJob = function (pubChannel, saveChannelKey, jobData, done) {
     bgpNode.processNodes(pubChannel, saveChannelKey, jobData, done);

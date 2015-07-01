@@ -10,6 +10,12 @@
         <define>netGraphApi</define>
         <path>./networking.graph.api.js</path>
     </require>
+    <require>
+        <define>nwMonApi</define>
+        <path>./network.mon.api</path>
+    </require>
+
+    <!-- Start Networking Graph APIs -->
     <item>
         <url>/api/tenant/monitoring/project-connected-graph</url>
         <method>get</method>
@@ -46,5 +52,180 @@
         <feature>monitoring</feature>
         <callback>netGraphApi.getInstanceConfigGraph</callback>
     </item>
+
+    <!-- End Networking Graph APIs -->
+
+    <!-- Start Config Server APIs -->
+    <item>
+        <url>/api/tenants/projects/:domain</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getProjects</callback>
+    </item>
+    <item>
+        <url>/api/tenants/networks/:fqname</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVNetworks</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/domain/summary</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getNetworkDomainSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/network/details</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getNetworkDetails</callback>
+    </item>
+
+    <!-- End Config Server APIs -->
+
+    <!-- Start Monitor Networking APIs -->
+    <item>
+        <url>/api/tenant/networking/project/summary</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getProjectSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/domain/stats/top</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getTopNetworkDetailsByDomain</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/flow-series/vn</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getFlowSeriesByVN</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/network/stats/top</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getNetworkStats</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/vn/summary</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVNStatsSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-network/summary</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworksSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-machine</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualMachine</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-machines/summary</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualMachinesSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-machine-interfaces/summary</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualInterfacesSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/vm/stats/top</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getTopNwDetailsByVM</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/flow-series/vm</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getFlowSeriesByVM</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/vm/stats/summary</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVMStatsSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/network/connected/stats/summary</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getNetworkStatsSummary</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/network/connected/stats/top</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getConnectedNWsStatsByType</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-networks/details</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworksDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-networks/list</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualNetworksList</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/virtual-machines/details</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInstanceDetails</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/stats</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getStats</callback>
+    </item>
+    <!-- End Monitor Networking APIs -->
+
+    <!-- Note: This api is used only on Monitor Infrastructure page. It can be moved there. -->
+    <item>
+        <url>/api/tenant/networking/flow-series/cpu</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getFlowSeriesByCPU</callback>
+    </item>
+    <!-- End Note -->
+
+    <!-- Note: APIs not in use -->
+    <item>
+        <url>/api/tenant/networking/project/stats/top</url>
+        <method>get</method>
+        <timeout>300</timeout>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getTopNetworkDetailsByProject</callback>
+    </item>
+    <item>
+        <url>/api/tenant/networking/config/virtual-machines-details</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getVirtualMachinesFromConfig</callback>
+    </item>
+    <!-- End Note -->
 </urlLists>
 

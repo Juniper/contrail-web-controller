@@ -15,8 +15,8 @@ define([
                 instanceUUID = viewConfig.instanceUUID,
                 modelMap = contrail.handleIfNull(this.modelMap, {}),
                 modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
-            modelMap[modelKey] = ctwu.getInstanceTabViewModelConfig(instanceUUID);
-            cowu.renderView4Config(self.$el, null, ctwu.getInstanceTabViewConfig(viewConfig), null, null, modelMap);
+            modelMap[modelKey] = ctwvc.getInstanceTabViewModelConfig(instanceUUID);
+            cowu.renderView4Config(self.$el, null, ctwvc.getInstanceTabViewConfig(viewConfig), null, null, modelMap);
         }
     });
     

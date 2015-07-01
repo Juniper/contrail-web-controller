@@ -76,7 +76,32 @@ define([
                                                             url: ctwc.get(ctwc.URL_PORT_DISTRIBUTION, projectFQN),
                                                             type: 'GET'
                                                         },
-                                                        dataParser: ctwp.projectVNPortStatsParser
+                                                        dataParser: function (response) {
+                                                            var srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
+                                                                    startTime: response['startTime'],
+                                                                    endTime: response['endTime'],
+                                                                    bandwidthField: 'outBytes',
+                                                                    flowCntField: 'outFlowCount',
+                                                                    portField: 'sport',
+                                                                    portYype: "src",
+                                                                    fqName: projectFQN
+                                                                }) : [],
+                                                                dstPortData = response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
+                                                                    startTime: response['startTime'],
+                                                                    endTime: response['endTime'],
+                                                                    bandwidthField: 'inBytes',
+                                                                    flowCntField: 'inFlowCount',
+                                                                    portField: 'dport',
+                                                                    portYype: "src",
+                                                                    fqName: projectFQN
+                                                                }) : [],
+                                                                chartData = [];
+
+                                                            chartData = chartData.concat(srcPortdata);
+                                                            chartData = chartData.concat(dstPortData);
+
+                                                            return chartData;
+                                                        }
                                                     },
                                                     cacheConfig: {
                                                         ucid: ctwc.get(ctwc.UCID_PROJECT_VN_PORT_STATS_LIST, projectFQN)
@@ -86,34 +111,17 @@ define([
                                                     xLabel: ctwl.X_AXIS_TITLE_PORT,
                                                     yLabel: ctwl.Y_AXIS_TITLE_BW,
                                                     forceX: [0, 1000],
-                                                    dataParser: function (responseArray) {
-                                                        var response = responseArray[0],
-                                                            srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
-                                                                startTime: response['startTime'],
-                                                                endTime: response['endTime'],
-                                                                bandwidthField: 'outBytes',
-                                                                flowCntField: 'outFlowCount',
-                                                                portField: 'sport',
-                                                                portYype: "src",
-                                                                fqName: projectFQN
-                                                            }) : [],
-                                                            dstPortData = response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
-                                                                startTime: response['startTime'],
-                                                                endTime: response['endTime'],
-                                                                bandwidthField: 'inBytes',
-                                                                flowCntField: 'inFlowCount',
-                                                                portField: 'dport',
-                                                                portYype: "src",
-                                                                fqName: projectFQN
-                                                            }) : [],
-                                                            chartData = [];
-
-                                                        chartData = chartData.concat(srcPortdata);
-                                                        chartData = chartData.concat(dstPortData);
-
-                                                        return chartData;
-                                                    },
                                                     tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                                    controlPanelConfig: {
+                                                        filter: {
+                                                            enable: true,
+                                                            viewConfig: getControlPanelFilterConfig()
+                                                        },
+                                                        legend: {
+                                                            enable: true,
+                                                            viewConfig: getControlPanelLegendConfig()
+                                                        }
+                                                    },
                                                     clickCB: onScatterChartClick,
                                                     sizeFieldName: 'flowCnt',
                                                     xLabelFormat: d3.format(','),
@@ -134,6 +142,70 @@ define([
                 ]
             }
         }
+    };
+
+    function getControlPanelFilterConfig() {
+        return {
+            groups: [
+                {
+                    id: 'by-node-color',
+                    title: false,
+                    type: 'checkbox-circle',
+                    items: [
+                        {
+                            text: 'Source Port',
+                            labelCssClass: 'default',
+                            filterFn: function(d) { return d.type === 'sport'; }
+                        },
+                        {
+                            text: 'Destination Port',
+                            labelCssClass: 'medium',
+                            filterFn: function(d) { return d.type === 'dport'; }
+                        }
+                    ]
+                }
+            ]
+        };
+    };
+
+    function getControlPanelLegendConfig() {
+        return {
+            groups: [
+                {
+                    id: 'by-node-color',
+                    title: 'Port Type',
+                    items: [
+                        {
+                            text: 'Source Port',
+                            labelCssClass: 'icon-circle default',
+                            events: {
+                                click: function (event) {}
+                            }
+                        },
+                        {
+                            text: 'Destination Port',
+                            labelCssClass: 'icon-circle medium',
+                            events: {
+                                click: function (event) {}
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 'by-node-size',
+                    title: 'Port Size',
+                    items: [
+                        {
+                            text: 'Flow Count',
+                            labelCssClass: 'icon-circle',
+                            events: {
+                                click: function (event) {}
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
     };
 
     var onScatterChartClick = function(chartConfig) {

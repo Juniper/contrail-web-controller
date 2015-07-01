@@ -120,14 +120,271 @@ define([
         this.GRAPH_ELEMENT_CONNECTED_NETWORK = 'connected-network';
         this.GRAPH_ELEMENT_NETWORK_POLICY = 'network-policy';
 
+        this.TOP_IN_LAST_MINS = 10;
+        this.NUM_DATA_POINTS_FOR_FLOW_SERIES = 120;
+
+        this.getProjectsURL = function (domain) {
+            //If the role is admin then we will display all the projects else the projects which has access
+            var url = '/api/tenants/projects/' + domain,
+                role = globalObj['webServerInfo']['role'],
+                activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode'];
+
+            if (activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1) {
+                url = '/api/tenants/config/projects';
+            }
+            return url;
+        };
+
+        this.constructReqURL = function (urlConfig) {
+            var url = "", length = 0,
+                context;
+
+            if (urlConfig['fqName'] != null)
+                length = urlConfig['fqName'].split(':').length;
+            else
+                urlConfig['fqName'] = "*";
+
+            context = urlConfig['context'];
+
+            //Decide context based on fqName length
+            if ((context == null) && (length > 0)) {
+                var contextMap = ['domain', 'project'];
+                context = contextMap[length - 1];
+            }
+
+            //Pickup the correct URL in this if loop
+            if (context == 'domain') {
+                url = "/api/tenant/networking/domain/stats/top"
+                if (urlConfig['type'] == 'summary')
+                    url = "/api/tenant/networking/domain/summary"
+            } else if (context == 'project') {
+                url = "/api/tenant/networking/network/stats/top"
+                if (urlConfig['type'] == 'summary')
+                    url = "/api/tenant/networking/project/summary"
+                else if (urlConfig['type'] == 'portRangeDetail')
+                    url = "/api/admin/reports/query";
+            } else if (context == 'network') {
+                url = "/api/tenant/networking/network/stats/top"
+                if (urlConfig['type'] == 'portRangeDetail')
+                    url = "/api/admin/reports/query";
+                var urlMap = {
+                    summary: '/api/tenant/networking/vn/summary',
+                    flowseries: '/api/tenant/networking/flow-series/vn',
+                    details: '/api/tenant/networking/network/details'
+                }
+                if (ifNull(urlConfig['widget'], urlConfig['type']) in urlMap)
+                    url = urlMap[ifNull(urlConfig['widget'], urlConfig['type'])];
+            } else if (context == 'connected-nw') {
+                url = "/api/tenant/networking/network/connected/stats/top"
+                var urlMap = {
+                    flowseries: '/api/tenant/networking/flow-series/vn',
+                    summary: '/api/tenant/networking/network/connected/stats/summary'
+                }
+                if (ifNull(urlConfig['widget'], urlConfig['type']) in urlMap)
+                    url = urlMap[ifNull(urlConfig['widget'], urlConfig['type'])];
+            } else if (context == 'instance') { //Instance
+                url = "/api/tenant/networking/vm/stats/top"
+                var urlMap = {
+                    flowseries: '/api/tenant/networking/flow-series/vm',
+                    summary: '/api/tenant/networking/vm/stats/summary'
+                }
+                if (ifNull(urlConfig['widget'], urlConfig['type']) in urlMap)
+                    url = urlMap[ifNull(urlConfig['widget'], urlConfig['type'])];
+            }
+            //End - pick the correct URL
+            if ((urlConfig['type'] == 'instance') && (urlConfig['context'] != 'instance')) {
+                url = "/api/tenant/networking/virtual-machines"
+            }
+            //If need statistics from the beginning
+            if (urlConfig['source'] == 'uve') {
+                if ($.inArray(urlConfig['type'], ['project', 'network']) > -1)
+                    url = '/api/tenant/networking/virtual-network/summary'
+            }
+            var reqParams = {};
+            //No time range required as summary stats are from the beginning
+            if (urlConfig['type'] != 'summary') {
+                //Retrieve only top 5 if it's not the entire list
+                //Exclude list where limit is not applicable
+                if ($.inArray(urlConfig['view'], ['list', 'flowseries']) == -1) {
+                    if (urlConfig['widget'] != 'flowseries')
+                        urlConfig['limit'] = ifNull(urlConfig['limit'], 5);
+                }
+                //Time-related queries
+                if (urlConfig['fromUTC'] != null) {
+                } else if (urlConfig['time'] == null) {
+                    urlConfig['time'] = '10m';
+                }
+                if (urlConfig['time'] != null) {
+                    var startEndUTC = getFromToUTC(urlConfig['time']);
+                    delete urlConfig['time'];
+                    urlConfig['fromUTC'] = startEndUTC[0];
+                    urlConfig['toUTC'] = startEndUTC[1];
+                }
+                $.extend(reqParams, {minsSince: ctwc.TOP_IN_LAST_MINS});
+            }
+            if (urlConfig['limit'] != null)
+                $.extend(reqParams, {limit: urlConfig['limit']});
+            else
+                $.extend(reqParams, {limit: 100});    //Hack
+            //Rename fqName variable as per NodeJS API requirement
+            if (urlConfig['fqName'] != null) {
+                //For flow-series,need to pass fqName as srcVN
+                if (context == 'connected-nw') {
+                    $.extend(reqParams, {'srcVN': urlConfig['srcVN'], 'destVN': urlConfig['fqName']});
+                } else if (urlConfig['widget'] == 'flowseries') {
+                    if (context == 'instance') {
+                        $.extend(reqParams, {
+                            'fqName': ifNull(urlConfig['vnName'], urlConfig['fqName']),
+                            'ip': urlConfig['ip']
+                        });
+                    } else
+                        $.extend(reqParams, {'fqName': urlConfig['fqName']});        //change queryParameter to fqName
+                } else if (urlConfig['type'] == 'details') {
+                    if (context == 'network')
+                        $.extend(reqParams, {'uuid': urlConfig['uuid']});
+                } else if (context == 'instance') {
+                    $.extend(reqParams, {'fqName': urlConfig['vnName'], 'ip': urlConfig['ip']});
+                } else
+                    $.extend(reqParams, {'fqName': urlConfig['fqName']});
+            }
+
+            //If port argument is present,just copy it..arguments that need to be copied to reqParams as it is
+            $.each(['port', 'protocol', 'vmName', 'vmVnName', 'useServerTime'], function (idx, field) {
+                if (urlConfig[field] != null) {
+                    //$.extend(reqParams,{port:obj[field]});
+                    reqParams[field] = urlConfig[field];
+                }
+            });
+            if (urlConfig['type'] == 'portRangeDetail') {
+                var fqName = urlConfig['fqName'], protocolCode;
+                reqParams['timeRange'] = 600;
+                reqParams['table'] = 'FlowSeriesTable';
+                if (urlConfig['startTime'] != null) {
+                    reqParams['fromTimeUTC'] = urlConfig['startTime'];
+                    reqParams['toTimeUTC'] = urlConfig['endTime'];
+                } else {
+                    reqParams['fromTimeUTC'] = new XDate().addMinutes(-10).getTime();
+                    reqParams['toTimeUTC'] = new XDate().getTime();
+                }
+                var protocolMap = {tcp: 6, icmp: 1, udp: 17};
+                var protocolCode = [];
+                $.each(urlConfig['protocol'], function (idx, value) {
+                    protocolCode.push(protocolMap[value]);
+                });
+                if (fqName.split(':').length == 2) {
+                    fqName += ':*';//modified the fqName as per the flow series queries
+                }
+                var portType = urlConfig['portType'] == 'src' ? 'sport' : 'dport';
+                var whereArr = [];
+                $.each(protocolCode, function (idx, currProtocol) {
+                    whereArr.push(contrail.format("({3}={0} AND sourcevn={1} AND protocol={2})", urlConfig['port'], fqName, currProtocol, portType));
+                });
+                reqParams['select'] = "sourcevn, destvn, sourceip, destip, protocol, sport, dport, sum(bytes), sum(packets),flow_count";
+                reqParams['where'] = whereArr.join(' OR ');
+                delete reqParams['fqName'];
+                delete reqParams['protocol'];
+            }
+            //Strip-off type if not required
+            if (urlConfig['type'] != null && ($.inArray(urlConfig['type'], ['summary', 'flowdetail', 'portRangeDetail']) == -1) &&
+                ($.inArray(urlConfig['widget'], ['flowseries']) == -1))
+                $.extend(reqParams, {type: urlConfig['type']});
+
+            //Add extra parameters for flowseries
+            if (urlConfig['widget'] == 'flowseries') {
+                $.extend(reqParams, {'sampleCnt': ctwc.NUM_DATA_POINTS_FOR_FLOW_SERIES});
+                //If useServerTime flag is true then the webserver timeStamps will be send in startTime and endTime to query engine
+                $.extend(reqParams, {'minsSince': 60, 'useServerTime': true, 'fip': urlConfig['fip']});
+            }
+            //Don't append startTime/endTime if minsSince is provided as need to use realtive times
+            /*Always send the startTime and endTime instead of minsSince
+             if(reqParams['minsSince'] != null) {
+             reqParams['endTime'] = new Date().getTime();
+             reqParams['startTime'] = new Date(new XDate().addMinutes(-reqParams['minsSince'])).getTime();
+             //delete reqParams['minsSince'];
+             }*/
+
+            //Strip-off limit & minsSince if not required
+            if (((urlConfig['type'] == 'instance') && (urlConfig['context'] != 'instance')) || (urlConfig['source'] == 'uve') || urlConfig['type'] == 'portRangeDetail') {
+                delete reqParams['limit'];
+                delete reqParams['minsSince'];
+                delete reqParams['endTime'];
+                delete reqParams['startTime'];
+            }
+            if (urlConfig['source'] == 'uve') {
+                if (urlConfig['type'] != 'instance') {
+                    delete reqParams['fqName'];
+                    if (urlConfig['fqName'] == '' || urlConfig['fqName'] == '*')
+                        reqParams['fqNameRegExp'] = '*';
+                    else
+                        reqParams['fqNameRegExp'] = '*' + urlConfig['fqName'] + ':*';
+                } else {
+                    reqParams['fqName'] = '';
+                }
+            }
+
+            if ((urlConfig['portType'] != null) && (urlConfig['port'].toString().indexOf('-') > -1)) {
+                //As NodeJS API expects same URL for project & network and only fqName will be different
+                if (url.indexOf('/top') > -1) {
+                    url = '/api/tenant/networking/network/stats/top';
+                    reqParams['portRange'] = urlConfig['port'];
+                    if (urlConfig['startTime'] != null)
+                        reqParams['startTime'] = urlConfig['startTime'];
+                    if (urlConfig['endTime'] != null)
+                        reqParams['endTime'] = urlConfig['endTime'];
+                    delete reqParams['port'];
+                }
+            }
+            //reqParams['limit'] = 100;
+            delete reqParams['limit'];
+
+            return url + '?' + $.param(reqParams);
+        };
+
+        this.STATS_SELECT_FIELDS = {
+            'virtual-network': {
+                'inBytes': 'SUM(vn_stats.in_bytes)',
+                'outBytes': 'SUM(vn_stats.out_bytes)',
+                'inPkts': 'SUM(vn_stats.in_pkts)',
+                'outPkts': 'SUM(vn_stats.out_pkts)'
+            },
+            'virtual-machine': {
+                'inBytes': 'SUM(if_stats.in_bytes)',
+                'outBytes': 'SUM(if_stats.out_bytes)',
+                'inPkts': 'SUM(if_stats.in_pkts)',
+                'outPkts': 'SUM(if_stats.out_pkts)'
+            },
+            'fip': {
+                'inBytes': 'SUM(fip_stats.in_bytes)',
+                'outBytes': 'SUM(fip_stats.out_bytes)',
+                'inPkts': 'SUM(fip_stats.in_pkts)',
+                'outPkts': 'SUM(fip_stats.out_pkts)'
+            },
+        };
+
         this.CONFIGURE_NETWORK_LINK_CONFIG = {
             text: 'Go to configure network page',
             href: '/#p=config_net_vn'
-        }
-
+        };
 
         //Alarm constants
         this.URL_ALARM_DETAILS_IN_CHUNKS = '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
     };
+
+    //str will be [0-9]+(m|h|s|d)
+    //Returns an array of current time and end time such that the difference beween them will be given str
+    function getFromToUTC(str) {
+        var startDt = new XDate(true),
+            endDt = new XDate(true),
+            fnMap = {d: 'addDays', m: 'addMinutes', s: 'addSeconds', h: 'addHours'},
+            unit = str.charAt(str.length - 1), value = parseInt(str);
+
+        //If unit is not specified,take it as secs
+        if ($.inArray(unit, ['d', 'm', 's', 'h']) == -1)
+            unit = 's';
+
+        endDt[fnMap[unit]](value);
+        return [startDt.getTime(), endDt.getTime()];
+    };
+
     return CTConstants;
 });

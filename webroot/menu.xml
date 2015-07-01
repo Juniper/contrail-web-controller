@@ -9,428 +9,418 @@ If any role/orchModel tag is with negation(!) value then every one has access to
 and need to add the iconClass tag wherever we need to show some icons
  -->
 <menu>
-  <items>
-    <item>
-      <label>Monitor</label>
-      <name>monitor</name>
-      <resources>
-           <resource>
-             <rootDir>/common/ui</rootDir>
-             <js>controller.app.js</js>
-             <view>controller_common.view</view>
-           </resource>
-      </resources>
-      <iconClass>icon-bar-chart</iconClass>
-      <items>
+    <items>
         <item>
-          <label>Infrastructure</label>
-          <resources>
-            <resource>
-              <rootDir>/monitor/infra/common/ui</rootDir>
-              <js>monitor_infra_constants.js</js>
-              <js>monitor_infra_utils.js</js>
-              <view>monitor_infra_common.view</view>
-            </resource>
-          </resources>
-          <iconClass>icon-desktop</iconClass>
-          <access>
-            <roles>
-              <role>superAdmin</role>
-            </roles>
-            <orchModels>
-              <model>openstack</model>
-              <model>cloudstack</model>
-              <model>vcenter</model>
-            </orchModels>
-            <accessFn>hideInFederatedvCenter</accessFn>
-          </access>
-          <items>
-            <item>
-              <hash>mon_infra_dashboard</hash>
-              <label>Dashboard</label>
-              <resources>
+            <label>Monitor</label>
+            <name>monitor</name>
+            <resources>
                 <resource>
-                  <rootDir>/monitor/infra/dashboard/ui</rootDir>
-                  <view>monitor_infra_dashboard.view</view>
-                  <js>monitor_infra_dashboard.js</js>
-                  <class>infraMonitorDashboardView</class>
+                    <rootDir>/common/ui</rootDir>
+                    <js>controller.app.js</js>
+                    <view>controller_common.view</view>
                 </resource>
-              </resources>
-              <queryParams>
-                <tab>vRouters</tab>
-              </queryParams>
-              <searchStrings>Infrastructure Dashboard</searchStrings>
-            </item>
-            <item>
-              <hash>mon_infra_mx</hash>
-              <label>MX Visualisation</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/mx/ui</rootDir>
-                  <view>monitor_infra_mx.view</view>
-                  <js>monitor_infra_mx.js</js>
-                  <class>mxRenderer</class>
-                </resource>
-              </resources>
-            </item>
-            <item>
-              <hash>mon_infra_underlay</hash>
-              <label>Physical Topology</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/underlay/ui</rootDir>
-                  <view>monitor_infra_underlay.view</view>
-                  <view>flow_queries.view</view>
-                  <view>queries.view</view>
-                  <js>monitor_infra_underlay.js</js>
-                  <js>flow_queries.js</js>
-                  <class>underlayRenderer</class>
-                </resource>
-                <resource>
-                  <rootDir>/monitor/infra/vrouter/ui</rootDir>
-                  <view>monitor_infra_vrouter.view</view>
-                  <js>monitor_infra_vrouter.js</js>
-                  <js>monitor_infra_vrouter_flows.js</js>
-                  <js>monitor_infra_vrouter_details.js</js>
-                  <js>monitor_infra_vrouter_interfaces.js</js>
-                  <js>monitor_infra_vrouter_networks.js</js>
-                  <js>monitor_infra_vrouter_acl.js</js>
-                  <js>monitor_infra_vrouter_flows.js</js>
-                  <js>monitor_infra_vrouter_routes.js</js>
-                </resource>
-                <resource>
-                  <rootDir>/monitor/tenant-network/common/ui</rootDir>
-                  <js>tenant_monitor_utils.js</js>
-                </resource>
-              </resources>
-            </item>
-            <item>
-              <hash>mon_infra_control</hash>
-              <label>Control Nodes</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/controlnode/ui</rootDir>
-                  <view>monitor_infra_controlnode.view</view>
-                  <js>monitor_infra_controlnode.js</js>
-                  <js>monitor_infra_controlnode_summary.js</js>
-                  <js>monitor_infra_controlnode_details.js</js>
-                  <js>monitor_infra_controlnode_peers.js</js>
-                  <js>monitor_infra_controlnode_routes.js</js>
-                  <class>ctrlNodesView</class>
-                </resource>
-              </resources>
-              <searchStrings>Monitor Control Nodes</searchStrings>
-            </item>
-            <item>
-              <hash>mon_infra_vrouter</hash>
-              <label>Virtual Routers</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/vrouter/ui</rootDir>
-                  <view>monitor_infra_vrouter.view</view>
-                  <js>monitor_infra_vrouter.js</js>
-                  <js>monitor_infra_vrouter_summary.js</js>
-                  <js>monitor_infra_vrouter_details.js</js>
-                  <js>monitor_infra_vrouter_interfaces.js</js>
-                  <js>monitor_infra_vrouter_networks.js</js>
-                  <js>monitor_infra_vrouter_acl.js</js>
-                  <js>monitor_infra_vrouter_flows.js</js>
-                  <js>monitor_infra_vrouter_routes.js</js>
-                  <class>cmpNodesView</class>
-                </resource>
-              </resources>
-              <searchStrings>Monitor Compute Nodes</searchStrings>
-            </item>
-            <item>
-              <hash>mon_infra_analytics</hash>
-              <label>Analytics Nodes</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/analyticsnode/ui</rootDir>
-                  <view>monitor_infra_analyticnode.view</view>
-                  <js>monitor_infra_analyticnode.js</js>
-                  <js>monitor_infra_analyticsnode_summary.js</js>
-                  <js>monitor_infra_analyticsnode_details.js</js>
-                  <js>monitor_infra_analyticsnode_generators.js</js>
-                  <js>monitor_infra_analyticsnode_qequeries.js</js>
-                  <class>aNodesView</class>
-                </resource>
-              </resources>
-              <searchStrings>Monitor Analytics Nodes</searchStrings>
-            </item>
-            <item>
-              <hash>mon_infra_config</hash>
-              <label>Config Nodes</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/confignode/ui</rootDir>
-                  <view>monitor_infra_confignode.view</view>
-                  <js>monitor_infra_confignode.js</js>
-                  <js>monitor_infra_confignode_summary.js</js>
-                  <js>monitor_infra_confignode_details.js</js>
-                  <class>confNodesView</class>
-                </resource>
-              </resources>
-              <searchStrings>Monitor Config Nodes</searchStrings>
-            </item>
-            <item>
-              <hash>mon_infra_database</hash>
-              <label>Database Nodes</label>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/infra/dbnode/ui</rootDir>
-                  <view>monitor_infra_dbnode.view</view>
-                  <js>monitor_infra_dbnode.js</js>
-                  <js>monitor_infra_dbnode_summary.js</js>
-                  <js>monitor_infra_dbnode_details.js</js>
-                  <class>databaseNodesView</class>
-                </resource>
-              </resources>
-              <searchStrings>Monitor Database Nodes</searchStrings>
-            </item>
-          </items>
-        </item>
-        <item>
-          <label>Networking</label>
-          <iconClass>icon-sitemap</iconClass>
-          <resources>
-              <resource>
-                  <rootDir>/common/ui</rootDir>
-                  <js>controller.app.js</js>
-                  <class>mnPageLoader</class>
-              </resource>
-              <resource>
-                  <rootDir>/monitor/tenant-network/common/ui</rootDir>
-                  <js>tenant_monitor_topology.js</js>
-                  <js>tenant_monitor_utils.js</js>
-                  <class>mnPageLoader</class>
-              </resource>
-              <resource>
-                  <rootDir>/monitor/networking/ui</rootDir>
-                  <js>networking.main.js</js>
-                  <template>networking.tmpl</template>
-                  <class>mnPageLoader</class>
-              </resource>
-          </resources>
-          <items>
-              <item>
-                  <hash>mon_networking_dashboard</hash>
-                  <label>Dashboard</label>
-                  <resources>
-                      <resource>
-                          <rootDir>/monitor/networking/ui</rootDir>
-                          <class>mnPageLoader</class>
-                          <function>renderProjects</function>
-                      </resource>
-                  </resources>
-                  <queryParams>
-                      <view>details</view>
-                      <type>project</type>
-                      <source>uve</source>
-                  </queryParams>
-                  <searchStrings>Networking Dashboard</searchStrings>
-              </item>
-              <item>
-                  <hash>mon_networking_projects</hash>
-                  <label>Projects</label>
-                  <resources>
-                      <resource>
-                          <rootDir>/monitor/networking/ui</rootDir>
-                          <class>mnPageLoader</class>
-                          <function>renderProjects</function>
-                      </resource>
-                  </resources>
-                  <queryParams>
-                      <view>list</view>
-                      <type>project</type>
-                      <source>uve</source>
-                  </queryParams>
-                  <searchStrings>Monitor Projects</searchStrings>
-              </item>
-              <item>
-                  <hash>mon_networking_networks</hash>
-                  <label>Networks</label>
-                  <resources>
-                      <resource>
-                          <rootDir>/monitor/networking/ui</rootDir>
-                          <class>mnPageLoader</class>
-                          <function>renderNetworks</function>
-                      </resource>
-                  </resources>
-                  <queryParams>
-                      <view>list</view>
-                      <type>network</type>
-                      <source>uve</source>
-                  </queryParams>
-                  <searchStrings>Monitor Networks</searchStrings>
-              </item>
-              <item>
-                  <label>Instances</label>
-                  <hash>mon_networking_instances</hash>
-                  <resources>
-                      <resource>
-                          <rootDir>/monitor/networking/ui</rootDir>
-                          <class>mnPageLoader</class>
-                          <function>renderInstances</function>
-                      </resource>
-                  </resources>
-                  <queryParams>
-                      <view>list</view>
-                      <type>instance</type>
-                      <source>uve</source>
-                  </queryParams>
-                  <searchStrings>Monitor instances</searchStrings>
-              </item>
-          </items>
-        </item>
-        <item>
-          <name>debug</name>
-          <label>Debug</label>
-          <iconClass>icon-puzzle-piece</iconClass>
-            <access>
-                <orchModels>
-                    <model>openstack</model>
-                    <model>cloudstack</model>
-                </orchModels>
-            </access>
-          <items>
-            <item>
-              <label>Packet Capture</label>
-              <hash>mon_debug_pcapture</hash>
-              <resources>
-                <resource>
-                  <rootDir>/monitor/debug/packet_capture</rootDir>
-                  <js>packet_capture.js</js>
-                  <view>packet_capture.view</view>
-                  <class>PacketCaptureObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Packet Capture, Analyzer</searchStrings>
-            </item>
-            <!--
+            </resources>
+            <iconClass>icon-bar-chart</iconClass>
+            <items>
+                <item>
+                    <label>Infrastructure</label>
+                    <resources>
+                        <resource>
+                            <rootDir>/monitor/infra/common/ui</rootDir>
+                            <js>monitor_infra_constants.js</js>
+                            <js>monitor_infra_utils.js</js>
+                            <view>monitor_infra_common.view</view>
+                        </resource>
+                    </resources>
+                    <iconClass>icon-desktop</iconClass>
+                    <access>
+                        <roles>
+                            <role>superAdmin</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>cloudstack</model>
+                            <model>vcenter</model>
+                        </orchModels>
+                        <accessFn>hideInFederatedvCenter</accessFn>
+                    </access>
+                    <items>
                         <item>
-                            <label>Ping</label>
-                            <hash>mon_ping</hash>
+                            <hash>mon_infra_dashboard</hash>
+                            <label>Dashboard</label>
                             <resources>
                                 <resource>
-                            <rootDir>/monitor/ping</rootDir>
-                            <view>mon_ping.view</view>
-                            <js>mon_ping.js</js>
-                            <class>monitorPingView</class>
+                                    <rootDir>/monitor/infra/dashboard/ui</rootDir>
+                                    <view>monitor_infra_dashboard.view</view>
+                                    <js>monitor_infra_dashboard.js</js>
+                                    <class>infraMonitorDashboardView</class>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <tab>vRouters</tab>
+                            </queryParams>
+                            <searchStrings>Infrastructure Dashboard</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_mx</hash>
+                            <label>MX Visualisation</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/mx/ui</rootDir>
+                                    <view>monitor_infra_mx.view</view>
+                                    <js>monitor_infra_mx.js</js>
+                                    <class>mxRenderer</class>
                                 </resource>
                             </resources>
                         </item>
-                       <item>
-                           <label>Trace Route</label>
-                       </item>
-                       <item>
-                           <label>DHCP</label>
-                       </item>
-                       <item>
-                           <label>DNS</label>
-                       </item>
-                        -->
-          </items>
-        </item>
-        <item>
-          <name>alarms</name>
-          <label>Alarms</label>
-          <hash>config_alarms</hash>
-          <iconClass>icon-bell-alt</iconClass>
-          <resources>
-              <resource>
-                  <rootDir>/common/ui</rootDir>
-                  <js>controller.app.js</js>
-                  <class>mnAlarmsPageLoader</class>
-              </resource>
-              <resource>
-                  <rootDir>/monitor/alarms/ui</rootDir>
-                  <js>alarms.main.js</js>
-                  <template>alarms.tmpl</template>
-                  <class>mnAlarmsPageLoader</class>
-              </resource>
-          </resources>
-          <items>
-              <item>
-                  <hash>mon_alarms_dashboard</hash>
-                  <label>Dashboard</label>
-                  <resources>
-                      <resource>
-                          <rootDir>/monitor/alarms/ui</rootDir>
-                          <class>mnAlarmsPageLoader</class>
-                          <function>renderAlarms</function>
-                      </resource>
-                  </resources>
-                  <searchStrings>Alarms Dashboard</searchStrings>
-              </item>
-          </items>
-        </item>
-      </items>
-    </item>
-    <item>
-      <name>configure</name>
-      <label>Configure</label>
-      <iconClass>icon-wrench</iconClass>
-      <items>
-        <item>
-          <label>Infrastructure</label>
-          <access>
-            <roles>
-              <role>superAdmin</role>
-            </roles>
-            <orchModels>
-              <model>openstack</model>
-              <model>cloudstack</model>
-              <model>vcenter</model>
-            </orchModels>
-            <accessFn>hideInFederatedvCenter</accessFn>
-          </access>
-          <iconClass>icon-desktop</iconClass>
-          <items>
-            <!--
                         <item>
-                            <label>Server Setup</label>
+                            <hash>mon_infra_underlay</hash>
+                            <label>Physical Topology</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/underlay/ui</rootDir>
+                                    <view>monitor_infra_underlay.view</view>
+                                    <view>flow_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>monitor_infra_underlay.js</js>
+                                    <js>flow_queries.js</js>
+                                    <class>underlayRenderer</class>
+                                </resource>
+                                <resource>
+                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                                    <view>monitor_infra_vrouter.view</view>
+                                    <js>monitor_infra_vrouter.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_details.js</js>
+                                    <js>monitor_infra_vrouter_interfaces.js</js>
+                                    <js>monitor_infra_vrouter_networks.js</js>
+                                    <js>monitor_infra_vrouter_acl.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_routes.js</js>
+                                </resource>
+                            </resources>
                         </item>
-                        -->
-            <item>
-              <label>Global Config</label>
-              <hash>config_infra_gblconfig</hash>
-              <resources>
-                <resource>
-                  <rootDir>/config/forwardingoptions/ui</rootDir>
-                  <view>global_options_config.view</view>
-                  <js>global_options_config.js</js>
-                  <class>fwdOptionsConfigObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Configure Global Config</searchStrings>
-            </item>
-            <item>
-              <label>BGP Routers</label>
-              <hash>config_infra_bgp</hash>
-              <resources>
-                <resource>
-                  <rootDir>/config/bgp/ui</rootDir>
-                  <view>bgp_config.view</view>
-                  <js>bgp_config.js</js>
-                  <class>bgpConfigObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Configure BGP Routers</searchStrings>
-            </item>
-            <item>
-              <label>Link Local Services</label>
-              <hash>config_infra_lls</hash>
-              <resources>
-                <resource>
-                  <rootDir>/config/linklocalservices/ui</rootDir>
-                  <view>lls_config.view</view>
-                  <js>lls_config.js</js>
-                  <class>llsConfigObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Configure Link Local Services</searchStrings>
-            </item>
+                        <item>
+                            <hash>mon_infra_control</hash>
+                            <label>Control Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/controlnode/ui</rootDir>
+                                    <view>monitor_infra_controlnode.view</view>
+                                    <js>monitor_infra_controlnode.js</js>
+                                    <js>monitor_infra_controlnode_summary.js</js>
+                                    <js>monitor_infra_controlnode_details.js</js>
+                                    <js>monitor_infra_controlnode_peers.js</js>
+                                    <js>monitor_infra_controlnode_routes.js</js>
+                                    <class>ctrlNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Control Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_vrouter</hash>
+                            <label>Virtual Routers</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                                    <view>monitor_infra_vrouter.view</view>
+                                    <js>monitor_infra_vrouter.js</js>
+                                    <js>monitor_infra_vrouter_summary.js</js>
+                                    <js>monitor_infra_vrouter_details.js</js>
+                                    <js>monitor_infra_vrouter_interfaces.js</js>
+                                    <js>monitor_infra_vrouter_networks.js</js>
+                                    <js>monitor_infra_vrouter_acl.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_routes.js</js>
+                                    <class>cmpNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Compute Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_analytics</hash>
+                            <label>Analytics Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/analyticsnode/ui</rootDir>
+                                    <view>monitor_infra_analyticnode.view</view>
+                                    <js>monitor_infra_analyticnode.js</js>
+                                    <js>monitor_infra_analyticsnode_summary.js</js>
+                                    <js>monitor_infra_analyticsnode_details.js</js>
+                                    <js>monitor_infra_analyticsnode_generators.js</js>
+                                    <js>monitor_infra_analyticsnode_qequeries.js</js>
+                                    <class>aNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Analytics Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_config</hash>
+                            <label>Config Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/confignode/ui</rootDir>
+                                    <view>monitor_infra_confignode.view</view>
+                                    <js>monitor_infra_confignode.js</js>
+                                    <js>monitor_infra_confignode_summary.js</js>
+                                    <js>monitor_infra_confignode_details.js</js>
+                                    <class>confNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Config Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_database</hash>
+                            <label>Database Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/dbnode/ui</rootDir>
+                                    <view>monitor_infra_dbnode.view</view>
+                                    <js>monitor_infra_dbnode.js</js>
+                                    <js>monitor_infra_dbnode_summary.js</js>
+                                    <js>monitor_infra_dbnode_details.js</js>
+                                    <class>databaseNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Database Nodes</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Networking</label>
+                    <iconClass>icon-sitemap</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/common/ui</rootDir>
+                            <js>controller.app.js</js>
+                            <class>mnPageLoader</class>
+                        </resource>
+                        <resource>
+                            <rootDir>/monitor/networking/ui</rootDir>
+                            <js>networking.main.js</js>
+                            <template>networking.tmpl</template>
+                            <class>mnPageLoader</class>
+                        </resource>
+                    </resources>
+                    <items>
+                        <item>
+                            <hash>mon_networking_dashboard</hash>
+                            <label>Dashboard</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/networking/ui</rootDir>
+                                    <class>mnPageLoader</class>
+                                    <function>renderProjects</function>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <view>details</view>
+                                <type>project</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Networking Dashboard</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_networking_projects</hash>
+                            <label>Projects</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/networking/ui</rootDir>
+                                    <class>mnPageLoader</class>
+                                    <function>renderProjects</function>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <view>list</view>
+                                <type>project</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor Projects</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_networking_networks</hash>
+                            <label>Networks</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/networking/ui</rootDir>
+                                    <class>mnPageLoader</class>
+                                    <function>renderNetworks</function>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <view>list</view>
+                                <type>network</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor Networks</searchStrings>
+                        </item>
+                        <item>
+                            <label>Instances</label>
+                            <hash>mon_networking_instances</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/networking/ui</rootDir>
+                                    <class>mnPageLoader</class>
+                                    <function>renderInstances</function>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <view>list</view>
+                                <type>instance</type>
+                                <source>uve</source>
+                            </queryParams>
+                            <searchStrings>Monitor instances</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <name>debug</name>
+                    <label>Debug</label>
+                    <iconClass>icon-puzzle-piece</iconClass>
+                    <access>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>cloudstack</model>
+                        </orchModels>
+                    </access>
+                    <items>
+                        <item>
+                            <label>Packet Capture</label>
+                            <hash>mon_debug_pcapture</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/debug/packet_capture</rootDir>
+                                    <js>packet_capture.js</js>
+                                    <view>packet_capture.view</view>
+                                    <class>PacketCaptureObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Packet Capture, Analyzer</searchStrings>
+                        </item>
+                        <!--
+                                    <item>
+                                        <label>Ping</label>
+                                        <hash>mon_ping</hash>
+                                        <resources>
+                                            <resource>
+                                        <rootDir>/monitor/ping</rootDir>
+                                        <view>mon_ping.view</view>
+                                        <js>mon_ping.js</js>
+                                        <class>monitorPingView</class>
+                                            </resource>
+                                        </resources>
+                                    </item>
+                                   <item>
+                                       <label>Trace Route</label>
+                                   </item>
+                                   <item>
+                                       <label>DHCP</label>
+                                   </item>
+                                   <item>
+                                       <label>DNS</label>
+                                   </item>
+                                    -->
+                    </items>
+                </item>
+                <item>
+                    <name>alarms</name>
+                    <label>Alarms</label>
+                    <hash>config_alarms</hash>
+                    <iconClass>icon-bell-alt</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/common/ui</rootDir>
+                            <js>controller.app.js</js>
+                            <class>mnAlarmsPageLoader</class>
+                        </resource>
+                        <resource>
+                            <rootDir>/monitor/alarms/ui</rootDir>
+                            <js>alarms.main.js</js>
+                            <template>alarms.tmpl</template>
+                            <class>mnAlarmsPageLoader</class>
+                        </resource>
+                    </resources>
+                    <items>
+                        <item>
+                            <hash>mon_alarms_dashboard</hash>
+                            <label>Dashboard</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/alarms/ui</rootDir>
+                                    <class>mnAlarmsPageLoader</class>
+                                    <function>renderAlarms</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Alarms Dashboard</searchStrings>
+                        </item>
+                    </items>
+                </item>
+            </items>
+        </item>
+        <item>
+            <name>configure</name>
+            <label>Configure</label>
+            <iconClass>icon-wrench</iconClass>
+            <items>
+                <item>
+                    <label>Infrastructure</label>
+                    <access>
+                        <roles>
+                            <role>superAdmin</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>cloudstack</model>
+                            <model>vcenter</model>
+                        </orchModels>
+                        <accessFn>hideInFederatedvCenter</accessFn>
+                    </access>
+                    <iconClass>icon-desktop</iconClass>
+                    <items>
+                        <!--
+                                    <item>
+                                        <label>Server Setup</label>
+                                    </item>
+                                    -->
+                        <item>
+                            <label>Global Config</label>
+                            <hash>config_infra_gblconfig</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/forwardingoptions/ui</rootDir>
+                                    <view>global_options_config.view</view>
+                                    <js>global_options_config.js</js>
+                                    <class>fwdOptionsConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Global Config</searchStrings>
+                        </item>
+                        <item>
+                            <label>BGP Routers</label>
+                            <hash>config_infra_bgp</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/bgp/ui</rootDir>
+                                    <view>bgp_config.view</view>
+                                    <js>bgp_config.js</js>
+                                    <class>bgpConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure BGP Routers</searchStrings>
+                        </item>
+                        <item>
+                            <label>Link Local Services</label>
+                            <hash>config_infra_lls</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/linklocalservices/ui</rootDir>
+                                    <view>lls_config.view</view>
+                                    <js>lls_config.js</js>
+                                    <class>llsConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Link Local Services</searchStrings>
+                        </item>
                         <item>
                             <label>Virtual Routers</label>
                             <hash>config_pd_virtualRouters</hash>
@@ -444,11 +434,11 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Virtual Routers</searchStrings>
                         </item>
-            <!--
-                        <item>
-                            <label>Services</label>
-                        </item>
-                        -->
+                        <!--
+                                    <item>
+                                        <label>Services</label>
+                                    </item>
+                                    -->
                         <item>
                             <label>Project Quotas</label>
                             <hash>config_net_quotas</hash>
@@ -508,13 +498,13 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Networking</label>
                     <access>
-                       <roles>
-                           <role>member</role>
-                       </roles>
-                       <orchModels>
-                           <model>openstack</model>
-                           <model>vcenter</model>
-                       </orchModels>
+                        <roles>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                            <model>vcenter</model>
+                        </orchModels>
                     </access>
                     <iconClass>icon-sitemap</iconClass>
                     <items>
@@ -570,7 +560,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Security Groups</searchStrings>
                         </item>
-                    <item>
+                        <item>
                             <label>Routers</label>
                             <hash>config_net_routers</hash>
                             <resources>
@@ -583,8 +573,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <access>
                                 <orchModels>
-                                <model>openstack</model>
-                                <model>cloudstack</model>
+                                    <model>openstack</model>
+                                    <model>cloudstack</model>
                                 </orchModels>
                             </access>
                             <searchStrings>Routers</searchStrings>
@@ -615,17 +605,17 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Manage Floating IPs</searchStrings>
                         </item>
-                   </items>
+                    </items>
                 </item>
                 <item>
                     <label>Services</label>
                     <access>
-                       <roles>
-                           <role>member</role>
-                       </roles>
-                       <orchModels>
-                           <model>openstack</model>
-                       </orchModels>
+                        <roles>
+                            <role>member</role>
+                        </roles>
+                        <orchModels>
+                            <model>openstack</model>
+                        </orchModels>
                     </access>
                     <iconClass>icon-link</iconClass>
                     <items>
@@ -699,242 +689,242 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
 
-                        <!--
+                <!--
+                <item>
+                    <label>IPAM</label>
+                </item>
+                -->
+                <!--
                         <item>
-                            <label>IPAM</label>
+                            <label>Templates</label>
+                            <items>
+                                <item>
+                                    <label>Networks</label>
+                                </item>
+                            </items>
+                        </item>
+                        <item>
+                            <label>History</label>
+                        </item>
+                        <item>
+                            <label>Quotas</label>
                         </item>
                         -->
-        <!--
+            </items>
+        </item>
+        <item>
+            <label>Setting</label>
+            <name>setting</name>
+            <iconClass>icon-cog</iconClass>
+            <access>
+                <roles>
+                    <role>superAdmin</role>
+                </roles>
+                <orchModels>
+                    <model>openstack</model>
+                    <model>cloudstack</model>
+                    <model>vcenter</model>
+                </orchModels>
+                <accessFn>hideInFederatedvCenter</accessFn>
+            </access>
+            <items>
                 <item>
-                    <label>Templates</label>
+                    <label>Config DB</label>
+                    <iconClass>icon-contrail-config-db</iconClass>
                     <items>
                         <item>
-                            <label>Networks</label>
+                            <hash>setting_configdb_fqname</hash>
+                            <label>FQ Name Table</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/setting/config_db</rootDir>
+                                    <view>cdb_query.view</view>
+                                    <js>cdb_query.js</js>
+                                    <class>fqNameTableObj</class>
+                                </resource>
+                            </resources>
+                        </item>
+                        <item>
+                            <hash>setting_configdb_uuid</hash>
+                            <label>UUID Table</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/setting/config_db</rootDir>
+                                    <view>cdb_query.view</view>
+                                    <js>cdb_query.js</js>
+                                    <class>uuidTableObj</class>
+                                </resource>
+                            </resources>
+                        </item>
+                    </items>
+                </item>
+                <!-- <item>
+                  <label>Analytics DB</label>
+                  <iconClass>icon-contrail-analytics-db</iconClass>
+                  <items>
+                      <item>
+                          <hash>setting_analyticsdb_usage</hash>
+                          <label>Usage</label>
+                          <resources>
+                              <resource>
+                                  <rootDir>/setting/analytics_db</rootDir>
+                                  <view>usage.view</view>
+                                  <js>usage.js</js>
+                                  <class>dbUsageObj</class>
+                              </resource>
+                          </resources>
+                      </item>
+                  </items>
+                </item> -->
+            </items>
+        </item>
+        <item>
+            <label>Query</label>
+            <name>query</name>
+            <iconClass>icon-search</iconClass>
+            <access>
+                <roles>
+                    <role>superAdmin</role>
+                </roles>
+                <orchModels>
+                    <model>openstack</model>
+                    <model>cloudstack</model>
+                    <model>vcenter</model>
+                </orchModels>
+            </access>
+            <items>
+                <item>
+                    <label>Flows</label>
+                    <iconClass>icon-exchange</iconClass>
+                    <items>
+                        <item>
+                            <hash>query_flow_series</hash>
+                            <label>Flow Series</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>flow_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>flow_queries.js</js>
+                                    <class>flowSeriesObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Query Flow Series</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_flow_records</hash>
+                            <label>Flow Records</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>flow_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>flow_queries.js</js>
+                                    <class>flowRecordsObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Query Flow Records</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_flow_queue</hash>
+                            <label>Query Queue</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>flow_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>flow_queries.js</js>
+                                    <class>flowQueryQueueObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Flow Query Queue</searchStrings>
                         </item>
                     </items>
                 </item>
                 <item>
-                    <label>History</label>
+                    <label>Logs</label>
+                    <iconClass>icon-contrail-system-logs</iconClass>
+                    <items>
+                        <item>
+                            <hash>query_log_system</hash>
+                            <label>System Logs</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>log_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>log_queries.js</js>
+                                    <class>systemLogsObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Query System Logs</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_log_object</hash>
+                            <label>Object Logs</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>log_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>log_queries.js</js>
+                                    <class>objectLogsObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Query Object Logs</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_log_queue</hash>
+                            <label>Query Queue</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>log_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>log_queries.js</js>
+                                    <class>logQueryQueueObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Logs Query Queue</searchStrings>
+                        </item>
+                    </items>
                 </item>
                 <item>
-                    <label>Quotas</label>
-                </item>
-                -->
-      </items>
-    </item>
-    <item>
-      <label>Setting</label>
-      <name>setting</name>
-      <iconClass>icon-cog</iconClass>
-      <access>
-        <roles>
-          <role>superAdmin</role>
-        </roles>
-        <orchModels>
-          <model>openstack</model>
-          <model>cloudstack</model>
-          <model>vcenter</model>
-        </orchModels>
-        <accessFn>hideInFederatedvCenter</accessFn>
-      </access>
-      <items>
-        <item>
-          <label>Config DB</label>
-          <iconClass>icon-contrail-config-db</iconClass>
-          <items>
-            <item>
-              <hash>setting_configdb_fqname</hash>
-              <label>FQ Name Table</label>
-              <resources>
-                <resource>
-                  <rootDir>/setting/config_db</rootDir>
-                  <view>cdb_query.view</view>
-                  <js>cdb_query.js</js>
-                  <class>fqNameTableObj</class>
-                </resource>
-              </resources>
-            </item>
-            <item>
-              <hash>setting_configdb_uuid</hash>
-              <label>UUID Table</label>
-              <resources>
-                <resource>
-                  <rootDir>/setting/config_db</rootDir>
-                  <view>cdb_query.view</view>
-                  <js>cdb_query.js</js>
-                  <class>uuidTableObj</class>
-                </resource>
-              </resources>
-            </item>
-          </items>
-        </item>
-        <!-- <item>
-          <label>Analytics DB</label>
-          <iconClass>icon-contrail-analytics-db</iconClass>
-          <items>
-              <item>
-                  <hash>setting_analyticsdb_usage</hash>
-                  <label>Usage</label>
-                  <resources>
-                      <resource>
-                          <rootDir>/setting/analytics_db</rootDir>
-                          <view>usage.view</view>
-                          <js>usage.js</js>
-                          <class>dbUsageObj</class>
-                      </resource>
-                  </resources>
-              </item>
-          </items>
-        </item> -->
-      </items>
-    </item>
-    <item>
-      <label>Query</label>
-      <name>query</name>
-      <iconClass>icon-search</iconClass>
-      <access>
-        <roles>
-          <role>superAdmin</role>
-        </roles>
-        <orchModels>
-          <model>openstack</model>
-          <model>cloudstack</model>
-          <model>vcenter</model>
-        </orchModels>
-      </access>
-      <items>
-        <item>
-          <label>Flows</label>
-          <iconClass>icon-exchange</iconClass>
-          <items>
-            <item>
-              <hash>query_flow_series</hash>
-              <label>Flow Series</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>flow_queries.view</view>
-                  <view>queries.view</view>
-                  <js>flow_queries.js</js>
-                  <class>flowSeriesObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Query Flow Series</searchStrings>
-            </item>
-            <item>
-              <hash>query_flow_records</hash>
-              <label>Flow Records</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>flow_queries.view</view>
-                  <view>queries.view</view>
-                  <js>flow_queries.js</js>
-                  <class>flowRecordsObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Query Flow Records</searchStrings>
-            </item>
-            <item>
-              <hash>query_flow_queue</hash>
-              <label>Query Queue</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>flow_queries.view</view>
-                  <view>queries.view</view>
-                  <js>flow_queries.js</js>
-                  <class>flowQueryQueueObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Flow Query Queue</searchStrings>
-            </item>
-          </items>
-        </item>
-        <item>
-          <label>Logs</label>
-          <iconClass>icon-contrail-system-logs</iconClass>
-          <items>
-            <item>
-              <hash>query_log_system</hash>
-              <label>System Logs</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>log_queries.view</view>
-                  <view>queries.view</view>
-                  <js>log_queries.js</js>
-                  <class>systemLogsObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Query System Logs</searchStrings>
-            </item>
-            <item>
-              <hash>query_log_object</hash>
-              <label>Object Logs</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>log_queries.view</view>
-                  <view>queries.view</view>
-                  <js>log_queries.js</js>
-                  <class>objectLogsObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Query Object Logs</searchStrings>
-            </item>
-            <item>
-              <hash>query_log_queue</hash>
-              <label>Query Queue</label>
-              <resources>
-                <resource>
-                  <rootDir>/reports</rootDir>
-                  <view>log_queries.view</view>
-                  <view>queries.view</view>
-                  <js>log_queries.js</js>
-                  <class>logQueryQueueObj</class>
-                </resource>
-              </resources>
-              <searchStrings>Logs Query Queue</searchStrings>
-            </item>
-          </items>
-        </item>
-        <item>
-            <label>Statistics</label>
-            <iconClass>icon-contrail-system-stats</iconClass>
-            <items>
-                <item>
-                    <hash>query_stat_query</hash>
-                    <label>Query</label>
-                    <resources>
-                        <resource>
-                            <rootDir>/reports</rootDir>
-                            <view>stat_queries.view</view>
-                            <view>queries.view</view>
-                            <js>stat_queries.js</js>
-                            <class>statQueryObj</class>
-                        </resource>
-                    </resources>
-                    <searchStrings>Query Statistics</searchStrings>
-                </item>
-                <item>
-                    <hash>query_stat_queue</hash>
-                    <label>Query Queue</label>
-                    <resources>
-                        <resource>
-                            <rootDir>/reports</rootDir>
-                            <view>stat_queries.view</view>
-                            <view>queries.view</view>
-                            <js>stat_queries.js</js>
-                            <class>statQueryQueueObj</class>
-                        </resource>
-                    </resources>
-                    <searchStrings>Statistic Query Queue</searchStrings>
+                    <label>Statistics</label>
+                    <iconClass>icon-contrail-system-stats</iconClass>
+                    <items>
+                        <item>
+                            <hash>query_stat_query</hash>
+                            <label>Query</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>stat_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>stat_queries.js</js>
+                                    <class>statQueryObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Query Statistics</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_stat_queue</hash>
+                            <label>Query Queue</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/reports</rootDir>
+                                    <view>stat_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>stat_queries.js</js>
+                                    <class>statQueryQueueObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Statistic Query Queue</searchStrings>
+                        </item>
+                    </items>
                 </item>
             </items>
         </item>
-      </items>
-    </item>
-  </items>
+    </items>
 </menu>
 

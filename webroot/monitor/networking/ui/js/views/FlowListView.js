@@ -18,7 +18,7 @@ define([
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
+                        url: ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
                         type: 'GET'
                     },
                     dataParser: ctwp.flowsDataParser
@@ -31,7 +31,7 @@ define([
     });
 
     function getFlowListViewConfig(hashParams) {
-        var url = constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
+        var url = ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
             portRange = [], startPort, endPort;
 
         if (hashParams['port'].indexOf('-') > -1) {
