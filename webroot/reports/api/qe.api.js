@@ -10,41 +10,35 @@ var qeapi = module.exports,
     rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
-    commonUtils = require(process.mainModule.exports["corePath"] +
-                          '/src/serverroot/utils/common.utils'),
+    commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     qs = require('querystring'),
     underscore = require('underscore'),
     redisReadStream = require('redis-rstream'),
     opServer;
-var statPlotFields = [],
-    statGroupFields = [],
-    statXaxis = [];
 
 var redis = require("redis"),
     redisServerPort = (config.redis_server_port) ? config.redis_server_port : global.DFLT_REDIS_SERVER_PORT,
     redisServerIP = (config.redis_server_ip) ? config.redis_server_ip : global.DFLT_REDIS_SERVER_IP,
     redisClient = redis.createClient(redisServerPort, redisServerIP);
 
-redisClient.select(global.QE_DFLT_REDIS_DB, function(error) {
+redisClient.select(global.QE_DFLT_REDIS_DB, function (error) {
     if (error) {
         logutils.logger.error('Redis DB ' + global.QE_DFLT_REDIS_DB + ' Select Error:' + error);
     }
 });
 
-opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER, server:config.analytics.server_ip, port:config.analytics.server_port });
+opServer = rest.getAPIServer({apiName: global.label.OPS_API_SERVER, server: config.analytics.server_ip, port: config.analytics.server_port});
 
-if (!module.parent) 
-{
+if (!module.parent) {
     logutils.logger.warn(util.format(messages.warn.invalid_mod_call, module.filename));
     process.exit(1);
 }
 
-function executeQuery(res, options) 
-{
+function executeQuery(res, options) {
     var queryJSON = options.queryJSON,
-        async = options.async, asyncHeader = {"Expect":"202-accepted"};
+        async = options.async, asyncHeader = {"Expect": "202-accepted"};
     opServer.authorize(function () {
         logutils.logger.debug("Query sent to Opserver at " + new Date() + ' ' + JSON.stringify(queryJSON));
         options['startTime'] = new Date().getTime();
@@ -66,8 +60,7 @@ function executeQuery(res, options)
     });
 };
 
-function initPollingConfig(options, fromTime, toTime)
-{
+function initPollingConfig(options, fromTime, toTime) {
     var timeRange = null;
     if (true == isNaN(fromTime)) {
         var str = 'now-';
@@ -99,19 +92,17 @@ function initPollingConfig(options, fromTime, toTime)
     }
 };
 
-function parseOpsQueryIdFromUrl(url)
-{
+function parseOpsQueryIdFromUrl(url) {
     var opsQueryId = "",
         urlArray;
-    if(url != null) {
+    if (url != null) {
         urlArray = url.split('/');
         opsQueryId = urlArray[urlArray.length - 1];
     }
     return opsQueryId;
 };
 
-function fetchQueryResults(res, jsonData, options) 
-{
+function fetchQueryResults(res, jsonData, options) {
     var queryId = options['queryId'], pageSize = options['pageSize'],
         queryJSON = options['queryJSON'], progress;
     opServer.authorize(function () {
@@ -148,25 +139,23 @@ function fetchQueryResults(res, jsonData, options)
                 options['progress'] = progress;
                 options['status'] = 'queued';
                 updateQueryStatus(options);
-                commonUtils.handleJSONResponse(null, res, {status:"queued", value:[]});
+                commonUtils.handleJSONResponse(null, res, {status: "queued", value: []});
             }
         });
     });
 };
 
-function stopFetchQueryResult(options) 
-{
+function stopFetchQueryResult(options) {
     clearInterval(options['intervalId']);
     options['status'] = 'timeout';
     updateQueryStatus(options);
 };
 
-function updateQueryStatus(options) 
-{
+function updateQueryStatus(options) {
     var queryStatus = {
-        startTime:options.startTime, queryId:options.queryId,
-        url:options.url, queryJSON:options.queryJSON, progress:options.progress, status:options.status,
-        tableName:options.queryJSON['table'], count:options.count, timeTaken:-1, errorMessage:options.errorMessage,
+        startTime: options.startTime, queryId: options.queryId,
+        url: options.url, queryJSON: options.queryJSON, progress: options.progress, status: options.status,
+        tableName: options.queryJSON['table'], count: options.count, timeTaken: -1, errorMessage: options.errorMessage,
         reRunTimeRange: options.reRunTimeRange, reRunQueryString: getReRunQueryString(options.reRunQuery, options.reRunTimeRange),
         opsQueryId: options.opsQueryId, engQueryStr: options['engQueryStr']
     };
@@ -180,15 +169,14 @@ function updateQueryStatus(options)
     redisClient.hmset(options.queryQueue, options.queryId, JSON.stringify(queryStatus));
 };
 
-function getReRunQueryString(reRunQuery, reRunTimeRange)
-{
+function getReRunQueryString(reRunQuery, reRunTimeRange) {
     var reRunQueryString;
     delete reRunQuery['queryId'];
     delete reRunQuery['skip'];
     delete reRunQuery['take'];
     delete reRunQuery['page'];
     delete reRunQuery['pageSize'];
-    if(reRunTimeRange != null && reRunTimeRange != '0') {
+    if (reRunTimeRange != null && reRunTimeRange != '0') {
         delete reRunQuery['fromTime'];
         delete reRunQuery['fromTimeUTC'];
         delete reRunQuery['toTime'];
@@ -199,15 +187,13 @@ function getReRunQueryString(reRunQuery, reRunTimeRange)
     return reRunQuery;
 };
 
-function parseQueryTime(queryId) 
-{
+function parseQueryTime(queryId) {
     var splitQueryIds = splitString2Array(queryId, '-'),
         timeStr = splitQueryIds[splitQueryIds.length - 1];
     return parseInt(timeStr);
 };
 
-function processQueryResults(res, queryResults, options) 
-{
+function processQueryResults(res, queryResults, options) {
     var startDate = new Date(), startTime = startDate.getTime(),
         queryId = options.queryId, pageSize = options.pageSize,
         queryJSON = options.queryJSON, endDate = new Date(), table = queryJSON.table,
@@ -224,30 +210,28 @@ function processQueryResults(res, queryResults, options)
         } else {
             responseJSON = resultJSON.slice(0, pageSize);
         }
-        commonUtils.handleJSONResponse(null, res, {data:responseJSON, total:total, queryJSON: queryJSON});
+        commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: queryJSON});
     }
-    if ((null != options['saveQuery']) && ((false == options['saveQuery']) ||
-                                           ('false' == options['saveQuery']))) {
+    if ((null != options['saveQuery']) && ((false == options['saveQuery']) || ('false' == options['saveQuery']))) {
         return;
     }
     saveQueryResult2Redis(resultJSON, total, queryId, pageSize, getSortStatus4Query(queryJSON), queryJSON);
     if (table == 'FlowSeriesTable') {
         saveData4Chart2Redis(queryId, resultJSON, getPlotFields(queryJSON['select_fields']));
-    } else if(table.indexOf('StatTable.') != -1){
-        saveStatsData4Chart2Redis(queryId, resultJSON, statPlotFields);
+    } else if (table.indexOf('StatTable.') != -1) {
+        saveStatsData4Chart2Redis(queryId, resultJSON, options);
     }
 };
 
-function saveQueryResult2Redis(resultData, total, queryId, pageSize, sort, queryJSON)
-{
+function saveQueryResult2Redis(resultData, total, queryId, pageSize, sort, queryJSON) {
     var endRow;
     if (sort != null) {
         redisClient.set(queryId + ":sortStatus", JSON.stringify(sort));
     }
     // TODO: Should we need to save every page?
-    redisClient.set(queryId, JSON.stringify({data:resultData, total:total, queryJSON: queryJSON}));
+    redisClient.set(queryId, JSON.stringify({data: resultData, total: total, queryJSON: queryJSON}));
     if (total == 0) {
-        redisClient.set(queryId + ':page1', JSON.stringify({data:[], total:0, queryJSON: queryJSON}));
+        redisClient.set(queryId + ':page1', JSON.stringify({data: [], total: 0, queryJSON: queryJSON}));
     } else {
         for (var j = 0, k = 1; j < total; k++) {
             endRow = k * pageSize;
@@ -255,7 +239,7 @@ function saveQueryResult2Redis(resultData, total, queryId, pageSize, sort, query
                 endRow = resultData.length;
             }
             var spliceData = resultData.slice(j, endRow);
-            redisClient.set(queryId + ':page' + k, JSON.stringify({data:spliceData, total:total, queryJSON: queryJSON}));
+            redisClient.set(queryId + ':page' + k, JSON.stringify({data: spliceData, total: total, queryJSON: queryJSON}));
             j = endRow;
         }
     }
@@ -266,21 +250,20 @@ function getSortStatus4Query(queryJSON) {
     sortFields = queryJSON['sort_fields'];
     sortDirection = queryJSON['sort'];
 
-    if(sortFields != null && sortFields.length > 0 && sortDirection != null) {
-        sortStatus = [{"field": sortFields[0],"dir": sortDirection == 2 ? 'desc' : 'asc'}];
+    if (sortFields != null && sortFields.length > 0 && sortDirection != null) {
+        sortStatus = [{"field": sortFields[0], "dir": sortDirection == 2 ? 'desc' : 'asc'}];
     }
     return sortStatus;
 };
 
 
-function getPlotFields(selectFields)
-{
+function getPlotFields(selectFields) {
     var plotFields = [],
         statFields = [
-            {field:'sum(bytes)', label:'sum_bytes'},
-            {field:'avg(bytes)', label:'avg_bytes'},
-            {field:'sum(packets)', label:'sum_packets'},
-            {field:'avg(packets)', label:'avg_packets'}
+            {field: 'sum(bytes)', label: 'sum_bytes'},
+            {field: 'avg(bytes)', label: 'avg_bytes'},
+            {field: 'sum(packets)', label: 'sum_packets'},
+            {field: 'avg(packets)', label: 'avg_packets'}
         ];
     for (var j = 0; j < statFields.length; j++) {
         if (selectFields.indexOf(statFields[j].field) != -1) {
@@ -290,50 +273,47 @@ function getPlotFields(selectFields)
     return plotFields;
 };
 
-function saveStatsData4Chart2Redis(queryId, dataJSON, plotFields)
-{
-    var resultData = {},
-        result, resultObj, StatsClassId, flowClassRecord, uniqueStatsClassArray = [], secTime, uniqueFlowClassArray = [],
+function saveStatsData4Chart2Redis(queryId, dataJSON, queryOptions) {
+    var resultData = {}, result,
+        secTime, uniqueFlowClassArray = [],
         flowClassArray = [];
-    var key = createKey4StatChart(statGroupFields);
-    if (plotFields.length != 0) {
-        for (i = 0; i < dataJSON.length; i++) {
-            if(dataJSON[i]['T'] !== undefined){
+
+    var statPlotFields = queryOptions.statPlotFields,
+        statGroupFields = queryOptions.statGroupFields;
+
+    if (statPlotFields != undefined && statPlotFields.length != 0) {
+        for (var i = 0; i < dataJSON.length; i++) {
+            if (dataJSON[i]['T'] !== undefined) {
                 secTime = Math.floor(dataJSON[i]['T'] / 1000);
-            }else if(dataJSON[i]['T='] !== undefined){
+            } else if (dataJSON[i]['T='] !== undefined) {
                 secTime = Math.floor(dataJSON[i]['T='] / 1000);
             }
             var resultStatGroupFields = [], resultStatGroupFieldsKey;
 
-            for(var x=0; x<statPlotFields.length; x++){
-                if( statGroupFields[x] in dataJSON[i]){
+            for (var x = 0; x < statPlotFields.length; x++) {
+                if (statGroupFields[x] in dataJSON[i]) {
                     resultStatGroupFields.push(dataJSON[i][statGroupFields[x]]);
                 }
             }
-            result = {'date':new Date(secTime)};
+            result = {'date': new Date(secTime)};
             //CLASS(T=) is used as the stat_class_id and is used to store data in redis.
             resultStatGroupFieldsKey = dataJSON[i]['CLASS(T=)'];
             if (uniqueFlowClassArray.indexOf(resultStatGroupFieldsKey) == -1) {
                 uniqueFlowClassArray.push(resultStatGroupFieldsKey);
-                statFlowClassRecord =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
-
+                var statFlowClassRecord = getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
                 flowClassArray.push(statFlowClassRecord);
             }
 
             if (resultData[resultStatGroupFieldsKey] == null) {
                 resultData[resultStatGroupFieldsKey] = {};
                 dataJSON[i]['date'] = new Date(secTime);
-                dataJSON[i] =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
+                dataJSON[i] = getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
                 resultData[resultStatGroupFieldsKey][secTime] = dataJSON[i];
             } else {
                 dataJSON[i]['date'] = new Date(secTime);
-                dataJSON[i] =  getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
+                dataJSON[i] = getStatClassRecord(resultStatGroupFieldsKey, resultStatGroupFields, dataJSON[i]);
                 resultData[resultStatGroupFieldsKey][secTime] = dataJSON[i];
             }
-
-//            for (k = 0; k < plotFields.length; k++) {
-//                result[plotFields[k]] = dataJSON[i][plotFields[k]];
-//            }
         }
     }
 
@@ -341,23 +321,21 @@ function saveStatsData4Chart2Redis(queryId, dataJSON, plotFields)
     redisClient.set(queryId + ':chartdata', JSON.stringify(resultData));
 };
 
-function createKey4StatChart(statGroupFields){
-    var key = statGroupFields[0]+"-";
-    for(var i=1; i<statGroupFields.length-1; i++){
-        key = key.concat(statGroupFields[i]+"-");
+function createKey4StatChart(statGroupFields) {
+    var key = statGroupFields[0] + "-";
+    for (var i = 1; i < statGroupFields.length - 1; i++) {
+        key = key.concat(statGroupFields[i] + "-");
     }
-    key = key.concat(statGroupFields[statGroupFields.length-1]);
+    key = key.concat(statGroupFields[statGroupFields.length - 1]);
     return key;
 };
 
-function getStatClassRecord(key, resultStatGroupFields, row)
-{
+function getStatClassRecord(key, resultStatGroupFields, row) {
     row['stat_flow_class_id'] = key;
     return row;
 };
 
-function saveData4Chart2Redis(queryId, dataJSON, plotFields)
-{
+function saveData4Chart2Redis(queryId, dataJSON, plotFields) {
     var resultData = {},
         result, i, j, k, flowClassId, flowClassRecord, uniqueFlowClassArray = [], secTime,
         flowClassArray = [];
@@ -370,7 +348,7 @@ function saveData4Chart2Redis(queryId, dataJSON, plotFields)
                 flowClassArray.push(flowClassRecord);
             }
             secTime = Math.floor(dataJSON[i]['T'] / 1000);
-            result = {'date':new Date(secTime), 'flow_class_id':flowClassId};
+            result = {'date': new Date(secTime), 'flow_class_id': flowClassId};
             for (k = 0; k < plotFields.length; k++) {
                 result[plotFields[k]] = dataJSON[i][plotFields[k]];
             }
@@ -386,10 +364,9 @@ function saveData4Chart2Redis(queryId, dataJSON, plotFields)
     redisClient.set(queryId + ':chartdata', JSON.stringify(resultData));
 };
 
-function getFlowClassRecord(row)
-{
+function getFlowClassRecord(row) {
     var flowClassFields = global.FLOW_CLASS_FIELDS,
-        fieldValue, flowClass = {flow_class_id:row['flow_class_id']};
+        fieldValue, flowClass = {flow_class_id: row['flow_class_id']};
 
     for (var i = 0; i < flowClassFields.length; i++) {
         fieldValue = row[flowClassFields[i]];
@@ -400,8 +377,7 @@ function getFlowClassRecord(row)
     return flowClass;
 };
 
-function formatQueryResultJSON(tableName, jsonData) 
-{
+function formatQueryResultJSON(tableName, jsonData) {
     var columnLabels, fieldName, fieldValue, label, resultJSON = [], xml;
     if (tableName == 'FlowSeriesTable') {
         columnLabels = global.FORMAT_TABLE_COLUMNS[tableName];
@@ -418,7 +394,7 @@ function formatQueryResultJSON(tableName, jsonData)
     return jsonData;
 };
 
-function parseFilterAndLimit (reqObject) {
+function parseFilterAndLimit(reqObject) {
     var filters, filterWithLimit, filter, limit;
     filters = reqObject['filters'];
     if (null == filters || "" == filters) {
@@ -438,8 +414,7 @@ function parseFilterAndLimit (reqObject) {
     return reqObject;
 }
 
-function parseSLQuery(requestQuery)
-{
+function parseSLQuery(requestQuery) {
     reqQuery = parseFilterAndLimit(requestQuery);
     var msgQuery, fromTimeUTC, toTimeUTC, where, filters, table, level, category, moduleId, source, messageType, limit, keywords;
     table = reqQuery['table'];
@@ -478,8 +453,7 @@ function parseSLQuery(requestQuery)
     return msgQuery;
 };
 
-function setMicroTimeRange(query, fromTime, toTime)
-{
+function setMicroTimeRange(query, fromTime, toTime) {
     if (true == isNaN(fromTime)) {
         query.start_time = fromTime;
     } else {
@@ -492,8 +466,7 @@ function setMicroTimeRange(query, fromTime, toTime)
     }
 };
 
-function createSLWhere(msgQuery, moduleId, messageType, source, category) 
-{
+function createSLWhere(msgQuery, moduleId, messageType, source, category) {
     var whereClauseArray = [];
     if (moduleId != null && moduleId != "") {
         whereClauseArray.push(createClause('ModuleId', moduleId, 1));
@@ -510,17 +483,15 @@ function createSLWhere(msgQuery, moduleId, messageType, source, category)
     msgQuery.where = [whereClauseArray];
 };
 
-function createSLFilter(msgQuery, level) 
-{
+function createSLFilter(msgQuery, level) {
     var filterClauseArray = [];
     filterClauseArray.push(createClause('Level', level, 5));
-    for(var i=0; i<msgQuery.filter.length; i++){
+    for (var i = 0; i < msgQuery.filter.length; i++) {
         msgQuery.filter[i] = msgQuery.filter[i].concat(filterClauseArray);
     }
 };
 
-function createClause(fieldName, fieldValue, operator) 
-{
+function createClause(fieldName, fieldValue, operator) {
     var whereClause = {};
     if (fieldValue != null) {
         whereClause = {};
@@ -531,8 +502,7 @@ function createClause(fieldName, fieldValue, operator)
     return whereClause;
 };
 
-function parseOTQuery(requestQuery)
-{
+function parseOTQuery(requestQuery) {
     reqQuery = parseFilterAndLimit(requestQuery);
     var objTraceQuery, fromTimeUTC, toTimeUTC, where, filters, objectType, select, objectId, limit;
     select = reqQuery['select'];
@@ -560,10 +530,9 @@ function parseOTQuery(requestQuery)
     return objTraceQuery;
 };
 
-function createOTQueryJSON(objectType) 
-{
+function createOTQueryJSON(objectType) {
     var queryJSON = getQueryJSON4Table(objectType);
-    if(queryJSON != null) {
+    if (queryJSON != null) {
         return getQueryJSON4Table(objectType);
     } else {
         queryJSON = getQueryJSON4Table('ObjectTableQueryTemplate');
@@ -572,8 +541,7 @@ function createOTQueryJSON(objectType)
     return queryJSON;
 }
 
-function parseOTSelect(objTraceQuery, select) 
-{
+function parseOTSelect(objTraceQuery, select) {
     var selectArray = select.split(','),
         selectLength = selectArray.length;
     for (var i = 0; i < selectLength; i++) {
@@ -582,8 +550,7 @@ function parseOTSelect(objTraceQuery, select)
     objTraceQuery['select_fields'] = objTraceQuery['select_fields'].concat(selectArray);
 };
 
-function parseOTWhere(otQuery, where, objectId) 
-{
+function parseOTWhere(otQuery, where, objectId) {
     parseWhere(otQuery, where);
     var whereClauseArray, whereClauseLength, i;
     if (otQuery.where != null) {
@@ -604,8 +571,7 @@ function parseOTWhere(otQuery, where, objectId)
     }
 };
 
-function parseFSQuery(reqQuery) 
-{
+function parseFSQuery(reqQuery) {
     var select, where, filters, fromTimeUTC, toTimeUTC, fsQuery, table, tg, tgUnit, direction, autoLimit, autoSort;
     table = reqQuery['table'];
     select = reqQuery['select'];
@@ -631,8 +597,7 @@ function parseFSQuery(reqQuery)
     return fsQuery;
 };
 
-function parseStatsQuery(reqQuery)
-{
+function parseStatsQuery(reqQuery) {
     var select, where, fromTimeUTC, toTimeUTC, statQuery, filters, table, tg, tgUnit, filtersArray;
     table = reqQuery['table'];
     statQuery = getQueryJSON4Table(table);
@@ -644,9 +609,6 @@ function parseStatsQuery(reqQuery)
     tg = reqQuery['tgValue'];
     tgUnit = reqQuery['tgUnits'];
     setMicroTimeRange(statQuery, fromTimeUTC, toTimeUTC);
-    statPlotFields = reqQuery['plotFields'];
-    statGroupFields = reqQuery['groupFields'];
-    statXaxis = reqQuery['Xaxis'];
     if (select != "") {
         parseSelect(statQuery, select, tg, tgUnit);
     }
@@ -655,16 +617,15 @@ function parseStatsQuery(reqQuery)
         // splitting the filters and using parseFilter for the [name, value, operator] and parseFSFilter for
         // [sortfields, sortby, limit]
         filtersArray = filters.split(',');
-        parseFilter(statQuery, filtersArray[0].toString().replace("filter: ",""));
+        parseFilter(statQuery, filtersArray[0].toString().replace("filter: ", ""));
         filtersArray.shift();
         parseFSFilter(statQuery, filtersArray.toString());
     }
     return statQuery;
 };
 
-function parseFRQuery(reqQuery) 
-{
-    var select, where, fromTimeUTC, toTimeUTC, frQuery, table, direction,filters;
+function parseFRQuery(reqQuery) {
+    var select, where, fromTimeUTC, toTimeUTC, frQuery, table, direction, filters;
     table = reqQuery['table'];
     frQuery = getQueryJSON4Table(table);
     fromTimeUTC = reqQuery['fromTimeUTC'];
@@ -673,7 +634,7 @@ function parseFRQuery(reqQuery)
     where = reqQuery['where'];
     filters = reqQuery['filters'];
     direction = parseInt(reqQuery['direction']);
-    if(reqQuery['limit'] != null) {
+    if (reqQuery['limit'] != null) {
         frQuery['limit'] = reqQuery['limit'];
     }
     setMicroTimeRange(frQuery, fromTimeUTC, toTimeUTC);
@@ -684,32 +645,30 @@ function parseFRQuery(reqQuery)
     if (direction >= 0) {
         frQuery['dir'] = direction;
     }
-    if(filters != null) {
+    if (filters != null) {
         parseFSFilter(frQuery, filters);
     }
     return frQuery;
 };
 
-function parseSelect(query, select, tg, tgUnit) 
-{
+function parseSelect(query, select, tg, tgUnit) {
     var selectArray = splitString2Array(select, ','),
         tgIndex = selectArray.indexOf('time-granularity'),
         classTEqualToIndex = selectArray.indexOf('T=');
     if (tgIndex > -1) {
         selectArray[tgIndex] = 'T=' + getTGSecs(tg, tgUnit);
-    } else if(selectArray.indexOf('T=') != -1) {
+    } else if (selectArray.indexOf('T=') != -1) {
         tgIndex = selectArray.indexOf('T=');
         selectArray[tgIndex] = 'T=' + getTGSecs(tg, tgUnit);
     }
     query['select_fields'] = query['select_fields'].concat(selectArray);
     // CLASS(T=) should be added to the select fields only if user has selected T=
-    if(classTEqualToIndex > -1){
+    if (classTEqualToIndex > -1) {
         query['select_fields'] = query['select_fields'].concat('CLASS(T=)');
     }
 };
 
-function splitString2Array(strValue, delimiter) 
-{
+function splitString2Array(strValue, delimiter) {
     var strArray = strValue.split(delimiter),
         count = strArray.length;
     for (var i = 0; i < count; i++) {
@@ -718,8 +677,7 @@ function splitString2Array(strValue, delimiter)
     return strArray;
 };
 
-function getTGSecs(tg, tgUnit) 
-{
+function getTGSecs(tg, tgUnit) {
     if (tgUnit == 'secs') {
         return tg;
     } else if (tgUnit == 'mins') {
@@ -731,10 +689,10 @@ function getTGSecs(tg, tgUnit)
     }
 };
 
-function parseSLWhere (query, where, keywords) {
+function parseSLWhere(query, where, keywords) {
     var keywordsArray = keywords.split(',');
     if (keywords != null && keywords.trim() != '') {
-        for (var i = 0; i < keywordsArray.length; i++){
+        for (var i = 0; i < keywordsArray.length; i++) {
             keywordsArray[i] = keywordsArray[i].trim();
         }
     }
@@ -750,7 +708,7 @@ function parseSLWhere (query, where, keywords) {
             where[i] = parseWhereANDClause(where[i]);
         }
         query['where'] = where;
-    } else{
+    } else {
         if (keywords != null && keywords.trim() != '') {
             var where = [];
             query['where'] = parseKeywordsObj(keywordsArray);
@@ -758,7 +716,7 @@ function parseSLWhere (query, where, keywords) {
     }
 }
 
-function getKeywordsStrFromArray (keywords) {
+function getKeywordsStrFromArray(keywords) {
     var tempStr = "";
     for (var i = 1; i < keywords.length; i++) {
         tempStr = tempStr.concat("AND Keyword = " + keywords[i] + " ");
@@ -767,11 +725,10 @@ function getKeywordsStrFromArray (keywords) {
     return final;
 }
 
-function parseKeywordsObj(keywordsArray)
-{
+function parseKeywordsObj(keywordsArray) {
     var keywordObj = [], keywordArray = [], finalkeywordArray = [];
-    for(var i=0; i<keywordsArray.length; i++){
-        keywordObj[i] = {"name":"", value:"", op:""};
+    for (var i = 0; i < keywordsArray.length; i++) {
+        keywordObj[i] = {"name": "", value: "", op: ""};
         keywordObj[i].name = "Keyword";
         keywordObj[i].value = keywordsArray[i];
         keywordObj[i].op = 1;
@@ -781,8 +738,7 @@ function parseKeywordsObj(keywordsArray)
     return finalkeywordArray;
 };
 
-function parseWhere(query, where)
-{
+function parseWhere(query, where) {
     if (where != null && where.trim() != '') {
         var whereORArray = where.split(' OR '),
             whereORLength = whereORArray.length,
@@ -795,8 +751,7 @@ function parseWhere(query, where)
     }
 };
 
-function parseStatWhere(query, where)
-{
+function parseStatWhere(query, where) {
     if (where != null && where.trim() != '') {
         var whereORArray = where.split(' OR '),
             whereORLength = whereORArray.length,
@@ -807,13 +762,13 @@ function parseStatWhere(query, where)
         }
         query['where'] = whereORArray;
     } else {
-        if(where == '' ) {
+        if (where == '') {
             //set value to '' and op to 7 when a where * is entered
-            query['where'] = [ [ { name: 'name', value: '', op: 7 } ] ];
+            query['where'] = [[{name: 'name', value: '', op: 7}]];
         }
     }
 };
-function parseSLFilter (query, filters) {
+function parseSLFilter(query, filters) {
     var filtersArray, filtersLength, filterClause = [], i, filterObj;
     if (filters != null && filters.trim() != '') {
         filtersArray = filters.split(' AND ');
@@ -828,8 +783,7 @@ function parseSLFilter (query, filters) {
         }
     }
 };
-function parseFilter(query, filters)
-{
+function parseFilter(query, filters) {
     var filtersArray, filtersLength, filterClause = [], i, filterObj;
     if (filters != null && filters.trim() != '') {
         filtersArray = filters.split(' AND ');
@@ -843,8 +797,7 @@ function parseFilter(query, filters)
     }
 };
 
-function getFilterObj(filter) 
-{
+function getFilterObj(filter) {
     var filterObj;
     if (filter.indexOf('!=') != -1) {
         filterObj = parseFilterObj(filter, '!=');
@@ -856,12 +809,11 @@ function getFilterObj(filter)
     return filterObj;
 };
 
-function parseFilterObj(filter, operator) 
-{
+function parseFilterObj(filter, operator) {
     var filterObj, filterArray;
     filterArray = splitString2Array(filter, operator);
     if (filterArray.length > 1 && filterArray[1] != '') {
-        filterObj = {"name":"", value:"", op:""};
+        filterObj = {"name": "", value: "", op: ""};
         filterObj.name = filterArray[0];
         filterObj.value = filterArray[1];
         filterObj.op = getOperatorCode(operator);
@@ -869,8 +821,7 @@ function parseFilterObj(filter, operator)
     return filterObj
 };
 
-function parseFSFilter(query, filters)
-{
+function parseFSFilter(query, filters) {
     var arrayStart, arrayEnd, sortFieldsStr, sortFieldsArray,
         limitSortOrderStr, limitSortOrderArray, count, sortOrder, limitArray, limit;
     if (filters != null && filters.trim() != '') {
@@ -919,8 +870,7 @@ function parseFSFilter(query, filters)
     }
 };
 
-function parseWhereANDClause(whereANDClause) 
-{
+function parseWhereANDClause(whereANDClause) {
     var whereANDArray = whereANDClause.replace('(', '').replace(')', '').split(' AND '),
         whereANDLength = whereANDArray.length, i, whereANDClause, whereANDClauseArray, operator = '';
     for (i = 0; i < whereANDLength; i += 1) {
@@ -966,8 +916,7 @@ function parseWhereANDClause(whereANDClause)
     return whereANDArray;
 };
 
-function populateWhereANDClause(whereANDClause, fieldName, fieldValue, operator) 
-{
+function populateWhereANDClause(whereANDClause, fieldName, fieldValue, operator) {
     var validLikeOPRFields = global.VALID_LIKE_OPR_FIELDS,
         validRangeOPRFields = global.VALID_RANGE_OPR_FIELDS,
         splitFieldValues;
@@ -986,8 +935,7 @@ function populateWhereANDClause(whereANDClause, fieldName, fieldValue, operator)
     }
 };
 
-function getOperatorCode(operator) 
-{
+function getOperatorCode(operator) {
     if (operator == '=') {
         return 1;
     } else if (operator == '!=') {
@@ -1001,28 +949,60 @@ function getOperatorCode(operator)
     }
 };
 
-function getQueryJSON4Table(tableName, autoSort, autoLimit)
-{
+function getQueryJSON4Table(tableName, autoSort, autoLimit) {
     var queryJSON;
-    if(tableName == 'MessageTable') {
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Type", "Source", "ModuleId", "Messagetype", "Xmlmessage", "Level", "Category"], "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]], "sort_fields": ['MessageTS'], "sort": 2, "limit": 150000};
-    } else if(tableName == 'ObjectTableQueryTemplate') {
-        queryJSON = {"table": '', "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Source", "ModuleId"], "sort_fields": ['MessageTS'], "sort": 2, "filter": [], "limit": 50000};
-    } else if(tableName == 'FlowSeriesTable') {
+    if (tableName == 'MessageTable') {
+        queryJSON = {
+            "table": tableName,
+            "start_time": "",
+            "end_time": "",
+            "select_fields": ["MessageTS", "Type", "Source", "ModuleId", "Messagetype", "Xmlmessage", "Level", "Category"],
+            "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]],
+            "sort_fields": ['MessageTS'],
+            "sort": 2,
+            "limit": 150000
+        };
+    } else if (tableName == 'ObjectTableQueryTemplate') {
+        queryJSON = {
+            "table": '',
+            "start_time": "",
+            "end_time": "",
+            "select_fields": ["MessageTS", "Source", "ModuleId"],
+            "sort_fields": ['MessageTS'],
+            "sort": 2,
+            "filter": [],
+            "limit": 50000
+        };
+    } else if (tableName == 'FlowSeriesTable') {
         queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ['flow_class_id', 'direction_ing']};
-        if(autoSort) {
+        if (autoSort) {
             queryJSON['select_fields'].push('T');
             queryJSON['sort_fields'] = ['T'];
             queryJSON['sort'] = 2;
         }
-        if(autoLimit) {
-            queryJSON['limit'] =  150000;
+        if (autoLimit) {
+            queryJSON['limit'] = 150000;
         }
-    } else if(tableName == 'FlowRecordTable') {
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing', 'UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid', 'vrouter_ip', 'other_vrouter_ip', 'underlay_proto', 'underlay_source_port'], "limit": 150000};
-    } else if(tableName.indexOf('Object') != -1) {
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": ["MessageTS", "Source", "ModuleId"], "sort_fields": ['MessageTS'], "sort": 2, "filter": [], "limit": 50000};
-    } else if(tableName.indexOf('StatTable.') != -1) {
+    } else if (tableName == 'FlowRecordTable') {
+        queryJSON = {
+            "table": tableName,
+            "start_time": "",
+            "end_time": "",
+            "select_fields": ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing', 'UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid', 'vrouter_ip', 'other_vrouter_ip', 'underlay_proto', 'underlay_source_port'],
+            "limit": 150000
+        };
+    } else if (tableName.indexOf('Object') != -1) {
+        queryJSON = {
+            "table": tableName,
+            "start_time": "",
+            "end_time": "",
+            "select_fields": ["MessageTS", "Source", "ModuleId"],
+            "sort_fields": ['MessageTS'],
+            "sort": 2,
+            "filter": [],
+            "limit": 50000
+        };
+    } else if (tableName.indexOf('StatTable.') != -1) {
         queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": [], "filter": [], "limit": 150000};
     } else {
         queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": [], "limit": 150000};
@@ -1030,28 +1010,26 @@ function getQueryJSON4Table(tableName, autoSort, autoLimit)
     return queryJSON;
 };
 
-function getJSONClone(json) 
-{
+function getJSONClone(json) {
     var newJSONStr = JSON.stringify(json);
     return JSON.parse(newJSONStr);
 };
 
-function runGETQuery (req, res) {
+function runGETQuery(req, res) {
     var reqQuery = req.query;
     runQuery(req, res, reqQuery);
 }
 
-function runPOSTQuery (req, res) {
+function runPOSTQuery(req, res) {
     var reqQuery = req.body;
     runQuery(req, res, reqQuery);
 }
 
-function runQuery (req, res, reqQuery)
-{
+function runQuery(req, res, reqQuery) {
     var queryId = reqQuery['queryId'],
         page = reqQuery['page'], sort = reqQuery['sort'],
         pageSize = parseInt(reqQuery['pageSize']), options;
-    options = {"queryId":queryId, "page":page, "sort":sort, "pageSize":pageSize, "toSort":true};
+    options = {"queryId": queryId, "page": page, "sort": sort, "pageSize": pageSize, "toSort": true};
     logutils.logger.debug('Query Request: ' + JSON.stringify(reqQuery));
     if (queryId != null) {
         redisClient.exists(queryId + ':page1', function (err, exists) {
@@ -1069,12 +1047,12 @@ function runQuery (req, res, reqQuery)
     }
 };
 
-function exportQueryResult (req, res) {
+function exportQueryResult(req, res) {
     var queryId = req.query['queryId'];
     redisClient.exists(queryId, function (err, exists) {
-        if(exists) {
+        if (exists) {
             var stream = redisReadStream(redisClient, queryId)
-            res.writeHead(global.HTTP_STATUS_RESP_OK, {'Content-Type':'application/json'});
+            res.writeHead(global.HTTP_STATUS_RESP_OK, {'Content-Type': 'application/json'});
             stream.on('error', function (err) {
                 logutils.logger.error(err.stack);
                 var errorJSON = {error: err.message};
@@ -1089,7 +1067,7 @@ function exportQueryResult (req, res) {
                 res.end();
             });
         } else {
-            commonUtils.handleJSONResponse(null, res, {data:[], total: 0});
+            commonUtils.handleJSONResponse(null, res, {data: [], total: 0});
         }
     });
 };
@@ -1116,23 +1094,22 @@ function returnCachedQueryResult(res, options, callback) {
     }
 };
 
-function handleQueryResponse(res, options) 
-{
+function handleQueryResponse(res, options) {
     var toSort = options.toSort, queryId = options.queryId,
         page = options.page, pageSize = options.pageSize,
         sort = options.sort;
-    if(page == null || toSort) {
+    if (page == null || toSort) {
         redisClient.exists(queryId, function (err, exists) {
-            if(exists) {
+            if (exists) {
                 var stream = redisReadStream(redisClient, queryId),
                     chunkedData, accumulatedData = [], dataBuffer, resultJSON;
                 stream.on('error', function (err) {
                     logutils.logger.error(err.stack);
                     commonUtils.handleJSONResponse(err, res, null);
                 }).on('readable', function () {
-                        while ((chunkedData = stream.read()) !== null) {
-                            accumulatedData.push(chunkedData)
-                        }
+                    while ((chunkedData = stream.read()) !== null) {
+                        accumulatedData.push(chunkedData)
+                    }
                 }).on('end', function () {
                     dataBuffer = Buffer.concat(accumulatedData);
                     resultJSON = JSON.parse(dataBuffer);
@@ -1143,7 +1120,7 @@ function handleQueryResponse(res, options)
                             startIndex = (page - 1) * pageSize;
                             endIndex = (total < (startIndex + pageSize)) ? total : (startIndex + pageSize);
                             responseJSON = resultJSON['data'].slice(startIndex, endIndex);
-                            commonUtils.handleJSONResponse(null, res, {data:responseJSON, total:total, queryJSON: resultJSON['queryJSON']});
+                            commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: resultJSON['queryJSON']});
                             saveQueryResult2Redis(resultJSON['data'], total, queryId, pageSize, sort, resultJSON['queryJSON']);
                         });
                     } else {
@@ -1151,12 +1128,12 @@ function handleQueryResponse(res, options)
                     }
                 });
             } else {
-                commonUtils.handleJSONResponse(null, res, {data:[], total: 0});
+                commonUtils.handleJSONResponse(null, res, {data: [], total: 0});
             }
         });
     } else {
         redisClient.get(queryId + ":page" + page, function (error, result) {
-            var resultJSON = result ? JSON.parse(result) : {data:[], total:0};
+            var resultJSON = result ? JSON.parse(result) : {data: [], total: 0};
             if (error) {
                 logutils.logger.error(error.stack);
                 commonUtils.handleJSONResponse(error, res, null);
@@ -1167,7 +1144,7 @@ function handleQueryResponse(res, options)
                     startIndex = (page - 1) * pageSize;
                     endIndex = (total < (startIndex + pageSize)) ? total : (startIndex + pageSize);
                     responseJSON = resultJSON['data'].slice(startIndex, endIndex);
-                    commonUtils.handleJSONResponse(null, res, {data:responseJSON, total:total, queryJSON: resultJSON['queryJSON']});
+                    commonUtils.handleJSONResponse(null, res, {data: responseJSON, total: total, queryJSON: resultJSON['queryJSON']});
                     saveQueryResult2Redis(resultJSON['data'], total, queryId, pageSize, sort, resultJSON['queryJSON']);
                 });
             } else {
@@ -1206,11 +1183,11 @@ function quickSort(array, left, right, sort, qsStatus) {
     if (left < right) {
         var p = quickSortPartition(array, left, right, sort);
         qsStatus.started++;
-        process.nextTick(function() {
+        process.nextTick(function () {
             quickSort(array, left, p, sort, qsStatus);
         });
         qsStatus.started++;
-        process.nextTick(function() {
+        process.nextTick(function () {
             quickSort(array, p + 1, right, sort, qsStatus)
         });
     }
@@ -1224,25 +1201,25 @@ function sortJSON(resultArray, sortParams, callback) {
     sortBy[0]['field'] = sortField;
     sortBy[0]['dir'] = sortParams[0]['dir'];
     quickSort(resultArray, 0, resultArray.length, sortBy, qsStatus);
-    qsStatus['intervalId'] = setInterval(function(qsStatus, callback) {
-        if(qsStatus.started == qsStatus.ended) {
+    qsStatus['intervalId'] = setInterval(function (qsStatus, callback) {
+        if (qsStatus.started == qsStatus.ended) {
             callback();
             clearInterval(qsStatus['intervalId']);
         }
     }, 2000, qsStatus, callback);
 };
 
-function runNewQuery(req, res, queryId, reqQuery)
-{
+function runNewQuery(req, res, queryId, reqQuery) {
     var tableName = reqQuery['table'], tableType = reqQuery['tableType'],
         queryId = reqQuery['queryId'], pageSize = parseInt(reqQuery['pageSize']),
         async = (reqQuery['async'] != null && reqQuery['async'] == "true") ? true : false,
         reRunTimeRange = reqQuery['reRunTimeRange'], reRunQuery = reqQuery, engQueryStr = reqQuery['engQueryStr'],
         saveQuery = reqQuery['saveQuery'],
-        options = {queryId:queryId, pageSize:pageSize, counter:0, status:"run",
-            async:async, count:0, progress:0, errorMessage:"", reRunTimeRange:
-                reRunTimeRange, reRunQuery: reRunQuery, opsQueryId: "",
-            engQueryStr: engQueryStr, saveQuery: saveQuery},
+        options = {
+            queryId: queryId, pageSize: pageSize, counter: 0, status: "run",
+            async: async, count: 0, progress: 0, errorMessage: "", reRunTimeRange: reRunTimeRange, reRunQuery: reRunQuery, opsQueryId: "",
+            engQueryStr: engQueryStr, saveQuery: saveQuery
+        },
         queryJSON;
     if (tableName == 'MessageTable') {
         queryJSON = parseSLQuery(reqQuery);
@@ -1252,7 +1229,7 @@ function runNewQuery(req, res, queryId, reqQuery)
         options.queryQueue = 'lqq';
     } else if (tableName == 'FlowSeriesTable') {
         queryJSON = parseFSQuery(reqQuery);
-        if(queryJSON['select_fields'].indexOf('bytes') == -1 && queryJSON['select_fields'].indexOf('packets') == -1) {
+        if (queryJSON['select_fields'].indexOf('bytes') == -1 && queryJSON['select_fields'].indexOf('packets') == -1) {
             options.tg = reqQuery['tgValue'];
             options.tgUnit = reqQuery['tgUnits'];
         } else {
@@ -1262,12 +1239,12 @@ function runNewQuery(req, res, queryId, reqQuery)
         options.queryQueue = 'fqq';
     } else if (tableName == 'FlowRecordTable') {
         queryJSON = parseFRQuery(reqQuery);
-        if(reqQuery['excludeInSelect'] != null && reqQuery['excludeInSelect'].length > 0) {
-            queryJSON['select_fields'] = queryJSON['select_fields'].filter(function(item){
-                                             if(reqQuery['excludeInSelect'].indexOf(item) == -1) {
-                                                 return true;
-                                             }
-                                         });
+        if (reqQuery['excludeInSelect'] != null && reqQuery['excludeInSelect'].length > 0) {
+            queryJSON['select_fields'] = queryJSON['select_fields'].filter(function (item) {
+                if (reqQuery['excludeInSelect'].indexOf(item) == -1) {
+                    return true;
+                }
+            });
         }
         options.queryQueue = 'fqq';
     } else if (tableName.indexOf('StatTable.') != -1) {
@@ -1275,39 +1252,38 @@ function runNewQuery(req, res, queryId, reqQuery)
         options.tg = reqQuery['tgValue'];
         options.tgUnit = reqQuery['tgUnits'];
         options.queryQueue = 'sqq';
+        options.statPlotFields = reqQuery['plotFields'];
+        options.statGroupFields = reqQuery['groupFields'];
+        options.statXaxis = reqQuery['Xaxis'];
     }
     options.queryJSON = queryJSON;
     executeQuery(res, options);
 };
 
 // Handle request to get list of all tables.
-function getTables (req, res) 
-{
+function getTables(req, res) {
     var opsUrl = global.GET_TABLES_URL;
     sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
 // Handle request to get valid values of a table column.
-function getColumnValues (req, res) 
-{
+function getColumnValues(req, res) {
     var opsUrl = global.GET_TABLE_INFO_URL + '/' + req.param('tableName') + '/column-values/' + req.param('column');
     sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
 // Handle request to get table schema.
-function getTableSchema (req, res) 
-{
+function getTableSchema(req, res) {
     var opsUrl = global.GET_TABLE_INFO_URL + '/' + req.param('tableName') + '/schema';
     sendCachedJSON4Url(opsUrl, res, 3600);
 };
 
-function sendCachedJSON4Url(opsUrl, res, expireTime) 
-{
-    redisClient.get(opsUrl, function(error, cachedJSONStr) {
+function sendCachedJSON4Url(opsUrl, res, expireTime) {
+    redisClient.get(opsUrl, function (error, cachedJSONStr) {
         if (error || cachedJSONStr == null) {
             opServer.authorize(function () {
                 opServer.api.get(opsUrl, function (error, jsonData) {
-                    if(!jsonData) {
+                    if (!jsonData) {
                         jsonData = [];
                     }
                     redisClient.setex(opsUrl, expireTime, JSON.stringify(jsonData));
@@ -1321,8 +1297,7 @@ function sendCachedJSON4Url(opsUrl, res, expireTime)
 };
 
 // Handle request to get object ids.
-function getObjectIds (req, res, appData) 
-{
+function getObjectIds(req, res, appData) {
     var objectTable = req.param('objectType'),
         objectQuery, startTime, endTime, queryOptions;
 
@@ -1331,14 +1306,13 @@ function getObjectIds (req, res, appData)
 
     objectQuery = {"start_time": startTime, "end_time": endTime, "select_fields": ["ObjectId"], "table": objectTable};
     setMicroTimeRange(objectQuery, startTime, endTime)
-    queryOptions = {queryId:null, async:false, status: "run", queryJSON: objectQuery, errorMessage: ""};
+    queryOptions = {queryId: null, async: false, status: "run", queryJSON: objectQuery, errorMessage: ""};
 
     executeQuery(res, queryOptions);
 };
 
 // Handle request to get query queue.
-function getQueryQueue (req, res) 
-{
+function getQueryQueue(req, res) {
     var queryQueue = req.param('queryQueue');
     redisClient.hvals(queryQueue, function (error, results) {
         if (error) {
@@ -1354,8 +1328,7 @@ function getQueryQueue (req, res)
 };
 
 // Handle request to get unique flow classes for a flow-series query.
-function getFlowClasses (req, res) 
-{
+function getFlowClasses(req, res) {
     var queryId = req.param('queryId');
     redisClient.get(queryId + ':flowclasses', function (error, results) {
         if (error) {
@@ -1368,8 +1341,7 @@ function getFlowClasses (req, res)
 };
 
 // Handle request to get chart data for a flow-series query.
-function getChartData (req, res) 
-{
+function getChartData(req, res) {
     var queryId = req.param('queryId');
     redisClient.get(queryId + ':chartdata', function (error, results) {
         if (error) {
@@ -1382,16 +1354,15 @@ function getChartData (req, res)
 };
 
 // Handle request to delete redis cache for given query ids.
-function deleteQueryCache4Ids (req, res) 
-{
+function deleteQueryCache4Ids(req, res) {
     var queryIds = req.body.queryIds;
     var queryQueue = req.body.queryQueue;
-    for(var i = 0; i < queryIds.length; i++) {
+    for (var i = 0; i < queryIds.length; i++) {
         redisClient.hdel(queryQueue, queryIds[i]);
         redisClient.keys(queryIds[i] + "*", function (error, keysArray) {
-            if(!error && keysArray.length > 0) {
-                redisClient.del(keysArray, function(error) {
-                    if(error) {
+            if (!error && keysArray.length > 0) {
+                redisClient.del(keysArray, function (error) {
+                    if (error) {
                         logutils.logger.error('Error in delete cache of query key: ' + error);
                     }
                 });
@@ -1404,13 +1375,12 @@ function deleteQueryCache4Ids (req, res)
 };
 
 // Handle request to delete redis cache for QE.
-function deleteQueryCache4Queue (req, res) 
-{
+function deleteQueryCache4Queue(req, res) {
     var queryQueue = req.body.queryQueue;
     redisClient.hkeys(queryQueue, function (error, results) {
-        if(!error) {
-            redisClient.del(queryQueue, function(error) {
-                if(error) {
+        if (!error) {
+            redisClient.del(queryQueue, function (error) {
+                if (error) {
                     logutils.logger.error('Error in delete cache of query queue: ' + error);
                     commonUtils.handleJSONResponse(error, res, null);
                 } else {
@@ -1425,8 +1395,7 @@ function deleteQueryCache4Queue (req, res)
 };
 
 // Handle request to delete redis cache for QE.
-function flushQueryCache (req, res) 
-{
+function flushQueryCache(req, res) {
     redisClient.flushdb(function (error) {
         if (error) {
             logutils.logger.error("Redis QE FlushDB Error: " + error);
@@ -1439,14 +1408,12 @@ function flushQueryCache (req, res)
 };
 
 // Handle request to get current time of server
-function getCurrentTime (req, res)
-{
+function getCurrentTime(req, res) {
     var currentTime = new Date().getTime();
     commonUtils.handleJSONResponse(null, res, {currentTime: currentTime});
 };
 
-function isEmptyObject(obj) 
-{
+function isEmptyObject(obj) {
     for (var prop in obj) {
         if (obj.hasOwnProperty(prop))
             return false;

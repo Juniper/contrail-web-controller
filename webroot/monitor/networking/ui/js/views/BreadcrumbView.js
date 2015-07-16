@@ -21,32 +21,32 @@ define([
             });
         },
 
-        renderProjectBreadcrumbDropdown: function(fqName, initCB, changeCB) {
+        renderProjectBreadcrumbDropdown: function(fqName, initCB, changeCB, options) {
             var domain = getDomainFromFQN(fqName),
                 contrailListModel = cowch.getProjects4Domain(domain);
 
             if(contrailListModel != null) {
                 if(contrailListModel.loadedFromCache || !(contrailListModel.isRequestInProgress())) {
-                    populateProjectBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
+                    populateProjectBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB, options);
                 } else {
                     contrailListModel.onAllRequestsComplete.subscribe(function() {
-                        populateProjectBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
+                        populateProjectBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB, options);
                     });
                 }
             }
         },
 
-        renderNetworkBreadcrumbDropdown: function(fqName, initCB, changeCB) {
+        renderNetworkBreadcrumbDropdown: function(fqName, initCB, changeCB, options) {
             var domain = getDomainFromFQN(fqName),
                 project = getProjectFromFQN(fqName),
                 projectFQN = domain + ':' + project,
                 contrailListModel = cowch.getNetworks4Project(projectFQN);
 
             if(contrailListModel.loadedFromCache || !(contrailListModel.isRequestInProgress())) {
-                populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
+                populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB, options);
             }
             contrailListModel.onAllRequestsComplete.subscribe(function() {
-                populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB);
+                populateNetworkBreadcrumbDropdown(contrailListModel, fqName, initCB, changeCB, options);
             });
         },
 
@@ -93,11 +93,13 @@ define([
                     dataValueField: "value",
                     data: dropdownData,
                     dropdownCssClass: 'min-width-150',
-                    change: function (e) {
+                    selecting: function (e) {
                         var selectedValueData = {
-                            name: domainDropdownElement.data('contrailDropdown').text(),
-                            value: domainDropdownElement.data('contrailDropdown').value()
-                        };
+                                name: e.object['name'],
+                                value: e.object['value']
+                            };
+
+                        contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
                         setTimeout(function() {
                             (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         }, 100);
@@ -107,6 +109,7 @@ define([
                 }).data('contrailDropdown');
 
                 domainDropdown.text(selectedValueData.name);
+                contrail.setCookie(cowc.COOKIE_DOMAIN, selectedValueData.name);
                 setTimeout(function() {
                     initCB(selectedValueData, false);
                 }, 100);
@@ -119,8 +122,12 @@ define([
 
     };
 
-    var populateProjectBreadcrumbDropdown = function(contrailListModel, fqName, initCB, changeCB) {
+    var populateProjectBreadcrumbDropdown = function(contrailListModel, fqName, initCB, changeCB, options) {
         var dropdownData = contrailListModel.getItems();
+
+        if (contrail.checkIfKeyExistInObject(true, options, 'addAllDropdownOption') && options.addAllDropdownOption === true) {
+            dropdownData = ctwc.ALL_PROJECT_DROPDOWN_OPTION.concat(dropdownData);
+        }
 
         if (dropdownData.length > 0) {
             var selectedValueData = null,
@@ -161,6 +168,7 @@ define([
                             name: e.object['name'],
                             value: e.object['value']
                         };
+                        contrail.setCookie(cowc.COOKIE_PROJECT, selectedValueData.name);
                         setTimeout(function() {
                             (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         }, 100);
@@ -169,6 +177,7 @@ define([
                 }).data('contrailDropdown');
 
                 projectDropdown.text(selectedValueData.name);
+                contrail.setCookie(cowc.COOKIE_PROJECT, selectedValueData.name);
                 setTimeout(function() {
                     initCB(selectedValueData, false);
                 }, 100);
@@ -179,8 +188,12 @@ define([
         }
     };
 
-    var populateNetworkBreadcrumbDropdown = function(contrailListModel, fqName, initCB, changeCB) {
+    var populateNetworkBreadcrumbDropdown = function(contrailListModel, fqName, initCB, changeCB, options) {
         var dropdownData = contrailListModel.getItems();
+
+        if (contrail.checkIfKeyExistInObject(true, options, 'addAllDropdownOption') && options.addAllDropdownOption === true) {
+            dropdownData = ctwc.ALL_NETWORK_DROPDOWN_OPTION.concat(dropdownData);
+        }
 
         if (dropdownData.length > 0) {
             var selectedValueData = null,
@@ -216,11 +229,12 @@ define([
                     dataValueField: "value",
                     data: dropdownData,
                     dropdownCssClass: 'min-width-150',
-                    change: function (e) {
+                    selecting: function (e) {
                         var selectedValueData = {
-                            name: networkDropdownElement.data('contrailDropdown').text(),
-                            value: networkDropdownElement.data('contrailDropdown').value()
+                            name: e.object['name'],
+                            value: e.object['value']
                         };
+                        contrail.setCookie(cowc.COOKIE_VIRTUAL_NETWORK, selectedValueData.name);
                         setTimeout(function() {
                             (contrail.checkIfFunction(changeCB) ? changeCB(selectedValueData, true) : initCB(selectedValueData, true));
                         }, 100)
@@ -228,6 +242,7 @@ define([
                 }).data('contrailDropdown');
 
                 networkDropdown.text(selectedValueData.name);
+                contrail.setCookie(cowc.COOKIE_VIRTUAL_NETWORK, selectedValueData.name);
                 setTimeout(function() {
                     initCB(selectedValueData, false);
                 }, 100);
@@ -250,7 +265,7 @@ define([
     };
 
     var getProjectFromFQN = function(fqName) {
-        return contrail.checkIfExist(fqName) ? fqName.split(':')[1] : contrail.getCookie(cowc.COOKIE_DOMAIN);
+        return contrail.checkIfExist(fqName) ? fqName.split(':')[1] : contrail.getCookie(cowc.COOKIE_PROJECT);
     };
 
     var constructBreadcrumbDropdownDOM = function(breadcrumbDropdownId) {

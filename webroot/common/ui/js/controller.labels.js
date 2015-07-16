@@ -96,7 +96,11 @@ define([
             outBytes: "Total Out Bytes",
             outTpkts: "Total Out Packets",
             inTpkts: "Total In Packets",
-            throughput: "Total Throughput"
+            throughput: "Total Throughput",
+
+            /* PortDistribution */
+            sport: 'Source Port',
+            dport: 'Destination Port'
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -158,11 +162,21 @@ define([
         this.INSTANCE_TABS_ID = "instance-tabs";
         this.INSTANCE_DETAILS_ID = "instance-details";
         this.INSTANCE_TRAFFIC_STATS_ID = "instance-traffic-stats";
+        this.INSTANCE_PORT_DIST_ID = "instance-port-dist";
+        this.INSTANCE_CPU_MEM_STATS_ID = "instance-cpu-mem-stats";
         this.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID = "instance-traffic-stats-dropdown";
+        this.INSTANCE_PORT_DIST_DROPDOWN_ID = "instance-port-dist-dropdown";
         this.INSTANCE_TRAFFIC_STATS_CHART_ID = "instance-traffic-stats-chart";
+        this.INSTANCE_PORT_DIST_CHART_ID = "instance-port-dist-chart";
         this.INSTANCE_PORT_HEAT_CHART_ID = "instance-port-heat-chart";
         this.INSTANCE_INTERFACE_GRID_ID = "instance-interface-grid";
         this.INSTANCE_INTERFACE_ID = "instance-interface";
+
+        this.NETWORKING_GRAPH_ID = "networking-graph";
+        this.GRAPH_CONNECTED_ELEMENTS_ID = "graph-connected-elements";
+        this.GRAPH_CONFIG_ELEMENTS_ID = "graph-config-elements";
+        this.GRAPH_LOADING_ID = "graph-loading";
+        this.GRAPH_CONTROL_PANEL_ID = "graph-control-panel";
 
         this.MONITOR_CONNECTED_NETWORK_ID = "monitor-connected-network";
         this.MONITOR_CONNECTED_NETWORK_VIEW_ID = "monitor-connected-network-view";
@@ -202,6 +216,7 @@ define([
         this.TITLE_DETAILS = "Details";
         this.TITLE_VRF_STATS = "VRF Stats";
         this.TITLE_CPU_MEMORY_INFO = "CPU/Memory Information";
+        this.TITLE_CPU_MEMORY = "CPU/Memory";
         this.TITLE_TRAFFIC_DETAILS = "Traffic Details";
         this.TITLE_FLOATING_IPS = "Floating IPs";
         this.TITLE_TRAFFIC_STATISTICS = "Traffic Statistics";

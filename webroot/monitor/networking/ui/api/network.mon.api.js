@@ -220,6 +220,7 @@ function getNetworkStats(req, res) {
     var startTime = req.query['startTime'];
     var endTime = req.query['endTime'];
     var serverTime = req.query['useServerTime'];
+    var ip = req.query['ip'];
     var reqKey;
 
     var appData = {
@@ -229,7 +230,8 @@ function getNetworkStats(req, res) {
         startTime: startTime,
         endTime: endTime,
         serverTime: serverTime,
-        protocol: protocol
+        protocol: protocol,
+        ip: ip
     };
     if (type == 'port') {
         reqKey = global.STR_GET_TOP_PORT_BY_NW;
@@ -241,17 +243,13 @@ function getNetworkStats(req, res) {
     } else if (type == 'flow') {
         reqKey = global.STR_GET_TOP_FLOWS_BY_NW;
     } else {
-        var err =
-            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
-                reqKey);
+        var err = appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided, reqKey);
         commonUtils.handleJSONResponse(err, res, null);
         return;
     }
 
     var url = '/virtual-network/stats';
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
-        reqKey, url,
-        0, 1, 0, -1, true, appData);
+    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE, reqKey, url, 0, 1, 0, -1, true, appData);
 }
 
 function getVNStatsSummary(req, res) {
@@ -302,17 +300,13 @@ function getTopNwDetailsByVM(req, res) {
     } else if (type == 'flow') {
         reqKey = global.STR_GET_TOP_FLOWS_BY_VM;
     } else {
-        var err =
-            appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided,
-                reqType);
+        var err = appErrors.RESTServerError(messages.error.monitoring.invalid_type_provided, reqType);
         commonUtils.handleJSONResponse(err, res, null);
         return;
     }
 
     var url = '/virtual-machine/stats';
-    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
-        reqKey, url,
-        0, 1, 0, -1, true, appData);
+    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE, reqKey, url, 0, 1, 0, -1, true, appData);
 }
 
 function getFlowSeriesByVM(req, res) {

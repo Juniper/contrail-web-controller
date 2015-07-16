@@ -5,34 +5,42 @@
 define([
     'underscore',
     'backbone',
-    'contrail-list-model'
-], function (_, Backbone, ContrailListModel) {
+    'contrail-list-model',
+    'controller-basedir/monitor/networking/ui/js/views/BreadcrumbView'
+], function (_, Backbone, ContrailListModel, BreadcrumbView) {
     var ProjectListView = Backbone.View.extend({
         el: $(contentContainer),
 
         render: function () {
-            var self = this, viewConfig = this.attributes.viewConfig;
+            var self = this, viewConfig = this.attributes.viewConfig,
+                hashParams = viewConfig.hashParams,
+                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+                breadcrumbView = new BreadcrumbView();
 
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: ctwc.getProjectsURL(ctwc.DEFAULT_DOMAIN),
-                        type: 'GET'
-                    },
-                    hlRemoteConfig: ctwgc.getProjectDetailsHLazyRemoteConfig(),
-                    dataParser: ctwp.projectDataParser
-                },
-                cacheConfig: {
-                    ucid: ctwc.UCID_DEFAULT_DOMAIN_PROJECT_LIST //TODO: Handle multi-tenancy
-                }
-            };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
-            cowu.renderView4Config(this.$el, contrailListModel, getProjectListViewConfig());
+            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
+                var contrailListModel = new ContrailListModel(getProjectListModelConfig());
+                cowu.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
+            });
         }
     });
 
-    var getProjectListViewConfig = function () {
+    function getProjectListModelConfig() {
+        return {
+            remote: {
+                ajaxConfig: {
+                    url: ctwc.getProjectsURL(ctwc.DEFAULT_DOMAIN),
+                        type: 'GET'
+                },
+                hlRemoteConfig: nmwgc.getProjectDetailsHLazyRemoteConfig(),
+                    dataParser: nmwp.projectDataParser
+            },
+            cacheConfig: {
+                ucid: ctwc.UCID_DEFAULT_DOMAIN_PROJECT_LIST //TODO: Handle multi-tenancy
+            }
+        };
+    };
+
+    function getProjectListViewConfig() {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_ID]),
             view: "SectionView",
@@ -81,7 +89,7 @@ define([
 
     var onScatterChartClick = function(chartConfig) {
         var projectFQN = chartConfig.name;
-        ctwgrc.setProjectURLHashParams(null, projectFQN, true);
+        nmwgrc.setProjectURLHashParams(null, projectFQN, true);
     };
 
     var getProjectTooltipConfig = function(data) {

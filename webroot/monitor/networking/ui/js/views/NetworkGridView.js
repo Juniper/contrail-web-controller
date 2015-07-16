@@ -82,10 +82,10 @@ define([
                 dataSource: {
                     remote: {
                         ajaxConfig: networkRemoteConfig,
-                        dataParser: ctwp.networkDataParser
+                        dataParser: nmwp.networkDataParser
                     },
                     vlRemoteConfig: {
-                        vlRemoteList: ctwgc.getVNDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
+                        vlRemoteList: nmwgc.getVNDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_NETWORK)
                     },
                     cacheConfig: {
                         ucid: ucid
@@ -93,7 +93,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: ctwgc.projectNetworksColumns
+                columns: nmwgc.projectNetworksColumns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 50, 100] } })

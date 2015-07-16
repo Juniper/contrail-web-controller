@@ -183,37 +183,41 @@ function formatAndClauseGroup(AndObjArr, OrObjArr) {
     return finalResult;
 }
 
-function formatQueryWithPortRange(startPort, endPort, prots, vnFqName,
-                                  isSrc) {
-    var result = [];
-    var index = 0;
-    var finalResult = [];
-    var fqNameArr = vnFqName.split(':');
+function formatQueryWithPortRange(startPort, endPort, protocols, vnFqName, isSrc, ipAddress) {
+    var result = [], index = 0,
+        finalResult = [], fqNameArr = vnFqName.split(':'),
+        vnOp, portField, vnField, ipField;
+
     if (fqNameArr.length != 3) {
         vnFqName = vnFqName + ':';
         vnOp = 7;
     } else {
         vnOp = 1;
     }
+
     if (isSrc) {
         portField = 'sport';
         vnField = 'sourcevn';
+        ipField = 'sourceip';
     } else {
         portField = 'dport';
         vnField = 'sourcevn';
+        ipField = 'sourceip';
     }
 
-    var protosCnt = prots.length;
+    var protosCnt = protocols.length;
+
     for (var i = 0; i < protosCnt; i++) {
         index = 0;
         result = [];
-        result[index++] = {'name': 'protocol', 'op': 1, 'value': prots[i]};
+        result[index++] = {'name': 'protocol', 'op': 1, 'value': protocols[i]};
         if ((startPort != null) && (endPort != null)) {
-            result[index++] =
-            {'name': portField, "value": startPort, "op": 3, "value2": endPort};
+            result[index++] = {'name': portField, "value": startPort, "op": 3, "value2": endPort};
         }
-        result[index++] =
-        {'name': vnField, "value": vnFqName, "op": vnOp};
+        result[index++] = {'name': vnField, "value": vnFqName, "op": vnOp};
+        if(ipAddress != null) {
+            result[index++] = {'name': ipField, "value": ipAddress, "op": 1};
+        }
         finalResult.push(result);
     }
     return finalResult;
@@ -1275,15 +1279,13 @@ function processTopFlowsByNetwork(pubChannel, saveChannelKey, jobData, done, typ
         limit = (appData['limit']) ? parseInt(appData['limit']) : (-1),
         vnName = appData.fqName;
 
-    var srcSelectArr = ['flow_class_id', 'sourcevn', 'sourceip', 'destvn',
-        'destip', 'sport', 'dport', 'protocol', 'sum(bytes)',
-        'sum(packets)'];
+    var srcSelectArr = ['flow_class_id', 'sourcevn', 'sourceip', 'destvn', 'destip', 'sport', 'dport', 'protocol', 'sum(bytes)', 'sum(packets)'];
 
     var timeObj = createTimeQueryJsonObj(appData.minsSince),
         srcWhereClause = [
-            {'sourcevn': vnName},
-            {'destvn': vnName}
-        ], srcQueryJSON;
+        {'sourcevn': vnName},
+        {'destvn': vnName}
+    ], srcQueryJSON ;
 
     if ((type != null) && (type == global.STR_GET_FLOW_DETAILS_BY_FLOW_TUPLE)) {
         srcQueryJSON = getFlowQueryJSONByAppData(appData, srcWhereClause, srcSelectArr, timeObj);
@@ -1397,9 +1399,7 @@ function processTopFlowsByVM(pubChannel, saveChannelKey, jobData, done) {
     var srcVNObjArr = [];
     var ip = appData.ip;
     var vnName = appData.fqName;
-    var srcSelectArr = ['flow_class_id', 'sourcevn', 'sourceip', 'destvn',
-        'destip', 'sport', 'dport', 'protocol', 'sum(bytes)',
-        'sum(packets)'];
+    var srcSelectArr = ['flow_class_id', 'sourcevn', 'sourceip', 'destvn', 'destip', 'sport', 'dport', 'protocol', 'sum(bytes)', 'sum(packets)'];
 
     var whereClause = [
         [
@@ -1414,11 +1414,8 @@ function processTopFlowsByVM(pubChannel, saveChannelKey, jobData, done) {
     var timeObj = createTimeQueryJsonObj(appData.minsSince);
     var srcWhereClause = formatAndOrClause(whereClause);
 
-    var srcQueryJSON =
-        formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause,
-            srcSelectArr, timeObj, null,
-            global.TRAFFIC_STAT_TOP_COUNT,
-            global.TRAFFIC_DIR_INGRESS, true);
+    var srcQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause, srcSelectArr, timeObj, null, global.TRAFFIC_STAT_TOP_COUNT, global.TRAFFIC_DIR_INGRESS, true);
+
     executeQueryString(srcQueryJSON, function (err, data) {
         var resultJSON = [], resultJSONStr = '';
         resultJSON = parseFlowData(data);
@@ -2419,7 +2416,7 @@ function getStartEndPort(portRange) {
     return {startPort: startPort, endPort: endPort};
 }
 
-function getWhereClauseByPortRange(portRange, protocol, fqName, timeObj, isSrc) {
+function getWhereClauseByPortRange(portRange, protocol, fqName, timeObj, isSrc, ipAddress) {
     var startPort = null;
     var endPort = null;
     var whereClause = [];
@@ -2436,13 +2433,9 @@ function getWhereClauseByPortRange(portRange, protocol, fqName, timeObj, isSrc) 
     }
 
     if (true == isSrc) {
-        var whereClause =
-            formatQueryWithPortRange(startPort, endPort, protos,
-                fqName, true);
+        var whereClause = formatQueryWithPortRange(startPort, endPort, protos, fqName, true, ipAddress);
     } else {
-        var whereClause =
-            formatQueryWithPortRange(startPort, endPort, protos,
-                fqName, false);
+        var whereClause = formatQueryWithPortRange(startPort, endPort, protos, fqName, false, ipAddress);
     }
     return whereClause;
 }
@@ -2450,34 +2443,25 @@ function getWhereClauseByPortRange(portRange, protocol, fqName, timeObj, isSrc) 
 function getTrafficStatsByPort(pubChannel, saveChannelKey, jobData, done) {
     var appData = jobData.taskData.appData;
 
-    var limit = (appData['limit']) ? parseInt(appData['limit']) : (-1);
-    var srcSelectArr = ['sum(bytes)', 'sum(packets)', 'sport', 'protocol'];
-    var destSelectArr = ['sum(bytes)', 'sum(packets)', 'dport', 'protocol'];
-    var dataObjArr = [];
-    var resultJSON = {};
+    var limit = (appData['limit']) ? parseInt(appData['limit']) : (-1),
+        srcSelectArr = ['sum(bytes)', 'sum(packets)', 'sport', 'protocol'],
+        destSelectArr = ['sum(bytes)', 'sum(packets)', 'dport', 'protocol'],
+        dataObjArr = [];
 
     var timeObj = createTimeQueryJsonObjByServerTimeFlag(appData.minsSince,
         appData.serverTime);
 
-    var srcWhereClause = getWhereClauseByPortRange(appData['portRange'],
-        appData['protocol'],
-        appData['fqName'], timeObj,
-        true);
-    var destWhereClause = getWhereClauseByPortRange(appData['portRange'],
-        appData['protocol'],
-        appData['fqName'], timeObj,
-        false);
+    var srcWhereClause = getWhereClauseByPortRange(appData['portRange'], appData['protocol'], appData['fqName'], timeObj, true, appData['ip']);
+    var destWhereClause = getWhereClauseByPortRange(appData['portRange'], appData['protocol'], appData['fqName'], timeObj, false, appData['ip']);
 
-    srcQueryJSON =
-        formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause,
-            srcSelectArr, timeObj, null, null);
-    destQueryJSON =
-        formatQueryStringWithWhereClause('FlowSeriesTable', destWhereClause,
-            destSelectArr, timeObj, null, null);
+    var srcQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', srcWhereClause, srcSelectArr, timeObj, null, null);
+    var destQueryJSON = formatQueryStringWithWhereClause('FlowSeriesTable', destWhereClause, destSelectArr, timeObj, null, null);
 
     commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(srcQueryJSON));
     commonUtils.createReqObj(dataObjArr, global.RUN_QUERY_URL, global.HTTP_REQUEST_POST, commonUtils.cloneObj(destQueryJSON));
 
+    //logutils.logger.debug("Ports Source Query JSON: " + JSON.stringify(srcQueryJSON));
+    //logutils.logger.debug("Ports Dest Query JSON: " + JSON.stringify(destQueryJSON));
     //logutils.logger.debug(messages.qe.qe_execution + 'Port Distribution:' + appData['fqName'] + ' with Query' + JSON.stringify(dataObjArr[0]['data']), JSON.stringify(dataObjArr[1]['data']));
 
     async.map(dataObjArr, commonUtils.getServerRespByRestApi(opServer, true),

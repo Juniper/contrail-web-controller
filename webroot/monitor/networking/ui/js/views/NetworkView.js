@@ -24,8 +24,8 @@ define([
 
         renderNetworkGraph: function(networkFQN, networkUUID) {
             var topContainerElement = $('#' + ctwl.TOP_CONTENT_CONTAINER),
-                connectedGraph = ctwvc.getMNConnnectedGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONNECTED_GRAPH, networkFQN), {fqName: networkFQN}, ':connected', ctwc.GRAPH_ELEMENT_NETWORK),
-                configGraph = ctwu.getMNConfigGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONFIG_GRAPH, networkFQN), {fqName: networkFQN}, ':config', ctwc.GRAPH_ELEMENT_NETWORK);
+                connectedGraph = nmwvc.getMNConnnectedGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONNECTED_GRAPH, networkFQN), {fqName: networkFQN}, ':connected', ctwc.GRAPH_ELEMENT_NETWORK),
+                configGraph = nmwu.getMNConfigGraphConfig(ctwc.get(ctwc.URL_NETWORK_CONFIG_GRAPH, networkFQN), {fqName: networkFQN}, ':config', ctwc.GRAPH_ELEMENT_NETWORK);
 
             cowu.renderView4Config(topContainerElement, null, getNetworkGraphViewConfig(connectedGraph, configGraph, networkFQN, networkUUID), null, null);
         },

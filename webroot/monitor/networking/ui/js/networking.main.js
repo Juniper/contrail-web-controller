@@ -23,7 +23,7 @@ function MonitorNetworkingLoader() {
             }
         });
     };
-    this.renderView = function (renderFn, hashParams) {
+    this.renderView = function (renderFn, hashParams, view) {
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderProjects':
@@ -47,7 +47,11 @@ function MonitorNetworkingLoader() {
                     if (hashParams.view == "details") {
                         this.mnView.renderNetwork({hashParams: hashParams});
                     } else {
-                        this.mnView.renderNetworkList({hashParams: hashParams});
+                        if(view != undefined) {
+                            view.renderNetworkList({hashParams: hashParams});
+                        } else {
+                            this.mnView.renderNetworkList({hashParams: hashParams});
+                        }
                     }
                 } else if (hashParams.type == "flow"){
                     if (hashParams.view == "list") {

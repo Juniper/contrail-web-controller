@@ -71,8 +71,8 @@ define([
                 dataSource: {
                     remote: {
                         ajaxConfig: projectsRemoteConfig,
-                        hlRemoteConfig: ctwgc.getProjectDetailsHLazyRemoteConfig(),
-                        dataParser: ctwp.projectDataParser
+                        hlRemoteConfig: nmwgc.getProjectDetailsHLazyRemoteConfig(),
+                        dataParser: nmwp.projectDataParser
                     },
                     cacheConfig: {
                         ucid: ctwc.UCID_DEFAULT_DOMAIN_PROJECT_LIST // TODO: Handle multi-tenancy
@@ -80,7 +80,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: ctwgc.projectsColumns
+                columns: nmwgc.projectsColumns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 50, 100] } })

@@ -14,14 +14,14 @@ define([
                 pagerOptions = viewConfig['pagerOptions'];
 
             var flowRemoteConfig = {
-                url: ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol:['tcp','icmp','udp']})),
+                url: ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol:['tcp','icmp','udp']})),
                 type: 'GET'
             };
             cowu.renderView4Config(that.$el, this.model, getFlowListViewConfig(flowRemoteConfig, pagerOptions));
         }
     });
 
-    var getFlowListViewConfig = function (flowRemoteConfig, pagerOptions) {
+    function getFlowListViewConfig(flowRemoteConfig, pagerOptions) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_FLOW_LIST_VIEW_ID]),
             view: "SectionView",
@@ -44,7 +44,7 @@ define([
         }
     };
 
-    var getProjectFlowGridConfig = function (flowRemoteConfig, pagerOptions) {
+    function getProjectFlowGridConfig(flowRemoteConfig, pagerOptions) {
         var gridElementConfig = {
             header: {
                 title: {
@@ -95,27 +95,13 @@ define([
                 }
             },
             columnHeader: {
-                columns: ctwgc.projectFlowsColumns
+                columns: nmwgc.projectFlowsColumns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 50, 100] } })
             }
         };
         return gridElementConfig;
-    };
-
-    var getURLConfigForGrid = function (viewConfig){
-        var urlConfigObj = {
-            'container'  : "#content-container",
-            'context'    : "network",
-            'type'       : "portRangeDetail",
-            'startTime'  : viewConfig['startTime'],
-            'endTime'    : viewConfig['endTime'],
-            'fqName'     : viewConfig['fqName'],
-            'port'       : viewConfig['port'],
-            'portType'   : viewConfig['portType']
-        }
-        return urlConfigObj;
     };
 
     function getProtocolFilterActionConfig (){

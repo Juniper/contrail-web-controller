@@ -18,10 +18,10 @@ define([
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
+                        url: ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
                         type: 'GET'
                     },
-                    dataParser: ctwp.flowsDataParser
+                    dataParser: nmwp.flowsDataParser
                 }
             };
 
@@ -31,7 +31,7 @@ define([
     });
 
     function getFlowListViewConfig(hashParams) {
-        var url = ctwc.constructReqURL($.extend({}, getURLConfigForGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
+        var url = ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol: ['tcp', 'icmp', 'udp']})),
             portRange = [], startPort, endPort;
 
         if (hashParams['port'].indexOf('-') > -1) {
@@ -62,7 +62,7 @@ define([
                                         yLabel: ctwl.Y_AXIS_TITLE_BW,
                                         forceX: [startPort, endPort],
                                         dataParser: function (response) {
-                                            var portData = constructDataForPortDist(response, getURLConfigForGrid(hashParams)),
+                                            var portData = constructDataForPortDist(response, nmwgc.getURLConfigForFlowGrid(hashParams)),
                                                 portDistributionParams = $.deparamURLArgs(url),
                                                 portType = 'port', flowCntField = 'flowCnt',
                                                 chartData = [];
@@ -75,20 +75,21 @@ define([
                                                 }
                                             });
 
-                                            portData = ctwp.parsePortDistribution(portData, $.extend({
+                                            portData = nmwp.parsePortDistribution(portData, $.extend({
                                                 startTime: portDistributionParams['startTime'],
                                                 endTime: portDistributionParams['endTime'],
                                                 bandwidthField: 'bytes',
                                                 flowCntField: flowCntField,
                                                 portField: 'port',
                                                 startPort: startPort,
-                                                endPort: endPort
+                                                endPort: endPort,
+                                                ipAddress: hashParams['ip']
                                             }, { portType: hashParams['portType'], fqName: hashParams['fqName']}));
 
                                             chartData = chartData.concat(portData);
                                             return chartData;
                                         },
-                                        tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                        tooltipConfigCB: nmwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
                                         clickCB: onScatterChartClick,
                                         sizeFieldName: 'flowCnt',
                                         xLabelFormat: d3.format(','),
@@ -166,42 +167,31 @@ define([
         return portArr;
     };
 
-    function getURLConfigForGrid(viewConfig) {
-        var urlConfigObj = {
-            'container': "#content-container",
-            'context': "network",
-            'type': "portRangeDetail",
-            'startTime': viewConfig['startTime'],
-            'endTime': viewConfig['endTime'],
-            'fqName': viewConfig['fqName'],
-            'port': viewConfig['port'],
-            'portType': viewConfig['portType']
-        };
-        return urlConfigObj;
-    };
-
-    var onScatterChartClick = function(chartConfig) {
-        var obj = {
+    function onScatterChartClick(chartConfig) {
+        var hashParams = {
             fqName: chartConfig['fqName'],
             port: chartConfig['range']
         };
         if (chartConfig['startTime'] != null && chartConfig['endTime'] != null) {
-            obj['startTime'] = chartConfig['startTime'];
-            obj['endTime'] = chartConfig['endTime'];
+            hashParams['startTime'] = chartConfig['startTime'];
+            hashParams['endTime'] = chartConfig['endTime'];
         }
 
         if (chartConfig['type'] == 'sport')
-            obj['portType'] = 'src';
+            hashParams['portType'] = 'src';
         else if (chartConfig['type'] == 'dport')
-            obj['portType'] = 'dst';
+            hashParams['portType'] = 'dst';
 
-        obj['type'] = "flow";
-        obj['view'] = "details";
+        hashParams['type'] = "flow";
+        hashParams['view'] = "details";
+
+        if(contrail.checkIfExist(chartConfig['ipAddress'])) {
+            hashParams['ip'] = chartConfig['ipAddress'];
+        }
+
         // dont change the 'p' of hash here as FlowListView is used
         // on multiple pages w/ different hash
-        layoutHandler.setURLHashParams(obj, {
-            merge: false
-        });
+        layoutHandler.setURLHashParams(hashParams, { merge: false });
     };
 
     return FlowListView;

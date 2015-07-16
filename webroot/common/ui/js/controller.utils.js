@@ -24,69 +24,15 @@ define([
     'monitor/networking/ui/js/views/ConnectedNetworkTrafficStatsView',
     'monitor/alarms/ui/js/views/AlarmListView',
     'monitor/alarms/ui/js/views/AlarmGridView',
-    'monitor/networking/ui/js/views/InterfaceGridView'
+    'monitor/networking/ui/js/views/InterfaceGridView',
+    'monitor/networking/ui/js/views/InstancePortDistributionView'
 ], function (_, NetworkingGraphView, ProjectTabView, NetworkTabView, NetworkGridView, InstanceTabView, InstanceGridView,
              ProjectGridView, FlowGridView, NetworkListView, ProjectListView, InstanceListView, FlowListView, InstanceView,
              InstanceTrafficStatsView, ProjectView, NetworkView, ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView,
-             AlarmListView, AlarmGridView, InterfaceGridView) {
+             AlarmListView, AlarmGridView, InterfaceGridView, InstancePortDistributionView) {
 
     var CTUtils = function () {
         var self = this;
-
-        self.initPortDistributionCharts = function (data) {
-            var chartsTemplate = contrail.getTemplate4Id('port-distribution-charts-template');
-            var networkChart, chartSelector;
-            if ((data['chartType'] == null) && ($.inArray(ifNull(data['context'], ''), ['domain', 'network', 'connected-nw', 'project', 'instance']) > -1)) {
-                networkChart = true;
-                chartSelector = '.port-distribution-chart';
-            } else {
-                networkChart = false;
-                chartSelector = '.port-distribution-chart';
-            }
-            $(this).html(chartsTemplate(data));
-            if (networkChart == true) {
-                //Add durationStr
-                $.each(data['d'], function (idx, obj) {
-                    if (ifNull(obj['duration'], true)) {
-                        if (obj['title'].indexOf('(') < 0)
-                            obj['title'] += durationStr;
-                    }
-                });
-                //Set the chart height to parent height - title height
-            }
-            //$(this).find('.stack-chart').setAvblSize();
-            var charts = $(this).find(chartSelector);
-            $.each(charts, function (idx, chart) {
-                //Bind the function to pass on the context of url & objectType to schema parse function
-                var chartData = data['d'][idx];
-                var chartType = ifNull(chartData['chartType'], '');
-                var fields;
-                var objectType = chartData['objectType'];
-                //Load asynchronously
-                initDeferred($.extend({}, chartData, {selector: $(this), renderFn: 'initScatterChart'}));
-                //If title is clickable
-            });
-        };
-
-        self.getMNConfigGraphConfig = function (url, elementNameObject, keySuffix, type) {
-            var graphConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: url,
-                        type: 'GET'
-                    }
-                },
-                cacheConfig: {
-                    ucid: ctwc.UCID_PREFIX_MN_GRAPHS + elementNameObject.fqName + keySuffix
-                },
-                focusedElement: {
-                    type: type,
-                    name: elementNameObject
-                }
-            };
-
-            return graphConfig;
-        };
 
         self.getInstanceDetailsTemplateConfig = function () {
             return {
@@ -165,46 +111,6 @@ define([
             
             }
         }
-        
-        self.getUUIDByName = function (fqName) {
-            var fqArray = fqName.split(":"),
-                ucid, modeltems, cachedData;
-
-            if (fqArray.length == 1) {
-                ucid = ctwc.UCID_BC_ALL_DOMAINS;
-                cachedData = cowch.get(ucid);
-                if (cachedData == null) {
-                    cowch.getAllDomains();
-                    return null;
-                }
-            } else if (fqArray.length == 2) {
-                ucid = ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, fqArray[0]);
-                cachedData = cowch.get(ucid);
-                if (cachedData == null) {
-                    cowch.getProjects4Domain(fqArray[0]);
-                    return getUUIDByName(fqName);
-                }
-            } else if (fqArray.length == 3) {
-                ucid = ctwc.get(ctwc.UCID_BC_PROJECT_ALL_NETWORKS, fqArray[0] + ":" + fqArray[1]);
-                cachedData = cowch.get(ucid);
-                if (cachedData == null) {
-                    cowch.getNetworks4Project(fqArray[0] + ":" + fqArray[1]);
-                    return getUUIDByName(fqName);
-                }
-            }
-
-            if (cachedData != null) {
-                modeltems = cachedData['dataObject']['listModel'].getItems();
-                var cachedObject = _.find(modeltems, function (domainObj) {
-                    return domainObj['fq_name'] == fqName;
-                });
-                if (contrail.checkIfExist(cachedObject)) {
-                    return cachedObject['value'];
-                } else {
-                    return getUUIDByName(fqName);
-                }
-            }
-        };
 
         //If there is discrepancy in data sent from multiple sources
         self.getDataBasedOnSource = function (data) {
@@ -240,6 +146,16 @@ define([
                     return value;
             });
             return formattedValue;
+        };
+
+        this.isServiceVN = function (vnFQN) {
+            var fqnArray = vnFQN.split(":");
+
+            if(ctwc.SERVICE_VN_EXCLUDE_LIST.indexOf(fqnArray[2]) != -1) {
+                return true;
+            }
+
+            return false;
         };
 
         self.renderView = function (viewName, parentElement, model, viewAttributes, modelMap) {
@@ -371,9 +287,15 @@ define([
                     elementView.modelMap = modelMap;
                     elementView.render();
                     break;
+
+                case "InstancePortDistributionView":
+                    elementView = new InstancePortDistributionView({ el: parentElement, model: model, attributes: viewAttributes });
+                    elementView.modelMap = modelMap;
+                    elementView.render();
+                    break;
             }
         };
-    }
+    };
 
     return CTUtils;
 });

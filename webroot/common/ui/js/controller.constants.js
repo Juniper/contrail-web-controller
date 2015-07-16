@@ -24,19 +24,21 @@ define([
         this.URL_NETWORK_SUMMARY = '/api/tenant/networking/virtual-network/summary?fqNameRegExp={0}';
 
         this.URL_NETWORK_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vn?minsSince={0}&fqName={1}&sampleCnt={2}&useServerTime=true';
+        this.URL_NETWORK_PORT_DISTRIBUTION = '/api/tenant/networking/network/stats/top?minsSince=10&fqName={0}&useServerTime=true&type=port';
+        this.URL_CONNECTED_NETWORK_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vn?minsSince={0}&srcVN={1}&destVN={2}&sampleCnt={3}&useServerTime=true';
 
-        this.URL_INSTANCE_CONNECTED_GRAPH = '/api/tenant/monitoring/instance-connected-graph?fqName={0}';
+        this.URL_INSTANCE_CONNECTED_GRAPH = '/api/tenant/monitoring/instance-connected-graph?fqName={0}&instanceUUID={1}';
         this.URL_INSTANCE_CONFIG_GRAPH = '/api/tenant/monitoring/instance-config-graph?fqName={0}';
         this.URL_INSTANCE_DETAIL = '/api/tenant/networking/virtual-machine?fqNameRegExp={0}?flat';
         this.URL_INSTANCES_SUMMARY = '/api/tenant/networking/virtual-machines/summary';
         this.URL_INSTANCE_DETAILS_IN_CHUNKS = '/api/tenant/networking/virtual-machines/details?count={0}&startAt={1}';
         this.URL_INSTANCE_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vm?minsSince={0}&fqName={1}&sampleCnt={2}&ip={3}&vmName={4}&vmVnName={5}&useServerTime=true';
-        this.URL_CONNECTED_NETWORK_TRAFFIC_STATS = '/api/tenant/networking/flow-series/vn?minsSince={0}&srcVN={1}&destVN={2}&sampleCnt={3}&useServerTime=true';
+        this.URL_INSTANCE_PORT_DISTRIBUTION = '/api/tenant/networking/network/stats/top?minsSince=10&fqName={0}&useServerTime=true&type=port&ip={1}';
 
         this.URL_VM_VN_STATS = '/api/tenant/networking/stats';
         this.URL_VM_INTERFACES = '/api/tenant/networking/virtual-machine-interfaces/summary';
 
-        this.URL_PORT_DISTRIBUTION = '/api/tenant/networking/network/stats/top?minsSince=10&fqName={0}&useServerTime=true&type=port';
+        this.URL_QUERY = '/api/admin/reports/query';
 
         this.FILTERS_COLUMN_VN = ['UveVirtualNetworkAgent:interface_list', 'UveVirtualNetworkAgent:in_bandwidth_usage', 'UveVirtualNetworkAgent:out_bandwidth_usage',
             'UveVirtualNetworkConfig:connected_networks', 'UveVirtualNetworkAgent:virtualmachine_list', 'UveVirtualNetworkAgent:acl', 'UveVirtualNetworkAgent:total_acl_rules',
@@ -57,9 +59,6 @@ define([
             //'VirtualMachineStats:if_stats'
         ];
 
-        this.TYPE_VIRTUAL_NETWORK = "virtual-network";
-        this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
-
         this.URL_NETWORK = '/#p=mon_networking_networks&q[type]=network&q[view]=details&q[focusedElement][fqName]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_VROUTER = '/#p=mon_infra_vrouter&q[node]={{key}}';
@@ -69,6 +68,17 @@ define([
             return cowc.getValueFromTemplate(args);
         };
 
+        this.TYPE_DOMAIN = "domain";
+        this.TYPE_PROJECT = "project";
+        this.TYPE_NETWORK = "network";
+        this.TYPE_INSTANCE = "instance";
+        this.TYPE_VN = 'vn';
+        this.TYPE_VIRTUAL_NETWORK = "virtual-network";
+        this.TYPE_VIRTUAL_MACHINE = "virtual-machine";
+
+        this.ALL_PROJECT_DROPDOWN_OPTION = [{name: 'all projects', value: 'all', fq_name: 'all'}];
+        this.ALL_NETWORK_DROPDOWN_OPTION = [{name: 'all networks', value: 'all', fq_name: 'all'}];
+
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
 
@@ -77,10 +87,11 @@ define([
         this.UCID_PREFIX_BREADCRUMB = "breadcrumb";
         this.UCID_PREFIX_GRAPHS = "graphs";
         this.UCID_PREFIX_CHARTS = "charts";
+        this.UCID_PREFIX_UVES = "uves";
         this.UCID_PREFIX_LISTS = "lists";
         this.UCID_PREFIX_MN_LISTS = this.UCID_PREFIX_MN + ":" + this.UCID_PREFIX_LISTS + ":";
         this.UCID_PREFIX_MN_GRAPHS = this.UCID_PREFIX_MN + ":" + this.UCID_PREFIX_GRAPHS + ":";
-        this.UCID_PREFIX_MN_CHARTS = this.UCID_PREFIX_MN + ":" + this.UCID_PREFIX_CHARTS + ":";
+        this.UCID_PREFIX_MN_UVES = this.UCID_PREFIX_MN + ":" + this.UCID_PREFIX_UVES + ":";
 
         this.UCID_ALL_VN_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-networks";
         this.UCID_ALL_VM_LIST = this.UCID_PREFIX_MN_LISTS + "all-virtual-machines";
@@ -93,10 +104,12 @@ define([
         this.UCID_BC_NETWORK_ALL_INSTANCES = this.UCID_PREFIX_BREADCRUMB + ':{0}:all-instances';
 
         this.UCID_PROJECT_VN_PORT_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:port-stats";
+        this.UCID_PROJECT_VM_PORT_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:port-stats";
         this.UCID_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:traffic-stats";
         this.UCID_INSTANCE_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:{2}:traffic-stats";
         this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
         this.UCID_INSTANCE_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:interfaces";
+        this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
 
         this.GRAPH_DIR_LR = "LR";
         this.GRAPH_DIR_TB = "TB";
@@ -122,6 +135,8 @@ define([
 
         this.TOP_IN_LAST_MINS = 10;
         this.NUM_DATA_POINTS_FOR_FLOW_SERIES = 120;
+
+        this.LINK_CONNECTOR_STRING = " --- ";
 
         this.getProjectsURL = function (domain) {
             //If the role is admin then we will display all the projects else the projects which has access
@@ -266,19 +281,26 @@ define([
                     reqParams['fromTimeUTC'] = new XDate().addMinutes(-10).getTime();
                     reqParams['toTimeUTC'] = new XDate().getTime();
                 }
-                var protocolMap = {tcp: 6, icmp: 1, udp: 17};
-                var protocolCode = [];
+                var protocolMap = {tcp: 6, icmp: 1, udp: 17},
+                protocolCode = [];
+
                 $.each(urlConfig['protocol'], function (idx, value) {
                     protocolCode.push(protocolMap[value]);
                 });
                 if (fqName.split(':').length == 2) {
                     fqName += ':*';//modified the fqName as per the flow series queries
                 }
-                var portType = urlConfig['portType'] == 'src' ? 'sport' : 'dport';
-                var whereArr = [];
+                var portType = urlConfig['portType'] == 'src' ? 'sport' : 'dport',
+                    whereArr = [];
+
                 $.each(protocolCode, function (idx, currProtocol) {
-                    whereArr.push(contrail.format("({3}={0} AND sourcevn={1} AND protocol={2})", urlConfig['port'], fqName, currProtocol, portType));
+                    if(contrail.checkIfExist(urlConfig['ip'])) {
+                        whereArr.push(contrail.format("({3}={0} AND sourcevn={1} AND protocol={2} AND sourceip={4})", urlConfig['port'], fqName, currProtocol, portType, urlConfig['ip']));
+                    } else {
+                        whereArr.push(contrail.format("({3}={0} AND sourcevn={1} AND protocol={2})", urlConfig['port'], fqName, currProtocol, portType));
+                    }
                 });
+
                 reqParams['select'] = "sourcevn, destvn, sourceip, destip, protocol, sport, dport, sum(bytes), sum(packets),flow_count";
                 reqParams['where'] = whereArr.join(' OR ');
                 delete reqParams['fqName'];

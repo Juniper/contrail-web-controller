@@ -233,7 +233,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <queryParams>
                                 <view>list</view>
                                 <type>project</type>
-                                <source>uve</source>
                             </queryParams>
                             <searchStrings>Monitor Projects</searchStrings>
                         </item>
@@ -250,7 +249,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <queryParams>
                                 <view>list</view>
                                 <type>network</type>
-                                <source>uve</source>
                             </queryParams>
                             <searchStrings>Monitor Networks</searchStrings>
                         </item>
@@ -267,7 +265,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <queryParams>
                                 <view>list</view>
                                 <type>instance</type>
-                                <source>uve</source>
                             </queryParams>
                             <searchStrings>Monitor instances</searchStrings>
                         </item>
