@@ -9,7 +9,9 @@ var VROUTER = 'virtual-router';
 var ZOOMED_OUT = 0;
 var timeout;
 var expanded = true;
-
+var statsResponseBytesKey = 'SUM(enterprise.juniperNetworks.fabricMessageExt.edges.class_stats.transmit_counts.bytes)';
+var statsResponsePktsKey = 'SUM(enterprise.juniperNetworks.fabricMessageExt.edges.class_stats.transmit_counts.packets)';
+var PRouterFieldPrefix = "enterprise.juniperNetworks.fabricMessageExt.edges.";
 function mxRenderer() {
     this.load = function(obj) {
         this.configTemplate = Handlebars.compile($("#visualization-template").html());
@@ -18,7 +20,7 @@ function mxRenderer() {
         $("#content-container").html('');
         $("#content-container").html(this.configTemplate);
         currTab = 'mon_infra_mx';
-        this.model = new mxModel({nodes:[], links:[]});
+        this.model = new mxModel();
         this.view  = new mxView(this.model);
         this.controller = new mxController(this.model, this.view);
         this.controller.getModelData();
@@ -43,11 +45,18 @@ function mxRenderer() {
     }
 }
 
-var LineCard = function() {
+var LineCard = function(parent) {
+    this.parent = parent;
     this.slot_identifier = 0;
     this.model_type = "";
     this.pfe_count = 0;
     this.cpu_count = 0;
+    this.pfes = [];
+    this.stats = [];
+}
+
+LineCard.prototype.getParentObject = function() {
+    return this.parent;
 }
 
 LineCard.prototype.getSlotIdentifier = function() {
@@ -69,7 +78,14 @@ LineCard.prototype.setSlotIdentifier = function(slotId) {
         this.slot_identifier = 0;
     }
 }
-
+LineCard.prototype.setStats = function (stats) {
+    if(stats != null) {
+        this.stats =  stats;
+    }
+}
+LineCard.prototype.getStats = function () {
+    return this.stats;
+}
 LineCard.prototype.getModelType = function() {
     return this.model_type;
 }
@@ -100,6 +116,18 @@ LineCard.prototype.setPFECount = function(pfe_count) {
     } else {
         this.pfe_count = 0;
     }
+    if(this.pfe_count > 0) {
+        var pfeObjects = [];
+        for(var i=0; i<this.pfe_count; i++) {
+            var pfeObject = new PacketForwardingEngine();
+            pfeObject.setSlotIdentifier(i);
+            pfeObject.setParentObject(this);
+            pfeObjects.push(pfeObject);
+        }
+        if(pfeObjects.length > 0) {
+            this.setPFEObjects(pfeObjects);
+        }
+    }
 }
 
 LineCard.prototype.getCPUCount = function() {
@@ -120,6 +148,19 @@ LineCard.prototype.setCPUCount = function(cpu_count) {
     } else {
         this.cpu_count = 0;
     }
+}
+
+LineCard.prototype.setPFEObjects = function(pfeObjects) {
+    if(null !== pfeObjects && typeof pfeObjects !== "undefined" &&
+        pfeObjects.length >0) {
+        this.pfes = pfeObjects;
+    } else {
+        this.pfes = [];
+    }
+}
+
+LineCard.prototype.getPFEObjects = function() {
+    return this.pfes;
 }
 
 var SwitchCard = function() {
@@ -241,18 +282,54 @@ PowerModule.prototype.setSerialNumber = function(serial_number) {
     }
 }
 
+var PacketForwardingEngine = function() {
+    this.slot_identifier = "";
+    this.linecard = {};
+    this.stats = [];
+}
+
+PacketForwardingEngine.prototype.setStats = function(stats) {
+    if(stats != null){
+        this.stats = stats;
+    }
+}
+PacketForwardingEngine.prototype.getStats = function() {
+    return this.stats;
+}
+PacketForwardingEngine.prototype.getSlotIdentifier = function() {
+    return this.slot_identifier;
+}
+
+PacketForwardingEngine.prototype.setSlotIdentifier = function(slot_identifier) {
+    if(null !== slot_identifier && typeof slot_identifier !== "undefined") {
+        this.slot_identifier = slot_identifier;
+    } else {
+        this.slot_identifier = "";
+    }
+}
+
+PacketForwardingEngine.prototype.getParentObject = function() {
+    return this.linecard;
+}
+
+PacketForwardingEngine.prototype.setParentObject = function(linecard) {
+    if(null !== linecard && typeof linecard !== "undefined") {
+        this.linecard = linecard;
+    } else {
+        this.linecard = {};
+    }
+}
 var PRouterChassisData = function() {
     this.name = "";
     this.identifier = "";
     this.model_type = "";
     this.telemetry_resources = "";
-
     this.max_routing_engines = 0;
     this.max_line_cards = 0;
     this.max_switch_cards = 0;
     this.max_fan_modules = 0;
     this.max_power_modules = 0;
-
+    this.stats = [];
     this.routing_engines = [];
     this.line_cards      = [];
     this.switch_cards    = [];
@@ -350,7 +427,7 @@ PRouterChassisData.prototype.setData = function(data) {
             data.line_cards.length > 0) {
             var lcs = data.line_cards;
             for(var i=0; i<lcs.length; i++) {
-                var tmpLC = new LineCard();
+                var tmpLC = new LineCard(this);
                 tmpLC.setModelType(lcs[i].model_type);
                 tmpLC.setSlotIdentifier(lcs[i].slot_identifier);
                 tmpLC.setPFECount(lcs[i].pfe_count);
@@ -358,7 +435,10 @@ PRouterChassisData.prototype.setData = function(data) {
                 this.line_cards.push(tmpLC);
             }
         }
-        if(data.switch_cards && typeof data.switch_cards === "object" &&
+        if(data.stats) {
+            this.setStats(data.stats);
+        }
+        /*if(data.switch_cards && typeof data.switch_cards === "object" &&
             data.switch_cards.length > 0) {
             var scs = data.switch_cards;
             for(var i=0; i<scs.length; i++) {
@@ -395,7 +475,7 @@ PRouterChassisData.prototype.setData = function(data) {
                 tmpFM.setDescription(fms[i].description);
                 this.fan_modules.push(tmpFM);
             }
-        }
+        }*/
         if(data.protocols && typeof data.protocols === "object" &&
             data.protocols.length > 0) {
             this.protocols = data.protocols;
@@ -528,18 +608,56 @@ PRouterChassisData.prototype.setMaxPowerModules = function(maxPM) {
     }
 }
 
+PRouterChassisData.prototype.setStats = function (stats){
+    if(stats != null) {
+        this.stats = stats
+    }
+}
+
+PRouterChassisData.prototype.getStats = function() {
+    return this.stats;
+}
 
 var mxModel = function(data) {
     this.prouter_chassises = [];
+    this.chasisStats = [];
+    this.lineCardStats = [];
+    this.pfeStats = [];
     if(data && data.hasOwnProperty('PRouterChassisUVEs') && data.PRouterChassisUVEs.length>0) {
         this.processData(data.PRouterChassisUVEs);
     } 
 }
 
+mxModel.prototype.setChasisStats = function(stats) {
+    if(stats != null) {
+        this.lineCardStats = stats;
+    }
+}
+mxModel.prototype.setPfeStats = function(stats) {
+    if(stats != null) {
+        this.pfeStats = stats;
+    }
+}
+mxModel.prototype.getChasisStats = function() {
+    return this.chasisStats;
+}
+
+mxModel.prototype.getLineCardStats = function() {
+    return this.lineCardStats;
+}
+
+mxModel.prototype.getPfeStats = function() {
+    return this.pfeStats;
+}
+
+mxModel.prototype.setChasisStats = function(stats) {
+    if(stats != null) {
+        this.chasisStats = stats;
+    }
+}
 mxModel.prototype.getProuterChassises = function() {
     return this.prouter_chassises;
 }
-
 mxModel.prototype.setProuterChassises = function(prouter_chassises) {
     if(null !== prouter_chassises && typeof prouter_chassises !== "undefined" && 
         typeof prouter_chassises === "object" && prouter_chassises.length > 0) {
@@ -589,6 +707,8 @@ mxModel.prototype.processData = function(data) {
     var prouterUves = [];
     for(var i=0; i<data.PRouterChassisUVEs.length; i++) {
         var tmpProuterData = data.PRouterChassisUVEs[i].PRouterChassisData;
+        if(null === tmpProuterData || typeof tmpProuterData === "undefined")
+            continue;
         var tmpProuter = new PRouterChassisData();
         tmpProuter.setData(tmpProuterData);
         prouterUves.push(tmpProuter);
@@ -596,6 +716,40 @@ mxModel.prototype.processData = function(data) {
     if(prouterUves.length>0) {
         this.setProuterChassises(prouterUves);
     }
+
+    var getAjaxs = [];
+    for(var i=0; i<prouterUves.length; i++) {
+        var lineCards = prouterUves[i].getLineCards();
+        var lineCardsLen = ifNull(lineCards,[]).length;
+        getAjaxs [getAjaxs.length] = $.ajax({
+                                        url: '/api/tenant/networking/mx/fabric/stats',
+                                        data: {
+                                            'source': '50.1.0.254',
+                                            'viewType': 'chasis'
+                                        },context: {
+                                            prouterUvesLen: prouterUves.length,
+                                        }
+                                     });
+    }
+    $.when.apply($,getAjaxs).then(
+    	function () {
+    		var results = arguments;
+    		if(this.prouterUvesLen == 1) {
+    		    results = [results];
+    		}
+    		var resultsLen = results.length;
+    		for (var i = 0; i < resultsLen; i++){
+    		    var resultObj = results[i];
+    		    if(prouterUves[i] != null && resultObj[1] == 'success') {
+    		        prouterUves[i].setStats(getValueByJsonPath(resultObj,'0;values',[]));
+    		    }
+    		}
+    		
+    	},
+    	function (error) {
+    	
+    	}
+    );
 }
 
 mxModel.prototype.reset = function() {
@@ -624,13 +778,7 @@ var mxView = function (model) {
         height: $("#topology-connected-elements").innerHeight()//,
         //linkView: joint.shapes.contrail.LinkView
     });
-    var myAdjustVertices = _.partial(this.adjustVertices, this.graph);
-
-    // adjust vertices when a cell is removed or its source/target was changed
-    this.graph.on('add remove change:source change:target', myAdjustVertices);
-
-    // also when an user stops interacting with an element.
-    this.paper.on('cell:pointerup', myAdjustVertices);
+    this.chassisElId = "";
 
     this.initZoomControls();
     this.tooltipConfig = {};
@@ -770,6 +918,7 @@ mxView.prototype.populateDomainBreadcrumbDropdown = function() {
         domainDropdownElement.setData(dropdownData);
         //_this.getView().renderMxDetails();
         $("#prouter_chassises").trigger('change');
+        $(_this.getGraph().getCell(_this.chassisElId)).trigger('click');
     } else {
         //TODO - Empty message - that.$el.html(ctwm.NO_PROJECT_FOUND);
     }
@@ -837,21 +986,21 @@ mxView.prototype.addElementsToGraph = function(selectedProuter) {
     var links = []
     for (var j = 0; j < no_of_line_cards; j++){
         var obj = lineCards[ j ];
-		x_position = x_position + 80;
-		y_position = 0;
+        x_position = x_position + 80;
+        y_position = 0;
         var pfeCount = obj.getPFECount();
-	    for (var x= 0 ; x< pfeCount; x++) {
-		    var object = image.clone();
+        for (var x= 0 ; x< pfeCount; x++) {
+            var object = image.clone();
             object.prop( 'position' , {x : x_position,y : y_position});
             object.prop( 'attrs.text' , {text: 'bac'});
-			y_position = y_position + 80;
-			objects.push(object);
-	    }
+            y_position = y_position + 80;
+            objects.push(object);
+        }
 
     }
-	for (i =0;i<objects.length;i++)
-	{
-	    for (j =i+1;j<objects.length;j++){
+    for (i =0;i<objects.length;i++)
+    {
+        for (j =i+1;j<objects.length;j++){
             var link = new joint.dia.Link({
                 source: { id: objects[i].id },
                 target: { id: objects[j].id }
@@ -859,12 +1008,12 @@ mxView.prototype.addElementsToGraph = function(selectedProuter) {
             links.push(link);
         }
     }
-	if(links.length > 0){
-	    mesh = objects.concat(links);
-	}
+    if(links.length > 0){
+        mesh = objects.concat(links);
+    }
 
     if(objects.length > 0){
-		graph.addCells(mesh);
+        graph.addCells(mesh);
     }
 }
 
@@ -889,13 +1038,13 @@ mxView.prototype.createElements = function(selectedProuter) {
         var tmpProuterData = data[chassisCount];
         var chassisId = tmpProuterData.getIdentifier();
 
-        var lineCards = tmpProuterData.getLineCards(),
-            switchCards = tmpProuterData.getSwitchCards(),
+        var lineCards = tmpProuterData.getLineCards();
+            /*switchCards = tmpProuterData.getSwitchCards(),
             routingEngines = tmpProuterData.getRoutingEngines(),
             powerModules = tmpProuterData.getPowerModules(),
-            fanModules = tmpProuterData.getFanModules();
+            fanModules = tmpProuterData.getFanModules();*/
 
-        var no_of_line_cards = 0,
+        var no_of_line_cards = 0;
             no_of_switch_cards = 0,
             no_of_routing_engines = 0,
             no_of_power_modules = 0,
@@ -904,7 +1053,7 @@ mxView.prototype.createElements = function(selectedProuter) {
         if(null !== lineCards && typeof lineCards === "object" && lineCards.length>0)
             no_of_line_cards = lineCards.length;
 
-        if(null !== switchCards && typeof switchCards === "object" && switchCards.length>0)
+        /*if(null !== switchCards && typeof switchCards === "object" && switchCards.length>0)
             no_of_switch_cards = switchCards.length;
 
         if(null !== routingEngines && typeof routingEngines === "object" && routingEngines.length>0)
@@ -914,12 +1063,13 @@ mxView.prototype.createElements = function(selectedProuter) {
             no_of_power_modules = powerModules.length;
 
         if(null !== fanModules && typeof fanModules === "object" && fanModules.length>0)
-            no_of_fan_modules = fanModules.length;
+            no_of_fan_modules = fanModules.length;*/
 
         var chassisEl = 
             this.createNode({name: "chassis_" + chassisId, modelData: tmpProuterData, parentData: {}}, 'chassis', no_of_line_cards, no_of_switch_cards, 
                 no_of_routing_engines, no_of_power_modules, no_of_fan_modules, 0, 0, 'chassis');
         nodeEls.push(chassisEl);
+        this.chassisElId = chassisEl.id;
 
         var lineCardEls = [];
         for (var i=0; i<no_of_line_cards; i++) {
@@ -927,17 +1077,17 @@ mxView.prototype.createElements = function(selectedProuter) {
                 no_of_routing_engines, no_of_power_modules, no_of_fan_modules, 0, i, 'chassis');
             lineCardEls.push(lineCardEl);
         }
-        nodeEls.push(lineCardEls);
+        nodeEls = nodeEls.concat(lineCardEls);
         var lcToFabricLinkEls = [];
         for (var i=0; i<no_of_line_cards; i++) {
-            var lcToFabricLinkEl = this.createLink({modelData: {source: lineCards[i], target: tmpProuterData}}, 'lc-fb', lineCardEls[i], chassisEl); 
-            lcToFabricLinkEls.push(lcToFabricLinkEl);
-            for (var j=1; j<no_of_line_cards; j++) {
-                lcToFabricLinkEls.push(lcToFabricLinkEl.clone());
+            for (var j=0; j<no_of_line_cards; j++) {
+                var lcToFabricLinkEl = this.createLink({modelData: {source: lineCards[i], target: lineCards[j]}}, 'lc-lc', lineCardEls[i], chassisEl); 
+                lcToFabricLinkEls.push(lcToFabricLinkEl);
+                //lcToFabricLinkEls.push(lcToFabricLinkEl.clone());
             }
         }
 
-        var switchCardEls = [];
+        /*var switchCardEls = [];
         for (var i=0; i<no_of_switch_cards; i++) {
             var switchCardEl = this.createNode({name: "chassis_" + chassisId + "_sc_" + switchCards[i].getSlotIdentifier(), modelData: switchCards[i], parentData: tmpProuterData}, 'switch-card', no_of_line_cards, no_of_switch_cards, 
                 no_of_routing_engines, no_of_power_modules, no_of_fan_modules, 0, i, 'chassis');
@@ -987,16 +1137,34 @@ mxView.prototype.createElements = function(selectedProuter) {
         for (var i=0; i<no_of_fan_modules; i++) {
             var fmToFabricLinkEl = this.createLink({modelData: {source: fanModules[i], target: tmpProuterData}}, 'fm-fb', fanModuleEls[i], chassisEl); 
             fmToFabricLinkEls.push(fmToFabricLinkEl);
-        }
+        }*/
     }
-    linkEls = linkEls.concat(lcToFabricLinkEls).
+    linkEls = linkEls.concat(lcToFabricLinkEls);
+    /*linkEls = linkEls.concat(lcToFabricLinkEls).
             concat(scToFabricLinkEls).
             concat(reToFabricLinkEls).
             concat(pmToFabricLinkEls).
-            concat(fmToFabricLinkEls);
+            concat(fmToFabricLinkEls);*/
 
+    this.setElementMap({nodes:nodeEls, links: linkEls});
     var allEls = nodeEls.concat(linkEls);
     graph.addCells(allEls);
+    var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "BT", "nodeSep" : 60, "rankSep" : 100});
+    var svgHeight = newGraphSize.height;
+    var svgWidth = newGraphSize.width;
+    var viewAreaHeight = $("#topology-connected-elements").height();
+    var viewAreaWidth = $("#topology-connected-elements").width();
+    var offsetY = (viewAreaHeight - svgHeight)/2;
+    var offsetX = (viewAreaWidth - svgWidth)/2;
+    var offset = {
+        x: offsetX,
+        y: offsetY
+    };
+
+    $.each(allEls, function (elementKey, elementValue) {
+        elementValue.translate(offset.x, offset.y);
+    });
+
     /*var constraint = g.ellipse(
         g.point(
             $("#topology-connected-elements").width()/2, 
@@ -1044,23 +1212,23 @@ mxView.prototype.createElements = function(selectedProuter) {
 mxView.prototype.createLink = function(link, link_type, source, target) {
         var options;
         var linkElement;
-        link1 = {}
+        link.link_type = link_type;
         options = {
             direction   : "bi",
             linkType    : link.link_type,
             linkDetails : link
         };
-
+        link['connectionStroke'] = '#637939';
         options['sourceId'] = source.id
         options['targetId'] = target.id;
-        //linkElement = new ContrailElement('link', options);
-        linkElement = new joint.dia.Link({
+        linkElement = new ContrailElement('link', options);
+        /*linkElement = new joint.dia.Link({
             source: { id: source.id },
             target: { id: target.id },
             attrs: { '.connection': { 'stroke-width': 1.2, stroke: '#222' }, '.marker-vertices': { display: 'none' }},
-            //smooth: true, // We'are using a bezier curve
+            smooth: true, // We'are using a bezier curve
             z: -1 // The links are always lying under the elements.
-        });
+        });*/
         return linkElement;
 }
 
@@ -1166,7 +1334,7 @@ mxView.prototype.createNode = function(data, type, no_of_line_cards, no_of_switc
     }
     else {
         totalBlocks = no_of_pfes;
-        blocksPerColumn = data.modelData.getPFECount();
+        blocksPerColumn = data.modelData.getParentObject().getPFECount();
     }
     
     var perBlockHeight = ($("#topology-connected-elements").height() - 5)/blocksPerColumn;
@@ -1176,7 +1344,7 @@ mxView.prototype.createNode = function(data, type, no_of_line_cards, no_of_switc
     switch (type) {
         case 'chassis':
             label = "Fabric";
-            iconClass = "mxicon-fabrics";
+            iconClass = "mxicon-fabrics-horiz";
             width = 40;
             height = 40;
             xPos = ($("#topology-connected-elements").width() - 40)/2;
@@ -1184,40 +1352,40 @@ mxView.prototype.createNode = function(data, type, no_of_line_cards, no_of_switc
             break;
         case 'line-card':
             iconClass = "mxicon-line-card";
-            label = "Slot " + currentIndex;
+            label = "Slot " + data.modelData.getSlotIdentifier();
             yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
             xPos = (currentIndex < blocksPerColumn) ? ((($("#topology-connected-elements").width() - 40)/2) - 100) : ((($("#topology-connected-elements").width() - 40)/2) + 100);
             break;
         case 'switch-card':
             iconClass = "mxicon-switch-card";
-            label = "SC " + currentIndex;
+            label = "SC " + data.modelData.getSlotIdentifier();
             currentIndex = currentIndex + no_of_line_cards;
             yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
             xPos = (currentIndex < blocksPerColumn) ? ((($("#topology-connected-elements").width() - 40)/2) - 100) : ((($("#topology-connected-elements").width() - 40)/2) + 100);
             break;
         case 'routing-engine':
             iconClass = "mxicon-routing-engine";
-            label = "RE " + currentIndex;
+            label = "RE " + data.modelData.getSlotIdentifier();
             currentIndex = currentIndex + no_of_line_cards + no_of_switch_cards;
             yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
             xPos = (currentIndex < blocksPerColumn) ? ((($("#topology-connected-elements").width() - 40)/2) - 100) : ((($("#topology-connected-elements").width() - 40)/2) + 100);
             break;
         case 'power-module':
             iconClass = "mxicon-power-supply";
-            label = "PSU " + currentIndex;
+            label = "PSU " + data.modelData.getSlotIdentifier();
             currentIndex = currentIndex + no_of_line_cards + no_of_switch_cards + no_of_routing_engines;
             yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
             xPos = (currentIndex < blocksPerColumn) ? ((($("#topology-connected-elements").width() - 40)/2) - 100) : ((($("#topology-connected-elements").width() - 40)/2) + 100);
             break;
         case 'fan-module':
             iconClass = "mxicon-fan-tray";
-            label = "Fan Tray " + currentIndex;
+            label = "Fan Tray " + data.modelData.getSlotIdentifier();
             currentIndex = currentIndex + no_of_line_cards + no_of_switch_cards + no_of_routing_engines + no_of_power_modules;
             yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
             xPos = (currentIndex < blocksPerColumn) ? ((($("#topology-connected-elements").width() - 40)/2) - 100) : ((($("#topology-connected-elements").width() - 40)/2) + 100);
             break;
         case 'packet-forwarding-engine':
-            iconClass = "mxicon-pf-engine";
+            iconClass = "mxicon-packet-forwarding";
             if(view !== "pfe") {
                 label = "PFE " + currentIndex;
                 yPos = (currentIndex%blocksPerColumn) * perBlockHeight;
@@ -1244,7 +1412,7 @@ mxView.prototype.createNode = function(data, type, no_of_line_cards, no_of_switc
             height: height
         },
         nodeDetails: data,
-        position: {x: xPos, y: yPos},
+        //position: {x: xPos, y: yPos},
         font: {
             iconClass: iconClass
         }
@@ -1304,23 +1472,82 @@ mxView.prototype.initTooltipConfig = function() {
         link: {
             title: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
-                var endpoint1 = viewElement.attributes.attrs.linkDetails.src;
-                var endpoint2 = viewElement.attributes.attrs.linkDetails.trgt;
-                return "<div class='row-fluid'><div class='span1' style='margin-right:5px'>" + "Link" + "</div>" +
-                    "<div class='span5'>" + "source" + "</div>" +
-                    "<div class='span5'>" + "target" + "</div></div>";
+                var linkType = viewElement.attributes.linkDetails.link_type;
+                switch (linkType) {
+                    case 'lc-lc':
+                        var endpoint1 = viewElement.attributes.linkDetails.modelData.source;
+                        var endpoint2 = viewElement.attributes.linkDetails.modelData.target;
+                        return "<div>Traffic between Slot " + endpoint1.getSlotIdentifier() + 
+                            " and Slot " + endpoint2.getSlotIdentifier() + "</div>";
+                    case 'pfe-lc':
+                        var endpoint1 = viewElement.attributes.linkDetails.modelData.source;
+                        var endpoint2 = viewElement.attributes.linkDetails.modelData.target;
+
+                        return "<div>Traffic between PFE " + endpoint1.getSlotIdentifier() + 
+                            " (Slot " + endpoint1.getParentObject().getSlotIdentifier() +
+                            ") and Slot " + endpoint2.getSlotIdentifier() + "</div>";
+                    case 'pfe-pfe':
+                        var endpoint1 = viewElement.attributes.linkDetails.modelData.source;
+                        var endpoint2 = viewElement.attributes.linkDetails.modelData.target;
+
+                        return "<div>Traffic between PFE " + endpoint1.getSlotIdentifier() + 
+                            " (Slot " + endpoint1.getParentObject().getSlotIdentifier() + ") and " + 
+                            "PFE " + endpoint2.getSlotIdentifier() + " (Slot " + 
+                            endpoint2.getParentObject().getSlotIdentifier() + ")</div>";
+                }
             },
             content: function(element, graph) {
                 var viewElement = graph.getCell(element.attr('model-id'));
+                var linkType = viewElement.attributes.linkDetails.link_type;
+                var endpoint1 = viewElement.attributes.linkDetails.modelData.source;
+                var endpoint2 = viewElement.attributes.linkDetails.modelData.target;
+                var srcSlot = endpoint1.getSlotIdentifier();
+                var dstSlot = endpoint2.getSlotIdentifier();
                 var tooltipContent = contrail.getTemplate4Id('two-column-content-template');
+                var egressBytes = 0,
+                    egressPkts = 0,
+                    ingressBytes = 0,
+                    ingressPkts = 0;
+                switch (linkType) {
+                    case 'lc-lc':
+                        var stats = endpoint1.getParentObject().getStats();
+                        egressBytes = getValueByJsonPath(stats,srcSlot+";"+dstSlot+";"+statsResponseBytesKey,0);
+                        egressPkts = getValueByJsonPath(stats,srcSlot+";"+dstSlot+";"+statsResponsePktsKey,0);
+                        ingressBytes = getValueByJsonPath(stats,dstSlot+";"+srcSlot+";"+statsResponseBytesKey,0);
+                        ingressPkts = getValueByJsonPath(stats,dstSlot+";"+srcSlot+";"+statsResponsePktsKey,0);
+                        break;
+                    case 'pfe-lc':
+                        var srclcSlot = endpoint1.getParentObject().getSlotIdentifier();
+                        var stats = endpoint1.getParentObject().getStats();
+                        var egressStatsLst = getValueByJsonPath(stats,srclcSlot+";"+srcSlot+";"+dstSlot,{});
+                        $.each(egressStatsLst,function(idx,obj){
+                            egressBytes += ifNull(obj[statsResponseBytesKey],0);
+                            egressPkts += ifNull(obj[statsResponsePktsKey],0);
+                        });
+                        var ingressStatsLst = ifNull(stats[dstSlot],{});
+                        $.each(ingressStatsLst,function(idx,obj){
+                            ingressBytes += getValueByJsonPath(obj,srclcSlot+";"+srcSlot+";"+statsResponseBytesKey,0);
+                            ingressPkts += getValueByJsonPath(obj,srclcSlot+";"+srcSlot+";"+statsResponsePktsKey,0);
+                        });
+                        break;
+                    case 'pfe-pfe':
+                        var stats = endpoint1.getParentObject().getStats();
+                        var srclcSlot = endpoint1.getParentObject().getSlotIdentifier();
+                        var dstlcSlot = endpoint2.getParentObject().getSlotIdentifier();
+                        egressBytes = getValueByJsonPath(stats,srclcSlot+";"+srcSlot+";"+dstlcSlot+";"+dstSlot+";"+statsResponseBytesKey,0);
+                        egressPkts = getValueByJsonPath(stats,srclcSlot+";"+srcSlot+";"+dstlcSlot+";"+dstSlot+";"+statsResponsePktsKey,0);
+                        ingressBytes = getValueByJsonPath(stats,dstlcSlot+";"+dstSlot+";"+srclcSlot+";"+srcSlot+";"+statsResponseBytesKey,0);
+                        ingressPkts = getValueByJsonPath(stats,dstlcSlot+";"+dstSlot+";"+srclcSlot+";"+srcSlot+";"+statsResponsePktsKey,0);
+                        break;
+                }
                 return tooltipContent([
                     {
-                        lbl: "src",
-                        value:  [viewElement.attributes.attrs.linkDetails.src]
+                        lbl: "Out",
+                        value:  formatBytes(egressBytes)+" / "+egressPkts
                     },
                     {
-                        lbl: "trgt",
-                        value:  [viewElement.attributes.attrs.linkDetails.trgt]
+                        lbl: "In",
+                        value:  formatBytes(ingressBytes)+" / "+ingressPkts
                     }
                 ]);
             }
@@ -1355,6 +1582,7 @@ mxView.prototype.initGraphEvents = function() {
 
     paper.on('cell:pointerdown', function (cellView, evt, x, y) {
         evt.stopImmediatePropagation();
+        _this.adjustVertices(graph, cellView);
     });
 
     paper.on('cell:pointerdblclick', function (cellView, evt, x, y) {
@@ -1373,7 +1601,7 @@ mxView.prototype.initGraphEvents = function() {
                 var no_of_line_cards = 0;
                 var no_of_pfes = 0;
                 var lineCards = [];
-                var chassisId = "";
+                var chassisId = "",slotIdentifier;
                 if(null !== nodeDetails && typeof nodeDetails === "object") {
                     if(nodeDetails.hasOwnProperty('parentData')) {
                         chassisId = nodeDetails.parentData.getIdentifier();
@@ -1387,34 +1615,61 @@ mxView.prototype.initGraphEvents = function() {
                         return;
                     }
                     if(nodeDetails.hasOwnProperty('modelData')) {
-                        no_of_pfes = nodeDetails.modelData.getPFECount();
+                        var modelData = nodeDetails.modelData;
+                        no_of_pfes = modelData.getPFECount();
+                        slotIdentifier = modelData.getSlotIdentifier();
+                        $.ajax({
+                            url:'/api/tenant/networking/mx/fabric/stats?source=50.1.0.254&viewType=lineCard',
+                            data:{
+                                whereClause :[[{name:PRouterFieldPrefix+'src_slot',value:parseInt(slotIdentifier),op:1},{name:'Source',value:'50.1.0.254',op:1}],
+                                              [{name:PRouterFieldPrefix+'dst_slot',value:parseInt(slotIdentifier),op:1}]]
+                            },
+                        }).done(function(response){
+                            modelData.setStats(response['values'],[]);
+                        }).fail(function(){
+                            
+                        });
                     } else {
                         return;
                     }
                 } 
-
                 var allEls = [];
                 var chassisEl = graph.getCell(graph.getConnectedLinks(dblClickedElement)[0].attributes.target.id);
                 allEls = allEls.concat(chassisEl);
                 var packetForwardingEngineEls = [];
                 var pfeToFabricLinkEls = [];
-
-                for(var i=0; i<no_of_pfes; i++) {
-                    var packetForwardingEngineEl = _this.createNode({name: "chassis_" + chassisId + "_linecard_" + nodeDetails.modelData.getSlotIdentifier() + "_pfe_" + i, modelData: nodeDetails.modelData, parentData: nodeDetails.parentData}, 'packet-forwarding-engine', no_of_line_cards, 0, 0, 0, 0, 0, i, 'line-card');
-                    packetForwardingEngineEls.push(packetForwardingEngineEl);
-                }
-                allEls = allEls.concat(packetForwardingEngineEls);
                 for (var i=0; i<no_of_pfes; i++) {
-                    var pfeToFabricLinkEl = _this.createLink({modelData: {source: nodeDetails.modelData, target: nodeDetails.parentData}}, 'pfe-fb', packetForwardingEngineEls[i], chassisEl); 
-                    pfeToFabricLinkEls.push(pfeToFabricLinkEl);
-                    for (var j=1; j<no_of_line_cards; j++) {
-                        pfeToFabricLinkEls.push(pfeToFabricLinkEl.clone());
+                    var pfeObject = new PacketForwardingEngine();
+                    pfeObject.setSlotIdentifier(i);
+                    pfeObject.setParentObject(nodeDetails.modelData);
+                    var packetForwardingEngineEl = _this.createNode({name: "chassis_" + chassisId + "_linecard_" + nodeDetails.modelData.getSlotIdentifier() + "_pfe_" + i, modelData: pfeObject, parentData: nodeDetails.modelData}, 'packet-forwarding-engine', no_of_line_cards, 0, 0, 0, 0, 0, i, 'line-card');
+                    packetForwardingEngineEls.push(packetForwardingEngineEl);
+                    for (var j=0; j<no_of_line_cards; j++) {
+                        var pfeToFabricLinkEl = _this.createLink({modelData: {source: pfeObject, target: lineCards[j]}}, 'pfe-lc', packetForwardingEngineEls[i], chassisEl); 
+                        pfeToFabricLinkEls.push(pfeToFabricLinkEl);
                     }
                 }
+                allEls = allEls.concat(packetForwardingEngineEls);
                 allEls = allEls.concat(pfeToFabricLinkEls);
                 graph.clear();
                 $("#topology-connected-elements").find("div").remove();
                 graph.addCells(allEls);
+                var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "BT", "nodeSep" : 60, "rankSep" : 100});
+                var svgHeight = newGraphSize.height;
+                var svgWidth = newGraphSize.width;
+                var viewAreaHeight = $("#topology-connected-elements").height();
+                var viewAreaWidth = $("#topology-connected-elements").width();
+                var offsetY = (viewAreaHeight - svgHeight)/2;
+                var offsetX = (viewAreaWidth - svgWidth)/2;
+                var offset = {
+                    x: offsetX,
+                    y: offsetY
+                };
+
+                $.each(allEls, function (elementKey, elementValue) {
+                    elementValue.translate(offset.x, offset.y);
+                });
+                _this.renderUnderlayViz();
                 break;
             case 'contrail.SwitchCard':
                 break;
@@ -1434,13 +1689,15 @@ mxView.prototype.initGraphEvents = function() {
                 var total_pfe_count = 0;
                 var packetForwardingEngineEls = [];
                 var pfeTopfeLinkEls = [];
-                var allEls = [];
+                var allEls = [],slotIdentifier,pfeId;
                 packetForwardingEngineEls = packetForwardingEngineEls.concat(dblClickedElement);
                 //dblClickedElement.transition($("#topology-connected-elements").width()/2, $("#topology-connected-elements").height()/2);
                 if(null !== nodeDetails && typeof nodeDetails === "object") {
                     if(nodeDetails.hasOwnProperty('parentData')) {
-                        chassisId = nodeDetails.parentData.getIdentifier();
-                        lineCards = nodeDetails.parentData.getLineCards();
+                        slotIdentifier = nodeDetails.parentData.getSlotIdentifier();
+                        pfeId = nodeDetails.modelData.slot_identifier;
+                        chassisId = nodeDetails.parentData.getParentObject().getIdentifier();
+                        lineCards = nodeDetails.parentData.getParentObject().getLineCards();
                         if(null !== lineCards && typeof lineCards === "object" && lineCards.length > 0) {
                             no_of_line_cards = lineCards.length;
                             for(var i=0; i<no_of_line_cards; i++) {
@@ -1448,16 +1705,16 @@ mxView.prototype.initGraphEvents = function() {
                                 no_of_pfes = lc.getPFECount();
                                 total_pfe_count += no_of_pfes;
                             }
-
                             for(var i=0; i<no_of_line_cards; i++) {
                                 var lc = lineCards[i];
+                                var pfeObjects = lc.getPFEObjects();
                                 no_of_pfes = lc.getPFECount();
                                 for(var j=0; j<no_of_pfes; j++) {
                                     var label = "chassis_" + chassisId + "_linecard_" + lc.getSlotIdentifier() +
                                         "_pfe_" + j;
                                     if(dblClickedElementName !== label) {
                                         var packetForwardingEngineEl = 
-                                            _this.createNode({name: label, modelData: lc, parentData: nodeDetails.parentData}, 
+                                            _this.createNode({name: label, modelData: pfeObjects[j]}, 
                                                 'packet-forwarding-engine', no_of_line_cards, 0, 0, 0, 0, total_pfe_count, j, 'pfe');
                                         packetForwardingEngineEls.push(packetForwardingEngineEl);
                                     }
@@ -1474,11 +1731,23 @@ mxView.prototype.initGraphEvents = function() {
                         } else {
                             lineCards = [];
                         }
+                        $.ajax({
+                            url:'/api/tenant/networking/mx/fabric/stats?source=50.1.0.254&viewType=pfe',
+                            data:{
+                                whereClause :[[{name:PRouterFieldPrefix+'src_slot',value:parseInt(slotIdentifier),op:1},{name:PRouterFieldPrefix+'src_pfe',value:parseInt(pfeId),op:1},
+                                               {name:'Source',value:'50.1.0.254',op:1}],
+                                              [{name:PRouterFieldPrefix+'dst_slot',value:parseInt(slotIdentifier),op:1},{name:PRouterFieldPrefix+'dst_pfe',value:parseInt(pfeId),op:1}]]
+                            },
+                        }).done(function(response){
+                            nodeDetails.modelData.setStats(ifNull(response['values'],[]));
+                        }).fail(function(){
+                            
+                        });
                     } else {
                         return;
                     }
                     if(nodeDetails.hasOwnProperty('modelData')) {
-                        no_of_pfes = nodeDetails.modelData.getPFECount();
+                        no_of_pfes = nodeDetails.parentData.getPFECount();
                     } else {
                         return;
                     }
@@ -1486,6 +1755,22 @@ mxView.prototype.initGraphEvents = function() {
                 graph.clear();
                 $("#topology-connected-elements").find("div").remove();
                 graph.addCells(allEls);
+                var newGraphSize = joint.layout.DirectedGraph.layout(graph, {"rankDir" : "BT", "nodeSep" : 60, "rankSep" : 100});
+                var svgHeight = newGraphSize.height;
+                var svgWidth = newGraphSize.width;
+                var viewAreaHeight = $("#topology-connected-elements").height();
+                var viewAreaWidth = $("#topology-connected-elements").width();
+                var offsetY = (viewAreaHeight - svgHeight)/2;
+                var offsetX = (viewAreaWidth - svgWidth)/2;
+                var offset = {
+                    x: offsetX,
+                    y: offsetY
+                };
+
+                $.each(allEls, function (elementKey, elementValue) {
+                    elementValue.translate(offset.x, offset.y);
+                });
+                _this.renderUnderlayViz();
                 break;
         }
     });
@@ -1526,6 +1811,7 @@ mxView.prototype.initGraphEvents = function() {
                     data['type'] = 'link';
                     data['sourceElement'] = sourceElement;
                     data['targetElement'] = targetElement;
+                    data['clickedElement'] = clickedElement;
                     _this.populateDetailsTab(data);
                     break;
                 case 'contrail.Chassis':
@@ -1632,7 +1918,7 @@ mxView.prototype.renderUnderlayTabs = function() {
 mxView.prototype.renderMxDetails = function(){
     content = {};
     var model = this.getModel();
-    var data = model.getProuterChassises();
+    var data = model.getProuterChassises(),tmpProuterData;
     for(var i=0; i<data.length; i++) {
         if(data[i].getIdentifier() === $("#prouter_chassises").val()) {
             tmpProuterData = data[i];
@@ -1640,9 +1926,9 @@ mxView.prototype.renderMxDetails = function(){
      }   
     }
     content['hostName'] = "127.0.0.1";
-    content['max_line_cards'] = tmpProuterData['max_line_cards'];
-    content['identifier'] = tmpProuterData['identifier'];
-    content['model_type'] = tmpProuterData['model_type'];
+    content['max_line_cards'] = ifNull(tmpProuterData['max_line_cards'],0);
+    content['identifier'] = ifNull(tmpProuterData['identifier'],0);
+    content['model_type'] = ifNull(tmpProuterData['model_type'],0);
     content['type'] = 'mx';
     
     details = Handlebars.compile($("#device-summary-template").html())(content);
@@ -1653,124 +1939,11 @@ mxView.prototype.populateDetailsTab = function(data) {
     var type = data['type'],details,content = {},_this = this;
     var widget_template = contrail.getTemplate4Id("device-details-widget"),
         details_template = contrail.getTemplate4Id("device-details-body");
-    if(type == 'VROUTER' || type == 'link')
-        _this.renderUnderlayTabs();
     $("#detailsLink").show();
-    $("#underlay_tabstrip").tabs({active:1});
+    $("#underlay_tabstrip").tabs({active:1}); 
     if(type != 'link')
         $("#detailsLink").find('a.ui-tabs-anchor').html("Details");
-    if(type == 'VROUTER') {
-        content = data;
-        content['type'] = 'virtual-router';
-        //content['page'] = 'underlay';
-        details = Handlebars.compile($("#device-summary-template").html())(content);
-        $("#detailsTab").html(details);
-        $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
-            var selTab = $(ui.newTab.context).text();
-        });
-    } else if (type == 'link') {
-        var endpoints = ifNull(data['endpoints'],[]);
-        var sourceType = data['sourceElement']['attributes']['nodeDetails']['node_type'];
-        var targetType = data['targetElement']['attributes']['nodeDetails']['node_type'];
-        var url = '',link = '';
-        var type = 'GET';
-        var ajaxData = {};
-        if(sourceType == VIRTUALMACHINE || targetType == VIRTUALMACHINE)
-            return;
-        //"Details" tab changing to "Traffic Statistics"
-        $("#detailsLink").find('a.ui-tabs-anchor').html("Traffic Statistics");
-        if(sourceType == PROUTER && targetType == PROUTER) {
-            url = '/api/tenant/networking/underlay/prouter-link-stats';
-            type = 'POST';
-            ajaxData = {
-                    "data": {
-                        "endpoints": endpoints,
-                        "sampleCnt": 150, 
-                        "minsSince":60
-                      }
-                    };
-            link = 'prouter';
-            details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:[{}]});
-            $("#detailsTab").html(details);
-        } else if(sourceType == PROUTER && targetType == VROUTER) {
-            var vrouter = (sourceType == VROUTER) ? data['sourceElement']['attributes']['nodeDetails']['name']
-                           : data['targetElement']['attributes']['nodeDetails']['name'];
-            url = 'api/tenant/networking/vrouter/stats';
-            ajaxData = {
-                    minsSince: 60,
-                    sampleCnt: 120,
-                    useServerTime: true,
-                    vrouter:vrouter
-            };
-            var title = contrail.format('Traffic Statistics of {0}',vrouter);
-            link = 'vrouter';
-            details = Handlebars.compile($("#link-summary-template").html())({link:link,title:title});
-            $("#detailsTab").html(details);
-        }
-        $.ajax({
-            url:url,
-            type:type,
-            data:ajaxData
-        }).success(function(response){
-            var chartData = {};
-            var selector = '',options = {
-                                            height:300,
-                                            yAxisLabel: 'Bytes per 30 secs',
-                                            y2AxisLabel: 'Bytes per min'
-                                        };
-            if(link == 'vrouter') {
-                selector = '#vrouter-ifstats';
-                chartData = parseTSChartData(response);
-                initTrafficTSChart(selector, chartData, options, null, "formatSumBytes", "formatSumBytes");
-            } else if (link == 'prouter') {
-                details = Handlebars.compile($("#link-summary-template").html())({link:link,intfObjs:response});
-                $("#detailsTab").html(details);
-                for(var i = 0; i < response.length; i++) {
-                    var rawFlowData = response[i];
-                    var lclData = ifNull(rawFlowData[0],{});
-                    var rmtData = ifNull(rawFlowData[1],{});
-                    var intfFlowData = [],lclInBytesData = [],lclOutBytesData = [],rmtInBytesData = [],rmtOutBytesData = [];
-                    var lclFlows = getValueByJsonPath(lclData,'flow-series;value',[]);
-                    var rmtFlows = getValueByJsonPath(rmtData,'flow-series;value',[]),chrtTitle,
-                        lclNodeName = getValueByJsonPath(lclData,'summary;name','-'),
-                        lclInfName = getValueByJsonPath(lclData,'summary;if_name','-'),
-                        rmtNodeName = getValueByJsonPath(rmtData,'summary;name','-'),
-                        rmtIntfName = getValueByJsonPath(rmtData,'summary;if_name','-');
-                    
-                    chrtTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',lclNodeName,
-                                                lclInfName,rmtNodeName,rmtIntfName);
-                    var inPacketsLocal = {key:contrail.format('{0} ({1})',lclNodeName,lclInfName), values:[]}, 
-                        inPacketsRemote = {key:contrail.format('{0} ({1})',rmtNodeName,rmtIntfName), values:[]};
-                    for(var j = 0; j < lclFlows.length; j++) {
-                        var lclFlowObj = lclFlows[j];
-                        inPacketsLocal['values'].push({
-                            x: Math.floor(lclFlowObj['T=']/1000),
-                            y: ifNull(lclFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
-                        });
-                    }
-                    for(var j = 0; j < rmtFlows.length; j++) {
-                        var rmtFlowObj = rmtFlows[j];
-                        inPacketsRemote['values'].push({
-                            x: Math.floor(rmtFlowObj['T=']/1000),
-                            y: ifNull(rmtFlowObj['SUM(ifStats.ifInUcastPkts)'],0)
-                        });
-                    }
-                    var chartData = [inPacketsLocal,inPacketsRemote];
-                    var icontag = "<i id='prouter-ifstats-loading-0' class='icon-spinner icon-spin blue bigger-125' " +
-                            "style='display: none;'></i>";
-                    $("#prouter-lclstats-widget-"+i).find('.widget-header > h4').html(icontag+chrtTitle);
-                    options = {
-                            height:300,
-                            yAxisLabel: 'Packets per 72 secs',
-                            y2AxisLabel: 'Packets per 72 secs'
-                        };
-                    initTrafficTSChart('#prouter-lclstats-'+i, chartData, options, null, "formatSumPackets", "formatSumPackets");
-                }
-            } 
-        }).always(function(response){
-            $("#detailsTab").find('.icon-spinner').hide();
-        });
-    } else if (type == 'Chassis') {
+    if (type == 'Chassis') {
         $("#detailsTab").html(widget_template({
             title: 'Chassis',
             colCount: 2,
@@ -1878,7 +2051,7 @@ mxView.prototype.populateDetailsTab = function(data) {
 
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
@@ -1904,7 +2077,7 @@ mxView.prototype.populateDetailsTab = function(data) {
         }];
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
@@ -1928,7 +2101,7 @@ mxView.prototype.populateDetailsTab = function(data) {
         }];
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
@@ -1958,7 +2131,7 @@ mxView.prototype.populateDetailsTab = function(data) {
         }];
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
@@ -1979,7 +2152,7 @@ mxView.prototype.populateDetailsTab = function(data) {
         }];
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
@@ -2003,13 +2176,97 @@ mxView.prototype.populateDetailsTab = function(data) {
         }];
         $('#dashboard-box .widget-body').html(details_template({
             attributes: attrs,
-            deviceData: data,
+            deviceData: attrs,
             showSettings: true
         }));
         endWidgetLoading('deviceDetails');
         $("#underlay_tabstrip").on('tabsactivate',function(e,ui){
             var selTab = $(ui.newTab.context).text();
         });
+    } else if (type == 'link') {
+        var clickedElement = data['clickedElement'],linkAttributes,url;
+        var divId = 'detailsTab';
+        var options = {
+                height:300,
+                yAxisLabel: 'Bytes per 30 secs',
+                y2AxisLabel: 'Bytes per min',
+                defaultSelRange: 2 //(latest 2 samples)
+          };
+        if(clickedElement != null) {
+            $("#detailsLink").find('a.ui-tabs-anchor').html("Traffic Statistics");
+            linkAttributes = getValueByJsonPath(clickedElement,'attributes;linkDetails',{});
+            if(linkAttributes != null && linkAttributes.link_type == 'lc-lc' && linkAttributes.modelData != null &&
+                    linkAttributes.modelData.source instanceof LineCard && linkAttributes.modelData.target instanceof LineCard) {
+                var srcSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;source;slot_identifier','-');
+                var dstSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;target;slot_identifier','-');
+                $("#"+divId).html(Handlebars.compile($("#mx-timeseries-chart-template").html())
+                        ({title:contrail.format('Traffic Statistics of Slot Identifer({0} <--> {1})',srcSlotIdentifier,dstSlotIdentifier)}));
+                if($.isNumeric(srcSlotIdentifier) && $.isNumeric(dstSlotIdentifier)) {
+                    url = '/api/tenant/networking/mx/fabric/tsstats?source=50.1.0.254&src_slot='+srcSlotIdentifier+'&dst_slot='
+                           +dstSlotIdentifier+'&T=60&endTime=now&minsSince=60';
+                } else {
+                    return;
+                }
+            } else if (linkAttributes != null && linkAttributes.link_type == 'pfe-lc' && linkAttributes.modelData != null 
+                    && linkAttributes.modelData.source instanceof PacketForwardingEngine && linkAttributes.modelData.target instanceof LineCard){
+                var srcPFEIdentifier = getValueByJsonPath(linkAttributes,'modelData;source;slot_identifier','-');
+                var srcSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;source;linecard;slot_identifier','-');
+                var dstSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;target;slot_identifier','-');
+                $("#"+divId).html(Handlebars.compile($("#mx-timeseries-chart-template").html())(
+                        {title:contrail.format('Traffic Statistics of Slot Identifer ({0}) PFE ({1}) <--> Slot Identifier ({2})',
+                                srcSlotIdentifier,srcPFEIdentifier,dstSlotIdentifier)}));
+                if($.isNumeric(srcSlotIdentifier) && $.isNumeric(srcPFEIdentifier) && $.isNumeric(dstSlotIdentifier)) {
+                    url = '/api/tenant/networking/mx/fabric/tsstats?source=50.1.0.254&src_slot='+srcSlotIdentifier+'&src_pfe='+srcPFEIdentifier+
+                        '&dst_slot='+dstSlotIdentifier+'&T=60&endTime=now&minsSince=60';
+                } else {
+                    return;
+                }
+            } else if (linkAttributes != null && linkAttributes.link_type == 'pfe-pfe' && linkAttributes.modelData != null
+                    && linkAttributes.modelData.source instanceof PacketForwardingEngine && linkAttributes.modelData.target instanceof PacketForwardingEngine){
+                var srcPFEIdentifier = getValueByJsonPath(linkAttributes,'modelData;source;slot_identifier','-');
+                var srcSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;source;linecard;slot_identifier','-');
+                var dstSlotIdentifier = getValueByJsonPath(linkAttributes,'modelData;target;linecard;slot_identifier','-');
+                var dstPFEIdentifier = getValueByJsonPath(linkAttributes,'modelData;target;slot_identifier','-');
+                $("#"+divId).html(Handlebars.compile($("#mx-timeseries-chart-template").html())(
+                        {title:contrail.format('Traffic Statistics of Slot Identifer ({0}) PFE ({1}) <--> Slot Identifier ({2}) PFE ({3})',
+                                srcSlotIdentifier,srcPFEIdentifier,dstSlotIdentifier,dstPFEIdentifier)}));
+                if($.isNumeric(srcSlotIdentifier) && $.isNumeric(srcPFEIdentifier) && $.isNumeric(dstSlotIdentifier) && $.isNumeric(dstPFEIdentifier)) {
+                    url = '/api/tenant/networking/mx/fabric/tsstats?source=50.1.0.254&src_slot='+srcSlotIdentifier+'&src_pfe='+srcPFEIdentifier+
+                    '&dst_slot='+dstSlotIdentifier+'&dst_pfe='+dstPFEIdentifier+'&T=60&endTime=now&minsSince=60';
+                } else {
+                    return;
+                }
+            }
+            $.ajax({
+                url: url
+            }).success(function(response){
+                $("#mx-timeseries").find('.icon-spinner').hide();
+                response = ifNull(response,[]),inBytesArr = [],outBytesArr = [],chartData = [];
+                $.each(response,function(i,obj){
+                    var values = ifNull(obj['values'],[]);
+                    var timeStamp = $.isNumeric(obj['ts']) ? obj['ts']/1000 : '-';
+                    $.each(values['src_aggregate'],function(j,statObj){
+                        var pfeStats = ifNull(statObj,[]),outBytes = 0;
+                        $.each(pfeStats,function(k,pfeStatObj){
+                            outBytes += ifNull(pfeStatObj[statsResponseBytesKey],0);
+                        });
+                        outBytesArr.push({x:timeStamp,y:outBytes});
+                    });
+                    $.each(values['dst_aggregate'],function(j,statObj){
+                        var pfeStats = ifNull(statObj,[]),inBytes = 0;
+                        $.each(pfeStats,function(k,pfeStatObj){
+                            inBytes += ifNull(pfeStatObj[statsResponseBytesKey],0);
+                        });
+                        inBytesArr.push({x: timeStamp,y: inBytes});
+                    });
+                });
+                chartData.push({key:contrail.format('Slot Identifier({0} --> {1})',srcSlotIdentifier,dstSlotIdentifier),values:outBytesArr});
+                chartData.push({key:contrail.format('Slot Identifier({0} --> {1})',dstSlotIdentifier,srcSlotIdentifier),values:inBytesArr});
+                initTrafficTSChart('#mx-timeseries-chart', chartData, options, null, "formatSumPackets", "formatSumPackets");
+            }).fail(function(){
+                $("#mx-timeseries-chart").html('<p class="error">Error in fetching details</p>');
+            });
+        }
     }
 }
 
@@ -2051,7 +2308,7 @@ mxView.prototype.destroy = function() {
 
 
 var mxController = function (model, view) {
-    this.model = model || new mxModel({nodes:[], links:[]});
+    this.model = model || new mxModel();
     this.view  = view  || new new mxView(this._model);
 }
 
@@ -2092,6 +2349,7 @@ mxController.prototype.getModelData = function(cfg) {
     function topologyCallback(response){
         globalObj['topologyResponse'] = response;
         _this.getModel().processData(response);
+
         _this.getView().renderTopology(response);
         _this.getView().renderMxDetails();
     }

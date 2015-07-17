@@ -62,6 +62,7 @@ function getPRouterChassisInfo(req, res, appData) {
     });
 }
 
+
 function createTimeQueryJsonObj (minsSince, endTime){
     var startTime = 0, timeObj = {};
 
@@ -145,7 +146,83 @@ function executeQueryString (queryJSON, callback)
         });
     });
 }
-
+function parsePRouterFabricStats(data,appData) {
+    var len = 0;
+    var statsData;
+    var resultJSON = {};
+    var keys = [
+        PRouterFieldPrefix + "class_stats.transmit_counts.packets",
+        PRouterFieldPrefix + "class_stats.transmit_counts.bytes"
+    ];
+    if ((data != null) && (data['value']) && (data['value'].length)) {
+        statsData = data.value;
+        len = statsData.length;
+    }
+    for(var i = 0; i < len; i++) {
+        var statObj = statsData[i];
+        for(var j = 0; j < keys.length; j++) {
+            statObj["DIF(" + keys[j] + ")"] = commonUtils.ifNull(statObj["MAX(" + keys[j] + ")"],0) - commonUtils.ifNull(statObj["MIN(" + keys[j] + ")"],0);
+            var src_slot, src_pfe, dst_slot, dst_pfe;
+            if(appData['queryFields'] != null && appData['queryFields']['viewType'] == 'chasis') {
+                if(statObj[PRouterFieldPrefix + "src_type"] == 'Linecard' && statObj[PRouterFieldPrefix + "dst_type"] == 'Linecard') {
+                    src_slot = statObj[PRouterFieldPrefix + "src_slot"];
+                    dst_slot = statObj[PRouterFieldPrefix + "dst_slot"];
+                    if(resultJSON[src_slot] != null){
+                        if(resultJSON[src_slot][dst_slot] != null) {
+                            if(resultJSON[src_slot][dst_slot]['SUM('+keys[j]+')'] != null) {
+                                resultJSON[src_slot][dst_slot]['SUM('+keys[j]+')'] += statObj["DIF(" + keys[j] + ")"];
+                            } else {
+                                resultJSON[src_slot][dst_slot]['SUM('+keys[j]+')'] = statObj["DIF(" + keys[j] + ")"];
+                            } 
+                        } else {
+                            resultJSON[src_slot][dst_slot] = {};
+                            resultJSON[src_slot][dst_slot]['SUM('+keys[j]+')'] = statObj["DIF(" + keys[j] + ")"];
+                        }
+                    } else {
+                        resultJSON[src_slot] = {};
+                        resultJSON[src_slot][dst_slot] = {};
+                        resultJSON[src_slot][dst_slot]['SUM('+keys[j]+')'] = statObj["DIF(" + keys[j] + ")"];
+                    }
+                }
+            } else if(appData['queryFields'] != null && (appData['queryFields']['viewType'] == 'pfe' || appData['queryFields']['viewType'] == 'lineCard')) {
+                if(statObj[PRouterFieldPrefix + "src_type"] == 'Linecard' && statObj[PRouterFieldPrefix + "dst_type"] == 'Linecard') {
+                    src_slot = statObj[PRouterFieldPrefix + "src_slot"];
+                    dst_slot = statObj[PRouterFieldPrefix + "dst_slot"];
+                    src_pfe = statObj[PRouterFieldPrefix + "src_pfe"];
+                    dst_pfe = statObj[PRouterFieldPrefix + "dst_pfe"];
+                    if(resultJSON[src_slot] != null) {
+                        if(resultJSON[src_slot][src_pfe] != null) {
+                            if(resultJSON[src_slot][src_pfe][dst_slot] != null) {
+                                if(resultJSON[src_slot][src_pfe][dst_slot][dst_pfe] != null) {
+                                    resultJSON[src_slot][src_pfe][dst_slot][dst_pfe]['SUM('+keys[j]+')'] += statObj["DIF("+ keys[j] + ")"];
+                                } else {
+                                    resultJSON[src_slot][src_pfe][dst_slot][dst_pfe] = {};
+                                    resultJSON[src_slot][src_pfe][dst_slot][dst_pfe]['SUM('+keys[j]+')'] = statObj["DIF("+ keys[j] + ")"]; 
+                                }
+                            } else {
+                                resultJSON[src_slot][src_pfe][dst_slot] = {};
+                                resultJSON[src_slot][src_pfe][dst_slot][dst_pfe] = {};
+                                resultJSON[src_slot][src_pfe][dst_slot][dst_pfe]['SUM('+keys[j]+')'] = statObj["DIF("+ keys[j] + ")"];
+                            }
+                        } else {
+                            resultJSON[src_slot][src_pfe] = {};
+                            resultJSON[src_slot][src_pfe][dst_slot] = {};
+                            resultJSON[src_slot][src_pfe][dst_slot][dst_pfe] = {};
+                            resultJSON[src_slot][src_pfe][dst_slot][dst_pfe]['SUM('+keys[j]+')'] = statObj["DIF("+ keys[j] + ")"];
+                        }
+                    } else {
+                        resultJSON[src_slot] = {};
+                        resultJSON[src_slot][src_pfe] = {};
+                        resultJSON[src_slot][src_pfe][dst_slot] = {};
+                        resultJSON[src_slot][src_pfe][dst_slot][dst_pfe] = {};
+                        resultJSON[src_slot][src_pfe][dst_slot][dst_pfe]['SUM('+keys[j]+')'] = statObj["DIF("+ keys[j] + ")"];
+                    }
+                }
+            }
+        }
+    }
+    return {"values" : resultJSON};
+}
 function parsePRouterFabricStatsData(data) {
     var len = 0;
     var statsData, aggregate = {};
@@ -247,7 +324,8 @@ function parsePRouterFabricStatsData(data) {
 
 function sendQueryRequestAndGetData(req, res, appData) {
     //var PRouterFieldPrefix = 'enterprise.juniperNetworks.fabricMessageExt.edges.';
-    var whereClauseArray = [];
+    var whereClauseArray = [], intFields = [PRouterFieldPrefix+'src_slot',PRouterFieldPrefix+'dst_slot',
+                                               PRouterFieldPrefix+'dst_pfe',PRouterFieldPrefix+'src_pfe'];
     var selectArr = [
             "MAX("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
             "MIN("+ PRouterFieldPrefix + "class_stats.transmit_counts.packets)",
@@ -265,20 +343,46 @@ function sendQueryRequestAndGetData(req, res, appData) {
         tableName = PRouterStatsTableName;
 
     if(appData.queryFields.source) {
-        for (var key in appData.queryFields) {
-            if((typeof appData.queryFields[key] == "string" && null != appData.queryFields[key]) ||
-                (typeof appData.queryFields[key] == "number" && !isNaN(appData.queryFields[key]))){
-                if(key == "source") {
-                    whereClauseArray.push(createWhereClause("Source", appData.queryFields[key], 1))
-                } else if(key == "priority") {
-                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + "class_stats." + key, appData.queryFields[key], 1))
+        var whereClause = [];
+        if(appData.queryFields.where) {
+            whereClause = appData.queryFields.where;
+            var whereClauseLen = whereClause.length;
+            //Conversion of slot and pfe to integers
+            for(var i = 0; i < whereClauseLen; i++) {
+                if(whereClause[i] instanceof Array){
+                    var nestWhereClauseObj = whereClause[i];
+                    var nestWhereClauseObjLen = nestWhereClauseObj.length;
+                    for (var j = 0; j < nestWhereClauseObjLen; j++){
+                        nestWhereClauseObj[j]['op'] = parseInt(nestWhereClauseObj[j]['op']);
+                        if(intFields.indexOf(nestWhereClauseObj[j]['name']) > -1) {
+                            nestWhereClauseObj[j]['value'] = parseInt(nestWhereClauseObj[j]['value']);
+                        }
+                    }
                 } else {
-                    whereClauseArray.push(createWhereClause(PRouterFieldPrefix + key, appData.queryFields[key], 1))
+                    if(intFields.indexOf(whereClause[i]['name']) > -1) {
+                        whereClause[i]['value'] = parseInt(whereClause[i]['value']);
+                        whereClause[i]['op'] = parseInt(whereClause[i]['op']);
+                    }
                 }
             }
+        } else {
+            for (var key in appData.queryFields) {
+                if((typeof appData.queryFields[key] == "string" && null != appData.queryFields[key]) ||
+                    (typeof appData.queryFields[key] == "number" && !isNaN(appData.queryFields[key]))){
+                    if(key != 'viewType') {
+                        if(key == "source") {
+                            whereClauseArray.push(createWhereClause("Source", appData.queryFields[key], 1))
+                        } else if(key == "priority") {
+                            whereClauseArray.push(createWhereClause(PRouterFieldPrefix + "class_stats." + key, appData.queryFields[key], 1))
+                        } else {
+                            whereClauseArray.push(createWhereClause(PRouterFieldPrefix + key, appData.queryFields[key], 1))
+                        }
+                    }
+                }
+            }
+            whereClause = [whereClauseArray];
         }
         var timeObj = createTimeQueryJsonObj(10, 'now');
-        var whereClause = [whereClauseArray];
         var queryJSON = formatQueryStringWithWhereClause(tableName, whereClause, selectArr, timeObj);
 
         /*
@@ -303,7 +407,7 @@ function sendQueryRequestAndGetData(req, res, appData) {
             if (null != err) {
                 commonUtils.handleJSONResponse(err, res, null);
             }else{
-                resultJSON = parsePRouterFabricStatsData(resultJSON);
+                resultJSON = parsePRouterFabricStats(resultJSON,appData);
                 commonUtils.handleJSONResponse(null, res, resultJSON);
                 return;
             }
@@ -331,6 +435,8 @@ function getPRouterFabricStats(req, res) {
     var srcPfe          = parseInt(req.query['src_pfe']);
     var dstPfe          = parseInt(req.query['dst_pfe']);
     var priority        = req.query['priority'];
+    var viewType        = req.query['viewType'];
+    var where           = req.query.whereClause;
 
     if(srcType == "Switch_Fabric" || dstType == "Switch_Fabric") {
         priority = null; // priority cannot be combined with above device types.
@@ -344,7 +450,9 @@ function getPRouterFabricStats(req, res) {
             dst_slot: dstSlot,
             src_pfe: srcPfe,
             dst_pfe: dstPfe,
-            priority: priority
+            priority: priority,
+            viewType: viewType,
+            where:  where
         }
     };
     sendQueryRequestAndGetData(req, res, appData);
