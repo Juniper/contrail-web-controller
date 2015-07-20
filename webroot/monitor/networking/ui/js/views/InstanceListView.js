@@ -6,7 +6,7 @@ define([
     'underscore',
     'backbone',
     'contrail-list-model',
-    'controller-basedir/monitor/networking/ui/js/views/BreadcrumbView'
+    'monitor/networking/ui/js/views/BreadcrumbView'
 ], function (_, Backbone, ContrailListModel, BreadcrumbView) {
     var InstanceListView = Backbone.View.extend({
         el: $(contentContainer),

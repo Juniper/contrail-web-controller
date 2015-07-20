@@ -5,7 +5,7 @@
 define([
     'underscore',
     'backbone',
-    'controller-basedir/monitor/networking/ui/js/views/BreadcrumbView'
+    'monitor/networking/ui/js/views/BreadcrumbView'
 ], function (_, Backbone, BreadcrumbView) {
     var MonitorNetworkingView = Backbone.View.extend({
         el: $(contentContainer),

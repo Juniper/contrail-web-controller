@@ -459,7 +459,10 @@ define([
                                 iconClass: 'icon-external-link',
                                 callback: onScatterChartClick
                             }
-                        ]
+                        ],
+                        overlappedElementConfig: {
+                            dropdownTypeField: 'type'
+                        }
                     }
                 };
             }

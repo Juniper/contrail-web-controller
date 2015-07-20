@@ -6,31 +6,31 @@ var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
     nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
 
 require.config({
-    baseUrl: '/',
+    baseUrl: ctBaseDir,
     paths: {
-        'controller-basedir': "./",
-        'controller-constants': 'common/ui/js/controller.constants',
+        'controller-basedir': ctBaseDir,
+        'controller-constants': ctBaseDir + '/common/ui/js/controller.constants',
 
-        'controller-grid-config': 'common/ui/js/controller.grid.config',
-        'nm-grid-config': 'monitor/networking/ui/js/nm.grid.config',
+        'controller-grid-config': ctBaseDir + '/common/ui/js/controller.grid.config',
+        'nm-grid-config': ctBaseDir + '/monitor/networking/ui/js/nm.grid.config',
 
-        'controller-graph-config': 'common/ui/js/controller.graph.config',
-        'nm-graph-config': 'monitor/networking/ui/js/nm.graph.config',
+        'controller-graph-config': ctBaseDir + '/common/ui/js/controller.graph.config',
+        'nm-graph-config': ctBaseDir + '/monitor/networking/ui/js/nm.graph.config',
 
-        'controller-labels': 'common/ui/js/controller.labels',
+        'controller-labels': ctBaseDir + '/common/ui/js/controller.labels',
 
-        'controller-utils': 'common/ui/js/controller.utils',
-        'nm-utils': 'monitor/networking/ui/js/nm.utils',
+        'controller-utils': ctBaseDir + '/common/ui/js/controller.utils',
+        'nm-utils': ctBaseDir + '/monitor/networking/ui/js/nm.utils',
 
-        'controller-messages': 'common/ui/js/controller.messages',
+        'controller-messages': ctBaseDir + '/common/ui/js/controller.messages',
 
-        'controller-parsers': 'common/ui/js/controller.parsers',
-        'nm-parsers': 'monitor/networking/ui/js/nm.parsers',
+        'controller-parsers': ctBaseDir + '/common/ui/js/controller.parsers',
+        'nm-parsers': ctBaseDir + '/monitor/networking/ui/js/nm.parsers',
 
-        'controller-view-config': 'common/ui/js/controller.view.config',
-        'nm-view-config': 'monitor/networking/ui/js/nm.view.config',
+        'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
+        'nm-view-config': ctBaseDir + '/monitor/networking/ui/js/nm.view.config',
 
-        'controller-init': 'common/ui/js/controller.init'
+        'controller-init': ctBaseDir + '/common/ui/js/controller.init'
     },
     waitSeconds: 0
-})
+});
