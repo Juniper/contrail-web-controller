@@ -18,6 +18,13 @@ module.exports = function (grunt) {
 
         {pattern: 'contrail-web-core/webroot/font/**/*.woff', included: false},
         {pattern: 'contrail-web-core/webroot/img/**/*.png', included: false},
+
+        /* pattern for select2 image files */
+        {pattern: 'contrail-web-core/webroot/css/**/*.png', included: false},
+        {pattern: 'contrail-web-core/webroot/assets/select2/styles/**/*.png', included: false},
+        {pattern: 'contrail-web-core/webroot/css/**/*.gif', included: false},
+        {pattern: 'contrail-web-core/webroot/assets/select2/styles/**/*.png', included: false},
+
         {pattern: 'contrail-web-core/webroot/assets/**/*.woff', included: false},
         {pattern: 'contrail-web-core/webroot/assets/**/*.ttf', included: false},
 

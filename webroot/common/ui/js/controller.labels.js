@@ -21,6 +21,21 @@ define([
             }
         };
 
+        this.isExistKey = function (key) {
+            var keyArray, newKey;
+            if (_.has(labelMap, key)) {
+                return true;
+            } else {
+                keyArray = key.split('.');
+                newKey = keyArray[keyArray.length - 1];
+                if (keyArray.length > 1 && _.has(labelMap, newKey)) {
+                    return true;
+                }
+            }
+
+            return false;
+        };
+
         this.getInLowerCase = function (key) {
             var label = this.get(key);
             return label.toLowerCase();
