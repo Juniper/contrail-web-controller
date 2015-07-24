@@ -17,6 +17,7 @@ define([
         };
 
         this.NO_PROJECT_FOUND = 'No Project Found.';
+        this.NO_DOMAIN_FOUND = 'No Domain Found.';
         this.SHOULD_BE_VALID = '{0} should have a valid ';
 
         this.NO_TRAFFIC_STATS_FOUND = 'No Traffic Stats Found.';

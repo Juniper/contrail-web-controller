@@ -3,7 +3,7 @@
  */
 
 var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
-    nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
+    nmwu, nmwgc, nmwgrc, nmwp, nmwvc, ctbdcb;
 
 require.config({
     baseUrl: ctBaseDir,
@@ -30,7 +30,9 @@ require.config({
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
         'nm-view-config': ctBaseDir + '/monitor/networking/ui/js/nm.view.config',
 
-        'controller-init': ctBaseDir + '/common/ui/js/controller.init'
+        'controller-init': ctBaseDir + '/common/ui/js/controller.init',
+        'config-breadcrumb-view': ctBaseDir
+                                + '/common/ui/js/views/ControllerBreadcrumbView'
     },
     waitSeconds: 0
 });
