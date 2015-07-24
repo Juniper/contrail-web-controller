@@ -315,6 +315,110 @@ define([
         this.TITLE_ALARM_HISTORY = 'Alarm History';
         this.TITLE_ALARM_DETAILS = 'Alarm Details';
 
+        //Monitor Infra common
+        this.MONITOR_INFRA_VIEW_PATH =
+            'monitor/infrastructure/common/ui/js/views/';
+
+        //Config node labels
+        this.CONFIGNODE_VIEWPATH_PREFIX =
+            'monitor/infrastructure/confignode/ui/js/views/';
+        this.CONFIGNODE_SUMMARY_PAGE_ID = 'monitor-config-nodes';
+        this.CONFIGNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/confignodes/summary';
+        this.CONFIGNODE_SUMMARY_TITLE = 'Config Nodes';
+        this.CONFIGNODE_SUMMARY_GRID_ID = 'config-nodes-grid';
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_ID = 'config-nodes-scatterchart';
+        this.CONFIGNODE_SUMMARY_GRID_SECTION_ID = "config-nodes-grid-section";
+        this.CONFIGNODE_SUMMARY_CHART_ID = 'config-nodes-chart';
+        this.CONFIGNODE_SUMMARY_LIST_SECTION_ID = 'config-nodes-list-section';
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'config-nodes-scatterchart-section';
+        this.CONFIGNODE_DETAILS_PAGE_ID = 'config_nodes_details_pages';
+        this.CONFIGNODE_TAB_SECTION_ID = 'config_node_tab_section';
+        this.CONFIGNODE_TAB_VIEW_ID = 'config_node_tab';
+        this.CONFIGNODE_DETAILS_SECTION_ID = 'config_node_details_section';
+        this.CONFIGNODE_TABS_ID = 'config_node_tab'
+        this.CACHE_CONFIGNODE = 'cache-config-nodes';
+
+        //Control node labels
+        this.CONTROLNODE_VIEWPATH_PREFIX =
+            'monitor/infrastructure/controlnode/ui/js/views/';
+        this.CONTROLNODE_SUMMARY_PAGE_ID = 'monitor-control-nodes';
+        this.CONTROLNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/controlnodes/summary';
+        this.CONTROLNODE_SUMMARY_TITLE = 'Control Nodes';
+        this.CONTROLNODE_SUMMARY_GRID_ID = 'control-nodes-grid';
+        this.CONTROLNODE_SUMMARY_SCATTERCHART_ID = 'control-nodes-scatterchart';
+        this.CONTROLNODE_SUMMARY_GRID_SECTION_ID = "control-nodes-grid-section";
+        this.CONTROLNODE_SUMMARY_CHART_ID = 'control-nodes-chart';
+        this.CONTROLNODE_SUMMARY_LIST_SECTION_ID = 'control-nodes-list-section';
+        this.CONTROLNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'control-nodes-scatterchart-section';
+        this.CACHE_CONTROLNODE = 'cache-control-nodes';
+        this.CONTROLNODE_DETAILS_PAGE_ID = 'control_nodes_details';
+        this.CONTROLNODE_DETAIL_PAGE_ID = 'control_nodes_detail_page'
+        this.CONTROLNDOE_DETAILS_SECTION_ID = 'control_nodes_details_section';
+        this.CONTROLNODE_TAB_SECTION_ID = 'control_nodes_tab_section';
+        this.CONTROLNODE_TAB_VIEW_ID = 'control_nodes_tab_view';
+        this.CONTROLNODE_DETAILS_TABS_ID = 'control_nodes_details-tab';
+        this.CONTROLNODE_PEERS_GRID_SECTION_ID = 'control_node_peers_grid_section_id';
+        this.CONTROLNODE_PEERS_GRID_VIEW_ID = 'controlnode_peers_id';
+        this.CONTROLNODE_PEERS_GRID_ID = "control_node_peers_grid_id";
+        this.CONTROLNODE_PEERS_TITLE = "Peers";
+
+        //Database node labels
+        this.DATABASENODE_VIEWPATH_PREFIX =
+            'monitor/infrastructure/databasenode/ui/js/views/';
+        this.DATABASENODE_SUMMARY_PAGE_ID = 'monitor-database-nodes';
+        this.DATABASENODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/dbnodes/summary';
+        this.DATABASENODE_SUMMARY_TITLE = 'Database Nodes';
+        this.DATABASENODE_SUMMARY_GRID_ID = 'database-nodes-grid';
+        this.DATABASENODE_SUMMARY_SCATTERCHART_ID =
+            'database-nodes-scatterchart';
+        this.DATABASENODE_SUMMARY_GRID_SECTION_ID =
+            "database-nodes-grid-section";
+        this.DATABASENODE_SUMMARY_CHART_ID = 'database-nodes-chart';
+        this.DATABASENODE_SUMMARY_LIST_SECTION_ID =
+            'database-nodes-list-section';
+        this.DATABASENODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'database-nodes-scatterchart-section';
+        this.DATABASENODE_DETAILS_PAGE_ID = 'database_nodes_details_pages';
+        this.DATABASENODE_TAB_SECTION_ID = 'database_node_tab_section';
+        this.DATABASENODE_TAB_VIEW_ID = 'database_node_tab';
+        this.DATABASENODE_DETAILS_SECTION_ID = 'database_node_details_section';
+        this.DATABASENODE_TABS_ID = 'database_node_tabs';
+        this.CACHE_DATABASENODE = 'cache-database-nodes';
+
+        //Analytics node labels
+        this.ANALYTICSNODE_VIEWPATH_PREFIX =
+            'monitor/infrastructure/analyticsnode/ui/js/views/';
+        this.ANALYTICSNODE_SUMMARY_PAGE_ID = 'monitor-analytics-nodes';
+        this.ANALYTICSNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/analyticsnodes/summary';
+        this.ANALYTICSNODE_SUMMARY_TITLE = 'Analytics Nodes';
+        this.ANALYTICSNODE_SUMMARY_GRID_ID = 'analytics-nodes-grid';
+        this.ANALYTICSNODE_SUMMARY_SCATTERCHART_ID =
+            'analytics-nodes-scatterchart';
+        this.ANALYTICSNODE_SUMMARY_GRID_SECTION_ID =
+            "analytics-nodes-grid-section";
+        this.ANALYTICSNODE_SUMMARY_CHART_ID = 'analytics-nodes-chart';
+        this.ANALYTICSNODE_SUMMARY_LIST_SECTION_ID =
+            'analytics-nodes-list-section';
+        this.ANALYTICSNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'analytics-nodes-scatterchart-section';
+        this.CACHE_ANALYTICSNODE = 'cache-analytics-nodes';
+        this.ANALYTICSNODE_DETAILS_PAGE_ID = 'analytics_nodes_details';
+        this.ANALYTICSNODE_TAB_SECTION_ID = 'analytics_nodes_tab_section';
+        this.ANALYTICSNODE_TAB_VIEW_ID = 'analytics_nodes_tab_view';
+        this.ANALYTICSNODE_TABS_ID = 'analytics_nodes_tab';
+        this.ANALYTICSNODE_DETAILS_SECTION_ID = 'analytics_nodes_detail_section';
+        this.ANALYTICSNODE_DETAIL_PAGE_ID = 'analytics_node_detail_page';
+        this.ANALYTICSNODE_GENERATORS_GRID_SECTION_ID = 'analytics_node_generators_grid_section';
+        this.ANALYTICSNODE_GENERATORS_GRID_ID = 'analytics_node_generators_grid';
+        this.ANALYTICSNODE_GENERATORS_TITLE = 'Generators';
+
+
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
 
