@@ -198,6 +198,7 @@ define([
                 "title": ctwl.TITLE_DEL_LLS,
                 "iconClass": 'icon-trash',
                 "linkElementId": 'btnActionDelLLS',
+                "disabledLink" : true,
                 "onClick": function() {
                     var rowIndexes =
                         $(gridElId).data('contrailGrid')._grid.getSelectedRows();
@@ -223,6 +224,7 @@ define([
                 "type": "link",
                 "title": ctwl.TITLE_CREATE_LLS,
                 "iconClass": "icon-plus",
+                "disabledLink" : true,
                 "onClick": function () {
                     var gridData =
                         $(gridElId).data('contrailGrid')._dataView.getItems();

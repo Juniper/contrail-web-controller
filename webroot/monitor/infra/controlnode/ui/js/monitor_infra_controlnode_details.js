@@ -57,13 +57,17 @@ monitorInfraControlDetailsClass = (function() {
                 var procStateList, overallStatus = noDataStr;
                 var controlProcessStatusList = [];
                 var statusTemplate = contrail.getTemplate4Id("statusTemplate");
+                
                 try{
                     overallStatus = getOverallNodeStatusForDetails(parsedData);
                 }catch(e){overallStatus = "<span> "+statusTemplate({sevLevel:sevLevels['ERROR'],sevLevels:sevLevels})+" Down</span>";}
+                
                 try{
                   procStateList = jsonPath(ctrlNodeData,"$..NodeStatus.process_info")[0];
                   controlProcessStatusList = getStatusesForAllControlProcesses(procStateList);
                 }catch(e){}
+                
+                
                 ctrlNodeDashboardInfo = [
                   {lbl:'Hostname', value:obj['name']},
                     {lbl:'IP Address',value:(function(){

@@ -26,7 +26,6 @@ define([
 
     llswgc = new LLSGridConfig();
     llswp = new LLSParsers();
-
     var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
     if(contrail.checkIfExist(deferredObj)) {

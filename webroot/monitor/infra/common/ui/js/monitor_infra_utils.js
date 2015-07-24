@@ -3,7 +3,7 @@
  *
  */
 var consoleTimer = [];
-//For Axis params if the data type is not provided default one is Integer and currently 
+//For Axis params if the data type is not provided default one is Integer and currently
 //only two data types integer and float are supported
 var axisParams = {
                     'vRouter':{
@@ -41,30 +41,30 @@ var axisParams = {
                     },
                     'analyticsNode':{
                         yAxisParams:[{
-                            
+
                                     }],
                         xAxisParams:[{
-                                    
+
                                     }]
                     },
                     'controlNode':{
                         yAxisParams:[{
-                            
+
                         }],
                         xAxisParams:[{
-                        
+
                         }]
                     },
                     'configNode':{
                         yAxisParams:[{
-                            
+
                         }],
                         xAxisParams:[{
-                        
+
                         }]
                     }
                  }
-var chartsLegend = { 
+var chartsLegend = {
         Green: d3Colors['green'],
         Blue: d3Colors['blue'],
         Orange: d3Colors['orange'],
@@ -76,7 +76,7 @@ var infraMonitorAlertUtils = {
     */
     getProcessAlerts : function(data,obj,processPath) {
         var res,filteredResponse = [],downProcess = 0,backOffProcess = 0,
-            lastExitTime,lastStopTime,strtngProcess = 0; 
+            lastExitTime,lastStopTime,strtngProcess = 0;
         if(processPath != null)
             res = getValueByJsonPath(data['value'],processPath,[]);
         else
@@ -113,17 +113,17 @@ var infraMonitorAlertUtils = {
                         pName: filteredResponse[i]['process_name'],
                         msg: msg
                     }, infoObj));
-                }  
+                }
                 var procName = filteredResponse[i]['process_name'];
                 var procState = filteredResponse[i]['process_state'];
                 /*
-                 * Different process states and corresponding node color and message 
+                 * Different process states and corresponding node color and message
                  * PROCESS_STATE_STOPPPED: red, process stopped message
                  * PROCESS_STATE_STARTING: blue, process starting message
                  * PROCESS_STATE_BACKOFF: orange, process down message
                  * rest all states are with red color and process down message
                  */
-                if (procState != null && procState != 'PROCESS_STATE_STOPPED' && procState != 'PROCESS_STATE_RUNNING' 
+                if (procState != null && procState != 'PROCESS_STATE_STOPPED' && procState != 'PROCESS_STATE_RUNNING'
                     && procState != 'PROCESS_STATE_BACKOFF' && procState != 'PROCESS_STATE_STARTING') {
                     downProcess++;
                     if(filteredResponse[i]['last_exit_time'] != null)
@@ -160,15 +160,15 @@ var infraMonitorAlertUtils = {
                         timeStamp: lastExitTime,
                         sevLevel: sevLevels['WARNING']
                     }, infoObj));
-                } else if (procState == 'PROCESS_STATE_STARTING') { 
+                } else if (procState == 'PROCESS_STATE_STARTING') {
                     strtngProcess++;
                     alerts.push($.extend({
                         tooltipAlert: false,
                         name: data['name'],
                         pName: procName,
                         msg: infraAlertMsgs['PROCESS_STARTING_MSG'].format(procName),
-                        timeStamp: undefined, //we are not showing the time stamp for the process in 
-                        sevLevel: sevLevels['INFO'] // starting state  
+                        timeStamp: undefined, //we are not showing the time stamp for the process in
+                        sevLevel: sevLevels['INFO'] // starting state
                     }, infoObj));
                     //Raise only info alert if process_state is missing for a process??
                 } else if  (procState == null) {
@@ -183,7 +183,7 @@ var infraMonitorAlertUtils = {
                     }, infoObj));
                         /*msg +=", "+infraAlertMsgs['RESTARTS'].format(restartCount);
                     alerts.push($.extend({name:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg},infoObj));*/
-                } 
+                }
             }
             if(downProcess > 0)
                 alerts.push($.extend({detailAlert:false,sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['PROCESS_DOWN'].format(downProcess + backOffProcess)},infoObj));
@@ -290,7 +290,7 @@ var infraMonitorAlertUtils = {
     processDbNodeAlerts : function(obj) {
         var alertsList = [];
         var infoObj = {name:obj['name'],type:'Database Node',ip:obj['ip'],link:obj['link']};
-       
+
         if(obj['isNTPUnsynced']){
             alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['NTP_UNSYNCED_ERROR']},infoObj));
         }
@@ -300,7 +300,7 @@ var infraMonitorAlertUtils = {
 //        if(obj['isConfigMissing'] == true){
 //            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
 //        }
-        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){    
+        if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
             alertsList.push($.extend({},{sevLevel:sevLevels['INFO'],msg:infraAlertMsgs['PARTIAL_UVE_MISSING']},infoObj));
         }
         if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
@@ -328,7 +328,7 @@ function getNodeColor(obj) {
     }
     if(nodeAlertSeverity == sevLevels['ERROR'] || processLevelSeverity == sevLevels['ERROR'])
         return d3Colors['red'];
-    if(nodeAlertSeverity == sevLevels['WARNING'] || processLevelSeverity == sevLevels['WARNING']) 
+    if(nodeAlertSeverity == sevLevels['WARNING'] || processLevelSeverity == sevLevels['WARNING'])
         return d3Colors['orange'];
     return false;
 }
@@ -364,7 +364,7 @@ function getAanalyticNodeColor(d,obj) {
         return nodeColor;
     return d3Colors['blue'];
 }
-    
+
 function getConfigNodeColor(d,obj) {
     obj= ifNull(obj,{});
     var nodeColor = getNodeColor(obj);
@@ -409,14 +409,14 @@ var infraMonitorUtils = {
             obj['configIP'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_ip_address','-');
             obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
             if(obj['vRouterType'] == ''){
-                obj['vRouterType'] = 'hypervisor';//set default to hypervisor 
+                obj['vRouterType'] = 'hypervisor';//set default to hypervisor
             }
             obj['moduleId'] = getValueByJsonPath(dValue,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
             if(obj['ip'] == '-') {
                 obj['ip'] = obj['configIP'];
             }
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
-            
+
             obj['status'] = getOverallNodeStatus(d,'compute');
             var processes = ['contrail-vrouter-agent','contrail-vrouter-nodemgr','supervisor-vrouter'];
             obj['memory'] = formatMemory(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo','--'));
@@ -424,9 +424,9 @@ var infraMonitorUtils = {
             obj['resMemory'] = getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;res','-');
             obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(parseFloat(obj['resMemory']/1024).toFixed(2)) : NaN;
             obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info;meminfo;virt','--'))/1024;
-            obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) + 
+            obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',0) +
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',0) + 1;
-            obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',0) + 
+            obj['size'] = getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',0) +
                 getValueByJsonPath(dValue,'VrouterStatsAgent;phy_if_5min_usage;0;in_bandwidth_usage',0);
             obj['shape'] = 'circle';
             var xmppPeers = getValueByJsonPath(dValue,'VrouterAgent;xmpp_peer_list',[]);
@@ -440,7 +440,7 @@ var infraMonitorUtils = {
             obj['link'] = {p:'mon_infra_vrouter',q:{node:obj['name'],tab:''}};
             obj['instCnt'] = getValueByJsonPath(dValue,'VrouterAgent;virtual_machine_list',[]).length;
             obj['intfCnt'] = getValueByJsonPath(dValue,'VrouterAgent;total_interface_count',0);
-            
+
             obj['vnCnt'] = getValueByJsonPath(dValue,'VrouterAgent;vn_count',0);
             obj['version'] = ifNullOrEmpty(getNodeVersion(getValueByJsonPath(dValue,'VrouterAgent;build_info')),noDataStr);
             //System CPU
@@ -457,7 +457,7 @@ var infraMonitorUtils = {
                         obj['xmppPeerDownCnt']++;
                     }
                 });
-                obj['isPartialUveMissing'] = $.isEmptyObject(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info')) || 
+                obj['isPartialUveMissing'] = $.isEmptyObject(getValueByJsonPath(dValue,'VrouterStatsAgent;cpu_info')) ||
                     $.isEmptyObject(getValueByJsonPath(dValue,'VrouterAgent;build_info')) ||
                     obj['uveIP'].length == 0 ? true : false;
                 obj['errorIntfCnt'] = getValueByJsonPath(dValue,'VrouterAgent;down_interface_count',0);
@@ -466,7 +466,7 @@ var infraMonitorUtils = {
                 obj['errorIntfCntText'] = ", <span class='text-error'>" + obj['errorIntfCnt'] + " Down</span>";
             } else {
                 obj['errorIntfCntText'] = "";
-            } 
+            }
             obj['uveCfgIPMisMatch'] = false;
             if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false && obj['isPartialUveMissing'] == false) {
                 obj['uveCfgIPMisMatch'] = (obj['uveIP'].indexOf(obj['configIP']) == -1 && obj['configIP'] != '-') ? true : false;
@@ -500,13 +500,13 @@ var infraMonitorUtils = {
             obj['configuredBgpPeerCnt'] = ifNull(jsonPath(d,'$.value.ConfigData.bgp-router.bgp_router_refs')[0],[]).length;
             obj['isUveMissing'] = $.isEmptyObject(jsonPath(d,'$..BgpRouterState')[0]) ? true : false;
             obj['ip'] = ifNull(jsonPath(d,'$..bgp_router_ip_list[0]')[0],'-');
-            //If iplist is empty will display the config ip 
+            //If iplist is empty will display the config ip
             if(obj['ip'] == '-') {
                 obj['ip'] = obj['configIP'];
             }
             obj['summaryIps'] = getControlIpAddresses(d,"summary");
             obj['memory'] = formatMemory(ifNull(jsonPath(d,'$..meminfo')[0]),'-');
-            obj['size'] = ifNull(jsonPath(d,'$..output_queue_depth')[0],0)+1; 
+            obj['size'] = ifNull(jsonPath(d,'$..output_queue_depth')[0],0)+1;
             obj['shape'] = 'circle';
             obj['name'] = d['name'];
             obj['link'] = {p:'mon_infra_control',q:{node:obj['name'],tab:''}};
@@ -527,7 +527,7 @@ var infraMonitorUtils = {
             obj['downBgpPeerCnt'] = 0;
             if(typeof(obj['totalBgpPeerCnt']) == "number" && typeof(obj['upBgpPeerCnt']) == "number"  && obj['totalBgpPeerCnt'] > 0) {
             	obj['downBgpPeerCnt'] = obj['totalBgpPeerCnt'] - obj['upBgpPeerCnt'];
-            } 
+            }
             if(obj['downXMPPPeerCnt'] > 0){
                 obj['downXMPPPeerCntText'] = ", <span class='text-error'>" + obj['downXMPPPeerCnt'] + " Down</span>";
             } else {
@@ -536,8 +536,8 @@ var infraMonitorUtils = {
             obj['isPartialUveMissing'] = false;
             obj['isIfmapDown'] = false;
             if(obj['isUveMissing'] == false) {
-                obj['isPartialUveMissing'] = (isEmptyObject(jsonPath(d,'$.value.BgpRouterState.cpu_info')[0]) || 
-                        isEmptyObject(jsonPath(d,'$.value.BgpRouterState.build_info')[0]) || 
+                obj['isPartialUveMissing'] = (isEmptyObject(jsonPath(d,'$.value.BgpRouterState.cpu_info')[0]) ||
+                        isEmptyObject(jsonPath(d,'$.value.BgpRouterState.build_info')[0]) ||
                         (obj['configIP'] == '-') || obj['uveIP'].length == 0) ? true : false;
                 var ifmapObj = jsonPath(d,'$.value.BgpRouterState.ifmap_info')[0];
                 if(ifmapObj != undefined && ifmapObj['connection_status'] != 'Up'){
@@ -555,7 +555,7 @@ var infraMonitorUtils = {
             if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false && obj['isPartialUveMissing'] == false) {
                 if(obj['uveIP'].indexOf(obj['configIP']) <= -1){
                     obj['uveCfgIPMisMatch'] = true;
-                } 
+                }
             }
             obj['type'] = 'controlNode';
             obj['display_type'] = 'Control Node';
@@ -589,8 +589,8 @@ var infraMonitorUtils = {
             obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
             obj['memory'] = formatBytes(obj['y']*1024*1024);
             obj['histCpuArr'] = parseUveHistoricalValues(d,'$.cpuStats.history-10');
-            obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.queries_being_processed')[0],[]).length; 
-            obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.pending_queries')[0],[]).length; 
+            obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.queries_being_processed')[0],[]).length;
+            obj['pendingQueryCnt'] = ifNull(jsonPath(d,'$..QueryStats.pending_queries')[0],[]).length;
             obj['size'] = obj['pendingQueryCnt'] + 1;
             obj['shape'] = 'circle';
             obj['type'] = 'analyticsNode';
@@ -602,7 +602,7 @@ var infraMonitorUtils = {
                 obj['status'] = 'Down';
             }
           //get the ips
-          var iplist = ifNull(jsonPath(d,'$..self_ip_list')[0],noDataStr); 
+          var iplist = ifNull(jsonPath(d,'$..self_ip_list')[0],noDataStr);
           obj['ip'] = obj['summaryIps'] = noDataStr;
           if(iplist != null && iplist != noDataStr && iplist.length > 0){
                 obj['ip'] = iplist[0];
@@ -699,7 +699,7 @@ var infraMonitorUtils = {
         retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
-    
+
     /**
      * Parses database-node UVE data
      */
@@ -710,10 +710,10 @@ var infraMonitorUtils = {
             var dbSpaceAvailable = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].disk_space_available_1k')[0]);
             var dbSpaceUsed = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].disk_space_used_1k')[0]);
             var analyticsDbSize = parseFloat(jsonPath(d,'$.value.databaseNode.DatabaseUsageInfo.database_usage[0].analytics_db_size_1k')[0]);
-            
+
             obj['x'] = $.isNumeric(dbSpaceAvailable)? dbSpaceAvailable / 1024 / 1024 : 0;
             obj['y'] = $.isNumeric(dbSpaceUsed)? dbSpaceUsed / 1024 / 1024 : 0;
-            
+
             obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(d,'value;ConfigData')) ? true : false;
             obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,'value;databaseNode'))) ? true : false;
             var configData;
@@ -755,7 +755,7 @@ var infraMonitorUtils = {
         retArr.sort(dashboardUtils.sortNodesByColor);
         return retArr;
     },
-    
+
     parseGeneratorsData : function(result){
         var retArr = [];
         if(result != null && result[0] != null){
@@ -780,7 +780,7 @@ var infraMonitorUtils = {
         $.each(statsData,function(idx,d){
             var source = d['Source'];
             var t = JSON.stringify({"ts":d['T']});
-            
+
             if(ret[source] != null && ret[source]['history-10'] != null){
                 var hist10 = ret[source]['history-10'];
                 hist10[t] = d['cpu_info.cpu_share'];
@@ -794,7 +794,7 @@ var infraMonitorUtils = {
            var t = {};
            t["name"] = key;
            t["value"] = val;
-           retArr.push(t); 
+           retArr.push(t);
         });
         return retArr;
     },
@@ -810,8 +810,8 @@ var infraMonitorUtils = {
             var t = JSON.stringify({"ts":d['T']});
             var cpuForModule = module + '-cpu-share';
             var memForModule = module + '-mem-res';
-            
-            
+
+
             if(nodeType == "computeNodeDS"){
                 cpuForModule = "contrail-vrouter-agent-cpu-share";
                 memForModule = "contrail-vrouter-agent-mem-res";
@@ -850,7 +850,7 @@ var infraMonitorUtils = {
                 ret[memForModule][0]={'history-10':{}};
                 ret[memForModule][0]['history-10'][t] = d['cpu_info.mem_res'];
             }
-            
+
         });
         retArr['value'] = ret;
         return retArr;
@@ -895,7 +895,7 @@ var infraMonitorUtils = {
                 if ($(this).is(':checked')) {
                     if (userChangedQuery)
                         loadLogs();
-                    else 
+                    else
                         fetchLastLogtimeAndCallLoadLogs('',nodeType);
                 } else {
                     infraMonitorUtils.clearTimers();
@@ -978,7 +978,7 @@ var infraMonitorUtils = {
                     return {value:value, text:(value == 'All')? 'All':contrail.format('{0} messages', value)};
                 }),
                 dataTextField:'text',
-                dataValueField:'value'                    
+                dataValueField:'value'
             });
         }
         cboTimeRange = $('#msgTimeRange').data('contrailDropdown');
@@ -995,7 +995,7 @@ var infraMonitorUtils = {
         cboTimeRange.value('custom');
         cboMsgLevel.value('5');
         cboMsgLimit.value('50')
-        
+
         $('#btnDisplayLogs').on('click', function () {
             userChangedQuery = true;
             loadLogs();
@@ -1026,7 +1026,7 @@ var infraMonitorUtils = {
                         var timerId = setTimeout(function () {
                             if(userChangedQuery)
                                 loadLogs(timerId);
-                            else 
+                            else
                                 fetchLastLogtimeAndCallLoadLogs(timerId,nodeType);
                         }, CONSOLE_LOGS_REFRESH_INTERVAL);
                         logMessage("Setting timer:", timerId);
@@ -1039,7 +1039,7 @@ var infraMonitorUtils = {
             gridConsole.dataSource.page(lastPageNo);
             gridConsole.content.scrollTop(gridConsole.tbody.height());
         }
-        
+
         function getPostDataForGeneratorType(cfilt){
             var type,moduleType="",kfilt="";
             var hostName = obj['name'];
@@ -1066,7 +1066,7 @@ var infraMonitorUtils = {
             }
             return getPostData("generator","","",cfilt,kfilt);
         }
-        
+
         function updateLogTypeCombobox (result){
             var msgTypeStatsList = [{text:'Any',value:''}];
             var msgStats = [];
@@ -1093,7 +1093,7 @@ var infraMonitorUtils = {
                 cbMsgType.value('');
             }
         }
-       
+
         function fetchLastLogtimeAndCallLoadLogs(timerId,nodeType){
         	var postData = getPostDataForGeneratorType("ModuleServerState:msg_stats");
         	$.ajax({
@@ -1180,7 +1180,7 @@ var infraMonitorUtils = {
                 consoleTimer.splice($.inArray(timerId, consoleTimer), 1);
             }
             var timerangedropdownlistvalue = $("#msgTimeRange").data("contrailDropdown").value();
-             
+
             var filterObj = {
                 table:'MessageTable',
                 source:options['source']
@@ -1204,26 +1204,26 @@ var infraMonitorUtils = {
                 }
             } else if (nodeType == 'config') {
                 if(msgType != ''){
-                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
-                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['APISERVER'] 
-                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR'] 
-                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE'] 
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA']
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['APISERVER']
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR']
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE']
                                     + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
                 } else {
-                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA'] 
-                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['APISERVER'] 
-                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR'] 
-                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE'] 
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['SCHEMA']
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['APISERVER']
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['SERVICE_MONITOR']
+                                    + ' AND Source='+obj['name']+') OR (ModuleId=' + UVEModuleIds['DISCOVERY_SERVICE']
                                     + ' AND Source='+obj['name']+')';
                 }
             } else if (nodeType == 'analytics') {
                 if(msgType != ''){
-                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
-                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER']
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR']
                                     + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
                 } else {
-                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER'] 
-                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR'] 
+                    filterObj['where'] = '(ModuleId=' + UVEModuleIds['OPSERVER']
+                                    + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +') OR (ModuleId=' + UVEModuleIds['COLLECTOR']
                                     + ' AND Source='+obj['name']+' AND Messagetype='+ msgType +')';
                 }
             }
@@ -1268,16 +1268,16 @@ var infraMonitorUtils = {
         //$('#btnDisplayLogs').trigger('click');
         if(userChangedQuery){
             loadLogs();
-//            TODO : see if this is required. 
+//            TODO : see if this is required.
 //            gridConsole.dataSource.unbind('requestEnd');
 //            gridConsole.dataSource.bind('requestEnd', moveToLastPage);
-            
+
             moveToLastPage();
         }
         else {
             fetchLastLogtimeAndCallLoadLogs('',nodeType);
         }
-        
+
         $('#btnResetLogs').on('click', function () {
             cboTimeRange.value('5m');
             selectTimeRange({val:"5m"});
@@ -1345,7 +1345,7 @@ function floatingIPCellTemplate(fip) {
     if(!(fip instanceof Array)){
         if($.isEmptyObject(fip))
             fip = [];
-        else 
+        else
             fip = [fip];
     }
     $.each(fip, function (idx, obj) {
@@ -1413,7 +1413,7 @@ function showLoginWindow(ip, action){
         $('body').append("<div id='loginWindow' class='modal modal-520 hide' tabindex='-1'></div>");
         $('#loginWindow').append(loginWindowTemplate);
     }
-    
+
     loginWindow = $("#loginWindow");
     loginWindow.on("hide", closeObjectLogWindow);
     loginWindow.modal({backdrop:'static', keyboard: false, show:false});
@@ -1433,7 +1433,7 @@ function showLoginWindow(ip, action){
         } else {
             if(action === 'log') {
                 showLogDirWindow(username, password, ip, loginWindow);
-            }else { 
+            }else {
                 populateStatus(username, password, ip, loginWindow);
             }
         }
@@ -1507,7 +1507,7 @@ function showLogDirWindow(usrName, pwd, ip, loginWindow) {
             htmlString = htmlString + '</ul>';
             $('body').append(logDirTemplate);
             $('#logDirContext').append(htmlString);
-        }   
+        }
         var logDirWindow = $("#logDirWindow");
         logDirWindow.modal('show');
     }).fail(function(response) {
@@ -1517,7 +1517,7 @@ function showLogDirWindow(usrName, pwd, ip, loginWindow) {
         } else {
             $('#divLoginError').html("Error fetching logs");
             showLoginWindow(ip, 'log');
-        }       
+        }
     });
 }
 /**
@@ -1635,13 +1635,13 @@ function getProcessUpTime(d) {
         } else {
             upTimeStr = "Down";
         }
-    } 
+    }
     return upTimeStr;
 }
 
 /**
  * Claculates node status based on process_info & generators
- * ToDo: use getOverallNodeStatusFromGenerators 
+ * ToDo: use getOverallNodeStatusFromGenerators
  */
 function getOverallNodeStatus(d,nodeType,processPath){
     var status = "--";
@@ -1677,10 +1677,10 @@ function getOverallNodeStatus(d,nodeType,processPath){
         }
     } else {
         //For each process get the generator_info and fetch the gen_attr which is having the highest connect_time. This is because
-        //we are interseted only in the collector this is connected to the latest. 
-        //From this gen_attr see if the reset_time > connect_time. If yes then the process is down track it in down list. 
+        //we are interseted only in the collector this is connected to the latest.
+        //From this gen_attr see if the reset_time > connect_time. If yes then the process is down track it in down list.
         //Else it is up and track in uplist.
-        //If any of the process is down get the least reset_time from the down list and display the node as down. 
+        //If any of the process is down get the least reset_time from the down list and display the node as down.
         //Else get the generator with max connect_time and show the status as Up.
         try{
             var genInfos = ifNull(jsonPath(d,"$..ModuleServerState..generator_info"),[]);
@@ -1725,13 +1725,13 @@ function getOverallNodeStatus(d,nodeType,processPath){
 function getOverallNodeStatusFromGenerators(d){
     var status = "--";
     var generatorDownTime;
-    
-    
+
+
     //For each process get the generator_info and fetch the gen_attr which is having the highest connect_time. This is because
-    //we are interseted only in the collector this is connected to the latest. 
-    //From this gen_attr see if the reset_time > connect_time. If yes then the process is down track it in down list. 
+    //we are interseted only in the collector this is connected to the latest.
+    //From this gen_attr see if the reset_time > connect_time. If yes then the process is down track it in down list.
     //Else it is up and track in uplist.
-    //If any of the process is down get the least reset_time from the down list and display the node as down. 
+    //If any of the process is down get the least reset_time from the down list and display the node as down.
     //Else get the generator with max connect_time and show the status as Up.
     try{
         var genInfos = ifNull(jsonPath(d,"$..ModuleServerState..generator_info"),[]);
@@ -1766,7 +1766,7 @@ function getOverallNodeStatusFromGenerators(d){
             status = 'Down since ' + diffDates(resetTime,currTime);
         }
     }catch(e){}
-    
+
     return status;
 }
 
@@ -1933,7 +1933,7 @@ function summaryIpDisplay (ip,tooltip){
 
 
 function parseUveHistoricalValues(d,path,histPath) {
-    var histData; 
+    var histData;
     if(histPath != null)
         histData = getValueByJsonPath(d,histPath,[]);
     else
@@ -2076,7 +2076,7 @@ function getLastLogTimestamp(d, nodeType){
     } else {
         logLevelStats = getAllLogLevelStats(d,"",logLevelStats);
     }
-    
+
     if(logLevelStats != null){
         lastLog = getMaxGeneratorValueInArray(logLevelStats,"last_msg_timestamp");
         if(lastLog != null){
@@ -2149,7 +2149,7 @@ function getReachableIp(ips,port,deferredObj){
 	    }).done(function(result) {
 	    	if(result != null && result['ip'] != null){
 	    		res = result['ip'];
-	    	} 
+	    	}
 	    	deferredObj.resolve(res);
 	    }).fail(function(result) {
 	    	deferredObj.resolve(res);
@@ -2161,7 +2161,7 @@ function convertMicroTSToDate(microTS) {
     return new Date(microTS/1000);
 }
 
-/* 
+/*
  * Common function to retrieve the analytics messages count and size
  */
 function getAnalyticsMessagesCountAndSize(d,procList){
@@ -2242,8 +2242,8 @@ function updateChartsForSummary(dsData, nodeType) {
 
     //Check if chart is already initialized and has chartOptions like currLevel
     var currChartOptions = {};
-    if($('#' + chartId) != null) { 
-        var origData = $('#' + chartId).data('origData'); 
+    if($('#' + chartId) != null) {
+        var origData = $('#' + chartId).data('origData');
         if(origData != null) {
             currChartOptions = origData['chartOptions'];
         }
@@ -2334,7 +2334,7 @@ function splitNodesToSeriesByColor(data,colors) {
     return splitSeriesData;
 }
 
-//Handlebar functions for monitor infra 
+//Handlebar functions for monitor infra
 Handlebars.registerPartial('statusTemplate',$('#statusTemplate').html());
 
 Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
@@ -2351,7 +2351,7 @@ Handlebars.registerHelper('getInfraDetailsPageCPUChartTitle',function() {
 function getAllvRouters(defferedObj,dataSource,dsObj){
     var obj = {};
     if(dsObj['getFromCache'] == null || dsObj['getFromCache'] == true){
-        obj['transportCfg'] = { 
+        obj['transportCfg'] = {
                 url: monitorInfraUrls['VROUTER_CACHED_SUMMARY'],
                 type:'GET',
                 //set the default timeout as 5 mins
@@ -2370,7 +2370,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
         }
         dsObj['getFromCache'] = true;
     }
-    
+
     getOutputByPagination(dataSource,
                         {transportCfg:obj['transportCfg'],
                         parseFn:infraMonitorUtils.parsevRoutersDashboardData,
@@ -2379,7 +2379,7 @@ function getAllvRouters(defferedObj,dataSource,dsObj){
 
 function getAllControlNodes(defferedObj,dataSource){
     var obj = {};
-    obj['transportCfg'] = { 
+    obj['transportCfg'] = {
             url: monitorInfraUrls['CONTROLNODE_SUMMARY'],
             type:'GET'
         }
@@ -2394,7 +2394,7 @@ function getAllControlNodes(defferedObj,dataSource){
  */
 function getAllAnalyticsNodes(defferedObj,dataSource){
     var obj = {};
-    obj['transportCfg'] = { 
+    obj['transportCfg'] = {
             url: monitorInfraUrls['ANALYTICS_SUMMARY'],
             type:'GET'
         }
@@ -2409,7 +2409,7 @@ function getAllAnalyticsNodes(defferedObj,dataSource){
  */
 function getAllConfigNodes(defferedObj,dataSource){
     var obj = {};
-    obj['transportCfg'] = { 
+    obj['transportCfg'] = {
             url: monitorInfraUrls['CONFIG_SUMMARY'],
             type:'GET'
         }
@@ -2424,7 +2424,7 @@ function getAllConfigNodes(defferedObj,dataSource){
  */
 function getAllDbNodes(defferedObj,dataSource){
     var obj = {};
-    obj['transportCfg'] = { 
+    obj['transportCfg'] = {
             url: monitorInfraUrls['DATABASE_SUMMARY'],
             type:'GET'
         }
@@ -2468,7 +2468,7 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
         kfilts =  '*:' + UVEModuleIds['CONTROLNODE'] + '*';
         cfilts =  'ModuleClientState:client_info,ModuleServerState:generator_info';
     } else if(dsName == 'computeNodeDS') {
-        //Handling the case module id will change for the TOR agent/ TSN 
+        //Handling the case module id will change for the TOR agent/ TSN
         //We need to send all the module ids if different
         var items = dataSource.getItems();
         var kfiltString = ""
@@ -2496,8 +2496,8 @@ function getGeneratorsForInfraNodes(deferredObj,dataSource,dsName) {
     }
 
     var postData = getPostData("generator",'','',cfilts,kfilts);
-    
-    obj['transportCfg'] = { 
+
+    obj['transportCfg'] = {
             url:TENANT_API_URL,
             type:'POST',
             data:postData
@@ -2553,7 +2553,7 @@ function getPostDataForCpuMemStatsQuery(dsName,source) {
             groupFields:['Source'],
             plotFields:['cpu_info.cpu_share']
     }
-    
+
     if (dsName == 'controlNodeDS'){
         postData['table'] = 'StatTable.ControlCpuState.cpu_info';
         postData['where'] = '(cpu_info.module_id = contrail-control)';
@@ -2576,16 +2576,16 @@ function getPostDataForCpuMemStatsQuery(dsName,source) {
             postData['where'] = '(cpu_info.module_id = contrail-api)';
         }
     }
-    
+
     return postData;
-    
+
 }
 
 function fetchCPUStats(deferredObj,primaryDS,dsName){
     //build the query
     var postData = getPostDataForCpuMemStatsQuery(dsName,"summary");
-    
-    var transportCfg = { 
+
+    var transportCfg = {
             url:monitorInfraUrls['QUERY'],
             type:'POST',
             data:postData
@@ -2658,7 +2658,7 @@ function getDbNodeTooltipContents(currObj) {
         {label:'Usage', value:currObj['formattedUsedPercentage']},
         {label:'Analytics DB', value:'',options:{noLabelColon:true}},
         {label:'Used', value:currObj['formattedAnalyticsDbSize']},
-        
+
     ];
     return tooltipContents;
 }
@@ -2698,7 +2698,7 @@ function getNodeTooltipContentsForBucket(currObj,formatType) {
 
 var bgpMonitor = {
     vRouterBubbleSizeFn: function(mergedNodes) {
-        return d3.max(mergedNodes,function(d) { 
+        return d3.max(mergedNodes,function(d) {
             return d.size;
         });
     },
@@ -2759,43 +2759,43 @@ var bgpMonitor = {
         var intf = nextHopData['itf'], mac = nextHopData['mac'], destVN = nhData['dest_vn'], source = nhData['peer'], policy = nextHopData['policy'], lbl = nhData['label'];
         var sip = nextHopData['sip'], dip = nextHopData['dip'], tunnelType = nextHopData['tunnel_type'], valid = nextHopData['valid'], vrf = nextHopData['vrf'];
         if (nhType == 'arp') {
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
-                    wrapLabelValue('Mac', nextHopData['mac']) + 
-                    wrapLabelValue('IP', nextHopData['sip']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) +
+                    wrapLabelValue('Mac', nextHopData['mac']) +
+                    wrapLabelValue('IP', nextHopData['sip']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve' || nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Destination VN', nhData['dest_vn'])  + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Destination VN', nhData['dest_vn'])  +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + 
-                    wrapLabelValue('Destination VN', destVN) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Interface', intf) +
+                    wrapLabelValue('Destination VN', destVN) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Source IP', sip) +  
-                    wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('Destination VN', destVN) + 
+            return contrail.format(wrapLabelValue('Source IP', sip) +
+                    wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('Destination VN', destVN) +
                     wrapLabelValue('Label', lbl) +
-            		wrapLabelValue('Tunnel type', tunnelType) + 
-            		wrapLabelValue('Policy', policy) + 
+            		wrapLabelValue('Tunnel type', tunnelType) +
+            		wrapLabelValue('Policy', policy) +
             		wrapLabelValue('Peer', peer) +
             		wrapLabelValue('Valid', valid));
         } else if (nhType == 'vlan') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Destination VN', destVN) + 
-                    wrapLabelValue('Label', lbl) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Destination VN', destVN) +
+                    wrapLabelValue('Label', lbl) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'discard') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType.toLowerCase() == 'composite' || nhType.toLowerCase().search('l3 composite') != -1) {
@@ -2827,24 +2827,24 @@ var bgpMonitor = {
                     mcDataString = mcDataString.concat("}");
                 }
             }
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
-                    wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('vrf', vrf) + 
+            var x = contrail.format(wrapLabelValue('Source IP', sip) +
+                    wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('vrf', vrf) +
                     wrapLabelValue('Ref count', refCount) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Valid', valid) + 
-                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Valid', valid) +
+                    wrapLabelValue('Label', label) +
                     wrapLabelValue('Multicast Data', mcDataString));
             return x;
         } else {
-        	var x = contrail.format(wrapLabelValue('Source IP', sip) + 
-        	        wrapLabelValue('Destination IP', dip) + 
-        	        wrapLabelValue('vrf', vrf) + 
+        	var x = contrail.format(wrapLabelValue('Source IP', sip) +
+        	        wrapLabelValue('Destination IP', dip) +
+        	        wrapLabelValue('vrf', vrf) +
         	        wrapLabelValue('Ref count', refCount) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Valid', valid) +
                     wrapLabelValue('Label', lbl));
                 return x;
         }
@@ -2885,48 +2885,48 @@ var bgpMonitor = {
             }
         }
         if (nhType == 'arp') {
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
-                    wrapLabelValue('Mac', nextHopData['mac']) + 
-                    wrapLabelValue('Source IP', nextHopData['sip']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) +
+                    wrapLabelValue('Mac', nextHopData['mac']) +
+                    wrapLabelValue('Source IP', nextHopData['sip']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Destination VN', nhData['dest_vn']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Destination VN', nhData['dest_vn']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Reference Count', refCount) + 
-                    wrapLabelValue('Valid', valid) + 
+            return contrail.format(wrapLabelValue('Reference Count', refCount) +
+                    wrapLabelValue('Valid', valid) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Policy', policy));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + 
-                    wrapLabelValue('Destination VN', destVN) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Interface', intf) +
+                    wrapLabelValue('Destination VN', destVN) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('Destination VN', destVN) + 
-                    wrapLabelValue('Label', lbl) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('Destination VN', destVN) +
+                    wrapLabelValue('Label', lbl) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else {
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
-                    wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('vrf', vrf) + 
+            var x = contrail.format(wrapLabelValue('Source IP', sip) +
+                    wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('vrf', vrf) +
                     wrapLabelValue('Ref count', refCount) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Valid', valid) + 
-                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Valid', valid) +
+                    wrapLabelValue('Label', label) +
                     wrapLabelValue('Multicast Data', mcDataString));
             return x;
-        } 
+        }
     },
     getNextHopDetailsForL2:function (data) {
         var nhType = bgpMonitor.getNextHopType(data);
@@ -2939,37 +2939,37 @@ var bgpMonitor = {
         var sip = nextHopData['sip'], dip = nextHopData['dip'], valid = nextHopData['valid'], vrf = nextHopData['vrf'], tunnelType = nextHopData['tunnel_type'];
         if (nhType == 'arp') {
             //return contrail.format('Intf: {0} VRF: {1} Mac: {2} Source IP: {3}',nextHopData['itf'],nextHopData['vrf'],nextHopData['mac'],nextHopData['sip']);
-            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) + 
-                    wrapLabelValue('Mac', nextHopData['mac']) + 
-                    wrapLabelValue('IP', nextHopData['sip']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Interface', nextHopData['itf']) +
+                    wrapLabelValue('Mac', nextHopData['mac']) +
+                    wrapLabelValue('IP', nextHopData['sip']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'resolve' || nhType == 'receive') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Destination VN', nhData['dest_vn']) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Destination VN', nhData['dest_vn']) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'interface') {
-            return contrail.format(wrapLabelValue('Interface', intf) + 
-                    wrapLabelValue('Valid', valid) + 
+            return contrail.format(wrapLabelValue('Interface', intf) +
+                    wrapLabelValue('Valid', valid) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Policy', policy));
         } else if (nhType == 'tunnel') {
-            return contrail.format(wrapLabelValue('Source IP', sip) +  
-                    wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('Valid', valid) + 
+            return contrail.format(wrapLabelValue('Source IP', sip) +
+                    wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('Valid', valid) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Vrf', vrf) +
-            		wrapLabelValue('Label', lbl) + 
+            		wrapLabelValue('Label', lbl) +
             		wrapLabelValue('Tunnel type', tunnelType));
         } else if (nhType == 'vlan') {
-            return contrail.format(wrapLabelValue('Source', nhData['peer']) + 
-                    wrapLabelValue('Destination VN', destVN) + 
-                    wrapLabelValue('Label', lbl) + 
-                    wrapLabelValue('Policy', policy) + 
+            return contrail.format(wrapLabelValue('Source', nhData['peer']) +
+                    wrapLabelValue('Destination VN', destVN) +
+                    wrapLabelValue('Label', lbl) +
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
                     wrapLabelValue('Valid', valid));
         } else if (nhType == 'discard') {
@@ -3003,23 +3003,23 @@ var bgpMonitor = {
                     mcDataString = mcDataString.concat("}");
                 }
             }
-            var x = contrail.format(wrapLabelValue('Source IP', sip) + 
-                    wrapLabelValue('Destination IP', dip) + 
-                    wrapLabelValue('vrf', vrf) + 
+            var x = contrail.format(wrapLabelValue('Source IP', sip) +
+                    wrapLabelValue('Destination IP', dip) +
+                    wrapLabelValue('vrf', vrf) +
                     wrapLabelValue('Ref count', refCount) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Valid', valid) + 
-                    wrapLabelValue('Label', label) + 
+                    wrapLabelValue('Valid', valid) +
+                    wrapLabelValue('Label', label) +
                     wrapLabelValue('Multicast Data', mcDataString));
             return x;
         } else {
-        	var x = contrail.format(wrapLabelValue('Source IP', sip) + 
-        	        wrapLabelValue('Destination IP', dip) + 
+        	var x = contrail.format(wrapLabelValue('Source IP', sip) +
+        	        wrapLabelValue('Destination IP', dip) +
         	        wrapLabelValue('vrf', vrf) +
-                    wrapLabelValue('Policy', policy) + 
+                    wrapLabelValue('Policy', policy) +
                     wrapLabelValue('Peer', peer) +
-                    wrapLabelValue('Valid', valid) + 
+                    wrapLabelValue('Valid', valid) +
                     wrapLabelValue('Label', lbl));
                 return x;
         }
@@ -3057,7 +3057,7 @@ function updateGridTitleWithPagingInfo(gridSel,pagingInfo) {
     var entriesText = pagingInfo['entries'];
     var extractedData;
     if(typeof(entriesText) == 'string' ) {
-        extractedData = entriesText.match(/(\d+)-(\d+)\/(\d+)/); 
+        extractedData = entriesText.match(/(\d+)-(\d+)\/(\d+)/);
     }
 
     if(extractedData instanceof Array) {
@@ -3095,7 +3095,7 @@ function onPrevNextClick(obj,cfg) {
         var patternResults = paginationInfo['entries'].match(entriesFormat);
         //Get the total count from entries as with some filter applied,total count will not be same as table size
         totalCnt = parseInt(patternResults[1]);
-    } 
+    }
     if(paginationInfo['last_page'] != null && paginationInfo['last_page'].match(xStrFormat) instanceof Array) {
         if(totalCnt == null) {
             totalCnt = parseInt(paginationInfo['table_size']);
