@@ -315,6 +315,68 @@ define([
         this.TITLE_ALARM_HISTORY = 'Alarm History';
         this.TITLE_ALARM_DETAILS = 'Alarm Details';
 
+        //Config node summary page labels
+        this.CONFIGNODE_SUMMARY_PAGE_ID = 'monitor-config-nodes';
+        this.CONFIGNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/confignodes/summary';
+        this.CONFIGNODE_SUMMARY_TITLE = 'Config Nodes';
+        this.CONFIGNODE_SUMMARY_GRID_ID = 'config-nodes-grid';
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_ID = 'config-nodes-scatterchart';
+        this.CONFIGNODE_SUMMARY_GRID_SECTION_ID = "config-nodes-grid-section";
+        this.CONFIGNODE_SUMMARY_CHART_ID = 'config-nodes-chart';
+        this.CONFIGNODE_SUMMARY_LIST_SECTION_ID = 'config-nodes-list-section';
+        this.CONFIGNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'config-nodes-scatterchart-section';
+        this.CACHE_CONFIGNODE = 'cache-config-nodes';
+
+        //Control node summary page labels
+        this.CONTROLNODE_SUMMARY_PAGE_ID = 'monitor-control-nodes';
+        this.CONTROLNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/controlnodes/summary';
+        this.CONTROLNODE_SUMMARY_TITLE = 'Control Nodes';
+        this.CONTROLNODE_SUMMARY_GRID_ID = 'control-nodes-grid';
+        this.CONTROLNODE_SUMMARY_SCATTERCHART_ID = 'control-nodes-scatterchart';
+        this.CONTROLNODE_SUMMARY_GRID_SECTION_ID = "control-nodes-grid-section";
+        this.CONTROLNODE_SUMMARY_CHART_ID = 'control-nodes-chart';
+        this.CONTROLNODE_SUMMARY_LIST_SECTION_ID = 'control-nodes-list-section';
+        this.CONTROLNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'control-nodes-scatterchart-section';
+        this.CACHE_CONTROLNODE = 'cache-control-nodes';
+
+        //Database node summary page labels
+        this.DATABASENODE_SUMMARY_PAGE_ID = 'monitor-database-nodes';
+        this.DATABASENODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/dbnodes/summary';
+        this.DATABASENODE_SUMMARY_TITLE = 'Database Nodes';
+        this.DATABASENODE_SUMMARY_GRID_ID = 'database-nodes-grid';
+        this.DATABASENODE_SUMMARY_SCATTERCHART_ID =
+            'database-nodes-scatterchart';
+        this.DATABASENODE_SUMMARY_GRID_SECTION_ID =
+            "database-nodes-grid-section";
+        this.DATABASENODE_SUMMARY_CHART_ID = 'database-nodes-chart';
+        this.DATABASENODE_SUMMARY_LIST_SECTION_ID =
+            'database-nodes-list-section';
+        this.DATABASENODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'database-nodes-scatterchart-section';
+        this.CACHE_DATABASENODE = 'cache-database-nodes';
+
+        //Analytics node summary page labels
+        this.ANALYTICSNODE_SUMMARY_PAGE_ID = 'monitor-analytics-nodes';
+        this.ANALYTICSNODE_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/analyticsnodes/summary';
+        this.ANALYTICSNODE_SUMMARY_TITLE = 'Analytics Nodes';
+        this.ANALYTICSNODE_SUMMARY_GRID_ID = 'analytics-nodes-grid';
+        this.ANALYTICSNODE_SUMMARY_SCATTERCHART_ID =
+            'analytics-nodes-scatterchart';
+        this.ANALYTICSNODE_SUMMARY_GRID_SECTION_ID =
+            "analytics-nodes-grid-section";
+        this.ANALYTICSNODE_SUMMARY_CHART_ID = 'analytics-nodes-chart';
+        this.ANALYTICSNODE_SUMMARY_LIST_SECTION_ID =
+            'analytics-nodes-list-section';
+        this.ANALYTICSNODE_SUMMARY_SCATTERCHART_SECTION_ID =
+            'analytics-nodes-scatterchart-section';
+        this.CACHE_ANALYTICSNODE = 'cache-analytics-nodes';
+
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
 
