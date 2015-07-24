@@ -13,8 +13,9 @@ define([
     'controller-parsers',
     'controller-view-config',
     'lls-grid-config',
-    'lls-parsers'
-], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig, LLSGridConfig, LLSParsers) {
+    'lls-parsers',
+    'monitor-infra-utils'
+], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig, LLSGridConfig, LLSParsers, MonitorInfraUtils) {
     ctwc = new Constants();
     ctwl = new Labels();
     ctwu = new Utils;
@@ -26,7 +27,6 @@ define([
 
     llswgc = new LLSGridConfig();
     llswp = new LLSParsers();
-
     var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
     if(contrail.checkIfExist(deferredObj)) {

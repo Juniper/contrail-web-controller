@@ -186,6 +186,165 @@ and need to add the iconClass tag wherever we need to show some icons
                     </items>
                 </item>
                 <item>
+                    <label>Infrastructure MVC</label>
+                    <init>/monitor/infrastructure/common/ui/js/monitor.infra.init.js</init>
+                    <resources>
+                        <resource>
+                            <rootDir>/monitor/infra/common/ui</rootDir>
+                            <js>monitor_infra_constants.js</js>
+                            <js>monitor_infra_utils.js</js>
+                            <view>monitor_infra_common.view</view>
+                        </resource>
+                    </resources>
+                    <iconClass>icon-desktop</iconClass>
+                    <access>
+                        <roles>
+                            <role>superAdmin</role>
+                        </roles>
+                        <orchModels>
+                            <model>test</model>
+                       <!--     <model>openstack</model>
+                            <model>cloudstack</model>
+                            <model>vcenter</model>
+                       -->
+                        </orchModels>
+                        <accessFn>hideInFederatedvCenter</accessFn>
+                    </access>
+                    <items>
+                        <item>
+                            <hash>mon_infra_dashboardmvc</hash>
+                            <label>Dashboard</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/dashboard/ui</rootDir>
+                                    <view>monitor_infra_dashboard.view</view>
+                                    <js>monitor_infra_dashboard.js</js>
+                                    <class>infraMonitorDashboardView</class>
+                                </resource>
+                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <tab>vRouters</tab>
+                            </queryParams>
+                            <searchStrings>Infrastructure Dashboard</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_mxmvc</hash>
+                            <label>MX Visualisation</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/mx/ui</rootDir>
+                                    <view>monitor_infra_mx.view</view>
+                                    <js>monitor_infra_mx.js</js>
+                                    <class>mxRenderer</class>
+                                </resource>
+                            </resources>
+                        </item>
+                        <item>
+                            <hash>mon_infra_underlaymvc</hash>
+                            <label>Physical Topology</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/underlay/ui</rootDir>
+                                    <view>monitor_infra_underlay.view</view>
+                                    <view>flow_queries.view</view>
+                                    <view>queries.view</view>
+                                    <js>monitor_infra_underlay.js</js>
+                                    <js>flow_queries.js</js>
+                                    <class>underlayRenderer</class>
+                                </resource>
+                                <resource>
+                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                                    <view>monitor_infra_vrouter.view</view>
+                                    <js>monitor_infra_vrouter.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_details.js</js>
+                                    <js>monitor_infra_vrouter_interfaces.js</js>
+                                    <js>monitor_infra_vrouter_networks.js</js>
+                                    <js>monitor_infra_vrouter_acl.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_routes.js</js>
+                                </resource>
+                            </resources>
+                        </item>
+                        <item>
+                            <hash>mon_infra_controlmvc</hash>
+                            <label>Control Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/controlnode/ui</rootDir>
+                                    <js>controlnode.main.js</js>
+                                    <class>controlNodesLoader</class>
+                                    <function>renderControlNode</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Control Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_vroutermvc</hash>
+                            <label>Virtual Routers</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
+                                    <view>monitor_infra_vrouter.view</view>
+                                    <js>monitor_infra_vrouter.js</js>
+                                    <js>monitor_infra_vrouter_summary.js</js>
+                                    <js>monitor_infra_vrouter_details.js</js>
+                                    <js>monitor_infra_vrouter_interfaces.js</js>
+                                    <js>monitor_infra_vrouter_networks.js</js>
+                                    <js>monitor_infra_vrouter_acl.js</js>
+                                    <js>monitor_infra_vrouter_flows.js</js>
+                                    <js>monitor_infra_vrouter_routes.js</js>
+                                    <class>cmpNodesView</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Compute Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_analyticsmvc</hash>
+                            <label>Analytics Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/analyticsnode/ui</rootDir>
+                                    <js>analyticsnode.main.js</js>
+                                    <class>analyticsNodesLoader</class>
+                                    <function>renderAnalyticsNode</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Analytics Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_configmvc</hash>
+                            <label>Config Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/confignode/ui</rootDir>
+                                    <js>confignode.main.js</js>
+                                    <class>configNodesLoader</class>
+                                    <function>renderConfigNode</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Config Nodes</searchStrings>
+                        </item>
+                        <item>
+                            <hash>mon_infra_databasemvc</hash>
+                            <label>Database Nodes</label>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/databasenode/ui</rootDir>
+                                    <js>databasenode.main.js</js>
+                                    <class>databaseNodesLoader</class>
+                                    <function>renderDatabaseNode</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Monitor Database Nodes</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
                     <label>Networking</label>
                     <iconClass>icon-sitemap</iconClass>
                     <init>/monitor/networking/ui/js/nm.init.js</init>
