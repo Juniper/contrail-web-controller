@@ -121,6 +121,8 @@ define([
         this.TOP_CONTENT_CONTAINER = "top-content-container";
         this.BOTTOM_CONTENT_CONTAINER = "bottom-content-container";
 
+        this.BREADCRUMB_ID = "breadcrumb";
+
         this.MONITOR_PROJECT_LIST_ID = "monitor-project-list";
         this.MONITOR_PROJECT_ID = "monitor-project";
         this.MONITOR_PROJECT_VIEW_ID = "monitor-project-view";

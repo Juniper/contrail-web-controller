@@ -11,8 +11,11 @@ define([
     'controller-grid-config', 'nm-grid-config',
     'controller-graph-config', 'nm-graph-config',
     'controller-parsers', 'nm-parsers',
-    'controller-view-config', 'nm-view-config'
-], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig, NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, ViewConfig, NMViewConfig) {
+    'controller-view-config', 'nm-view-config',
+    'config-breadcrumb-view'
+], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig,
+            NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, 
+			ViewConfig, NMViewConfig, ConfigBreadcrumbView) {
     ctwc = new Constants();
     ctwl = new Labels();
 
@@ -33,5 +36,6 @@ define([
     ctwvc = new ViewConfig();
     nmwvc = new NMViewConfig();
 
+    ctbdcb = new ConfigBreadcrumbView();
     ctInitComplete = true;
 });
