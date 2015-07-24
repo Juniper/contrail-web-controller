@@ -6,7 +6,6 @@ define([
     'underscore',
     'contrail-list-model'
 ], function (_, ContrailListModel) {
-
     var CTUtils = function () {
         var self = this;
 
@@ -133,8 +132,10 @@ define([
 
             return false;
         };
-
-
+        
+        //Monitor infra utility functions
+        
+        
         this.getAllDomains = function() {
             var listModelConfig = {
                 remote: {
