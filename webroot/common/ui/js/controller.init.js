@@ -12,9 +12,9 @@ define([
     'controller-graph-config', 'nm-graph-config',
     'controller-parsers', 'nm-parsers',
     'controller-view-config', 'nm-view-config',
-    'lls-grid-config', 'lls-parsers'
+    'lls-grid-config', 'lls-parsers', 'monitor-infra-utils'
 ], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig, NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, ViewConfig,
-             NMViewConfig, LLSGridConfig, LLSParsers) {
+             NMViewConfig, LLSGridConfig, LLSParsers, MonitorInfraUtils) {
     ctwc = new Constants();
     ctwl = new Labels();
 
@@ -37,7 +37,8 @@ define([
 
     llswgc = new LLSGridConfig();
     llswp = new LLSParsers();
-
+    
+    monitorInfraUtils = new MonitorInfraUtils();
     var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
     if(contrail.checkIfExist(deferredObj)) {
