@@ -20,7 +20,19 @@ require.config({
         'controller-init': ctBaseDir + '/common/ui/js/controller.init',
 
         'lls-grid-config': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.grid.config',
-        'lls-parsers': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.parsers'
+        'lls-parsers': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.parsers',
+        'monitor-infra-confignode-model' :
+            'monitor/infrastructure/common/ui/js/models/'+
+            'ConfigNodeListModel',
+        'monitor-infra-analyticsnode-model' :
+            'monitor/infrastructure/common/ui/js/models/' +
+            'AnalyticsNodeListModel',
+        'monitor-infra-databasenode-model' :
+            'monitor/infrastructure/common/ui/js/models/' +
+            'DatabaseNodeListModel',
+        'monitor-infra-controlnode-model' :
+            'monitor/infrastructure/common/ui/js/models/' +
+            'ControlNodeListModel'
     },
     waitSeconds: 0
 });
