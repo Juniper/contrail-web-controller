@@ -37,21 +37,21 @@ define([
                 ucid = ctwc.UCID_BC_ALL_DOMAINS;
                 cachedData = cowch.get(ucid);
                 if (cachedData == null) {
-                    cowch.getAllDomains();
+                    ctwu.getAllDomains();
                     return null;
                 }
             } else if (fqArray.length == 2) {
                 ucid = ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, fqArray[0]);
                 cachedData = cowch.get(ucid);
                 if (cachedData == null) {
-                    cowch.getProjects4Domain(fqArray[0]);
+                    ctwu.getProjects4Domain(fqArray[0]);
                     return getUUIDByName(fqName);
                 }
             } else if (fqArray.length == 3) {
                 ucid = ctwc.get(ctwc.UCID_BC_PROJECT_ALL_NETWORKS, fqArray[0] + ":" + fqArray[1]);
                 cachedData = cowch.get(ucid);
                 if (cachedData == null) {
-                    cowch.getNetworks4Project(fqArray[0] + ":" + fqArray[1]);
+                    ctwu.getNetworks4Project(fqArray[0] + ":" + fqArray[1]);
                     return getUUIDByName(fqName);
                 }
             }

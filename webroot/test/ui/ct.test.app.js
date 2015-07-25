@@ -3,7 +3,8 @@
  */
 
 var coreBaseDir = "/base/contrail-web-core/webroot",
-    ctBaseDir = "/base/contrail-web-controller/webroot";
+    ctBaseDir = "/base/contrail-web-controller/webroot",
+    pkgBaseDir = ctBaseDir;
 
 require(["/base/contrail-web-core/webroot/js/core-app-utils.js"], function () {
     globalObj['env'] = "test";
@@ -15,8 +16,7 @@ require(["/base/contrail-web-core/webroot/js/core-app-utils.js"], function () {
         waitSeconds: 0
     });
 
-    require(['ct-test-init'], function () {
-    });
+    require(['ct-test-init'], function () {});
 });
 
 function getControllerTestAppPaths(coreAppPaths) {
@@ -39,3 +39,4 @@ function getControllerTestAppPaths(coreAppPaths) {
 
     return controllerTestAppPathObj;
 };
+

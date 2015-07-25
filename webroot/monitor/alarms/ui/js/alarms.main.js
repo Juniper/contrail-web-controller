@@ -8,16 +8,14 @@ function MonitorAlarmsLoader() {
             pathMNView = rootDir + '/js/views/AlarmView.js',
             renderFn = paramObject['function'];
 
-        check4CTInit(function () {
-            if (self.mnView == null) {
-                requirejs([pathMNView], function (AlarmsView) {
-                    self.mnView = new AlarmsView();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
+        if (self.mnView == null) {
+            requirejs([pathMNView], function (AlarmsView) {
+                self.mnView = new AlarmsView();
                 self.renderView(renderFn, hashParams);
-            }
-        });
+            });
+        } else {
+            self.renderView(renderFn, hashParams);
+        }
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
@@ -31,15 +29,4 @@ function MonitorAlarmsLoader() {
 
     this.destroy = function () {
     };
-}
-
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
-}
+};

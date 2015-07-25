@@ -34,3 +34,5 @@ require.config({
     },
     waitSeconds: 0
 });
+
+require(['controller-init'], function () {});

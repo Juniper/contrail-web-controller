@@ -4,6 +4,7 @@
 
 define([
     'underscore',
+    'contrail-list-model',
     'monitor/networking/ui/js/views/NetworkingGraphView',
     'monitor/networking/ui/js/views/ProjectTabView',
     'monitor/networking/ui/js/views/NetworkTabView',
@@ -26,7 +27,7 @@ define([
     'monitor/alarms/ui/js/views/AlarmGridView',
     'monitor/networking/ui/js/views/InterfaceGridView',
     'monitor/networking/ui/js/views/InstancePortDistributionView'
-], function (_, NetworkingGraphView, ProjectTabView, NetworkTabView, NetworkGridView, InstanceTabView, InstanceGridView,
+], function (_, ContrailListModel, NetworkingGraphView, ProjectTabView, NetworkTabView, NetworkGridView, InstanceTabView, InstanceGridView,
              ProjectGridView, FlowGridView, NetworkListView, ProjectListView, InstanceListView, FlowListView, InstanceView,
              InstanceTrafficStatsView, ProjectView, NetworkView, ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView,
              AlarmListView, AlarmGridView, InterfaceGridView, InstancePortDistributionView) {
@@ -156,6 +157,101 @@ define([
             }
 
             return false;
+        };
+
+
+        this.getAllDomains = function() {
+            var listModelConfig = {
+                remote: {
+                    ajaxConfig: {
+                        url: ctwc.URL_ALL_DOMAINS
+                    },
+                    dataParser: function(response) {
+                        return  $.map(response.domains, function (n, i) {
+                            return {
+                                fq_name: n.fq_name.join(':'),
+                                name: n.fq_name[0],
+                                value: n.uuid
+                            };
+                        });
+                    },
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                },
+                cacheConfig : {
+                    ucid: ctwc.UCID_BC_ALL_DOMAINS,
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.DOMAIN_CACHE_UPDATE_INTERVAL
+                }
+            };
+
+            var contrailListModel = new ContrailListModel(listModelConfig);
+
+            return contrailListModel;
+        };
+
+        this.getProjects4Domain = function(domain) {
+            var listModelConfig = {
+                remote: {
+                    ajaxConfig: {
+                        url: ctwc.getProjectsURL(domain)
+                    },
+                    dataParser: function(response) {
+                        return  $.map(response.projects, function (n, i) {
+                            return {
+                                fq_name: n.fq_name.join(':'),
+                                name: n.fq_name[1],
+                                value: n.uuid
+                            };
+                        });
+                    },
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                },
+                cacheConfig : {
+                    ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, domain),
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.PROJECT_CACHE_UPDATE_INTERVAL
+                }
+            };
+
+            var contrailListModel = new ContrailListModel(listModelConfig);
+
+            return contrailListModel;
+        };
+
+        this.getNetworks4Project = function(projectFQN) {
+            var listModelConfig = {
+                remote: {
+                    ajaxConfig: {
+                        url: ctwc.get(ctwc.URL_PROJECT_ALL_NETWORKS, projectFQN)
+                    },
+                    dataParser: ctwp.parseNetwork4Breadcrumb,
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                },
+                cacheConfig : {
+                    ucid: ctwc.get(ctwc.UCID_BC_PROJECT_ALL_NETWORKS, projectFQN),
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.NETWORK_CACHE_UPDATE_INTERVAL
+                }
+            };
+
+            var contrailListModel = new ContrailListModel(listModelConfig);
+
+            return contrailListModel;
         };
 
         self.renderView = function (viewName, parentElement, model, viewAttributes, modelMap) {

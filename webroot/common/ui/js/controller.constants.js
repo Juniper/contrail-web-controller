@@ -116,6 +116,11 @@ define([
 
         this.DEFAULT_GRAPH_DIR = this.GRAPH_DIR_LR;
 
+        this.ZOOMED_VN_MARGIN = {top: 5, bottom: 5, left: 15, right: 15};
+        this.ZOOMED_VN_OFFSET_X = 10
+        this.VM_GRAPH_SIZE = {width: 30, height: 30};
+        this.VM_GRAPH_MARGIN = {top: 10, bottom: 10, left: 0, right: 0};
+        this.VM_CENTER_LINK_THICKNESS = 1;
         this.MAX_VM_TO_PLOT = 100;
 
         this.get = function () {

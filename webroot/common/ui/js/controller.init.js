@@ -34,4 +34,10 @@ define([
     nmwvc = new NMViewConfig();
 
     ctInitComplete = true;
+
+    var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
+
+    if(contrail.checkIfExist(deferredObj)) {
+        deferredObj.resolve()
+    }
 });

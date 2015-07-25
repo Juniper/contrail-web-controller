@@ -9,19 +9,17 @@ function MonitorNetworkingLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = rootDir + '/js/views/MonitorNetworkingView.js',
+            pathMNView = ctBaseDir + rootDir + '/js/views/MonitorNetworkingView.js',
             renderFn = paramObject['function'];
 
-        check4CTInit(function () {
-            if (self.mnView == null) {
-                requirejs([pathMNView], function (MonitorNetworkingView) {
-                    self.mnView = new MonitorNetworkingView();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
+        if (self.mnView == null) {
+            require([pathMNView], function (MonitorNetworkingView) {
+                self.mnView = new MonitorNetworkingView();
                 self.renderView(renderFn, hashParams);
-            }
-        });
+            });
+        } else {
+            self.renderView(renderFn, hashParams);
+        }
     };
     this.renderView = function (renderFn, hashParams, view) {
         $(contentContainer).html("");
