@@ -11,8 +11,11 @@ define([
     'controller-grid-config', 'nm-grid-config',
     'controller-graph-config', 'nm-graph-config',
     'controller-parsers', 'nm-parsers',
-    'controller-view-config', 'nm-view-config'
-], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig, NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, ViewConfig, NMViewConfig) {
+    'controller-view-config', 'nm-view-config',
+    'lls-grid-config', 'lls-parsers'
+], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig,
+             NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers,
+             ViewConfig, NMViewConfig, LLSGridConfig, LLSParsers) {
     ctwc = new Constants();
     ctwl = new Labels();
 
@@ -33,11 +36,17 @@ define([
     ctwvc = new ViewConfig();
     nmwvc = new NMViewConfig();
 
+    llswgc = new LLSGridConfig();
+    llswp = new LLSParsers();
+
     ctInitComplete = true;
 
-    var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
+    require(['controller-render'], function(CtrlRender) {
+        ctwru = new CtrlRender();
+        var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
-    if(contrail.checkIfExist(deferredObj)) {
-        deferredObj.resolve()
-    }
+        if(contrail.checkIfExist(deferredObj)) {
+            deferredObj.resolve()
+        }
+    });
 });

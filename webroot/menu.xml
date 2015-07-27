@@ -402,10 +402,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_infra_lls</hash>
                             <resources>
                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
                                     <rootDir>/config/linklocalservices/ui</rootDir>
-                                    <view>lls_config.view</view>
-                                    <js>lls_config.js</js>
-                                    <class>llsConfigObj</class>
+                                    <js>linkLocalServices.main.js</js>
+                                    <class>linkLocalServicesPageLoader</class>
+                                    <function>renderLinkLocalServices</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Link Local Services</searchStrings>

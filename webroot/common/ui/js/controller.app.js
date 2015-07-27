@@ -3,7 +3,7 @@
  */
 
 var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
-    nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
+    nmwu, nmwgc, nmwgrc, nmwp, nmwvc, llswgc, llswp;
 
 require.config({
     baseUrl: ctBaseDir,
@@ -30,9 +30,15 @@ require.config({
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
         'nm-view-config': ctBaseDir + '/monitor/networking/ui/js/nm.view.config',
 
-        'controller-init': ctBaseDir + '/common/ui/js/controller.init'
+        'controller-init': ctBaseDir + '/common/ui/js/controller.init',
+        'lls-grid-config': ctBaseDir +
+            '/config/linklocalservices/ui/js/linkLocalServices.grid.config',
+        'lls-parsers': ctBaseDir +
+            '/config/linklocalservices/ui/js/linkLocalServices.parsers',
+        'controller-render': ctBaseDir + '/common/ui/js/controller.render'
     },
     waitSeconds: 0
 });
 
 require(['controller-init'], function () {});
+

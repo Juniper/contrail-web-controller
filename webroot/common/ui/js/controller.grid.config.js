@@ -92,7 +92,24 @@ define([
                 onClick: onClickFunction
             };
         };
+        this.getEditConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-edit',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
+        this.getDeleteConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-trash',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
     };
-
     return CTGridConfig;
 });
