@@ -30,9 +30,11 @@ require.config({
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
         'nm-view-config': ctBaseDir + '/monitor/networking/ui/js/nm.view.config',
 
-        'controller-init': ctBaseDir + '/common/ui/js/controller.init'
+        'controller-init': ctBaseDir + '/common/ui/js/controller.init',
+        'controller-render': ctBaseDir + '/common/ui/js/controller.render'
     },
     waitSeconds: 0
 });
 
 require(['controller-init'], function () {});
+

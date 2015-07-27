@@ -46,6 +46,57 @@ define([
             }
         ];
 
+        this.linkLocalServicesColumns = [
+            {
+                id: 'linklocal_service_name',
+                field: 'linklocal_service_name',
+                name: 'Service Name',
+                cssClass :'cell-hyperlink-blue'
+            },
+            {
+                id: 'linklocal_service_ip',
+                field: 'linklocal_service_ip',
+                name: 'Service Address',
+                formatter: function(row, col, val, d, rowData) {
+                    var dispStr = "";
+                    if (null != rowData) {
+                        if (null != rowData['linklocal_service_ip']) {
+                            dispStr = rowData['linklocal_service_ip'];
+                        }
+                        if (null != rowData['linklocal_service_port']) {
+                            dispStr += ":" +
+                                rowData['linklocal_service_port'].toString();
+                        }
+                        return dispStr;
+                    }
+                    return "";
+                }
+            },
+            {
+                id: 'ip_fabric_service_ip',
+                field: 'ip_fabric_service_ip',
+                name: 'Fabric Address',
+                formatter: function(row, col, val, d, rowData) {
+                    var dispStr = "";
+                    if (null != rowData) {
+                        if ((null != rowData['ip_fabric_service_ip']) &&
+                            (rowData['ip_fabric_service_ip'] instanceof Array) &&
+                            (rowData['ip_fabric_service_ip'].length > 0)) {
+                            dispStr = rowData['ip_fabric_service_ip'].join(',');
+                        } else {
+                            dispStr = rowData['ip_fabric_DNS_service_name'];
+                        }
+                        if (null != rowData['ip_fabric_service_port']) {
+                            dispStr += ":" +
+                                rowData['ip_fabric_service_port'].toString();
+                        }
+                        return dispStr;
+                    }
+                    return "";
+                }
+            }
+        ];
+
         this.getVMInterfacesLazyRemoteConfig = function () {
             return [
                 {
@@ -92,7 +143,24 @@ define([
                 onClick: onClickFunction
             };
         };
+        this.getEditConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-edit',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
+        this.doDeleteConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-trash',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
     };
-
     return CTGridConfig;
 });

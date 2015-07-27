@@ -115,7 +115,16 @@ define([
 
             /* PortDistribution */
             sport: 'Source Port',
-            dport: 'Destination Port'
+            dport: 'Destination Port',
+
+            /* Link Local Services */
+            linklocal_service_name: 'Service Name',
+            linklocal_service_ip: 'Service IP Address',
+            linklocal_service_port: 'Service Port',
+            ip_fabric_service_ip: 'Fabric Address',
+            ip_fabric_service_port: 'Fabric Port',
+            lls_fab_address_ip: 'Address Type',
+
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -266,6 +275,22 @@ define([
         this.TITLE_ALARM_HISTORY = 'Alarm History';
         this.TITLE_ALARM_DETAILS = 'Alarm Details';
 
+        this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
+        this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
+
+        this.CONFIG_LINK_LOCAL_SERVICES_PAGE_ID =
+            'config-link-local-services-page';
+        this.CONFIG_LINK_LOCAL_SERVICES_LIST_VIEW_ID =
+            'config-link-local-services-list';
+        this.CONFIG_LINK_LOCAL_SERVICES_SECTION_ID = 'lls';
+        this.CONFIG_LINK_LOCAL_SERVICES_ID = 'config-link-local-services';
+        this.TITLE_LINK_LOCAL_SERVICES = 'Link Layer Services';
+        this.LINK_LOCAL_SERVICES_GRID_ID = 'link-local-services-grid';
+        this.LINK_LOCAL_SERVICES_PREFIX_ID = 'link_local_services';
+        this.TITLE_CREATE_LLS = 'Create Link Local Service';
+        this.TITLE_DEL_LLS = 'Delete Link Local Service';
+        this.TITLE_EDIT_LLS = 'Edit Link Local Service';
+        this.LINK_LOCAL_SERVICE_DETAILS = 'Link Local Service Details';
     };
     return CTLabels;
 });
