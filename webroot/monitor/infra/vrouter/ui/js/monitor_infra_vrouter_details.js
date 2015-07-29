@@ -18,8 +18,16 @@ monitorInfraComputeDetailsClass = (function() {
         startWidgetLoading('dashboard');   
 
         $.ajax({
-            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
+            url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'],true)
         }).done(function (result) {
+                    //Issue a call for "Advanced details"
+                    startWidgetLoading('divAdvanced');
+                    $.ajax({
+                        url: contrail.format(monitorInfraUrls['VROUTER_DETAILS'], obj['name'])
+                    }).done(function(advancedResponse) {
+                        endWidgetLoading('divAdvanced');
+                        $('#divAdvanced pre').html(syntaxHighlight(advancedResponse));
+                    });
                     computeNodeData = result;
                     var parsedData = infraMonitorUtils.parsevRoutersDashboardData([{name:obj['name'],value:result}])[0];
                     var noDataStr = '--',
@@ -227,7 +235,7 @@ monitorInfraComputeDetailsClass = (function() {
                     computeNodeDashboardInfo.push(cores[i]);
                 //showProgressMask('#computenode-dashboard');
                 var dashboardBodyTemplate = Handlebars.compile($("#dashboard-body-template").html());
-                $('#computenode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:computeNodeDashboardInfo, nodeData:computeNodeData, showSettings:true, ip:nodeIp}));
+                $('#computenode-dashboard .widget-body').html(dashboardBodyTemplate({colCount:2, d:computeNodeDashboardInfo, nodeData:null, showSettings:true, ip:nodeIp}));
                 /*Selenium Testing*/
                 cmptNodeDetailsData = computeNodeDashboardInfo;
                 /*End of Selenium Testing*/

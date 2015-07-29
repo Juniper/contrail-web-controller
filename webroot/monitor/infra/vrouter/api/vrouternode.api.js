@@ -249,10 +249,26 @@ function getvRouterDetails (req, res, appData)
 {
     var host        = req.param('hostname');
     var flatParse   = req.param('flat');
-    var url         = '/analytics/uves/vrouter/' + host + '?flat';
+    var basic       = req.param('basic');
+    var url         = '/analytics/uves/vrouter';
     var resultJSON = {};
+    var postData = {};
+    postData['kfilt'] = [host];
+    if(basic != null && basic == "true") {
+        postData['cfilt'] = [
+            'VrouterAgent:virtual_machine_list',
+            'VrouterAgent:self_ip_list',
+            'VrouterAgent:sandesh_http_port',
+            'VrouterAgent:xmpp_peer_list',
+            'VrouterAgent:total_interface_count',
+            'VrouterAgent:down_interface_count',
+            'VrouterAgent:control_ip', 
+            'VrouterAgent:vn_count', 
+            'VrouterAgent:build_info',
+            'VrouterStatsAgent', 'NodeStatus'];
+    }
 
-    opServer.api.get(url,
+    opServer.api.post(url,postData,
                      commonUtils.doEnsureExecution(function(err, data) {
         if ((null != err) || (null == data)) {
             data = {};
@@ -261,6 +277,11 @@ function getvRouterDetails (req, res, appData)
                 commonUtils.handleJSONResponse(err, res, resultJSON);
             });
         } else {
+            if(data['value'] != null && data['value'][0] != null && data['value'][0]['value'] != null) {
+                data = data['value'][0]['value'];
+            } else {
+                data = {};
+            }
             var postData = {};
             postData['kfilt'] = [host + ':*contrail-vrouter-agent*',host + ':*TorAgent*'];
             infraCmn.addGeneratorInfoToUVE(postData, data, host,
