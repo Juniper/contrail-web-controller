@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var NetworkGridView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var NetworkGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -29,7 +29,7 @@ define([
             // TODO: Handle multi-tenancy
             var ucid = projectFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + projectFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST;
 
-            cowu.renderView4Config(self.$el, self.model, getNetworkGridViewConfig(networkRemoteConfig, ucid, pagerOptions));
+            self.renderView4Config(self.$el, self.model, getNetworkGridViewConfig(networkRemoteConfig, ucid, pagerOptions));
 
         }
     });

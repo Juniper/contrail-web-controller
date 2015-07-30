@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
+
 var mnAlarmsPageLoader = new MonitorAlarmsLoader();
 
 function MonitorAlarmsLoader() {
@@ -8,14 +12,10 @@ function MonitorAlarmsLoader() {
             pathMNView = rootDir + '/js/views/AlarmView.js',
             renderFn = paramObject['function'];
 
-        if (self.mnView == null) {
-            requirejs([pathMNView], function (AlarmsView) {
-                self.mnView = new AlarmsView();
-                self.renderView(renderFn, hashParams);
-            });
-        } else {
+        requirejs([pathMNView], function (AlarmsView) {
+            self.mnView = new AlarmsView();
             self.renderView(renderFn, hashParams);
-        }
+        });
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");

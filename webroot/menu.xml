@@ -190,10 +190,6 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>icon-sitemap</iconClass>
                     <resources>
                         <resource>
-                            <rootDir>/common/ui</rootDir>
-                            <class>mnPageLoader</class>
-                        </resource>
-                        <resource>
                             <rootDir>/monitor/networking/ui</rootDir>
                             <js>networking.main.js</js>
                             <template>networking.tmpl</template>
@@ -214,7 +210,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <queryParams>
                                 <view>details</view>
                                 <type>project</type>
-                                <source>uve</source>
                             </queryParams>
                             <searchStrings>Networking Dashboard</searchStrings>
                         </item>

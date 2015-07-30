@@ -10,8 +10,7 @@ define([
     var self = this;
     module(TestMessages.NETWORKS_GRID_MODULE, {
         setup: function () {
-            self.server = sinon.fakeServer.create();
-            self.server.autoRespond = true;
+            self.server = TestUtils.getFakeServer();
 
             $.ajaxSetup({
                 cache: true

@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model'
-], function (_, Backbone, ContrailListModel) {
-    var FlowListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel) {
+    var FlowListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -26,7 +26,7 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            cowu.renderView4Config(this.$el, contrailListModel, getFlowListViewConfig(hashParams));
+            self.renderView4Config(this.$el, contrailListModel, getFlowListViewConfig(hashParams));
         }
     });
 

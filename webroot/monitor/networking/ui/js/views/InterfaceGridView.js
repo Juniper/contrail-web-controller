@@ -4,13 +4,13 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var InterfaceGridView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var InterfaceGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
-            var that = this,
+            var self = this,
                 viewConfig = this.attributes.viewConfig,
                 modelMap = this.modelMap,
                 networkFQN = viewConfig['networkFQN'],
@@ -24,12 +24,12 @@ define([
                 viewModel = modelMap[viewConfig['modelKey']];
                 if (!(viewModel.isRequestInProgress())) {
                     interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
-                    cowu.renderView4Config(that.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
+                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
                 }
 
                 viewModel.onAllRequestsComplete.subscribe(function () {
                     interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
-                    cowu.renderView4Config(that.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
+                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
                 });
             }
         }

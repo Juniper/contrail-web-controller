@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model'
-], function (_, Backbone, ContrailListModel) {
-    var BreadcrumbView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel) {
+    var BreadcrumbView = ContrailView.extend({
 
         renderDomainBreadcrumbDropdown: function(fqName, initCB, changeCB) {
             var contrailListModel = ctwu.getAllDomains();

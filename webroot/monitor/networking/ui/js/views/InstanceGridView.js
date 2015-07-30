@@ -4,13 +4,13 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var InstanceGridView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var InstanceGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
-            var that = this,
+            var self = this,
                 viewConfig = this.attributes.viewConfig,
                 parentUUID = viewConfig['parentUUID'],
                 parentType = viewConfig['parentType'],
@@ -27,7 +27,7 @@ define([
             // TODO: Handle multi-tenancy
             var ucid = (parentUUID != null) ? (ctwc.UCID_PREFIX_MN_LISTS + parentUUID + ":" + 'virtual-machines') : ctwc.UCID_ALL_VM_LIST;
 
-            cowu.renderView4Config(that.$el, this.model, getInstanceGridViewConfig(instanceRemoteConfig, ucid, pagerOptions));
+            self.renderView4Config(self.$el, this.model, getInstanceGridViewConfig(instanceRemoteConfig, ucid, pagerOptions));
         }
     });
 

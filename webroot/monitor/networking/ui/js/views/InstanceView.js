@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var InstanceView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var InstanceView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -29,7 +29,7 @@ define([
                 connectedGraph = nmwvc.getMNConnnectedGraphConfig(ctwc.get(ctwc.URL_INSTANCE_CONNECTED_GRAPH, networkFQN, instanceUUID), {fqName: networkFQN, instanceUUID: instanceUUID}, ':connected', ctwc.GRAPH_ELEMENT_INSTANCE),
                 configGraph = nmwu.getMNConfigGraphConfig(ctwc.get(ctwc.URL_INSTANCE_CONFIG_GRAPH, networkFQN), {fqName: networkFQN, instanceUUID: instanceUUID}, ':config', ctwc.GRAPH_ELEMENT_INSTANCE);
 
-            cowu.renderView4Config(topContainerElement, null, getInstanceGraphViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID), null, null, null);
+            this.renderView4Config(topContainerElement, null, getInstanceGraphViewConfig(connectedGraph, configGraph, networkFQN, instanceUUID), null, null, null);
         },
 
         renderInstanceTabs: function(networkFQN, instanceUUID) {
@@ -46,7 +46,7 @@ define([
                 });
             }
 
-            cowu.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
+            this.renderView4Config(bottomContainerElement, null, tabConfig, null, null, null);
         }
     });
 

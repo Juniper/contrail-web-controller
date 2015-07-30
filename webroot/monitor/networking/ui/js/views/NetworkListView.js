@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model',
     'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, Backbone, ContrailListModel, BreadcrumbView) {
-    var NetworkListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    var NetworkListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -24,7 +24,7 @@ define([
                     var projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
                         contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN));
 
-                    cowu.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
+                    self.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
                     nmwgrc.setProject4NetworkListURLHashParams(projectFQN);
                 }, null, { addAllDropdownOption: true });
             });

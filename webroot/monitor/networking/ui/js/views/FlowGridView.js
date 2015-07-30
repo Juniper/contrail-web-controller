@@ -4,12 +4,12 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var FlowGridView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var FlowGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
-            var that = this, viewConfig = this.attributes.viewConfig,
+            var self = this, viewConfig = this.attributes.viewConfig,
                 hashParams = viewConfig['hashParams'],
                 pagerOptions = viewConfig['pagerOptions'];
 
@@ -17,7 +17,8 @@ define([
                 url: ctwc.constructReqURL($.extend({}, nmwgc.getURLConfigForFlowGrid(hashParams), {protocol:['tcp','icmp','udp']})),
                 type: 'GET'
             };
-            cowu.renderView4Config(that.$el, this.model, getFlowListViewConfig(flowRemoteConfig, pagerOptions));
+
+            self.renderView4Config(self.$el, this.model, getFlowListViewConfig(flowRemoteConfig, pagerOptions));
         }
     });
 

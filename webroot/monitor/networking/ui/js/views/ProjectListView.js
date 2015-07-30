@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model',
     'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, Backbone, ContrailListModel, BreadcrumbView) {
-    var ProjectListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    var ProjectListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -19,7 +19,7 @@ define([
 
             breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
                 var contrailListModel = new ContrailListModel(getProjectListModelConfig());
-                cowu.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
+                self.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
             });
         }
     });

@@ -81,6 +81,7 @@ define([
 
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
+        this.TMPL_GRAPH_CONTROL_PANEL_SEARCH = "graph-control-panel-search-template";
 
         this.DEFAULT_DOMAIN = "default-domain";
         this.UCID_PREFIX_MN = "monitor-networking";
@@ -117,7 +118,7 @@ define([
         this.DEFAULT_GRAPH_DIR = this.GRAPH_DIR_LR;
 
         this.ZOOMED_VN_MARGIN = {top: 5, bottom: 5, left: 15, right: 15};
-        this.ZOOMED_VN_OFFSET_X = 10
+        this.ZOOMED_VN_OFFSET_X = 10;
         this.VM_GRAPH_SIZE = {width: 30, height: 30};
         this.VM_GRAPH_MARGIN = {top: 10, bottom: 10, left: 0, right: 0};
         this.VM_CENTER_LINK_THICKNESS = 1;

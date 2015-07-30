@@ -17,7 +17,7 @@ module.exports = function (config) {
             'karma-junit-reporter',
             'karma-html2js-preprocessor',
             'karma-firefox-launcher',
-            'karma-chrome-launcher',
+            'karma-chrome-launcher'
         ],
         browsers: [
             'PhantomJS',
@@ -30,14 +30,19 @@ module.exports = function (config) {
         reporters: ['progress', 'html', 'coverage', 'junit'],
         // the default configuration
         junitReporter: {
-            outputFile: 'test/reports/test-results.xml',
+            outputFile: __dirname + '/reports/test-results.xml',
             suite: ''
         },
         preprocessors: {
-            '*.view': ['html2js']
+            '*.view': ['html2js'],
+            '*.tmpl': ['html2js']
         },
         htmlReporter: {
-            outputFile: 'test/reports/units.html'
+            outputFile: __dirname + '/reports/test-results.html'
+        },
+        coverageReporter: {
+            type : 'html',
+            dir : __dirname + '/reports/coverage/'
         },
         singleRun: true,
         colors: true

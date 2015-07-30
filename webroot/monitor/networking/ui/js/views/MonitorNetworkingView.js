@@ -4,14 +4,14 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, Backbone, BreadcrumbView) {
-    var MonitorNetworkingView = Backbone.View.extend({
+], function (_, ContrailView, BreadcrumbView) {
+    var MonitorNetworkingView = ContrailView.extend({
         el: $(contentContainer),
 
         renderProjectList: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getProjectListConfig(viewConfig));
+            this.renderView4Config(this.$el, null, getProjectListConfig(viewConfig));
         },
 
         renderProject: function (viewConfig) {
@@ -45,7 +45,7 @@ define([
                 delete hashParams.clickedElement;
             }
 
-            cowu.renderView4Config(self.$el, null, getProjectConfig(projectFQN, projectUUID));
+            self.renderView4Config(self.$el, null, getProjectConfig(projectFQN, projectUUID));
         },
 
         renderNetwork: function (viewConfig) {
@@ -83,11 +83,11 @@ define([
             }
 
             nmwgrc.setNetworkURLHashParams(hashParams, networkFQN, false);
-            cowu.renderView4Config(self.$el, null, getNetworkConfig(networkFQN, networkUUID));
+            self.renderView4Config(self.$el, null, getNetworkConfig(networkFQN, networkUUID));
         },
 
         renderNetworkList: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getNetworkListConfig(viewConfig));
+            this.renderView4Config(this.$el, null, getNetworkListConfig(viewConfig));
         },
 
         renderInstance: function (viewConfig) {
@@ -133,19 +133,19 @@ define([
 
             nmwgrc.setInstanceURLHashParams(hashParams, networkFQN, instanceUUID, vmName, false);
 
-            cowu.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, networkUUID, instanceUUID));
+            self.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, networkUUID, instanceUUID));
         },
 
         renderInstanceList: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getInstanceListConfig(viewConfig));
+            this.renderView4Config(this.$el, null, getInstanceListConfig(viewConfig));
         },
 
         renderFlowList: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getFlowListConfig(viewConfig));
+            this.renderView4Config(this.$el, null, getFlowListConfig(viewConfig));
         },
 
         renderFlow: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getFlowConfig(viewConfig));
+            this.renderView4Config(this.$el, null, getFlowConfig(viewConfig));
         }
     });
 

@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model'
-], function (_, Backbone, ContrailListModel) {
-    var AlarmListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel) {
+    var AlarmListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -24,7 +24,7 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            cowu.renderView4Config(this.$el, contrailListModel, getAlarmsListViewConfig());
+            self.renderView4Config(this.$el, contrailListModel, getAlarmsListViewConfig());
         }
     });
 
@@ -41,7 +41,7 @@ define([
                                 title: ctwl.TITLE_ALARMS,
                                 view: "AlarmGridView",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {projectFQN: null, parentType: 'project', pagerOptions: { options: { pageSize: 10, pageSizeSelect: [10, 50, 100] } }}
+                                viewConfig: {projectFQN: null, parentType: 'project', pagerOptions: {options: {pageSize: 10, pageSizeSelect: [10, 50, 100]}}}
                             }
                         ]
                     }

@@ -12,14 +12,10 @@ function MonitorNetworkingLoader() {
             pathMNView = ctBaseDir + rootDir + '/js/views/MonitorNetworkingView.js',
             renderFn = paramObject['function'];
 
-        if (self.mnView == null) {
-            require([pathMNView], function (MonitorNetworkingView) {
-                self.mnView = new MonitorNetworkingView();
-                self.renderView(renderFn, hashParams);
-            });
-        } else {
+        require([pathMNView], function (MonitorNetworkingView) {
+            self.mnView = new MonitorNetworkingView();
             self.renderView(renderFn, hashParams);
-        }
+        });
     };
     this.renderView = function (renderFn, hashParams, view) {
         $(contentContainer).html("");

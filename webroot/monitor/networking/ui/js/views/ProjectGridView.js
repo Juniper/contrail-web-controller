@@ -4,13 +4,13 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var ProjectGridView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var ProjectGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
-            var that = this,
+            var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
 
@@ -19,7 +19,7 @@ define([
                 type: 'GET'
             };
 
-            cowu.renderView4Config(that.$el, this.model, getProjectListViewConfig(projectsRemoteConfig, pagerOptions));
+            this.renderView4Config(self.$el, this.model, getProjectListViewConfig(projectsRemoteConfig, pagerOptions));
         }
     });
 

@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'core-basedir/js/views/LineWithFocusChartView',
     'contrail-list-model',
-], function (_, Backbone, LineWithFocusChartView, ContrailListModel) {
-    var InstanceTrafficStatsView = Backbone.View.extend({
+], function (_, ContrailView, LineWithFocusChartView, ContrailListModel) {
+    var InstanceTrafficStatsView = ContrailView.extend({
         render: function () {
             var instanceTrafficStatsTemplate = contrail.getTemplate4Id(ctwc.TMPL_TRAFFIC_STATS_TAB),
                 viewConfig = this.attributes.viewConfig,
