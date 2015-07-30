@@ -17,10 +17,10 @@
 			            <div class="col2">
 							<div id="graph-config-elements" class="graph-config-elements row-fluid"></div>
 			            </div>
-			            <div id="graph-control-panel" class="col3">
-						</div>
+			            <div id="graph-control-panel" class="col3"></div>
 					</div>
 				</div>
+                <div class="graph-search-control-panel-expanded-container control-panel-expanded-container hide"></div>
                 <div id="graph-loading" class="graph-loading">
                      <p class="loading-message">Loading..<p>
                 </div>
@@ -55,6 +55,12 @@
                 </div>
             </div>
         {{/each}}
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="graph-control-panel-search-template">
+    <div class="row-fluid">
+        <input class="graph-control-panel-search-dropdown" type="text"/>
     </div>
 </script>
 

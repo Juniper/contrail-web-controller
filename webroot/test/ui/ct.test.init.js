@@ -25,12 +25,15 @@ var depArray = [
     'dashboard-utils', 'joint.contrail', 'text', 'contrail-all-8', 'contrail-all-9'
 ];
 
-require(['jquery', 'knockout'], function ($, Knockout) {
+require(['jquery', 'knockout', 'bezier'], function ($, Knockout, Bezier) {
     window.ko = Knockout;
-    loadCommonTemplates();
+    window.Bezier = Bezier;
 
-    require(depArray, function ($, _, validation, CoreConstants, CoreUtils, CoreFormatters, Knockout, Cache,
-                                contrailCommon, CoreCommonTmpl, CoreTestUtils, LayoutHandler) {
+    if (document.location.pathname.indexOf('/vcenter') == 0) {
+        $('head').append('<base href="/vcenter/" />');
+    }
+
+    require(depArray, function ($, _, validation, CoreConstants, CoreUtils, CoreFormatters, Knockout, Cache, contrailCommon, CoreCommonTmpl, CoreTestUtils, LayoutHandler) {
         cowc = new CoreConstants();
         cowu = new CoreUtils();
         cowf = new CoreFormatters();
@@ -77,18 +80,3 @@ require(['jquery', 'knockout'], function ($, Knockout) {
         });
     });
 });
-
-function loadCommonTemplates() {
-    //Set the base URI
-    if (document.location.pathname.indexOf('/vcenter') == 0)
-        $('head').append('<base href="/vcenter/" />');
-    templateLoader = (function ($, host) {
-        //Loads external templates from path and injects in to page DOM
-        return {
-            loadExtTemplate: function (path, deferredObj, containerName) {
-                if (deferredObj != null)
-                    deferredObj.resolve();
-            }
-        };
-    })(jQuery, document);
-};

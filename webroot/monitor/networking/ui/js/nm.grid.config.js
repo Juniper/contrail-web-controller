@@ -249,12 +249,13 @@ define([
                                 kfilt: uuids.join(','),
                                 cfilt: ctwc.FILTERS_COLUMN_VM.join(",")
                             })
-                        }
+                        };
 
                         return lazyAjaxConfig;
                     },
                     successCallback: function (response, contrailGraphModel) {
                         var rawData = contrailGraphModel.rawData,
+                            rankDir = contrailGraphModel.rankDir,
                             nodes = rawData['nodes'], vmList = response['value'],
                             elementMap = contrailGraphModel.elementMap,
                             vmMap = {}, node, vm, vnMoreAttrs, vnInstanceList, nodeType,
@@ -270,7 +271,7 @@ define([
                             node = nodes[i];
                             nodeName = node['name'];
                             nodeType = node['node_type'];
-                            nodeElementId = elementMap['node'][nodeName],
+                            nodeElementId = elementMap['node'][nodeName];
                             nodeElement = contrailGraphModel.getCell(nodeElementId);
 
                             if(nodeType != 'virtual-network') {
@@ -278,7 +279,7 @@ define([
                             } else {
                                 vnMoreAttrs = node['more_attributes'];
                                 vnMoreAttrs['virtualmachine_details'] = {};
-                                vnInstanceList =  vnMoreAttrs['virtualmachine_list']
+                                vnInstanceList =  vnMoreAttrs['virtualmachine_list'];
                                 for(var k = 0; k < vnInstanceList.length; k++) {
                                     vmUUID = vnInstanceList[k];
                                     vmValue = vmMap[vmUUID];
@@ -296,6 +297,8 @@ define([
                                 }
                             }
                         }
+
+                        contrailGraphModel.reLayoutGraph(rankDir);
                     }
                 }
             ];

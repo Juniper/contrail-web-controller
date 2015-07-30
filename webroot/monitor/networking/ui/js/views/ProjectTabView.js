@@ -4,18 +4,17 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var ProjectTabView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var ProjectTabView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig;
 
-            cowu.renderView4Config(self.$el, null, getProjectViewConfig(viewConfig));
+            this.renderView4Config(self.$el, null, getProjectViewConfig(viewConfig));
         }
-
     });
 
     var getProjectViewConfig = function (viewConfig) {

@@ -4,15 +4,16 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var NetworkTabView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var NetworkTabView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig;
-            cowu.renderView4Config(self.$el, null, getNetworkViewConfig(viewConfig));
+
+            self.renderView4Config(self.$el, null, getNetworkViewConfig(viewConfig));
         }
     });
 

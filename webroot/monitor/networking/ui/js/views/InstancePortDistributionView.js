@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'core-basedir/js/views/ZoomScatterChartView'
-], function (_, Backbone, ZoomScatterChartView) {
-    var InstancePortDistributionView = Backbone.View.extend({
+], function (_, ContrailView, ZoomScatterChartView) {
+    var InstancePortDistributionView = ContrailView.extend({
         render: function () {
             var instanceTrafficStatsTemplate = contrail.getTemplate4Id(ctwc.TMPL_TRAFFIC_STATS_TAB),
                 viewConfig = this.attributes.viewConfig,

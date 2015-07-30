@@ -4,12 +4,12 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var MonitorAlarmsView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var MonitorAlarmsView = ContrailView.extend({
         el: $(contentContainer),
         renderAlarms: function (viewConfig) {
-            cowu.renderView4Config(this.$el, null, getAlarmsConfig());
+            this.renderView4Config(this.$el, null, getAlarmsConfig());
         }
     });
 

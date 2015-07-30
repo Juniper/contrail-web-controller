@@ -12,15 +12,15 @@ define([
 
             return {
                 NetworkPolicy: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             networkPolicyName = viewElement.attributes.nodeDetails['fq_name'][2];
 
                         return tooltipTitle({name: networkPolicyName, type: ctwl.TITLE_GRAPH_ELEMENT_NETWORK_POLICY});
 
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [], nodeDetails = viewElement.attributes.nodeDetails;
 
                         actions.push({
@@ -51,8 +51,8 @@ define([
                     dimension: {
                         width: 360
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -65,14 +65,14 @@ define([
                     }
                 },
                 SecurityGroup: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             securityGroupName = viewElement.attributes.nodeDetails['fq_name'][2];
 
                         return tooltipTitle({name: securityGroupName, type: ctwl.TITLE_GRAPH_ELEMENT_SECURITY_GROUP});
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [], nodeDetails = viewElement.attributes.nodeDetails;
 
                         actions.push({
@@ -98,8 +98,8 @@ define([
                     dimension: {
                         width: 355
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -112,14 +112,14 @@ define([
                     }
                 },
                 NetworkIPAM: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             NetworkIPAMName = viewElement.attributes.nodeDetails['fq_name'][2];
 
                         return tooltipTitle({name: NetworkIPAMName, type: ctwl.TITLE_GRAPH_ELEMENT_NETWORK_IPAM});
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [], nodeDetails = viewElement.attributes.nodeDetails;
 
                         actions.push({
@@ -145,8 +145,8 @@ define([
                     dimension: {
                         width: 355
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -167,15 +167,15 @@ define([
 
             return {
                 VirtualNetwork: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             virtualNetworkName = viewElement.attributes.nodeDetails['name'].split(':')[2];
 
                         return tooltipTitleTmpl({name: virtualNetworkName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_NETWORK});
 
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             networkFQN = viewElement.attributes.nodeDetails['name'],
                             virtualNetworkName = networkFQN.split(':'),
                             actions = [];
@@ -206,8 +206,8 @@ define([
                     dimension: {
                         width: 340
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -238,14 +238,14 @@ define([
                     }
                 },
                 ServiceInstance: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             serviceInstanceName = viewElement.attributes.nodeDetails['name'].split(':')[2];
 
                         return tooltipTitleTmpl({name: serviceInstanceName, type: ctwl.TITLE_GRAPH_ELEMENT_SERVICE_INSTANCE});
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -264,8 +264,8 @@ define([
                     dimension: {
                         width: 355
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -278,8 +278,8 @@ define([
                     }
                 },
                 VirtualMachine: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             vmUVE = viewElement.attributes.nodeDetails.uve,
                             virtualMachineName = viewElement.attributes.nodeDetails['fqName'];
 
@@ -289,8 +289,8 @@ define([
 
                         return tooltipTitleTmpl({name: virtualMachineName, type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE});
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [],
                             srcVNDetails = viewElement.attributes.nodeDetails.srcVNDetails,
                             vmUVE = viewElement.attributes.nodeDetails.uve,
@@ -326,8 +326,8 @@ define([
                     dimension: {
                         width: 355
                     },
-                    actionsCallback: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    actionsCallback: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             actions = [];
 
                         actions.push({
@@ -356,8 +356,8 @@ define([
                     }
                 },
                 link: {
-                    title: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    title: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             viewElementDetails = viewElement.attributes.linkDetails,
                             srcArray = viewElementDetails.src.split(':'),
                             dstArray = viewElementDetails.dst.split(':'),
@@ -366,8 +366,8 @@ define([
 
                         return tooltipTitleTmpl({name: sourceNetwork + ctwc.LINK_CONNECTOR_STRING + destinationNetwork, type: ctwl.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK});
                     },
-                    content: function (element, jointObject) {
-                        var viewElement = jointObject.graph.getCell(element.attr('model-id')),
+                    content: function (element, graphView) {
+                        var viewElement = graphView.model.getCell(element.attr('model-id')),
                             viewElementDetails = viewElement.attributes.linkDetails,
                             data = [], partialMessage = "";
 

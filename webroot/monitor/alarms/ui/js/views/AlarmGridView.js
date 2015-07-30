@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
+    'contrail-view'
+], function (_, ContrailView) {
     var GridDS;
-    var AlarmGridView = Backbone.View.extend({
+    var AlarmGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -24,29 +24,30 @@ define([
             // TODO: Handle multi-tenancy
             //var ucid = projectFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + projectFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST;
 
-            cowu.renderView4Config(self.$el, self.model, getAlarmGridViewConfig(alarmRemoteConfig, pagerOptions));
+            self.renderView4Config(self.$el, self.model, getAlarmGridViewConfig(alarmRemoteConfig, pagerOptions));
 
             //inialize the severity dropdown
             $('#ddSeverity').contrailDropdown({
-                dataTextField : 'text',
-                dataValueField:'value',
-                change:onSeverityChanged
+                dataTextField: 'text',
+                dataValueField: 'value',
+                change: onSeverityChanged
             });
             var ddSeverity = $('#ddSeverity').data('contrailDropdown');
-            ddSeverity.setData([{text : 'All', value : 'all'}, {text : 'Major', value : '3'}, {text : 'Minor', value : '4'}]);
+            ddSeverity.setData([{text: 'All', value: 'all'}, {text: 'Major', value: '3'}, {text: 'Minor', value: '4'}]);
             ddSeverity.value('all');
             GridDS = $('#' + ctwl.ALARMS_GRID_ID).data('contrailGrid')._dataView.getItems()
         }
     });
+
     function onSeverityChanged(e) {
         filterGridDataBySeverity(e.added.value);
     }
 
     function filterGridDataBySeverity(severity) {
         var filterdDS = [];
-        if(severity !== 'all') {
-            for(var i = 0; i < GridDS.length; i++) {
-                if(GridDS[i].severity === parseInt(severity,10)) {
+        if (severity !== 'all') {
+            for (var i = 0; i < GridDS.length; i++) {
+                if (GridDS[i].severity === parseInt(severity, 10)) {
                     filterdDS.push(GridDS[i]);
                 }
             }
@@ -92,20 +93,20 @@ define([
                     refreshable: true,
                     searchable: true
                 },
-                customControls: ['<a id="btnAcknowledge" class="disabled-link" title="Acknowledge"><i class="  icon-check-sign"></i></a>','Severity: <div id="ddSeverity" style="width:65px;"/>']
+                customControls: ['<a id="btnAcknowledge" class="disabled-link" title="Acknowledge"><i class="  icon-check-sign"></i></a>', 'Severity: <div id="ddSeverity" style="width:65px;"/>']
             },
             body: {
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: {
-                        onNothingChecked: function(e){
+                        onNothingChecked: function (e) {
                             $('#btnAcknowledge').addClass('disabled-link');
                         },
-                        onSomethingChecked: function(e){
+                        onSomethingChecked: function (e) {
                             $('#btnAcknowledge').removeClass('disabled-link');
                         }
                     },
-                    actionCell:getRowActionConfig,
+                    actionCell: getRowActionConfig,
                     detail: {
                         template: cowu.generateDetailTemplateHTML(getAlarmDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER)
                     }
@@ -121,7 +122,7 @@ define([
                 columns: ctwgc.alarmsColumns
             },
             footer: {
-                pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 50, 100] } })
+                pager: contrail.handleIfNull(pagerOptions, {options: {pageSize: 5, pageSizeSelect: [5, 10, 50, 100]}})
             }
         };
         return gridElementConfig;
@@ -176,8 +177,8 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 // {
-                                                    // key: 'description',
-                                                    // templateGenerator: 'TextGenerator'
+                                                // key: 'description',
+                                                // templateGenerator: 'TextGenerator'
                                                 // }
                                             ]
                                         }

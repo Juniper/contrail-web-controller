@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model',
     'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, Backbone, ContrailListModel, BreadcrumbView) {
-    var InstanceListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    var InstanceListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -38,7 +38,7 @@ define([
 
                             contrailListModel = new ContrailListModel(getInstanceListModelConfig(parentUUID, parentType));
 
-                            cowu.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                            self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
                             extendedHashOb[parentHashtype] = parentFQN;
                             nmwgrc.setNetwork4InstanceListURLHashParams(extendedHashOb);
 
@@ -47,7 +47,7 @@ define([
                     } else {
                         contrailListModel = new ContrailListModel(getInstanceListModelConfig(null, null));
 
-                        cowu.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                        self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
                         nmwgrc.setNetwork4InstanceListURLHashParams({});
                     }
 
