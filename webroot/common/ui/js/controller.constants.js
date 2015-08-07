@@ -1,4 +1,4 @@
-/*
+~/*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
@@ -396,7 +396,33 @@ define([
         };
 
         //Alarm constants
-        this.URL_ALARM_DETAILS_IN_CHUNKS = '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
+        this.URL_ALARM_DETAILS_IN_CHUNKS =
+            '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
+
+        //Physical Routers constants
+        this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =
+            '/api/tenants/config/physical-routers-with-intf-count';
+        this.URL_VIRTUAL_ROUTER_DETAILS =
+            '/api/tenants/config/virtual-routers-detail';
+        this.URL_PHYSICAL_ROUTER_CREATE =
+            '/api/tenants/config/physical-routers';
+        this.URL_BGP_ROUTER_DETAILS = 'api/admin/nodes/bgp';
+        this.URL_VIRTUAL_NETWORK_DETAILS =
+            'api/tenants/config/virtual-networks';
+        this.SNMP_VERSION_DATA = [
+            {'value' : 'v2', "text" : '2'},
+            {'value' : 'v3', "text" : '3'}
+        ];
+        this.SNMP_SECURITY_LEVEL = [
+            {'value' : 'none', "text" : 'None'},
+            {'value' : 'auth', "text" : 'Auth'},
+            {'value' : 'authpriv', "text" : 'AuthPriv'}
+        ];
+        this.VIRTUAL_ROUTER_TYPE = [
+            {'value' : 'none', "text" : 'None'},
+            {'value' : 'embedded', "text" : 'Embedded'},
+            {'value' : 'torAgent', "text" : 'TOR Agent'}
+        ];
     };
 
     //str will be [0-9]+(m|h|s|d)
