@@ -46,6 +46,46 @@ define([
             }
         ];
 
+        this.physicalRoutersColumns = [
+                {
+                    id : 'pRouterName',
+                    field : 'pRouterName',
+                    name : 'Name' ,
+                    cssClass :'cell-hyperlink-blue',
+                    events : {
+                        onClick : function(e, dc) {
+                            layoutHandler.setURLHashParams({uuid : dc.uuid},
+                            {p : 'config_pd_interfaces' ,merge : false,
+                            triggerHashChange : true});
+                        }
+                    }
+                },
+                {
+                    id : 'mgmtIP',
+                    field : 'mgmtIP',
+                    name : 'Management IP',
+                    sorter : comparatorIP
+                },
+                {
+                    id : 'dataIP',
+                    field : 'dataIP',
+                    name : 'VTEP Address',
+                    sorter : comparatorIP
+                },
+                {
+                    id : 'interfaces',
+                    field : 'totalInterfacesCount',
+                    name : 'Interfaces',
+                    cssClass :'cell-hyperlink-blue',
+                    events : {
+                        onClick : function(e, dc) {
+                            layoutHandler.setURLHashParams({uuid : dc.uuid},
+                            {p : 'config_pd_interfaces' ,merge : false,
+                            triggerHashChange : true});
+                        }
+                    }
+                }];
+
         this.getVMInterfacesLazyRemoteConfig = function () {
             return [
                 {
@@ -109,6 +149,24 @@ define([
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
             }
+        };
+        this.getEditAction = function (onClickFunction, title, divider) {
+            return {
+                title: title,
+                iconClass: 'icon-edit',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
+        this.getDeleteAction = function (onClickFunction, divider) {
+            return {
+                title: ctwl.TITLE_DELETE_CONFIG,
+                iconClass: 'icon-trash',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            };
         };
     };
     return CTGridConfig;
