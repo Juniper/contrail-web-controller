@@ -458,16 +458,28 @@ and need to add the iconClass tag wherever we need to show some icons
                         </orchModels>
                     </access>
                     <iconClass>icon-globe</iconClass>
+                    <resources>
+                        <resource>
+                            <rootDir>/common/ui</rootDir>
+                            <js>controller.app.js</js>
+                            <class>configPhysicalDevicesPageLoader</class>
+                        </resource>
+                        <resource>
+                            <rootDir>/config/physicaldevices/ui</rootDir>
+                            <js>physicaldevices.main.js</js>
+                            <template>physicaldevices.tmpl</template>
+                            <class>configPhysicalDevicesPageLoader</class>
+                        </resource>
+                    </resources>
                     <items>
                         <item>
                             <label>Physical Routers</label>
                             <hash>config_pd_physicalRouters</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/physicaldevices/physicalrouters/ui</rootDir>
-                                    <js>physicalrouters_config.js</js>
-                                    <view>physicalrouters_config.view</view>
-                                    <class>physicalRoutersConfigObj</class>
+                                    <rootDir>/config/physicaldevices/ui</rootDir>
+                                    <class>configPhysicalDevicesPageLoader</class>
+                                    <function>renderPhysicalRouters</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Physical Routers</searchStrings>
