@@ -28,7 +28,10 @@ define([
     'monitor/networking/ui/js/views/InstancePortDistributionView',
     'config/linklocalservices/ui/js/views/LinkLocalServicesListView',
     'config/linklocalservices/ui/js/views/LinkLocalServicesGridView',
-    'config/linklocalservices/ui/js/views/LinkLocalServicesEditView'
+    'config/linklocalservices/ui/js/views/LinkLocalServicesEditView',
+    'config/physicaldevices/ui/js/views/PhysicalRouterView',
+    'config/physicaldevices/ui/js/views/PhysicalRouterListView',
+    'config/physicaldevices/ui/js/views/PhysicalRouterGridView'
 ], function (_, ContrailListModel, NetworkingGraphView, ProjectTabView, NetworkTabView,
              NetworkGridView, InstanceTabView, InstanceGridView,
              ProjectGridView, FlowGridView, NetworkListView, ProjectListView,
@@ -37,7 +40,9 @@ define([
              ConnectedNetworkTabView, ConnectedNetworkTrafficStatsView,
              AlarmListView, AlarmGridView, InterfaceGridView,
              InstancePortDistributionView, LinkLocalServicesListView,
-             LinkLocalServicesGridView, LinkLocalServicesEditView) {
+             LinkLocalServicesGridView, LinkLocalServicesEditView,
+             PhysicalRouterView, PhysicalRouterListView, PhysicalRouterGridView
+             ) {
     var ctRenderUtils = function () {
         var self = this;
 
@@ -277,7 +282,37 @@ define([
                 elementView.modelMap = modelMap;
                 elementView.render();
                 return elementView;
-            }
+
+            case "PhysicalRouterView":
+                elementView =
+                    new PhysicalRouterView({ el: parentElement,
+                                                  model: model,
+                                                  attributes: viewAttributes,
+                                                  rootView: rootView});
+                elementView.modelMap = modelMap;
+                elementView.render();
+                return elementView;
+
+            case "PhysicalRouterListView":
+                elementView =
+                    new PhysicalRouterListView({ el: parentElement,
+                                                  model: model,
+                                                  attributes: viewAttributes,
+                                                  rootView: rootView});
+                elementView.modelMap = modelMap;
+                elementView.render();
+                return elementView;
+
+            case "PhysicalRouterGridView":
+                elementView =
+                    new PhysicalRouterGridView({ el: parentElement,
+                                                  model: model,
+                                                  attributes: viewAttributes,
+                                                  rootView: rootView});
+                elementView.modelMap = modelMap;
+                elementView.render();
+                return elementView;
+            };
         };
     };
     return ctRenderUtils;

@@ -124,8 +124,46 @@ define([
             ip_fabric_service_ip: 'Fabric IP',
             ip_fabric_service_port: 'Fabric Port',
             lls_fab_address_ip: 'Address Type',
-            ip_fabric_DNS_service_name: 'Fabric DNS'
+            ip_fabric_DNS_service_name: 'Fabric DNS',
 
+            /*Physical Routers*/
+            pmodel: 'Model',
+            snmpMntd: "SNMP Monitored",
+            mgmtIP: "Management IP",
+            dataIP: "VTEP Address",
+            torAgent1: "TOR Agent1",
+            torAgent2: "TOR Agent2",
+            tsn1: "TSN1",
+            tsn2: "TSN2",
+            physical_router: "Physical Router",
+            pRouterName : "Name",
+            snmpLocalPort : "Local Port",
+            snmpRetries : "Retries",
+            snmpTimeout : "Timeout(secs)",
+            snmpV2Community : "Community",
+            snmpVersion : "SNMP Version",
+            expDetSnmpVersion : "SNMP Version",
+            snmpV3SecurityName : "Security Name",
+            snmpV3SecurityLevel : "Security Level",
+            snmpv3AuthProtocol : "Authentication Protocol",
+            snmpv3AuthPasswd : "Password",
+            snmpv3PrivProtocol : "Privacy Protocol",
+            snmpv3PrivPasswd : "Password",
+            snmpV3SecurityEngineId : "Security Engine Id",
+            snmpv3Context : "Context",
+            snmpv3ContextEngineId : "Context Engine Id",
+            snmpv3EngineId : "Engine Id",
+            snmpv3EngineBoots : "Engine Boots",
+            snmpv3EngineTime : "Engine Time",
+            displayVirtualRouters : "Associated Virtual Router(s)",
+            totalInterfacesCount : "Interfaces",
+            isJunosPortEnabled : "Junos Service Ports",
+            netConfUserName : "Netconf Username",
+            netConfPasswd : "Password",
+            bgpGateWay : "BGP Gateway",
+            vns : "Virtual Networks",
+            virtualRouterType : 'Type',
+            netconfManaged : 'Netconf Managed'
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -292,6 +330,58 @@ define([
         this.TITLE_DEL_LLS = 'Delete Link Local Service';
         this.TITLE_EDIT_LLS = 'Edit Link Local Service';
         this.LINK_LOCAL_SERVICE_DETAILS = 'Link Local Service Details';
+
+        //Physical Routers labels
+        this.CONFIG_PHYSICAL_ROUTERS_PAGE_ID = "config-physical-routers-page";
+        this.CONFIG_PHYSICAL_ROUTERS_LIST_ID = "config-physical-routers-list";
+        this.CONFIG_PHYSICAL_ROUTERS_SECTION_ID =
+            "config-physical-routers-section";
+        this.CONFIG_PHYSICAL_ROUTERS_ID = "config-physical-routers";
+        this.TITLE_PHYSICAL_ROUTERS = "Physical Routers";
+        this.CONFIG_PHYSICAL_ROUTERS_LIST_VIEW_ID =
+            "config-physical-routers-list-view";
+        this.PHYSICAL_ROUTERS_GRID_ID = "physical-routers-grid";
+        this.TITLE_ADD_PHYSICAL_ROUTER = "Add Physical Router";
+        this.CREATE_OVSDB_MANAGED_TOR = "OVSDB Managed ToR";
+        this.TITLE_OVSDB_MANAGED_TOR = "Add OVSDB Managed ToR";
+        this.CREATE_NETCONF_MANAGED_PHYSICAL_ROUTER =
+             "Netconf Managed Physical Router";
+        this.TITLE_NETCONF_MANAGED_TOR = "Add Netconf Managed Physical Router";
+        this.CREATE_CPE_ROUTER = "CPE Router";
+        this.CREATE_PHYSICAL_ROUTER = "Physical Router";
+        this.PHYSICAL_ROUTER_ADD = "Add";
+        this.PHYSICAL_ROUTER_PREFIX_ID = 'physical_router';
+        this.SELECT_ENTER_NAME = "Select or Enter Name";
+        this.SNMP_AUTH = "auth";
+        this.SNMP_AUTHPRIV = "authpriv";
+        this.TITLE_PHYSICAL_ROUTER_PROPERTIES = "Physical Router Properties";
+        this.TITLE_NETCONF_SETTINGS = "Netconf Settings";
+        this.TITLE_SNMP_SETTINGS = "SNMP Settings";
+        this.OVSDB_ACCORDION = "ovsdb_accordion";
+        this.OVSDB_SNMP_SECTION = "OVSDB_snmp_section";
+        this.OVSDB_SNMP_SECTION_TITLE = "SNMP Settings";
+        this.OVSDB_V2_VERSION_ID = "v2_version_content";
+        this.OVSDB_V3_VERSION_ID = "v3_version_content";
+        this.TITLE_EDIT_OVSDB_MANAGED_TOR = "Edit OVSDB Managed ToR";
+        this.TITLE_DELETE_CONFIG = "Delete";
+        this.OVSDB_TYPE = "ovsdb";
+        this.NET_CONF_TYPE = 'netconf';
+        this.CPE_ROUTER_TYPE = 'cpe';
+        this.PHYSICAL_ROUTER_TYPE = 'prouter';
+        this.TITLE_EDIT_NETCONF_MANAGED_PR =
+            'Edit Netconf Managed Physical Router';
+        this.TITLE_CPE_ROUTER = "Add VCPE";
+        this.TITLE_EDIT_VCPE_ROUTER = "Edit VCPE";
+        this.CREATE_ACTION = "create";
+        this.EDIT_ACTION = "edit";
+        this.ASSOCIATED_VR_ACCORDION = "associated_vr_accordion";
+        this.ASSOCIATED_VR_SECTION = "associated_vr_section";
+        this.ASSOCIATED_VR_TITLE = "Associated Virtual Routers";
+        this.TOR_AGENT_SECTION = "tor_agent_section";
+        this.NETCONF_SETTINGS_SECTION = 'netconf_settings_section';
+        this.NETCONF_SETTINGS_TITLE = 'Netconf Settings';
+        this.TOR_AGENT = "TOR Agent";
+        this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
     };
     return CTLabels;
 });
