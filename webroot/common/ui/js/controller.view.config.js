@@ -40,6 +40,7 @@ define([
                     elementId: ctwl.INSTANCE_INTERFACE_ID,
                     title: ctwl.TITLE_INTERFACES,
                     view: "InterfaceGridView",
+                    viewPathPrefix: "monitor/networking/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {
                         modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
@@ -52,6 +53,7 @@ define([
                     title: ctwl.TITLE_TRAFFIC_STATISTICS,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     view: "InstanceTrafficStatsView",
+                    viewPathPrefix: "monitor/networking/ui/js/views/",
                     viewConfig: {
                         modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                         instanceUUID: instanceUUID,
@@ -63,6 +65,7 @@ define([
                     title: ctwl.TITLE_PORT_DISTRIBUTION,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     view: "InstancePortDistributionView",
+                    viewPathPrefix: "monitor/networking/ui/js/views/",
                     viewConfig: {
                         modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                         instanceUUID: instanceUUID
@@ -86,7 +89,10 @@ define([
                     view: "LineBarWithFocusChartView",
                     viewConfig: {
                         modelConfig: getInstanceCPUMemModelConfig(networkFQN, instanceUUID),
-                        parseFn: ctwp.parseCPUMemLineChartData
+                        parseFn: ctwp.parseCPUMemLineChartData,
+                        chartOptions: {
+                            forceY1: [0, 1]
+                        }
                     }
                 }
             ];

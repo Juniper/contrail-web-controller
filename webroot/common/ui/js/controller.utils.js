@@ -229,6 +229,30 @@ define([
             return contrailListModel;
         };
 
+        this.renderView = function (renderConfig, renderCallback) {
+            var parentElement = renderConfig['parentElement'],
+                viewName = renderConfig['viewName'],
+                viewPathPrefix = contrail.checkIfExist(renderConfig['viewPathPrefix']) ? renderConfig['viewPathPrefix'] : '/',
+                model = renderConfig['model'],
+                viewAttributes = renderConfig['viewAttributes'],
+                modelMap = renderConfig['modelMap'],
+                rootView = renderConfig['rootView'],
+                viewPath =  viewPathPrefix + viewName,
+                onAllRenderCompleteCB = renderConfig['onAllRenderCompleteCB'],
+                elementView;
+
+            require([viewPath], function(ElementView) {
+                elementView = new ElementView({el: parentElement, model: model, attributes: viewAttributes, rootView: rootView, onAllRenderCompleteCB: onAllRenderCompleteCB});
+                elementView.viewName = viewName;
+                elementView.modelMap = modelMap;
+                elementView.beginMyRendering();
+                elementView.render();
+                if(contrail.checkIfFunction(renderCallback)) {
+                    renderCallback(elementView);
+                }
+                elementView.endMyRendering()
+            });
+        };
     };
 
     return CTUtils;

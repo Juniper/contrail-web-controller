@@ -40,6 +40,7 @@ define([
                                 elementId: ctwl.MONITOR_ALARM_LIST_ID,
                                 title: ctwl.TITLE_ALARMS,
                                 view: "AlarmGridView",
+                                viewPathPrefix: "monitor/alarms/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {projectFQN: null, parentType: 'project', pagerOptions: {options: {pageSize: 10, pageSizeSelect: [10, 50, 100]}}}
                             }

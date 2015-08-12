@@ -29,6 +29,7 @@ define([
                                         {
                                             elementId: ctwl.MONITOR_PROJECT_VIEW_ID,
                                             view: "ProjectTabView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: options
                                         }
@@ -57,6 +58,7 @@ define([
                                         {
                                             elementId: ctwl.MONITOR_NETWORK_VIEW_ID,
                                             view: "NetworkTabView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: options
                                         }
@@ -85,6 +87,7 @@ define([
                                         {
                                             elementId: ctwl.MONITOR_INSTANCE_VIEW_ID,
                                             view: "InstanceTabView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: options
                                         }
@@ -108,6 +111,7 @@ define([
                                         {
                                             elementId: ctwl.MONITOR_CONNECTED_NETWORK_VIEW_ID,
                                             view: "ConnectedNetworkTabView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: elementObj
                                         }

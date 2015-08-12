@@ -4,21 +4,20 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'config/linklocalservices/ui/js/models/LinkLocalServicesModel',
     'config/linklocalservices/ui/js/views/LinkLocalServicesEditView'
-], function (_, Backbone, LinkLocalServicesModel, LinkLocalServicesEditView) {
+], function (_, ContrailView, LinkLocalServicesModel, LinkLocalServicesEditView) {
     var linkLocalServicesEditView = new LinkLocalServicesEditView(),
     gridElId = "#" + ctwl.LINK_LOCAL_SERVICES_GRID_ID;
 
-    var LinkLocalServicesGridView = Backbone.View.extend({
+    var LinkLocalServicesGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'];
-            cowu.renderView4Config(self.$el, self.model,
-                                   getLinkLocalServicesGridViewConfig(pagerOptions));
+            self.renderView4Config(self.$el, self.model, getLinkLocalServicesGridViewConfig(pagerOptions));
         }
     });
 

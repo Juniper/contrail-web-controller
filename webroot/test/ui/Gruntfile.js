@@ -35,6 +35,7 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-controller/webroot/common/ui/templates/*.tmpl', included: false},
         {pattern: 'contrail-web-controller/webroot/common/**/*.js', included: false},
         {pattern: 'contrail-web-controller/webroot/monitor/**/*.js', included: false},
+        {pattern: 'contrail-web-controller/webroot/config/linklocalservices/**/*.js', included: false},
         {pattern: 'contrail-web-controller/webroot/*.xml', included: false},
 
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
@@ -44,7 +45,7 @@ module.exports = function (grunt) {
         options: {
             configFile: 'karma.config.js'
         },
-        nm: {
+        networklistview: {
             options: {
                 files: [
                     {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListViewTest.js', included: false}
@@ -71,5 +72,14 @@ module.exports = function (grunt) {
             },
             files: ["Gruntfile.js"]
         },
+        nm : {
+            networklistview: 'networklistview'
+        }
+    });
+
+    grunt.registerMultiTask('nm', 'Network Monitoring Test Cases', function () {
+        if (this.target == 'networklistview') {
+            grunt.task.run('karma:networklistview');
+        }
     });
 };

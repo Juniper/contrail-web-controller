@@ -66,6 +66,7 @@ define([
                                             elementId: ctwl.NETWORK_INSTANCES_ID,
                                             title: ctwl.TITLE_INSTANCES,
                                             view: "InstanceGridView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: {
                                                 parentUUID: networkUUID,

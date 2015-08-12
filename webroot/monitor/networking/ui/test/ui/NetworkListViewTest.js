@@ -2,54 +2,87 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'co-test-utils',
+    'co-unit-test',
+    'ct-test-utils',
+    'ct-test-messages',
     'network-list-view-mockdata',
-    'test-slickgrid',
-    'test-messages'
-], function (TestUtils, TestMockdata, TestSlickGrid, TestMessages) {
-    var self = this;
-    module(TestMessages.NETWORKS_GRID_MODULE, {
-        setup: function () {
-            self.server = TestUtils.getFakeServer();
+    'co-test-grid-listmodel',
+    'co-test-grid-gridview'
+], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
-            $.ajaxSetup({
-                cache: true
-            });
-        },
-        teardown: function () {
-            self.server.restore();
-            delete self.server;
+    var moduleId = cttm.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE;
+
+    var fakeServerConfig = CUnit.getDefaultFakeServerConfig();
+
+    var fakeServerResponsesConfig = function() {
+        var responses = [];
+
+        responses.push(CUnit.createFakeServerResponse( {
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
+            body: JSON.stringify(TestMockdata.domainsMockData)
+        }));
+        responses.push(CUnit.createFakeServerResponse( {
+            url: /\/api\/tenants\/projects\/default-domain.*$/,
+            body: JSON.stringify(TestMockdata.projectMockData)
+        }));
+        responses.push(CUnit.createFakeServerResponse({
+            method:"POST",
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS),
+            body: JSON.stringify(TestMockdata.networksMockData)
+        }));
+        responses.push(CUnit.createFakeServerResponse({
+            method: "POST",
+            url: cttu.getRegExForUrl(ctwc.URL_VM_VN_STATS),
+            body: JSON.stringify(TestMockdata.networksMockStatData)
+        }));
+
+        return responses;
+    };
+    fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
+
+    var pageConfig = CUnit.getDefaultPageConfig();
+    pageConfig.hashParams = {
+        p: 'mon_networking_networks',
+        q: {
+            view: 'list',
+            type: 'network'
         }
-    });
+    };
+    pageConfig.loadTimeout = 2000;
 
-    asyncTest(TestMessages.TEST_LOAD_NETWORKS_GRID, function (assert) {
-        expect(0);
-        var hashParams = {
-            p: 'mon_networking_networks',
-            q: {
-                view: 'list',
-                type: 'network'
-            }
-        };
-        loadFeature(hashParams);
-        contentHandler.featureAppDefObj.done(function () {
-            var fakeServer = self.server;
+    var getTestConfig = function() {
+        return {
+            rootView: mnPageLoader.mnView,
+            tests: [
+                {
+                    viewId: 'project-network-grid',
+                    suites: [
+                        {
+                            class: GridViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW,
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {
+                                    mockDataParseFn: cttu.deleteSizeField,
+                                    gridDataParseFn: cttu.deleteSizeField
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        } ;
 
-            fakeServer.respondWith( "GET", TestUtils.getRegExForUrl(ctwc.URL_ALL_DOMAINS), [200, {"Content-Type": "application/json"}, JSON.stringify(TestMockdata.domainsMockData)]);
-            fakeServer.respondWith( "GET", /\/api\/tenants\/projects\/default-domain.*$/, [200, {"Content-Type": "application/json"}, JSON.stringify(TestMockdata.projectMockData)]);
-            fakeServer.respondWith( "POST", TestUtils.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS), [200, {"Content-Type": "application/json"}, JSON.stringify(TestMockdata.networksMockData)]);
-            fakeServer.respondWith( "POST", TestUtils.getRegExForUrl(ctwc.URL_VM_VN_STATS), [200, {"Content-Type": "application/json"}, JSON.stringify(TestMockdata.networksMockStatData)]);
+    };
 
-            setTimeout(function() {
-                var testConfigObj = {
-                    'prefixId': 'project-network-grid',
-                    'cols': nmwgc.projectNetworksColumns,
-                    'addnCols': ['detail'],
-                    'gridElId': '#' + ctwl.PROJECT_NETWORK_GRID_ID
-                };
-                TestSlickGrid.executeSlickGridTests(testConfigObj['gridElId'], TestMockdata.networksMockData, testConfigObj);
-                QUnit.start();
-            }, 1000)
-        });
-    });
+    var pageTestConfig = CUnit.createPageTestConfig(moduleId, fakeServerConfig, pageConfig, getTestConfig);
+
+    CUnit.testRunnerStart(pageTestConfig);
+
 });

@@ -4,11 +4,11 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'contrail-list-model',
     'config/linklocalservices/ui/js/models/LinkLocalServicesModel'
-], function (_, Backbone, ContrailListModel, LinkLocalServicesModel) {
-    var LinkLocalServicesListView = Backbone.View.extend({
+], function (_, ContrailView, ContrailListModel, LinkLocalServicesModel) {
+    var LinkLocalServicesListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
@@ -30,8 +30,7 @@ define([
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            cowu.renderView4Config(this.$el, contrailListModel,
-                                   getLinkLocalServicesViewConfig());
+            self.renderView4Config(this.$el, contrailListModel, getLinkLocalServicesViewConfig());
         }
     });
 
@@ -47,6 +46,7 @@ define([
                                 elementId: ctwl.CONFIG_LINK_LOCAL_SERVICES_ID,
                                 title: ctwl.TITLE_LINK_LOCAL_SERVICES,
                                 view: "LinkLocalServicesGridView",
+                                viewPathPrefix: "config/linklocalservices/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     pagerOptions: {

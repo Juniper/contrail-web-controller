@@ -4,39 +4,74 @@
 
 var coreBaseDir = "/base/contrail-web-core/webroot",
     ctBaseDir = "/base/contrail-web-controller/webroot",
-    pkgBaseDir = ctBaseDir;
+    pkgBaseDir = ctBaseDir,
+    featurePkg = 'webController';
 
-require(["/base/contrail-web-core/webroot/js/core-app-utils.js"], function () {
-    globalObj['env'] = "test";
+var ctwu, ctwc, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
+    nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
+
+require([
+    coreBaseDir + '/js/core-app-utils.js',
+    coreBaseDir + '/test/ui/js/co.test.app.utils.js'
+], function () {
+    globalObj = {'env': "test"};
+
     requirejs.config({
         baseUrl: ctBaseDir,
-        paths: getControllerTestAppPaths(getCoreAppPaths(coreBaseDir)),
+        paths: getControllerTestAppPaths(coreBaseDir),
         map: coreAppMap,
-        shim: coreAppShim,
+        shim: getControllerTestAppShim(),
         waitSeconds: 0
     });
 
-    require(['ct-test-init'], function () {});
-});
+    require(['co-test-init'], function () {
+        setFeaturePkgAndInit(featurePkg);
+    });
 
-function getControllerTestAppPaths(coreAppPaths) {
-    var controllerTestAppPathObj = {};
+    function getControllerTestAppPaths(coreBaseDir) {
+        var controllerTestAppPathObj = {};
 
-    for (var key in coreAppPaths) {
-        if (coreAppPaths.hasOwnProperty(key)) {
-            var value = coreAppPaths[key];
-            controllerTestAppPathObj[key] = value;
+        var coreAppPaths = getCoreAppPaths(coreBaseDir);
+        var coreTestAppPaths = getCoreTestAppPaths(coreBaseDir);
+
+        for (var key in coreAppPaths) {
+            if (coreAppPaths.hasOwnProperty(key)) {
+                var value = coreAppPaths[key];
+                controllerTestAppPathObj[key] = value;
+            }
         }
+
+        for (var key in coreTestAppPaths) {
+            if (coreTestAppPaths.hasOwnProperty(key)) {
+                var value = coreTestAppPaths[key];
+                controllerTestAppPathObj[key] = value;
+            }
+        }
+
+        controllerTestAppPathObj["ct-test-utils"] = ctBaseDir + "/test/ui/ct.test.utils";
+        controllerTestAppPathObj["ct-test-messages"] = ctBaseDir + "/test/ui/ct.test.messages";
+        controllerTestAppPathObj["network-list-view-mockdata"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListViewMockData";
+
+        return controllerTestAppPathObj;
+    };
+
+    function getControllerTestAppShim() {
+        var controllerTestAppShim = {};
+
+        for (var key in coreAppShim) {
+            if (coreAppShim.hasOwnProperty(key)) {
+                var value = coreAppShim[key];
+                controllerTestAppShim[key] = value;
+            }
+        }
+
+        for (var key in coreTestAppShim) {
+            if (coreTestAppShim.hasOwnProperty(key)) {
+                var value = coreTestAppShim[key];
+                controllerTestAppShim[key] = value;
+            }
+        }
+
+        return controllerTestAppShim;
     }
-
-    controllerTestAppPathObj ["co-test-utils"] = coreBaseDir + "/test/ui/co.test.utils";
-    controllerTestAppPathObj ["co-test-mockdata"] = coreBaseDir + "/test/ui/co.test.mockdata";
-    controllerTestAppPathObj ["test-slickgrid"] = coreBaseDir + "/test/ui/slickgrid.test.common";
-
-    controllerTestAppPathObj ["network-list-view-mockdata"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListViewMockData";
-    controllerTestAppPathObj ["test-messages"] = ctBaseDir + "/test/ui/ct.test.messages";
-    controllerTestAppPathObj["ct-test-init"] = ctBaseDir + "/test/ui/ct.test.init";
-
-    return controllerTestAppPathObj;
-};
-
+});

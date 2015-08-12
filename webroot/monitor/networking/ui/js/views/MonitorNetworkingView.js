@@ -153,6 +153,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_PAGE_ID]),
             view: "ProjectView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID}
         }
@@ -162,6 +163,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_PAGE_ID]),
             view: "NetworkView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID}
         }
@@ -171,6 +173,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_PAGE_ID]),
             view: "InstanceView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID, instanceUUID: instanceUUID}
         }
@@ -180,6 +183,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_PAGE_ID]),
             view: "ProjectListView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: viewConfig
         }
@@ -189,6 +193,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_PAGE_ID]),
             view: "NetworkListView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: viewConfig
         }
@@ -198,6 +203,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_PAGE_ID]),
             view: "InstanceListView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: viewConfig
         }
@@ -207,6 +213,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_FLOWS_PAGE_ID]),
             view: "FlowListView",
+            viewPathPrefix: "monitor/networking/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {config: viewConfig}
         };
@@ -227,6 +234,7 @@ define([
                                 elementId: ctwl.FLOWS_GRID_ID,
                                 title: ctwl.TITLE_FLOWS,
                                 view: "FlowGridView",
+                                viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {hashParams: hashParams, pagerOptions: { options: { pageSize: 25, pageSizeSelect: [25, 50, 100] } } }
                             }

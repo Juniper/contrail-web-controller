@@ -124,6 +124,7 @@ define([
                                 elementId: ctwl.PROJECT_INSTANCES_ID,
                                 title: ctwl.TITLE_INSTANCES,
                                 view: "InstanceGridView",
+                                viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {pagerOptions: { options: { pageSize: 8, pageSizeSelect: [8, 25, 50, 100] } }}
                             }

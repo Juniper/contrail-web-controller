@@ -109,6 +109,7 @@ define([
                                 elementId: ctwl.FLOWS_GRID_ID,
                                 title: ctwl.TITLE_FLOWS,
                                 view: "FlowGridView",
+                                viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     hashParams: hashParams,

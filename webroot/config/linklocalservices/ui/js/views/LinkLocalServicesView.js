@@ -4,12 +4,12 @@
 
 define([
     'underscore',
-    'backbone'
-], function (_, Backbone) {
-    var LinkLocalServicesView = Backbone.View.extend({
+    'contrail-view'
+], function (_, ContrailView) {
+    var LinkLocalServicesView = ContrailView.extend({
         el: $(contentContainer),
         renderLinkLocalServices: function () {
-            cowu.renderView4Config(this.$el, null, getLinkLocalServices());
+            this.renderView4Config(this.$el, null, getLinkLocalServices());
         }
     });
 
@@ -17,6 +17,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_LINK_LOCAL_SERVICES_PAGE_ID]),
             view: "LinkLocalServicesListView",
+            viewPathPrefix: "config/linklocalservices/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
         }

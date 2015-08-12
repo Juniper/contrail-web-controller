@@ -4,27 +4,27 @@
 
 define([
     'underscore',
-    'backbone',
+    'contrail-view',
     'knockback'
-], function (_, Backbone, Knockback) {
+], function (_, ContrailView, Knockback) {
     var gridElId = '#' + ctwl.LINK_LOCAL_SERVICES_GRID_ID;
     var prefixId = ctwl.LINK_LOCAL_SERVICES_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
 
-    var LinkLocalServicesEditView = Backbone.View.extend({
+    var LinkLocalServicesEditView = ContrailView.extend({
         renderAddLinkLocalServices: function (options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
-                that = this;
+                self = this;
 
             var gridData = options['gridData'];
             var configData = options['configData'];
             cowu.createModal({'modalId': modalId, 'className': 'modal-980',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                that.model.configureLinkLocalServices(-1, configData, gridData, {
+                self.model.configureLinkLocalServices(-1, configData, gridData, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -34,38 +34,36 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            that.model.showErrorAttr(prefixId +
+                            self.model.showErrorAttr(prefixId +
                                                      cowc.FORM_SUFFIX_ID,
                                                      error.responseText);
                         });
                     }
                 });
             }, 'onCancel': function () {
-                Knockback.release(that.model, document.getElementById(modalId));
-                kbValidation.unbind(that);
+                Knockback.release(self.model, document.getElementById(modalId));
+                kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
-            cowu.renderView4Config($("#" + modalId).find(formId), this.model,
-                                   getAddLinkLocalServicesViewConfig(false),
-                                   "llsConfigValidations");
 
-            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
-                                     false);
-            Knockback.applyBindings(this.model, document.getElementById(modalId));
-            kbValidation.bind(this);
+            self.renderView4Config($("#" + modalId).find(formId), this.model, getAddLinkLocalServicesViewConfig(false), "llsConfigValidations", null, null, function() {
+                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(modalId));
+                kbValidation.bind(self);
+            });
         },
         renderEditLinkLocalServices: function(options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
-                that = this;
+                self = this;
             var rowIndex = options['rowIndex'];
             var gridData = options['gridData'];
             var configData = options['configData'];
             cowu.createModal({'modalId': modalId, 'className': 'modal-980',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                that.model.configureLinkLocalServices(rowIndex, configData,
+                self.model.configureLinkLocalServices(rowIndex, configData,
                                                       gridData, {
                     init: function () {
                         cowu.enableModalLoading(modalId);
@@ -76,7 +74,7 @@ define([
                     },
                     error: function (error) {
                         cowu.disableModalLoading(modalId, function () {
-                            that.model.showErrorAttr(prefixId +
+                            self.model.showErrorAttr(prefixId +
                                                      cowc.FORM_SUFFIX_ID,
                                                      error.responseText);
                         });
@@ -84,19 +82,16 @@ define([
                 });
                 // TODO: Release binding on successful configure
             }, 'onCancel': function () {
-                Knockback.release(that.model, document.getElementById(modalId));
-                kbValidation.unbind(that);
+                Knockback.release(self.model, document.getElementById(modalId));
+                kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
 
-            cowu.renderView4Config($("#" + modalId).find(formId),
-                                   this.model,
-                                   getAddLinkLocalServicesViewConfig(true),
-                                   "llsConfigValidations");
-            this.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
-            Knockback.applyBindings(this.model,
-                                    document.getElementById(modalId));
-            kbValidation.bind(this);
+            self.renderView4Config($("#" + modalId).find(formId), this.model, getAddLinkLocalServicesViewConfig(true), "llsConfigValidations", null, null, function() {
+                self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(modalId));
+                kbValidation.bind(self);
+            });
         },
         renderDeleteLinkLocalServices: function(options) {
             var delTemplate =

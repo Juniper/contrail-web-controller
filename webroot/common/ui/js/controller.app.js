@@ -29,13 +29,9 @@ require.config({
 
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
         'nm-view-config': ctBaseDir + '/monitor/networking/ui/js/nm.view.config',
-
         'controller-init': ctBaseDir + '/common/ui/js/controller.init',
-        'lls-grid-config': ctBaseDir +
-            '/config/linklocalservices/ui/js/linkLocalServices.grid.config',
-        'lls-parsers': ctBaseDir +
-            '/config/linklocalservices/ui/js/linkLocalServices.parsers',
-        'controller-render': ctBaseDir + '/common/ui/js/controller.render'
+        'lls-grid-config': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.grid.config',
+        'lls-parsers': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.parsers'
     },
     waitSeconds: 0
 });

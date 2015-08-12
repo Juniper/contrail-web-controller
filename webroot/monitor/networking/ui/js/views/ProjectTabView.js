@@ -48,6 +48,7 @@ define([
                                             elementId: ctwl.PROJECT_NETWORKS_ID,
                                             title: ctwl.TITLE_NETWORKS,
                                             view: "NetworkGridView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: {
                                                 projectFQN: projectFQN,
@@ -58,6 +59,7 @@ define([
                                             elementId: ctwl.PROJECT_INSTANCES_ID,
                                             title: ctwl.TITLE_INSTANCES,
                                             view: "InstanceGridView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             viewConfig: {
                                                 parentUUID: projectUUID,

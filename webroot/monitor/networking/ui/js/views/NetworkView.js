@@ -59,6 +59,7 @@ define([
                             {
                                 elementId: ctwl.NETWORK_GRAPH_ID,
                                 view: "NetworkingGraphView",
+                                viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {connectedGraph: connectedGraph, configGraph: configGraph}
                             }

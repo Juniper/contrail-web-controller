@@ -13,9 +13,8 @@ define([
     'controller-parsers', 'nm-parsers',
     'controller-view-config', 'nm-view-config',
     'lls-grid-config', 'lls-parsers'
-], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig,
-             NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers,
-             ViewConfig, NMViewConfig, LLSGridConfig, LLSParsers) {
+], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig, NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, ViewConfig,
+             NMViewConfig, LLSGridConfig, LLSParsers) {
     ctwc = new Constants();
     ctwl = new Labels();
 
@@ -39,14 +38,9 @@ define([
     llswgc = new LLSGridConfig();
     llswp = new LLSParsers();
 
-    ctInitComplete = true;
+    var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
-    require(['controller-render'], function(CtrlRender) {
-        ctwru = new CtrlRender();
-        var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
-
-        if(contrail.checkIfExist(deferredObj)) {
-            deferredObj.resolve()
-        }
-    });
+    if(contrail.checkIfExist(deferredObj)) {
+        deferredObj.resolve()
+    }
 });

@@ -57,6 +57,7 @@ define([
                                             title: ctwl.TITLE_TRAFFIC_STATISTICS,
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
                                             view: "ConnectedNetworkTrafficStatsView",
+                                            viewPathPrefix: "monitor/networking/ui/js/views/",
                                             viewConfig: {
                                                 linkDetails: linkDetails,
                                                 parseFn: ctwp.parseTrafficLineChartData

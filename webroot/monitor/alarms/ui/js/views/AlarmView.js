@@ -17,6 +17,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_ALARMS_PAGE_ID]),
             view: "AlarmListView",
+            viewPathPrefix: "monitor/alarms/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
         }
