@@ -21,7 +21,7 @@ and need to add the iconClass tag wherever we need to show some icons
             </resources>
             <iconClass>icon-bar-chart</iconClass>
             <items>
-                <item>
+                  <item>
                     <label>Infrastructure</label>
                     <resources>
                         <resource>
@@ -203,10 +203,9 @@ and need to add the iconClass tag wherever we need to show some icons
                         </roles>
                         <orchModels>
                            <model>test</model>
-                           <!-- <model>openstack</model>
-                            <model>cloudstack</model>
-                            <model>vcenter</model> -->
-                       
+                           <!-- <model>openstack</model> -->
+                           <!--  <model>cloudstack</model> -->
+                           <!--  <model>vcenter</model>  -->
                         </orchModels>
                         <accessFn>hideInFederatedvCenter</accessFn>
                     </access>
@@ -214,22 +213,18 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_dashboardmvc</hash>
                             <label>Dashboard</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/dashboard/ui</rootDir>
-                                    <view>monitor_infra_dashboard.view</view>
-                                    <js>monitor_infra_dashboard.js</js>
-                                    <class>infraMonitorDashboardView</class>
-                                </resource>
-                                 <resource>
-                                    <rootDir>/common/ui</rootDir>
-                                    <js>controller.app.js</js>
-                                </resource>
-                            </resources>
-                            <queryParams>
-                                <tab>vRouters</tab>
-                            </queryParams>
                             <searchStrings>Infrastructure Dashboard</searchStrings>
+                              <resources>
+                                  <resource>
+                                      <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
+                                      <template>monInfraDashboard.tmpl</template>
+                                      <js>monInfraDashboard.main.js</js>
+                                      <class>monInfraDashboardLoader</class>
+                                  </resource>
+                              </resources>
+                              <queryParams>
+                                  <tab>vRouters</tab>
+                              </queryParams>
                         </item>
                         <item>
                             <hash>mon_infra_mxmvc</hash>
@@ -288,17 +283,10 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Virtual Routers</label>
                             <resources>
                                 <resource>
-                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
-                                    <view>monitor_infra_vrouter.view</view>
-                                    <js>monitor_infra_vrouter.js</js>
-                                    <js>monitor_infra_vrouter_summary.js</js>
-                                    <js>monitor_infra_vrouter_details.js</js>
-                                    <js>monitor_infra_vrouter_interfaces.js</js>
-                                    <js>monitor_infra_vrouter_networks.js</js>
-                                    <js>monitor_infra_vrouter_acl.js</js>
-                                    <js>monitor_infra_vrouter_flows.js</js>
-                                    <js>monitor_infra_vrouter_routes.js</js>
-                                    <class>cmpNodesView</class>
+                                    <rootDir>/monitor/infrastructure/vrouter/ui</rootDir>
+                                    <js>vrouter.main.js</js>
+                                    <class>vRoutersLoader</class>
+                                    <function>renderVRouter</function>
                                 </resource>
                             </resources>
                             <searchStrings>Monitor Compute Nodes</searchStrings>
