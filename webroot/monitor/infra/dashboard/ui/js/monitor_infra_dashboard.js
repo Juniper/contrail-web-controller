@@ -135,7 +135,7 @@ function addTabs() {
                 if(obj['vRouterType'] != 'tor-agent') {
                     intfCnt += obj['intfCnt'];
                 }
-                //Excluding considering instance count from TOR Service Node & ToR Agent
+                //Exclude instance count from TOR Service Node & ToR Agent
                 if(obj['vRouterType'] != 'tor-agent' && obj['vRouterType'] != 'tor-service-node') {
                     instCnt += obj['instCnt'];
                 }
@@ -387,11 +387,11 @@ function addTabs() {
                         addDomainBuffer : true,
                         showLegend: false
                     },
-                    d: splitNodesToSeriesByColor(data, chartsLegend)
-//                    d : [ {
-//                        key : 'Database Nodes',
-//                        values : data
-//                    } ]
+                    // d: splitNodesToSeriesByColor(data, chartsLegend)
+                   d : [ {
+                       key : 'Database Nodes',
+                       values : data
+                   } ]
                 };
                 $('#dbNode-bubble').initScatterChart(chartsData);
             } else {

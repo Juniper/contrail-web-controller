@@ -82,6 +82,7 @@ monitorInfraComputeSummaryClass = (function() {
        var instCnt = 24;
        //Max bar value across all 3 cross-filter charts
        var vnMaxValue=0,instMaxValue=0,intfMaxValue=0;
+       //It holds true as long as there exists atleast 1 record
        if(vnDimension.top(1).length > 0) {
            vnCnt = Math.max(vnCnt,d3.max(vnDimension.group().all(),function(d) { return d['key'] }));
            vnMaxValue = d3.max(vnDimension.group().all(),function(d) { return d['value'] });
@@ -103,11 +104,12 @@ monitorInfraComputeSummaryClass = (function() {
                .group(vnDimension.group(Math.floor))
                .toolTip(false)
              .x(d3.scale.linear()
-               .domain([0, vnCnt+(vnCnt/24)])
+               .domain([0, vnCnt+(vnCnt/24)])   //??
                .rangeRound([0, 10 * 26])) //Width
              .y(d3.scale.linear()
                .domain([0,maxBarValue])
-               .range([50,0])),
+               .range([50,0])),         //As SVG viewport coordinate system starts at top-left corner (0,0),
+                                        //the positive x-axis pointing towards the right,the positive y-axis pointing down
    
            barChart()
                .dimension(instDimension)
@@ -134,9 +136,10 @@ monitorInfraComputeSummaryClass = (function() {
         
          var chart = d3.selectAll(".chart")
              .data(charts)
-             .each(function(currChart) { currChart.on("brushend", function(d) { 
-                 manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
-                 renderAll(chart);
+             .each(function(currChart) { 
+                currChart.on("brushend", function(d) { 
+                    manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
+                    renderAll(chart);
              }); 
          });
          renderAll(chart);
