@@ -61,7 +61,19 @@ define([
             return ctwc.COLOR_SEVERITY_MAP['blue'];
         };
 
-        self.getGeneratorsAjaxConfigForInfraNodes = function (dsName) {
+        self.getvRouterColor = function(d,obj) {
+            var nodeColor = self.getNodeColor(obj);
+            if(nodeColor != false)
+                return nodeColor;
+            obj = ifNull(obj,{});
+            var instCnt = obj['instCnt'];
+            if(instCnt == 0)
+                return ctwc.COLOR_SEVERITY_MAP['blue'];
+            else if(instCnt > 0)
+                return ctwc.COLOR_SEVERITY_MAP['green'];
+        };
+
+        self.getGeneratorsAjaxConfigForInfraNodes = function (dsName,responseJSON) {
             var ajaxConfig = {};
             var kfilts;
             var cfilts;
@@ -72,7 +84,7 @@ define([
             } else if(dsName == 'computeNodeDS') {
                 //Handling the case module id will change for the TOR agent/ TSN
                 //We need to send all the module ids if different
-                var items = dataSource.getItems();
+                var items = responseJSON;
                 var kfiltString = ""
                 var moduleIds = [];
                 $.each(items,function(i,d){

@@ -54,13 +54,13 @@ monitorInfraComputeSummaryClass = (function() {
                 return false;
             });
         }
-        
+
         //update the header
         var totalCnt = vRoutersDataSource.getItems().length;
         var filteredCnt = filteredNodeNames.length;
         updatevRouterLabel('#vrouter-header',filteredCnt,totalCnt);
     }
-    
+
     function updateCrossFilter(result){
         var vRouterData = result['data'];
         var source = result['cfg']['source'];
@@ -69,12 +69,12 @@ monitorInfraComputeSummaryClass = (function() {
             return;
         }
         $('.chart > svg').remove();
-        
+
        var vRouterCF = manageCrossFilters.getCrossFilter('vRoutersCF');
        var intfDimension = manageCrossFilters.getDimension('vRoutersCF','intfCnt');
        var instDimension = manageCrossFilters.getDimension('vRoutersCF','instCnt');
        var vnDimension = manageCrossFilters.getDimension('vRoutersCF','vnCnt');
-       
+
        dimensions.push(intfDimension,instDimension,vnDimension);
        //Set crossfilter bucket count based on number of max VNs/interfaces/instances on a vRouter
        var vnCnt = 24;
@@ -82,20 +82,21 @@ monitorInfraComputeSummaryClass = (function() {
        var instCnt = 24;
        //Max bar value across all 3 cross-filter charts
        var vnMaxValue=0,instMaxValue=0,intfMaxValue=0;
+       //It holds true as long as there exists atleast 1 record
        if(vnDimension.top(1).length > 0) {
            vnCnt = Math.max(vnCnt,d3.max(vnDimension.group().all(),function(d) { return d['key'] }));
            vnMaxValue = d3.max(vnDimension.group().all(),function(d) { return d['value'] });
        }
        if(instDimension.top(1).length > 0) {
-           instCnt = Math.max(instCnt,d3.max(instDimension.group().all(),function(d) { return d['key'] })); 
-           instMaxValue = d3.max(instDimension.group().all(),function(d) { return d['value'] }); 
+           instCnt = Math.max(instCnt,d3.max(instDimension.group().all(),function(d) { return d['key'] }));
+           instMaxValue = d3.max(instDimension.group().all(),function(d) { return d['value'] });
        }
        if(intfDimension.top(1).length > 0) {
-           intfCnt = Math.max(intfCnt,d3.max(intfDimension.group().all(),function(d) { return d['key'] })); 
-           intfMaxValue = d3.max(intfDimension.group().all(),function(d) { return d['value'] }); 
+           intfCnt = Math.max(intfCnt,d3.max(intfDimension.group().all(),function(d) { return d['key'] }));
+           intfMaxValue = d3.max(intfDimension.group().all(),function(d) { return d['value'] });
        }
        var maxBarValue = Math.max(vnMaxValue,instMaxValue,intfMaxValue);
-   
+
        //Initialize CrossFilter Charts
        charts = [
            barChart()
@@ -103,12 +104,13 @@ monitorInfraComputeSummaryClass = (function() {
                .group(vnDimension.group(Math.floor))
                .toolTip(false)
              .x(d3.scale.linear()
-               .domain([0, vnCnt+(vnCnt/24)])
+               .domain([0, vnCnt+(vnCnt/24)])   //??
                .rangeRound([0, 10 * 26])) //Width
              .y(d3.scale.linear()
                .domain([0,maxBarValue])
-               .range([50,0])),
-   
+               .range([50,0])),         //As SVG viewport coordinate system starts at top-left corner (0,0),
+                                        //the positive x-axis pointing towards the right,the positive y-axis pointing down
+
            barChart()
                .dimension(instDimension)
                .group(instDimension.group())
@@ -119,7 +121,7 @@ monitorInfraComputeSummaryClass = (function() {
              .y(d3.scale.linear()
                .domain([0,maxBarValue])
                .range([50,0])),
-   
+
            barChart()
                .dimension(intfDimension)
                .group(intfDimension.group())
@@ -131,13 +133,14 @@ monitorInfraComputeSummaryClass = (function() {
                .domain([0,maxBarValue])
                .range([50,0]))
            ];
-        
+
          var chart = d3.selectAll(".chart")
              .data(charts)
-             .each(function(currChart) { currChart.on("brushend", function(d) { 
-                 manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
-                 renderAll(chart);
-             }); 
+             .each(function(currChart) {
+                currChart.on("brushend", function(d) {
+                    manageCrossFilters.fireCallBacks('vRoutersCF',{source:'crossfilter'});
+                    renderAll(chart);
+             });
          });
          renderAll(chart);
          //Add reset listener
@@ -150,19 +153,19 @@ monitorInfraComputeSummaryClass = (function() {
          });
          //End update to crossfilter
     }//updateCrossFilter
-    
+
     function updatevRouterSummaryCharts(result){
         var filteredNodes = result['data'];
         var source = result['cfg']['source'];
         //If the callback is because of an update to generator then dont update the charts
-        //Putting this check is not updating the charts on coming to this page and local cache is already available with 
+        //Putting this check is not updating the charts on coming to this page and local cache is already available with
         //generators information
         // if(source == 'generator'){
         //     return;
         // }
         updateChartsForSummary(filteredNodes,'compute');
     }
-        
+
     this.populateComputeNodes = function () {
         infraMonitorUtils.clearTimers();
         var compNodesTemplate = contrail.getTemplate4Id("computenodes-template");
@@ -171,11 +174,11 @@ monitorInfraComputeSummaryClass = (function() {
         $('#vrouter-header').initWidgetHeader({title:'Virtual Routers',widgetBoxId:'recent'});
         //Create the managedDS
         var vRouterDS = new SingleDataSource('computeNodeDS');
-        
+
         vRoutersResult = vRouterDS.getDataSourceObj();
         vRoutersDataSource = vRoutersResult['dataSource'];
         vRouterDeferredObj = vRoutersResult['deferredObj'];//gives the deferred object from managed datasource
-       
+
         $(vRouterDS).on('change',function() {
             //TODO dono why its required will need to take a look later by removing it
             var filteredNodes = [];
@@ -198,7 +201,7 @@ monitorInfraComputeSummaryClass = (function() {
                     if(obj['yField'] != null)
                         obj['y'] = obj[obj['yField']];
                 });
-            
+
             var source = 'datasource';
             //Set source accordingly,as certain UI widgets need no reload/refresh if updates comes from certain sources
             //Like populating generators information for vRouter nodes does not need refresh on scatter chart
@@ -221,8 +224,8 @@ monitorInfraComputeSummaryClass = (function() {
             manageCrossFilters.fireCallBacks('vRoutersCF',{source:source});
         });
         var emptyDataSource = new ContrailDataView();
-        //register to listen to callbacks for updates on the crossfilter and update the 
-        //components which are listening to changes on it. 
+        //register to listen to callbacks for updates on the crossfilter and update the
+        //components which are listening to changes on it.
         manageCrossFilters.addCallBack('vRoutersCF','updatevRouterSummaryCharts',updatevRouterSummaryCharts);
         manageCrossFilters.addCallBack('vRoutersCF','updateCrossFilter',updateCrossFilter);
         manageCrossFilters.addCallBack('vRoutersCF','updateGrid',updateGrid);
@@ -249,7 +252,7 @@ monitorInfraComputeSummaryClass = (function() {
                      },
                      empty: {
                          text: 'No Virtual Routers to display'
-                     }, 
+                     },
                      errorGettingData: {
                          type: 'error',
                          iconClasses: 'icon-warning',
@@ -314,7 +317,7 @@ monitorInfraComputeSummaryClass = (function() {
             				advFormatter: function(dc) {
             					return getNodeStatusContentForSummayPages(dc,'text');
             				}
-            			},                    
+            			},
             		},
             		{
                         field:"vRouterType",
@@ -398,7 +401,7 @@ function getvRoutersDashboardDataForSummary(deferredObj,dataSource) {
             dataSource.add(obj);
         });
         deferredObj.resolve({dataSource:dataSource,response:r});
-        
+
     }).fail(function(result) {
         showInfoWindow('Error in fetching vRouter Node details','Error');
         return([]);

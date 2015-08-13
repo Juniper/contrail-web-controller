@@ -324,6 +324,13 @@ define([
 
         //Monitor Infra common
         this.MONITOR_INFRA_VIEW_PATH = 'monitor/infrastructure/common/ui/js/views/';
+        this.DASHBOARD_LOGS_URL = '/api/admin/reports/query?where=&filters=&level=4' +
+                    '&fromTimeUTC=now-10m&toTimeUTC=now&table=MessageTable&limit=10';
+        this.CACHE_DASHBORAD_LOGS = 'cache-dashboard-logs';
+
+        this.VROUTER_DASHBOARD_CHART_ID = 'vrouter-dashboard-chart';
+        this.VROUTER_DASHBOARD_SPARKLINE_ID = 'vrouter-dashboard-sparkline';
+        this.VROUTER_DASHBOARD_SECTION_ID = 'vrouter-dashboard-section';
 
         //Config node labels
         this.CONFIGNODE_VIEWPATH_PREFIX = 'monitor/infrastructure/confignode/ui/js/views/';
@@ -355,6 +362,7 @@ define([
         this.CONTROLNODE_SUMMARY_LIST_SECTION_ID = 'control-nodes-list-section';
         this.CONTROLNODE_SUMMARY_SCATTERCHART_SECTION_ID = 'control-nodes-scatterchart-section';
         this.CACHE_CONTROLNODE = 'cache-control-nodes';
+
         this.CONTROLNODE_DETAILS_PAGE_ID = 'control_nodes_details';
         this.CONTROLNODE_DETAIL_PAGE_ID = 'control_nodes_detail_page'
         this.CONTROLNDOE_DETAILS_SECTION_ID = 'control_nodes_details_section';
@@ -366,8 +374,27 @@ define([
         this.CONTROLNODE_PEERS_GRID_ID = "control_node_peers_grid_id";
         this.CONTROLNODE_PEERS_TITLE = "Peers";
 
+
+        //vRouter summary page labels
+        this.VROUTER_SUMMARY_PAGE_ID = 'monitor-vrouter-nodes';
+        this.VROUTER_SUMMARY_URL =
+            '/api/admin/monitor/infrastructure/vrouters/summary';
+        this.VROUTER_SUMMARY_TITLE = 'Virtual Routers';
+        this.VROUTER_SUMMARY_GRID_ID = 'vrouter-nodes-grid';
+        this.VROUTER_SUMMARY_CROSSFILTER_ID = 'vrouter-nodes-corssfilter';
+        this.VROUTER_SUMMARY_SCATTERCHART_ID = 'vrouter-nodes-scatterchart';
+        this.VROUTER_SUMMARY_GRID_SECTION_ID = "vrouter-nodes-grid-section";
+        this.VROUTER_SUMMARY_CHART_ID = 'vrouter-nodes-chart';
+        this.VROUTER_SUMMARY_LIST_SECTION_ID = 'vrouter-nodes-list-section';
+        this.VROUTER_SUMMARY_SCATTERCHART_SECTION_ID =
+            'vrouter-nodes-scatterchart-section';
+        this.CACHE_VROUTER = 'cache-vrouter-nodes';
+
         //Database node labels
-        this.DATABASENODE_VIEWPATH_PREFIX = 'monitor/infrastructure/databasenode/ui/js/views/';
+        this.DATABASENODE_VIEWPATH_PREFIX =
+            'monitor/infrastructure/databasenode/ui/js/views/';
+
+        //Database node summary page labels
         this.DATABASENODE_SUMMARY_PAGE_ID = 'monitor-database-nodes';
         this.DATABASENODE_SUMMARY_URL = '/api/admin/monitor/infrastructure/dbnodes/summary';
         this.DATABASENODE_SUMMARY_TITLE = 'Database Nodes';

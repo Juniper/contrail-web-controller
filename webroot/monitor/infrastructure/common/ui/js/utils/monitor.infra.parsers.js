@@ -146,6 +146,160 @@ define(
 
                 };
 
+                //Parser for vRouters data
+                this.parsevRoutersDashboardData = function (result) {
+                    var retArr = [];
+                    var vRouterCnt = result.length;
+                    for (var i = 0; i < vRouterCnt; i++) {
+                        var obj = {};
+                        var d = result[i];
+                        var dValue = result[i]['value'];
+                        obj['cpu'] = parseFloat(getValueByJsonPath(dValue,
+                            'VrouterStatsAgent;cpu_info;cpu_share', '--'));
+                        obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(
+                            2)) : NaN;
+                        obj['ip'] = getValueByJsonPath(dValue,
+                            'VrouterAgent;control_ip', '-');
+                        obj['xField'] = 'cpu';
+                        obj['yField'] = 'resMemory';
+                        obj['uveIP'] = obj['ip'];
+                        obj['summaryIps'] = getVrouterIpAddresses(dValue, "summary");
+                        var iplist = getValueByJsonPath(dValue,
+                            'VrouterAgent;self_ip_list', []);
+                        if (obj['ip'] != '-')
+                            iplist.push(obj['ip']);
+                        obj['uveIP'] = iplist;
+                        obj['isConfigMissing'] = $.isEmptyObject(getValueByJsonPath(
+                            dValue, 'ConfigData')) ? true : false;
+                        obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(
+                                dValue, 'VrouterAgent')) && $.isEmptyObject(
+                                getValueByJsonPath(dValue, 'VrouterStatsAgent'))) ?
+                            true : false;
+                        obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(dValue,
+                            '$..NodeStatus')[0]);
+                        obj['configIP'] = getValueByJsonPath(dValue,
+                            'ConfigData;virtual-router;virtual_router_ip_address',
+                            '-');
+                        obj['vRouterType'] = getValueByJsonPath(dValue,
+                            'ConfigData;virtual-router;virtual_router_type;0',
+                            'hypervisor');
+                        if (obj['vRouterType'] == '') {
+                            obj['vRouterType'] = 'hypervisor'; //set default to hypervisor
+                        }
+                        obj['moduleId'] = getValueByJsonPath(dValue,
+                            'NodeStatus;process_status;0;module_id', UVEModuleIds[
+                                'VROUTER_AGENT']);
+                        if (obj['ip'] == '-') {
+                            obj['ip'] = obj['configIP'];
+                        }
+                        obj['histCpuArr'] = parseUveHistoricalValues(d,
+                            '$.cpuStats.history-10');
+
+                        obj['status'] = getOverallNodeStatus(d, 'compute');
+                        var processes = ['contrail-vrouter-agent',
+                            'contrail-vrouter-nodemgr', 'supervisor-vrouter'
+                        ];
+                        obj['memory'] = formatMemory(getValueByJsonPath(dValue,
+                            'VrouterStatsAgent;cpu_info;meminfo', '--'));
+                        //Used for plotting in scatterChart
+                        obj['resMemory'] = getValueByJsonPath(dValue,
+                            'VrouterStatsAgent;cpu_info;meminfo;res', '-');
+                        obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(
+                            parseFloat(obj['resMemory'] / 1024).toFixed(2)) : NaN;
+                        obj['x'] = obj['cpu'];
+                        obj['y'] = obj['resMemory'];
+                        obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;cpu_info;meminfo;virt', '--')) /
+                            1024;
+                        obj['size'] = getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;phy_if_1min_usage;0;out_bandwidth_usage',
+                                0) +
+                            getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',
+                                0) + 1;
+                        obj['size'] = getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',
+                                0) +
+                            getValueByJsonPath(dValue,
+                                'VrouterStatsAgent;phy_if_5min_usage;0;in_bandwidth_usage',
+                                0);
+                        obj['shape'] = 'circle';
+                        var xmppPeers = getValueByJsonPath(dValue,
+                            'VrouterAgent;xmpp_peer_list', []);
+                        obj['xmppPeerDownCnt'] = 0;
+                        $.each(xmppPeers, function(idx, currPeer) {
+                            if (currPeer['status'] != true) {
+                                obj['xmppPeerDownCnt']++;
+                            }
+                        });
+                        obj['name'] = d['name'];
+                        obj['link'] = {
+                            p: 'mon_infra_vrouter',
+                            q: {
+                                node: obj['name'],
+                                tab: ''
+                            }
+                        };
+                        obj['instCnt'] = getValueByJsonPath(dValue,
+                            'VrouterAgent;virtual_machine_list', []).length;
+                        obj['intfCnt'] = getValueByJsonPath(dValue,
+                            'VrouterAgent;total_interface_count', 0);
+
+                        obj['vnCnt'] = getValueByJsonPath(dValue,
+                            'VrouterAgent;vn_count', 0);
+                        obj['version'] = ifNullOrEmpty(getNodeVersion(
+                            getValueByJsonPath(dValue,
+                                'VrouterAgent;build_info')), noDataStr);
+                        obj['type'] = 'vRouter';
+                        obj['display_type'] = 'vRouter';
+                        obj['isPartialUveMissing'] = false;
+                        obj['errorIntfCnt'] = 0;
+                        if (obj['isUveMissing'] == false) {
+                            var xmppPeers = getValueByJsonPath(dValue,
+                                'VrouterAgent;xmpp_peer_list', []);
+                            obj['xmppPeerDownCnt'] = 0;
+                            $.each(xmppPeers, function(idx, currPeer) {
+                                if (currPeer['status'] != true) {
+                                    obj['xmppPeerDownCnt']++;
+                                }
+                            });
+                            obj['isPartialUveMissing'] = $.isEmptyObject(
+                                    getValueByJsonPath(dValue,
+                                        'VrouterStatsAgent;cpu_info')) ||
+                                $.isEmptyObject(getValueByJsonPath(dValue,
+                                    'VrouterAgent;build_info')) ||
+                                obj['uveIP'].length == 0 ? true : false;
+                            obj['errorIntfCnt'] = getValueByJsonPath(dValue,
+                                'VrouterAgent;down_interface_count', 0);
+                        }
+                        if (obj['errorIntfCnt'] > 0) {
+                            obj['errorIntfCntText'] = ", <span class='text-error'>" +
+                                obj['errorIntfCnt'] + " Down</span>";
+                        } else {
+                            obj['errorIntfCntText'] = "";
+                        }
+                        obj['uveCfgIPMisMatch'] = false;
+                        if (obj['isUveMissing'] == false && obj['isConfigMissing'] ==
+                            false && obj['isPartialUveMissing'] == false) {
+                            obj['uveCfgIPMisMatch'] = (obj['uveIP'].indexOf(obj[
+                                    'configIP']) == -1 && obj['configIP'] != '-') ?
+                                true : false;
+                        }
+                        obj['processAlerts'] = infraMonitorAlertUtils.getProcessAlerts(
+                            d, obj, 'NodeStatus;process_info');
+                        obj['isGeneratorRetrieved'] = false;
+                        obj['nodeAlerts'] = infraMonitorAlertUtils.processvRouterAlerts(
+                            obj);
+                        obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(
+                            dashboardUtils.sortInfraAlerts);
+                        //Decide color based on parameters
+                        obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
+                        retArr.push(obj);
+                    }
+                    retArr.sort(dashboardUtils.sortNodesByColor);
+                    return retArr;
+                };
+
               //Parser for analytics node dashboard data
                 this.parseAnalyticsNodesDashboardData = function (result) {
 

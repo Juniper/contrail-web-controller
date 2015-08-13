@@ -32,7 +32,13 @@ require.config({
             'DatabaseNodeListModel',
         'monitor-infra-controlnode-model' :
             'monitor/infrastructure/common/ui/js/models/' +
-            'ControlNodeListModel'
+            'ControlNodeListModel',
+        'monitor-infra-vrouter-model' :
+            'monitor/infrastructure/common/ui/js/models/' +
+            'VRouterListModel',
+        'monitor-infra-utils' :
+            'monitor/infrastructure/common/ui/js/utils/' +
+            'monitor.infra.utils'
     },
     waitSeconds: 0
 });
