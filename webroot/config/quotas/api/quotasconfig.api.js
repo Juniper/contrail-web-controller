@@ -64,8 +64,10 @@ function getProjectQuotasCb (error, projectGetData, appData, callback)
  * private function
  * 1. Needs project uuid in string format
  */
-function readProjectQuotas (projectIdStr, appData, callback)
+function readProjectQuotas (userData, callback)
 {
+    var projectIdStr = userData['id'];
+    var appData = userData['appData'];
     var quotasGetURL = '/project/';
     if (projectIdStr.length) {
         quotasGetURL += projectIdStr;
@@ -163,8 +165,8 @@ function updateProjectQuotas(request, response, appData)
 }
 
 function projectQuotasAPIGet(projectId, response, appData) {
-    readProjectQuotas(projectId, appData,
-                   function(err, data) {
+    var userData = {'id': projectId, 'appData': appData};
+    readProjectQuotas(userData, function(err, data) {
         commonUtils.handleJSONResponse(err, response, data);
     });   
 }
@@ -184,6 +186,16 @@ function processAsyncReq(req, callback) {
  */
 function getProjectQuotaUsedInfo(request, response, appData)
 {
+    getProjectQuotaUsed({'request': request, appData: appData},
+                        function(err, data) {
+        commonUtils.handleJSONResponse(err, response, data);
+    });
+}
+
+function getProjectQuotaUsed (userObj, callback)
+{
+    var request = userObj['request'];
+    var appData = userObj['appData'];
     var usedResCnt = {};
     var projId = validateProjectId(request);
     var resources = [{key : 'floating-ips', value : 'floating_ip'},
@@ -210,7 +222,7 @@ function getProjectQuotaUsedInfo(request, response, appData)
     }
     async.map(callObj, processAsyncReq, function(err, data){
         if (err || data == null) {
-            commonUtils.handleJSONResponse(err, response, null);
+            callback(err, null);
             return;
         }
         var dataLength = data.length;
@@ -226,15 +238,15 @@ function getProjectQuotaUsedInfo(request, response, appData)
         }
         getSubNetsUsedInfo(projId, usedResCnt, appData, function(err, usedInfoSubnetCnt) {
             if(err) {
-                commonUtils.handleJSONResponse(err, response, null);
+                callback(err, null);
                 return;
             }
             getSecurityGroupRule(projId, usedInfoSubnetCnt, appData, function(err, finalUsedInfo) {
                 if(err) {
-                    commonUtils.handleJSONResponse(err, response, null);
+                    callback(err, null);
                     return;
                 }
-                commonUtils.handleJSONResponse(err, response, finalUsedInfo);
+                callback(err, finalUsedInfo);
             });
         });
     });  
@@ -314,9 +326,47 @@ function validateProjectName (request)
     }
     return projectName;
 }
-    
+
+function getProjectQuotasInfoAsync (userObj, callback)
+{
+    if ('get-quotas' == userObj['type']) {
+        readProjectQuotas(userObj, callback);
+    } else {
+        getProjectQuotaUsed(userObj, callback);
+    }
+}
+
+function getProjectQuotasInfo (req, res, appData)
+{
+    var resultJSON = [];
+    var projId = req.param('id');
+    console.log("getting projId aS:", projId);
+    var userObj = [];
+    userObj[0] = {};
+    userObj[1] = {};
+
+    userObj[0]['id'] = projId;
+    userObj[0]['appData'] = appData;
+    userObj[0]['type'] = 'get-quotas';
+    userObj[1]['appData'] = appData;
+    userObj[1]['request'] = req;
+    userObj[1]['type'] = 'get-quotas-used';
+    async.map(userObj, getProjectQuotasInfoAsync, function(err, data) {
+        resultJSON[0] = null;
+        resultJSON[1] = null;
+        if ((null == err) && (null != data)) {
+            resultJSON[0] = data[0];
+            resultJSON[1] = {};
+            resultJSON[1]['used'] = data[1];
+        }
+        commonUtils.handleJSONResponse(err, res, resultJSON);
+    });
+}
+
  /* List all public function here */
  
  exports.getProjectQuotas = getProjectQuotas;
  exports.updateProjectQuotas = updateProjectQuotas;
  exports.getProjectQuotaUsedInfo = getProjectQuotaUsedInfo;
+ exports.getProjectQuotasInfo = getProjectQuotasInfo;
+

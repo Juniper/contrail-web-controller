@@ -35,6 +35,12 @@
         <method>get</method>
         <feature>quotasconfig</feature>
         <callback>quotasconfigapi.getProjectQuotaUsedInfo</callback>
+     </item>
+     <item>
+        <url>/api/tenants/config/project-quotas-info</url>
+        <method>get</method>
+        <feature>quotasconfig</feature>
+        <callback>quotasconfigapi.getProjectQuotasInfo</callback>
     </item>
 </urlLists>
 

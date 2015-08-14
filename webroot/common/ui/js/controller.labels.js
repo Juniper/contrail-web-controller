@@ -292,6 +292,14 @@ define([
         this.TITLE_DEL_LLS = 'Delete Link Local Service';
         this.TITLE_EDIT_LLS = 'Edit Link Local Service';
         this.LINK_LOCAL_SERVICE_DETAILS = 'Link Local Service Details';
+
+        /* Quotas */
+        this.CONFIG_QUOTAS_PAGE_ID = 'config-quotas-page';
+        this.CONFIG_QUOTAS_SECTION_ID = 'config-quotas-section';
+        this.CONFIG_QUOTAS_ID = 'config-quotas';
+        this.QUOTAS_GRID_ID = 'quotas-grid';
+        this.QUOTAS_PREFIX_ID = 'qts';
+        this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
     };
     return CTLabels;
 });

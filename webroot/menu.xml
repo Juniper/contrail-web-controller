@@ -436,10 +436,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_net_quotas</hash>
                             <resources>
                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
                                     <rootDir>/config/quotas/ui</rootDir>
-                                    <js>quotas_config.js</js>
-                                    <view>quotas_config.view</view>
-                                    <class>quotasConfigObj</class>
+                                    <js>quotas.main.js</js>
+                                    <class>quotasPageLoader</class>
+                                    <function>renderQuotas</function>
                                 </resource>
                             </resources>
                             <searchStrings>Project Quotas</searchStrings>
