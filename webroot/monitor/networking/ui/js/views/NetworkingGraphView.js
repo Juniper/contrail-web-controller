@@ -205,6 +205,54 @@ define([
                 }
             },
             custom: {
+                resize: {
+                    iconClass: 'icon-resize-full',
+                    title: 'Resize',
+                    events: {
+                        click: function (e, self, controlPanelSelector) {
+                            $(self).find('i').addClass('icon-spin icon-spinner');
+                            setTimeout(function () {
+                                $(self).find('i').removeClass('icon-spin icon-spinner');
+                                $(self).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
+                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
+                                $(connectedSelectorId).panzoom('reset');
+                                $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
+                                $(self).removeClass('refreshing');
+                            }, 200);
+                        }
+                    }
+                },
+                realign: {
+                    iconClass: function (graphView) {
+                        var rankDir = graphView.model.rankDir;
+                        return ((rankDir == ctwc.GRAPH_DIR_TB) ? 'icon-align-left' : 'icon-align-center');
+                    },
+                    title: 'Change Direction',
+                    events: {
+                        click: function (e, self, controlPanelSelector) {
+                            var connectedGraphView = $(connectedSelectorId).data('graphView'),
+                                connectedGraphModel = connectedGraphView.model;
+
+                            setLoadingScreen(connectedGraphModel);
+                            if ($(self).find('i').hasClass('icon-align-left')) {
+                                $(self).find('i').removeClass('icon-align-left').toggleClass('icon-spin icon-spinner');
+                                setTimeout(function () {
+                                    connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_LR);
+                                    //Hack to set width for Webkit browser
+                                    var width = $(connectedSelectorId + ' svg').attr('width');
+                                    $(connectedSelectorId + ' svg').attr('width', width);
+                                }, 200)
+                            } else if ($(self).find('i').hasClass('icon-align-center')) {
+                                $(self).find('i').removeClass('icon-align-center').toggleClass('icon-spin icon-spinner');
+                                setTimeout(function () {
+                                    connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_TB);
+                                    var width = $(connectedSelectorId + ' svg').attr('width');
+                                    $(connectedSelectorId + ' svg').attr('width', width);
+                                }, 200);
+                            }
+                        }
+                    }
+                },
                 search: {
                     iconClass: 'icon-search',
                     title: 'Search',
@@ -262,54 +310,6 @@ define([
 
                             } else {
                                 $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
-                            }
-                        }
-                    }
-                },
-                resize: {
-                    iconClass: 'icon-resize-full',
-                    title: 'Resize',
-                    events: {
-                        click: function (e, self, controlPanelSelector) {
-                            $(self).find('i').addClass('icon-spin icon-spinner');
-                            setTimeout(function () {
-                                $(self).find('i').removeClass('icon-spin icon-spinner');
-                                $(self).find('i').toggleClass('icon-resize-full').toggleClass('icon-resize-small');
-                                adjustConnectedGraphDimension(selectorId, connectedSelectorId, configSelectorId, false);
-                                $(connectedSelectorId).panzoom('reset');
-                                $(controlPanelSelector).find('.control-panel-item').removeClass('disabled');
-                                $(self).removeClass('refreshing');
-                            }, 200);
-                        }
-                    }
-                },
-                realign: {
-                    iconClass: function (graphView) {
-                        var rankDir = graphView.model.rankDir;
-                        return ((rankDir == ctwc.GRAPH_DIR_TB) ? 'icon-align-left' : 'icon-align-center');
-                    },
-                    title: 'Change Direction',
-                    events: {
-                        click: function (e, self, controlPanelSelector) {
-                            var connectedGraphView = $(connectedSelectorId).data('graphView'),
-                                connectedGraphModel = connectedGraphView.model;
-
-                            setLoadingScreen(connectedGraphModel);
-                            if ($(self).find('i').hasClass('icon-align-left')) {
-                                $(self).find('i').removeClass('icon-align-left').toggleClass('icon-spin icon-spinner');
-                                setTimeout(function () {
-                                    connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_LR);
-                                    //Hack to set width for Webkit browser
-                                    var width = $(connectedSelectorId + ' svg').attr('width');
-                                    $(connectedSelectorId + ' svg').attr('width', width);
-                                }, 200)
-                            } else if ($(self).find('i').hasClass('icon-align-center')) {
-                                $(self).find('i').removeClass('icon-align-center').toggleClass('icon-spin icon-spinner');
-                                setTimeout(function () {
-                                    connectedGraphModel.reLayoutGraph(ctwc.GRAPH_DIR_TB);
-                                    var width = $(connectedSelectorId + ' svg').attr('width');
-                                    $(connectedSelectorId + ' svg').attr('width', width);
-                                }, 200);
                             }
                         }
                     }

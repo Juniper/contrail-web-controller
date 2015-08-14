@@ -61,7 +61,7 @@ define([
                     return formattedValue;
                 },
                 margin: {left: 70},
-                noDataMessage: cowc.CHART_NO_DATA_MESSAGE
+                noDataMessage: cowm.DATA_SUCCESS_EMPTY
             }
         };
     };

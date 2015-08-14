@@ -18,7 +18,7 @@ function MonitorNetworkingLoader() {
         });
     };
     this.renderView = function (renderFn, hashParams, view) {
-        $(contentContainer).html("");
+        $(contentContainer).empty();
         switch (renderFn) {
             case 'renderProjects':
                 if (hashParams.type == "project") {
@@ -74,21 +74,22 @@ function MonitorNetworkingLoader() {
         }
     },
 
-    this.updateViewByHash = function (hashObj, lastHashObj) {
+    this.updateViewByHash = function (currPageQueryStr) {
         var renderFn;
 
-        if(hashObj.type == "network"){
+        //TODO: The renderFunction should be passed from ContentHandler
+        if(currPageQueryStr.type == "network"){
             renderFn = "renderNetworks";
-        } else if (hashObj.type == "project"){
+        } else if (currPageQueryStr.type == "project"){
             renderFn = "renderProjects"
-        } else if (hashObj.type == "instance"){
+        } else if (currPageQueryStr.type == "instance"){
             renderFn = "renderInstances"
-        } else if (hashObj.type == "flow"){
+        } else if (currPageQueryStr.type == "flow"){
             renderFn = "renderFlows"
         }
-        this.load({hashParams: hashObj, 'function': renderFn});
+
+        this.load({hashParams: currPageQueryStr, 'function': renderFn});
     };
 
-    this.destroy = function () {
-    };
+    this.destroy = function () {};
 };
