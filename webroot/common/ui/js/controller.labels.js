@@ -527,6 +527,15 @@ define([
         this.CFG_SVC_TEMPLATE_TITLE_CREATE = 'Create Service Template';
         this.CFG_SVC_TEMPLATE_TITLE_DELETE = 'Delete Service Template';
         this.CFG_SVC_TEMPLATE_TITLE_MULTI_DELETE = 'Delete Service Template(s)';
+
+        /* Quotas */
+        this.TITLE_QUOTAS = 'Project Quotas';
+        this.CONFIG_QUOTAS_PAGE_ID = 'config-quotas-page';
+        this.CONFIG_QUOTAS_SECTION_ID = 'config-quotas-section';
+        this.CONFIG_QUOTAS_ID = 'config-quotas';
+        this.QUOTAS_GRID_ID = 'quotas-grid';
+        this.QUOTAS_PREFIX_ID = 'qts';
+        this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
     };
     return CTLabels;
 });
