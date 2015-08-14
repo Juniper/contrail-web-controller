@@ -16,8 +16,8 @@
          2. update quotas - /api/tenants/config/update-quotas/:id,
                                                  updateProjectQuotas
          3. quotas used - /api/tenants/config/quota-used/:id,
-                                                 getProjectQuotaUsedInfo                                                 
-    --> 
+                                                 getProjectQuotaUsedInfo
+    -->
     <item>
         <url>/api/tenants/config/project-quotas/:id</url>
         <method>get</method>
@@ -29,12 +29,18 @@
         <method>put</method>
         <feature>quotasconfig</feature>
         <callback>quotasconfigapi.updateProjectQuotas</callback>
-    </item>          
+    </item>
     <item>
         <url>/api/tenants/config/quota-used/:id</url>
         <method>get</method>
         <feature>quotasconfig</feature>
         <callback>quotasconfigapi.getProjectQuotaUsedInfo</callback>
+     </item>
+     <item>
+        <url>/api/tenants/config/project-quotas-info</url>
+        <method>get</method>
+        <feature>quotasconfig</feature>
+        <callback>quotasconfigapi.getProjectQuotasInfo</callback>
     </item>
 </urlLists>
 
