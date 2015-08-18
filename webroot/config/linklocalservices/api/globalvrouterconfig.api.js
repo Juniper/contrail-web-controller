@@ -148,6 +148,7 @@ function updateForwardingOptions (request, response, appData) {
         return;
     }
     
+
     var gvrGetURL = '/global-vrouter-config/' + gvrId;
     configApiServer.apiGet(gvrGetURL, appData,
         function(error, data) {
@@ -159,6 +160,8 @@ function updateForwardingOptions (request, response, appData) {
         	    var gvrConfigData = commonUtils.cloneObj(data);
         	    gvrConfigData["global-vrouter-config"]["vxlan_network_identifier_mode"] =
         	    	gvrPutData["global-vrouter-config"]["vxlan_network_identifier_mode"];
+        	    gvrConfigData["global-vrouter-config"]["forwarding_mode"] =
+        	    	gvrPutData["global-vrouter-config"]["forwarding_mode"];
 
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"] = {};
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"] =

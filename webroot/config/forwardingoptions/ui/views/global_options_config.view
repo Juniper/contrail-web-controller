@@ -35,6 +35,16 @@
                                 <div class="widget-main padding-4">
                                     <div class="row-fluid margin-0-0-10">
                                         <div class="control-group">
+                                            <label class="control-label">Forwarding Mode</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                     <div class="span6">
+                                                         <input type="text" id="ddForwardingMode" name="ddForwardingMode" class="span12 pull-left" />
+                                                     </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="control-group">
                                             <label class="control-label">VxLAN Identifier Mode</label>
                                             <div class="controls">
                                                 <div class="row-fluid padding-top-5">
