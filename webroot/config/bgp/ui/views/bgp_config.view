@@ -93,7 +93,6 @@
                           <div class="row-fluid">
                           <input id="txtasn" class="span10"
                               type="text" name="txtasn" value=""
-                              onchange="populateMultiselect('chkexternal');" 
                               placeholder="1 - 65535">
                           </input>                           
                           </div>

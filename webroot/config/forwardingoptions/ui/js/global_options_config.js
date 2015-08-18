@@ -124,8 +124,27 @@ function initComponents() {
         footer : false
     });
 
+    var forwardingModeLabels = ["Default","L2 and L3","L2 Only", "L3 Only"];
+    var forwardingModeValues = ["default", "l2_l3", "l2", "l3"];
+    var forwardingModeData = [];
+
+    for (var i = 0; i < forwardingModeLabels.length; i++) {
+        var fwdModeData = {
+            text: forwardingModeLabels[i],
+            value: forwardingModeValues[i]
+        };
+        forwardingModeData.push(fwdModeData);
+    }
+
     gridGlobalConfig = $("#gridGlobalConfig").data('contrailGrid');
-    
+    $('#ddForwardingMode').contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value"
+    });
+    $('#ddForwardingMode')
+        .data('contrailDropdown')
+        .setData(forwardingModeData);
+
 	confirmMainSave = $("#confirmMainSave");
 	confirmMainSave.modal({backdrop:'static', keyboard: false, show:false});
     windowEditGblConfig = $('#windowEditGblConfig');
@@ -262,6 +281,7 @@ function initActions() {
         		globalVRouterConfig["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"][i] = priorities[i];
         	}
         }
+        var forwarding_mode = $("#ddForwardingMode").data("contrailDropdown").value();
         if(null === configObj["global-vrouter-config"] ||
         	typeof configObj["global-vrouter-config"] === "undefined" ||
         	null === configObj["global-vrouter-config"]["uuid"] ||
@@ -274,11 +294,32 @@ function initActions() {
             var gvrId = configObj["global-vrouter-config"]["uuid"];
             /*doAjaxCall("/api/tenants/config/global-vrouter-config/" + gvrId + "/forwarding-options",
             	"PUT", JSON.stringify(globalVRouterConfig), null, "handleCommitFailure");*/
+
+            if(forwarding_mode === "default") {
+                //if tag 'forwarding_mode' is missing, just like in case of an upgrade,
+                //dont add 'forwarding_mode' since user is still going with 'default'.
+                //if(null !== configObj["global-vrouter-config"]["forwarding_mode"] &&
+                //    typeof configObj["global-vrouter-config"]["forwarding_mode"] !== "undefined") {
+                    //Adding 'forwarde_mode' tag if it is already there.
+                    globalVRouterConfig["global-vrouter-config"]["forwarding_mode"] = null;
+                //  }
+            } else {
+                //Add forwarding_mode only for l2_l3, l2, l3.
+                globalVRouterConfig["global-vrouter-config"]["forwarding_mode"] = forwarding_mode;
+            }
             fwdOptnURL = "/api/tenants/config/global-vrouter-config/" + gvrId + "/forwarding-options";
             fwdOptnActionType = "PUT";
         }
+        var forwardingModeChanged = false;
+        if(orig_forwarding_mode !== forwarding_mode) {
+            forwardingModeChanged = true;
+            if(("" + orig_forwarding_mode + forwarding_mode).trim() === "null") {
+                forwardingModeChanged = false;
+            } 
+        }
         //post url for forwarding options
-        if(isPriorityChanged(actPriorities, priorities) || (actVxlan !== vxlanid)) {
+        if(isPriorityChanged(actPriorities, priorities) || (actVxlan !== vxlanid) ||
+            (forwardingModeChanged === true)) {
             ajaxArry.push($.ajax({
                url : fwdOptnURL,
                type : fwdOptnActionType,
@@ -374,6 +415,9 @@ function handleCommitFailure(result) {
 
 function setEditPopupData() {
     $('input:radio[name="vxlanMode"][value="' + actVxlan + '"]').attr('checked',true);
+    $("#ddForwardingMode").data('contrailDropdown').value(
+        (orig_forwarding_mode === "" || null === orig_forwarding_mode) ? 
+            "default" : orig_forwarding_mode);
     $("#epTuples").html("");
     for(var i=0; i<actPriorities.length; i++) {
         var epEntry = createEPEntry(actPriorities[i], i);
@@ -396,8 +440,10 @@ function populateData(result) {
 	var vxLanIdentifierModeLabels = ["Auto Configured", "User Configured"];
 	var vxLanIdentifierModeValues = ["automatic", "configured"];
     var encapsulationMap = {"MPLSoGRE":"MPLS Over GRE", "MPLSoUDP":"MPLS Over UDP", "VXLAN":"VxLAN"};
+    var fwdModeMap = {"default" : "Default", "l2_l3" : "L2 and L3", "l2" : "L2 Only", "l3" : "L3 Only"};
     var gridDS = [];
     var priorities;
+    orig_forwarding_mode = "";
     $("#epTuples").html("");
 	if(null !== result) {
 		gvrConfig = result["global-vrouter-config"];
@@ -410,6 +456,14 @@ function populateData(result) {
 			//Set default 'automatic' for VxLANIdentifierMode
             actVxlan = vxLanIdentifierModeValues[0];
 		}
+
+        if(null !== gvrConfig["forwarding_mode"] && 
+            typeof gvrConfig["forwarding_mode"] !== "undefined") {
+            orig_forwarding_mode = gvrConfig["forwarding_mode"];
+        } else {
+            orig_forwarding_mode = null;
+        }
+
 		if(null !== gvrConfig["encapsulation_priorities"] && 
 			typeof gvrConfig["encapsulation_priorities"] !== "undefined" &&
 			null !== gvrConfig["encapsulation_priorities"]["encapsulation"] &&
@@ -454,6 +508,9 @@ function populateData(result) {
     gridDS.push({'property' : 'Global ASN', 'value' : ggasn});
     gridDS.push({'property' : 'iBGP Auto Mesh', 'value' : isiBGPAutoMesh});
     gridDS.push({'property' : 'IP Fabric Subnets', 'value':ipFabricSubnets});
+    gridDS.push({'property' : 'Forwarding Mode', 'value': (null === orig_forwarding_mode || (typeof orig_forwarding_mode === "string" && 
+        orig_forwarding_mode.trim() === "" )) ? fwdModeMap["default"] : fwdModeMap[orig_forwarding_mode]});
+
     gridGlobalConfig._dataView.setData(gridDS);
 }
 
