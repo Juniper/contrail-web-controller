@@ -97,7 +97,7 @@ function getProjectVNs (url, callback)
 			if (vnCount != 0) {
 				for (j = 0; j < vnCount; j += 1) {
 					fq_name = vnsJSON['virtual-networks'][j].fq_name;
-					url = '/analytics/virtual-machine/' + fq_name.join(':');
+					url = '/analytics/uves/virtual-machine/' + fq_name.join(':');
 					instanceUrls[j] = url;
 				}
 				async.map(instanceUrls, commonUtils.getJsonViaInternalApi(anC.api, true), function (err, results) {

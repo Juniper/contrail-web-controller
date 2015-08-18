@@ -334,7 +334,7 @@ function getVNVMData (vmJSON, vmName)
 function getVMFloatingIPList (req, res) 
 {
     var vmName = req.param('vmName');
-    var url = '/analytics/virtual-machine/' + vmName + '?flat';
+    var url = '/analytics/uves/virtual-machine/' + vmName + '?flat';
     opServer.authorize(function () {
         opServer.api.get(url, function (error, vmJSON) {
             if(!error && (vmJSON)) {
@@ -350,7 +350,7 @@ function getVMFloatingIPList (req, res)
 function getVNStatsSummary (req, res) 
 {
     var vnName = req.param('fqName');
-    var url = '/analytics/virtual-network/' + vnName;
+    var url = '/analytics/uves/virtual-network/' + vnName;
     var json = {};
     opServer.authorize(function () {
         opServer.api.get(url, function (error, vnJSON) {
@@ -499,7 +499,7 @@ function getVMStatsSummary (req, res)
     }
 
     initVmStatResultData(resultJSON, vmVnName);
-    url = '/analytics/virtual-machine/' + vmName;
+    url = '/analytics/uves/virtual-machine/' + vmName;
 
     opServer.authorize(function () {
         opServer.api.get(url, function (err, data) {
@@ -748,9 +748,9 @@ function getNetworkInGressEgressTrafficStat (srcVN, destVN, callback)
     var urlLists = []; 
     var resultJSON = []; 
 
-    var url = '/analytics/virtual-network/' + srcVN + '?flat';
+    var url = '/analytics/uves/virtual-network/' + srcVN + '?flat';
     urlLists[0] = [url];
-    url = '/analytics/virtual-network/' + destVN + '?flat';
+    url = '/analytics/uves/virtual-network/' + destVN + '?flat';
     urlLists[1] = [url];
 
     async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
@@ -867,9 +867,9 @@ function getVNAllStatsJSONSummary (srcVN, inputJSON, callback)
         statCnt = outStatCnt;
     }
     for (var i = 0; i < statCnt; i++) {
-        url = '/analytics/virtual-network/' + srcVN;
+        url = '/analytics/uves/virtual-network/' + srcVN;
         urlLists[index++] = [url];
-        url = '/analytics/virtual-network/' + statData[i]['other_vn'];
+        url = '/analytics/uves/virtual-network/' + statData[i]['other_vn'];
         otherVNList[i] = statData[i]['other_vn'];
         urlLists[index++] = [url];
     }
@@ -909,7 +909,7 @@ function parseVNAllStatSummary (resultJSON, srcVN, otherVNList, data)
 function getAllConnNetStatDetails (req, res) 
 {
     var fqName = req.query['fqName'];
-    var url = '/analytics/virtual-network/' + fqName;
+    var url = '/analytics/uves/virtual-network/' + fqName;
     var resultJSON = [];
 
     opServer.api.get(url, function(err, data) {
@@ -1065,7 +1065,7 @@ function getVNSummary (fqName, data)
 function getVirtualNetworksSummary (req, res, appData)
 {
     var fqNameRegExp = req.query['fqNameRegExp'];
-    var url = '/analytics/virtual-network/';
+    var url = '/analytics/uves/virtual-network/';
     var fqn = fqNameRegExp;
     
     var fqNameArr = fqNameRegExp.split(':');
@@ -1098,7 +1098,7 @@ function getVirtualNetworksSummary (req, res, appData)
 function getVirtualMachinesSummary (req, res, appData)
 {
     var fqNameRegExp = req.query['fqNameRegExp'];
-    var url = '/analytics/virtual-machine/' + fqNameRegExp;
+    var url = '/analytics/uves/virtual-machine/' + fqNameRegExp;
     sendOpServerResponseByURL(url, req, res, appData);
 }
 
@@ -2213,11 +2213,11 @@ function getNetworkTreeTopology (req, res, appData)
         'UveVirtualNetworkConfig'
     ];
 
-    reqUrl = '/analytics/virtual-network/' + fqName + '?cfilt=' + cFilters.join(',');
+    reqUrl = '/analytics/uves/virtual-network/' + fqName + '?cfilt=' + cFilters.join(',');
 
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    reqUrl = '/analytics/service-chain/*';
+    reqUrl = '/analytics/uves/service-chain/*';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
     reqUrl = '/virtual-networks';
@@ -2254,11 +2254,11 @@ function getProjectTreeTopology (req, res, appData)
         'UveVirtualNetworkConfig'
     ];
 
-    reqUrl = '/analytics/virtual-network/' + fqName + ':*?cfilt=' + cFilters.join(',');
+    reqUrl = '/analytics/uves/virtual-network/' + fqName + ':*?cfilt=' + cFilters.join(',');
 
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    reqUrl = '/analytics/service-chain/*';
+    reqUrl = '/analytics/uves/service-chain/*';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
     reqUrl = '/virtual-networks';
@@ -2864,7 +2864,7 @@ function getInstanceDetailsForAdmin(req,appData,callback) {
     var lastUUID = req.query['lastKey'];
     var count = req.query['count'];
     var type = req.query['type'];
-    var url = '/analytics/virtual-machines';
+    var url = '/analytics/uves/virtual-machines';
     var filtUrl = null;
     var resultJSON = createEmptyPaginatedData();
     var filtData = nwMonUtils.buildBulkUVEUrls(req.body, appData);
