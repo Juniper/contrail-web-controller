@@ -145,7 +145,7 @@ function getAnalyticsNodeGenerators (req, res, appData)
     var resultJSON = [];
     var ip = req.param('ip');
     var hostName = req.param('hostname');
-    var url = '/analytics/generator/*';
+    var url = '/analytics/uves/generator/*';
 
     var count = req.param('count');
     var lastKey = req.param('lastKey');

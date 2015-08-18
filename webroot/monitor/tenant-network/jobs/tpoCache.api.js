@@ -108,7 +108,7 @@ function getProjectVNs (dataObj, callback)
                     if (null == fq_name) {
                         continue;
                     }
-					url = '/analytics/virtual-network/' + fq_name.join(':');
+					url = '/analytics/uves/virtual-network/' + fq_name.join(':');
 					instanceUrls[index++] = url;
 				}
 				async.map(instanceUrls, commonUtils.getJsonViaInternalApi(opServer.api, true), function (err, results) {
