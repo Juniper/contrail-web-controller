@@ -254,7 +254,7 @@ function getNetworkStats(req, res) {
 
 function getVNStatsSummary(req, res) {
     var vnName = req.param('fqName');
-    var url = '/analytics/virtual-network/' + vnName;
+    var url = '/analytics/uves/virtual-network/' + vnName;
     var json = {};
     opServer.authorize(function () {
         opServer.api.get(url, function (error, vnJSON) {
@@ -394,7 +394,7 @@ function getVMStatsSummary(req, res) {
     }
 
     initVmStatResultData(resultJSON, vmVnName);
-    url = '/analytics/virtual-machine/' + vmName;
+    url = '/analytics/uves/virtual-machine/' + vmName;
 
     opServer.authorize(function () {
         opServer.api.get(url, function (err, data) {
@@ -563,9 +563,9 @@ function getNetworkInGressEgressTrafficStat(srcVN, destVN, callback) {
     var urlLists = [];
     var resultJSON = [];
 
-    var url = '/analytics/virtual-network/' + srcVN + '?flat';
+    var url = '/analytics/uves/virtual-network/' + srcVN + '?flat';
     urlLists[0] = [url];
-    url = '/analytics/virtual-network/' + destVN + '?flat';
+    url = '/analytics/uves/virtual-network/' + destVN + '?flat';
     urlLists[1] = [url];
 
     async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
@@ -752,7 +752,7 @@ function getVNSummary(fqName, data) {
 
 function getVirtualNetworksSummary(req, res, appData) {
     var fqNameRegExp = req.query['fqNameRegExp'];
-    var url = '/analytics/virtual-network/';
+    var url = '/analytics/uves/virtual-network/';
     var fqn = fqNameRegExp;
 
     var fqNameArr = fqNameRegExp.split(':');
@@ -784,7 +784,7 @@ function getVirtualNetworksSummary(req, res, appData) {
 
 function getVirtualMachine(req, res, appData) {
     var fqNameRegExp = req.query['fqNameRegExp'];
-    var url = '/analytics/virtual-machine/' + fqNameRegExp;
+    var url = '/analytics/uves/virtual-machine/' + fqNameRegExp;
     sendOpServerResponseByURL(url, req, res, appData);
 }
 
@@ -1402,7 +1402,7 @@ function getInstanceDetailsForAdmin(req, appData, callback) {
     var lastUUID = req.query['lastKey'];
     var count = req.query['count'];
     var type = req.query['type'];
-    var url = '/analytics/virtual-machines';
+    var url = '/analytics/uves/virtual-machines';
     var filtUrl = null;
     var resultJSON = createEmptyPaginatedData();
     var filtData = nwMonUtils.buildBulkUVEUrls(req.body, appData);
@@ -1717,7 +1717,7 @@ function getProjectData(configObj, callback) {
                     for (i = 0; i < vnCount; i += 1) {
                         uuid = vnJSON["virtual-networks"][i].uuid;
                         fq_name = vnJSON['virtual-networks'][i].fq_name;
-                        url = '/analytics/virtual-network/' + fq_name.join(':');
+                        url = '/analytics/uves/virtual-network/' + fq_name.join(':');
                         logutils.logger.debug('getProjectDetails URL:', url);
                         uveUrls[i] = [url];
                     }
@@ -1918,7 +1918,7 @@ function parseNetworkDetails(resultJSON, appData, jsonData, callback) {
             resultJSON['policyList'][i]['uuid'] = nwPolicyRefs[i]['uuid'];
         }
         /* Now get the rest of the data from UVE */
-        var url = '/analytics/virtual-network/' + resultJSON['fq-name'];
+        var url = '/analytics/uves/virtual-network/' + resultJSON['fq-name'];
         opServer.api.get(url, function (err, vnUve) {
             parseVNUveData(resultJSON, vnUve);
             callback(resultJSON);
