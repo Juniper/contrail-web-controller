@@ -274,7 +274,23 @@ function initComponents() {
     vnAjaxcount = 0;
 
     ddFwdMode = $("#ddFwdMode").contrailDropdown({
-        data: [{id:"l2_l3", text:'L2 and L3'}, {id:"l2", text:'L2 Only'}]
+        data: [{
+                id:"default", 
+                text:'Default'
+            },
+            {
+                id:"l2_l3", 
+                text:'L2 and L3'
+            }, 
+            {
+                id:"l2", 
+                text:'L2 Only'
+            },
+            {
+                id:"l3", 
+                text:'L3 Only'
+            }
+        ]
     });
 
     ddAdminState = $("#ddAdminState").contrailDropdown({
@@ -714,6 +730,7 @@ function initActions() {
             }
         }
         var fwdMode = $("#ddFwdMode").val();
+        fwdMode = (fwdMode === "default") ? "" : fwdMode;
         var gvrConfig = configObj["global-vrouter-config"];
         if(null !== gvrConfig && typeof gvrConfig !== "undefined" &&
             null !== gvrConfig["vxlan_network_identifier_mode"] &&
@@ -731,6 +748,9 @@ function initActions() {
         if(typeof fwdMode !== "undefined" && "" !== fwdMode) {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["forwarding_mode"] = fwdMode;
+        } else {
+            vnConfig["virtual-network"]["virtual_network_properties"]
+                ["forwarding_mode"] = null;
         }
 
         if($("#allow_transit")[0].checked === true)
@@ -2219,10 +2239,10 @@ function successHandlerForGridVNRow(result) {
             }else if(fwdMode === "l3") {
                 fwdMode = "L3 Only";
             } else {
-                fwdMode = "";
+                fwdMode = "Default";
             }
         } else {
-            fwdMode = "L2 and L3";
+            fwdMode = "Default";
         }
         var vxlanid= "";
         if(vxlan_identifier_mode == "configured") {
@@ -2245,7 +2265,7 @@ function successHandlerForGridVNRow(result) {
             enableControles = false;
             if(reorder_policiesTxt.trim() == "") reorder_policiesTxt = "-";
             if(String(vxlanid).trim() == "") vxlanid = "-";
-            if(fwdMode.trim() == "") fwdMode = "-";
+            if(fwdMode.trim() == "") fwdMode = "Default";
             if(DNSServer.trim() == "") DNSServer = "-";
             if(hostRoutPrifix.trim() == "") hostRoutPrifix = "-";
         var prouterBackRefs = vn['physical_router_back_refs'];
@@ -2421,9 +2441,9 @@ function clearValuesFromDomElements() {
     txtVxLanId.val("");
     txtVNName[0].disabled = false;
     txtDisName.val("");
-    $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-    $("#ddFwdMode").data("contrailDropdown").enable(false);
-    $("#divFwdMode").removeClass("hide");
+    $("#ddFwdMode").data("contrailDropdown").value("default");
+    //$("#ddFwdMode").data("contrailDropdown").enable(false);
+    //$("#divFwdMode").removeClass("hide");
     $("#ddAdminState").data("contrailDropdown").value("true");
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
@@ -2498,11 +2518,11 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/tenants/config/global-vrouter-config",
         type:"GET"
     });
-    getAjaxs[3] = $.ajax({
+    /*getAjaxs[3] = $.ajax({
         url:"/api/admin/webconfig/network/L2_enable",
         type:"GET"
-    });
-    getAjaxs[4] = $.ajax({
+    });*/
+    getAjaxs[3] = $.ajax({
         url:"/api/tenants/config/physical-routers-list",
         type:"GET"
     });
@@ -2524,17 +2544,17 @@ function showVNEditWindow(mode, rowIndex) {
             }
             var results = arguments;
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
-            var l2Mode = results[3][0].L2_enable;
-            var proutersResult = results[4][0];
-            if(l2Mode == false){
-                $("#ddFwdMode").data("contrailDropdown").enable(false);
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#divFwdMode").addClass("hide");
-            } else {
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+            //var l2Mode = results[3][0].L2_enable;
+            var proutersResult = results[3][0];
+            //if(l2Mode == false){
+            //    $("#ddFwdMode").data("contrailDropdown").enable(false);
+            //    $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+            //    $("#divFwdMode").addClass("hide");
+            //} else {
+                $("#ddFwdMode").data("contrailDropdown").value("default");
                 $("#ddFwdMode").data("contrailDropdown").enable(true);
-                $("#divFwdMode").removeClass("hide");
-            }
+                //$("#divFwdMode").removeClass("hide");
+            //}
             var nps = [];
             configObj["network-policys"] = [];
             var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();
@@ -2770,9 +2790,11 @@ function showVNEditWindow(mode, rowIndex) {
                         $(txtVxLanId).val(vnProps["vxlan_network_identifier"]); 
                     }
                     if(null !== vnProps["forwarding_mode"] &&
-                        typeof vnProps["forwarding_mode"] && 
+                        typeof vnProps["forwarding_mode"] == "string" && 
                         "" !== vnProps["forwarding_mode"].trim()) {
                         $("#ddFwdMode").data("contrailDropdown").value(vnProps["forwarding_mode"]);
+                    } else {
+                        $("#ddFwdMode").data("contrailDropdown").value("default");
                     }
                     if(null !== vnProps["allow_transit"] && 
                         "" !==  vnProps["allow_transit"]) {
