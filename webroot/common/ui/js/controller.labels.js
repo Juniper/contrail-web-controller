@@ -163,7 +163,17 @@ define([
             bgpGateWay : "BGP Gateway",
             vns : "Virtual Networks",
             virtualRouterType : 'Type',
-            netconfManaged : 'Netconf Managed'
+            netconfManaged : 'Netconf Managed',
+            
+            /*Logical Router Details*/
+            routerName: "Name",
+            externalGateway: "External Gateway",
+            connectedNetwork: "Connected Network",
+            InterfaceDetailArr: "Router Interfaces",
+            lRouterStatus: "Router Status",
+            externalGatewayVal: "External Gateway",
+            checkSNAT: "SNAT",
+            connectedNetworkArr: "Connected Network"
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -382,6 +392,21 @@ define([
         this.NETCONF_SETTINGS_TITLE = 'Netconf Settings';
         this.TOR_AGENT = "TOR Agent";
         this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
+        
+        //Logical Router Labels
+        this.CONFIG_LOGICAL_ROUTER_PAGE_ID = "config-logical-router-page";
+        this.CONFIG_LOGICAL_ROUTER_TITLE = "Routers";
+        this.TITLE_ADD_LOGICAL_ROUTER = "Add Routers";
+        this.CONFIG_LOGICAL_ROUTER_LIST_VIEW_ID = "config-logical-router-list-view";
+        this.CONFIG_LOGICAL_ROUTER_FORMAT_ID = "config-logical-router-format-id";
+        this.CONFIG_LOGICAL_ROUTER_LIST = "config-logical-router-list";
+        this.LOGICAL_ROUTER_GRID_ID = "config-logical-router-grid-id";
+        this.TITLE_LOGICAL_ROUTER_DETAILS = "Logical Router Detail";
+        this.TITLE_LOGICAL_ROUTER_EDIT = "Edit";
+        this.TITLE_LOGICAL_ROUTER_DETETE = "Delete";
+        this.LOGICAL_ROUTER_PREFIX_ID = "logical_router";
+        this.TITLE_EDIT_LOGICAL_ROUTER = "Edit Logical Router";
+        this.TITLE_LOGICAL_ROUTER = 'Logical Router';
     };
     return CTLabels;
 });

@@ -64,6 +64,13 @@ define([
         this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_VROUTER = '/#p=mon_infra_vrouter&q[node]={{key}}';
 
+        this.URL_LOGICAL_ROUTER_IN_CHUNKS = '/api/admin/config/get-data?type=logical-router&count={0}&fqnUUID={1}';
+        this.URL_All_NETWORK_IN_PROJECT = '/api/tenants/config/all-virtual-networks?uuid={0}';
+        this.URL_All_EXTERNAL_NETWORK = '/api/tenants/config/external-virtual-networks';
+        this.URL_LOGICAL_ROUTER_POST = '/api/tenants/config/logicalrouter';
+        this.URL_LOGICAL_ROUTER_PUT = '/api/tenants/config/logicalrouter/{0}';
+        this.URL_LR_VIEW_PATH_PREFIX = 'config/logicalrouters/ui/js/views/';
+
         this.get = function () {
             var args = arguments;
             return cowc.getValueFromTemplate(args);
