@@ -2906,8 +2906,8 @@ function validate() {
         "configured" === gvrConfig["vxlan_network_identifier_mode"]) {
         if (null === vxlan || typeof vxlan === "undefined" ||
             vxlan === "" || isNaN(vxlan) || parseInt(vxlan) < 0 || 
-            parseInt(vxlan) > 1048575) {
-            showInfoWindow("Enter VxLAN identifier between 0 to 1048575 under Advanced Options.", "Input required");
+            parseInt(vxlan) > 16777215) {
+            showInfoWindow("Enter VxLAN identifier between 0 to 16777215 under Advanced Options.", "Input required");
             return false;
         }
     }

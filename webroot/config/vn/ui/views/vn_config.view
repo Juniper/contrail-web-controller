@@ -337,7 +337,7 @@
                                             <label class="control-label">VxLAN Identifier</label>
                                             <div class="controls">
                                                 <div class="row-fluid">
-                                                    <input type="text" id="txtVxLanId" placeholder="0-1048575" class="span5" />
+                                                    <input type="text" id="txtVxLanId" placeholder="0-16777215" class="span5" />
                                                 </div>
                                             </div>
                                         </div>
