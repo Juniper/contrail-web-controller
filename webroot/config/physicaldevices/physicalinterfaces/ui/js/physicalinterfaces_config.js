@@ -794,7 +794,7 @@ function physicalInterfacesConfig() {
                      } 
                  }
                  $('#panel_clear_ports').removeClass('hide').addClass('show');
-                 $('#chk_clear_ports')[0].checked = JSON.parse(getCookie('bm_clear_vmi'));
+                 $('#chk_clear_ports')[0].checked = JSON.parse(JSON.stringify(getCookie('bm_clear_vmi')));
             } else {
                 $('#vmSection').removeClass('show').addClass('hide');
             }           
@@ -988,7 +988,7 @@ function physicalInterfacesConfig() {
     }
 
     window.successHandlerForCreatePhysicalInterfaces = function(result, cbParams) {
-        if(mode === 'edit' && JSON.parse(getCookie('bm_clear_vmi'))) {
+        if(mode === 'edit' && JSON.parse(JSON.stringify(getCookie('bm_clear_vmi')))) {
             deleteVirtulMachineInterfaces(prepareDeletePortListForEdit(), []);
         }
         fetchInterfaces();
