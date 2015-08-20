@@ -506,10 +506,33 @@ statQuery['columnDisplay']  = {
         {select:"MAX(cpu_info.one_min_cpuload)", display:{id:'MAX(cpu_info.one_min_cpuload)', field:'MAX(cpu_info.one_min_cpuload)', width:160, name:"MAX (CPU 1 Min Load)", format:"{0:n0}", groupable:false}},
         {select:"MIN(cpu_info.one_min_cpuload)", display:{id:'MIN(cpu_info.one_min_cpuload)', field:'MIN(cpu_info.one_min_cpuload)', width:160, name:"MIN (CPU 1 Min Load)", format:"{0:n0}", groupable:false}}
     ],
+    "StatTable.VirtualMachineStats.cpu_stats" : [
+        {select:"COUNT(cpu_stats)", display:{id:'COUNT(cpu_stats)', field:'COUNT(cpu_stats)', width:120, name:"Count (CPU Stats)", format:"{0:n0}", groupable:false}},
+
+        {select:"cpu_stats.cpu_one_min_avg", display:{id:'cpu_stats.cpu_one_min_avg', field:'cpu_stats.cpu_one_min_avg', width:150, name:"Cpu One Min Avg", format:"{0:n0}", groupable:false}},
+        {select:"SUM(cpu_stats.cpu_one_min_avg)", display:{id:'SUM(cpu_stats.cpu_one_min_avg)', field:'SUM(cpu_stats.cpu_one_min_avg)', width:150, name:"SUM (Cpu One Min Avg)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(cpu_stats.cpu_one_min_avg)", display:{id:'MAX(cpu_stats.cpu_one_min_avg)', field:'MAX(cpu_stats.cpu_one_min_avg)', width:150, name:"MAX (Cpu One Min Avg)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(cpu_stats.cpu_one_min_avg)", display:{id:'MIN(cpu_stats.cpu_one_min_avg)', field:'MIN(cpu_stats.cpu_one_min_avg)', width:150, name:"MIN (Cpu One Min Avg)", format:"{0:n0}", groupable:false}},
+
+        {select:"cpu_stats.vm_memory_quota", display:{id:'cpu_stats.vm_memory_quota', field:'cpu_stats.vm_memory_quota', width:150, name:"Vm Memory Quota", format:"{0:n0}", groupable:false}},
+        {select:"SUM(cpu_stats.vm_memory_quota)", display:{id:'SUM(cpu_stats.vm_memory_quota)', field:'SUM(cpu_stats.vm_memory_quota)', width:150, name:"SUM (Vm Memory Quota)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(cpu_stats.vm_memory_quota)", display:{id:'MAX(cpu_stats.vm_memory_quota)', field:'MAX(cpu_stats.vm_memory_quota)', width:150, name:"MAX (Vm Memory Quota)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(cpu_stats.vm_memory_quota)", display:{id:'MIN(cpu_stats.vm_memory_quota)', field:'MIN(cpu_stats.vm_memory_quota)', width:150, name:"MIN (Vm Memory Quota)", format:"{0:n0}", groupable:false}},
+
+        {select:"cpu_stats.rss", display:{id:'cpu_stats.rss', field:'cpu_stats.rss', width:150, name:"Rss", format:"{0:n0}", groupable:false}},
+        {select:"SUM(cpu_stats.rss)", display:{id:'SUM(cpu_stats.rss)', field:'SUM(cpu_stats.rss)', width:150, name:"SUM (Rss)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(cpu_stats.rss)", display:{id:'MAX(cpu_stats.rss)', field:'MAX(cpu_stats.rss)', width:150, name:"MAX (Rss)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(cpu_stats.rss)", display:{id:'MIN(cpu_stats.rss)', field:'MIN(cpu_stats.rss)', width:150, name:"MIN (Rss)", format:"{0:n0}", groupable:false}},
+
+        {select:"cpu_stats.virt_memory", display:{id:'cpu_stats.virt_memory', field:'cpu_stats.virt_memory', width:150, name:"virt_memory", format:"{0:n0}", groupable:false}},
+        {select:"SUM(cpu_stats.virt_memory)", display:{id:'SUM(cpu_stats.virt_memory)', field:'SUM(cpu_stats.virt_memory)', width:150, name:"SUM (virt_memory)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(cpu_stats.virt_memory)", display:{id:'MAX(cpu_stats.virt_memory)', field:'MAX(cpu_stats.virt_memory)', width:150, name:"MAX (virt_memory)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(cpu_stats.virt_memory)", display:{id:'MIN(cpu_stats.virt_memory)', field:'MIN(cpu_stats.virt_memory)', width:150, name:"MIN (virt_memory)", format:"{0:n0}", groupable:false}},
+    ],
     "StatTable.ComputeStoragePool.info_stats" : [
         {select:"COUNT(info_stats)", display:{id:'COUNT(info_stats)', field:'COUNT(info_stats)', width:120, name:"Count (Info Stats)", format:"{0:n0}", groupable:false}},
 
-        {select:"info_stats.reads", display:{id:'info_stats.reads', field:'info_stats.reads', width:150, name:"Reads", format:"{0:n0}", groupable:false}},
+        {select:"info_stats.writes", display:{id:'info_stats.reads', field:'info_stats.reads', width:150, name:"Reads", format:"{0:n0}", groupable:false}},
         {select:"SUM(info_stats.reads)", display:{id:'SUM(info_stats.reads)', field:'SUM(info_stats.reads)', width:150, name:"SUM (Reads)", format:"{0:n0}", groupable:false}},
         {select:"MAX(info_stats.reads)", display:{id:'MAX(info_stats.reads)', field:'MAX(info_stats.reads)', width:150, name:"MAX (Reads)", format:"{0:n0}", groupable:false}},
         {select:"MIN(info_stats.reads)", display:{id:'MIN(info_stats.reads)', field:'MIN(info_stats.reads)', width:150, name:"MIN (Reads)", format:"{0:n0}", groupable:false}},
@@ -596,7 +619,7 @@ statQuery['columnDisplay']  = {
         {select:"MAX(info_stats.bw)", display:{id:'MAX(info_stats.bw)', field:'MAX(info_stats.bw)', width:150, name:"MAX (Bandwidth)", format:"{0:n0}", groupable:false}},
         {select:"MIN(info_stats.bw)", display:{id:'MIN(info_stats.bw)', field:'MIN(info_stats.bw)', width:150, name:"MIN (Bandwidth)", format:"{0:n0}", groupable:false}}
     ],
-    "StatTable.SMIpmiInfo.sensor_stats" : [
+    "StatTable.ServerMonitoringInfo.sensor_stats" : [
         {select:"COUNT(sensor_stats)", display:{id:'COUNT(sensor_stats)', field:'COUNT(sensor_stats)', width:120, name:"Count (Sensor Stats)", format:"{0:n0}", groupable:false}},
         {select:"sensor_stats.sensor", display:{id:'sensor_stats.sensor', field:'sensor_stats.sensor', width:150, name:"Sensor", groupable:false}},
         {select:"sensor_stats.status", display:{id:'sensor_stats.status', field:'sensor_stats.status', width:150, name:"Sensor Status", groupable:false}},
@@ -607,20 +630,114 @@ statQuery['columnDisplay']  = {
         {select:"MIN(sensor_stats.reading)", display:{id:'MIN(sensor_stats.reading)', field:'MIN(sensor_stats.reading)', width:150, name:"MIN (Reading)", format:"{0:n0}", groupable:false}},
 
         {select:"sensor_stats.unit", display:{id:'sensor_stats.unit', field:'sensor_stats.unit', width:150, name:"Unit", groupable:false}},
-        {select:"sensor_stats.sensor_type", display:{id:'sensor_stats.sensor_type', field:'sensor_stats.sensor_type', width:150, name:"Sensor Type", groupable:false}},
-        {select:"disk_usage.disk_name", display:{id:'disk_usage.disk_name', field:'disk_usage.disk_name', width:150, name:"Disk Name", groupable:false}},
-
-        {select:"disk_usage.read_MB", display:{id:'disk_usage.read_MB', field:'disk_usage.read_MB', width:150, name:"Read MB", format:"{0:n0}", groupable:false}},
-        {select:"SUM(disk_usage.read_MB)", display:{id:'SUM(disk_usage.read_MB)', field:'SUM(disk_usage.read_MB)', width:150, name:"SUM (Read MB)", format:"{0:n0}", groupable:false}},
-        {select:"MAX(disk_usage.read_MB)", display:{id:'MAX(disk_usage.read_MB)', field:'MAX(disk_usage.read_MB)', width:150, name:"MAX (Read MB)", format:"{0:n0}", groupable:false}},
-        {select:"MIN(disk_usage.read_MB)", display:{id:'MIN(disk_usage.read_MB)', field:'MIN(disk_usage.read_MB)', width:150, name:"MIN (Read MB)", format:"{0:n0}", groupable:false}},
-
-        {select:"disk_usage.write_MB", display:{id:'disk_usage.write_MB', field:'disk_usage.write_MB', width:150, name:"Read MB", format:"{0:n0}", groupable:false}},
-        {select:"SUM(disk_usage.write_MB)", display:{id:'SUM(disk_usage.write_MB)', field:'SUM(disk_usage.write_MB)', width:150, name:"SUM (Write MB)", format:"{0:n0}", groupable:false}},
-        {select:"MAX(disk_usage.write_MB)", display:{id:'MAX(disk_usage.write_MB)', field:'MAX(disk_usage.write_MB)', width:150, name:"MAX (Write MB)", format:"{0:n0}", groupable:false}},
-        {select:"MIN(disk_usage.write_MB)", display:{id:'MIN(disk_usage.write_MB)', field:'MIN(disk_usage.write_MB)', width:150, name:"MIN (Write MB)", format:"{0:n0}", groupable:false}},
-
+        {select:"sensor_stats.sensor_type", display:{id:'sensor_stats.sensor_type', field:'sensor_stats.sensor_type', width:150, name:"Sensor Type", groupable:false}}
     ],
+    "StatTable.ServerMonitoringInfo.disk_usage_stats" : [
+        {select:"COUNT(disk_usage_stats)", display:{id:'COUNT(disk_usage_stats)', field:'COUNT(disk_usage_stats)', width:120, name:"Count (Disk Usage)", format:"{0:n0}", groupable:false}},
+        {select:"disk_usage_stats.disk_name", display:{id:'disk_usage_stats.disk_name', field:'disk_usage_stats.disk_name', width:150, name:"Disk Name", groupable:false}},
+
+        {select:"disk_usage_stats.read_bytes", display:{id:'disk_usage_stats.read_bytes', field:'disk_usage_stats.read_bytes', width:150, name:"Read MB", format:"{0:n0}", groupable:false}},
+        {select:"SUM(disk_usage_stats.read_bytes)", display:{id:'SUM(disk_usage_stats.read_bytes)', field:'SUM(disk_usage_stats.read_bytes)', width:150, name:"SUM (Read MB)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(disk_usage_stats.read_bytes)", display:{id:'MAX(disk_usage_stats.read_bytes)', field:'MAX(disk_usage_stats.read_bytes)', width:150, name:"MAX (Read MB)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(disk_usage_stats.read_bytes)", display:{id:'MIN(disk_usage_stats.read_bytes)', field:'MIN(disk_usage_stats.read_bytes)', width:150, name:"MIN (Read MB)", format:"{0:n0}", groupable:false}},
+
+        {select:"disk_usage_stats.write_bytes", display:{id:'disk_usage_stats.write_bytes', field:'disk_usage_stats.write_bytes', width:150, name:"Read MB", format:"{0:n0}", groupable:false}},
+        {select:"SUM(disk_usage_stats.write_bytes)", display:{id:'SUM(disk_usage_stats.write_bytes)', field:'SUM(disk_usage_stats.write_bytes)', width:150, name:"SUM (Write MB)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(disk_usage_stats.write_bytes)", display:{id:'MAX(disk_usage_stats.write_bytes)', field:'MAX(disk_usage_stats.write_bytes)', width:150, name:"MAX (Write MB)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(disk_usage_stats.write_bytes)", display:{id:'MIN(disk_usage_stats.write_bytes)', field:'MIN(disk_usage_stats.write_bytes)', width:150, name:"MIN (Write MB)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.ServerMonitoringSummary.network_info_stats" : [
+        {select:"COUNT(network_info_stats)", display:{id:'COUNT(network_info_stats)', field:'COUNT(network_info_stats)', width:120, name:"Count (Network Info)", format:"{0:n0}", groupable:false}},
+        {select:"network_info_stats.interface_name", display:{id:'network_info_stats.interface_name', field:'network_info_stats.interface_name', width:150, name:"interface Name", groupable:false}},
+
+        {select:"network_info.tx_bytes", display:{id:'network_info.tx_bytes', field:'network_info.tx_bytes', width:150, name:"Tx Bytes", format:"{0:n0}", groupable:false}},
+        {select:"SUM(network_info.tx_bytes)", display:{id:'SUM(network_info.tx_bytes)', field:'SUM(network_info.tx_bytes)', width:150, name:"SUM (Tx Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(network_info.tx_bytes)", display:{id:'MIN(network_info.tx_bytes)', field:'MIN(network_info.tx_bytes)', width:150, name:"MIN (Tx Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(network_info.tx_bytes)", display:{id:'MAX(network_info.tx_bytes)', field:'MAX(network_info.tx_bytes)', width:150, name:"MAX (Tx Bytes)", format:"{0:n0}", groupable:false}},
+
+        {select:"network_info.tx_packets", display:{id:'network_info.tx_packets', field:'network_info.tx_packets', width:150, name:"Tx Bytes", format:"{0:n0}", groupable:false}},
+        {select:"SUM(network_info.tx_packets)", display:{id:'SUM(network_info.tx_packets)', field:'SUM(network_info.tx_packets)', width:150, name:"SUM (Tx Packets)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(network_info.tx_packets)", display:{id:'MIN(network_info.tx_packets)', field:'MIN(network_info.tx_packets)', width:150, name:"MIN (Tx Packets)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(network_info.tx_packets)", display:{id:'MAX(network_info.tx_packets)', field:'MAX(network_info.tx_packets)', width:150, name:"MAX (Tx Packets)", format:"{0:n0}", groupable:false}},
+
+        {select:"network_info.rx_bytes", display:{id:'network_info.rx_bytes', field:'network_info.rx_bytes', width:150, name:"Tx Bytes", format:"{0:n0}", groupable:false}},
+        {select:"SUM(network_info.rx_bytes)", display:{id:'SUM(network_info.rx_bytes)', field:'SUM(network_info.rx_bytes)', width:150, name:"SUM (Rx Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(network_info.rx_bytes)", display:{id:'MIN(network_info.rx_bytes)', field:'MIN(network_info.rx_bytes)', width:150, name:"MIN (Rx Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(network_info.rx_bytes)", display:{id:'MAX(network_info.rx_bytes)', field:'MAX(network_info.rx_bytes)', width:150, name:"MAX (Rx Bytes)", format:"{0:n0}", groupable:false}},
+
+        {select:"network_info.rx_packets", display:{id:'network_info.rx_packets', field:'network_info.rx_packets', width:150, name:"Tx Bytes", format:"{0:n0}", groupable:false}},
+        {select:"SUM(network_info.rx_packets)", display:{id:'SUM(network_info.rx_packets)', field:'SUM(network_info.rx_packets)', width:150, name:"SUM (Rx Packets)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(network_info.rx_packets)", display:{id:'MIN(network_info.rx_packets)', field:'MIN(network_info.rx_packets)', width:150, name:"MIN (Rx Packets)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(network_info.rx_packets)", display:{id:'MAX(network_info.rx_packets)', field:'MAX(network_info.rx_packets)', width:150, name:"MAX (Rx Packets)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.ServerMonitoringSummary.resource_info_stats" : [
+        {select:"COUNT(resource_info_stats)", display:{id:'COUNT(resource_info_stats)', field:'COUNT(resource_info_stats)', width:120, name:"Count (Resource Info)", format:"{0:n0}", groupable:false}},
+
+        {select:"resource_info_stats.cpu_usage_percentage", display:{id:'resource_info_stats.cpu_usage_percentage', field:'resource_info_stats.cpu_usage_percentage', width:150, name:"Tx Bytes", format:"{0:n0}", groupable:false}},
+        {select:"SUM(resource_info_stats.cpu_usage_percentage)", display:{id:'SUM(resource_info_stats.cpu_usage_percentage)', field:'SUM(resource_info_stats.cpu_usage_percentage)', width:150, name:"SUM (CPU Usage %)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(resource_info_stats.cpu_usage_percentage)", display:{id:'MIN(resource_info_stats.cpu_usage_percentage)', field:'MIN(resource_info_stats.cpu_usage_percentage)', width:150, name:"MIN (CPU Usage %)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(resource_info_stats.cpu_usage_percentage)", display:{id:'MAX(resource_info_stats.cpu_usage_percentage)', field:'MAX(resource_info_stats.cpu_usage_percentage)', width:150, name:"MAX (CPU Usage %)", format:"{0:n0}", groupable:false}},
+
+        {select:"resource_info_stats.mem_usage_mb", display:{id:'resource_info_stats.mem_usage_mb', field:'resource_info_stats.mem_usage_mb', width:150, name:"Mem Usage Mb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(resource_info_stats.mem_usage_mb)", display:{id:'SUM(resource_info_stats.mem_usage_mb)', field:'SUM(resource_info_stats.mem_usage_mb)', width:150, name:"SUM (Mem Usage Mb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(resource_info_stats.mem_usage_mb)", display:{id:'MIN(resource_info_stats.mem_usage_mb)', field:'MIN(resource_info_stats.mem_usage_mb)', width:150, name:"MIN (Mem Usage Mb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(resource_info_stats.mem_usage_mb)", display:{id:'MAX(resource_info_stats.mem_usage_mb)', field:'MAX(resource_info_stats.mem_usage_mb)', width:150, name:"MAX (Mem Usage Mb)", format:"{0:n0}", groupable:false}},
+
+        {select:"resource_info_stats.mem_usage_percent", display:{id:'resource_info_stats.mem_usage_percent', field:'resource_info_stats.mem_usage_percent', width:150, name:"Mem Usage %", format:"{0:n0}", groupable:false}},
+        {select:"SUM(resource_info_stats.mem_usage_percent)", display:{id:'SUM(resource_info_stats.mem_usage_percent)', field:'SUM(resource_info_stats.mem_usage_percent)', width:150, name:"SUM (Mem Usage %)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(resource_info_stats.mem_usage_percent)", display:{id:'MIN(resource_info_stats.mem_usage_percent)', field:'MIN(resource_info_stats.mem_usage_percent)', width:150, name:"MIN (Mem Usage %)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(resource_info_stats.mem_usage_percent)", display:{id:'MAX(resource_info_stats.mem_usage_percent)', field:'MAX(resource_info_stats.mem_usage_percent)', width:150, name:"MAX (Mem Usage %)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.ServerMonitoringInfo.file_system_view_stats.physical_disks" : [
+        {select:"COUNT(file_system_view_stats.physical_disks)", display:{id:'COUNT(file_system_view_stats.physical_disks)', field:'COUNT(file_system_view_stats.physical_disks)', width:120, name:"Count (Physical Disks)", format:"{0:n0}", groupable:false}},
+        {select:"file_system_view_stats.fs_name", display:{id:'file_system_view_stats.fs_name', field:'file_system_view_stats.fs_name', width:150, name:"Fs Name", groupable:false}},
+        {select:"file_system_view_stats.mountpoint", display:{id:'file_system_view_stats.mountpoint', field:'file_system_view_stats.mountpoint', width:150, name:"Mount Point", groupable:false}},
+        {select:"file_system_view_stats.type", display:{id:'file_system_view_stats.type', field:'file_system_view_stats.type', width:150, name:"Type", groupable:false}},
+
+        {select:"file_system_view_stats.size_kb", display:{id:'file_system_view_stats.size_kb', field:'file_system_view_stats.size_kb', width:150, name:"Fs Size Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.size_kb)", display:{id:'SUM(file_system_view_stats.size_kb)', field:'SUM(file_system_view_stats.size_kb)', width:150, name:"SUM (Fs Size Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.size_kb)", display:{id:'MIN(file_system_view_stats.size_kb)', field:'MIN(file_system_view_stats.size_kb)', width:150, name:"MIN (Fs Size Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.size_kb)", display:{id:'MAX(file_system_view_stats.size_kb)', field:'MAX(file_system_view_stats.size_kb)', width:150, name:"MAX (Fs Size Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.used_kb", display:{id:'file_system_view_stats.used_kb', field:'file_system_view_stats.used_kb', width:150, name:"Fs Used Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.used_kb)", display:{id:'SUM(file_system_view_stats.used_kb)', field:'SUM(file_system_view_stats.used_kb)', width:150, name:"SUM (Fs Used Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.used_kb)", display:{id:'MIN(file_system_view_stats.used_kb)', field:'MIN(file_system_view_stats.used_kb)', width:150, name:"MIN (Fs Used Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.used_kb)", display:{id:'MAX(file_system_view_stats.used_kb)', field:'MAX(file_system_view_stats.used_kb)', width:150, name:"MAX (Fs Used Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.available_kb", display:{id:'file_system_view_stats.available_kb', field:'file_system_view_stats.available_kb', width:150, name:"Fs Available Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.available_kb)", display:{id:'SUM(file_system_view_stats.available_kb)', field:'SUM(file_system_view_stats.available_kb)', width:150, name:"SUM (Fs Available Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.available_kb)", display:{id:'MIN(file_system_view_stats.available_kb)', field:'MIN(file_system_view_stats.available_kb)', width:150, name:"MIN (Fs Available Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.available_kb)", display:{id:'MAX(file_system_view_stats.available_kb)', field:'MAX(file_system_view_stats.available_kb)', width:150, name:"MAX (Fs Available Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.used_percentage", display:{id:'file_system_view_stats.used_percentage', field:'file_system_view_stats.used_percentage', width:150, name:"Fs Used %", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.used_percentage)", display:{id:'SUM(file_system_view_stats.used_percentage)', field:'SUM(file_system_view_stats.used_percentage)', width:150, name:"SUM (Fs Used %)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.used_percentage)", display:{id:'MIN(file_system_view_stats.used_percentage)', field:'MIN(file_system_view_stats.used_percentage)', width:150, name:"MIN (Fs Used %)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.used_percentage)", display:{id:'MAX(file_system_view_stats.used_percentage)', field:'MAX(file_system_view_stats.used_percentage)', width:150, name:"MAX (Fs Used %)", format:"{0:n0}", groupable:false}},
+
+
+        {select:"file_system_view_stats.physical_disks.disk_name", display:{id:'file_system_view_stats.physical_disks.disk_name', field:'file_system_view_stats.physical_disks.disk_name', width:150, name:"Physical Disk Name", groupable:false}},
+
+        {select:"file_system_view_stats.physical_disks.disk_size_kb", display:{id:'file_system_view_stats.physical_disks.disk_size_kb', field:'file_system_view_stats.physical_disks.disk_size_kb', width:150, name:"Physical Size Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.physical_disks.disk_size_kb)", display:{id:'SUM(file_system_view_stats.physical_disks.disk_size_kb)', field:'SUM(file_system_view_stats.physical_disks.disk_size_kb)', width:150, name:"SUM (Physical Size Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.physical_disks.disk_size_kb)", display:{id:'MIN(file_system_view_stats.physical_disks.disk_size_kb)', field:'MIN(file_system_view_stats.physical_disks.disk_size_kb)', width:150, name:"MIN (Physical Size Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.physical_disks.disk_size_kb)", display:{id:'MAX(file_system_view_stats.physical_disks.disk_size_kb)', field:'MAX(file_system_view_stats.physical_disks.disk_size_kb)', width:150, name:"MAX (Physical Size Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.physical_disks.disk_used_kb", display:{id:'file_system_view_stats.physical_disks.disk_used_kb', field:'file_system_view_stats.physical_disks.disk_used_kb', width:150, name:"Physical Disk Used Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.physical_disks.disk_used_kb)", display:{id:'SUM(file_system_view_stats.physical_disks.disk_used_kb)', field:'SUM(file_system_view_stats.physical_disks.disk_used_kb)', width:150, name:"SUM (Physical Disk Used Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.physical_disks.disk_used_kb)", display:{id:'MIN(file_system_view_stats.physical_disks.disk_used_kb)', field:'MIN(file_system_view_stats.physical_disks.disk_used_kb)', width:150, name:"MIN (Physical Disk Used Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.physical_disks.disk_used_kb)", display:{id:'MAX(file_system_view_stats.physical_disks.disk_used_kb)', field:'MAX(file_system_view_stats.physical_disks.disk_used_kb)', width:150, name:"MAX (Physical Disk Used Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.physical_disks.disk_available_kb", display:{id:'file_system_view_stats.physical_disks.disk_available_kb', field:'file_system_view_stats.physical_disks.disk_available_kb', width:150, name:"Physical Disk Available Kb", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.physical_disks.disk_available_kb)", display:{id:'SUM(file_system_view_stats.physical_disks.disk_available_kb)', field:'SUM(file_system_view_stats.physical_disks.disk_available_kb)', width:150, name:"SUM (Physical Disk Available Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.physical_disks.disk_available_kb)", display:{id:'MIN(file_system_view_stats.physical_disks.disk_available_kb)', field:'MIN(file_system_view_stats.physical_disks.disk_available_kb)', width:150, name:"MIN (Physical Disk Available Kb)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.physical_disks.disk_available_kb)", display:{id:'MAX(file_system_view_stats.physical_disks.disk_available_kb)', field:'MAX(file_system_view_stats.physical_disks.disk_available_kb)', width:150, name:"MAX (Physical Disk Available Kb)", format:"{0:n0}", groupable:false}},
+
+        {select:"file_system_view_stats.physical_disks.disk_used_percentage", display:{id:'file_system_view_stats.physical_disks.disk_used_percentage', field:'file_system_view_stats.physical_disks.disk_used_percentage', width:150, name:"Physical Disk Used %", format:"{0:n0}", groupable:false}},
+        {select:"SUM(file_system_view_stats.physical_disks.disk_used_percentage)", display:{id:'SUM(file_system_view_stats.physical_disks.disk_used_percentage)', field:'SUM(file_system_view_stats.physical_disks.disk_used_percentage)', width:150, name:"SUM (Physical Disk Used %)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(file_system_view_stats.physical_disks.disk_used_percentage)", display:{id:'MIN(file_system_view_stats.physical_disks.disk_used_percentage)', field:'MIN(file_system_view_stats.physical_disks.disk_used_percentage)', width:150, name:"MIN (Physical Disk Used %)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(file_system_view_stats.physical_disks.disk_used_percentage)", display:{id:'MAX(file_system_view_stats.physical_disks.disk_used_percentage)', field:'MAX(file_system_view_stats.physical_disks.disk_used_percentage)', width:150, name:"MAX (Physical Disk Used %)", format:"{0:n0}", groupable:false}},
+    ],
+
     "StatTable.SandeshMessageStat.msg_info" : [
         {select:"COUNT(msg_info)", display:{id:'COUNT(msg_info)', field:'COUNT(msg_info)', width:150, name:"Count (Msg Info)", format:"{0:n0}", groupable:false}},
         {select:"msg_info.type", display:{id:'msg_info.type', field:'msg_info.type', width:210, name:"Message Type", groupable:false}},
@@ -921,6 +1038,97 @@ statQuery['columnDisplay']  = {
         {select:"MIN(rx_message_stats.last_timestamp)", display:{id:'MIN(rx_message_stats.last_timestamp)', field:'MIN(rx_message_stats.last_timestamp)', width:150, name:"MIN (Last Timestamp)", format:"{0:n0}", groupable:false}},
         {select:"MAX(rx_message_stats.last_timestamp)", display:{id:'MAX(rx_message_stats.last_timestamp)', field:'MAX(rx_message_stats.last_timestamp)', width:150, name:"MAX (Last Timestamp)", format:"{0:n0}", groupable:false}}
     ],
+
+    "StatTable.ProtobufCollectorStats.db_table_info" : [
+        {select:"COUNT(db_table_info)", display:{id:'COUNT(db_table_info)', field:'COUNT(db_table_info)', width:120, name:"Count (Table Info)", format:"{0:n0}", groupable:false}},
+        {select:"db_table_info.table_name", display:{id:'db_table_info.table_name', field:'db_table_info.table_name', width:150, name:"Table Name", groupable:false}},
+
+        {select:"db_table_info.reads", display:{id:'db_table_info.reads', field:'db_table_info.reads', width:150, name:"Reads", groupable:false}},
+        {select:"SUM(db_table_info.reads)", display:{id:'SUM(db_table_info.reads)', field:'SUM(db_table_info.reads)', width:150, name:"SUM (Reads)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_table_info.reads)", display:{id:'MIN(db_table_info.reads)', field:'MIN(db_table_info.reads)', width:150, name:"MIN (Reads)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_table_info.reads)", display:{id:'MAX(db_table_info.reads)', field:'MAX(db_table_info.reads)', width:150, name:"MAX (Reads)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_table_info.read_fails", display:{id:'db_table_info.read_fails', field:'db_table_info.read_fails', width:150, name:"read_fails", groupable:false}},
+        {select:"SUM(db_table_info.read_fails)", display:{id:'SUM(db_table_info.read_fails)', field:'SUM(db_table_info.read_fails)', width:150, name:"SUM (Read Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_table_info.read_fails)", display:{id:'MIN(db_table_info.read_fails)', field:'MIN(db_table_info.read_fails)', width:150, name:"MIN (Read Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_table_info.read_fails)", display:{id:'MAX(db_table_info.read_fails)', field:'MAX(db_table_info.read_fails)', width:150, name:"MAX (Read Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_table_info.writes", display:{id:'db_table_info.writes', field:'db_table_info.writes', width:150, name:"Writes", groupable:false}},
+        {select:"SUM(db_table_info.writes)", display:{id:'SUM(db_table_info.writes)', field:'SUM(db_table_info.writes)', width:150, name:"SUM (Writes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_table_info.writes)", display:{id:'MIN(db_table_info.writes)', field:'MIN(db_table_info.writes)', width:150, name:"MIN (Writes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_table_info.writes)", display:{id:'MAX(db_table_info.writes)', field:'MAX(db_table_info.writes)', width:150, name:"MAX (Writes)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_table_info.write_fails", display:{id:'db_table_info.write_fails', field:'db_table_info.write_fails', width:150, name:"Write Fails", groupable:false}},
+        {select:"SUM(db_table_info.write_fails)", display:{id:'SUM(db_table_info.write_fails)', field:'SUM(db_table_info.write_fails)', width:150, name:"SUM (Write Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_table_info.write_fails)", display:{id:'MIN(db_table_info.write_fails)', field:'MIN(db_table_info.write_fails)', width:150, name:"MIN (Write Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_table_info.write_fails)", display:{id:'MAX(db_table_info.write_fails)', field:'MAX(db_table_info.write_fails)', width:150, name:"MAX (Write Fails)", format:"{0:n0}", groupable:false}},
+
+    ],
+    "StatTable.ProtobufCollectorStats.db_statistics_table_info" : [
+        {select:"COUNT(db_statistics_table_info)", display:{id:'COUNT(db_statistics_table_info)', field:'COUNT(db_statistics_table_info)', width:120, name:"Count (Table Info)", format:"{0:n0}", groupable:false}},
+        {select:"db_statistics_table_info.table_name", display:{id:'db_statistics_table_info.table_name', field:'db_statistics_table_info.table_name', width:150, name:"Table Name", groupable:false}},
+
+        {select:"db_statistics_table_info.reads", display:{id:'db_statistics_table_info.reads', field:'db_statistics_table_info.reads', width:150, name:"Reads", groupable:false}},
+        {select:"SUM(db_statistics_table_info.reads)", display:{id:'SUM(db_statistics_table_info.reads)', field:'SUM(db_statistics_table_info.reads)', width:150, name:"SUM (Reads)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_statistics_table_info.reads)", display:{id:'MIN(db_statistics_table_info.reads)', field:'MIN(db_statistics_table_info.reads)', width:150, name:"MIN (Reads)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_statistics_table_info.reads)", display:{id:'MAX(db_statistics_table_info.reads)', field:'MAX(db_statistics_table_info.reads)', width:150, name:"MAX (Reads)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_statistics_table_info.read_fails", display:{id:'db_statistics_table_info.read_fails', field:'db_statistics_table_info.read_fails', width:150, name:"read_fails", groupable:false}},
+        {select:"SUM(db_statistics_table_info.read_fails)", display:{id:'SUM(db_statistics_table_info.read_fails)', field:'SUM(db_statistics_table_info.read_fails)', width:150, name:"SUM (Read Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_statistics_table_info.read_fails)", display:{id:'MIN(db_statistics_table_info.read_fails)', field:'MIN(db_statistics_table_info.read_fails)', width:150, name:"MIN (Read Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_statistics_table_info.read_fails)", display:{id:'MAX(db_statistics_table_info.read_fails)', field:'MAX(db_statistics_table_info.read_fails)', width:150, name:"MAX (Read Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_statistics_table_info.writes", display:{id:'db_statistics_table_info.writes', field:'db_statistics_table_info.writes', width:150, name:"Writes", groupable:false}},
+        {select:"SUM(db_statistics_table_info.writes)", display:{id:'SUM(db_statistics_table_info.writes)', field:'SUM(db_statistics_table_info.writes)', width:150, name:"SUM (Writes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_statistics_table_info.writes)", display:{id:'MIN(db_statistics_table_info.writes)', field:'MIN(db_statistics_table_info.writes)', width:150, name:"MIN (Writes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_statistics_table_info.writes)", display:{id:'MAX(db_statistics_table_info.writes)', field:'MAX(db_statistics_table_info.writes)', width:150, name:"MAX (Writes)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_statistics_table_info.write_fails", display:{id:'db_statistics_table_info.write_fails', field:'db_statistics_table_info.write_fails', width:150, name:"Write Fails", groupable:false}},
+        {select:"SUM(db_statistics_table_info.write_fails)", display:{id:'SUM(db_statistics_table_info.write_fails)', field:'SUM(db_statistics_table_info.write_fails)', width:150, name:"SUM (Write Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_statistics_table_info.write_fails)", display:{id:'MIN(db_statistics_table_info.write_fails)', field:'MIN(db_statistics_table_info.write_fails)', width:150, name:"MIN (Write Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_statistics_table_info.write_fails)", display:{id:'MAX(db_statistics_table_info.write_fails)', field:'MAX(db_statistics_table_info.write_fails)', width:150, name:"MAX (Write Fails)", format:"{0:n0}", groupable:false}},
+
+    ],
+    "StatTable.ProtobufCollectorStats.db_errors" : [
+        {select:"COUNT(db_errors)", display:{id:'COUNT(db_errors)', field:'COUNT(db_errors)', width:120, name:"Count (DB Errors)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.write_tablespace_fails", display:{id:'db_errors.write_tablespace_fails', field:'db_errors.write_tablespace_fails', width:150, name:"Write Tablespace Fails", groupable:false}},
+        {select:"SUM(db_errors.write_tablespace_fails)", display:{id:'SUM(db_errors.write_tablespace_fails)', field:'SUM(db_errors.write_tablespace_fails)', width:150, name:"SUM (Write Tablespace Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.write_tablespace_fails)", display:{id:'MIN(db_errors.write_tablespace_fails)', field:'MIN(db_errors.write_tablespace_fails)', width:150, name:"MIN (Write Tablespace Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.write_tablespace_fails)", display:{id:'MAX(db_errors.write_tablespace_fails)', field:'MAX(db_errors.write_tablespace_fails)', width:150, name:"MAX (Write Tablespace Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.read_tablespace_fails", display:{id:'db_errors.read_tablespace_fails', field:'db_errors.read_tablespace_fails', width:150, name:"Read Tablespace Fails", groupable:false}},
+        {select:"SUM(db_errors.read_tablespace_fails)", display:{id:'SUM(db_errors.read_tablespace_fails)', field:'SUM(db_errors.read_tablespace_fails)', width:150, name:"SUM (Read Tablespace Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.read_tablespace_fails)", display:{id:'MIN(db_errors.read_tablespace_fails)', field:'MIN(db_errors.read_tablespace_fails)', width:150, name:"MIN (Read Tablespace Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.read_tablespace_fails)", display:{id:'MAX(db_errors.read_tablespace_fails)', field:'MAX(db_errors.read_tablespace_fails)', width:150, name:"MAX (Read Tablespace Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.write_table_fails", display:{id:'db_errors.write_table_fails', field:'db_errors.write_table_fails', width:150, name:"Write Table Fails", groupable:false}},
+        {select:"SUM(db_errors.write_table_fails)", display:{id:'SUM(db_errors.write_table_fails)', field:'SUM(db_errors.write_table_fails)', width:150, name:"SUM (Write Table Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.write_table_fails)", display:{id:'MIN(db_errors.write_table_fails)', field:'MIN(db_errors.write_table_fails)', width:150, name:"MIN (Write Table Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.write_table_fails)", display:{id:'MAX(db_errors.write_table_fails)', field:'MAX(db_errors.write_table_fails)', width:150, name:"MAX (Write Table Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.read_table_fails", display:{id:'db_errors.read_table_fails', field:'db_errors.read_table_fails', width:150, name:"Read Table Fails", groupable:false}},
+        {select:"SUM(db_errors.read_table_fails)", display:{id:'SUM(db_errors.read_table_fails)', field:'SUM(db_errors.read_table_fails)', width:150, name:"SUM (Read Table Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.read_table_fails)", display:{id:'MIN(db_errors.read_table_fails)', field:'MIN(db_errors.read_table_fails)', width:150, name:"MIN (Read Table Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.read_table_fails)", display:{id:'MAX(db_errors.read_table_fails)', field:'MAX(db_errors.read_table_fails)', width:150, name:"MAX (Read Table Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.write_column_fails", display:{id:'db_errors.write_column_fails', field:'db_errors.write_column_fails', width:150, name:"Write Column Fails", groupable:false}},
+        {select:"SUM(db_errors.write_column_fails)", display:{id:'SUM(db_errors.write_column_fails)', field:'SUM(db_errors.write_column_fails)', width:150, name:"SUM (Write Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.write_column_fails)", display:{id:'MIN(db_errors.write_column_fails)', field:'MIN(db_errors.write_column_fails)', width:150, name:"MIN (Write Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.write_column_fails)", display:{id:'MAX(db_errors.write_column_fails)', field:'MAX(db_errors.write_column_fails)', width:150, name:"MAX (Write Column Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.write_batch_column_fails", display:{id:'db_errors.write_batch_column_fails', field:'db_errors.write_batch_column_fails', width:150, name:"Write Batch Column Fails", groupable:false}},
+        {select:"SUM(db_errors.write_batch_column_fails)", display:{id:'SUM(db_errors.write_batch_column_fails)', field:'SUM(db_errors.write_batch_column_fails)', width:150, name:"SUM (Write Batch Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.write_batch_column_fails)", display:{id:'MIN(db_errors.write_batch_column_fails)', field:'MIN(db_errors.write_batch_column_fails)', width:150, name:"MIN (Write Batch Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.write_batch_column_fails)", display:{id:'MAX(db_errors.write_batch_column_fails)', field:'MAX(db_errors.write_batch_column_fails)', width:150, name:"MAX (Write Batch Column Fails)", format:"{0:n0}", groupable:false}},
+
+        {select:"db_errors.read_column_fails", display:{id:'db_errors.read_column_fails', field:'db_errors.read_column_fails', width:150, name:"Read Column Fails", groupable:false}},
+        {select:"SUM(db_errors.read_column_fails)", display:{id:'SUM(db_errors.read_column_fails)', field:'SUM(db_errors.read_column_fails)', width:150, name:"SUM (Read Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(db_errors.read_column_fails)", display:{id:'MIN(db_errors.read_column_fails)', field:'MIN(db_errors.read_column_fails)', width:150, name:"MIN (Read Column Fails)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(db_errors.read_column_fails)", display:{id:'MAX(db_errors.read_column_fails)', field:'MAX(db_errors.read_column_fails)', width:150, name:"MAX (Read Column Fails)", format:"{0:n0}", groupable:false}},
+    ],
+
+
     "StatTable.PFEHeapInfo.heap_info" : [
         {select:"heap_info.name", display:{id:'heap_info.name', field:'heap_info.name', width:150, name:"Heap Info Name", groupable:false}},
         {select:"COUNT(heap_info)", display:{id:'COUNT(heap_info)', field:'COUNT(heap_info)', width:120, name:"Count (Heap Info)", format:"{0:n0}", groupable:false}},
@@ -960,7 +1168,7 @@ statQuery['columnDisplay']  = {
         {select:"MIN(stats.utilization)", display:{id:'MIN(stats.utilization)', field:'MIN(stats.utilization)', width:150, name:"MIN (Utilization)", format:"{0:n0}", groupable:false}},
         {select:"MAX(stats.utilization)", display:{id:'MAX(stats.utilization)', field:'MAX(stats.utilization)', width:150, name:"MAX (Utilization)", format:"{0:n0}", groupable:false}},
     ],
-    "StatTable.fabric_message.edges" : [
+    "StatTable.fabric_message.edges.class_stats.transmit_counts" : [
         {select:"COUNT(edges)", display:{id:'COUNT(edges)', field:'COUNT(edges)', width:120, name:"Count (Edges)", format:"{0:n0}", groupable:false}},
         {select:"edges.src_type", display:{id:'edges.src_type', field:'edges.src_type', width:150, name:"Src Type", groupable:false}},
         {select:"edges.src_slot", display:{id:'edges.src_slot', field:'edges.src_slot', width:150, name:"Src Slot", groupable:false}},
@@ -1139,6 +1347,277 @@ statQuery['columnDisplay']  = {
         {select:"SUM(notifs.count)", display:{id:'SUM(notifs.count)', field:'SUM(notifs.count)', width:150, name:"SUM (Notifs Cnt)", format:"{0:n0}", groupable:false}},
         {select:"MIN(notifs.count)", display:{id:'MIN(notifs.count)', field:'MIN(notifs.count)', width:150, name:"MIN (Notifs Cnt)", format:"{0:n0}", groupable:false}},
         {select:"MAX(notifs.count)", display:{id:'MAX(notifs.count)', field:'MAX(notifs.count)', width:150, name:"MAX (Notifs Cnt)", format:"{0:n0}", groupable:false}}
+    ],
+
+    "StatTable.UveLoadbalancer.virtual_ip_stats" : [
+        {select:"COUNT(virtual_ip_stats)", display:{id:'COUNT(virtual_ip_stats)', field:'COUNT(virtual_ip_stats)', width:120, name:"Count (Virtual IP Stats)", format:"{0:n0}", groupable:false}},
+        {select:"virtual_ip_stats.obj_name", display:{id:'virtual_ip_stats.obj_name', field:'virtual_ip_stats.obj_name', width:150, name:"Object Name", groupable:false}},
+        {select:"virtual_ip_stats.uuid", display:{id:"virtual_ip_stats.uuid", field:"virtual_ip_stats.uuid", name:"Virtual IP Stats UUID",  width:280, groupable:true}},
+        {select:"virtual_ip_stats.status", display:{id:"virtual_ip_stats.status", field:"virtual_ip_stats.status", name:"Status",  width:150, groupable:true}},
+        {select:"virtual_ip_stats.vrouter", display:{id:"virtual_ip_stats.vrouter", field:"virtual_ip_stats.vrouter", name:"Vrouter",  width:150, groupable:true}},
+
+        {select:"virtual_ip_stats.active_connections", display:{id:'virtual_ip_stats.active_connections', field:'virtual_ip_stats.active_connections', width:150, name:"Active Connections", groupable:false}},
+        {select:"SUM(virtual_ip_stats.active_connections)", display:{id:'SUM(virtual_ip_stats.active_connections)', field:'SUM(virtual_ip_stats.active_connections)', width:150, name:"SUM (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.active_connections)", display:{id:'MIN(virtual_ip_stats.active_connections)', field:'MIN(virtual_ip_stats.active_connections)', width:150, name:"MIN (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.active_connections)", display:{id:'MAX(virtual_ip_stats.active_connections)', field:'MAX(virtual_ip_stats.active_connections)', width:150, name:"MAX (Active Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.max_connections", display:{id:'virtual_ip_stats.max_connections', field:'virtual_ip_stats.max_connections', width:150, name:"Max Connections", groupable:false}},
+        {select:"SUM(virtual_ip_stats.max_connections)", display:{id:'SUM(virtual_ip_stats.max_connections)', field:'SUM(virtual_ip_stats.max_connections)', width:150, name:"SUM (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.max_connections)", display:{id:'MIN(virtual_ip_stats.max_connections)', field:'MIN(virtual_ip_stats.max_connections)', width:150, name:"MIN (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.max_connections)", display:{id:'MAX(virtual_ip_stats.max_connections)', field:'MAX(virtual_ip_stats.max_connections)', width:150, name:"MAX (Max Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.current_sessions", display:{id:'virtual_ip_stats.current_sessions', field:'virtual_ip_stats.current_sessions', width:150, name:"Current Sessions", groupable:false}},
+        {select:"SUM(virtual_ip_stats.current_sessions)", display:{id:'SUM(virtual_ip_stats.current_sessions)', field:'SUM(virtual_ip_stats.current_sessions)', width:150, name:"SUM (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.current_sessions)", display:{id:'MIN(virtual_ip_stats.current_sessions)', field:'MIN(virtual_ip_stats.current_sessions)', width:150, name:"MIN (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.current_sessions)", display:{id:'MAX(virtual_ip_stats.current_sessions)', field:'MAX(virtual_ip_stats.current_sessions)', width:150, name:"MAX (Current Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.max_sessions", display:{id:'virtual_ip_stats.max_sessions', field:'virtual_ip_stats.max_sessions', width:150, name:"Max Sessions", groupable:false}},
+        {select:"SUM(virtual_ip_stats.max_sessions)", display:{id:'SUM(virtual_ip_stats.max_sessions)', field:'SUM(virtual_ip_stats.max_sessions)', width:150, name:"SUM (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.max_sessions)", display:{id:'MIN(virtual_ip_stats.max_sessions)', field:'MIN(virtual_ip_stats.max_sessions)', width:150, name:"MIN (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.max_sessions)", display:{id:'MAX(virtual_ip_stats.max_sessions)', field:'MAX(virtual_ip_stats.max_sessions)', width:150, name:"MAX (Max Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.total_sessions", display:{id:'virtual_ip_stats.total_sessions', field:'virtual_ip_stats.total_sessions', width:150, name:"Total Sessions", groupable:false}},
+        {select:"SUM(virtual_ip_stats.total_sessions)", display:{id:'SUM(virtual_ip_stats.total_sessions)', field:'SUM(virtual_ip_stats.total_sessions)', width:150, name:"SUM (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.total_sessions)", display:{id:'MIN(virtual_ip_stats.total_sessions)', field:'MIN(virtual_ip_stats.total_sessions)', width:150, name:"MIN (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.total_sessions)", display:{id:'MAX(virtual_ip_stats.total_sessions)', field:'MAX(virtual_ip_stats.total_sessions)', width:150, name:"MAX (Total Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.bytes_in", display:{id:'virtual_ip_stats.bytes_in', field:'virtual_ip_stats.bytes_in', width:150, name:"Bytes In", groupable:false}},
+        {select:"SUM(virtual_ip_stats.bytes_in)", display:{id:'SUM(virtual_ip_stats.bytes_in)', field:'SUM(virtual_ip_stats.bytes_in)', width:150, name:"SUM (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.bytes_in)", display:{id:'MIN(virtual_ip_stats.bytes_in)', field:'MIN(virtual_ip_stats.bytes_in)', width:150, name:"MIN (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.bytes_in)", display:{id:'MAX(virtual_ip_stats.bytes_in)', field:'MAX(virtual_ip_stats.bytes_in)', width:150, name:"MAX (Bytes In)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.bytes_out", display:{id:'virtual_ip_stats.bytes_out', field:'virtual_ip_stats.bytes_out', width:150, name:"Bytes Out", groupable:false}},
+        {select:"SUM(virtual_ip_stats.bytes_out)", display:{id:'SUM(virtual_ip_stats.bytes_out)', field:'SUM(virtual_ip_stats.bytes_out)', width:150, name:"SUM (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.bytes_out)", display:{id:'MIN(virtual_ip_stats.bytes_out)', field:'MIN(virtual_ip_stats.bytes_out)', width:150, name:"MIN (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.bytes_out)", display:{id:'MAX(virtual_ip_stats.bytes_out)', field:'MAX(virtual_ip_stats.bytes_out)', width:150, name:"MAX (Bytes Out)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.connection_errors", display:{id:'virtual_ip_stats.connection_errors', field:'virtual_ip_stats.connection_errors', width:150, name:"Connection Errors", groupable:false}},
+        {select:"SUM(virtual_ip_stats.connection_errors)", display:{id:'SUM(virtual_ip_stats.connection_errors)', field:'SUM(virtual_ip_stats.connection_errors)', width:150, name:"SUM (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.connection_errors)", display:{id:'MIN(virtual_ip_stats.connection_errors)', field:'MIN(virtual_ip_stats.connection_errors)', width:150, name:"MIN (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.connection_errors)", display:{id:'MAX(virtual_ip_stats.connection_errors)', field:'MAX(virtual_ip_stats.connection_errors)', width:150, name:"MAX (Connection Errors)", format:"{0:n0}", groupable:false}},
+
+        {select:"virtual_ip_stats.reponse_errors", display:{id:'virtual_ip_stats.reponse_errors', field:'virtual_ip_stats.reponse_errors', width:150, name:"Reponse Errors", groupable:false}},
+        {select:"SUM(virtual_ip_stats.reponse_errors)", display:{id:'SUM(virtual_ip_stats.reponse_errors)', field:'SUM(virtual_ip_stats.reponse_errors)', width:150, name:"SUM (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(virtual_ip_stats.reponse_errors)", display:{id:'MIN(virtual_ip_stats.reponse_errors)', field:'MIN(virtual_ip_stats.reponse_errors)', width:150, name:"MIN (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(virtual_ip_stats.reponse_errors)", display:{id:'MAX(virtual_ip_stats.reponse_errors)', field:'MAX(virtual_ip_stats.reponse_errors)', width:150, name:"MAX (Reponse Errors)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.UveLoadbalancer.listener_stats": [
+        {select:"COUNT(listener_stats)", display:{id:'COUNT(listener_stats)', field:'COUNT(listener_stats)', width:120, name:"Count (Listener Stats)", format:"{0:n0}", groupable:false}},
+        {select:"listener_stats.obj_name", display:{id:'listener_stats.obj_name', field:'listener_stats.obj_name', width:150, name:"Object Name", groupable:false}},
+        {select:"listener_stats.uuid", display:{id:"listener_stats.uuid", field:"listener_stats.uuid", name:"Listener Stats UUID",  width:280, groupable:true}},
+        {select:"listener_stats.status", display:{id:"listener_stats.status", field:"listener_stats.status", name:"Status",  width:150, groupable:true}},
+        {select:"listener_stats.vrouter", display:{id:"listener_stats.vrouter", field:"listener_stats.vrouter", name:"Vrouter",  width:150, groupable:true}},
+
+        {select:"listener_stats.active_connections", display:{id:'listener_stats.active_connections', field:'listener_stats.active_connections', width:150, name:"Active Connections", groupable:false}},
+        {select:"SUM(listener_stats.active_connections)", display:{id:'SUM(listener_stats.active_connections)', field:'SUM(listener_stats.active_connections)', width:150, name:"SUM (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.active_connections)", display:{id:'MIN(listener_stats.active_connections)', field:'MIN(listener_stats.active_connections)', width:150, name:"MIN (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.active_connections)", display:{id:'MAX(listener_stats.active_connections)', field:'MAX(listener_stats.active_connections)', width:150, name:"MAX (Active Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.max_connections", display:{id:'listener_stats.max_connections', field:'listener_stats.max_connections', width:150, name:"Max Connections", groupable:false}},
+        {select:"SUM(listener_stats.max_connections)", display:{id:'SUM(listener_stats.max_connections)', field:'SUM(listener_stats.max_connections)', width:150, name:"SUM (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.max_connections)", display:{id:'MIN(listener_stats.max_connections)', field:'MIN(listener_stats.max_connections)', width:150, name:"MIN (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.max_connections)", display:{id:'MAX(listener_stats.max_connections)', field:'MAX(listener_stats.max_connections)', width:150, name:"MAX (Max Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.current_sessions", display:{id:'listener_stats.current_sessions', field:'listener_stats.current_sessions', width:150, name:"Current Sessions", groupable:false}},
+        {select:"SUM(listener_stats.current_sessions)", display:{id:'SUM(listener_stats.current_sessions)', field:'SUM(listener_stats.current_sessions)', width:150, name:"SUM (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.current_sessions)", display:{id:'MIN(listener_stats.current_sessions)', field:'MIN(listener_stats.current_sessions)', width:150, name:"MIN (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.current_sessions)", display:{id:'MAX(listener_stats.current_sessions)', field:'MAX(listener_stats.current_sessions)', width:150, name:"MAX (Current Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.max_sessions", display:{id:'listener_stats.max_sessions', field:'listener_stats.max_sessions', width:150, name:"Max Sessions", groupable:false}},
+        {select:"SUM(listener_stats.max_sessions)", display:{id:'SUM(listener_stats.max_sessions)', field:'SUM(listener_stats.max_sessions)', width:150, name:"SUM (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.max_sessions)", display:{id:'MIN(listener_stats.max_sessions)', field:'MIN(listener_stats.max_sessions)', width:150, name:"MIN (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.max_sessions)", display:{id:'MAX(listener_stats.max_sessions)', field:'MAX(listener_stats.max_sessions)', width:150, name:"MAX (Max Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.total_sessions", display:{id:'listener_stats.total_sessions', field:'listener_stats.total_sessions', width:150, name:"Total Sessions", groupable:false}},
+        {select:"SUM(listener_stats.total_sessions)", display:{id:'SUM(listener_stats.total_sessions)', field:'SUM(listener_stats.total_sessions)', width:150, name:"SUM (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.total_sessions)", display:{id:'MIN(listener_stats.total_sessions)', field:'MIN(listener_stats.total_sessions)', width:150, name:"MIN (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.total_sessions)", display:{id:'MAX(listener_stats.total_sessions)', field:'MAX(listener_stats.total_sessions)', width:150, name:"MAX (Total Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.bytes_in", display:{id:'listener_stats.bytes_in', field:'listener_stats.bytes_in', width:150, name:"Bytes In", groupable:false}},
+        {select:"SUM(listener_stats.bytes_in)", display:{id:'SUM(listener_stats.bytes_in)', field:'SUM(listener_stats.bytes_in)', width:150, name:"SUM (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.bytes_in)", display:{id:'MIN(listener_stats.bytes_in)', field:'MIN(listener_stats.bytes_in)', width:150, name:"MIN (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.bytes_in)", display:{id:'MAX(listener_stats.bytes_in)', field:'MAX(listener_stats.bytes_in)', width:150, name:"MAX (Bytes In)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.bytes_out", display:{id:'listener_stats.bytes_out', field:'listener_stats.bytes_out', width:150, name:"Bytes Out", groupable:false}},
+        {select:"SUM(listener_stats.bytes_out)", display:{id:'SUM(listener_stats.bytes_out)', field:'SUM(listener_stats.bytes_out)', width:150, name:"SUM (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.bytes_out)", display:{id:'MIN(listener_stats.bytes_out)', field:'MIN(listener_stats.bytes_out)', width:150, name:"MIN (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.bytes_out)", display:{id:'MAX(listener_stats.bytes_out)', field:'MAX(listener_stats.bytes_out)', width:150, name:"MAX (Bytes Out)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.connection_errors", display:{id:'listener_stats.connection_errors', field:'listener_stats.connection_errors', width:150, name:"Connection Errors", groupable:false}},
+        {select:"SUM(listener_stats.connection_errors)", display:{id:'SUM(listener_stats.connection_errors)', field:'SUM(listener_stats.connection_errors)', width:150, name:"SUM (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.connection_errors)", display:{id:'MIN(listener_stats.connection_errors)', field:'MIN(listener_stats.connection_errors)', width:150, name:"MIN (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.connection_errors)", display:{id:'MAX(listener_stats.connection_errors)', field:'MAX(listener_stats.connection_errors)', width:150, name:"MAX (Connection Errors)", format:"{0:n0}", groupable:false}},
+
+        {select:"listener_stats.reponse_errors", display:{id:'listener_stats.reponse_errors', field:'listener_stats.reponse_errors', width:150, name:"Reponse Errors", groupable:false}},
+        {select:"SUM(listener_stats.reponse_errors)", display:{id:'SUM(listener_stats.reponse_errors)', field:'SUM(listener_stats.reponse_errors)', width:150, name:"SUM (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(listener_stats.reponse_errors)", display:{id:'MIN(listener_stats.reponse_errors)', field:'MIN(listener_stats.reponse_errors)', width:150, name:"MIN (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(listener_stats.reponse_errors)", display:{id:'MAX(listener_stats.reponse_errors)', field:'MAX(listener_stats.reponse_errors)', width:150, name:"MAX (Reponse Errors)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.UveLoadbalancer.pool_stats" : [
+        {select:"COUNT(pool_stats)", display:{id:'COUNT(pool_stats)', field:'COUNT(pool_stats)', width:120, name:"Count (Pool Stats)", format:"{0:n0}", groupable:false}},
+        {select:"pool_stats.obj_name", display:{id:'pool_stats.obj_name', field:'pool_stats.obj_name', width:150, name:"Object Name", groupable:false}},
+        {select:"pool_stats.uuid", display:{id:"pool_stats.uuid", field:"pool_stats.uuid", name:"Pool Stats UUID",  width:280, groupable:true}},
+        {select:"pool_stats.status", display:{id:"pool_stats.status", field:"pool_stats.status", name:"Status",  width:150, groupable:true}},
+        {select:"pool_stats.vrouter", display:{id:"pool_stats.vrouter", field:"pool_stats.vrouter", name:"Vrouter",  width:150, groupable:true}},
+
+        {select:"pool_stats.active_connections", display:{id:'pool_stats.active_connections', field:'pool_stats.active_connections', width:150, name:"Active Connections", groupable:false}},
+        {select:"SUM(pool_stats.active_connections)", display:{id:'SUM(pool_stats.active_connections)', field:'SUM(pool_stats.active_connections)', width:150, name:"SUM (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.active_connections)", display:{id:'MIN(pool_stats.active_connections)', field:'MIN(pool_stats.active_connections)', width:150, name:"MIN (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.active_connections)", display:{id:'MAX(pool_stats.active_connections)', field:'MAX(pool_stats.active_connections)', width:150, name:"MAX (Active Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.max_connections", display:{id:'pool_stats.max_connections', field:'pool_stats.max_connections', width:150, name:"Max Connections", groupable:false}},
+        {select:"SUM(pool_stats.max_connections)", display:{id:'SUM(pool_stats.max_connections)', field:'SUM(pool_stats.max_connections)', width:150, name:"SUM (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.max_connections)", display:{id:'MIN(pool_stats.max_connections)', field:'MIN(pool_stats.max_connections)', width:150, name:"MIN (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.max_connections)", display:{id:'MAX(pool_stats.max_connections)', field:'MAX(pool_stats.max_connections)', width:150, name:"MAX (Max Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.current_sessions", display:{id:'pool_stats.current_sessions', field:'pool_stats.current_sessions', width:150, name:"Current Sessions", groupable:false}},
+        {select:"SUM(pool_stats.current_sessions)", display:{id:'SUM(pool_stats.current_sessions)', field:'SUM(pool_stats.current_sessions)', width:150, name:"SUM (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.current_sessions)", display:{id:'MIN(pool_stats.current_sessions)', field:'MIN(pool_stats.current_sessions)', width:150, name:"MIN (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.current_sessions)", display:{id:'MAX(pool_stats.current_sessions)', field:'MAX(pool_stats.current_sessions)', width:150, name:"MAX (Current Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.max_sessions", display:{id:'pool_stats.max_sessions', field:'pool_stats.max_sessions', width:150, name:"Max Sessions", groupable:false}},
+        {select:"SUM(pool_stats.max_sessions)", display:{id:'SUM(pool_stats.max_sessions)', field:'SUM(pool_stats.max_sessions)', width:150, name:"SUM (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.max_sessions)", display:{id:'MIN(pool_stats.max_sessions)', field:'MIN(pool_stats.max_sessions)', width:150, name:"MIN (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.max_sessions)", display:{id:'MAX(pool_stats.max_sessions)', field:'MAX(pool_stats.max_sessions)', width:150, name:"MAX (Max Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.total_sessions", display:{id:'pool_stats.total_sessions', field:'pool_stats.total_sessions', width:150, name:"Total Sessions", groupable:false}},
+        {select:"SUM(pool_stats.total_sessions)", display:{id:'SUM(pool_stats.total_sessions)', field:'SUM(pool_stats.total_sessions)', width:150, name:"SUM (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.total_sessions)", display:{id:'MIN(pool_stats.total_sessions)', field:'MIN(pool_stats.total_sessions)', width:150, name:"MIN (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.total_sessions)", display:{id:'MAX(pool_stats.total_sessions)', field:'MAX(pool_stats.total_sessions)', width:150, name:"MAX (Total Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.bytes_in", display:{id:'pool_stats.bytes_in', field:'pool_stats.bytes_in', width:150, name:"Bytes In", groupable:false}},
+        {select:"SUM(pool_stats.bytes_in)", display:{id:'SUM(pool_stats.bytes_in)', field:'SUM(pool_stats.bytes_in)', width:150, name:"SUM (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.bytes_in)", display:{id:'MIN(pool_stats.bytes_in)', field:'MIN(pool_stats.bytes_in)', width:150, name:"MIN (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.bytes_in)", display:{id:'MAX(pool_stats.bytes_in)', field:'MAX(pool_stats.bytes_in)', width:150, name:"MAX (Bytes In)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.bytes_out", display:{id:'pool_stats.bytes_out', field:'pool_stats.bytes_out', width:150, name:"Bytes Out", groupable:false}},
+        {select:"SUM(pool_stats.bytes_out)", display:{id:'SUM(pool_stats.bytes_out)', field:'SUM(pool_stats.bytes_out)', width:150, name:"SUM (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.bytes_out)", display:{id:'MIN(pool_stats.bytes_out)', field:'MIN(pool_stats.bytes_out)', width:150, name:"MIN (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.bytes_out)", display:{id:'MAX(pool_stats.bytes_out)', field:'MAX(pool_stats.bytes_out)', width:150, name:"MAX (Bytes Out)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.connection_errors", display:{id:'pool_stats.connection_errors', field:'pool_stats.connection_errors', width:150, name:"Connection Errors", groupable:false}},
+        {select:"SUM(pool_stats.connection_errors)", display:{id:'SUM(pool_stats.connection_errors)', field:'SUM(pool_stats.connection_errors)', width:150, name:"SUM (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.connection_errors)", display:{id:'MIN(pool_stats.connection_errors)', field:'MIN(pool_stats.connection_errors)', width:150, name:"MIN (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.connection_errors)", display:{id:'MAX(pool_stats.connection_errors)', field:'MAX(pool_stats.connection_errors)', width:150, name:"MAX (Connection Errors)", format:"{0:n0}", groupable:false}},
+
+        {select:"pool_stats.reponse_errors", display:{id:'pool_stats.reponse_errors', field:'pool_stats.reponse_errors', width:150, name:"Reponse Errors", groupable:false}},
+        {select:"SUM(pool_stats.reponse_errors)", display:{id:'SUM(pool_stats.reponse_errors)', field:'SUM(pool_stats.reponse_errors)', width:150, name:"SUM (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(pool_stats.reponse_errors)", display:{id:'MIN(pool_stats.reponse_errors)', field:'MIN(pool_stats.reponse_errors)', width:150, name:"MIN (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(pool_stats.reponse_errors)", display:{id:'MAX(pool_stats.reponse_errors)', field:'MAX(pool_stats.reponse_errors)', width:150, name:"MAX (Reponse Errors)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.UveLoadbalancer.member_stats": [
+        {select:"COUNT(member_stats)", display:{id:'COUNT(member_stats)', field:'COUNT(member_stats)', width:120, name:"Count (Pool Stats)", format:"{0:n0}", groupable:false}},
+        {select:"member_stats.obj_name", display:{id:'member_stats.obj_name', field:'member_stats.obj_name', width:150, name:"Object Name", groupable:false}},
+        {select:"member_stats.uuid", display:{id:"member_stats.uuid", field:"member_stats.uuid", name:"Pool Stats UUID",  width:280, groupable:true}},
+        {select:"member_stats.status", display:{id:"member_stats.status", field:"member_stats.status", name:"Status",  width:150, groupable:true}},
+        {select:"member_stats.vrouter", display:{id:"member_stats.vrouter", field:"member_stats.vrouter", name:"Vrouter",  width:150, groupable:true}},
+
+        {select:"member_stats.active_connections", display:{id:'member_stats.active_connections', field:'member_stats.active_connections', width:150, name:"Active Connections", groupable:false}},
+        {select:"SUM(member_stats.active_connections)", display:{id:'SUM(member_stats.active_connections)', field:'SUM(member_stats.active_connections)', width:150, name:"SUM (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.active_connections)", display:{id:'MIN(member_stats.active_connections)', field:'MIN(member_stats.active_connections)', width:150, name:"MIN (Active Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.active_connections)", display:{id:'MAX(member_stats.active_connections)', field:'MAX(member_stats.active_connections)', width:150, name:"MAX (Active Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.max_connections", display:{id:'member_stats.max_connections', field:'member_stats.max_connections', width:150, name:"Max Connections", groupable:false}},
+        {select:"SUM(member_stats.max_connections)", display:{id:'SUM(member_stats.max_connections)', field:'SUM(member_stats.max_connections)', width:150, name:"SUM (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.max_connections)", display:{id:'MIN(member_stats.max_connections)', field:'MIN(member_stats.max_connections)', width:150, name:"MIN (Max Connections)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.max_connections)", display:{id:'MAX(member_stats.max_connections)', field:'MAX(member_stats.max_connections)', width:150, name:"MAX (Max Connections)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.current_sessions", display:{id:'member_stats.current_sessions', field:'member_stats.current_sessions', width:150, name:"Current Sessions", groupable:false}},
+        {select:"SUM(member_stats.current_sessions)", display:{id:'SUM(member_stats.current_sessions)', field:'SUM(member_stats.current_sessions)', width:150, name:"SUM (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.current_sessions)", display:{id:'MIN(member_stats.current_sessions)', field:'MIN(member_stats.current_sessions)', width:150, name:"MIN (Current Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.current_sessions)", display:{id:'MAX(member_stats.current_sessions)', field:'MAX(member_stats.current_sessions)', width:150, name:"MAX (Current Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.max_sessions", display:{id:'member_stats.max_sessions', field:'member_stats.max_sessions', width:150, name:"Max Sessions", groupable:false}},
+        {select:"SUM(member_stats.max_sessions)", display:{id:'SUM(member_stats.max_sessions)', field:'SUM(member_stats.max_sessions)', width:150, name:"SUM (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.max_sessions)", display:{id:'MIN(member_stats.max_sessions)', field:'MIN(member_stats.max_sessions)', width:150, name:"MIN (Max Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.max_sessions)", display:{id:'MAX(member_stats.max_sessions)', field:'MAX(member_stats.max_sessions)', width:150, name:"MAX (Max Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.total_sessions", display:{id:'member_stats.total_sessions', field:'member_stats.total_sessions', width:150, name:"Total Sessions", groupable:false}},
+        {select:"SUM(member_stats.total_sessions)", display:{id:'SUM(member_stats.total_sessions)', field:'SUM(member_stats.total_sessions)', width:150, name:"SUM (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.total_sessions)", display:{id:'MIN(member_stats.total_sessions)', field:'MIN(member_stats.total_sessions)', width:150, name:"MIN (Total Sessions)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.total_sessions)", display:{id:'MAX(member_stats.total_sessions)', field:'MAX(member_stats.total_sessions)', width:150, name:"MAX (Total Sessions)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.bytes_in", display:{id:'member_stats.bytes_in', field:'member_stats.bytes_in', width:150, name:"Bytes In", groupable:false}},
+        {select:"SUM(member_stats.bytes_in)", display:{id:'SUM(member_stats.bytes_in)', field:'SUM(member_stats.bytes_in)', width:150, name:"SUM (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.bytes_in)", display:{id:'MIN(member_stats.bytes_in)', field:'MIN(member_stats.bytes_in)', width:150, name:"MIN (Bytes In)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.bytes_in)", display:{id:'MAX(member_stats.bytes_in)', field:'MAX(member_stats.bytes_in)', width:150, name:"MAX (Bytes In)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.bytes_out", display:{id:'member_stats.bytes_out', field:'member_stats.bytes_out', width:150, name:"Bytes Out", groupable:false}},
+        {select:"SUM(member_stats.bytes_out)", display:{id:'SUM(member_stats.bytes_out)', field:'SUM(member_stats.bytes_out)', width:150, name:"SUM (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.bytes_out)", display:{id:'MIN(member_stats.bytes_out)', field:'MIN(member_stats.bytes_out)', width:150, name:"MIN (Bytes Out)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.bytes_out)", display:{id:'MAX(member_stats.bytes_out)', field:'MAX(member_stats.bytes_out)', width:150, name:"MAX (Bytes Out)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.connection_errors", display:{id:'member_stats.connection_errors', field:'member_stats.connection_errors', width:150, name:"Connection Errors", groupable:false}},
+        {select:"SUM(member_stats.connection_errors)", display:{id:'SUM(member_stats.connection_errors)', field:'SUM(member_stats.connection_errors)', width:150, name:"SUM (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.connection_errors)", display:{id:'MIN(member_stats.connection_errors)', field:'MIN(member_stats.connection_errors)', width:150, name:"MIN (Connection Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.connection_errors)", display:{id:'MAX(member_stats.connection_errors)', field:'MAX(member_stats.connection_errors)', width:150, name:"MAX (Connection Errors)", format:"{0:n0}", groupable:false}},
+
+        {select:"member_stats.reponse_errors", display:{id:'member_stats.reponse_errors', field:'member_stats.reponse_errors', width:150, name:"Reponse Errors", groupable:false}},
+        {select:"SUM(member_stats.reponse_errors)", display:{id:'SUM(member_stats.reponse_errors)', field:'SUM(member_stats.reponse_errors)', width:150, name:"SUM (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(member_stats.reponse_errors)", display:{id:'MIN(member_stats.reponse_errors)', field:'MIN(member_stats.reponse_errors)', width:150, name:"MIN (Reponse Errors)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(member_stats.reponse_errors)", display:{id:'MAX(member_stats.reponse_errors)', field:'MAX(member_stats.reponse_errors)', width:150, name:"MAX (Reponse Errors)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.NodeStatus.disk_usage_info": [
+        {select:"COUNT(disk_usage_info)", display:{id:'COUNT(disk_usage_info)', field:'COUNT(disk_usage_info)', width:120, name:"Count (Disk Usage Info)", format:"{0:n0}", groupable:false}},
+        {select:"disk_usage_info.partition_type", display:{id:'disk_usage_info.partition_type', field:'disk_usage_info.partition_type', width:150, name:"Partition Type", groupable:false}},
+        {select:"disk_usage_info.partition_name", display:{id:'disk_usage_info.partition_name', field:'disk_usage_info.partition_name', width:150, name:"Partition Name", groupable:false}},
+
+        {select:"disk_usage_info.partition_space_used_1k", display:{id:'disk_usage_info.partition_space_used_1k', field:'disk_usage_info.partition_space_used_1k', width:150, name:"Partition Space Used (1k)", groupable:false}},
+        {select:"SUM(disk_usage_info.partition_space_used_1k)", display:{id:'SUM(disk_usage_info.partition_space_used_1k)', field:'SUM(disk_usage_info.partition_space_used_1k)', width:150, name:"SUM (Partition Space Used (1k))", format:"{0:n0}", groupable:false}},
+        {select:"MIN(disk_usage_info.partition_space_used_1k)", display:{id:'MIN(disk_usage_info.partition_space_used_1k)', field:'MIN(disk_usage_info.partition_space_used_1k)', width:150, name:"MIN (Partition Space Used (1k))", format:"{0:n0}", groupable:false}},
+        {select:"MAX(disk_usage_info.partition_space_used_1k)", display:{id:'MAX(disk_usage_info.partition_space_used_1k)', field:'MAX(disk_usage_info.partition_space_used_1k)', width:150, name:"MAX (Partition Space Used (1k))", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.UveVMInterfaceAgent.fip_diff_stats": [
+        {select:"COUNT(fip_diff_stats)", display:{id:'COUNT(fip_diff_stats)', field:'COUNT(fip_diff_stats)', width:120, name:"Count (FIP Diff Stats)", format:"{0:n0}", groupable:false}},
+        {select:"virtual_network", display:{id:'virtual_network', field:'virtual_network', width:150, name:"Virtual Network", groupable:false}},
+        {select:"fip_diff_stats.other_vn", display:{id:'fip_diff_stats.other_vn', field:'fip_diff_stats.other_vn', width:150, name:"Other VN", groupable:false}},
+        {select:"fip_diff_stats.ip_address", display:{id:'fip_diff_stats.ip_address', field:'fip_diff_stats.ip_address', width:150, name:"IP Address", groupable:false}},
+
+        {select:"fip_diff_stats.in_pkts", display:{id:'fip_diff_stats.in_pkts', field:'fip_diff_stats.in_pkts', width:150, name:"In Pkts", groupable:false}},
+        {select:"SUM(fip_diff_stats.in_pkts)", display:{id:'SUM(fip_diff_stats.in_pkts)', field:'SUM(fip_diff_stats.in_pkts)', width:150, name:"SUM (In Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(fip_diff_stats.in_pkts)", display:{id:'MIN(fip_diff_stats.in_pkts)', field:'MIN(fip_diff_stats.in_pkts)', width:150, name:"MIN (In Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(fip_diff_stats.in_pkts)", display:{id:'MAX(fip_diff_stats.in_pkts)', field:'MAX(fip_diff_stats.in_pkts)', width:150, name:"MAX (In Pkts)", format:"{0:n0}", groupable:false}},
+
+        {select:"fip_diff_stats.in_pkts", display:{id:'fip_diff_stats.in_bytes', field:'fip_diff_stats.in_bytes', width:150, name:"In Bytes", groupable:false}},
+        {select:"SUM(fip_diff_stats.in_bytes)", display:{id:'SUM(fip_diff_stats.in_bytes)', field:'SUM(fip_diff_stats.in_bytes)', width:150, name:"SUM (In Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(fip_diff_stats.in_bytes)", display:{id:'MIN(fip_diff_stats.in_bytes)', field:'MIN(fip_diff_stats.in_bytes)', width:150, name:"MIN (In Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(fip_diff_stats.in_bytes)", display:{id:'MAX(fip_diff_stats.in_bytes)', field:'MAX(fip_diff_stats.in_bytes)', width:150, name:"MAX (In Bytes)", format:"{0:n0}", groupable:false}},
+
+        {select:"fip_diff_stats.out_pkts", display:{id:'fip_diff_stats.out_pkts', field:'fip_diff_stats.out_pkts', width:150, name:"Out Pkts", groupable:false}},
+        {select:"SUM(fip_diff_stats.out_pkts)", display:{id:'SUM(fip_diff_stats.out_pkts)', field:'SUM(fip_diff_stats.out_pkts)', width:150, name:"SUM (Out Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(fip_diff_stats.out_pkts)", display:{id:'MIN(fip_diff_stats.out_pkts)', field:'MIN(fip_diff_stats.out_pkts)', width:150, name:"MIN (Out Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(fip_diff_stats.out_pkts)", display:{id:'MAX(fip_diff_stats.out_pkts)', field:'MAX(fip_diff_stats.out_pkts)', width:150, name:"MAX (Out Pkts)", format:"{0:n0}", groupable:false}},
+
+        {select:"fip_diff_stats.out_bytes", display:{id:'fip_diff_stats.out_bytes', field:'fip_diff_stats.out_bytes', width:150, name:"Out Bytes", groupable:false}},
+        {select:"SUM(fip_diff_stats.out_bytes)", display:{id:'SUM(fip_diff_stats.out_bytes)', field:'SUM(fip_diff_stats.out_bytes)', width:150, name:"SUM (Out Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(fip_diff_stats.out_bytes)", display:{id:'MIN(fip_diff_stats.out_bytes)', field:'MIN(fip_diff_stats.out_bytes)', width:150, name:"MIN (Out Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(fip_diff_stats.out_bytes)", display:{id:'MAX(fip_diff_stats.out_bytes)', field:'MAX(fip_diff_stats.out_bytes)', width:150, name:"MAX (Out Bytes)", format:"{0:n0}", groupable:false}},
+    ],
+    "StatTable.UveVMInterfaceAgent.if_stats" : [
+        {select:"COUNT(if_stats)", display:{id:'COUNT(if_stats)', field:'COUNT(if_stats)', width:120, name:"Count (Interface Stats)", format:"{0:n0}", groupable:false}},
+        {select:"virtual_network", display:{id:'virtual_network', field:'virtual_network', width:150, name:"Virtual Network", groupable:false}},
+        {select:"if_stats.other_vn", display:{id:'if_stats.other_vn', field:'if_stats.other_vn', width:150, name:"Other VN", groupable:false}},
+        {select:"if_stats.ip_address", display:{id:'if_stats.ip_address', field:'if_stats.ip_address', width:150, name:"IP Address", groupable:false}},
+
+        {select:"if_stats.in_pkts", display:{id:'if_stats.in_pkts', field:'if_stats.in_pkts', width:150, name:"In Pkts", groupable:false}},
+        {select:"SUM(if_stats.in_pkts)", display:{id:'SUM(if_stats.in_pkts)', field:'SUM(if_stats.in_pkts)', width:150, name:"SUM (In Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(if_stats.in_pkts)", display:{id:'MIN(if_stats.in_pkts)', field:'MIN(if_stats.in_pkts)', width:150, name:"MIN (In Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(if_stats.in_pkts)", display:{id:'MAX(if_stats.in_pkts)', field:'MAX(if_stats.in_pkts)', width:150, name:"MAX (In Pkts)", format:"{0:n0}", groupable:false}},
+
+        {select:"if_stats.in_pkts", display:{id:'if_stats.in_bytes', field:'if_stats.in_bytes', width:150, name:"In Bytes", groupable:false}},
+        {select:"SUM(if_stats.in_bytes)", display:{id:'SUM(if_stats.in_bytes)', field:'SUM(if_stats.in_bytes)', width:150, name:"SUM (In Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(if_stats.in_bytes)", display:{id:'MIN(if_stats.in_bytes)', field:'MIN(if_stats.in_bytes)', width:150, name:"MIN (In Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(if_stats.in_bytes)", display:{id:'MAX(if_stats.in_bytes)', field:'MAX(if_stats.in_bytes)', width:150, name:"MAX (In Bytes)", format:"{0:n0}", groupable:false}},
+
+        {select:"if_stats.out_pkts", display:{id:'if_stats.out_pkts', field:'if_stats.out_pkts', width:150, name:"Out Pkts", groupable:false}},
+        {select:"SUM(if_stats.out_pkts)", display:{id:'SUM(if_stats.out_pkts)', field:'SUM(if_stats.out_pkts)', width:150, name:"SUM (Out Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(if_stats.out_pkts)", display:{id:'MIN(if_stats.out_pkts)', field:'MIN(if_stats.out_pkts)', width:150, name:"MIN (Out Pkts)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(if_stats.out_pkts)", display:{id:'MAX(if_stats.out_pkts)', field:'MAX(if_stats.out_pkts)', width:150, name:"MAX (Out Pkts)", format:"{0:n0}", groupable:false}},
+
+        {select:"if_stats.out_bytes", display:{id:'if_stats.out_bytes', field:'if_stats.out_bytes', width:150, name:"Out Bytes", groupable:false}},
+        {select:"SUM(if_stats.out_bytes)", display:{id:'SUM(if_stats.out_bytes)', field:'SUM(if_stats.out_bytes)', width:150, name:"SUM (Out Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MIN(if_stats.out_bytes)", display:{id:'MIN(if_stats.out_bytes)', field:'MIN(if_stats.out_bytes)', width:150, name:"MIN (Out Bytes)", format:"{0:n0}", groupable:false}},
+        {select:"MAX(if_stats.out_bytes)", display:{id:'MAX(if_stats.out_bytes)', field:'MAX(if_stats.out_bytes)', width:150, name:"MAX (Out Bytes)", format:"{0:n0}", groupable:false}},
     ]
 };
 
