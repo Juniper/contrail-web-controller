@@ -856,10 +856,10 @@ function getNetworkConnectedGraph(req, res, appData) {
         'UveVirtualNetworkConfig'
     ];
 
-    reqUrl = '/analytics/virtual-network/' + fqName + '?cfilt=' + cFilters.join(',');
+    reqUrl = '/analytics/uves/virtual-network/' + fqName + '?cfilt=' + cFilters.join(',');
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    reqUrl = '/analytics/service-chain/*';
+    reqUrl = '/analytics/uves/service-chain/*';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
     reqUrl = '/virtual-networks';
@@ -961,10 +961,10 @@ function getProjectConnectedGraph(req, res, appData) {
         'UveVirtualNetworkConfig'
     ];
 
-    reqUrl = '/analytics/virtual-network/' + fqName + ':*?cfilt=' + cFilters.join(',');
+    reqUrl = '/analytics/uves/virtual-network/' + fqName + ':*?cfilt=' + cFilters.join(',');
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
-    reqUrl = '/analytics/service-chain/*';
+    reqUrl = '/analytics/uves/service-chain/*';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
     reqUrl = '/virtual-networks';

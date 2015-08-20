@@ -125,8 +125,8 @@ function getControlNodePeerInfo (req, res, appData)
     var hostName = req.param('hostname');
     var urlLists = [];
 
-    urlLists[0] = '/analytics/bgp-peer/*:' + hostName + ':*';
-    urlLists[1] = '/analytics/xmpp-peer/' + hostName + ':*?flat';
+    urlLists[0] = '/analytics/uves/bgp-peer/*:' + hostName + ':*';
+    urlLists[1] = '/analytics/uves/xmpp-peer/' + hostName + ':*?flat';
 
     async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
               function(err, results) {
@@ -149,8 +149,8 @@ function getControlNodePeerDetails (req, res, appData)
         }
         var len = configData.length;
         for (var i = 0; i < len; i++) {
-            urlLists[i] = '/analytics/bgp-peer/*' + configData[i]['name'] + '*';
-            urlLists[i + len] = '/analytics/xmpp-peer/' + configData[i]['name']
+            urlLists[i] = '/analytics/uves/bgp-peer/*' + configData[i]['name'] + '*';
+            urlLists[i + len] = '/analytics/uves/xmpp-peer/' + configData[i]['name']
                 + ':*?flat';
         }
         async.map(urlLists,
@@ -184,8 +184,8 @@ function getControlNodePeerPagedInfo (req, res, appData)
     } else {
         count = parseInt(count);
     }
-    urlLists[0] = '/analytics/bgp-peers';
-    urlLists[1] = '/analytics/xmpp-peers';
+    urlLists[0] = '/analytics/uves/bgp-peers';
+    urlLists[1] = '/analytics/uves/xmpp-peers';
 
     async.map(urlLists, commonUtils.getJsonViaInternalApi(opServer.api, true),
               function(err, results) {
