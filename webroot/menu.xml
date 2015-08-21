@@ -376,10 +376,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_infra_gblconfig</hash>
                             <resources>
                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
                                     <rootDir>/config/forwardingoptions/ui</rootDir>
-                                    <view>global_options_config.view</view>
-                                    <js>global_options_config.js</js>
-                                    <class>fwdOptionsConfigObj</class>
+                                    <js>globalconfig.main.js</js>
+                                    <class>globalConfigPageLoader</class>
+                                    <function>renderGlobalConfig</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Global Config</searchStrings>

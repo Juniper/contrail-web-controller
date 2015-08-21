@@ -382,6 +382,15 @@ define([
         this.NETCONF_SETTINGS_TITLE = 'Netconf Settings';
         this.TOR_AGENT = "TOR Agent";
         this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
+
+        /* Global Config */
+        this.CONFIG_GLOBAL_CONFIG_PAGE_ID = 'config-global-config-page';
+        this.CONFIG_GLOBAL_CONFIG_SECTION_ID = 'config-global-config-section';
+        this.CONFIG_GLOBAL_CONFIG_ID = 'config-global-config';
+        this.GLOBAL_CONFIG_GRID_ID = 'global-config-grid';
+        this.GLOBAL_CONFIG_PREFIX_ID = 'glblCfg';
+        this.TITLE_EDIT_GLOBAL_CONFIG = 'Edit Global Config';
+        this.TITLE_GLOBAL_CONFIG = 'Global Config';
     };
     return CTLabels;
 });
