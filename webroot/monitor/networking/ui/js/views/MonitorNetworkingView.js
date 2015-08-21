@@ -4,9 +4,8 @@
 
 define([
     'underscore',
-    'contrail-view',
-    'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, ContrailView, BreadcrumbView) {
+    'contrail-view'
+], function (_, ContrailView) {
     var MonitorNetworkingView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -15,75 +14,11 @@ define([
         },
 
         renderProject: function (viewConfig) {
-            var self = this,
-                hashParams = viewConfig.hashParams,
-                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                breadcrumbView = new BreadcrumbView();
-
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData, domainBreadcrumbChanged) {
-                var domainFQN = domainSelectedValueData.name;
-
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (selectedValueData, projectBreadcrumbChanged) {
-                    self.renderProjectCB(hashParams, selectedValueData, projectBreadcrumbChanged);
-                }, function (selectedValueData, projectBreadcrumbChanged) {
-                    var projectFQN = domainFQN + ':' + selectedValueData.name;
-
-                    nmwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
-                    self.renderProjectCB(hashParams, selectedValueData, projectBreadcrumbChanged);
-                });
-            });
+            this.renderView4Config(this.$el, null, getProjectConfig(viewConfig));
        },
 
-        renderProjectCB: function (hashParams, projectObj, breadcrumbChanged) {
-            var self = this,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectFQN = domain + ':' + projectObj.name,
-                projectUUID = projectObj.value,
-                ignoreClickedElements = breadcrumbChanged;
-
-            if (ignoreClickedElements == true) {
-                delete hashParams.clickedElement;
-            }
-
-            self.renderView4Config(self.$el, null, getProjectConfig(projectFQN, projectUUID));
-        },
-
         renderNetwork: function (viewConfig) {
-            var self = this,
-                hashParams = viewConfig.hashParams,
-                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                breadcrumbView = new BreadcrumbView();
-
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData, domainBreadcrumbChanged) {
-                var domainFQN = domainSelectedValueData.name;
-
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    breadcrumbView.renderNetworkBreadcrumbDropdown(fqName, function (networkSelectedValueData, networkBreadcrumbChanged) {
-                        self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
-                    });
-                }, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    var projectFQN = domainFQN + ':' + projectSelectedValueData.name;
-
-                    nmwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
-                    self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
-                });
-            });
-        },
-
-        renderNetworkCB: function(hashParams, networkObj, breadcrumbChanged) {
-            var self = this,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                project = contrail.getCookie(cowc.COOKIE_PROJECT),
-                networkFQN = domain + ':' + project + ':' + networkObj.name,
-                networkUUID = networkObj.value,
-                ignoreClickedElements = breadcrumbChanged;
-
-            if (ignoreClickedElements == true) {
-                delete hashParams.clickedElement;
-            }
-
-            nmwgrc.setNetworkURLHashParams(hashParams, networkFQN, false);
-            self.renderView4Config(self.$el, null, getNetworkConfig(networkFQN, networkUUID));
+            this.renderView4Config(this.$el, null, getNetworkConfig(viewConfig));
         },
 
         renderNetworkList: function (viewConfig) {
@@ -91,49 +26,7 @@ define([
         },
 
         renderInstance: function (viewConfig) {
-            var self = this,
-                breadcrumbView = new BreadcrumbView(),
-                hashParams = viewConfig.hashParams,
-                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
-                vmName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.vmName')) ? hashParams.focusedElement.vmName : null,
-                instanceName4Breadcrumb = (contrail.checkIfExist(vmName) && vmName != "") ? vmName : instanceUUID;
-
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (domainSelectedValueData, domainBreadcrumbChanged) {
-                var domainFQN = domainSelectedValueData.name;
-
-                breadcrumbView.renderProjectBreadcrumbDropdown(fqName, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    breadcrumbView.renderNetworkBreadcrumbDropdown(fqName,
-                        function (networkSelectedValueData) {
-                            breadcrumbView.renderInstanceBreadcrumbDropdown(networkSelectedValueData, instanceName4Breadcrumb, function (networkSelectedValueData) {
-                                self.renderInstanceCB(hashParams, networkSelectedValueData, instanceUUID);
-                            });
-                        }, function (networkSelectedValueData, networkBreadcrumbChanged) {
-                            removeActiveBreadcrumb();
-                            self.renderNetworkCB(hashParams, networkSelectedValueData, networkBreadcrumbChanged);
-                        }
-                    );
-                }, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    removeActiveBreadcrumb();
-                    var projectFQN = domainFQN + ':' + projectSelectedValueData.name;
-
-                    nmwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
-                    self.renderProjectCB(hashParams, projectSelectedValueData, projectBreadcrumbChanged);
-                });
-            });
-        },
-
-        renderInstanceCB: function(hashParams, networkObj, instanceUUID) {
-            var self = this,
-                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                project = contrail.getCookie(cowc.COOKIE_PROJECT),
-                networkFQN = domain + ':' + project + ':' + networkObj.name,
-                networkUUID = networkObj.value,
-                vmName = hashParams['focusedElement']['vmName'];
-
-            nmwgrc.setInstanceURLHashParams(hashParams, networkFQN, instanceUUID, vmName, false);
-
-            self.renderView4Config(this.$el, null, getInstanceConfig(networkFQN, networkUUID, instanceUUID));
+            this.renderView4Config(this.$el, null, getInstanceConfig(viewConfig));
         },
 
         renderInstanceList: function (viewConfig) {
@@ -149,37 +42,273 @@ define([
         }
     });
 
-    function getProjectConfig(projectFQN, projectUUID) {
-        return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_PAGE_ID]),
-            view: "ProjectView",
-            viewPathPrefix: "monitor/networking/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID}
-        }
-    };
+    function getProjectConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customProjectDropdownOptions = {
+                changeCB: getProjectChangeCB(hashParams),
+                childView: {
+                    init: getProjectViewConfig()
+                }
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
 
-    function getNetworkConfig(networkFQN, networkUUID) {
-        return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_PAGE_ID]),
-            view: "NetworkView",
-            viewPathPrefix: "monitor/networking/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID}
-        }
-    };
-
-    function getInstanceConfig(networkFQN, networkUUID, instanceUUID) {
-        return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_PAGE_ID]),
-            view: "InstanceView",
-            viewPathPrefix: "monitor/networking/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID, instanceUUID: instanceUUID}
-        }
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions);
     };
 
     function getProjectListConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectListViewConfig(viewConfig)
+                }
+            };
+
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions);
+    };
+
+    function getNetworkConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customNetworkDropdownOptions = {
+                changeCB: getNetworkChangeCB(hashParams),
+                childView: {
+                    init: getNetworkViewConfig()
+                }
+            },
+            customProjectDropdownOptions = {
+                changeCB: getProjectChangeCB(hashParams),
+                childView: {
+                    init: getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
+                    change: getProjectViewConfig()
+                }
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
+        
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions);
+    };
+
+    function getNetworkListConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customProjectDropdownOptions = {
+                childView: {
+                    init: getNetworkListViewConfig(viewConfig),
+                },
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
+
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
+    };
+
+    function getInstanceConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customInstanceTextOptions = {
+                childView: {
+                    init: getInstanceViewConfig(hashParams)
+                }
+            },
+            customNetworkDropdownOptions = {
+                changeCB: getNetworkChangeCB(hashParams),
+                childView: {
+                    init: getInstanceBreadcrumbTextViewConfig(hashParams, customInstanceTextOptions),
+                    change: getNetworkViewConfig()
+                }
+            },
+            customProjectDropdownOptions = {
+                changeCB: getProjectChangeCB(hashParams),
+                childView: {
+                    init: getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
+                    change: getProjectViewConfig()
+                }
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
+
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
+    };
+
+    function getInstanceListConfig(viewConfig) {
+        var hashParams = viewConfig.hashParams,
+            customNetworkDropdownOptions = {
+                childView: {
+                    init: getInstanceListViewConfig(viewConfig)
+                },
+                allDropdownOption: ctwc.ALL_NETWORK_DROPDOWN_OPTION
+            },
+            customProjectDropdownOptions = {
+                childView: {
+                    init: getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions),
+                },
+                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+            },
+            customDomainDropdownOptions = {
+                childView: {
+                    init: getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions)
+                }
+            };
+
+        return getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions)
+    }
+
+    function getDomainBreadcrumbDropdownViewConfig(hashParams, customDomainDropdownOptions) {
+        var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+            defaultDropdownoptions = {
+                urlValue: (urlValue !== null) ? urlValue.split(':').splice(0,1).join(':') : null,
+                cookieKey: cowc.COOKIE_DOMAIN
+            },
+            dropdownOptions = $.extend(true, {}, defaultDropdownoptions, customDomainDropdownOptions);
+
+        return {
+            elementId: ctwl.DOMAINS_BREADCRUMB_DROPDOWN,
+            view: "BreadcrumbDropdownView",
+            viewConfig: {
+                modelConfig: ctwu.getDomainListModelConfig(),
+                dropdownOptions: dropdownOptions
+            }
+        }
+    }
+
+    function getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions) {
+        var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
+
+        return function(domainSelectedValueData) {
+            var domain = domainSelectedValueData.name,
+                defaultDropdownOptions = {
+                    urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
+                    cookieKey: cowc.COOKIE_PROJECT
+                },
+                dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customProjectDropdownOptions);
+
+            return {
+                elementId: ctwl.PROJECTS_BREADCRUMB_DROPDOWN,
+                view: "BreadcrumbDropdownView",
+                viewConfig: {
+                    modelConfig: ctwu.getProjectListModelConfig(domain),
+                    dropdownOptions: dropdownOptions
+                }
+            }
+        };
+    }
+
+    function getNetworkBreadcrumbDropdownViewConfig(hashParams, customNetworkDropdownOptions) {
+        var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+            defaultDropdownOptions = {
+                urlValue: (urlValue !== null) ? urlValue.split(':').splice(2, 1).join(':') : null,
+                cookieKey: cowc.COOKIE_VIRTUAL_NETWORK
+            },
+            dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customNetworkDropdownOptions);
+
+        return function(projectSelectedValueData) {
+            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + projectSelectedValueData.name,
+                modelConfig = (projectSelectedValueData.value === 'all') ? null : ctwu.getNetworkListModelConfig(projectFQN);
+            return {
+                elementId: ctwl.NETWORKS_BREADCRUMB_DROPDOWN,
+                view: "BreadcrumbDropdownView",
+                viewConfig: {
+                    modelConfig: modelConfig,
+                    dropdownOptions: dropdownOptions
+                }
+            };
+        }
+    }
+
+    function getInstanceBreadcrumbTextViewConfig(hashParams, customInstanceTextOptions) {
+        var instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
+            vmName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.vmName')) ? hashParams.focusedElement.vmName : null,
+            urlValue = (contrail.checkIfExist(vmName) && vmName != "") ? vmName : instanceUUID;
+
+
+        return function(networkSelectedValueData) {
+            var defaultTextOptions = {
+                    urlValue: (urlValue !== null) ? urlValue : null,
+                    parentViewParams: {
+                        networkSelectedValueData: networkSelectedValueData
+                    }
+                },
+                textOptions = $.extend(true, {}, defaultTextOptions, customInstanceTextOptions);
+
+            return {
+                elementId: ctwl.INSTANCE_BREADCRUMB_TEXT,
+                view: "BreadcrumbTextView",
+                viewConfig: {
+                    textOptions: textOptions
+                }
+            };
+        }
+    }
+
+    function getProjectViewConfig() {
+
+        return function(projectSelectedValueData) {
+            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + projectSelectedValueData.name,
+                projectUUID = projectSelectedValueData.value;
+
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_PAGE_ID]),
+                view: "ProjectView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: {projectFQN: projectFQN, projectUUID: projectUUID}
+            };
+        }
+    }
+
+    function getNetworkViewConfig() {
+        return function (networkSelectedValueData) {
+            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+                networkFQN = projectFQN + ':' + networkSelectedValueData.name,
+                networkUUID = networkSelectedValueData.value;
+
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_PAGE_ID]),
+                view: "NetworkView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: {
+                    networkFQN: networkFQN,
+                    networkUUID: networkUUID
+                }
+            }
+        }
+    }
+
+    function getInstanceViewConfig(hashParams) {
+        return function (instanceSelectedValueData, parentViewParams) {
+            var networkSelectedValueData = parentViewParams.networkSelectedValueData,
+                domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+                networkFQN = projectFQN + ':' + networkSelectedValueData.name,
+                instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
+                networkUUID = networkSelectedValueData.value;
+
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_PAGE_ID]),
+                view: "InstanceView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: {networkFQN: networkFQN, networkUUID: networkUUID, instanceUUID: instanceUUID}
+            }
+        }
+    };
+
+    function getProjectListViewConfig(viewConfig) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_LIST_PAGE_ID]),
             view: "ProjectListView",
@@ -189,25 +318,53 @@ define([
         }
     };
 
-    function getNetworkListConfig(viewConfig) {
-        return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_PAGE_ID]),
-            view: "NetworkListView",
-            viewPathPrefix: "monitor/networking/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: viewConfig
+    function getNetworkListViewConfig(viewConfig) {
+        return function (projectSelectedValueData) {
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_NETWORK_LIST_PAGE_ID]),
+                view: "NetworkListView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: $.extend(true, {}, viewConfig, {projectSelectedValueData: projectSelectedValueData})
+            }
+        };
+    };
+
+    function getInstanceListViewConfig(viewConfig) {
+        return function (networkSelectedValueData) {
+            return {
+                elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_PAGE_ID]),
+                view: "InstanceListView",
+                viewPathPrefix: "monitor/networking/ui/js/views/",
+                app: cowc.APP_CONTRAIL_CONTROLLER,
+                viewConfig: $.extend(true, {}, viewConfig, {networkSelectedValueData: networkSelectedValueData})
+
+            }
         }
     };
 
-    function getInstanceListConfig(viewConfig) {
-        return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_INSTANCE_LIST_PAGE_ID]),
-            view: "InstanceListView",
-            viewPathPrefix: "monitor/networking/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
-            viewConfig: viewConfig
+    function getNetworkChangeCB(hashParams) {
+        return function (networkSelectedValueData) {
+            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
+                networkFQN = projectFQN + ':' + networkSelectedValueData.name,
+                networkUUID = networkSelectedValueData.value;
+
+            delete hashParams.clickedElement;
+            nmwgrc.setNetworkURLHashParams(hashParams, networkFQN, false);
         }
-    };
+    }
+
+    function getProjectChangeCB(hashParams) {
+        return function(projectSelectedValueData) {
+            var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectFQN = domain + ':' + projectSelectedValueData.name,
+                projectUUID = projectSelectedValueData.value;
+
+            delete hashParams.clickedElement;
+            nmwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
+        }
+    }
 
     function getFlowListConfig(viewConfig) {
         return {

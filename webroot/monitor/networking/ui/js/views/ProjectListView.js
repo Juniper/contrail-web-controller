@@ -5,22 +5,16 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model',
-    'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    'contrail-list-model'
+], function (_, ContrailView, ContrailListModel) {
     var ProjectListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig,
-                hashParams = viewConfig.hashParams,
-                fqName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                breadcrumbView = new BreadcrumbView();
+                contrailListModel = new ContrailListModel(getProjectListModelConfig());
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(fqName, function (selectedValueData, domainBreadcrumbChanged) {
-                var contrailListModel = new ContrailListModel(getProjectListModelConfig());
-                self.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
-            });
+            self.renderView4Config(self.$el, contrailListModel, getProjectListViewConfig());
         }
     });
 

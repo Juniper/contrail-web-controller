@@ -5,29 +5,21 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model',
-    'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    'contrail-list-model'
+], function (_, ContrailView, ContrailListModel) {
     var NetworkListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
-            var self = this, viewConfig = this.attributes.viewConfig,
-                hashParams = viewConfig.hashParams,
-                urlProjectFQN = (contrail.checkIfKeyExistInObject(true, hashParams, 'project') ? hashParams.project : null),
-                breadcrumbView = new BreadcrumbView();
+            var self = this,
+                viewConfig = this.attributes.viewConfig,
+                domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectSelectedValueData = viewConfig.projectSelectedValueData,
+                projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
+                contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN));
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(urlProjectFQN, function (domainSelectedValueData, domainBreadcrumbChanged) {
-                var domainFQN = domainSelectedValueData.name;
-
-                breadcrumbView.renderProjectBreadcrumbDropdown(urlProjectFQN, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    var projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
-                        contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN));
-
-                    self.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
-                    nmwgrc.setProject4NetworkListURLHashParams(projectFQN);
-                }, null, { addAllDropdownOption: true });
-            });
+            self.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
+            nmwgrc.setProject4NetworkListURLHashParams(projectFQN);
         }
     });
 

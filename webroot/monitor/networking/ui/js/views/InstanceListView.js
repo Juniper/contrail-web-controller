@@ -5,56 +5,41 @@
 define([
     'underscore',
     'contrail-view',
-    'contrail-list-model',
-    'monitor/networking/ui/js/views/BreadcrumbView'
-], function (_, ContrailView, ContrailListModel, BreadcrumbView) {
+    'contrail-list-model'
+], function (_, ContrailView, ContrailListModel) {
     var InstanceListView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig,
-                hashParams = viewConfig.hashParams,
-                urlProjectFQN = (contrail.checkIfKeyExistInObject(true, hashParams, 'project') ? hashParams.project : null),
-                urlNetworkFQN = (contrail.checkIfKeyExistInObject(true, hashParams, 'network') ? hashParams.network : null),
-                breadcrumbView = new BreadcrumbView();
+                networkSelectedValueData = viewConfig.networkSelectedValueData,
+                domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                projectSelectedValueData = $('#' + ctwl.PROJECTS_BREADCRUMB_DROPDOWN).data('contrailDropdown').getSelectedData(),
+                projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
+                projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
+                contrailListModel;
 
-            breadcrumbView.renderDomainBreadcrumbDropdown(urlProjectFQN, function (domainSelectedValueData, domainBreadcrumbChanged) {
-                var domainFQN = domainSelectedValueData.name;
+            if(projectUUID != null) {
+                var networkUUID = (networkSelectedValueData.value === 'all') ? null : networkSelectedValueData.value,
+                    networkFQN = (networkSelectedValueData.value === 'all') ? null : projectFQN + ':' + networkSelectedValueData.name,
+                    parentUUID = (networkUUID == null) ? projectUUID : networkUUID,
+                    parentFQN = (networkUUID == null) ? projectFQN : networkFQN,
+                    parentType = (networkUUID == null) ? ctwc.TYPE_PROJECT : ctwc.TYPE_VN,
+                    parentHashtype = (networkUUID == null) ? ctwc.TYPE_PROJECT : ctwc.TYPE_NETWORK,
+                    extendedHashOb = {};
 
-                breadcrumbView.renderProjectBreadcrumbDropdown(urlProjectFQN, function (projectSelectedValueData, projectBreadcrumbChanged) {
-                    var projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
-                        projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
-                        contrailListModel;
+                contrailListModel = new ContrailListModel(getInstanceListModelConfig(parentUUID, parentType));
 
-                    if(projectUUID != null) {
-                        breadcrumbView.renderNetworkBreadcrumbDropdown(urlNetworkFQN, function (networkSelectedValueData) {
-                            var networkUUID = (networkSelectedValueData.value === 'all') ? null : networkSelectedValueData.value,
-                                networkFQN = (networkSelectedValueData.value === 'all') ? null : projectFQN + ':' + networkSelectedValueData.name,
-                                parentUUID = (networkUUID == null) ? projectUUID : networkUUID,
-                                parentFQN = (networkUUID == null) ? projectFQN : networkFQN,
-                                parentType = (networkUUID == null) ? ctwc.TYPE_PROJECT : ctwc.TYPE_VN,
-                                parentHashtype = (networkUUID == null) ? ctwc.TYPE_PROJECT : ctwc.TYPE_NETWORK,
-                                extendedHashOb = {};
+                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                extendedHashOb[parentHashtype] = parentFQN;
+                nmwgrc.setNetwork4InstanceListURLHashParams(extendedHashOb);
 
-                            contrailListModel = new ContrailListModel(getInstanceListModelConfig(parentUUID, parentType));
+            } else {
+                contrailListModel = new ContrailListModel(getInstanceListModelConfig(null, null));
 
-                            self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
-                            extendedHashOb[parentHashtype] = parentFQN;
-                            nmwgrc.setNetwork4InstanceListURLHashParams(extendedHashOb);
-
-                        }, null, { addAllDropdownOption: true });
-
-                    } else {
-                        contrailListModel = new ContrailListModel(getInstanceListModelConfig(null, null));
-
-                        self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
-                        nmwgrc.setNetwork4InstanceListURLHashParams({});
-                    }
-
-
-
-                }, null, { addAllDropdownOption: true });
-            });
+                self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
+                nmwgrc.setNetwork4InstanceListURLHashParams({});
+            }
         }
     });
 
