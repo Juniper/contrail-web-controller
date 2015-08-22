@@ -234,6 +234,7 @@ define([
         this.INSTANCE_PORT_HEAT_CHART_ID = "instance-port-heat-chart";
         this.INSTANCE_INTERFACE_GRID_ID = "instance-interface-grid";
         this.INSTANCE_INTERFACE_ID = "instance-interface";
+        this.INSTANCE_BREADCRUMB_TEXT = "instance-breadcrumb-text";
 
         this.NETWORKING_GRAPH_ID = "networking-graph";
         this.GRAPH_CONNECTED_ELEMENTS_ID = "graph-connected-elements";
