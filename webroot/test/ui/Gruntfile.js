@@ -12,7 +12,7 @@ module.exports = function (grunt) {
     grunt.option('stack', true);
 
     var commonFiles = [
-        {pattern: 'contrail-web-core/webroot/assets/**/*.js', included: false},
+        {pattern: 'contrail-web-core/webroot/assets/**/!(tests)/*.js', included: false},
 
         {pattern: 'contrail-web-core/webroot/assets/**/*.css', included: false},
         {pattern: 'contrail-web-core/webroot/css/**/*.css', included: false},
@@ -27,7 +27,8 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/assets/select2/styles/**/*.png', included: false},
         {pattern: 'contrail-web-core/webroot/css/**/*.gif', included: false},
 
-        {pattern: 'contrail-web-core/webroot/test/ui/**/*.js', included: false},
+        //Everything except library test suites and test files.
+        {pattern: 'contrail-web-core/webroot/test/ui/js/**/{!(*.test.js), !(*.lib.test.suite.js)}', included: false},
 
         {pattern: 'contrail-web-controller/webroot/test/ui/ct.test.app.js'},
         {pattern: 'contrail-web-controller/webroot/test/ui/*.js', included: false},
@@ -48,7 +49,7 @@ module.exports = function (grunt) {
         networklistview: {
             options: {
                 files: [
-                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListViewTest.js', included: false}
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.test.js', included: false}
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
