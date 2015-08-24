@@ -319,19 +319,24 @@ define([
                 modelMap = renderConfig['modelMap'],
                 rootView = renderConfig['rootView'],
                 viewPath =  viewPathPrefix + viewName,
+                onAllViewsRenderCompleteCB = renderConfig['onAllViewsRenderCompleteCB'],
                 onAllRenderCompleteCB = renderConfig['onAllRenderCompleteCB'],
+                lazyRenderingComplete  = renderConfig['lazyRenderingComplete'],
                 elementView;
 
             require([viewPath], function(ElementView) {
-                elementView = new ElementView({el: parentElement, model: model, attributes: viewAttributes, rootView: rootView, onAllRenderCompleteCB: onAllRenderCompleteCB});
+                elementView = new ElementView({el: parentElement, model: model, attributes: viewAttributes, rootView: rootView, onAllViewsRenderCompleteCB: onAllViewsRenderCompleteCB, onAllRenderCompleteCB: onAllRenderCompleteCB});
                 elementView.viewName = viewName;
                 elementView.modelMap = modelMap;
-                elementView.beginMyRendering();
+                elementView.beginMyViewRendering();
                 elementView.render();
                 if(contrail.checkIfFunction(renderCallback)) {
                     renderCallback(elementView);
                 }
-                elementView.endMyRendering()
+
+                if(lazyRenderingComplete == null || !lazyRenderingComplete) {
+                    elementView.endMyViewRendering();
+                }
             });
         };
     };

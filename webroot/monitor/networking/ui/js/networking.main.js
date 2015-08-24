@@ -8,13 +8,16 @@ function MonitorNetworkingLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = ctBaseDir + rootDir + '/js/views/MonitorNetworkingView.js',
-            renderFn = paramObject['function'];
+            pathMNView = ctBaseDir + '/monitor/networking/ui/js/views/MonitorNetworkingView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         require([pathMNView], function (MonitorNetworkingView) {
             self.mnView = new MonitorNetworkingView();
             self.renderView(renderFn, hashParams);
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
+            }
         });
     };
     this.renderView = function (renderFn, hashParams, view) {

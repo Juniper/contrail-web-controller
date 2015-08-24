@@ -188,25 +188,15 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Networking</label>
                     <iconClass>icon-sitemap</iconClass>
-                    <resources>
-                        <resource>
-                            <rootDir>/monitor/networking/ui</rootDir>
-                            <js>networking.main.js</js>
-                            <template>networking.tmpl</template>
-                            <class>mnPageLoader</class>
-                        </resource>
-                    </resources>
+                    <init>/monitor/networking/ui/js/nm.init.js</init>
                     <items>
                         <item>
                             <hash>mon_networking_dashboard</hash>
                             <label>Dashboard</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/networking/ui</rootDir>
-                                    <class>mnPageLoader</class>
-                                    <function>renderProjects</function>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderProjects</function>
+                            </loader>
                             <queryParams>
                                 <view>details</view>
                                 <type>project</type>
@@ -216,13 +206,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_networking_projects</hash>
                             <label>Projects</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/networking/ui</rootDir>
-                                    <class>mnPageLoader</class>
-                                    <function>renderProjects</function>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderProjects</function>
+                            </loader>
                             <queryParams>
                                 <view>list</view>
                                 <type>project</type>
@@ -232,13 +219,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_networking_networks</hash>
                             <label>Networks</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/networking/ui</rootDir>
-                                    <class>mnPageLoader</class>
-                                    <function>renderNetworks</function>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderNetworks</function>
+                            </loader>
                             <queryParams>
                                 <view>list</view>
                                 <type>network</type>
@@ -248,13 +232,10 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Instances</label>
                             <hash>mon_networking_instances</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/networking/ui</rootDir>
-                                    <class>mnPageLoader</class>
-                                    <function>renderInstances</function>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>mnPageLoader</class>
+                                <function>renderInstances</function>
+                            </loader>
                             <queryParams>
                                 <view>list</view>
                                 <type>instance</type>

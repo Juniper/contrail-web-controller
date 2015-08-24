@@ -6,34 +6,23 @@ define([
     'underscore',
     'controller-constants',
     'controller-labels',
-    'controller-utils', 'nm-utils',
+    'controller-utils',
     'controller-messages',
-    'controller-grid-config', 'nm-grid-config',
-    'controller-graph-config', 'nm-graph-config',
-    'controller-parsers', 'nm-parsers',
-    'controller-view-config', 'nm-view-config',
-    'lls-grid-config', 'lls-parsers'
-], function (_, Constants, Labels, Utils, NMUtils, Messages, GridConfig, NMGridConfig, GraphConfig, NMGraphConfig, Parsers, NMParsers, ViewConfig,
-             NMViewConfig, LLSGridConfig, LLSParsers) {
+    'controller-grid-config',
+    'controller-graph-config',
+    'controller-parsers',
+    'controller-view-config',
+    'lls-grid-config',
+    'lls-parsers'
+], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig, LLSGridConfig, LLSParsers) {
     ctwc = new Constants();
     ctwl = new Labels();
-
     ctwu = new Utils;
-    nmwu = new NMUtils;
-
     ctwm = new Messages();
-
     ctwgc = new GridConfig();
-    nmwgc = new NMGridConfig();
-
     ctwgrc = new GraphConfig();
-    nmwgrc = new NMGraphConfig();
-
     ctwp = new Parsers();
-    nmwp = new NMParsers();
-
     ctwvc = new ViewConfig();
-    nmwvc = new NMViewConfig();
 
     llswgc = new LLSGridConfig();
     llswp = new LLSParsers();
