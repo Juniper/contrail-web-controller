@@ -465,10 +465,12 @@ function initActions() {
 
         vnConfig["virtual-network"]["id_perms"] = {};
         vnConfig["virtual-network"]["id_perms"]["enable"] = JSON.parse($("#ddAdminState").data("contrailDropdown").value());
-        
+        var currentVn = jsonPath(configObj, "$.virtual-networks[?(@.fq_name[0]=='" + selectedDomain + "' && " +
+                        "@.fq_name[1]=='" + selectedProject + "' && @.fq_name[2]=='" + txtVNName.val().trim() + "')]");
+        if((currentVn instanceof Array) && currentVn.length === 1)
+           currentVn = currentVn[0]; 
         var policies = $("#msNetworkPolicies").data("contrailMultiselect").getSelectedData();
         if (policies && policies.length > 0) {
-            var currentVn = jsonPath(configObj, "$.virtual-networks[?(@.fq_name[2]=='" + txtVNName.val().trim() + "')]");
             vnConfig["virtual-network"]["network_policy_refs"] = [];
             for (var i = 0; i < policies.length; i++) {
                 vnConfig["virtual-network"]["network_policy_refs"][i] = {};
@@ -511,7 +513,10 @@ function initActions() {
             for (var i = 0; i < ipamTuples.length; i++) {
                 var id = getID(String($("#ipamTuples").children()[i].id));
                 var cidr = $("#ipamTuples_"+id+"_txtCIDR").val().trim();
-                var subnetuuidval = $("#ipamTuples_"+id+"_hiddenSubnetUUID").val().trim();
+                //var subnetuuidval = $("#ipamTuples_"+id+"_hiddenSubnetUUID").val().trim();
+                var subnetObj = JSON.parse($("#ipamTuples_"+id+"_hiddenSubnetUUID").val().trim());
+                var subnetuuidval = subnetObj.uuid;
+                var subnetname = subnetObj.name;
                 var currentIpam = $("#ipamTuples_"+id+"_ddSelIpam").data("contrailDropdown").value().trim();
                 var allocPoolVal = $("#ipamTuples_"+id+"_txtAllocPool").val().trim();
                 var enableDHCP = $("#ipamTuples_"+id+"_chkDHCP")[0].checked;
@@ -551,11 +556,11 @@ function initActions() {
                     }
                 }
                 if(ipamList.lastIndexOf(currentIpam) === -1) {
-                    mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:finalHR,dNSServert:finalDNSServer, subnetuuid:subnetuuidval});
+                    mgmtOptions.splice(i, 0, {IPAM: currentIpam, CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP,AllocPool:allocation_pools,addrStart : addrFromStart , hostRoute:finalHR,dNSServert:finalDNSServer, subnetuuid:subnetuuidval, subnetname: subnetname});
                     ipamList.splice(i, 0, currentIpam);
                 } else {
                     var lastPos = ipamList.lastIndexOf(currentIpam);
-                    mgmtOptions.splice(lastPos+1, 0, {IPAM: "", CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP , AllocPool:allocation_pools,addrStart : addrFromStart ,hostRoute:finalHR,dNSServert:finalDNSServer, subnetuuid:subnetuuidval});
+                    mgmtOptions.splice(lastPos+1, 0, {IPAM: "", CIDR:cidr, Gateway:currentGateway,EnableDHCP : enableDHCP , AllocPool:allocation_pools,addrStart : addrFromStart ,hostRoute:finalHR,dNSServert:finalDNSServer, subnetuuid:subnetuuidval, subnetname: subnetname});
                     ipamList.splice(lastPos+1, 0, currentIpam);
                 }
             }
@@ -574,6 +579,7 @@ function initActions() {
                 var allocation_pools = mgmtOptions[i].AllocPool;
                 var dnsServer = mgmtOptions[i].dNSServert;
                 var subnetuuid = mgmtOptions[i].subnetuuid;
+                var subnetname = mgmtOptions[i].subnetname;
 
                 if (ipam !== "") {
 
@@ -605,6 +611,8 @@ function initActions() {
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["dhcp_option_list"]["dhcp_option"] = dnsServer;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["allocation_pools"] = allocation_pools;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["subnet_uuid"] = subnetuuid;
+                    if(null !== subnetname && typeof subnetname !== "undefined" && "" !== subnetname.trim())
+                        vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["subnet_name"] = subnetname;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["addr_from_start"] = addFromStart;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["default_gateway"] = gateway;
                     vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][0]["host_routes"] = {};
@@ -622,6 +630,7 @@ function initActions() {
                     var hostRouteTemp = mgmtOptions[j].hostRoute;
                     var dnsServer = mgmtOptions[j].dNSServert;
                     var subnetuuid = mgmtOptions[j].subnetuuid;
+                    var subnetname = mgmtOptions[j].subnetname;
 
                     if (newIpam == "") {
                         i++;
@@ -639,6 +648,8 @@ function initActions() {
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["dhcp_option_list"]["dhcp_option"] = dnsServer;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["allocation_pools"] = allocation_pools;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["subnet_uuid"] = subnetuuid;
+                        if(null !== subnetname && typeof subnetname !== "undefined" && "" !== subnetname.trim())
+                            vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["subnet_name"] = subnetname;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["addr_from_start"] = addFromStart;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["default_gateway"] = gateway;
                         vnConfig["virtual-network"]["network_ipam_refs"][ipamIndex]["attr"]["ipam_subnets"][subnetLen]["host_routes"] = {};
@@ -744,6 +755,13 @@ function initActions() {
             if(null === vnConfig["virtual-network"]["virtual_network_properties"] ||
                 typeof vnConfig["virtual-network"]["virtual_network_properties"] === "undefined")
             vnConfig["virtual-network"]["virtual_network_properties"] = {};
+
+        if(mode === "edit" && currentVn.hasOwnProperty("virtual_network_properties") &&
+            currentVn["virtual_network_properties"].hasOwnProperty("rpf") && 
+            null  !== currentVn["virtual_network_properties"]["rpf"]) {
+            vnConfig["virtual-network"]["virtual_network_properties"]["rpf"] = 
+                currentVn["virtual_network_properties"]["rpf"];
+        }
 
         if(typeof fwdMode !== "undefined" && "" !== fwdMode) {
             vnConfig["virtual-network"]["virtual_network_properties"]
@@ -1153,7 +1171,7 @@ function createIPAMEntry(ipamBlock, id,element) {
     var hiddenTxtsubnetUUID = document.createElement("input");
     hiddenTxtsubnetUUID.setAttribute("type","hidden");
     hiddenTxtsubnetUUID.setAttribute("id",element+"_"+id+"_hiddenSubnetUUID");
-    hiddenTxtsubnetUUID.setAttribute("value",newUUID['hex']);
+    hiddenTxtsubnetUUID.setAttribute("value",JSON.stringify({"uuid":newUUID['hex'], "name":null}));
     var divsubnetuuid = document.createElement("div");
     divsubnetuuid.appendChild(hiddenTxtsubnetUUID);
     var inputTxtAlocPool = document.createElement("textarea");
@@ -1312,7 +1330,11 @@ function createIPAMEntry(ipamBlock, id,element) {
         chkDNS.checked = getDNSStatus(ipamBlock);
         inputcboxDhcp.checked = ipamBlock.DHCPEnabled;
         $(inputTxtAlocPool).val(ipamBlock.AlocPool);
-        $(hiddenTxtsubnetUUID).val(ipamBlock.subnetUUID);
+        var subnetObj = {
+            "uuid" : ipamBlock.subnetUUID,
+            "name" : ipamBlock.subnetName
+        };
+        $(hiddenTxtsubnetUUID).val(JSON.stringify(subnetObj));
         var temp_ipam = ipamBlock.IPAM.split(":")
         $(selectIpams).data("contrailDropdown").value((temp_ipam[0]+":"+temp_ipam[1]+":"+temp_ipam[2]));
         $(selectIpams).data("contrailDropdown").enable(false);
@@ -2674,6 +2696,21 @@ function showVNEditWindow(mode, rowIndex) {
                 var dnsServerAddresses = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.dns_server_address");
                 var dhcpOptionsList = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.dhcp_option_list");
                 var subnetUUIDList = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.subnet_uuid");
+                var subnetNameList = [];
+                var ipamRefs = jsonPath(selectedVN, "$.network_ipam_refs[*]");
+                if(false !== ipamRefs && ipamRefs.length >0) {
+                    for(var subnetCount=0; subnetCount<ipamRefs.length; subnetCount++) {
+                        var tmpIpam = ipamRefs[subnetCount];
+                        if(tmpIpam.hasOwnProperty("subnet")) {
+                            if(tmpIpam["subnet"].hasOwnProperty("subnet_name")) {
+                                subnetNameList[subnetNameList.length] = tmpIpam["subnet"]["subnet_name"];
+                            } else {
+                                subnetNameList[subnetNameList.length] = null;
+                            }
+                        }
+                    }
+                }
+
                 if (ipams && ipams.length > 0) {
                     var existing = [];
                     for (var i = 0; i < ipams.length; i++) {
@@ -2681,6 +2718,7 @@ function showVNEditWindow(mode, rowIndex) {
                         var ipam = ipams[i];
                         var gateway = gateways[i];
                         var subnetUUID = subnetUUIDList[i];
+                        var subnetName = subnetNameList[i];
                         var AlocPool="";
                         if(typeof alocPools[i] != null && typeof alocPools[i] != undefined && typeof alocPools[i] != "")
                             AlocPool = formatAlcPoolObj(alocPools[i]); 
@@ -2690,7 +2728,7 @@ function showVNEditWindow(mode, rowIndex) {
                         if(dhcpOptionsList[i] === false || (typeof dhcpOptionsList === "object" && dhcpOptionsList.length === 0)) {
                             dhcpOptionsList[i] = [];
                         }
-                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool, "DNSServerAddress":dnsServerAddresses[i], "DHCPOptionsList" : dhcpOptionsList[i], "subnetUUID":subnetUUID});
+                        existing.push({"IPBlock":ipblock, "IPAM":ipam.join(":"), "Gateway":gateway,"DHCPEnabled":DHCPEnabled[i],"AlocPool":AlocPool, "DNSServerAddress":dnsServerAddresses[i], "DHCPOptionsList" : dhcpOptionsList[i], "subnetUUID":subnetUUID, "subnetName": subnetName});
                     }
                     for(var k=0; k<existing.length; k++) {
                         dynamicID++;
@@ -2700,7 +2738,6 @@ function showVNEditWindow(mode, rowIndex) {
                     }
                 }
 
-                var ipamRefs = jsonPath(selectedVN, "$.network_ipam_refs[*]");
                 //Host Routes
                 var hostRoutPrifixArr = createUniqueHostRout(ipamRefs);
                 for(var hrInc = 0;hrInc <hostRoutPrifixArr.length;hrInc++){

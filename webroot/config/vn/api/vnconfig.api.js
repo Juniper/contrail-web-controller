@@ -182,6 +182,10 @@ function parseVNSubnets (error, vnConfig, callback)
                 }*/
 
                 nwIpamRefsClone[k]['subnet']['subnet_uuid'] = ipamSubnets[j]['subnet_uuid'];
+                if(null !== ipamSubnets[j]['subnet_name'] ||
+                    typeof ipamSubnets[j]['subnet_name'] !== "undefined")
+                    nwIpamRefsClone[k]['subnet']['subnet_name'] = ipamSubnets[j]['subnet_name'];
+
                 nwIpamRefsClone[k]['subnet']['ipam'] = nwIpamRefs[i]['to'];
                 k++;
             }
@@ -882,6 +886,11 @@ function updateVNPolicyRefs (vnConfig, response, appData)
         typeof vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'] !== "undefined") {
         vnConfig['virtual-network']['virtual_network_properties']['forwarding_mode'] =
         vnPutData['virtual-network']['virtual_network_properties']['forwarding_mode'];
+    }
+    if(null !== vnPutData['virtual-network']['virtual_network_properties']['rpf'] &&
+        typeof vnPutData['virtual-network']['virtual_network_properties']['rpf'] !== "undefined") {
+        vnConfig['virtual-network']['virtual_network_properties']['rpf'] =
+        vnPutData['virtual-network']['virtual_network_properties']['rpf'];
     }
 
     vnConfig['virtual-network']['route_target_list'] = {};
