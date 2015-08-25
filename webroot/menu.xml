@@ -548,7 +548,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <rootDir>/common/ui</rootDir>
                                 </resource>
                                 <resource>
-                                    <rootDir>/config/linklocalservices/ui</rootDir>
+                                    <rootDir>/config/infra/linklocalservices/ui</rootDir>
                                     <js>linkLocalServices.main.js</js>
                                     <class>linkLocalServicesPageLoader</class>
                                     <function>renderLinkLocalServices</function>

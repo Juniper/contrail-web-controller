@@ -3,7 +3,7 @@
  */
 
 var ctwu, ctwc, cowch, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
-    nmwu, nmwgc, nmwgrc, nmwp, nmwvc, llswgc, llswp;
+    nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
 
 require.config({
     baseUrl: ctBaseDir,
@@ -18,9 +18,6 @@ require.config({
         'controller-parsers': ctBaseDir + '/common/ui/js/controller.parsers',
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
         'controller-init': ctBaseDir + '/common/ui/js/controller.init',
-
-        'lls-grid-config': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.grid.config',
-        'lls-parsers': ctBaseDir + '/config/linklocalservices/ui/js/linkLocalServices.parsers',
         'monitor-infra-confignode-model' :
             'monitor/infrastructure/common/ui/js/models/'+
             'ConfigNodeListModel',

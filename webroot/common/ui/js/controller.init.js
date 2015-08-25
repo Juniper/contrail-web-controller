@@ -12,9 +12,7 @@ define([
     'controller-graph-config',
     'controller-parsers',
     'controller-view-config',
-    'lls-grid-config',
-    'lls-parsers'
-], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig, LLSGridConfig, LLSParsers) {
+], function (_, Constants, Labels, Utils, Messages, GridConfig, GraphConfig, Parsers, ViewConfig) {
     ctwc = new Constants();
     ctwl = new Labels();
     ctwu = new Utils;
@@ -23,9 +21,6 @@ define([
     ctwgrc = new GraphConfig();
     ctwp = new Parsers();
     ctwvc = new ViewConfig();
-
-    llswgc = new LLSGridConfig();
-    llswp = new LLSParsers();
 
     var deferredObj = contentHandler.initFeatureAppDefObjMap[FEATURE_PCK_WEB_CONTROLLER];
 
