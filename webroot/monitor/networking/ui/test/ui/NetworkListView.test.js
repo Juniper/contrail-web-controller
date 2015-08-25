@@ -2,13 +2,14 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'co-unit-test',
+    'co-test-unit',
     'ct-test-utils',
     'ct-test-messages',
-    'network-list-view-mockdata',
-    'co-test-grid-listmodel',
-    'co-test-grid-gridview'
-], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'network-list-view-mock-data',
+    'co-grid-contrail-list-model-test-suite',
+    'co-grid-view-test-suite',
+    'network-list-view-custom-test-suite'
+], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, CustomTestSuite) {
 
     var moduleId = cttm.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE;
 
@@ -73,7 +74,12 @@ define([
                                     gridDataParseFn: cttu.deleteSizeField
                                 }
                             }
-                        }
+                        },
+                        {
+                            class: CustomTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        },
                     ]
                 }
             ]
@@ -83,6 +89,6 @@ define([
 
     var pageTestConfig = CUnit.createPageTestConfig(moduleId, fakeServerConfig, pageConfig, getTestConfig);
 
-    CUnit.testRunnerStart(pageTestConfig);
+    CUnit.startTestRunner(pageTestConfig);
 
 });
