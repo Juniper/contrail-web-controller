@@ -44,6 +44,16 @@ define([
         }
     };
 
+    function showHideModelAttr (linkLocalServicesModel)
+    {
+        linkLocalServicesModel.showIP = ko.computed((function() {
+            return ('IP' == this.lls_fab_address_ip()) ? true : false;
+        }), linkLocalServicesModel);
+        linkLocalServicesModel.showDNS = ko.computed((function() {
+            return ('DNS' == this.lls_fab_address_ip()) ? true : false;
+        }), linkLocalServicesModel);
+    }
+
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
             var dataItem =
@@ -54,14 +64,7 @@ define([
             var self = this;
 
             var linkLocalServicesModel = new LinkLocalServicesModel(dataItem);
-
-            linkLocalServicesModel.showIp = ko.computed((function() {
-                return ('IP' == this.lls_fab_address_ip()) ? true : false;
-            }), linkLocalServicesModel);
-            linkLocalServicesModel.showDns = ko.computed((function() {
-                return ('DNS' == this.lls_fab_address_ip()) ? true : false;
-            }), linkLocalServicesModel);
-
+            showHideModelAttr(linkLocalServicesModel);
             linkLocalServicesEditView.model = linkLocalServicesModel;
             linkLocalServicesEditView.renderEditLinkLocalServices({
                                   "title": ctwl.TITLE_EDIT_LLS +
@@ -229,14 +232,7 @@ define([
                     var configData = $(gridElId).data('configObj');
 
                     var linkLocalServicesModel = new LinkLocalServicesModel();
-
-                    linkLocalServicesModel.showIp = ko.computed(function() {
-                        return ('IP' == this.lls_fab_address_ip()) ? true : false;
-                    }, linkLocalServicesModel);
-                    linkLocalServicesModel.showDns = ko.computed(function() {
-                        return ('DNS' == this.lls_fab_address_ip()) ? true : false;
-                    }, linkLocalServicesModel);
-
+                    showHideModelAttr(linkLocalServicesModel);
                     linkLocalServicesEditView.model = linkLocalServicesModel;
                     linkLocalServicesEditView.renderAddLinkLocalServices({
                                               "title": ctwl.TITLE_CREATE_LLS,

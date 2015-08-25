@@ -4,8 +4,9 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
+    'contrail-model',
+    'config/linklocalservices/ui/js/models/IpFabricAddressModel'
+], function (_, ContrailModel, IpFabricAddressModel) {
     var LinkLocalServicesModel = ContrailModel.extend({
         defaultConfig: {
             'ip_fabric_DNS_service_name': "",
@@ -15,7 +16,6 @@ define([
             'lls_fab_address_ip': "IP",
             'ip_fabric_service_port': null,
             'ip_fabric_service_ip': [],
-            'def_visible': true
         },
         validateAttr: function(attributePath, validation, data) {
             var needValidate = true;
@@ -65,13 +65,17 @@ define([
                     max: 65535,
                     pattern: 'number',
                 },
-                'ip_fabric_service_ip': {
-                    required: false,
-                    pattern: cowc.PATTERN_IP_ADDRESS,
-                },
-                'ip_fabric_DNS_service_name': {
-                    required: false,
-                    pattern: cowc.PATTERN_IP_ADDRESS,
+                'ip_fabric_DNS_service_name': function(value, attr, obj) {
+                    if ('DNS' == obj['lls_fab_address_ip']) {
+                        if (value.trim() === "") {
+                            return "DNS Service IP is required";
+                        }
+                        return
+                            Backbone.Validation.validators.pattern(value,
+                                                                   attr,
+                                                                   cowc.PATTERN_IP_ADDRESS,
+                                                                   this);
+                    }
                 },
                 'ip_fabric_service_port': {
                     required: true,
@@ -81,87 +85,126 @@ define([
                 }
             }
         },
+        formatModelConfig: function (modelConfig) {
+            console.log("Getting modelConfig as:", modelConfig);
+            var ipFabricAddrModel;
+            var ipFabricAddrModels = [];
+            var ipFabricAddrCollectionModel;
+            var ipFabServIps = modelConfig['ip_fabric_service_ip'].length;
+            for (var i = 0; i < ipFabServIps; i++) {
+                ipFabricAddrModel =
+                    new IpFabricAddressModel({
+                        ip_fabric_service_ip:
+                            modelConfig['ip_fabric_service_ip'][i]
+                    });
+                ipFabricAddrModels.push(ipFabricAddrModel);
+            }
+            ipFabricAddrCollectionModel = new
+                Backbone.Collection(ipFabricAddrModels);
+            modelConfig['ipFabAddresses'] = ipFabricAddrCollectionModel;
+            if (null != modelConfig['ip_fabric_service_ip']) {
+                delete modelConfig['ip_fabric_service_ip'];
+            }
+            return modelConfig;
+        },
+        getFabAddressList : function(attr) {
+            var addrCollection = attr.ipFabAddresses.toJSON(),
+                addrArray = [], addrAttributes;
+            var addrCnt = addrCollection.length;
+            for(var i = 0; i < addrCnt; i++) {
+                addrArray.push(addrCollection[i].ip_fabric_service_ip());
+            }
+            return addrArray;
+        },
+        addAddress: function() {
+            var fabAddres = this.model().attributes['ipFabAddresses'],
+                newFabAddr = new IpFabricAddressModel({ip_fabric_service_ip: ""});
+            fabAddres.add([newFabAddr]);
+        },
+        deleteAddress: function(data, kbInterface) {
+            var addrCollection = data.model().collection,
+                fabAddr = kbInterface.model();
+            addrCollection.remove(fabAddr);
+        },
         configureLinkLocalServices: function (rowIndex, putData, gridData,
                                               callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
 
             if (this.model().isValid(true, "llsConfigValidations")) {
-            var locks = this.model().attributes.locks.attributes;
-            var uuid = putData['global-vrouter-config']['uuid'];
-            var newLLSData = this.model().attributes;
+                var locks = this.model().attributes.locks.attributes;
+                var uuid = putData['global-vrouter-config']['uuid'];
+                var newLLSData = this.model().attributes;
 
-            if (!(newLLSData['ip_fabric_service_ip'] instanceof Array)) {
                 newLLSData['ip_fabric_service_ip'] =
-                    [newLLSData['ip_fabric_service_ip']];
-            }
-            newLLSData['ip_fabric_service_port'] =
-                parseInt(newLLSData['ip_fabric_service_port']);
-            newLLSData['linklocal_service_port'] =
-                parseInt(newLLSData['linklocal_service_port']);
-            if (newLLSData['lls_fab_address_ip'] == 'DNS') {
-                newLLSData['ip_fabric_service_ip'] = [];
-            } else {
-                newLLSData['ip_fabric_DNS_service_name'] = "";
-            }
-
-            ajaxConfig = {};
-            if (null == gridData) {
-                gridData = [];
-            }
-            if (-1 == rowIndex) {
-                /* Add */
-                gridData.push(newLLSData);
-                putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'] = gridData;
-            } else {
-                /* Edit */
-                putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'] = gridData;
-                putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][rowIndex] = newLLSData;
-            }
-            var dataLen =
-                putData['global-vrouter-config']['linklocal_services']
-                ['linklocal_service_entry'].length;
-            for (var i = 0; i < dataLen; i++) {
-                delete
-                    putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][i]['cgrid'];
-                delete
-                    putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][i]['lls_fab_address_ip'];
-                delete
-                    putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][i]['errors'];
-                delete
-                    putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][i]['locks'];
-                delete
-                    putData['global-vrouter-config']['linklocal_services']
-                    ['linklocal_service_entry'][i]['def_visible'];
-            }
-            ajaxConfig.async = false;
-            ajaxConfig.type = "PUT";
-            ajaxConfig.data = JSON.stringify(putData);
-            ajaxConfig.url = '/api/tenants/config/global-vrouter-config/' +
-                uuid + '/link-local-services';
-            contrail.ajaxHandler(ajaxConfig, function () {
-                if (contrail.checkIfFunction(callbackObj.init)) {
-                    callbackObj.init();
+                    this.getFabAddressList(newLLSData);
+                newLLSData['ip_fabric_service_port'] =
+                    parseInt(newLLSData['ip_fabric_service_port']);
+                newLLSData['linklocal_service_port'] =
+                    parseInt(newLLSData['linklocal_service_port']);
+                if (newLLSData['lls_fab_address_ip'] == 'DNS') {
+                    newLLSData['ip_fabric_service_ip'] = [];
+                } else {
+                    newLLSData['ip_fabric_DNS_service_name'] = "";
                 }
-            }, function (response) {
-                 console.log(response);
-                 if (contrail.checkIfFunction(callbackObj.success)) {
-                     callbackObj.success();
-                 }
-                 returnFlag = true;
-            }, function (error) {
-                 console.log(error);
-                 if (contrail.checkIfFunction(callbackObj.error)) {
-                     callbackObj.error(error);
-                 }
-                 returnFlag = false;
-            });
+
+                ajaxConfig = {};
+                if (null == gridData) {
+                    gridData = [];
+                }
+                if (-1 == rowIndex) {
+                    /* Add */
+                    gridData.push(newLLSData);
+                    putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'] = gridData;
+                } else {
+                    /* Edit */
+                    putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'] = gridData;
+                    putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][rowIndex] = newLLSData;
+                }
+                var dataLen =
+                    putData['global-vrouter-config']['linklocal_services']
+                    ['linklocal_service_entry'].length;
+                for (var i = 0; i < dataLen; i++) {
+                    delete
+                        putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][i]['cgrid'];
+                    delete
+                        putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][i]['lls_fab_address_ip'];
+                    delete
+                        putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][i]['errors'];
+                    delete
+                        putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][i]['locks'];
+                    delete
+                        putData['global-vrouter-config']['linklocal_services']
+                        ['linklocal_service_entry'][i]['ipFabAddresses'];
+                }
+                ajaxConfig.async = false;
+                ajaxConfig.type = "PUT";
+                ajaxConfig.data = JSON.stringify(putData);
+                ajaxConfig.url = '/api/tenants/config/global-vrouter-config/' +
+                    uuid + '/link-local-services';
+                contrail.ajaxHandler(ajaxConfig, function () {
+                    if (contrail.checkIfFunction(callbackObj.init)) {
+                        callbackObj.init();
+                    }
+                }, function (response) {
+                    console.log(response);
+                    if (contrail.checkIfFunction(callbackObj.success)) {
+                        callbackObj.success();
+                    }
+                    returnFlag = true;
+                }, function (error) {
+                    console.log(error);
+                    if (contrail.checkIfFunction(callbackObj.error)) {
+                        callbackObj.error(error);
+                    }
+                    returnFlag = false;
+                });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText(ctwl.LINK_LOCAL_SERVICES_PREFIX_ID));

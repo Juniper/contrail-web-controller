@@ -8,6 +8,9 @@ define([
     'contrail-list-model',
     'config/linklocalservices/ui/js/models/LinkLocalServicesModel'
 ], function (_, ContrailView, ContrailListModel, LinkLocalServicesModel) {
+    var configObj = {};
+    var gridElId = '#' + ctwl.LINK_LOCAL_SERVICES_GRID_ID;
+
     var LinkLocalServicesListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
@@ -22,15 +25,18 @@ define([
                     dataParser: function(response){
                         var linkLocalServicesModel = new
                             LinkLocalServicesModel();
-                        var gridElId = '#' + ctwl.LINK_LOCAL_SERVICES_GRID_ID;
-                        $(gridElId).data('configObj', response);
+                        configObj = response;
                         return llswp.llsDataParser(response)
                     }
                 }
             };
 
             var contrailListModel = new ContrailListModel(listModelConfig);
-            self.renderView4Config(this.$el, contrailListModel, getLinkLocalServicesViewConfig());
+            self.renderView4Config(this.$el, contrailListModel,
+                                   getLinkLocalServicesViewConfig(), null, null,
+                                   null, function() {
+                $(gridElId).data('configObj', configObj);
+            });
         }
     });
 
