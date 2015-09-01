@@ -14,7 +14,7 @@ define([
             var self = this, viewConfig = this.attributes.viewConfig,
                 networkSelectedValueData = viewConfig.networkSelectedValueData,
                 domainFQN = contrail.getCookie(cowc.COOKIE_DOMAIN),
-                projectSelectedValueData = $('#' + ctwl.PROJECTS_BREADCRUMB_DROPDOWN).data('contrailDropdown').getSelectedData(),
+                projectSelectedValueData = $('#' + ctwl.PROJECTS_BREADCRUMB_DROPDOWN).data('contrailDropdown').getSelectedData()[0],
                 projectUUID = (projectSelectedValueData.value === 'all') ? null : projectSelectedValueData.value,
                 projectFQN = (projectSelectedValueData.value === 'all') ? null : domainFQN + ':' + projectSelectedValueData.name,
                 contrailListModel;

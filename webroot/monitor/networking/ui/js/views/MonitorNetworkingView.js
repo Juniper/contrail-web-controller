@@ -179,7 +179,7 @@ define([
                 modelConfig: ctwu.getDomainListModelConfig(),
                 dropdownOptions: dropdownOptions
             }
-        }
+        };
     }
 
     function getProjectBreadcrumbDropdownViewConfig(hashParams, customProjectDropdownOptions) {
