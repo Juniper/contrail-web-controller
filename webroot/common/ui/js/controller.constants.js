@@ -423,6 +423,23 @@ define([
             {'value' : 'embedded', "text" : 'Embedded'},
             {'value' : 'torAgent', "text" : 'TOR Agent'}
         ];
+        
+
+        // VRouter Config Constants
+        this.URL_CFG_VROUTER_DETAILS =
+            '/api/tenants/config/virtual-routers-detail';
+
+        // IPAM Config Constants
+        this.URL_CFG_IPAM_DETAILS =
+            '/api/tenants/config/ipam-details';
+
+        // FIP Config Constants
+        this.URL_CFG_FIP_DETAILS =
+            '/api/tenants/config/floating-ips';
+        
+        // Service Template Config Constants
+        this.URL_CFG_SVC_TEMPLATE_DETAILS =
+            '/api/tenants/config/service-templates';
     };
 
     //str will be [0-9]+(m|h|s|d)

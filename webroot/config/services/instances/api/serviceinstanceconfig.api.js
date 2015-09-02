@@ -20,7 +20,7 @@ var global = require(process.mainModule.exports["corePath"] + '/src/serverroot/c
 var appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors');
 var util = require('util');
-var serviceTemplate = require('../../template/api/servicetemplateconfig.api.js');
+var serviceTemplate = require('../../templates/api/servicetemplateconfig.api.js');
 var computeApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/computemanager.api');
 var authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
 var crypto = require('crypto');
