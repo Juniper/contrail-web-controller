@@ -188,6 +188,94 @@ define([
                 layoutHandler.setURLHashParams(hashParams, {p: 'mon_networking_networks'});
             }
         };
+
+        self.getDomainBreadcrumbDropdownViewConfig = function (hashParams, customDomainDropdownOptions) {
+            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+                defaultDropdownoptions = {
+                    urlValue: (urlValue !== null) ? urlValue.split(':').splice(0,1).join(':') : null,
+                    cookieKey: cowc.COOKIE_DOMAIN
+                },
+                dropdownOptions = $.extend(true, {}, defaultDropdownoptions, customDomainDropdownOptions);
+
+            return {
+                elementId: ctwl.DOMAINS_BREADCRUMB_DROPDOWN,
+                view: "BreadcrumbDropdownView",
+                viewConfig: {
+                    modelConfig: ctwu.getDomainListModelConfig(),
+                    dropdownOptions: dropdownOptions
+                }
+            };
+        };
+
+        self.getProjectBreadcrumbDropdownViewConfig = function(hashParams, customProjectDropdownOptions) {
+            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
+
+            return function(domainSelectedValueData) {
+                var domain = domainSelectedValueData.name,
+                    defaultDropdownOptions = {
+                        urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
+                        cookieKey: cowc.COOKIE_PROJECT
+                    },
+                    dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customProjectDropdownOptions);
+
+                return {
+                    elementId: ctwl.PROJECTS_BREADCRUMB_DROPDOWN,
+                    view: "BreadcrumbDropdownView",
+                    viewConfig: {
+                        modelConfig: ctwu.getProjectListModelConfig(domain),
+                        dropdownOptions: dropdownOptions
+                    }
+                }
+            };
+        };
+
+        self.getNetworkBreadcrumbDropdownViewConfig = function(hashParams, customNetworkDropdownOptions) {
+            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
+                defaultDropdownOptions = {
+                    urlValue: (urlValue !== null) ? urlValue.split(':').splice(2, 1).join(':') : null,
+                    cookieKey: cowc.COOKIE_VIRTUAL_NETWORK
+                },
+                dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customNetworkDropdownOptions);
+
+            return function(projectSelectedValueData) {
+                var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
+                    projectFQN = domain + ':' + projectSelectedValueData.name,
+                    modelConfig = (projectSelectedValueData.value === 'all') ? null : ctwu.getNetworkListModelConfig(projectFQN);
+                return {
+                    elementId: ctwl.NETWORKS_BREADCRUMB_DROPDOWN,
+                    view: "BreadcrumbDropdownView",
+                    viewConfig: {
+                        modelConfig: modelConfig,
+                        dropdownOptions: dropdownOptions
+                    }
+                };
+            }
+        };
+
+        self.getInstanceBreadcrumbTextViewConfig = function(hashParams, customInstanceTextOptions) {
+            var instanceUUID = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.uuid')) ? hashParams.focusedElement.uuid : null,
+                vmName = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.vmName')) ? hashParams.focusedElement.vmName : null,
+                urlValue = (contrail.checkIfExist(vmName) && vmName != "") ? vmName : instanceUUID;
+
+
+            return function(networkSelectedValueData) {
+                var defaultTextOptions = {
+                        urlValue: (urlValue !== null) ? urlValue : null,
+                        parentViewParams: {
+                            networkSelectedValueData: networkSelectedValueData
+                        }
+                    },
+                    textOptions = $.extend(true, {}, defaultTextOptions, customInstanceTextOptions);
+
+                return {
+                    elementId: ctwl.INSTANCE_BREADCRUMB_TEXT,
+                    view: "BreadcrumbTextView",
+                    viewConfig: {
+                        textOptions: textOptions
+                    }
+                };
+            }
+        };
     };
 
     function getInstanceCPUMemModelConfig(networkFQN, instanceUUID) {
