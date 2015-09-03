@@ -2,7 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] +
@@ -15,12 +16,14 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
     urlMod = require('url'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
     queries = require(process.mainModule.exports["corePath"] +
                       '/src/serverroot/common/queries.api'),
     ctrlGlobal = require('../../../../common/api/global'),
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,
@@ -74,7 +77,7 @@ function getDatabaseNodesSummary (req, res, appData)
     reqUrl = '/database-nodes?detail=true';
     commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
                              configApiServer, null, appData);
-    
+
     var resultJSON = [];
 
     async.map(dataObjArr,
@@ -87,12 +90,13 @@ function getDatabaseNodesSummary (req, res, appData)
         } catch(e) {
             nodeCnt = 0;
         }
-       
+
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
 }
 
-function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs, configData, host)
+function parseDatabaseNodeProcessUVEs (resultJSON, databaseProcessUVEs,
+                                        configData, host)
 {
     if ((null != configData) && (configData.length > 0)) {
         var confLen = configData.length;
@@ -196,7 +200,7 @@ function postProcessDatabaseNodeSummary (dbUVEData)
         }
     }
     for (key in tmpConfigObjs) {
-        
+
         resultJSON.push({
                 name:key,
                 value: {

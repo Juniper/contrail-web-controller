@@ -2,27 +2,34 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     adminapi = module.exports,
-    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    logutils = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/utils/log.utils'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
-    global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
+    messages = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/messages'),
+    global = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/global'),
     appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     util = require('util'),
     async = require('async'),
     qs = require('querystring'),
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
-    jobsApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/jobs/core/jobs.api'),
+    jobsApi = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/jobs/core/jobs.api'),
     jsonPath = require('JSONPath').eval,
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
-    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    configApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/configServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
     _ = require('underscore'),
-    bgpNode = require('../../controlnode/jobs//controlnode.jobs.api');
+    bgpNode = require('../../controlnode/jobs/controlnode.jobs.api');
 
 computeNode = module.exports;
 
@@ -32,20 +39,20 @@ function getVNByVRF (vrfName, vnList)
     var pos = -1;
     try {
         var len = vnList.length;
-	    for (var i = 0; i < len; i++) {
-	        vrf = vnList[i]['vrf_name'][0]['_'];
-	        pos = vrf.indexOf(vrfName);
-	        if (pos != -1) {
-	            break;
-	        } else {
-	            continue;
-	        }
-	    }
-	    if (i == len) {
-	       return global.RESP_DATA_NOT_AVAILABLE;
-	    }
-	    /* TODO: Check how we can get instance */
-	    return {'VN': vnList[i]['name'][0]['_'], 'instance': global.RESP_DATA_NOT_AVAILABLE};
+    for (var i = 0; i < len; i++) {
+        vrf = vnList[i]['vrf_name'][0]['_'];
+        pos = vrf.indexOf(vrfName);
+        if (pos != -1) {
+            break;
+        } else {
+            continue;
+        }
+    }
+    if (i == len) {
+       return global.RESP_DATA_NOT_AVAILABLE;
+    }
+    /* TODO: Check how we can get instance */
+    return {'VN': vnList[i]['name'][0]['_'], 'instance': global.RESP_DATA_NOT_AVAILABLE};
     } catch (e) {
         return {'VN': global.RESP_DATA_NOT_AVAILABLE, 'instance': global.RESP_DATA_NOT_AVAILABLE};
     }
@@ -84,15 +91,15 @@ function fillFipListPerInterface (fipListEntry, results, lastIndex)
 
     for (var i = 0; i < fipCount; i++) {
         j = i + lastIndex;
-        results[j] = {}; 
+        results[j] = {};
         try {
-            results[j]['ip_addr'] = 
+            results[j]['ip_addr'] =
                 commonUtils.getSafeDataToJSONify(fipListEntry[i]['ip_addr'][0]['_']);
         } catch(e) {
             results[j]['ip_addr'] = global.RESP_DATA_NOT_AVAILABLE;
-        }   
+        }
         try {
-            results[j]['vrf_name'] = 
+            results[j]['vrf_name'] =
                 commonUtils.getSafeDataToJSONify(fipListEntry[i]['vrf_name'][0]['_']);
         } catch(e) {
             results[j]['vrf_name'] = global.RESP_DATA_NOT_AVAILABLE;
@@ -117,40 +124,40 @@ function parseComputeNodeInterfaceDetails (data, results, lastIndex)
         }
         j = (index++) + lastIndex;
         results[j] = {};
-        
+
         try {
-            results[j]['name'] = 
+            results[j]['name'] =
                 commonUtils.getSafeDataToJSONify(data[i]['name'][0]['_']);
         } catch(e) {
             results[j]['name'] = global.RESP_DATA_NOT_AVAILABLE;
         }
         try {
-            results[j]['label'] = 
+            results[j]['label'] =
                 commonUtils.getSafeDataToJSONify(data[i]['label'][0]['_']);
         } catch(e) {
             results[j]['label'] = global.RESP_DATA_NOT_AVAILABLE;
         }
         try {
-            results[j]['status'] = 
-            (commonUtils.getSafeDataToJSONify(data[i]['active'][0]['_']) == 'Active') ? 
+            results[j]['status'] =
+            (commonUtils.getSafeDataToJSONify(data[i]['active'][0]['_']) == 'Active') ?
             'Up' : 'Down';
         } catch(e) {
             results[j]['status'] = global.RESP_DATA_NOT_AVAILABLE;
         }
         try {
-            results[j]['vn_name'] = 
+            results[j]['vn_name'] =
                 commonUtils.getSafeDataToJSONify(data[i]['vn_name'][0]['_']);
         } catch(e) {
             results[j]['vn_name'] = global.RESP_DATA_NOT_AVAILABLE;
         }
         try {
-            results[j]['instance'] = 
+            results[j]['instance'] =
                 commonUtils.getSafeDataToJSONify(data[i]['vm_uuid'][0]['_']);
         } catch(e) {
             results[j]['instance'] = global.RESP_DATA_NOT_AVAILABLE;
         }
         try {
-            results[j]['ip_addr'] = 
+            results[j]['ip_addr'] =
                 commonUtils.getSafeDataToJSONify(data[i]['ip_addr'][0]['_']);
         } catch(e) {
             results[j]['ip_addr'] = global.RESP_DATA_NOT_AVAILABLE;
@@ -166,7 +173,7 @@ function parseComputeNodeInterfaceDetails (data, results, lastIndex)
         }
         j++;
     }
-    return j;   
+    return j;
 }
 
 function parseComputeNodeAcl (results)
@@ -215,22 +222,22 @@ function parsevRouterAclEntries (data, aclData, lastIndex)
             continue;
         }
         try {
-	        for (var j = 0; j < aceListCount; j++) {
-	            aclData[idx]['aceList'][j] = {};
-	            try {
-	                aclData[idx]['aceList'][j]['ace_id'] = 
-	                   commonUtils.getSafeDataToJSONify(aceList[j]['ace_id'][0]['_']);
-	            } catch(e) {
-	                aclData[idx]['aceList'][j]['ace_id'] = global.RESP_DATA_NOT_AVAILABLE;
-	            }
+        for (var j = 0; j < aceListCount; j++) {
+            aclData[idx]['aceList'][j] = {};
+            try {
+                aclData[idx]['aceList'][j]['ace_id'] =
+                   commonUtils.getSafeDataToJSONify(aceList[j]['ace_id'][0]['_']);
+            } catch(e) {
+                aclData[idx]['aceList'][j]['ace_id'] = global.RESP_DATA_NOT_AVAILABLE;
+            }
                 try {
-                    aclData[idx]['aceList'][j]['dst'] = 
+                    aclData[idx]['aceList'][j]['dst'] =
                        commonUtils.getSafeDataToJSONify(aceList[j]['dst'][0]['_']);
                 } catch(e) {
                     aclData[idx]['aceList'][j]['dst'] = global.RESP_DATA_NOT_AVAILABLE;
                 }
                 try {
-                    aclData[idx]['aceList'][j]['src'] = 
+                    aclData[idx]['aceList'][j]['src'] =
                        commonUtils.getSafeDataToJSONify(aceList[j]['src'][0]['_']);
                 } catch(e) {
                     aclData[idx]['aceList'][j]['src'] = global.RESP_DATA_NOT_AVAILABLE;
@@ -263,42 +270,42 @@ function parsevRouterAclEntries (data, aclData, lastIndex)
                 for (var k = 0; k < proto_l_range_len; k++) {
                     aclData[idx]['aceList'][j]['rules'][k] = {};
                     try {
-	                    aclData[idx]['aceList'][j]['rules'][k]['proto_l'] =
-	                        commonUtils.getSafeDataToJSONify(proto_l_range[k]['SandeshRange'][0]['min'][0]['_'])
-	                         + " - " +
-	                        commonUtils.getSafeDataToJSONify(proto_l_range[k]['SandeshRange'][0]['max'][0]['_']);
-	                } catch(e) {
-	                    aclData[idx]['aceList'][j]['rules'][k]['proto_l'] =
-	                       global.RESP_DATA_NOT_AVAILABLE;
-	                } 
-	                try {
-	                    aclData[idx]['aceList'][j]['rules'][k]['src_port_l'] =
-	                        commonUtils.getSafeDataToJSONify(src_port_l_list[k]['SandeshRange'][0]['min'][0]['_'])
-	                         + " - " +
-	                        commonUtils.getSafeDataToJSONify(src_port_l_list[k]['SandeshRange'][0]['max'][0]['_']);
-	                } catch(e) {
-	                    aclData[idx]['aceList'][j]['rules'][k]['src_port_l'] = 
-	                       global.RESP_DATA_NOT_AVAILABLE;
-	                }
-	                try {
-	                    aclData[idx]['aceList'][j]['rules'][k]['dst_port_l'] =
-	                        commonUtils.getSafeDataToJSONify(dst_port_l_list[k]['SandeshRange'][0]['min'][0]['_'])
-	                         + " - " +
-	                        commonUtils.getSafeDataToJSONify(dst_port_l_list[k]['SandeshRange'][0]['max'][0]['_']);
-	                } catch(e) {
-	                    aclData[idx]['aceList'][j]['rules'][k]['dst_port_l'] =
-	                       global.RESP_DATA_NOT_AVAILABLE;
-	                }
-	                try {   
-	                    aclData[idx]['aceList'][j]['rules'][k]['action'] =
-	                        commonUtils.getSafeDataToJSONify(action_l_str[k]['ActionStr'][0]['action'][0]['_']);
-	                } catch(e) {
-	                    aclData[idx]['aceList'][j]['rules'][k]['action'] =
-	                        global.RESP_DATA_NOT_AVAILABLE;
-	                }      
+                    aclData[idx]['aceList'][j]['rules'][k]['proto_l'] =
+                        commonUtils.getSafeDataToJSONify(proto_l_range[k]['SandeshRange'][0]['min'][0]['_'])
+                         + " - " +
+                        commonUtils.getSafeDataToJSONify(proto_l_range[k]['SandeshRange'][0]['max'][0]['_']);
+                } catch(e) {
+                    aclData[idx]['aceList'][j]['rules'][k]['proto_l'] =
+                       global.RESP_DATA_NOT_AVAILABLE;
                 }
                 try {
-                    aclData[idx]['aceList'][j]['rule_type'] = 
+                    aclData[idx]['aceList'][j]['rules'][k]['src_port_l'] =
+                        commonUtils.getSafeDataToJSONify(src_port_l_list[k]['SandeshRange'][0]['min'][0]['_'])
+                         + " - " +
+                        commonUtils.getSafeDataToJSONify(src_port_l_list[k]['SandeshRange'][0]['max'][0]['_']);
+                } catch(e) {
+                    aclData[idx]['aceList'][j]['rules'][k]['src_port_l'] =
+                       global.RESP_DATA_NOT_AVAILABLE;
+                }
+                try {
+                    aclData[idx]['aceList'][j]['rules'][k]['dst_port_l'] =
+                        commonUtils.getSafeDataToJSONify(dst_port_l_list[k]['SandeshRange'][0]['min'][0]['_'])
+                         + " - " +
+                        commonUtils.getSafeDataToJSONify(dst_port_l_list[k]['SandeshRange'][0]['max'][0]['_']);
+                } catch(e) {
+                    aclData[idx]['aceList'][j]['rules'][k]['dst_port_l'] =
+                       global.RESP_DATA_NOT_AVAILABLE;
+                }
+                try {
+                    aclData[idx]['aceList'][j]['rules'][k]['action'] =
+                        commonUtils.getSafeDataToJSONify(action_l_str[k]['ActionStr'][0]['action'][0]['_']);
+                } catch(e) {
+                    aclData[idx]['aceList'][j]['rules'][k]['action'] =
+                        global.RESP_DATA_NOT_AVAILABLE;
+                }
+                }
+                try {
+                    aclData[idx]['aceList'][j]['rule_type'] =
                         commonUtils.getSafeDataToJSONify(aceList[j]['rule_type'][0]['_']);
                 } catch(e) {
                     aclData[idx]['aceList'][j]['rule_type'] = global.RESP_DATA_NOT_AVAILABLE;
@@ -311,16 +318,16 @@ function parsevRouterAclEntries (data, aclData, lastIndex)
     return (idx + 1);
 }
 
-function getComputeNodeInterface (pubChannel, saveChannelKey, 
+function getComputeNodeInterface (pubChannel, saveChannelKey,
                                   ip, jobData, done)
 {
     var dataObjArr = [];
 
-    var vRouterRestAPI = 
+    var vRouterRestAPI =
         commonUtils.getRestAPIServer(ip,
                                      infraCmn.getvRtrIntrospectPortByJobData(jobData));
     commonUtils.createReqObj(dataObjArr,jobData.taskData.appData.url);
-    
+
     async.map(dataObjArr,
               commonUtils.getServerRespByRestApi(vRouterRestAPI, false),
               commonUtils.doEnsureExecution(function(err, data) {
@@ -348,34 +355,34 @@ function getFlowCountAndSendvRouterAclResponse (jobData, ip, results, pubChannel
     for (var i = 0; i < aclCount; i++) {
         /* Initialize results->flow_count */
         results[i]['flow_count'] = 0;
-        urlLists[i] = 
+        urlLists[i] =
             ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' +
             '/Snh_AclFlowReq?x=' + results[i]['uuid'];
     }
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
               function(err, resultsArr) {
         if (null == resultsArr) {
-	        redisPub.publishDataToRedis(pubChannel, saveChannelKey, 
-	                                    global.HTTP_STATUS_RESP_OK, 
-	                                    JSON.stringify(results), 
-	                                    JSON.stringify(results), 0, 0,
-	                                    done);
+        redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                    global.HTTP_STATUS_RESP_OK,
+                                    JSON.stringify(results),
+                                    JSON.stringify(results), 0, 0,
+                                    done);
             return;
         }
         for (i = 0; i < aclCount; i++) {
             try {
-                results[i]['flow_count'] = 
+                results[i]['flow_count'] =
                     resultsArr[i]['AclFlowResp']['flow_count'][0]['_'];
             } catch(e) {
                 results[i]['flow_count'] = 0;
-            }    
+            }
         }
-        redisPub.publishDataToRedis(pubChannel, saveChannelKey, 
-                                    global.HTTP_STATUS_RESP_OK, 
-                                    JSON.stringify(results), 
+        redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                    global.HTTP_STATUS_RESP_OK,
+                                    JSON.stringify(results),
                                     JSON.stringify(results), 0, 0,
                                     done);
-            
+
         return;
     });
 }
@@ -393,10 +400,10 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
                                     0, done);
         return;
     }
-    
+
     var ip = sData['nodeIp'];
     if (null == ip) {
-    
+
         redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                     global.HTTP_STATUS_INTERNAL_ERROR,
                                     global.STR_CACHE_RETRIEVE_ERROR,
@@ -408,7 +415,7 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
     url = ip + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) + '@' + '/Snh_AclReq?uuid=';
     var urlLists = [];
     urlLists[0] = [url];
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
               function(err, results) {
         if (null == results) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -426,7 +433,7 @@ function getComputeNodeAcl (pubChannel, saveChannelKey, data,
     });
 }
 
-function processComputeNodeInterface (pubChannel, saveChannelKey, 
+function processComputeNodeInterface (pubChannel, saveChannelKey,
                                       jobData, done)
 {
     /* We get the interface details from Sandesh */
@@ -470,7 +477,7 @@ function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
         callback(resultJSON);
         return;
     }
-    async.map(urlLists, 
+    async.map(urlLists,
               commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
               function(err, result) {
 
@@ -490,7 +497,7 @@ function getAclFlowByACLSandeshResponse (jobData, ip, aclSandeshResp, callback)
     });
 }
 
-function processComputeNodeAcl (pubChannel, saveChannelKey, 
+function processComputeNodeAcl (pubChannel, saveChannelKey,
                                 jobData, done)
 {
     /* We get the interface details from Sandesh */
@@ -508,8 +515,8 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
         allDetails = true;
     }
     if (allDetails == true) {
-        /* Currently UI does not send this request, so will implement 
-           later when requires 
+        /* Currently UI does not send this request, so will implement
+           later when requires
          */
         redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                     global.HTTP_STATUS_INTERNAL_ERROR,
@@ -546,9 +553,9 @@ function processComputeNodeAcl (pubChannel, saveChannelKey,
 function getvRouterList (pubChannel, saveChannelKey, jobData, done)
 {
     var obj = {
-        'pubChannel': pubChannel, 
-        'saveChannelKey': saveChannelKey, 
-        'jobData': jobData, 
+        'pubChannel': pubChannel,
+        'saveChannelKey': saveChannelKey,
+        'jobData': jobData,
         'done': done
     };
     adminApiHelper.processVirtualRouters(null, null, global.GET_VROUTERS_LIST,
@@ -574,7 +581,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                                                                   vrConf) {
         if (null != err) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
-                                        global.HTTP_STATUS_INTERNAL_ERROR, 
+                                        global.HTTP_STATUS_INTERNAL_ERROR,
                                         global.STR_CACHE_RETRIEVE_ERROR,
                                         global.STR_CACHE_RETRIEVE_ERROR,
                                         0, 0, done, jobData);
@@ -584,13 +591,13 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                                       function(err, resultJSON) {
             if (undefined == resultJSON) {
                 redisPub.publishDataToRedis(pubChannel, saveChannelKey,
-                                            global.HTTP_STATUS_INTERNAL_ERROR, 
+                                            global.HTTP_STATUS_INTERNAL_ERROR,
                                             global.STR_CACHE_RETRIEVE_ERROR,
                                             global.STR_CACHE_RETRIEVE_ERROR,
                                             0, 0, done, jobData);
                 return;
             }
-            if ((null == appData['addGen']) || 
+            if ((null == appData['addGen']) ||
                 (undefined == appData['addGen'])) {
                 var cnt = resultJSON.length;
                 for (var i = 0; i < cnt; i++) {
@@ -619,7 +626,7 @@ function getvRouterSummaryByJob (pubChannel, saveChannelKey, jobData, done)
                 }
                 if (null == nodesHostIp['hosts'][resultJSON[i]['name']]) {
                     nodesHostIp['hosts'][resultJSON[i]['name']] = [];
-		}
+}
                 if (null != httpSandeshPort) {
                     nodesHostIp['hosts'][resultJSON[i]['name']].push(httpSandeshPort);
                 }
@@ -695,7 +702,7 @@ function processAclSandeshData (jobData, pubChannel, saveChannelKey, nodeIp, don
     var resultJSON = [];
     var urlLists = [];
     var uuidLists = [];
-    try {        
+    try {
         var aclData = jsonPath(aclResponse, "$..AclSandeshData")
         var aclDataLen = aclData.length;
         for (var i = 0; i < aclDataLen; i++) {
@@ -712,27 +719,27 @@ function processAclSandeshData (jobData, pubChannel, saveChannelKey, nodeIp, don
         async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
                   function(err, results) {
             if (results == null) {
-	            redisPub.publishDataToRedis(pubChannel, saveChannelKey,
-	                                        global.HTTP_STATUS_INTERNAL_ERROR,
-	                                        global.STR_CACHE_RETRIEVE_ERROR,
-	                                        global.STR_CACHE_RETRIEVE_ERROR, 0,
-	                                        0, done);
+            redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                        global.HTTP_STATUS_INTERNAL_ERROR,
+                                        global.STR_CACHE_RETRIEVE_ERROR,
+                                        global.STR_CACHE_RETRIEVE_ERROR, 0,
+                                        0, done);
             } else {
                 /* Now parse the data and send back */
-                var resultJSON = adminApiHelper.processAclFlowsSandeshData(uuidLists, results); 
-                redisPub.publishDataToRedis(pubChannel, saveChannelKey, 
-                                    global.HTTP_STATUS_RESP_OK, 
-                                    JSON.stringify(resultJSON), 
+                var resultJSON = adminApiHelper.processAclFlowsSandeshData(uuidLists, results);
+                redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                    global.HTTP_STATUS_RESP_OK,
+                                    JSON.stringify(resultJSON),
                                     JSON.stringify(resultJSON), 0, 0,
-                                    done);        
+                                    done);
             }
-        });           
+        });
     } catch(e) {
-        redisPub.publishDataToRedis(pubChannel, saveChannelKey, 
-                                    global.HTTP_STATUS_RESP_OK, 
-                                    JSON.stringify(resultJSON), 
+        redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                    global.HTTP_STATUS_RESP_OK,
+                                    JSON.stringify(resultJSON),
                                     JSON.stringify(resultJSON), 0, 0,
-                                    done);        
+                                    done);
     }
 }
 
@@ -741,7 +748,7 @@ function getComputeNodeAclFlows (jobData, pubChannel, saveChannelKey, nodeIp, do
     var urlLists = [];
     urlLists[0] = nodeIp + '@' + infraCmn.getvRtrIntrospectPortByJobData(jobData) +
         '@' + '/Snh_AclReq?uuid=';
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true), 
+    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer, true),
               function(err, results) {
         if (null == results) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -767,8 +774,8 @@ function getvRouterAclFlows (pubChannel, saveChannelKey, jobData, done)
         allDetails = true;
     }
     if (allDetails == true) {
-        /* Currently UI does not send this request, so will implement 
-           later when requires 
+        /* Currently UI does not send this request, so will implement
+           later when requires
          */
         redisPub.publishDataToRedis(pubChannel, saveChannelKey,
                                     global.HTTP_STATUS_INTERNAL_ERROR,
@@ -776,7 +783,7 @@ function getvRouterAclFlows (pubChannel, saveChannelKey, jobData, done)
                                     global.STR_CACHE_RETRIEVE_ERROR, 0,
                                     0, done);
     } else {
-        getComputeNodeAclFlows(pubChannel, saveChannelKey, nodeIp, done);   
+        getComputeNodeAclFlows(pubChannel, saveChannelKey, nodeIp, done);
     }
 }
 
@@ -800,7 +807,7 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
     var postDataArr = [];
     var resultJSON = [];
 
-    opApiServer.apiGet(url, jobData, 
+    opApiServer.apiGet(url, jobData,
                         commonUtils.doEnsureExecution(function(err, data) {
         if ((null != err) || (null == data)) {
             redisPub.publishDataToRedis(pubChannel, saveChannelKey,
@@ -828,7 +835,7 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
         if (genCnt > global.VROUTER_COUNT_IN_JOB) {
             filtData.sort();
         }
-        var postDataIncrCnt = 
+        var postDataIncrCnt =
             Math.floor(genCnt / global.VROUTER_COUNT_IN_JOB) + 1;
         idx = 0;
         for (var i = 0; i < postDataIncrCnt; i++) {
@@ -847,7 +854,7 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
             }
         }
         /* Now issue request */
-        async.mapSeries(postDataArr, getGeneratorsDataInChunk, 
+        async.mapSeries(postDataArr, getGeneratorsDataInChunk,
                         function(err, data) {
             /* Now Merge the data */
             if ((null != err) || (null == data)) {
@@ -874,9 +881,9 @@ function getvRouterGenByJob (pubChannel, saveChannelKey, jobData, done)
             dataObj['reqBy'] = jobData.taskData.reqBy;
             dataObj['jobRefreshTimeMilliSecs'] = jobData['taskData']['nextRunDelay'];
             dataObj['data'] = resultJSON;
-            redisPub.publishDataToRedis(pubChannel, saveChannelKey, 
-                                        global.HTTP_STATUS_RESP_OK, 
-                                        JSON.stringify(dataObj), 
+            redisPub.publishDataToRedis(pubChannel, saveChannelKey,
+                                        global.HTTP_STATUS_RESP_OK,
+                                        JSON.stringify(dataObj),
                                         JSON.stringify(dataObj), 1, 0,
                                         done, jobData);
         });
