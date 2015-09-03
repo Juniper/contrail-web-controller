@@ -2,20 +2,26 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     async = require('async'),
     qs = require('querystring'),
-    commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
-    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    commonUtils = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/utils/common.utils'),
+    logutils = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
-    appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors.js'),
+    appErrors = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/errors/app.errors.js'),
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
     urlMod = require('url'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,
@@ -262,8 +268,8 @@ function getvRouterDetails (req, res, appData)
             'VrouterAgent:xmpp_peer_list',
             'VrouterAgent:total_interface_count',
             'VrouterAgent:down_interface_count',
-            'VrouterAgent:control_ip', 
-            'VrouterAgent:vn_count', 
+            'VrouterAgent:control_ip',
+            'VrouterAgent:vn_count',
             'VrouterAgent:build_info',
             'VrouterStatsAgent', 'NodeStatus'];
     }
@@ -317,7 +323,7 @@ function getvRouterFlowsDetail (req, res, appData)
             reqUrl = '/Snh_NextFlowRecordsSet?flow_key=' + flowKey;
         }
         isFetchAll = true;
-    } else {   
+    } else {
         if (null == iterKey) {
             reqUrl = '/Snh_AclFlowReq?x=' + aclUUID;
         } else {
@@ -488,10 +494,10 @@ function getComputeNodeInterface (req, res, appData)
     urlParamObj['url'] = url;
     if (queryData.query['ip']) {
         urlParamObj['ip'] = queryData.query['ip'];
-    } 
+    }
     if (queryData.query['introspectPort']) {
         urlParamObj['introspectPort'] = queryData.query['introspectPort'];
-    } 
+    }
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
                                              global.STR_GET_COMPUTE_NODE_INTERFACE,
@@ -505,7 +511,7 @@ function getComputeNodeAcl (req, res, appData)
     var urlParamObj = {};
     if(queryData.query['uuid']) {
         urlParamObj['uuid'] = queryData.query['uuid'];
-    } 
+    }
     if(queryData.query['x']) {
         urlParamObj['x'] = queryData.query['x'];
     }
@@ -517,10 +523,10 @@ function getComputeNodeAcl (req, res, appData)
     urlParamObj['url'] = url;
     if (queryData.query['ip']) {
         urlParamObj['ip'] = queryData.query['ip'];
-    } 
+    }
     if (queryData.query['introspectPort']) {
         urlParamObj['introspectPort'] = queryData.query['introspectPort'];
-    } 
+    }
     // var objData = infraCmn.fillIntrospectPortInJobData(req, objData);
     cacheApi.queueDataFromCacheOrSendRequest(req, res,
                                              global.STR_JOB_TYPE_CACHE,
@@ -792,7 +798,7 @@ function getvRouterVrfList (req, res)
         } else {
             commonUtils.handleJSONResponse(err, res, null);
         }
-        
+
     });
 }
 

@@ -2,7 +2,8 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] +
@@ -15,9 +16,11 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
     urlMod = require('url'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,
@@ -43,7 +46,10 @@ function getConfigNodeDetails (req, res, appData)
     reqUrl = '/analytics/uves/config-node/' + hostName + '?flat';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_GET,
                              null, opApiServer, null, appData);
-    genPostData['kfilt'] = ['*:contrail-api*','*:contrail-discovery*','*:contrail-svc-monitor*','*:contrail-schema*'];
+    genPostData['kfilt'] = ['*:contrail-api*',
+                            '*:contrail-discovery*',
+                            '*:contrail-svc-monitor*',
+                            '*:contrail-schema*'];
     reqUrl = '/analytics/uves/generator';
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              genPostData, opApiServer, null, appData);
@@ -54,8 +60,8 @@ function getConfigNodeDetails (req, res, appData)
               commonUtils.getServerResponseByRestApi(configApiServer, true),
               function(err, results) {
         resultJSON = postProcessConfigNodeDetails(results, hostName);
-        resultJSON = 
-            infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList, 
+        resultJSON =
+            infraCmn.filterOutGeneratorInfoFromGenerators(excludeProcessList,
                                                           resultJSON);
         commonUtils.handleJSONResponse(err, res, resultJSON);
     });
@@ -105,7 +111,8 @@ function getConfigNodesSummary (req, res, appData)
             var nodeIpsCnt = 0;
             try {
                 var nodeIps =
-                    resultJSON[i]['value']['configNode']['ModuleCpuState']['config_node_ip'];
+                    resultJSON[i]['value']['configNode']['ModuleCpuState']
+                                    ['config_node_ip'];
                 nodeIpsCnt = nodeIps.length;
             } catch(e) {
                 logutils.logger.error("Config UVE IP parse error: " + e);
@@ -125,7 +132,8 @@ function getConfigNodesSummary (req, res, appData)
     });
 }
 
-function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData, host)
+function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData,
+                                        host)
 {
     if ((null != configData) && (configData.length > 0)) {
         var confLen = configData.length;
@@ -136,7 +144,10 @@ function parseConfigNodeProcessUVEs (resultJSON, configProcessUVEs, configData, 
             }
         }
     }
-    var moduleList = ['contrail-api', 'contrail-discovery', 'contrail-svc-monitor', 'contrail-schema'];
+    var moduleList = ['contrail-api',
+                      'contrail-discovery',
+                      'contrail-svc-monitor',
+                      'contrail-schema'];
     try {
         var cfgProcUVEData = configProcessUVEs['value'];
         var cfgProcUVEDataLen = cfgProcUVEData.length;

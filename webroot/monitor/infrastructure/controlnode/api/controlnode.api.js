@@ -2,21 +2,25 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
+var rest = require(process.mainModule.exports["corePath"] +
+        '/src/serverroot/common/rest.api'),
     config = process.mainModule.exports["config"],
     async = require('async'),
     commonUtils = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/utils/common.utils'),
-    logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
+    logutils = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/utils/log.utils'),
     jsonPath = require('JSONPath').eval,
     appErrors = require(process.mainModule.exports["corePath"] +
                         '/src/serverroot/errors/app.errors'),
     adminApiHelper = require('../../../../common/api/adminapi.helper'),
     urlMod = require('url'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
+    opApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/opServer.api'),
     infraCmn = require('../../../../common/api/infra.common.api'),
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
+    configApiServer = require(process.mainModule.exports["corePath"] +
+            '/src/serverroot/common/configServer.api');
 
 opServer = rest.getAPIServer({apiName:global.label.OPS_API_SERVER,
                              server:config.analytics.server_ip,
@@ -516,14 +520,14 @@ function parseControlNodeHostsList (resultJSON, jsonData)
             } catch(e) {
                logutils.logger.debug("BGP hostName not set for uuid: " + bgpRtr[i]['uuid']);
                continue;
-            }  
+            }
         }
     } catch(e) {
         return [];
     }
 }
 
-/* Function: getControlNodeHosts 
+/* Function: getControlNodeHosts
     This API is used to get the Control Node Host Lists
  */
 function getControlNodeHosts (req, res)
