@@ -214,7 +214,8 @@ define([
                 var domain = domainSelectedValueData.name,
                     defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
-                        cookieKey: cowc.COOKIE_PROJECT
+                        cookieKey: cowc.COOKIE_PROJECT,
+                        parentSelectedValueData: domainSelectedValueData
                     },
                     dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customProjectDropdownOptions);
 
@@ -230,17 +231,19 @@ define([
         };
 
         self.getNetworkBreadcrumbDropdownViewConfig = function(hashParams, customNetworkDropdownOptions) {
-            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null),
-                defaultDropdownOptions = {
-                    urlValue: (urlValue !== null) ? urlValue.split(':').splice(2, 1).join(':') : null,
-                    cookieKey: cowc.COOKIE_VIRTUAL_NETWORK
-                },
-                dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customNetworkDropdownOptions);
+            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
 
             return function(projectSelectedValueData) {
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                     projectFQN = domain + ':' + projectSelectedValueData.name,
+                    defaultDropdownOptions = {
+                        urlValue: (urlValue !== null) ? urlValue.split(':').splice(2, 1).join(':') : null,
+                        cookieKey: cowc.COOKIE_VIRTUAL_NETWORK,
+                        parentSelectedValueData: projectSelectedValueData
+                    },
+                    dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customNetworkDropdownOptions),
                     modelConfig = (projectSelectedValueData.value === 'all') ? null : ctwu.getNetworkListModelConfig(projectFQN);
+
                 return {
                     elementId: ctwl.NETWORKS_BREADCRUMB_DROPDOWN,
                     view: "BreadcrumbDropdownView",
@@ -261,9 +264,7 @@ define([
             return function(networkSelectedValueData) {
                 var defaultTextOptions = {
                         urlValue: (urlValue !== null) ? urlValue : null,
-                        parentViewParams: {
-                            networkSelectedValueData: networkSelectedValueData
-                        }
+                        parentSelectedValueData: networkSelectedValueData
                     },
                     textOptions = $.extend(true, {}, defaultTextOptions, customInstanceTextOptions);
 

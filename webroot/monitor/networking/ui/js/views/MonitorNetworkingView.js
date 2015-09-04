@@ -202,8 +202,8 @@ define([
     }
 
     function getInstanceViewConfig(hashParams) {
-        return function (instanceSelectedValueData, parentViewParams) {
-            var networkSelectedValueData = parentViewParams.networkSelectedValueData,
+        return function (instanceSelectedValueData, parentSelectedValueData) {
+            var networkSelectedValueData = parentSelectedValueData,
                 domain = contrail.getCookie(cowc.COOKIE_DOMAIN),
                 projectFQN = domain + ':' + contrail.getCookie(cowc.COOKIE_PROJECT),
                 networkFQN = projectFQN + ':' + networkSelectedValueData.name,
