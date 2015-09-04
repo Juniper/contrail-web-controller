@@ -553,24 +553,25 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Link Local Services</searchStrings>
                         </item>
+
                         <item>
                             <label>Virtual Routers</label>
-                            <hash>config_pd_virtualRouters</hash>
+                            <hash>config_infra_vrouters</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/physicaldevices/virtualrouters/ui</rootDir>
-                                    <js>virtualrouters_config.js</js>
-                                    <view>virtualrouters_config.view</view>
-                                    <class>virtualRoutersConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/vrouters/ui</rootDir>
+                                    <js>vRouterCfg.main.js</js>
+                                    <class>vRouterCfgLoader</class>
+                                    <function>rendervRouterCfg</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Virtual Routers</searchStrings>
                         </item>
-                        <!--
-                                    <item>
-                                        <label>Services</label>
-                                    </item>
-                                    -->
+
                         <item>
                             <label>Project Quotas</label>
                             <hash>config_net_quotas</hash>
@@ -725,29 +726,37 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                         <item>
                             <label>IP Address Management</label>
-                            <hash>config_net_ipam</hash>
+                            <hash>config_networking_ipam</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/ipaddressmanagement/ui</rootDir>
-                                    <js>ipam_config.js</js>
-                                    <view>ipam_config.view</view>
-                                    <class>IPAddressManagementObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/ipam/ui</rootDir>
+                                    <js>ipamCfg.main.js</js>
+                                    <class>ipamCfgLoader</class>
+                                    <function>renderipamCfg</function>
                                 </resource>
                             </resources>
                             <searchStrings>IP Address Management, IPAM</searchStrings>
-                        </item>
+                            </item>
                         <item>
-                            <label>Manage Floating IPs</label>
-                            <hash>config_net_fip</hash>
+                            <label>Floating IPs</label>
+                            <hash>config_networking_fip</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/fip/ui</rootDir>
-                                    <js>fip_config.js</js>
-                                    <view>fip_config.view</view>
-                                    <class>FloatingIPConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/fip/ui</rootDir>
+                                    <js>fipCfg.main.js</js>
+                                    <class>fipCfgLoader</class>
+                                    <function>renderFipCfg</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Manage Floating IPs</searchStrings>
+                            <searchStrings>Floating IPs, Floating IP, FIP</searchStrings>
                         </item>
                     </items>
                 </item>
@@ -765,17 +774,21 @@ and need to add the iconClass tag wherever we need to show some icons
                     <items>
                         <item>
                             <label>Service Templates</label>
-                            <hash>config_sc_svctemplate</hash>
+                            <hash>config_service_templates</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/services/template/ui</rootDir>
-                                    <js>svctemplate_config.js</js>
-                                    <view>svctemplate_config.view</view>
-                                    <class>ServiceTemplatesObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/services/templates/ui</rootDir>
+                                    <js>svcTemplateCfg.main.js</js>
+                                    <class>svcTemplateCfgLoader</class>
+                                    <function>renderSvcTemplateCfg</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Service Templates</searchStrings>
-                        </item>
+                            <searchStrings>Service Template, Templates, Service, Configure Service Templates</searchStrings>
+                            </item>
                         <item>
                             <label>Service Instances</label>
                             <hash>config_sc_svcInstances</hash>

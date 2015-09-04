@@ -397,6 +397,59 @@ define([
                 }
             });
         };
+
+        this.vRouterCfgDataParser = function(response) {
+           var retArr = [];
+           if(response != null &&
+              'virtual-routers' in response &&
+               response['virtual-routers'].length > 0) {
+               var length = response['virtual-routers'].length
+               for (var i = 0; i < length; i++) {
+                   retArr.push(response['virtual-routers'][i]['virtual-router']);
+               }
+           }
+           return retArr;
+        };
+
+        this.ipamCfgDataParser = function(response) {
+           var retArr = [];
+           if(response != null &&
+              'network-ipams' in response &&
+               response['network-ipams'].length > 0) {
+               var length = response['network-ipams'].length
+               for (var i = 0; i < length; i++) {
+                   retArr.push(response['network-ipams'][i]['network-ipam']);
+               }
+           }
+           return retArr;
+        };
+
+        this.fipCfgDataParser = function(response) {
+           var retArr = [];
+           if(response != null &&
+              'floating_ip_back_refs' in response &&
+               response['floating_ip_back_refs'].length > 0) {
+               var length = response['floating_ip_back_refs'].length
+               for (var i = 0; i < length; i++) {
+                   retArr.push(response['floating_ip_back_refs'][i]['floating-ip']);
+               }
+           }
+           return retArr;
+        };
+
+        this.svcTemplateCfgDataParser = function(response) {
+           var retArr = [];
+           if(response != null &&
+              'service_templates' in response &&
+               response['service_templates'].length > 0) {
+               var length = response['service_templates'].length
+               for (var i = 0; i < length; i++) {
+                   retArr.push(response['service_templates'][i]['service-template']);
+               }
+           }
+           return retArr;
+        };
+
     };
 
     return CTParsers;

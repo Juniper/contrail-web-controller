@@ -163,7 +163,13 @@ define([
             bgpGateWay : "BGP Gateway",
             vns : "Virtual Networks",
             virtualRouterType : 'Type',
-            netconfManaged : 'Netconf Managed'
+            netconfManaged : 'Netconf Managed',
+
+            /*Virtual Router Config*/
+            virtual_router_type: "Type",
+            physical_router_back_refs: "Physical Routers",
+            virtual_router_ip_address: "IP Address"
+ 
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -487,6 +493,62 @@ define([
         this.NETCONF_SETTINGS_TITLE = 'Netconf Settings';
         this.TOR_AGENT = "TOR Agent";
         this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
+
+        // VRouter Config labels
+        this.CFG_VROUTER_PAGE_ID = 'config-vrouter-page';
+        this.CFG_VROUTER_LIST_ID = 'config-vrouter-list';
+        this.CFG_VROUTER_LIST_VIEW_ID = 'config-vrouter-list-view';
+        this.CFG_VROUTER_GRID_ID = 'config-vrouter-grid';
+        this.CFG_VROUTER_PREFIX_ID = 'config_vrouter';
+        this.CFG_VROUTER_TITLE = 'Virtual Routers';
+        this.CFG_VROUTER_TITLE_SUMMARY = 'Virtual Routers Summary';
+        this.CFG_VROUTER_TITLE_DETAILS = 'Virtual Router Details';
+        this.CFG_VROUTER_TITLE_EDIT = 'Edit Virtual Router';
+        this.CFG_VROUTER_TITLE_CREATE = 'Create Virtual Router';
+        this.CFG_VROUTER_TITLE_DELETE = 'Delete Virtual Router';
+        this.CFG_VROUTER_TITLE_MULTI_DELETE = 'Delete Virtual Router(s)';
+        
+        // IPAM Config labels
+        this.CFG_IPAM_PAGE_ID = 'config-ipam-page';
+        this.CFG_IPAM_LIST_ID = 'config-ipam-list';
+        this.CFG_IPAM_LIST_VIEW_ID = 'config-ipam-list-view';
+        this.CFG_IPAM_GRID_ID = 'config-ipam-grid';
+        this.CFG_IPAM_PREFIX_ID = 'IPAM';
+        this.CFG_IPAM_TITLE = 'IP Address Management';
+        this.CFG_IPAM_TITLE_SUMMARY = 'IPAM Summary';
+        this.CFG_IPAM_TITLE_DETAILS = 'Details';
+        this.CFG_IPAM_TITLE_EDIT = 'IP Address Mgmt';
+        this.CFG_IPAM_TITLE_CREATE = 'Create IPAM';
+        this.CFG_IPAM_TITLE_DELETE = 'Delete IPAM';
+        this.CFG_IPAM_TITLE_MULTI_DELETE = 'Delete IPAM(s)';
+         
+        // FIP Config labels
+        this.CFG_FIP_PAGE_ID = 'config-fip-page';
+        this.CFG_FIP_LIST_ID = 'config-fip-list';
+        this.CFG_FIP_LIST_VIEW_ID = 'config-fip-list-view';
+        this.CFG_FIP_GRID_ID = 'config-fip-grid';
+        this.CFG_FIP_PREFIX_ID = 'fip';
+        this.CFG_FIP_TITLE = 'Floating IPs';
+        this.CFG_FIP_TITLE_SUMMARY = 'Floating IP Summary';
+        this.CFG_FIP_TITLE_DETAILS = 'Details';
+        this.CFG_FIP_TITLE_ALLOCATE = 'Allocate Floating IP';
+        this.CFG_FIP_TITLE_RELEASE = 'Release Floating IP(s)';
+        this.CFG_FIP_TITLE_ASSOCIATE = 'Associate Floating IP to Port';
+        this.CFG_FIP_TITLE_DISASSOCIATE = 'Disassociate Floating IP';
+ 
+        // SVC TEMPLATE Config labels
+        this.CFG_SVC_TEMPLATE_PAGE_ID = 'config-svc-template-page';
+        this.CFG_SVC_TEMPLATE_LIST_ID = 'config-svc-template-list';
+        this.CFG_SVC_TEMPLATE_LIST_VIEW_ID = 'config-svc-template-list-view';
+        this.CFG_SVC_TEMPLATE_GRID_ID = 'config-svc-template-grid';
+        this.CFG_SVC_TEMPLATE_PREFIX_ID = 'service_template';
+        this.CFG_SVC_TEMPLATE_TITLE = 'Service Templates';
+        this.CFG_SVC_TEMPLATE_TITLE_SUMMARY = 'Service Templates Summary';
+        this.CFG_SVC_TEMPLATE_TITLE_DETAILS = 'Details';
+        this.CFG_SVC_TEMPLATE_TITLE_CREATE = 'Create Service Template';
+        this.CFG_SVC_TEMPLATE_TITLE_DELETE = 'Delete Service Template';
+        this.CFG_SVC_TEMPLATE_TITLE_MULTI_DELETE = 'Delete Service Template(s)';
+ 
     };
     return CTLabels;
 });

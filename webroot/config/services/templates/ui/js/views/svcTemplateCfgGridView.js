@@ -1,0 +1,356 @@
+/*
+ * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ */
+
+define([
+    'underscore',
+    'contrail-view',
+    'config/services/templates/ui/js/models/svcTemplateCfgModel',
+    'config/services/templates/ui/js/views/svcTemplateCfgEditView',
+    'config/services/templates/ui/js/views/svcTemplateCfgFormatters'
+    ], function (_, ContrailView,
+        SvcTemplateCfgModel, SvcTemplateCfgEditView,
+        SvcTemplateCfgFormatters) {
+    var formatSvcTemplateCfg = new SvcTemplateCfgFormatters();
+    var dataView;
+
+    var svcTemplateCfgEditView = new SvcTemplateCfgEditView();
+
+    var svcTemplateCfgGridView = ContrailView.extend({
+        el: $(contentContainer),
+
+        render: function () {
+            var self = this;
+            var viewConfig = this.attributes.viewConfig;
+
+            this.renderView4Config(self.$el, self.model,
+                                   getSvcTemplateCfgGridViewConfig());
+        }
+    });
+
+
+    var getSvcTemplateCfgGridViewConfig = function () {
+        return {
+            elementId: cowu.formatElementId(
+                                    [ctwl.CFG_SVC_TEMPLATE_LIST_VIEW_ID]),
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: ctwl.CFG_SVC_TEMPLATE_GRID_ID,
+                                title: ctwl.CFG_SVC_TEMPLATE_TITLE,
+                                view: "GridView",
+                                viewConfig: {
+                                    elementConfig: getConfiguration()
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+
+    var getConfiguration = function () {
+        var gridElementConfig = {
+            header: {
+                title: {
+                    text: ctwl.CFG_SVC_TEMPLATE_TITLE
+                },
+                advanceControls: getHeaderActionConfig(),
+            },
+            body: {
+                options: {
+                    /* Required, modify to use for enabling disabling edit button */
+                    autoRefresh: false,
+                    checkboxSelectable: {
+                        onNothingChecked: function(e){
+                            $('#linkSvcTemplateDelete').addClass(
+                                                            'disabled-link');
+                        },
+                        onSomethingChecked: function(e){
+                            $('#linkSvcTemplateDelete').removeClass(
+                                                            'disabled-link');
+                        }
+                    },
+                    actionCell:rowActionConfig,
+                    detail: {
+                        template: cowu.generateDetailTemplateHTML(
+                                       getSvcTemplateCfgDetailsTemplateConfig(),
+                                       cowc.APP_CONTRAIL_CONTROLLER)
+                    }
+                },
+                dataSource: {data: []},
+                statusMessages: {
+                    empty: {
+                        type: 'status',
+                        iconClasses: '',
+                        text: 'No Service Templates Found.'
+                    },
+                }
+            },
+            columnHeader: {
+                //Change these once the ajax url is changed
+                columns: [
+                    {
+                         field:  'display_name',
+                         name:   'Template'
+                    },
+              /*  
+                    {
+                         field:  'service_template_properties',
+                         name:   'Properties',
+                         formatter: formatSvcTemplateCfg.servicePropertyFormatter
+                     },
+                */
+                     {
+                         field:  'service_template_properties.service_mode',
+                         name:   'Mode',
+                         formatter: formatSvcTemplateCfg.serviceModeFormatter
+                     },
+                     {
+                         field:  'service_template_properties.service_type',
+                         name:   'Type',
+                         formatter: formatSvcTemplateCfg.serviceTypeFormatter
+                     },
+                     /*
+                     {
+                         field:  'service_template_properties.service_scaling',
+                         name:   'Scaling',
+                         formatter: formatSvcTemplateCfg.serviceScalingFormatter
+                     },
+                     */
+                     {
+                         field:  'service_template_properties.interface_type',
+                         name:   'Interface (s)',
+                         formatter: formatSvcTemplateCfg.interfaceFormatter
+                     },
+                     {
+                         field:  'service_template_properties',
+                         name:   'Image & Flavor',
+                         formatter: formatSvcTemplateCfg.imageFlavorFormatter
+                     },
+                     /*
+                     {
+                         field:  'service_template_properties.image_name',
+                         name:   'Image Name',
+                         formatter: formatSvcTemplateCfg.imageNameFormatter
+                     },
+                     {
+                         field:  'service_template_properties.flavor',
+                         name:   'Flavor',
+                         formatter: formatSvcTemplateCfg.flavorFormatter
+                     }
+                     */
+                ]
+            },
+        };
+        return gridElementConfig;
+    };
+
+    function getHeaderActionConfig() {
+        var headerActionConfig = [
+            {
+                "type": "link",
+                "title": ctwl.CFG_SVC_TEMPLATE_TITLE_MULTI_DELETE,
+                "iconClass": "icon-trash",
+                "linkElementId": "linkSvcTemplateDelete",
+                "onClick": function () {
+                    var gridElId = '#' + ctwl.CFG_SVC_TEMPLATE_GRID_ID;
+                    var checkedRows =
+                            $(gridElId).data("contrailGrid").getCheckedRows();
+
+                    svcTemplateCfgEditView.model = new SvcTemplateCfgModel();
+                    svcTemplateCfgEditView.renderMultiDeleteSvcTemplateCfg(
+                                            {"title":
+                                            ctwl.CFG_SVC_TEMPLATE_TITLE_MULTI_DELETE,
+                                            checkedRows: checkedRows,
+                                            callback: function () {
+                        $(gridElId).data("contrailGrid")._dataView.refreshData();
+                    }});
+                }
+            },
+            {
+                "type": "link",
+                "title": ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
+                "iconClass": "icon-plus",
+                "onClick": function () {
+                    svcTemplateCfgEditView.model = new SvcTemplateCfgModel();
+		    
+                    svcTemplateCfgEditView.renderAddSvcTemplateCfg({
+                              "title": ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
+                              callback: function () {
+                    $('#' +
+                    ctwl.CFG_SVC_TEMPLATE_GRID_ID).data("contrailGrid")._dataView.refreshData();
+                    }});
+                }
+            }
+
+        ];
+        return headerActionConfig;
+    }
+
+    var rowActionConfig = [
+        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+            dataView = $('#' +
+                ctwl.CFG_SVC_TEMPLATE_GRID_ID).data("contrailGrid")._dataView;
+            svcTemplateCfgEditView.model = new SvcTemplateCfgModel();
+            svcTemplateCfgEditView.renderMultiDeleteSvcTemplateCfg({
+                                  "title": ctwl.CFG_SVC_TEMPLATE_TITLE_DELETE,
+                                  checkedRows: [dataView.getItem(rowIndex)],
+                                  callback: function () {
+                                      dataView.refreshData();
+            }});
+        })
+    ];
+
+
+    function getSvcTemplateCfgDetailsTemplateConfig() {
+        return {
+            templateGenerator: 'RowSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                rows: [
+                    {
+                        //Change  once the AJAX call is corrected
+                        templateGenerator: 'ColumnSectionTemplateGenerator',
+                        templateGeneratorConfig: {
+                            columns: [
+                                {
+                                    class: 'span6',
+                                    rows: [
+                                        {
+                                            title:
+                                            ctwl.CFG_SVC_TEMPLATE_TITLE_DETAILS,
+                                            templateGenerator:
+                                                'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'name',
+                                                    label: 'Name',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'display_name',
+                                                    label: 'Display Name',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'uuid',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'service_template_properties.service_mode',
+                                                    label: 'Mode',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'serviceModeFormatter'
+                                                    }
+                                                },
+                                                //Following two need custom formatters
+                                                {
+                                                    key: 'service_template_properties.service_type',
+                                                    label: 'Type',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'serviceTypeFormatter'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'service_template_properties.service_scaling',
+                                                    label: 'Scaling',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'serviceScalingFormatter'
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Availability Zone',
+                                                    key: 'service_template_properties.availability_zone_enable',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'serviceZoneFormatter'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'service_template_properties.interface_type',
+                                                    label: 'Interface Type (s)',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'ifTypeDetailsFormatter'
+                                                    }
+                                                },
+                                                {
+                                                    key: 'service_template_properties.image_name',
+                                                    label: 'Image',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'service_template_properties.flavor',
+                                                    label: 'Flavor',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'service_template_properties.service_virtualization_type',
+                                                    label: 'Virtualization Type',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'service_template_properties.instance_data',
+                                                    label: 'Instance Data',
+                                                    templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key: 'service_instance_back_refs',
+                                                    label: 'Service Instances',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'svcInstancesFormatter'
+                                                    }
+                                                },
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+    };
+
+    this.serviceModeFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.serviceModeFormatter(null, null,
+                                                                null, null, dc);
+    }
+
+    this.serviceTypeFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.serviceTypeFormatter(null, null,
+                                                                null, null, dc);
+    }
+
+    this.serviceScalingFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.serviceScalingFormatter(null, null,
+                                                             null, null, dc);
+    }
+
+    this.ifTypeDetailsFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.ifTypeDetailsFormatter(null, null,
+                                                                null, null, dc);
+    }
+
+    this.svcInstancesFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.svcInstancesFormatter(null, null,
+                                                                 null, null, dc);
+    }
+
+    this.serviceZoneFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.serviceZoneFormatter(null, null,
+                                                             null, null, dc);
+    }
+
+    return svcTemplateCfgGridView;
+});

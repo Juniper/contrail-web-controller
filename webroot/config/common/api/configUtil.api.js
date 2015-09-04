@@ -23,7 +23,7 @@ var portsConfig = require('../../ports/api/portsconfig.api'),
     configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var vnConfig = require('../../vn/api/vnconfig.api');
-var nwIpam = require('../../ipaddressmanagement/api/ipamconfig.api');
+var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 
 var errorData = [];
 var configCBDelete = 
