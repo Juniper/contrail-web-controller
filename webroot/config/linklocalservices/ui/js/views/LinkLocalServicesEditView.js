@@ -157,8 +157,8 @@ define([
                             {
                                 elementId: 'linklocal_service_name',
                                 view: 'FormInputView',
-                                visible: 'def_visible',
                                 viewConfig: {
+                                    visible: 'def_visible',
                                     disabled: isDisable,
                                     path: 'linklocal_service_name',
                                     class: 'span2',
@@ -182,8 +182,8 @@ define([
                             {
                                 elementId: 'linklocal_service_ip',
                                 view: 'FormInputView',
-                                visible: 'def_visible',
                                 viewConfig: {
+                                    visible: 'def_visible',
                                     path: 'linklocal_service_ip',
                                     class: 'span2',
                                     dataBindValue: 'linklocal_service_ip'
@@ -192,8 +192,8 @@ define([
                             {
                                 elementId: 'linklocal_service_port',
                                 view: 'FormInputView',
-                                visible: 'def_visible',
                                 viewConfig: {
+                                    visible: 'def_visible',
                                     path: 'linklocal_service_port',
                                     class: 'span2',
                                     dataBindValue: 'linklocal_service_port'
@@ -202,8 +202,8 @@ define([
                             {
                                 elementId: 'lls_fab_address_ip',
                                 view: "FormDropdownView",
-                                visible: 'def_visible',
                                 viewConfig: {
+                                    visible: 'def_visible',
                                     path : 'lls_fab_address_ip',
                                     class: 'span2',
                                     dataBindValue : 'lls_fab_address_ip',
@@ -219,8 +219,8 @@ define([
                             {
                                 elementId: 'ip_fabric_service_ip',
                                 view: 'FormInputView',
-                                visible: "showIp",
                                 viewConfig: {
+                                    visible: "showIp",
                                     path: 'ip_fabric_service_ip',
                                     class: 'span2',
                                     dataBindValue: 'ip_fabric_service_ip'
@@ -229,8 +229,8 @@ define([
                             {
                                 elementId: 'ip_fabric_DNS_service_name',
                                 view: 'FormInputView',
-                                visible: "showDns",
                                 viewConfig: {
+                                    visible: "showDns",
                                     path: 'ip_fabric_DNS_service_name',
                                     class: 'span2',
                                     dataBindValue: 'ip_fabric_DNS_service_name'
@@ -239,8 +239,8 @@ define([
                             {
                                 elementId: 'ip_fabric_service_port',
                                 view: 'FormInputView',
-                                visible: 'def_visible',
                                 viewConfig: {
+                                    visible: 'def_visible',
                                     path: 'ip_fabric_service_port',
                                     class: 'span2',
                                     dataBindValue: 'ip_fabric_service_port'
