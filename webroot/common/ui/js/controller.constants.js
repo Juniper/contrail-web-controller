@@ -83,6 +83,7 @@ define([
         this.TMPL_VN_PORT_HEAT_CHART = "network-port-heat-chart-template";
         this.TMPL_TRAFFIC_STATS_TAB = "traffic-stats-tab-template";
         this.TMPL_GRAPH_CONTROL_PANEL_SEARCH = "graph-control-panel-search-template";
+        this.TMPL_QUERY_SELECT = "query-select-popup-template";
 
         this.DEFAULT_DOMAIN = "default-domain";
         this.UCID_PREFIX_MN = "monitor-networking";

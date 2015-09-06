@@ -11,7 +11,7 @@ var ctwu, ctwc, ctwgc, ctwgrc, ctwl, ctwm, ctwp, ctwvc,
     nmwu, nmwgc, nmwgrc, nmwp, nmwvc;
 
 require([
-    coreBaseDir + '/js/core-app-utils.js',
+    coreBaseDir + '/js/common/core.app.utils.js',
     coreBaseDir + '/test/ui/js/co.test.app.utils.js'
 ], function () {
     globalObj = {'env': "test"};
