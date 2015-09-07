@@ -28,6 +28,7 @@ var url          = require('url');
 var UUID         = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var configUtil = require('../../../common/api/configUtil.api');
 
 /**
  * Bail out if called directly as "nodejs fipconfig.api.js"
@@ -371,18 +372,45 @@ function getFloatingIpPoolsByProject (request, appData, callback)
     var projectURL    = '/project';
 
     if ((tenantId = request.param('id'))) {
-        projectURL += '/' + tenantId.toString();
+        projectURL += '/' + tenantId.toString() +
+                    '?fields=floating_ip_pool_refs&' +
+                    'exclude_back_refs=true&exclude_children=true';
     } else {
         /**
          * TODO - Add Language independent error code and return
          */
+        var error = new appErrors.RESTServerError('Specify Project UUID or FQ Name');
+        callback(error, null);
+        return;
     }
-    projectURL +=
-        '?fields=floating_ip_pool_refs&exclude_back_refs=true&exclude_children=true';
+    if (tenantId.indexOf(':') != -1) {
+        configUtil.getUUIDByFQN({'appData': appData,
+                                  'fqnReq' : {'fq_name': tenantId.split(':'),
+                                              'type': 'project'}},
+            function (error, data) {
+                if (error != null || data == null) {
+                    var error = new appErrors.RESTServerError(
+                        'Invalid Project FQName');
+                    commonUtils.handleJSONResponse(error, res, data);
+                    return;
+                }
+                projectURL = '/project/' + data.uuid + 
+                    '?fields=floating_ip_pool_refs&' +
+                    'exclude_back_refs=true&exclude_children=true';
+
+                configApiServer.apiGet(projectURL, appData,
+                                     function(error, data) {
+                                     getFipPoolsForProjectCb(error,
+                                                 data, appData, callback);
+                });
+        });
+        return;
+    }
 
     configApiServer.apiGet(projectURL, appData,
                          function(error, data) {
-                         getFipPoolsForProjectCb(error, data, appData, callback);
+                         getFipPoolsForProjectCb(error,
+                                             data, appData, callback);
     });
 }
     

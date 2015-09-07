@@ -246,7 +246,7 @@ function stSendResponse(error, stConfig, response)
 /**
  * @listServiceTemplateImages
  * public function
- * URL: /api/tenants/config/service-template-images/ - GET
+ * URL: /api/tenants/config/service-template-images - GET
  * 1. Gets the list of available images registed with Glance and sends back response to client.
  */
 function listServiceTemplateImages(request, response, appData) 

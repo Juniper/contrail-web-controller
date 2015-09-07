@@ -402,6 +402,7 @@ define([
            var retArr = [];
            if(response != null &&
               'virtual-routers' in response &&
+               response['virtual-routers'] != null &&
                response['virtual-routers'].length > 0) {
                var length = response['virtual-routers'].length
                for (var i = 0; i < length; i++) {
@@ -415,6 +416,7 @@ define([
            var retArr = [];
            if(response != null &&
               'network-ipams' in response &&
+               response['network-ipams'] != null &&
                response['network-ipams'].length > 0) {
                var length = response['network-ipams'].length
                for (var i = 0; i < length; i++) {
@@ -428,6 +430,7 @@ define([
            var retArr = [];
            if(response != null &&
               'floating_ip_back_refs' in response &&
+               response['floating_ip_back_refs'] != null &&
                response['floating_ip_back_refs'].length > 0) {
                var length = response['floating_ip_back_refs'].length
                for (var i = 0; i < length; i++) {
@@ -441,6 +444,7 @@ define([
            var retArr = [];
            if(response != null &&
               'service_templates' in response &&
+               response['service_templates'] != null &&
                response['service_templates'].length > 0) {
                var length = response['service_templates'].length
                for (var i = 0; i < length; i++) {

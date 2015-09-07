@@ -50,7 +50,7 @@ define([
                                    getSvcTemplateCfgViewConfig(false),
                                    "svcTemplateCfgConfigValidations", null, null,
                                    function () {
-            
+
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
                                              false);
                     Knockback.applyBindings(self.model, document.getElementById(modalId));
@@ -122,7 +122,7 @@ define([
                         ]
                     },
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'service_mode',
                                 view: "FormDropdownView",
@@ -157,7 +157,7 @@ define([
                         ]
                     },
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'image_name',
                                 view: "FormDropdownView",
@@ -172,8 +172,7 @@ define([
                                         dataValueField : "id",
                                         dataSource : {
                                             type: 'remote',
-                                            //domain for images, why?
-                                            url: 'api/tenants/config/service-template-images/2eb36831-42d4-4748-8437-0a08ddfecce3',
+                                            url: 'api/tenants/config/service-template-images',
                                             parse: formatSvcTemplateCfg.imageDropDownFormatter
                                         }
                                     }
@@ -213,7 +212,7 @@ define([
                                                                     'left',\
                                                                     'right',\
                                                                     'other']"
-                                                                    
+
                                                                 }
                                                             }
                                                         },
