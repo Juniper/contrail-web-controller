@@ -29,10 +29,10 @@ define([
             vRouterCfgConfigValidations: {
                 'name': {
                     required: true,
-                    msg: 'Enter Name'
+                    msg: 'Enter Virtual Router Name'
                 },
                 'virtual_router_ip_address': {
-                    required: false,
+                    required: true,
                     pattern: cowc.PATTERN_IP_ADDRESS,
                     msg: 'Enter valid IP Address'
                 }
@@ -43,9 +43,8 @@ define([
             var ajaxConfig = {}, returnFlag = false;
             var postData = {'virtual-router':{}};
 
-            var that = this;
-            if (this.model().isValid(true, "vRouterCfgConfigValidations")) {
-                    locks = this.model().attributes.locks.attributes;
+            var self  = this;
+            if (self.model().isValid(true, "vRouterCfgConfigValidations")) {
 
                 var newvRouterCfgData = $.extend({},this.model().attributes);
                 if (newvRouterCfgData['display_name'] == '') {
@@ -58,7 +57,7 @@ define([
                     newvRouterCfgData['fq_name'][1] = newvRouterCfgData['name'];
                 }
 
-                if (newvRouterCfgData['virtual_router_type'] != 'hypervisor') { 
+                if (newvRouterCfgData['virtual_router_type'] != 'hypervisor') {
                 newvRouterCfgData['virtual_router_type'] =
                     [newvRouterCfgData['virtual_router_type']];
                 } else {

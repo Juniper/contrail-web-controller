@@ -440,6 +440,23 @@ function getConfigPaginatedResponse (req, res, appData)
     });
 }
 
+/*
+ * Calls fqname-to-id on api server,
+ * expects fqnAppObj in form {'appData': appData,
+ *                          'fqnReq': {'fq_name': 'my_name',
+ *                                     'type': project}
+ *                        }
+ */
+function getUUIDByFQN (fqnAppObj, callback) {
+    var fqnameURL     = '/fqname-to-id';
+
+    configApiServer.apiPost(fqnameURL, fqnAppObj.fqnReq,
+                                fqnAppObj.appData,
+                         function(error, data) {
+            callback(error, data);
+    });
+}
+
 exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
@@ -447,4 +464,5 @@ exports.deleteMultiObjectCB = deleteMultiObjectCB;
 exports.deleteConfigObj = deleteConfigObj;
 exports.deleteConfigObjCB = deleteConfigObjCB;
 exports.getConfigPaginatedResponse = getConfigPaginatedResponse;
+exports.getUUIDByFQN = getUUIDByFQN;
 

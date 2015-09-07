@@ -26,6 +26,7 @@ var UUID = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var logicalRouter = require('../../logicalrouters/api/logicalroutersconfig.api');
+var configUtil = require('../../common/api/configUtil.api');
 
 
 /**
@@ -2828,21 +2829,11 @@ function getVMIAndInstIPDetails (req, res, appData)
     });
 }
 
-function getVMIDetails  (req, res, appData)
+function getVMIDetailsCB (vmiURL, appData, res, err)
 {
-    var vmiUUIDList = [];
-    var backRefID = req.param('vn_uuid');
-    var parentID = req.param('proj_uuid');
     var vmiToIpMap = {};
     var dataObjArr = [];
-    var vmiURL =
-        '/virtual-machine-interfaces?detail=true&fields=' +
-        'virtual_machine_refs,instance_ip_back_refs';
-    if (null != backRefID) {
-        vmiURL += '&back_ref_id=' + backRefID;
-    } else if (null != parentID) {
-        vmiURL += '&parent_id=' + parentID;
-    }
+    var vmiUUIDList = [];
     configApiServer.apiGet(vmiURL, appData, function(err, vmiData) {
         if ((null != err) || (null == vmiData) ||
             (null == vmiData['virtual-machine-interfaces']) ||
@@ -2916,9 +2907,43 @@ function getVMIDetails  (req, res, appData)
     });
 }
 
+
+function getVMIDetails  (req, res, appData)
+{
+    var backRefID = req.param('vn_uuid');
+    var parentID = req.param('proj_uuid');
+    var projFQN   = req.param('proj_fqn');
+    var vmiURL =
+        '/virtual-machine-interfaces?detail=true&fields=' +
+        'virtual_machine_refs,instance_ip_back_refs';
+    if (null != backRefID) {
+        vmiURL += '&back_ref_id=' + backRefID;
+    } else if (null != parentID) {
+        vmiURL += '&parent_id=' + parentID;
+    } else if (null != projFQN) {
+        configUtil.getUUIDByFQN({'appData': appData,
+                                  'fqnReq' : {'fq_name': projFQN.split(':'),
+                                              'type': 'project'}},
+            function (error, data) {
+                if (error != null || data == null) {
+                    var error = new appErrors.RESTServerError(
+                        'Invalid Project FQName');
+                    commonUtils.handleJSONResponse(error, res, data);
+                    return;
+                }
+                vmiURL += '&parent_id=' + data['uuid'];
+                getVMIDetailsCB(vmiURL, appData, res);
+            }
+        );
+        return;
+    }
+
+
+   getVMIDetailsCB(vmiURL, appData, res);
+}
+
 function deleteAllPorts (req, res, appData)
 {
-    var configUtil = require('../../common/api/configUtil.api');
     var projUUID = req.param('uuid');
     var reqUrl = '/virtual-machine-interfaces?parent_id=' + projUUID;
     var dataObjArr = [];

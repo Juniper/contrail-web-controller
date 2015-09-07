@@ -51,7 +51,7 @@ define([
                  returnStr += '<span class="moredataText">(' + (subnetCnt - 2) +
                               ' more)</span><span class="moredata"' +
                               ' style="display:none;"></span>';
-             } 
+             }
              return returnStr;
         };
 
@@ -69,7 +69,7 @@ define([
                 for (var i = 0; i < dhcpObjLen; i++) {
                     if (parseInt(dhcpObj[i].dhcp_option_name) ==
                         parseInt(optCode)) {
-                       dhcpValues += dhcpObj[i].dhcp_option_value + ' '; 
+                       dhcpValues += dhcpObj[i].dhcp_option_value + ' ';
                     }
                 }
             } catch (e) {

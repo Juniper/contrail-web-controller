@@ -147,7 +147,7 @@ define([
                 "iconClass": "icon-plus",
                 "onClick": function () {
                     ipamCfgEditView.model = new IpamCfgModel();
-		    
+
                     ipamCfgEditView.renderAddIpamCfg({
                                               "title": ctwl.CFG_IPAM_TITLE_CREATE,
                                               callback: function () {

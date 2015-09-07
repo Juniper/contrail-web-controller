@@ -17,8 +17,8 @@
                                                  createServiceTemplate
          3. Delete Service Template - /api/tenants/config/service-template/:id,
                                                  deleteServiceTemplate
-         4. List Service Template Images - /api/tenants/config/service-template-images/:id,
-                                                 listImageNames
+         4. List Service Template Images - /api/tenants/config/service-template-images,
+                                                 listServiceTemplateImages
     -->
     <item>
         <url>/api/tenants/config/service-templates/:id</url>
@@ -39,7 +39,7 @@
         <callback>stconfigapi.deleteServiceTemplate</callback>
     </item>
     <item>
-        <url>/api/tenants/config/service-template-images/:id</url>
+        <url>/api/tenants/config/service-template-images</url>
         <method>get</method>
         <feature>stconfig</feature>
         <callback>stconfigapi.listServiceTemplateImages</callback>

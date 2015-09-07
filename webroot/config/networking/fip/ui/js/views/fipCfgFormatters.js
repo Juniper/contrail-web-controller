@@ -39,7 +39,7 @@ define([
             }
 
             if (portLen) {
-                return fixedIP + ' (' + portId + ')' 
+                return fixedIP + ' (' + portId + ')'
             } else {
                 return '-';
             }
@@ -102,7 +102,7 @@ define([
         this.fipPortDropDownFormatter = function(response) {
             var fipPortList = [];
 
-            if (!response.length) {
+            if (!response || !response.length) {
                 return ([{id: null,
                             text: 'No Ports created in the Project'}]);
             }
@@ -114,7 +114,7 @@ define([
                 var fqName = getValueByJsonPath(obj,
                     'virtual-machine-interface;fq_name', '');
                 fqName = fqName.join(":");
-                
+
                 var uuid = getValueByJsonPath(obj,
                     'virtual-machine-interface;uuid', '');
 
