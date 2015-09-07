@@ -99,7 +99,7 @@ define([
                          field:  'display_name',
                          name:   'Template'
                     },
-              /*  
+              /*
                     {
                          field:  'service_template_properties',
                          name:   'Properties',
@@ -179,7 +179,7 @@ define([
                 "iconClass": "icon-plus",
                 "onClick": function () {
                     svcTemplateCfgEditView.model = new SvcTemplateCfgModel();
-		    
+
                     svcTemplateCfgEditView.renderAddSvcTemplateCfg({
                               "title": ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
                               callback: function () {

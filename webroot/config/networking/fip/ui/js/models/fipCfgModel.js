@@ -4,10 +4,8 @@
 
 define([
     'underscore',
-    'contrail-model',
-    'config/networking/fip/ui/js/views/fipCfgFormatters'
-], function (_, ContrailModel, FipCfgFormatters) {
-    var formatFipCfg = new FipCfgFormatters();
+    'contrail-model'
+], function (_, ContrailModel) {
 
     var fipCfgModel = ContrailModel.extend({
 
@@ -28,7 +26,7 @@ define([
         formatModelConfig: function (modelConfig) {
             var fixedIP = getValueByJsonPath(modelConfig,
                       'virtual_machine_interface_refs', []);
-            
+
             if (fixedIP.length) {
                 var fqName = getValueByJsonPath(fixedIP[0],'to', []);
                 fqName = fqName.join(":");
@@ -80,7 +78,7 @@ define([
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
                 var allocType  = newFipCfgData['user_created_alloc_type'];
                 var fqName = newFipCfgData['user_created_floating_ip_pool'].split(":");
-                
+
                 delete newFipCfgData['display_name'];
                 delete newFipCfgData['name'];
                 delete newFipCfgData['uuid'];
@@ -93,7 +91,7 @@ define([
 
 
                 newFipCfgData['project_refs'] =
-                     [{to: [domain, project]}]; 
+                     [{to: [domain, project]}];
                 newFipCfgData['fq_name'] = fqName;
 
                 if (allocType == 'dynamic') {
@@ -174,7 +172,7 @@ define([
                 if (newFipCfgData['virtual_machine_interface_refs'] == null ||
                     newFipCfgData['virtual_machine_interface_refs'] == '' ||
                     newFipCfgData['virtual_machine_interface_refs'] == '-') {
-                        
+
                     newFipCfgData['virtual_machine_interface_refs'] = [];
                 } else {
                     var fqName = newFipCfgData['virtual_machine_interface_refs'];

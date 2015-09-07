@@ -32,7 +32,7 @@ define([
 
         formatModelConfig: function (modelConfig) {
 
-            var ifList = 
+            var ifList =
                modelConfig['service_template_properties']['interface_type'] =
                            getValueByJsonPath(modelConfig,
               'service_template_properties;interface_type', []);
@@ -54,7 +54,7 @@ define([
         },
 
         addSvcTemplateInterface: function() {
-            var interfaces = 
+            var interfaces =
                 this.model().attributes['interfaces'];
             //create in following order Mgmt, Left, Right, Others
             var ifType = 'management', hasLeft = false,
@@ -64,10 +64,10 @@ define([
             for(var i = 0; i < ifCollection.length; i++) {
                 var intf = ifCollection[i];
                 if (intf.service_interface_type() == 'management') {
-                   hasMgmt = true 
+                   hasMgmt = true
                 }
                 if (intf.service_interface_type() == 'left') {
-                   hasLeft = true; 
+                   hasLeft = true;
                 }
                 if (intf.service_interface_type() == 'right') {
                     hasRight = true;
@@ -104,7 +104,7 @@ define([
                 = new SvcTemplateInterfaceModel(
                         {'static_route_enable': false,
                          'shared_ip': false,
-                         'service_interface_type': ifType 
+                         'service_interface_type': ifType
                         });
 
             interfaces.add([newInterface]);

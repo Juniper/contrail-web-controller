@@ -33,7 +33,7 @@ define([
             'user_created': {
                 'domain_name': null,
                 'ntp_server': null,
-            }, 
+            },
             'tenant_dns_server':[],
             'user_created_dns_method': 'default-dns-server'
         },
@@ -42,7 +42,7 @@ define([
            var tenantDNSModels = [], tenantDNSList = [],
                 dhcpList = [], vDnsName = null;
 
-           dhcpList = 
+           dhcpList =
           modelConfig['network_ipam_mgmt']['dhcp_option_list']['dhcp_option'] =
                 getValueByJsonPath(modelConfig,
                 'network_ipam_mgmt;dhcp_option_list;dhcp_option', []);
@@ -76,7 +76,7 @@ define([
                 }
             }
 
-           var tenantDNSCollectionModel = 
+           var tenantDNSCollectionModel =
                                     new Backbone.Collection(tenantDNSModels);
 
            modelConfig['tenant_dns_server'] = tenantDNSCollectionModel;
@@ -187,7 +187,7 @@ define([
 
                 if (dnsMethod == 'none' ||
                     dnsMethod == 'default-dns-server') {
-                    delete 
+                    delete
                         newipamCfgData['network_ipam_mgmt']['ipam_dns_server'];
                 }
 
@@ -294,6 +294,6 @@ define([
         },
 
     });
- 
+
     return ipamCfgModel;
 });

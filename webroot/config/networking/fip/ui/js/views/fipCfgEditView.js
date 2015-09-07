@@ -186,7 +186,7 @@ define([
             viewConfig: {
                 rows: [
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'user_created_floating_ip_pool',
                                 view: "FormDropdownView",
@@ -201,7 +201,11 @@ define([
                                         dataValueField : "id",
                                         dataSource : {
                                             type: 'remote',
-                                            url: 'api/tenants/config/floating-ip-pools/c2ba9123-2227-4898-a92b-7a8eb612a213',
+                                            //Fix, find a way to get proj id
+                                            //here. For now try using name
+                                            url: 'api/tenants/config/floating-ip-pools/' +
+                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                                                contrail.getCookie(cowc.COOKIE_PROJECT),
                                             parse: formatFipCfg.fipPoolDropDownFormatter
                                         }
                                     }
@@ -210,7 +214,7 @@ define([
                         ]
                     },
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'user_created_alloc_type',
                                 view: "FormDropdownView",
@@ -275,7 +279,7 @@ define([
             viewConfig: {
                 rows: [
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'virtual_machine_interface_refs',
                                 view: "FormDropdownView",
@@ -290,7 +294,12 @@ define([
                                         dataValueField : "id",
                                         dataSource : {
                                             type: 'remote',
-                                            url: 'api/tenants/config/get-virtual-machine-details?proj_uuid=c2ba9123-2227-4898-a92b-7a8eb612a213',
+                                            //Fix, find a way to get project id
+                                            //here. Right now we can only get
+                                            //name.
+                                            url: 'api/tenants/config/get-virtual-machine-details?proj_fqn=' +
+                                                contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
+                                                contrail.getCookie(cowc.COOKIE_PROJECT),
                                             parse: formatFipCfg.fipPortDropDownFormatter
                                         }
                                     }

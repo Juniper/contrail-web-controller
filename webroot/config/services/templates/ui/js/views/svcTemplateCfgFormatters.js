@@ -47,11 +47,11 @@ define([
          * @serviceZoneFormatter
          */
         this.serviceZoneFormatter = function(d, c, v, cd, dc) {
-            var  serviceScaling =
+            var  serviceZone =
                 getValueByJsonPath(dc,
                 'service_template_properties;availability_zone_enable', false);
 
-             return serviceScaling ? 'Enabled' : 'Disabled';
+             return serviceZone ? 'Enabled' : 'Disabled';
         };
         /*
          * @imageNameFormatter

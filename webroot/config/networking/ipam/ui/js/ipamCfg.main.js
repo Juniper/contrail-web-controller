@@ -27,10 +27,6 @@ function ipamCfgLoader() {
     };
 
     this.updateViewByHash = function (hashObj, lastHashObj) {
-        var renderFn;
-        this.load({hashParams: hashObj, 'function': renderFn});
-    };
-
-    this.destroy = function () {
+        this.load({hashParams: hashObj});
     };
 }

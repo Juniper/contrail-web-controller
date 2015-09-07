@@ -172,7 +172,7 @@ define([
                         ]
                     },
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'dns_method',
                                 view: "FormDropdownView",
@@ -200,7 +200,7 @@ define([
                         ]
                     },
                     {
-                        columns: [ 
+                        columns: [
                             {
                                 elementId: 'virtual_dns_server_name',
                                 view: "FormDropdownView",
@@ -287,7 +287,7 @@ define([
                     ]
                 },
                 {
-                    columns: [ 
+                    columns: [
                         {
                             elementId: 'ntpServer',
                             view: 'FormInputView',
@@ -302,7 +302,7 @@ define([
                     ]
                 },
                 {
-                    columns: [ 
+                    columns: [
                         {
                             elementId: 'domainName',
                             view: 'FormInputView',

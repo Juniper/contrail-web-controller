@@ -95,16 +95,16 @@ define([
                          name:   'Name'
                      },
                      {
-                         field:  'virtual_router_ip_address',
-                         name:   'IP Address',
-                         sorter: comparatorIP
-                     },
-                     {
                          field:  'virtual_router_type',
                          name:   'Type',
                          formatter: function(r, c, v, cd, dc) {
                              return formatVirtualRouterType(dc.virtual_router_type);
                          }
+                     },
+                     {
+                         field:  'virtual_router_ip_address',
+                         name:   'IP Address',
+                         sorter: comparatorIP
                      }
                 ]
             },
@@ -197,10 +197,6 @@ define([
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
                                                 },
-                                                {
-                                                    key: 'virtual_router_ip_address',
-                                                    templateGenerator: 'TextGenerator'
-                                                },
                                                 //Following two need custom formatters
                                                 {
                                                     key: 'virtual_router_type',
@@ -208,6 +204,10 @@ define([
                                                     templateGeneratorConfig: {
                                                             formatter: 'formatVirtualRouterType'
                                                         }
+                                                },
+                                                {
+                                                    key: 'virtual_router_ip_address',
+                                                    templateGenerator: 'TextGenerator'
                                                 },
                                                 {
                                                     key: 'physical_router_back_refs',

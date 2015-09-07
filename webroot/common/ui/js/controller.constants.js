@@ -428,7 +428,7 @@ define([
             {'value' : 'embedded', "text" : 'Embedded'},
             {'value' : 'torAgent', "text" : 'TOR Agent'}
         ];
-        
+
 
         // VRouter Config Constants
         this.URL_CFG_VROUTER_DETAILS =
@@ -441,7 +441,7 @@ define([
         // FIP Config Constants
         this.URL_CFG_FIP_DETAILS =
             '/api/tenants/config/floating-ips';
-        
+
         // Service Template Config Constants
         this.URL_CFG_SVC_TEMPLATE_DETAILS =
             '/api/tenants/config/service-templates';

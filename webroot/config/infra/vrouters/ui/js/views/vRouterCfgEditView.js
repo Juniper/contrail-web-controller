@@ -48,7 +48,7 @@ define([
                                    getvRouterCfgViewConfig(false),
                                    "vRouterCfgConfigValidations", null, null,
                                    function () {
-            
+
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
                                              false);
                     Knockback.applyBindings(self.model,
@@ -138,7 +138,7 @@ define([
                     document.getElementById(modalId));
             kbValidation.bind(self);
         }
-  
+
     });
 
     function getvRouterCfgViewConfig (disableOnEdit) {
