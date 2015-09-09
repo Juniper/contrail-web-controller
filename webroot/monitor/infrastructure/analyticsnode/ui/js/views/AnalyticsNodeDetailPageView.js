@@ -80,11 +80,24 @@ define([
 
     function getDetailsViewTemplateConfig() {
         return {
-            title: 'Analytics Node',
-            templateGenerator: 'BlockListTemplateGenerator',
-            theme: 'widget-box',
-            keyClass: 'label-blue',
-            templateGeneratorConfig: getTemplateGeneratorConfig()
+            advancedViewOptions: false,
+            templateGenerator: 'ColumnSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                columns: [
+                    {
+                        class: 'span12',
+                        rows: [
+                            {
+                                title: 'Analytics Node',
+                                templateGenerator: 'BlockListTemplateGenerator',
+                                theme: 'widget-box',
+                                keyClass: 'label-blue',
+                                templateGeneratorConfig: getTemplateGeneratorConfig()
+                            }
+                        ]
+                    }
+                 ]
+            }
         };
     };
 
