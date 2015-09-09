@@ -126,7 +126,7 @@ define([
         this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
         this.UCID_INSTANCE_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:interfaces";
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
-        
+
         this.UCID_NODE_CPU_MEMORY_LIST = 'node_details' + "{0}:cpu-memory";
 
         this.GRAPH_DIR_LR = "LR";
@@ -430,8 +430,8 @@ define([
         this.URL_VIRTUAL_NETWORK_DETAILS =
             'api/tenants/config/virtual-networks';
         this.SNMP_VERSION_DATA = [
-            {'value' : 'v2', "text" : '2'},
-            {'value' : 'v3', "text" : '3'}
+            {'value' : '2', "label" : '2c'},
+            {'value' : '3', "label" : '3'}
         ];
         this.SNMP_SECURITY_LEVEL = [
             {'value' : 'none', "text" : 'None'},
@@ -443,7 +443,6 @@ define([
             {'value' : 'embedded', "text" : 'Embedded'},
             {'value' : 'torAgent', "text" : 'TOR Agent'}
         ];
-
 
         // VRouter Config Constants
         this.URL_CFG_VROUTER_DETAILS =
@@ -460,6 +459,29 @@ define([
         // Service Template Config Constants
         this.URL_CFG_SVC_TEMPLATE_DETAILS =
             '/api/tenants/config/service-templates';
+
+        //Interfaces
+        this.URL_PHYSICAL_ROUTER_LIST =
+            '/api/tenants/config/physical-routers-list';
+        this.URL_GET_INTERFACES =
+            '/api/tenants/config/get-interfaces';
+        this.INTERFACE_TYPE_DATA = [
+            {'value' : 'physical', "text" : 'Physical'},
+            {'value' : 'logical', "text" : 'Logical'}
+        ];
+        this.URL_GET_INTERFACE_DELIMITERS =
+            '/api/admin/webconfig/physicaldevices/interface_delimiters';
+        this.URL_GET_VN_INF = '/api/tenants/config/vn-list-details';
+        this.URL_GET_VN_INTERNALS_INF =
+            '/api/tenants/config/get-virtual-machine-details/?vn_uuid={0}';
+        this.LOGICAL_INF_TYPE_DATA = [
+            {'value' : 'l2', "text" : 'Server'},
+            {'value' : 'l3', "text" : 'L3'}
+        ];
+        this.INF_PARENT_TYPE_DATA = [
+            {'value' : 'physical-router', "text" : 'Physical Router'},
+            {'value' : 'physical-interface', "text" : 'Physical Interface'}
+        ];
     };
 
     //str will be [0-9]+(m|h|s|d)

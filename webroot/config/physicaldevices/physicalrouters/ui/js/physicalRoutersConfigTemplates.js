@@ -1,0 +1,759 @@
+/*
+ * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ */
+define([
+    'underscore'
+], function (_) {
+    var pRouterConfigTemplates = function() {
+        var self = this;
+        /*Start Edit Config Methods*/
+        self.snmpVersion = function() {
+            return {
+                columns: [
+                    {
+                        elementId: 'version',
+                        view: "FormRadioButtonView",
+                        viewConfig: {
+                            label : "Version",
+                            path: "user_created_version",
+                            dataBindValue:"user_created_version",
+                            class: "span12",
+                            elementConfig: {
+                                    dataObj : ctwc.SNMP_VERSION_DATA
+                            }
+                         }
+                    }
+                ]
+            };
+        };
+        self.v2VersionView =  function() {
+            return {
+                 elementId:ctwl.OVSDB_V2_VERSION_ID,
+                 view:"SectionView",
+                 viewConfig:{
+                     visible: "showV2",
+                     rows: [
+                         {
+                             columns: [
+                                 {
+                                     elementId: 'snmpV2Community',
+                                     view: "FormInputView",
+                                     viewConfig: {
+                                         label : "Community",
+                                         path: "physical_router_snmp_credentials().v2_community",
+                                         dataBindValue: "physical_router_snmp_credentials().v2_community",
+                                         class: "span12"
+                                     }
+                                 },
+                             ]
+                         },
+                         {
+                             columns: [
+                                {
+                                    elementId: 'snmpLocalPort',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Local Port",
+                                        placeholder: "161",
+                                        path: "physical_router_snmp_credentials().local_port",
+                                        dataBindValue: "physical_router_snmp_credentials().local_port",
+                                        class: "span12"
+                                    }
+                                }
+                             ]
+                         },
+                         {
+                             columns: [
+                                {
+                                    elementId: 'snmpRetries',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Retries",
+                                        path: "physical_router_snmp_credentials().retries",
+                                        dataBindValue: "physical_router_snmp_credentials().retries",
+                                        class: "span12"
+                                    }
+                                }
+                             ]
+                         },
+                         {
+                             columns: [
+                                {
+                                    elementId: 'snmpTimeout',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Timeout (secs)",
+                                        path: "physical_router_snmp_credentials().timeout",
+                                        dataBindValue: "physical_router_snmp_credentials().timeout",
+                                        class: "span12"
+                                    }
+                                }
+                             ]
+                         }
+                     ]
+                 }
+            };
+        };
+        self.auth_section = function() {
+            return{
+                elementId: "auth_section",
+                view : "SectionView",
+                viewConfig : {
+                    visible : "showAuth",
+                    rows : [
+                        {
+                            columns : [
+                                {
+                                    elementId: "snmpv3AuthProtocol",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Authentication Protocol",
+                                        path: "physical_router_snmp_credentials().v3_authentication_protocol",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_authentication_protocol",
+                                        class: "span6"
+                                    }
+                                },
+                                {
+                                    elementId: "snmpv3AuthPasswd",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Password",
+                                        path: "physical_router_snmp_credentials().v3_authentication_password",
+                                        type: "password",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_authentication_password",
+                                        class: "span6"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+        };
+        self.privacy_section = function() {
+            return {
+                elementId : "privacy_section",
+                view : "SectionView",
+                viewConfig : {
+                    visible : "showPrivacy",
+                    rows : [
+                        {
+                            columns : [
+                                {
+                                    elementId: 'snmpv3PrivProtocol',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Privacy Protocol",
+                                        path: "physical_router_snmp_credentials().v3_privacy_protocol",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_privacy_protocol",
+                                        class: "span6"
+                                    }
+                                 },
+                                {
+                                    elementId: 'snmpv3PrivPasswd',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Password",
+                                        path: "physical_router_snmp_credentials().v3_privacy_password",
+                                        type: "password",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_privacy_password",
+                                        class: "span6"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+        };
+        self.common_section = function() {
+            return{
+                elementId : "common_section",
+                view : "SectionView",
+                viewConfig: {
+                    rows : [
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpV3SecurityEngineId',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                         label : "Security Engine Id",
+                                         path: "physical_router_snmp_credentials().v3_security_engine_id",
+                                         dataBindValue:"physical_router_snmp_credentials().v3_security_engine_id",
+                                         class: "span12"
+                                     }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpv3Context',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Context",
+                                        path: "physical_router_snmp_credentials().v3_context",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_context",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpv3ContextEngineId',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Context Engine Id",
+                                        path: "physical_router_snmp_credentials().v3_context_engine_id",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_context_engine_id",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpv3EngineId',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Engine Id",
+                                        path: "physical_router_snmp_credentials().v3_engine_id",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_engine_id",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpv3EngineBoots',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Engine Boots",
+                                        path: "physical_router_snmp_credentials().v3_engine_boots",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_engine_boots",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpv3EngineTime',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Engine Time",
+                                        path: "physical_router_snmp_credentials().v3_engine_time",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_engine_time",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                }
+            };
+        };
+        self.v3VersionView =  function() {
+            return {
+                elementId:ctwl.OVSDB_V3_VERSION_ID,
+                view:"SectionView",
+                viewConfig:{
+                    visible: 'showV3',
+                    rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpLocalPort',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Local Port",
+                                        path: "physical_router_snmp_credentials().local_port",
+                                        placeholder: "161",
+                                        dataBindValue: "physical_router_snmp_credentials().local_port",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpRetries',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Retries",
+                                        path: "physical_router_snmp_credentials().retries",
+                                        dataBindValue: "physical_router_snmp_credentials().retries",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpTimeout',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Timeout(secs)",
+                                        path: "physical_router_snmp_credentials().timeout",
+                                        dataBindValue: "physical_router_snmp_credentials().timeout",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpV3SecurityName',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Security Name",
+                                        path: "physical_router_snmp_credentials().v3_security_name",
+                                        dataBindValue: "physical_router_snmp_credentials().v3_security_name",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'snmpV3SecurityLevel',
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        label : "Security Level",
+                                        path: "user_created_security_level",
+                                        dataBindValue: "user_created_security_level",
+                                        class: "span12",
+                                        elementConfig:{
+                                            allowClear: true,
+                                            dataTextField: "text",
+                                            dataValueField: "value",
+                                            data : ctwc.SNMP_SECURITY_LEVEL
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                self.auth_section()
+                            ]
+                        },
+                        {
+                            columns: [
+                                self.privacy_section()
+                            ]
+                        },
+                        {
+                            columns : [
+                                self.common_section()
+                            ]
+                        }
+                    ]
+                }
+            };
+        };
+        self.snmpMntdView = function() {
+            return {
+                columns: [
+                    {
+                        elementId: ctwl.OVSDB_ACCORDION,
+                        view: "AccordianView",
+                        viewConfig: [
+                           {
+                               elementId: ctwl.OVSDB_SNMP_SECTION,
+                               title : ctwl.OVSDB_SNMP_SECTION_TITLE,
+                               view: "SectionView",
+                               visible : "snmpMntd",
+                               viewConfig:{
+                                   rows: [
+                                       self.snmpVersion(),
+                                       {
+                                           columns: [
+                                               self.v2VersionView(),
+                                               self.v3VersionView()
+                                            ]
+                                       }
+                                   ]
+                               }
+                           }
+                        ]
+                    }
+                ]
+            };
+        };
+        self.svcPortsBaseView = function() {
+            return {
+                columns : [
+                    {
+                        elementId: 'servicePorts',
+                        view: "FormEditableGridView",
+                        viewConfig: {
+                            path: "servicePorts",
+                            validation : "servicePortValidation",
+                            collection: "servicePorts",
+                            columns: [
+                                {
+                                    elementId: 'portName',
+                                    name: 'JUNOS Service Port',
+                                    view: "FormInputView",
+                                    class: "",
+                                    width: 200,
+                                    viewConfig: {
+                                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        path: "portName",
+                                        dataBindValue: "portName()"
+                                    }
+                                },
+                            ],
+                            rowActions: [
+                                {
+                                    onClick: "function() {\
+                                    $root.deletePort($data, this); }",
+                                    iconClass: 'icon-minus'
+                                }
+                            ],
+                            gridActions: [
+                                {
+                                    onClick: "function() { addPort(); }",
+                                    buttonTitle: "Add JUNOS Service Port"
+                                }
+                            ]
+                        }
+                    }
+                ]
+            }
+        };
+        self.svcPortsSection =  function() {
+            return {
+                columns: [
+                    {
+                         elementId : 'netConfSection',
+                         view: "SectionView",
+                         viewConfig : {
+                             rows : [
+                                 self.svcPortsBaseView()
+                             ]
+                         }
+                    }
+                ]
+            };
+        };
+        self.snmpMntdChkboxView =  function() {
+            return {
+                columns: [
+                    {
+                        elementId: 'snmpMntd',
+                        view: "FormCheckboxView",
+                        viewConfig: {
+                            label : "SNMP Monitored",
+                            path: "snmpMntd",
+                            dataBindValue: "snmpMntd",
+                            class: "span12"
+                        }
+                    }
+                ]
+            };
+        };
+        self.torAgentSection =  function(torAgentVrouterDS) {
+            return {
+                columns: [
+                    {
+                        elementId: 'user_created_torAgent1',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            label : "TOR Agent(s)",
+                            path: "user_created_torAgent1",
+                            dataBindValue: "user_created_torAgent1",
+                            class: "span6",
+                            elementConfig:{
+                                allowClear: true,
+                                placeholder: ctwl.SELECT_ENTER_TOR_AGENT_NAME,
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
+                            }
+                        }
+                    },
+                    {
+                        elementId: 'user_created_torAgent2',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            label : "",
+                            path: "user_created_torAgent2",
+                            dataBindValue: "user_created_torAgent2",
+                            class: "span6",
+                            elementConfig:{
+                                allowClear: true,
+                                placeholder: ctwl.SELECT_ENTER_TOR_AGENT_NAME,
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+        };
+        self.tsnSection = function(tsnVrouterDS){
+            return {
+                columns: [
+                    {
+                        elementId: 'user_created_tsn1',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            label: "TSN(s)",
+                            path: "user_created_tsn1",
+                            dataBindValue: "user_created_tsn1",
+                            class: "span6",
+                            elementConfig:{
+                                allowClear: true,
+                                placeholder: ctwl.SELECT_ENTER_TSN_NAME,
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
+                            }
+                        }
+                    },
+                    {
+                        elementId: 'user_created_tsn2',
+                        view: "FormComboboxView",
+                        viewConfig: {
+                            label : "",
+                            path: "user_created_tsn2",
+                            dataBindValue: "user_created_tsn2",
+                            class: "span6",
+                            elementConfig:{
+                                allowClear: true,
+                                placeholder: ctwl.SELECT_ENTER_TSN_NAME,
+                                dataTextField: "text",
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
+                            }
+                        }
+                    }
+                ]
+            };
+        };
+        self.pRouterName = function(disableId){
+            return {
+                columns: [
+                    {
+                        elementId: 'name',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label: 'Name',
+                            disabled: disableId,
+                            path: "name",
+                            dataBindValue: "name",
+                            class: "span12"
+                        }
+                    }
+                ]
+            };
+        };
+        self.vendorModelSection = function() {
+            return {
+                columns: [
+                    {
+                        elementId: 'physical_router_vendor_name',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label: "Vendor",
+                            path: "physical_router_vendor_name",
+                            dataBindValue: "physical_router_vendor_name",
+                            class: "span6"
+                        }
+                    },
+                    {
+                        elementId: 'physical_router_product_name',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "Model",
+                            path: "physical_router_product_name",
+                            dataBindValue: "physical_router_product_name",
+                            class: "span6"
+                        }
+                    }
+                ]
+            };
+        };
+        self.mgmntIPdataIPSection = function(){
+            return {
+                columns : [
+                    {
+                        elementId: 'physical_router_management_ip',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "Management IP",
+                            path: "physical_router_management_ip",
+                            dataBindValue: "physical_router_management_ip",
+                            class: "span6"
+                        }
+                    },
+                    {
+                        elementId: 'physical_router_dataplane_ip',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "VTEP Address",
+                            path: "physical_router_dataplane_ip",
+                            dataBindValue: "physical_router_dataplane_ip",
+                            class: "span6"
+                        }
+                    }
+                ]
+            };
+        };
+        self.AssociatedVRSection = function(torAgentVrouterDS, tsnVrouterDS) {
+            return {
+                elementId: ctwl.ASSOCIATED_VR_SECTION,
+                title : ctwl.ASSOCIATED_VR_TITLE,
+                view: "SectionView",
+                viewConfig:{
+                    rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: 'virtualRouterType',
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        label : "Type",
+                                        path: "virtualRouterType",
+                                        dataBindValue: "virtualRouterType",
+                                        class: "span12",
+                                        elementConfig:{
+                                            allowClear: true,
+                                            dataTextField: "text",
+                                            dataValueField: "text",
+                                            data : ctwc.VIRTUAL_ROUTER_TYPE
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns : [
+                                 {
+                                     elementId: ctwl.TOR_AGENT_SECTION,
+                                     view: "SectionView",
+                                     viewConfig: {
+                                        visible: "showTorAgentSection",
+                                        rows: [
+                                            self.torAgentSection(
+                                                torAgentVrouterDS),
+                                            self.tsnSection(tsnVrouterDS)
+                                        ]
+                                     }
+                                 }
+                            ]
+                        }
+                    ]
+                }
+            };
+        };
+        self.netConfSettings = function() {
+            return {
+                elementId: ctwl.NETCONF_SETTINGS_SECTION,
+                title : ctwl.NETCONF_SETTINGS_TITLE,
+                view: "SectionView",
+                viewConfig:{
+                    rows : [
+                        {
+                            columns : [
+                                {
+                                    elementId: 'physical_router_vnc_managed',
+                                    view: "FormCheckboxView",
+                                    viewConfig: {
+                                        label : "Netconf Managed",
+                                        path: "physical_router_vnc_managed",
+                                        dataBindValue: "physical_router_vnc_managed",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
+                                    elementId: 'netConfUserName',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Username",
+                                        path: "physical_router_user_credentials().username",
+                                        dataBindValue: "physical_router_user_credentials().username",
+                                        class: "span6"
+                                    }
+                                },
+                                {
+                                    elementId: 'netConfPasswd',
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        label : "Password",
+                                        path: "physical_router_user_credentials().password",
+                                        type: "password",
+                                        dataBindValue: "physical_router_user_credentials().password",
+                                        class: "span6"
+                                    }
+                                }
+                            ]
+                        },
+                        /*{
+                            columns: [
+                                {
+                                    elementId: 'isJunosPortEnabled',
+                                    view: "FormCheckboxView",
+                                    viewConfig: {
+                                        label : "Junos Service Ports",
+                                        path: "isJunosPortEnabled",
+                                        dataBindValue: "isJunosPortEnabled",
+                                        class: "span12"
+                                    }
+                                }
+                            ]
+                        },*/
+                        self.svcPortsSection()
+                    ]
+                }
+            };
+        };
+        self.AssociatedVRAccordion = function(torAgentVrouterDS, tsnVrouterDS) {
+            return {
+                columns: [
+                     {
+                         elementId: ctwl.ASSOCIATED_VR_ACCORDION,
+                         view: "AccordianView",
+                         viewConfig: [
+                             self.AssociatedVRSection(torAgentVrouterDS,
+                                 tsnVrouterDS),
+                             self.netConfSettings()
+                         ]
+                     }
+                ]
+            };
+        };
+    };
+    return pRouterConfigTemplates;
+});
+
