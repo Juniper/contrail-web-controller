@@ -53,5 +53,11 @@
         <feature>globalvrouterconfig</feature>
         <callback>globalvrouterconfigapi.updateLinkLocalService</callback>
     </item> 
+    <item>
+        <url>/api/tenants/config/update-global-config</url>
+        <method>put</method>
+        <feature>globalvrouterconfig</feature>
+        <callback>globalvrouterconfigapi.updateGlobalConfig</callback>
+    </item>
 </urlLists>
 
