@@ -43,9 +43,9 @@ define([
                             {
                                 elementId: ctwl.CONFIG_PHYSICAL_ROUTERS_ID,
                                 title: ctwl.TITLE_PHYSICAL_ROUTERS,
-                                view: "PhysicalRouterGridView",
+                                view: "PhysicalRoutersGridView",
                                 viewPathPrefix:
-                                    "config/physicaldevices/ui/js/views/",
+                                    "config/physicaldevices/physicalrouters/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig:
                                     {pagerOptions: { options: { pageSize: 10,
