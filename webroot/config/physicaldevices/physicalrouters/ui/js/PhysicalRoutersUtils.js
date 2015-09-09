@@ -165,9 +165,9 @@ define([
         self.v2VersionView =  function() {
             return {
                  elementId:ctwl.OVSDB_V2_VERSION_ID,
-                 visible: "showV2",
                  view:"SectionView",
                  viewConfig:{
+                     visible: "showV2",
                      rows: [
                          {
                              columns: [
@@ -229,8 +229,8 @@ define([
             return{
                 elementId: "auth_section",
                 view : "SectionView",
-                visible : "showAuth",
                 viewConfig : {
+                    visible : "showAuth",
                     rows : [
                         {
                             columns : [
@@ -263,8 +263,8 @@ define([
             return {
                 elementId : "privacy_section",
                 view : "SectionView",
-                visible : "showPrivacy",
                 viewConfig : {
+                    visible : "showPrivacy",
                     rows : [
                         {
                             columns : [
@@ -384,9 +384,9 @@ define([
         self.v3VersionView =  function() {
             return {
                 elementId:ctwl.OVSDB_V3_VERSION_ID,
-                visible: 'showV3',
                 view:"SectionView",
                 viewConfig:{
+                    visible: 'showV3',
                     rows: [
                         {
                             columns: [
@@ -485,12 +485,12 @@ define([
                     {
                         elementId: ctwl.OVSDB_ACCORDION,
                         view: "AccordianView",
-                        visible : "snmpMntd",
                         viewConfig: [
                            {
                                elementId: ctwl.OVSDB_SNMP_SECTION,
                                title : ctwl.OVSDB_SNMP_SECTION_TITLE,
                                view: "SectionView",
+                               visible : "snmpMntd",
                                viewConfig:{
                                    rows: [
                                        self.snmpVersion(),
@@ -555,8 +555,8 @@ define([
                     {
                          elementId : 'netConfSection',
                          view: "SectionView",
-                         visible : 'isJunosPortEnabled',
                          viewConfig : {
+                             visible : 'isJunosPortEnabled',
                              rows : [
                                  self.svcPortsBaseView()
                              ]
@@ -585,7 +585,7 @@ define([
                 columns: [
                     {
                         elementId: 'torAgent1',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "torAgent1",
                             dataBindValue: "torAgent1",
@@ -594,14 +594,17 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : torAgentVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
                             }
                         }
                     },
                     {
                         elementId: 'torAgent2',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "torAgent2",
                             dataBindValue: "torAgent2",
@@ -610,8 +613,11 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : torAgentVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
                             }
                         }
                     }
@@ -623,7 +629,7 @@ define([
                 columns: [
                     {
                         elementId: 'tsn1',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "tsn1",
                             dataBindValue: "tsn1",
@@ -632,14 +638,17 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : tsnVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
                             }
                         }
                     },
                     {
                         elementId: 'tsn2',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "tsn2",
                             dataBindValue: "tsn2",
@@ -648,8 +657,11 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : tsnVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
                             }
                         }
                     }
@@ -751,8 +763,8 @@ define([
                                  {
                                      elementId: ctwl.TOR_AGENT_SECTION,
                                      view: "SectionView",
-                                     visible: "showTorAgentSection",
                                      viewConfig: {
+                                        visible: "showTorAgentSection",
                                         rows: [
                                             self.torAgentSection(
                                                 torAgentVrouterDS),

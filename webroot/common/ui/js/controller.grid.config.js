@@ -54,6 +54,7 @@ define([
                     cssClass :'cell-hyperlink-blue',
                     events : {
                         onClick : function(e, dc) {
+                            contrail.setCookie(ctwl.PROUTER_KEY, dc.pRouterName)
                             layoutHandler.setURLHashParams({uuid : dc.uuid},
                             {p : 'config_pd_interfaces' ,merge : false,
                             triggerHashChange : true});
@@ -83,6 +84,51 @@ define([
                             {p : 'config_pd_interfaces' ,merge : false,
                             triggerHashChange : true});
                         }
+                    }
+                }];
+
+        this.interfacesColumns = [
+                {
+                    id : 'name',
+                    field : 'name',
+                    name : 'Name'
+                },
+                {
+                    id : 'type',
+                    field : 'type',
+                    name : 'Type'
+                },
+                {
+                    id : 'parent',
+                    field : 'parent',
+                    name : 'Parent'
+                },
+                {
+                    id : 'vlan',
+                    field : 'vlan',
+                    name : 'VLAN'
+                },
+                {
+                    id : 'server',
+                    field : 'server',
+                    name : 'Servers',
+                    formatter:function(r,c,v,cd,dc){
+                        var servers = v;
+                        var serverString = '';
+                        if(servers == '' || servers == '-' ||
+                            servers.length < 1)
+                            return '-';
+                        $.each(servers,function(i,d){
+                            if(i == 0){
+                                serverString = d;
+                            } else {
+                                serverString += '</br>' + d;
+                            }
+                        })
+                        return serverString;
+                    },
+                    searchFn:function(d) {
+                        return d['server'];
                     }
                 }];
 
