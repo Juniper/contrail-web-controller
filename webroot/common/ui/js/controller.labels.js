@@ -161,17 +161,30 @@ define([
             displayVirtualRouters: "Associated Virtual Router(s)",
             totalInterfacesCount: "Interfaces",
             isJunosPortEnabled: "Junos Service Ports",
-            netConfUserName: "Netconf Username",
+            netConfUserName: "Username",
             netConfPasswd: "Password",
             bgpGateWay: "BGP Gateway",
             vns: "Virtual Networks",
             virtualRouterType: 'Type',
             netconfManaged: 'Netconf Managed',
+            autoConfig : 'Auto Configuration',
+            junosServicePorts : 'Junos Service Ports',
 
             /*Virtual Router Config*/
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
-            virtual_router_ip_address: "IP Address"
+            virtual_router_ip_address: "IP Address",
+
+            /*Interfaces*/
+            infName : 'Name',
+            logical_interface_type : 'Logical Interface Type',
+            infSubnet : 'Subnet',
+            virtualNetwork : 'Virtual Network',
+            logical_interface_vlan_tag : 'VLAN Id',
+            servers_display : 'Servers',
+            subnetCIDRArr : 'Subnet',
+            lInterfaces : 'Logical Interfaces'
+
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -673,6 +686,41 @@ define([
         this.TITLE_DEL_SEC_GRP = 'Delete Security Group';
         this.TITLE_EDIT_SEC_GRP = 'Edit Security Group';
         this.SEC_GRP_DETAILS = 'Security Group Details';
+        
+        //Interfaces
+        this.CONFIG_INTERFACES_LIST_ID = "config-interfaces-list";
+        this.PROUTER_BREADCRUMB_DROPDOWN = "prouter-breadcrumb-dropdown";
+        this.PROUTER_KEY = "prouter";
+        this.NO_PROUTER_FOUND = "No Physical Router found";
+        this.CONFIG_INTERFACES_SECTION_ID = "config-interfaces-section";
+        this.CONFIG_INTERFACES_ID = "config-interfaces";
+        this.TITLE_INTERFACES = "Interfaces";
+        this.INF_VIEW_PATH_PREFIX =
+            "config/physicaldevices/interfaces/ui/js/views/";
+        this.CONFIG_INTERFACES_LIST_VIEW_ID = "config-interfaces-list";
+        this.INTERFACES_GRID_ID = "interfaces-grid";
+        this.TITLE_ADD_INTERFACE = "Add Interface";
+        this.INTERFACE_PREFIX_ID = "interface"
+        this.LOGICAL_INF_ACCORDION = "logical_inf_accordion";
+        this.LOGICAL_INF_SECTION = "logical_inf_section";
+        this.LOGICAL_INF_SECTION_TITLE =
+            "Logical Interface Properties";
+        this.ENTER_SERVER = "Enter or Choose mac";
+        this.TITLE_EDIT_INF = "Edit Interface";
+        this.PHYSICAL_INF = "Physical";
+        this.LOGICAL_INF = "Logical";
+        this.LOGICAL_INF_L2_TYPE = 'L2';
+        this.LOGICAL_INF_L3_TYPE = 'L3';
+        this.VLAN = 'logical_interface_vlan_tag';
+        this.LOGICAL_INF_TYPE = 'logical_interface_type';
+        this.TITLE_DELETE_ALL_CONFIG = "Delete All";
+        this.BM_CLEAR_VMI = "bm_clear_vmi";
+        this.INF_PROPERTIES = 'Interface Properties';
+        this.INF_ED_TMPL = 'BlockListTemplateGenerator';
+        this.INF_TG = 'TextGenerator';
+        this.IP_PH = 'Auto Allocate or Enter an IP';
+        this.PARENT_TYPE_PROUTER = 'physical_router';
+        this.PARENT_TYPE_PINF = 'physical_interface';
     };
     return CTLabels;
 });

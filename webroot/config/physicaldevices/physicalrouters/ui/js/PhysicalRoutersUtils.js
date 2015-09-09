@@ -491,6 +491,7 @@ define([
                                elementId: ctwl.OVSDB_SNMP_SECTION,
                                title : ctwl.OVSDB_SNMP_SECTION_TITLE,
                                view: "SectionView",
+                               visible : "snmpMntd",
                                viewConfig:{
                                    rows: [
                                        self.snmpVersion(),
@@ -585,7 +586,7 @@ define([
                 columns: [
                     {
                         elementId: 'torAgent1',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "torAgent1",
                             dataBindValue: "torAgent1",
@@ -594,14 +595,17 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : torAgentVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
                             }
                         }
                     },
                     {
                         elementId: 'torAgent2',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "torAgent2",
                             dataBindValue: "torAgent2",
@@ -610,8 +614,11 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : torAgentVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : torAgentVrouterDS
+                                }
                             }
                         }
                     }
@@ -623,7 +630,7 @@ define([
                 columns: [
                     {
                         elementId: 'tsn1',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "tsn1",
                             dataBindValue: "tsn1",
@@ -632,14 +639,17 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : tsnVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
                             }
                         }
                     },
                     {
                         elementId: 'tsn2',
-                        view: "FormDropdownView",
+                        view: "FormComboboxView",
                         viewConfig: {
                             path: "tsn2",
                             dataBindValue: "tsn2",
@@ -648,8 +658,11 @@ define([
                                 allowClear: true,
                                 placeholder: ctwl.SELECT_ENTER_NAME,
                                 dataTextField: "text",
-                                dataValueField: "text",
-                                data : tsnVrouterDS
+                                dataValueField: "value",
+                                dataSource : {
+                                    type : 'local',
+                                    data : tsnVrouterDS
+                                }
                             }
                         }
                     }

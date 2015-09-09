@@ -1,11 +1,15 @@
-var configPhysicalDevicesPageLoader = new ConfigPhysicalDevicesLoader();
+/*
+ *  Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ */
 
-function ConfigPhysicalDevicesLoader() {
+var configInterfacesPageLoader = new ConfigInterfacesLoader();
+
+function ConfigInterfacesLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = rootDir + '/js/views/PhysicalDevicesView.js',
+            pathMNView = rootDir + '/js/views/interfacesView.js',
             renderFn = paramObject['function'];
 
         check4CTInit(function () {
@@ -22,7 +26,7 @@ function ConfigPhysicalDevicesLoader() {
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
         switch (renderFn) {
-            case 'renderPhysicalRouters':
+            case 'renderInterfaces':
                 this.mnView[renderFn]({hashParams: hashParams});
                 break;
         }
@@ -47,3 +51,4 @@ function check4CTInit(callback) {
         callback();
     }
 }
+
