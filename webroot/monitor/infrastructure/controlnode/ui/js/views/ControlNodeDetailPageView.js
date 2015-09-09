@@ -90,86 +90,102 @@ define([
     }
 
     function getDetailsViewTemplateConfig() {
-
         return {
-            title: 'Control Node',
-            theme: 'widget-box',
-            keyClass: 'label-blue',
-            templateGenerator: 'BlockListTemplateGenerator',
-            templateGeneratorConfig: [
-                {
-                    key: 'name',
-                    label:'Hostname',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'ip',
-                    label:'IP Address',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'version',
-                    label: 'Version',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'overallNodeStatus',
-                    label: 'Overall Node Status',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'processes',
-                    label: 'Processes',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'controlProcessStatusList.contrail-control',
-                    label: 'Control Node',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'ifMapConnectionStatus',
-                    label: 'Ifmap Connection',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'analyticsNodeDetails',
-                    label: 'Analytics Node',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'analyticsMessages',
-                    label: 'Analytics Messages',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'peersDetails',
-                    label: 'Peers',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'vRouterPeerDetails',
-                    label: ' ',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'cpu',
-                    label: 'CPU',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'memory',
-                    label: 'Memory',
-                    templateGenerator: 'TextGenerator'
-                },
-                {
-                    key: 'lastLogTimestamp',
-                    label: 'Last Log',
-                    templateGenerator: 'TextGenerator'
-                }
-            ]
+            advancedViewOptions: false,
+            templateGenerator: 'ColumnSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                columns: [
+                    {
+                        class: 'span12',
+                        rows: [
+                            {
+                                title: 'Control Node',
+                                theme: 'widget-box',
+                                keyClass: 'label-blue',
+                                templateGenerator: 'BlockListTemplateGenerator',
+                                templateGeneratorConfig: getTemplateGeneratorConfig()
+                            }
+                        ]
+                    }
+                ]
+            }
         };
     };
+    
+    function getTemplateGeneratorConfig () {
+        return [
+            {
+                key: 'name',
+                label:'Hostname',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'ip',
+                label:'IP Address',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'version',
+                label: 'Version',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'overallNodeStatus',
+                label: 'Overall Node Status',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'processes',
+                label: 'Processes',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'controlProcessStatusList.contrail-control',
+                label: 'Control Node',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'ifMapConnectionStatus',
+                label: 'Ifmap Connection',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'analyticsNodeDetails',
+                label: 'Analytics Node',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'analyticsMessages',
+                label: 'Analytics Messages',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'peersDetails',
+                label: 'Peers',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'vRouterPeerDetails',
+                label: ' ',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'cpu',
+                label: 'CPU',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'memory',
+                label: 'Memory',
+                templateGenerator: 'TextGenerator'
+            },
+            {
+                key: 'lastLogTimestamp',
+                label: 'Last Log',
+                templateGenerator: 'TextGenerator'
+            }
+        ];
+    }
 
     function getStatusesForAllControlProcesses(processStateList) {
         var ret = [];
