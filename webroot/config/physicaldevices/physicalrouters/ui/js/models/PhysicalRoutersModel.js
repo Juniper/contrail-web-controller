@@ -4,7 +4,7 @@
 define([
     'underscore',
     'contrail-model',
-    'config/physicaldevices/ui/js/models/ServicePortModel'
+    'config/physicaldevices/physicalrouters/ui/js/models/ServicePortsModel'
 ], function (_, ContrailModel, ServicePortModel) {
     var PhysicalRouterModel = ContrailModel.extend({
         defaultConfig: {
@@ -91,7 +91,6 @@ define([
                     returnFlag = false;
                 var attr = this.model().attributes,
                     postObject = {};
-                    that = this;
                 postObject["physical-router"] = {};
                 postObject["physical-router"]["fq_name"] =
                     ["default-global-system-config", attr.pRouterName];
@@ -285,13 +284,11 @@ define([
                         callbackObj.init();
                     }
                 }, function (response) {
-                    console.log(response);
                     if (contrail.checkIfFunction(callbackObj.success)) {
                         callbackObj.success();
                     }
                     returnFlag = true;
                 }, function (error) {
-                    console.log(error);
                     if (contrail.checkIfFunction(callbackObj.error)) {
                         callbackObj.error(error);
                     }

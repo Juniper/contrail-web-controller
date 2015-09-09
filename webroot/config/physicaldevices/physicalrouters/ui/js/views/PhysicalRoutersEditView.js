@@ -5,10 +5,10 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'config/physicaldevices/ui/js/PhysicalDevicesUtils'
-], function (_, ContrailView, Knockback, PhysicalDevicesUtils) {
+    'config/physicaldevices/physicalrouters/ui/js/PhysicalRoutersUtils'
+], function (_, ContrailView, Knockback, PhysicalRoutersUtils) {
     var torAgentVrouterDS, tsnVrouterDS, bgpDS, vnDS;
-    var pdUtils =  new PhysicalDevicesUtils();
+    var pdUtils =  new PhysicalRoutersUtils();
     var PhysicalRouterEditView = ContrailView.extend({
         renderAddOVSDBManagedToR: function (options) {
             var prefixId = ctwl.PHYSICAL_ROUTER_PREFIX_ID,

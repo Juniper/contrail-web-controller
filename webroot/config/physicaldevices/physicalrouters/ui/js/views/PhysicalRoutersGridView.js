@@ -5,13 +5,13 @@
 define([
     'underscore',
     'contrail-view',
-    'config/physicaldevices/ui/js/models/PhysicalRouterModel',
-    'config/physicaldevices/ui/js/views/PhysicalRouterEditView',
-    'config/physicaldevices/ui/js/PhysicalDevicesUtils'
+    'config/physicaldevices/physicalrouters/ui/js/models/PhysicalRoutersModel',
+    'config/physicaldevices/physicalrouters/ui/js/views/PhysicalRoutersEditView',
+    'config/physicaldevices/physicalrouters/ui/js/PhysicalRoutersUtils'
 ], function (_, ContrailView, PhysicalRouterModel, PhysicalRouterEditView,
-    PhysicalDevicesUtils) {
+    PhysicalRoutersUtils) {
     var physicalRouterEditView = new PhysicalRouterEditView();
-    var pdUtils =  new PhysicalDevicesUtils();
+    var pdUtils =  new PhysicalRoutersUtils();
     var PhysicalRoutersGridView = ContrailView.extend({
         el: $(contentContainer),
 
@@ -79,6 +79,19 @@ define([
                 },
                 dataSource: {
                     remote: {
+                    }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Physical Routers..'
+                    },
+                    empty: {
+                        text: 'No Physical Routers.'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Physical Routers.'
                     }
                 }
             },

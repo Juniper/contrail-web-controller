@@ -168,7 +168,14 @@ define([
             /*Virtual Router Config*/
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
-            virtual_router_ip_address: "IP Address"
+            virtual_router_ip_address: "IP Address",
+
+            /*Interfaces*/
+            infName : 'Name',
+            logicalInfType : 'Logical Interface Type',
+            infSubnet : 'Subnet',
+            vlanId : 'Vlan ID',
+            virtualNetwork : 'Virtual Network'
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -536,6 +543,30 @@ define([
         this.QUOTAS_GRID_ID = 'quotas-grid';
         this.QUOTAS_PREFIX_ID = 'qts';
         this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
+
+        //Interfaces
+        this.CONFIG_INTERFACES_LIST_ID = "config-interfaces-list";
+        this.PROUTER_BREADCRUMB_DROPDOWN = "prouter-breadcrumb-dropdown";
+        this.PROUTER_KEY = "prouter";
+        this.NO_PROUTER_FOUND = "No Physical Router found";
+        this.CONFIG_INTERFACES_SECTION_ID = "config-interfaces-section";
+        this.CONFIG_INTERFACES_ID = "config-interfaces";
+        this.TITLE_INTERFACES = "Interfaces";
+        this.INF_VIEW_PATH_PREFIX =
+            "config/physicaldevices/interfaces/ui/js/views/";
+        this.CONFIG_INTERFACES_LIST_VIEW_ID = "config-interfaces-list";
+        this.INTERFACES_GRID_ID = "interfaces-grid";
+        this.TITLE_ADD_INTERFACE = "Add Interface";
+        this.INTERFACE_PREFIX_ID = 'interface';
+        this.LOGICAL_INF_ACCORDION = 'logical_inf_accordion';
+        this.LOGICAL_INF_SECTION = 'logical_inf_section';
+        this.LOGICAL_INF_SECTION_TITLE =
+            'Logical Interface Properties';
+        this.ENTER_SERVER = 'Enter or Choose mac';
+        this.TITLE_EDIT_INF = 'Edit Interface';
+        this.PHYSICAL_INF = 'Physical';
+        this.LOGICAL_INF = 'Logical';
+        this.TITLE_DELETE_ALL_CONFIG = "Delete All";
     };
     return CTLabels;
 });

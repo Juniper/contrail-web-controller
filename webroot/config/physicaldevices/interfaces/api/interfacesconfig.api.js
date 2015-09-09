@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
- 
+
  /**
- * @physicalinterfacesconfig.api.js
+ * @interfacesconfig.api.js
  *     - Handlers for interfaces
  *     - Interfaces with config api server
  */
@@ -36,7 +36,7 @@ var jsonDiff = require(process.mainModule.exports["corePath"] +
 /**
  * @readLIDetails
  * public function
- * 1. It is a logical interface details callback 
+ * 1. It is a logical interface details callback
  * 2. It is called from admin.api.js --> getApiServerDataByPage()
  */
 function readLIDetails(liObj, callback) {
@@ -116,11 +116,11 @@ function createPhysicalInterfaces (request, response, appData)
              function(error, data) {
                 if(error) {
                    commonUtils.handleJSONResponse(error, response, null);
-                   return;               
-                }         
+                   return;
+                }
                 commonUtils.handleJSONResponse(error, response, data);
-             });             
-     });    
+             });
+     });
 }
 
 /**
@@ -147,13 +147,13 @@ function updatePhysicalInterfaces (request, response, appData)
              function(error, data) {
                 if(error) {
                    commonUtils.handleJSONResponse(error, response, null);
-                   return;               
-                }         
+                   return;
+                }
                 commonUtils.handleJSONResponse(error, response, data);
-             });             
+             });
          });
      });
-} 
+}
 
 /**
  * @deletePhysicalInterfaces
@@ -163,7 +163,7 @@ function updatePhysicalInterfaces (request, response, appData)
  */
 function deletePhysicalInterfaces (request, response, appData)
 {
-     var pInterfaceId = validateQueryParam(request,'pInterfaceId'); 
+     var pInterfaceId = validateQueryParam(request,'pInterfaceId');
      var url = getInterfaceUrl(request);
      if(!url) {
          var error = new appErrors.RESTServerError('Add id');
@@ -175,8 +175,8 @@ function deletePhysicalInterfaces (request, response, appData)
          function(error, data) {
             if(error) {
                commonUtils.handleJSONResponse(error, response, null);
-               return;               
-            }         
+               return;
+            }
             commonUtils.handleJSONResponse(error, response, data);
          });
 }
@@ -278,7 +278,7 @@ function deletePortAsync(dataObj, callback)
     );
 }
 
-function validateQueryParam (request, key) 
+function validateQueryParam (request, key)
 {
     var paramValue = null;
     if (!(paramValue = request.param(key).toString())) {
@@ -296,9 +296,9 @@ function getInterfaceUrl(request, operation, type) {
         return;
      }
      if(infType === 'Physical') {
-          infUrl =  operation === 'create' ? '/physical-interfaces' : '/physical-interface/';   
+          infUrl =  operation === 'create' ? '/physical-interfaces' : '/physical-interface/';
      } else if(infType === 'Logical') {
-          infUrl =  operation === 'create' ? '/logical-interfaces' : '/logical-interface/';        
+          infUrl =  operation === 'create' ? '/logical-interfaces' : '/logical-interface/';
      }
      return infUrl;
 }
@@ -320,12 +320,12 @@ function getVirtualNetworkInternals (request, response, appData)
                  processVMIDetails(appData, data['virtual-network']['virtual_machine_interface_back_refs'], function(err, result){
                     if(err) {
                         commonUtils.handleJSONResponse(err, response, null);
-                        return; 
+                        return;
                     }
                     commonUtils.handleJSONResponse(err, response, result);
                  });
              }
-         });             
+         });
 }
 
 function processVMIDetails(appData, result, callback)
@@ -456,11 +456,11 @@ function updateVMIDetails(request, appData, postData, callback) {
              commonUtils.createReqObj(vmiDataObjArray, vmiReqUrl, global.HTTP_REQUEST_GET,
                  null, null, null, appData);
          }
-         
+
          if(vmiDataObjArray.length > 0) {
-             //get virtual machine interface details for post object's virtual machine interface refs 
+             //get virtual machine interface details for post object's virtual machine interface refs
              async.map(vmiDataObjArray,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                     function(error,vmiDetails){                 
+                     function(error,vmiDetails){
                              if (error) {
                                 commonUtils.handleJSONResponse(error, response, null);
                                 return;
@@ -471,7 +471,7 @@ function updateVMIDetails(request, appData, postData, callback) {
                                 var data = vmiDetails[j];
                                 // filter the virtual machine interfaces with logical_interface_back_refs
                                  if(data != null && data['virtual-machine-interface'] != null && data['virtual-machine-interface']['logical_interface_back_refs'] != null) {
-                                     
+
                                      var liReqUrl = '/logical-interface/' + data['virtual-machine-interface']['logical_interface_back_refs'][0].uuid;
                                      liIds.push(data['virtual-machine-interface']['logical_interface_back_refs'][0].uuid);
                                      commonUtils.createReqObj(liObjArray, liReqUrl, global.HTTP_REQUEST_GET,
@@ -481,7 +481,7 @@ function updateVMIDetails(request, appData, postData, callback) {
                              if(liObjArray.length > 0) {
                                  //get logical interface details
                                  async.map(liObjArray,commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
-                                         function(error,liDetails){                 
+                                         function(error,liDetails){
                                                  if (error) {
                                                     commonUtils.handleJSONResponse(error, response, null);
                                                     return;
@@ -496,7 +496,7 @@ function updateVMIDetails(request, appData, postData, callback) {
                                                             for(var k=0; k < vmiIds.length; k++){
                                                                 if(currLIVMIs[i] != null && currLIVMIs[i]['uuid'] == vmiIds[k]){
                                                                     //remove the vmi_refs from the existing lis whose are part of new li
-                                                                    currLIVMIs.splice(i,1);  
+                                                                    currLIVMIs.splice(i,1);
                                                                 }
                                                             }
                                                         }
@@ -509,7 +509,7 @@ function updateVMIDetails(request, appData, postData, callback) {
                                                         function(err,liPutDetails){
                                                             if(err){
                                                                 commonUtils.handleJSONResponse(err, response, null);
-                                                                return;  
+                                                                return;
                                                             }
                                                             callback();
                                                         }
@@ -517,19 +517,19 @@ function updateVMIDetails(request, appData, postData, callback) {
                                                 } else {
                                                     callback();
                                                 }
-                                                
+
                                  });
                              } else {
                                  callback();
                              }
-                  });          
-                    
+                  });
+
         } else {
             callback();
-        }           
+        }
     } else {
         callback();
-    }         
+    }
 }
 
 /**

@@ -8,10 +8,10 @@
     </require>
     <require>
         <define>physicalinterfacesconfigapi</define>
-        <path>./physicalinterfacesconfig.api</path>
+        <path>./interfacesconfig.api</path>
     </require>
     <!-- API / Feature definition for quotas configuration -->
-    <!-- 
+    <!--
          1. fetch physical interfaces - /api/tenants/config/physical-interfaces/:pRouterId,
                                                  getPhysicalInterfaces
          2. create physical interfaces - /api/tenants/config/physical-interfaces/:pRouterId,
@@ -32,25 +32,25 @@
         <method>post</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.createPhysicalInterfaces</callback>
-    </item>   
-    <item>    
+    </item>
+    <item>
         <url>/api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId</url>
         <method>put</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.updatePhysicalInterfaces</callback>
-    </item>    
-    <item>    
+    </item>
+    <item>
         <url>/api/tenants/config/physical-interface/:pRouterId/:infType/:pInterfaceId</url>
         <method>delete</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.deletePhysicalInterfaces</callback>
-    </item>  
+    </item>
     <item>
         <url>/api/tenants/config/virtual-network-internals/:id</url>
         <method>get</method>
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.getVirtualNetworkInternals</callback>
-    </item>   
+    </item>
     <item>
         <url>/api/tenants/config/map-virtual-machine-refs/:vmiId/:serverId</url>
         <method>get</method>
