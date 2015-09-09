@@ -8,7 +8,7 @@ define([
 ], function (_, ContrailView) {
     var ConfigPhysicalRoutersView = ContrailView.extend({
         el: $(contentContainer),
-        render : function (viewConfig) {
+        renderPhysicalRouters : function (viewConfig) {
             this.renderView4Config(this.$el, null,
             getPhysicalRoutersListConfig());
         }
@@ -18,11 +18,13 @@ define([
         return {
             elementId: cowu.formatElementId(
                 [ctwl.CONFIG_PHYSICAL_ROUTERS_LIST_ID]),
-            view: "PhysicalRouterListView",
-            viewPathPrefix: "config/physicaldevices/ui/js/views/",
+            view: "PhysicalRoutersListView",
+            viewPathPrefix:
+                "config/physicaldevices/physicalrouters/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
         }
     };
     return ConfigPhysicalRoutersView;
 });
+

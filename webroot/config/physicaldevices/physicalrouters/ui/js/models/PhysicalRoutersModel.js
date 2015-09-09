@@ -4,7 +4,7 @@
 define([
     'underscore',
     'contrail-model',
-    'config/physicaldevices/ui/js/models/ServicePortModel'
+    'config/physicaldevices/physicalrouters/ui/js/models/ServicePortsModel'
 ], function (_, ContrailModel, ServicePortModel) {
     var PhysicalRouterModel = ContrailModel.extend({
         defaultConfig: {
@@ -43,7 +43,8 @@ define([
             'bgpGateWay' : 'None',
             'virtualRouterType' : 'None',
             'netConfManaged' : false,
-            'vns' : ''
+            'vns' : '',
+            'virtualRouters':[]
         },
         formatModelConfig: function (modelConfig) {
             /*
@@ -91,7 +92,6 @@ define([
                     returnFlag = false;
                 var attr = this.model().attributes,
                     postObject = {};
-                    that = this;
                 postObject["physical-router"] = {};
                 postObject["physical-router"]["fq_name"] =
                     ["default-global-system-config", attr.pRouterName];
@@ -109,9 +109,18 @@ define([
                 //Decide the creation vrouter based on the type
                 if(type === ctwl.OVSDB_TYPE) {
                     //Given the tor and tsn name create them without ips
-                    populateTORAgentVirtualRouterObjectToPostObj(postObject,
-                        {torAgent1 : attr.torAgent1, torAgent2 : attr.torAgent2,
-                        tsn1 : attr.tsn1, tsn2 : attr.tsn2},'TOR Agent');
+                    this.populateTORAgentVirtualRouterObjectToPostObj(
+                        postObject,
+                        {
+                            torAgent1 : attr.torAgent1,
+                            torAgent2 : attr.torAgent2,
+                            tsn1 : attr.tsn1,
+                            tsn2 : attr.tsn2
+                        },
+                        'TOR Agent',
+                        editView,
+                        attr
+                    );
                 } else if(type === ctwl.CPE_ROUTER_TYPE) {
                     //Create Embedded type vrouter implicitely
                     this.populateEmbeddedVirtualRouterObjectToPostObj(postObject
@@ -164,10 +173,18 @@ define([
                                 postObject, attr.mgmtIP, attr.pRouterName,
                                 editView);
                         } else {//ToR Agent case
-                            populateTORAgentVirtualRouterObjectToPostObj(
-                                postObject,{torAgent1 : attr.torAgent1,
-                                torAgent2 : attr.torAgent2, tsn1 : attr.tsn1,
-                                tsn2 : attr.tsn2}, attr.virtualRouterType);
+                            this.populateTORAgentVirtualRouterObjectToPostObj(
+                                postObject,
+                                {
+                                    torAgent1 : attr.torAgent1,
+                                    torAgent2 : attr.torAgent2,
+                                    tsn1 : attr.tsn1,
+                                    tsn2 : attr.tsn2
+                                },
+                                attr.virtualRouterType,
+                                editView,
+                                attr
+                            );
                         }
                     } else {
                         postObject["physical-router"]["virtual_router_refs"] =
@@ -285,13 +302,11 @@ define([
                         callbackObj.init();
                     }
                 }, function (response) {
-                    console.log(response);
                     if (contrail.checkIfFunction(callbackObj.success)) {
                         callbackObj.success();
                     }
                     returnFlag = true;
                 }, function (error) {
-                    console.log(error);
                     if (contrail.checkIfFunction(callbackObj.error)) {
                         callbackObj.error(error);
                     }
@@ -305,22 +320,28 @@ define([
                 }
             }
         },
-        deletePhysicalRouter : function(checkedRow, callbackObj) {
-            var ajaxConfig = {}, that = this,
-                pRouterId = checkedRow['uuid'];
-            ajaxConfig.type = "DELETE";
-            ajaxConfig.url = '/api/tenants/config/physical-router/' + pRouterId;
+        deletePhysicalRouter : function(checkedRows, callbackObj) {
+            var ajaxConfig = {}, that = this;
+            var uuidList = [];
+
+            $.each(checkedRows, function (checkedRowsKey, checkedRowsValue) {
+                uuidList.push(checkedRowsValue.uuid);
+            });
+
+            ajaxConfig.type = "POST";
+            ajaxConfig.data = JSON.stringify([{'type': 'physical-router',
+                                              'deleteIDs': uuidList}]);
+
+            ajaxConfig.url = '/api/tenants/config/delete';
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {
                     callbackObj.init();
                 }
             }, function (response) {
-                console.log(response);
                 if (contrail.checkIfFunction(callbackObj.success)) {
                     callbackObj.success();
                 }
             }, function (error) {
-                console.log(error);
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(error);
                 }
@@ -361,6 +382,128 @@ define([
             }
             virtualRouterRefs.push({"to":
                 ["default-global-system-config",name]});
+            postObject["physical-router"]["virtual-routers"] = virtualRouters;
+            postObject["physical-router"]["virtual_router_refs"] =
+                virtualRouterRefs;
+        },
+        populateTORAgentVirtualRouterObjectToPostObj : function(postObject,
+            selectedVRouters, vRoutersType, editView, attr) {
+            var virtualRouters = [];
+            var virtualRouterRefs = [];
+            postObject["physical-router"]['virtual_router_type'] = vRoutersType;
+            postObject["physical-router"]["virtual-routers"] = [];
+            var allData = editView.torAgentVrouterDS;
+            var tsnAllData = editView.tsnVrouterDS;
+            var editData = attr.virtualRouters;
+            var isTorSelectedFromList = false;
+            var isTorAlreadyFromEdit = false;
+            var isTsnSelectedFromList = false;
+            var isTsnAlreadyFromEdit = false;
+            //TOR Agent Prim
+            $.each(allData,function(i,d){
+                if(d.text === selectedVRouters.torAgent1){
+                    isTorSelectedFromList = true;
+                }
+            });
+            $.each(editData,function(j,vrouter){
+               if(vrouter.trim() == selectedVRouters.torAgent1){
+                   isTorAlreadyFromEdit = true;
+               }
+            });
+            if(selectedVRouters.torAgent1 != null &&
+                selectedVRouters.torAgent1 != '') {
+                if(!isTorSelectedFromList && !isTorAlreadyFromEdit) {
+                    virtualRouters.push({"virtual-router" :
+                    {"fq_name":["default-global-system-config",
+                          selectedVRouters.torAgent1],
+                          "parent_type":"global-system-config",
+                          "name": selectedVRouters.torAgent1,
+                          "virtual_router_type" : ['tor-agent']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",
+                    selectedVRouters.torAgent1]});
+            }
+            //TOR Agent Sec
+            isTorSelectedFromList = false;
+            isTorAlreadyFromEdit = false;
+            $.each(allData,function(i,d){
+                if(d.text === selectedVRouters.torAgent2){
+                    isTorSelectedFromList = true;
+                }
+            });
+            $.each(editData,function(j,vrouter){
+                if(vrouter.trim() == selectedVRouters.torAgent2){
+                    isTorAlreadyFromEdit = true;
+                }
+            });
+            if(selectedVRouters.torAgent2 != null &&
+                selectedVRouters.torAgent2 != '') {
+                if(!isTorSelectedFromList && !isTorAlreadyFromEdit) {
+                    virtualRouters.push({"virtual-router" :
+                        {"fq_name":["default-global-system-config",
+                        selectedVRouters.torAgent2],
+                        "parent_type":"global-system-config",
+                        "name": selectedVRouters.torAgent2,
+                        "virtual_router_type" : ['tor-agent']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",
+                    selectedVRouters.torAgent2]});
+            }
+            //TSN Prim
+            $.each(tsnAllData,function(i,d){
+                if(d.text == selectedVRouters.tsn1){
+                    isTsnSelectedFromList = true;
+                }
+            });
+            $.each(editData,function(j,vrouter){
+                if(vrouter.trim() == selectedVRouters.tsn1){
+                    isTsnAlreadyFromEdit = true;
+                }
+            });
+            if(selectedVRouters.tsn1 != null && selectedVRouters.tsn1 != ''){
+                if(!isTsnSelectedFromList && !isTsnAlreadyFromEdit) {
+                    virtualRouters.push({"virtual-router" :
+                        {"fq_name":["default-global-system-config",
+                        selectedVRouters.tsn1],
+                        "parent_type":"global-system-config",
+                        "name": selectedVRouters.tsn1,
+                        "virtual_router_type" : ['tor-service-node']}});
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",
+                    selectedVRouters.tsn1]});
+            }
+            //TSN Sec
+            isTsnSelectedFromList = false;
+            isTsnAlreadyFromEdit = false;
+            $.each(tsnAllData,function(i,d){
+                if(d.text == selectedVRouters.tsn2){
+                    isTsnSelectedFromList = true;
+                }
+            });
+            $.each(editData,function(j,vrouter){
+                if(vrouter.trim() == selectedVRouters.tsn2){
+                    isTsnAlreadyFromEdit = true;
+                }
+            });
+            if(selectedVRouters.tsn2 != null && selectedVRouters.tsn2 != ''){
+                if(!isTsnSelectedFromList && !isTsnAlreadyFromEdit) {
+                    virtualRouters.push(
+                        {
+                            "virtual-router" :
+                                {
+                                    "fq_name" : ["default-global-system-config",
+                                        selectedVRouters.tsn2],
+                                     "parent_type":"global-system-config",
+                                     "name": selectedVRouters.tsn2,
+                                     "virtual_router_type" :
+                                         ['tor-service-node']
+                                }
+                        }
+                    );
+                }
+                virtualRouterRefs.push({"to":["default-global-system-config",
+                    selectedVRouters.tsn2]});
+            }
             postObject["physical-router"]["virtual-routers"] = virtualRouters;
             postObject["physical-router"]["virtual_router_refs"] =
                 virtualRouterRefs;
@@ -436,61 +579,6 @@ define([
             }
         }
     });
-    function populateTORAgentVirtualRouterObjectToPostObj(postObject,
-        selectedVRouters,vRoutersType) {
-        var virtualRouters = [];
-        var virtualRouterRefs = [];
-        postObject["physical-router"]['virtual_router_type'] = vRoutersType;
-        postObject["physical-router"]["virtual-routers"] = [];
-        //TOR Agent Prim
-        if(selectedVRouters.torAgent1 != null &&
-            selectedVRouters.torAgent1 != ''){
-            /*virtualRouters.push({"virtual-router" :
-            {"fq_name":["default-global-system-config",
-                  selectedVRouters.torAgent1],
-                  "parent_type":"global-system-config",
-                  "name": selectedVRouters.torAgent1,
-                  "virtual_router_type" : ['tor-agent']}});*/
-            virtualRouterRefs.push({"to":["default-global-system-config",
-                selectedVRouters.torAgent1]});
-        }
-        //TOR Agent Sec
-        if(selectedVRouters.torAgent2 != null &&
-            selectedVRouters.torAgent2 != ''){
-            /*virtualRouters.push({"virtual-router" :
-                {"fq_name":["default-global-system-config",
-                selectedVRouters.torAgent2],
-                "parent_type":"global-system-config",
-                "name": selectedVRouters.torAgent2,
-                "virtual_router_type" : ['tor-agent']}});*/
-            virtualRouterRefs.push({"to":["default-global-system-config",
-                selectedVRouters.torAgent2]});
-        }
-        //TSN Prim
-        if(selectedVRouters.tsn1 != null && selectedVRouters.tsn1 != ''){
-            /*virtualRouters.push({"virtual-router" :
-                {"fq_name":["default-global-system-config",
-                selectedVRouters.tsn1],
-                "parent_type":"global-system-config",
-                "name": selectedVRouters.tsn1,
-                "virtual_router_type" : ['tor-service-node']}});*/
-            virtualRouterRefs.push({"to":["default-global-system-config",
-                selectedVRouters.tsn1]});
-        }
-        //TSN Sec
-        if(selectedVRouters.tsn2 != null && selectedVRouters.tsn2 != ''){
-            /*virtualRouters.push({"virtual-router" :
-            {"fq_name":["default-global-system-config", selectedVRouters.tsn2],
-                             "parent_type":"global-system-config",
-                             "name": selectedVRouters.tsn2,
-                             "virtual_router_type" : ['tor-service-node']}});*/
-            virtualRouterRefs.push({"to":["default-global-system-config",
-                selectedVRouters.tsn2]});
-        }
-        postObject["physical-router"]["virtual-routers"] = virtualRouters;
-        postObject["physical-router"]["virtual_router_refs"] =
-            virtualRouterRefs;
-    };
     return PhysicalRouterModel;
 });
 

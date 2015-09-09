@@ -1,11 +1,11 @@
-var configPhysicalDevicesPageLoader = new ConfigPhysicalDevicesLoader();
+var configPhysicalRoutersPageLoader = new ConfigPhysicalRoutersLoader();
 
-function ConfigPhysicalDevicesLoader() {
+function ConfigPhysicalRoutersLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = rootDir + '/js/views/PhysicalDevicesView.js',
+            pathMNView = rootDir + '/js/views/PhysicalRoutersView.js',
             renderFn = paramObject['function'];
 
         check4CTInit(function () {
@@ -47,3 +47,4 @@ function check4CTInit(callback) {
         callback();
     }
 }
+
