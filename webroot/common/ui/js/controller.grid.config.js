@@ -54,6 +54,7 @@ define([
                     cssClass :'cell-hyperlink-blue',
                     events : {
                         onClick : function(e, dc) {
+                            contrail.setCookie(ctwl.PROUTER_KEY, dc.pRouterName)
                             layoutHandler.setURLHashParams({uuid : dc.uuid},
                             {p : 'config_pd_interfaces' ,merge : false,
                             triggerHashChange : true});

@@ -597,13 +597,6 @@ and need to add the iconClass tag wherever we need to show some icons
                         <resource>
                             <rootDir>/common/ui</rootDir>
                             <js>controller.app.js</js>
-                            <class>configPhysicalDevicesPageLoader</class>
-                        </resource>
-                        <resource>
-                            <rootDir>/config/physicaldevices/ui</rootDir>
-                            <js>physicaldevices.main.js</js>
-                            <template>physicaldevices.tmpl</template>
-                            <class>configPhysicalDevicesPageLoader</class>
                         </resource>
                     </resources>
                     <items>
@@ -612,8 +605,10 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_pd_physicalRouters</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/physicaldevices/ui</rootDir>
-                                    <class>configPhysicalDevicesPageLoader</class>
+                                    <rootDir>/config/physicaldevices/physicalrouters/ui</rootDir>
+                                    <js>physicalrouters.main.js</js>
+                                    <template>physicalrouters.tmpl</template>
+                                    <class>configPhysicalRoutersPageLoader</class>
                                     <function>renderPhysicalRouters</function>
                                 </resource>
                             </resources>
@@ -624,10 +619,11 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_pd_interfaces</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/physicaldevices/physicalinterfaces/ui</rootDir>
-                                    <js>physicalinterfaces_config.js</js>
-                                    <view>physicalinterfaces_config.view</view>
-                                    <class>physicalInterfacesConfigObj</class>
+                                    <rootDir>/config/physicaldevices/interfaces/ui</rootDir>
+                                    <js>interfaces.main.js</js>
+                                    <template>interfaces.tmpl</template>
+                                    <class>configInterfacesPageLoader</class>
+                                    <function>renderInterfaces</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Interfaces</searchStrings>

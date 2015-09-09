@@ -129,49 +129,10 @@ define([
             lls_fab_address_ip: 'Address Type',
             ip_fabric_DNS_service_name: 'Fabric DNS',
 
-            /*Physical Routers*/
-            pmodel: 'Model',
-            snmpMntd: "SNMP Monitored",
-            mgmtIP: "Management IP",
-            dataIP: "VTEP Address",
-            torAgent1: "TOR Agent1",
-            torAgent2: "TOR Agent2",
-            tsn1: "TSN1",
-            tsn2: "TSN2",
-            physical_router: "Physical Router",
-            pRouterName: "Name",
-            snmpLocalPort: "Local Port",
-            snmpRetries: "Retries",
-            snmpTimeout: "Timeout(secs)",
-            snmpV2Community: "Community",
-            snmpVersion: "SNMP Version",
-            expDetSnmpVersion: "SNMP Version",
-            snmpV3SecurityName: "Security Name",
-            snmpV3SecurityLevel: "Security Level",
-            snmpv3AuthProtocol: "Authentication Protocol",
-            snmpv3AuthPasswd: "Password",
-            snmpv3PrivProtocol: "Privacy Protocol",
-            snmpv3PrivPasswd: "Password",
-            snmpV3SecurityEngineId: "Security Engine Id",
-            snmpv3Context: "Context",
-            snmpv3ContextEngineId: "Context Engine Id",
-            snmpv3EngineId: "Engine Id",
-            snmpv3EngineBoots: "Engine Boots",
-            snmpv3EngineTime: "Engine Time",
-            displayVirtualRouters: "Associated Virtual Router(s)",
-            totalInterfacesCount: "Interfaces",
-            isJunosPortEnabled: "Junos Service Ports",
-            netConfUserName: "Netconf Username",
-            netConfPasswd: "Password",
-            bgpGateWay: "BGP Gateway",
-            vns: "Virtual Networks",
-            virtualRouterType: 'Type',
-            netconfManaged: 'Netconf Managed',
-
             /*Virtual Router Config*/
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
-            virtual_router_ip_address: "IP Address"
+            virtual_router_ip_address: "IP Address",
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -395,7 +356,7 @@ define([
         this.VROUTER_SUMMARY_SCATTERCHART_SECTION_ID =
             'vrouter-nodes-scatterchart-section';
         this.CACHE_VROUTER = 'cache-vrouter-nodes';
-        
+
         this.VROUTER_TAB_SECTION_ID = 'vrouter_tab_section';
         this.VROUTER_TAB_VIEW_ID = 'vrouter_tab_view';
         this.VROUTER_DETAILS_SECTION_ID = 'vrouter_details_section';
@@ -442,7 +403,7 @@ define([
         this.VROUTER_FLOWS_RESULTS = 'vrouter_flows-results';
         this.VROUTER_FLOWS_PREFIX = 'vrouter_flows';
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
- 
+
         //Database node labels
         this.DATABASENODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/databasenode/ui/js/views/';
@@ -673,6 +634,41 @@ define([
         this.TITLE_DEL_SEC_GRP = 'Delete Security Group';
         this.TITLE_EDIT_SEC_GRP = 'Edit Security Group';
         this.SEC_GRP_DETAILS = 'Security Group Details';
+
+        //Interfaces
+        this.CONFIG_INTERFACES_LIST_ID = "config-interfaces-list";
+        this.PROUTER_BREADCRUMB_DROPDOWN = "prouter-breadcrumb-dropdown";
+        this.PROUTER_KEY = "prouter";
+        this.NO_PROUTER_FOUND = "No Physical Router found";
+        this.CONFIG_INTERFACES_SECTION_ID = "config-interfaces-section";
+        this.CONFIG_INTERFACES_ID = "config-interfaces";
+        this.TITLE_INTERFACES = "Interfaces";
+        this.INF_VIEW_PATH_PREFIX =
+            "config/physicaldevices/interfaces/ui/js/views/";
+        this.CONFIG_INTERFACES_LIST_VIEW_ID = "config-interfaces-list";
+        this.INTERFACES_GRID_ID = "interfaces-grid";
+        this.TITLE_ADD_INTERFACE = "Add Interface";
+        this.INTERFACE_PREFIX_ID = "interface"
+        this.LOGICAL_INF_ACCORDION = "logical_inf_accordion";
+        this.LOGICAL_INF_SECTION = "logical_inf_section";
+        this.LOGICAL_INF_SECTION_TITLE =
+            "Logical Interface Properties";
+        this.ENTER_SERVER = "Enter or Choose mac";
+        this.TITLE_EDIT_INF = "Edit Interface";
+        this.PHYSICAL_INF = "Physical";
+        this.LOGICAL_INF = "Logical";
+        this.LOGICAL_INF_L2_TYPE = 'L2';
+        this.LOGICAL_INF_L3_TYPE = 'L3';
+        this.VLAN = 'logical_interface_vlan_tag';
+        this.LOGICAL_INF_TYPE = 'logical_interface_type';
+        this.TITLE_DELETE_ALL_CONFIG = "Delete All";
+        this.BM_CLEAR_VMI = "bm_clear_vmi";
+        this.INF_PROPERTIES = 'Interface Properties';
+        this.INF_ED_TMPL = 'BlockListTemplateGenerator';
+        this.INF_TG = 'TextGenerator';
+        this.IP_PH = 'Auto Allocate or Enter an IP';
+        this.PARENT_TYPE_PROUTER = 'physical_router';
+        this.PARENT_TYPE_PINF = 'physical_interface';
     };
     return CTLabels;
 });
