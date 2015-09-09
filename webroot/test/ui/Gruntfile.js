@@ -35,21 +35,48 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-controller/webroot/monitor/**/*.tmpl', included: false},
         {pattern: 'contrail-web-controller/webroot/common/ui/templates/*.tmpl', included: false},
         {pattern: 'contrail-web-controller/webroot/common/**/*.js', included: false},
-        {pattern: 'contrail-web-controller/webroot/monitor/**/*.js', included: false},
+
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js', included: false},
+
         {pattern: 'contrail-web-controller/webroot/config/linklocalservices/**/*.js', included: false},
         {pattern: 'contrail-web-controller/webroot/*.xml', included: false},
 
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
-        {pattern: 'contrail-web-core/webroot/templates/*.tmpl', included: false}
+        {pattern: 'contrail-web-core/webroot/templates/*.tmpl', included: false},
+
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/InstanceListView.mock.data.js', included: false},
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/ProjectListView.mock.data.js', included: false},
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.mock.data.js', included: false}
     ];
     var karmaConfig = {
         options: {
             configFile: 'karma.config.js'
         },
-        networklistview: {
+        networks: {
             options: {
                 files: [
-                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.test.js', included: false}
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.test.js', included: false},
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.custom.test.suite.js', included: false}
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                }
+            }
+        },
+        projects: {
+            options: {
+                files: [
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/ProjectListView.test.js', included: false}
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                }
+            }
+        },
+        instances: {
+            options: {
+                files: [
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/InstanceListView.test.js', included: false}
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
@@ -74,13 +101,19 @@ module.exports = function (grunt) {
             files: ["Gruntfile.js"]
         },
         nm : {
-            networklistview: 'networklistview'
+            networks: 'networks',
+            projects: 'projects',
+            instances: 'instances'
         }
     });
 
     grunt.registerMultiTask('nm', 'Network Monitoring Test Cases', function () {
-        if (this.target == 'networklistview') {
-            grunt.task.run('karma:networklistview');
+        if (this.target == 'networks') {
+            grunt.task.run('karma:networks');
+        } else if (this.target == 'projects') {
+            grunt.task.run('karma:projects');
+        } else if (this.target == 'instances') {
+            grunt.task.run('karma:instances');
         }
     });
 };

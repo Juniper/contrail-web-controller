@@ -73,7 +73,8 @@ define([
                     checkboxSelectable: false,
                     detail: {
                         template: cowu.generateDetailTemplateHTML(getInstanceDetailsTemplateConfig(), cowc.APP_CONTRAIL_CONTROLLER, 'value')
-                    }
+                    },
+                    fixedRowHeight: 30
                 },
                 dataSource: {
                     remote: {
