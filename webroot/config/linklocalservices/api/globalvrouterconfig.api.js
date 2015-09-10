@@ -67,14 +67,14 @@ function getFirstGlobalvRouterConfig(appData, callback) {
         });
 }
 
-function createFirstGlobalvRouterConfig(request, appData, callback) {
+function createFirstGlobalvRouterConfig(data, appData, callback) {
     var gvrPostURL = '/global-vrouter-configs';
     var gvrPostData = {};
     gvrPostData["global-vrouter-config"] = {};
-    if(null !== request && typeof request !== "undefined" && null !== request.body &&
-        typeof request.body !== "undefined" && null !== request.body["global-vrouter-config"] &&
-        typeof request.body["global-vrouter-config"] !== "undefined") {
-        gvrPostData["global-vrouter-config"] = request.body["global-vrouter-config"];
+    if (null !== data && typeof data !== "undefined" &&
+        null !== data["global-vrouter-config"] &&
+        typeof data["global-vrouter-config"] !== "undefined") {
+        gvrPostData["global-vrouter-config"] = data["global-vrouter-config"];
     }
 
     gvrPostData["global-vrouter-config"]["parent_type"] = "global-system-config";
@@ -116,7 +116,7 @@ function getGlobalvRouterConfig (request, response, appData)
  * process data from config api server and sends back the http response.
  */
 function createGlobalvRouterConfig (request, response, appData) {
-	createFirstGlobalvRouterConfig(request, appData, function(err, data) {
+	createFirstGlobalvRouterConfig(request.body, appData, function(err, data) {
 	    if(err) {
 			commonUtils.handleJSONResponse(err, response, null);
 	    } else {
@@ -124,6 +124,98 @@ function createGlobalvRouterConfig (request, response, appData) {
 	    }
 	    return;
 	});
+}
+
+/**
+ * @updateGlobalConfig
+ * 1. URL /api/tenants/config/update-global-config
+ * 2. Updates global-vrouter-config and global-system-config and process
+ * data from config api server and sends back the http response.
+ */
+function updateGlobalConfig (req, res, appData)
+{
+    var error = null;
+    var dataObjArr = [];
+    var uiGlobalConfig = req.body;
+    if ((null == uiGlobalConfig) ||
+        (null == uiGlobalConfig['global-vrouter-config']) ||
+        (null == uiGlobalConfig['global-system-config'])) {
+        error = new appErrors.RESTServerError('Invalid Request ');
+        commonUtils.handleJSONResponse(error, res, null);
+        return;
+    }
+    var globalVRId =
+        commonUtils.getValueByJsonPath(uiGlobalConfig,
+                                       'global-vrouter-config;uuid',
+                                       null);
+    var globalSCId =
+        commonUtils.getValueByJsonPath(uiGlobalConfig,
+                                       'global-system-config;uuid',
+                                       null);
+
+    var putGVCData = {'global-vrouter-config':
+        uiGlobalConfig['global-vrouter-config']};
+    var putGSCData = {'global-system-config':
+        uiGlobalConfig['global-system-config']};
+
+    dataObjArr.push({type: 'global-system-config', uuid: globalSCId,
+                    putData: putGSCData, appData: appData});
+    dataObjArr.push({type: 'global-vrouter-config', uuid: globalVRId,
+                    putData: putGVCData, appData: appData});
+    async.map(dataObjArr, updateGlobalConfigCB, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, null);
+    });
+}
+
+function updateGlobalSystemConfigCB (dataObj, callback)
+{
+    var appData       = dataObj['appData'];
+    var config        = dataObj['config'];
+    var fqnameURL     = '/fqname-to-id';
+    var gscReqBody    = {
+        'fq_name': ['default-global-system-config'],
+        'type': 'global-system-config'
+    };
+    configApiServer.apiPost(fqnameURL, gscReqBody, appData,
+                            function(error, data) {
+        var gscURL = '/global-system-config/' + dataObj['uuid'];
+        configApiServer.apiGet(gscURL, appData, function(err, gscData) {
+            if ((null != err) || (null == gscData)) {
+                callback(err, gscData);
+                return;
+            }
+            var uiASN =
+                dataObj['putData']['global-system-config']
+                       ['autonomous_system'];
+            var diffObj =
+                jsonDiff.getConfigJSONDiff('global-system-config',
+                                           gscData, dataObj['putData']);
+            if (null == diffObj) {
+                return;
+            }
+            configApiServer.apiPut(gscURL, diffObj, appData,
+                                   function(error, data) {
+                if (null == uiASN) {
+                    callback(error, data);
+                    return;
+                }
+                setTimeout(function() {
+                    callback(error, data);
+                    return;
+                }, 3000);
+            });
+        });
+    });
+}
+
+function updateGlobalConfigCB (dataObj, callback)
+{
+    var type = dataObj['type'];
+    if (type == 'global-vrouter-config') {
+        updateForwardingOptionsCB(dataObj, callback);
+    } else {
+       updateGlobalSystemConfigCB(dataObj, callback);
+    }
 }
 
 /**
@@ -135,16 +227,35 @@ function createGlobalvRouterConfig (request, response, appData) {
  */
 function updateForwardingOptions (request, response, appData) {
     var gvrPutData = request.body;
+    var gvrId = request.param('id');
+    updateForwardingOptionsCB({uuid: gvrId, putData: gvrPutData,
+                              appData: appData},
+                              function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function updateForwardingOptionsCB (gvrObj, callback)
+{
+    var gvrPutData = gvrObj['putData'];
+    var appData = gvrObj['appData'];
+    var gvrId = gvrObj['uuid'];
+
     if (!('global-vrouter-config' in gvrPutData)) {
         error = new appErrors.RESTServerError('Invalid Request ');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
 
-    var gvrId = request.param('id');
+    if (null == gvrId) {
+        /* This is a create request */
+        createFirstGlobalvRouterConfig(gvrPutData, appData, callback);
+        return;
+    }
+
     if(null === gvrId || typeof gvrId === "undefined") {
         error = new appErrors.RESTServerError('Invalid ID');
-        commonUtils.handleJSONResponse(error, response, null);
+        callback(error, null);
         return;
     }
     
@@ -152,7 +263,7 @@ function updateForwardingOptions (request, response, appData) {
     configApiServer.apiGet(gvrGetURL, appData,
         function(error, data) {
            	if (error) {
-           		commonUtils.handleJSONResponse(error, response, null);
+                callback(error, null);
            		return;
            	} else {
         	    var gvrPutURL = '/global-vrouter-config/' + gvrId;
@@ -168,15 +279,15 @@ function updateForwardingOptions (request, response, appData) {
         	        configApiServer.apiPut(gvrPutURL, diffObj, appData,
         	            function (error, data) {
 		                	if (error) {
-		                		commonUtils.handleJSONResponse(error, response, null);
+                                callback(error, null);
 		                		return;
 		                	} else {
-		                		commonUtils.handleJSONResponse(error, response, data);
+                                callback(error, data);
 		                	}
 		                	return;
         	            });
            		} else {
-                    commonUtils.handleJSONResponse(error, response, null);
+                    callback(error, null);
                 }
             }
         });
@@ -192,7 +303,7 @@ function updateLinkLocalService (request, response, appData) {
     getFirstGlobalvRouterConfig(appData, function(error, data) {
     	if(null === data) {
     		//Global vRouter Config doesnt exist or empty.
-    		createFirstGlobalvRouterConfig(request, appData, function(error, data) {
+    		createFirstGlobalvRouterConfig(request.body, appData, function(error, data) {
             	if (error) {
             		commonUtils.handleJSONResponse(error, response, null);
             		return;
@@ -247,3 +358,4 @@ exports.getGlobalvRouterConfig = getGlobalvRouterConfig;
 exports.createGlobalvRouterConfig = createGlobalvRouterConfig;
 exports.updateForwardingOptions = updateForwardingOptions;
 exports.updateLinkLocalService = updateLinkLocalService;
+exports.updateGlobalConfig = updateGlobalConfig;
