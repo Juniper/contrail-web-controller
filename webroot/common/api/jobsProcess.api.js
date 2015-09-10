@@ -2,8 +2,8 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-var bgpNode = require('../../monitor/infra/controlnode/jobs/controlnode.jobs.api'),
-    computeNode = require('../../monitor/infra/vrouter/jobs/vrouternode.jobs.api'),
+var bgpNode = require('../../monitor/infrastructure/controlnode/jobs/controlnode.jobs.api'),
+    computeNode = require('../../monitor/infrastructure/vrouter/jobs/vrouternode.jobs.api'),
     nwMonJobsApi = require('../../monitor/networking/ui/jobs/network.mon.jobs');
 
 var jobsProcess = module.exports;
