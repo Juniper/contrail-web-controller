@@ -171,7 +171,11 @@ define([
             /*Virtual Router Config*/
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
-            virtual_router_ip_address: "IP Address"
+            virtual_router_ip_address: "IP Address",
+                
+            /* Underlay Labels */
+            traceflow_radiobtn_name : '',
+            traceFlowDropdown : '',
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -310,6 +314,23 @@ define([
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE = 'virtual machine';
         this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
 
+        //Underlay labels
+        this.UNDERLAY_GRAPH_ID = "underlay-graph";
+        this.URL_UNDERLAY_TOPOLOGY = '/api/tenant/networking/underlay-topology';
+        this.URL_UNDERLAY_TOPOLOGY_REFRESH = this.URL_UNDERLAY_TOPOLOGY + '?forceRefresh';
+        this.TMPL_UNDERLAY_GRAPH_VIEW = 'underlay-graph-template';
+        this.UNDERLAY_CONTROLPANEL = 'underlay-controlpanel';
+        this.TITLE_GRAPH_ELEMENT_PHYSICAL_ROUTER = 'Physical Router';
+        this.TITLE_GRAPH_ELEMENT_VIRTUAL_ROUTER = 'Virtual Router';
+        this.UNDERLAY_VIEWPATH_PREFIX =
+            'monitor/infrastructure/underlay/ui/js/views/';
+        this.UNDERLAY_TRACEFLOW_TITLE = 'Trace Flows';
+        this.UNDERLAY_PROUTER_INTERFACES_TITLE = 'Interfaces';
+        this.UNDERLAY_PROUTER_DETAILS = 'Physical Router Details';
+        this.UNDERLAY_SEARCHFLOW_TITLE = 'Search Flows';
+        this.UNDERLAY_TRAFFIC_STATISTICS = 'Traffic Statistics';
+        this.UNDERLAY_SEARCHFLOW_WIDGET_TITLE = 'Query Flow Records';
+        
         //Alarms labels
         this.ALARMS_BREADCRUMB_DROPDOWN = "alarms-breadcrumb-dropdown";
         this.MONITOR_ALARMS_PAGE_ID = "monitor-alarms-page";

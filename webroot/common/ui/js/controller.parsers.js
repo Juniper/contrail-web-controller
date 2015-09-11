@@ -453,7 +453,129 @@ define([
            }
            return retArr;
         };
+        
+        this.vmTrafficStatsParser = function (response) {
+            return [response];
+        };
 
+        this.interfaceDataParser = function(response) {
+            var interfaceMap = self.instanceInterfaceDataParser(response)
+            return _.values(interfaceMap);
+        };
+        
+        this.parseInstanceInterfaceStats = function (response) {
+            var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
+                var item = {};
+                var props = ctwc.STATS_SELECT_FIELDS['virtual-machine'];
+                item['name'] = obj['name'];
+                item['inBytes'] = ifNull(obj[props['inBytes']], '-');
+                item['outBytes'] = ifNull(obj[props['outBytes']], '-');
+                return item;
+            });
+            return retArr;
+        };
+        
+        this.parseNetwork4PortDistribution = function(response, networkFQN, interfaceIP) {
+            var srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
+                    startTime: response['startTime'],
+                    endTime: response['endTime'],
+                    bandwidthField: 'outBytes',
+                    flowCntField: 'outFlowCount',
+                    portField: 'sport',
+                    portYype: "src",
+                    fqName: networkFQN,
+                    ipAddress: interfaceIP
+                }) : [],
+                dstPortData = response ? ctwp.parsePortDistribution(ifNull(response['dport'], []), {
+                    startTime: response['startTime'],
+                    endTime: response['endTime'],
+                    bandwidthField: 'inBytes',
+                    flowCntField: 'inFlowCount',
+                    portField: 'dport',
+                    portYype: "src",
+                    fqName: networkFQN,
+                    ipAddress: interfaceIP
+                }) : [],
+                chartData = [];
+
+            chartData = chartData.concat(srcPortdata);
+            chartData = chartData.concat(dstPortData);
+
+            return chartData;
+        };
+        
+
+        this.parsePortDistribution = function (responseData, parserConfig) {
+            var portCF = crossfilter(responseData),
+                portField = ifNull(parserConfig['portField'], 'sport'),
+                portType = parserConfig['portType'],
+                color, parsedData = [],
+                fqName = parserConfig['fqName'];
+
+            if (portType == null) {
+                portType = (portField == 'sport') ? 'src' : 'dst';
+            }
+
+            var flowCntField = ifNull(parserConfig['flowCntField'], 'outFlowCnt'),
+                bandwidthField = ifNull(parserConfig['bandwidthField'], 'outBytes');
+
+            var portDim = portCF.dimension(function (d) {
+                    return d[parserConfig['portField']];
+                }),
+                PORT_LIMIT = 65536, PORT_STEP = 256,
+                startPort = ifNull(parserConfig['startPort'], 0),
+                endPort = ifNull(parserConfig['endPort'], PORT_LIMIT);
+
+            if (endPort - startPort == 255)
+                PORT_STEP = 1;
+
+            if (portType == 'src') {
+                color = 'default';
+            } else {
+                color = 'medium';
+            }
+
+            //Have a fixed port bucket range of 256
+            for (var i = startPort; i <= endPort; i = i + PORT_STEP) {
+                var name, range,
+                    totalBytes = 0, flowCnt = 0, x;
+
+                if (PORT_STEP == 1) {
+                    portDim.filter(i);
+                    name = i;
+                    range = i;
+                } else {
+                    portDim.filter([i, Math.min(i + PORT_STEP - 1, 65536)]);
+                    name = i + ' - ' + Math.min(i + PORT_STEP - 1, 65536);
+                    range = i + '-' + Math.min(i + PORT_STEP - 1, 65536);
+                }
+
+                $.each(portDim.top(Infinity), function (idx, obj) {
+                    totalBytes += obj[bandwidthField];
+                    flowCnt += obj[flowCntField];
+                });
+
+                x = Math.floor(i + Math.min(i + PORT_STEP - 1, 65536)) / 2
+
+                if (portDim.top(Infinity).length > 0)
+                    parsedData.push({
+                        startTime: parserConfig['startTime'],
+                        endTime: parserConfig['endTime'],
+                        x: x,
+                        y: totalBytes,
+                        name: name,
+                        type: portType == 'src' ? 'sport' : 'dport',
+                        range: range,
+                        flowCnt: flowCnt,
+                        size: flowCnt,
+                        color: color,
+                        fqName: fqName,
+                        ipAddress: parserConfig['ipAddress']
+                        //type:portField
+                    });
+            }
+            return parsedData;
+        };
     };
 
     return CTParsers;

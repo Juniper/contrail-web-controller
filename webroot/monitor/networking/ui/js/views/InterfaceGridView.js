@@ -97,10 +97,10 @@ define([
                 dataSource: {
                     remote: {
                         ajaxConfig: interfacesAjaxConfig,
-                        dataParser: nmwp.interfaceDataParser
+                        dataParser: ctwp.interfaceDataParser
                     },
                     vlRemoteConfig: {
-                        vlRemoteList: nmwgc.getInterfaceStatsLazyRemoteConfig()
+                        vlRemoteList: ctwgc.getInterfaceStatsLazyRemoteConfig()
                     },
                     cacheConfig : {
                         ucid: ucid
@@ -108,7 +108,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: nmwgc.instanceInterfaceColumns
+                columns: ctwgc.instanceInterfaceColumns
             },
             footer: {
                 pager: { options: { pageSize: 8, pageSizeSelect: [8, 25, 50, 100] } }
