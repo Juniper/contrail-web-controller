@@ -41,7 +41,8 @@ define(
                         if(obj['ip'] == '-') {
                             obj['ip'] = obj['configIP'];
                         }
-                        obj['summaryIps'] = getControlIpAddresses(d,"summary");
+                        obj['summaryIps'] = monitorInfraUtils.
+                                            getControlIpAddresses(d,"summary");
                         obj['memory'] =
                             formatMemory(ifNull(jsonPath(d,'$..meminfo')[0]),'-');
                         obj['size'] =
@@ -139,6 +140,7 @@ define(
                             obj['nodeAlerts'].concat(obj['processAlerts'])
                                                 .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
+                        obj['rawData'] = d;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -238,6 +240,7 @@ define(
                         obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                                             .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
+                        obj['rawData'] = d;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -316,6 +319,7 @@ define(
                             obj['nodeAlerts'].concat(obj['processAlerts'])
                                 .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
+                        obj['rawData'] = d;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -397,6 +401,7 @@ define(
                         obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                             .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
+                        obj['rawData'] = d;
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);

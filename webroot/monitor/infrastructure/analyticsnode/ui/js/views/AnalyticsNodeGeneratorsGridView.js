@@ -60,64 +60,89 @@ define([
 
     function getAnalyticsNodeGeneratorsGridConfig() {
 
-    var columns = [
-    {
-        field:"name",
-        name:"Name",
-        width:110
-    },
-    {
-        field:"status",
-        name:"Status",
-        width:210
-    },
-    {
-        field:'messages',
-        headerAttributes:{style:'min-width:160px;'},
-        width:160,
-        name:"Messages"
-    },
-    {
-        field:"formattedMsgBytes",
-        name:"Bytes",
-        width:140,
-        sortField:"bytes"
-    }];
-    var gridElementConfig = {
-        header : {
-            title : {
-                text : ctwl.ANALYTICSNODE_GENERATORS_TITLE
-            }
+        var columns = [
+        {
+            field:"name",
+            name:"Name",
+            width:110
         },
-        columnHeader : {
-            columns : columns
+        {
+            field:"status",
+            name:"Status",
+            width:210
         },
-        body : {
-            options : {
-                detail : false,
-                checkboxSelectable : false
-            },
-            dataSource : {
-                data : []
-            }
+        {
+            field:'messages',
+            headerAttributes:{style:'min-width:160px;'},
+            width:160,
+            name:"Messages"
         },
-        statusMessages: {
-            loading: {
-                text: 'Loading Generators..',
+        {
+            field:"formattedMsgBytes",
+            name:"Bytes",
+            width:140,
+            sortField:"bytes"
+        }];
+        var gridElementConfig = {
+            header : {
+                title : {
+                    text : ctwl.ANALYTICSNODE_GENERATORS_TITLE
+                }
             },
-            empty: {
-                text: 'No Generators to display'
+            columnHeader : {
+                columns : columns
             },
-            errorGettingData: {
-                type: 'error',
-                iconClasses: 'icon-warning',
-                text: 'Error in getting Data.'
+            body : {
+                options : {
+                    detail : {
+                        template:
+                            cowu.generateDetailTemplateHTML(
+                                    getGeneratorsDetailsTemplateConfig(),
+                                    cowc.APP_CONTRAIL_CONTROLLER)
+                    },
+                    checkboxSelectable : false
+                },
+                dataSource : {
+                    data : []
+                }
+            },
+            statusMessages: {
+                loading: {
+                    text: 'Loading Generators..',
+                },
+                empty: {
+                    text: 'No Generators to display'
+                },
+                errorGettingData: {
+                    type: 'error',
+                    iconClasses: 'icon-warning',
+                    text: 'Error in getting Data.'
+                }
             }
-        }
-    };
-    return gridElementConfig;
+        };
+        return gridElementConfig;
 
-}
+    }
+
+    this.getGeneratorsDetailsTemplateConfig = function () {
+        return{
+            templateGenerator: 'ColumnSectionTemplateGenerator',
+            advancedViewOptions :false,
+             templateGeneratorConfig: {
+                 columns: [
+                     {
+                         rows: [
+                             {
+                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
+                                 title: smwl.TITLE_OVERVIEW,
+                                 templateGeneratorData : 'raw_json'
+                             }
+                         ]
+                     }
+                 ]
+             }
+        }
+    }
 
     this.parseGenInfo = function(response)
     {

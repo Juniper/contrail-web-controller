@@ -4,11 +4,10 @@
 
 define([
     'underscore',
-    'contrail-view',
+    'contrail-view'
 ], function (_, ContrailView) {
     var AnalyticsNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
-
         render: function () {
             var self = this;
             var detailsTemplate = contrail.getTemplate4Id(
@@ -36,8 +35,9 @@ define([
                 },
                 templateConfig: getDetailsViewTemplateConfig(),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                dataParser: function(result) {
+                dataParser: function (result) {
                     var analyticsNodeData = result;
+                    var nodeIp;
                     var obj = monitorInfraParsers.
                     parseAnalyticsNodesDashboardData([result])[0];
                     //Further parsing required for Details page done below
@@ -64,6 +64,9 @@ define([
 
                     obj['overallStatus'] = overallStatus;
 
+                    //dummy entry to show empty value in details
+                    obj['processes'] = '&nbsp;';
+
                     obj['cpu'] = getCpuText(obj['cpu']);
 
                     obj['analyticsMessages'] = getAnalyticsMessages(
@@ -72,6 +75,9 @@ define([
                     obj['generators'] = getGenerators(analyticsNodeData);
 
                     obj['lastLogTimestamp'] = getLastLogTime(analyticsNodeData);
+
+                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
+                            $('#left-column-container').parent(), obj['ip'].split(','));
                     return obj;
                 }
             }
@@ -90,6 +96,7 @@ define([
                             {
                                 title: 'Analytics Node',
                                 templateGenerator: 'BlockListTemplateGenerator',
+                                templateGeneratorData: 'rawData',
                                 theme: 'widget-box',
                                 keyClass: 'label-blue',
                                 templateGeneratorConfig: getTemplateGeneratorConfig()
@@ -139,6 +146,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['COLLECTOR'],
                              label: 'Collector',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -146,6 +154,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['QUERYENGINE'],
                              label: 'Query Engine',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -153,6 +162,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['APISERVER'],
                              label: 'API Server',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          }
                     ]

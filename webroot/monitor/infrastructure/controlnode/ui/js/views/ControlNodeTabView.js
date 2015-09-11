@@ -51,8 +51,8 @@ define([
                     $('#' + ctwl.NETWORK_PORT_DIST_ID).
                         trigger('refresh');
                 } else if (selTab == 'Peers') {
-    //                $('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).
-//                    data('contrailGrid').refreshView();
+                    $('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).
+                    data('contrailGrid').refreshView();
                 }
             },
             tabs: [

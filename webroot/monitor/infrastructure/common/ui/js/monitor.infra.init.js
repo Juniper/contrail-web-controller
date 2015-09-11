@@ -6,8 +6,10 @@ define([
     'underscore',
     'monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
     'monitor/infrastructure/common/ui/js/utils/monitor.infra.constants',
-    'monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers'
-], function (_, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers) {
+    'monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers',
+    'text!monitor/infrastructure/common/ui/templates/monitor.infra.tmpl'
+], function (_, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers,
+        MonitorInfraTmpls) {
     monitorInfraUtils = new MonitorInfraUtils;
     monitorInfraConstants = new MonitorInfraConstants;
     monitorInfraParsers = new MonitorInfraParsers;
@@ -23,4 +25,6 @@ define([
     if(contrail.checkIfExist(deferredObj)) {
         deferredObj.resolve()
     }
+
+    $("body").append(MonitorInfraTmpls);
 });
