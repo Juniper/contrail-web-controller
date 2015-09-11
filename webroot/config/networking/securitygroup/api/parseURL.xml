@@ -20,6 +20,12 @@
         <callback>securitygroupconfigapi.listSecurityGroup</callback>
     </item>
     <item>
+        <url>/api/tenants/config/securitygroup-details</url>
+        <method>get</method>
+        <feature>securitygroupconfig</feature>
+        <callback>securitygroupconfigapi.getSecurityGroupDetails</callback>
+    </item>
+    <item>
         <url>/api/tenants/config/securitygroup</url>
         <method>post</method>
         <feature>securitygroupconfig</feature>
