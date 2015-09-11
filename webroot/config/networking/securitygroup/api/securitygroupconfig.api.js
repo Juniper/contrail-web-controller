@@ -246,9 +246,23 @@ function deleteSecurityGroupCb(error, sgDelResp, response)
     commonUtils.handleJSONResponse(error, response, sgDelResp);
 }
 
+function getSecurityGroupDetails (req, res, appData)
+{
+    var projUUID = req.param('projUUID');
+    var secGrpURL = '/security-groups?detail=true';
+    if (null != projUUID) {
+        secGrpURL += '&parent_id=' + projUUID;
+    }
+
+    configApiServer.apiGet(secGrpURL, appData, function(error, data) {
+        commonUtils.handleJSONResponse(error, res, data);
+    });
+}
 
 exports.listSecurityGroup = listSecurityGroup;
 exports.readSecurityGroup = readSecurityGroup;
 exports.createSecurityGroup = createSecurityGroup;
 exports.updateSecurityGroup = updateSecurityGroup;
 exports.deleteSecurityGroup = deleteSecurityGroup;
+exports.getSecurityGroupDetails = getSecurityGroupDetails;
+

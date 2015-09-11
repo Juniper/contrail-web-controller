@@ -703,10 +703,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_net_sg</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/securitygroup/ui</rootDir>
-                                    <js>sg_config.js</js>
-                                    <view>sg_config.view</view>
-                                    <class>sgConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/securitygroup/ui</rootDir>
+                                    <js>secGrp.main.js</js>
+                                    <class>secGrpPageLoader</class>
+                                    <function>renderSecGrp</function>
                                 </resource>
                             </resources>
                             <searchStrings>Security Groups</searchStrings>

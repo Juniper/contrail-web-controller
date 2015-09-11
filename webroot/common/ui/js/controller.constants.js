@@ -47,6 +47,10 @@ define([
             '/api/tenants/config/global-vrouter-config';
         this.URL_GET_GLOBAL_ASN =
             '/api/tenants/admin/config/global-asn';
+        this.URL_GET_SECURITY_GROUP_DETAILS =
+            '/api/tenants/config/securitygroup-details?projUUID={0}'
+        this.URL_GET_SEC_GRP_LIST =
+            '/api/tenants/config/securitygroup';
 
         this.FILTERS_COLUMN_VN = ['UveVirtualNetworkAgent:interface_list', 'UveVirtualNetworkAgent:in_bandwidth_usage', 'UveVirtualNetworkAgent:out_bandwidth_usage',
             'UveVirtualNetworkConfig:connected_networks', 'UveVirtualNetworkAgent:virtualmachine_list', 'UveVirtualNetworkAgent:acl', 'UveVirtualNetworkAgent:total_acl_rules',
