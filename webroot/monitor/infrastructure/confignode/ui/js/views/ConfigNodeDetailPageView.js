@@ -4,7 +4,7 @@
 
 define([
     'underscore',
-    'contrail-view',
+    'contrail-view'
 ], function (_, ContrailView) {
     var ConfigNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
@@ -38,6 +38,7 @@ define([
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 dataParser: function(result) {
                     var configNodeData = result;
+                    var nodeIp;
                     var obj = monitorInfraParsers.
                         parseConfigNodesDashboardData([result])[0];
                     //Further parsing required for Details page done below
@@ -65,15 +66,39 @@ define([
 
                     obj['overAllStatus'] = overallStatus;
 
+                    //dummy entry to show empty value in details
+                    obj['processes'] = '&nbsp;';
+
                     obj['analyticsDetails'] = getAnalyticsNodeDetails(result);
 
                     obj['lastLogTimestamp'] = getLastLogTime(result);
+
+                    var ipDeferredObj = $.Deferred();
+                    monitorInfraUtils.getReachableIp(obj['ips'].split(','),
+                            "8089",ipDeferredObj);
+                    ipDeferredObj.done (function (nodeIp) {
+                        if(nodeIp != null) {
+                            monitorInfraUtils.
+                                createFooterLinks($('#left-column-container').
+                                        parent(),
+                                    {
+                                        onIntrospectClick: function () {
+                                                monitorInfraUtils.
+                                                    onIntrospectLinkClick(nodeIp,
+                                                            '8084');
+                                            },
+                                        onStatusClick : function () {
+                                                monitorInfraUtils.
+                                                    onStatusLinkClick(nodeIp);
+                                            }
+                                    });
+                        }
+                    });
                     return obj;
                 }
             }
         }
     }
-
     function getDetailsViewTemplateConfig() {
         return {
             advancedViewOptions: false,
@@ -134,6 +159,7 @@ define([
                              key: 'configProcessStatusList.' +
                                  monitorInfraConstants.
                                      UVEModuleIds['APISERVER'],
+                             keyClass: 'indent-right',
                              label: 'API Server',
                              templateGenerator: 'TextGenerator'
                          },
@@ -142,6 +168,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['SCHEMA'],
                              label: 'Schema Transformer',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -149,6 +176,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['SERVICE_MONITOR'],
                              label: 'Service Monitor',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -156,12 +184,14 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['DISCOVERY_SERVICE'],
                              label: 'Discovery',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
                              key: 'configProcessStatusList.' +
                                  monitorInfraConstants.UVEModuleIds['IFMAP'],
                              label: 'Ifmap',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          }
                     ]
