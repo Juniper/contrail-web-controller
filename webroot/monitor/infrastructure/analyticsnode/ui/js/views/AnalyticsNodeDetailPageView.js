@@ -4,7 +4,7 @@
 
 define([
     'underscore',
-    'contrail-view',
+    'contrail-view'
 ], function (_, ContrailView) {
     var AnalyticsNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
@@ -36,8 +36,9 @@ define([
                 },
                 templateConfig: getDetailsViewTemplateConfig(),
                 app: cowc.APP_CONTRAIL_CONTROLLER,
-                dataParser: function(result) {
+                dataParser: function (result) {
                     var analyticsNodeData = result;
+                    var nodeIp;
                     var obj = monitorInfraParsers.
                     parseAnalyticsNodesDashboardData([result])[0];
                     //Further parsing required for Details page done below
@@ -64,6 +65,9 @@ define([
 
                     obj['overallStatus'] = overallStatus;
 
+                    //dummy entry to show empty value in details
+                    obj['processes'] = '&nbsp;';
+
                     obj['cpu'] = getCpuText(obj['cpu']);
 
                     obj['analyticsMessages'] = getAnalyticsMessages(
@@ -72,6 +76,28 @@ define([
                     obj['generators'] = getGenerators(analyticsNodeData);
 
                     obj['lastLogTimestamp'] = getLastLogTime(analyticsNodeData);
+
+                    var ipDeferredObj = $.Deferred();
+                    monitorInfraUtils.getReachableIp(obj['ip'].split(','),
+                            "8089",ipDeferredObj);
+                    ipDeferredObj.done (function (nodeIp) {
+                        if(nodeIp != null) {
+                        var leftColumnContainer = '#left-column-container';
+                            monitorInfraUtils.
+                                createFooterLinks($(leftColumnContainer).parent(),
+                            {
+                                onIntrospectClick: function () {
+                                            monitorInfraUtils.
+                                                onIntrospectLinkClick(nodeIp,
+                                                        '8089');
+                                        },
+                                onStatusClick : function () {
+                                                    monitorInfraUtils.
+                                                        onStatusLinkClick(nodeIp);
+                                                }
+                            });
+                        }
+                    });
                     return obj;
                 }
             }
@@ -139,6 +165,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['COLLECTOR'],
                              label: 'Collector',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -146,6 +173,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['QUERYENGINE'],
                              label: 'Query Engine',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          },
                          {
@@ -153,6 +181,7 @@ define([
                                  monitorInfraConstants.
                                      UVEModuleIds['APISERVER'],
                              label: 'API Server',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          }
                     ]
