@@ -41,7 +41,8 @@ define(
                         if(obj['ip'] == '-') {
                             obj['ip'] = obj['configIP'];
                         }
-                        obj['summaryIps'] = getControlIpAddresses(d,"summary");
+                        obj['summaryIps'] = monitorInfraUtils.
+                                            getControlIpAddresses(d,"summary");
                         obj['memory'] =
                             formatMemory(ifNull(jsonPath(d,'$..meminfo')[0]),'-');
                         obj['size'] =

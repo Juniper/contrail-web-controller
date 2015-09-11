@@ -64,6 +64,34 @@ define([
 
                     obj['overAllStatus'] = overallStatus;
 
+                    //dummy entry to show empty value in details
+                    obj['processes'] = '&nbsp;';
+
+                    obj['databaseUsage'] = '&nbsp;';
+
+                    /* TODO Not required for DB Node. need to see if reqd in future
+                    var ipDeferredObj = $.Deferred();
+                    monitorInfraUtils.getReachableIp(obj['ip'].split(','),
+                            "8089",ipDeferredObj);
+                    ipDeferredObj.done (function (nodeIp) {
+                        if(nodeIp != null) {
+                        var leftColumnContainer = '#left-column-container';
+                            monitorInfraUtils.
+                                createFooterLinks($(leftColumnContainer).parent(),
+                            {
+                                onIntrospectClick: function () {
+                                            monitorInfraUtils.
+                                                onIntrospectLinkClick(nodeIp,
+                                                        '8089');
+                                        },
+                                onStatusClick : function () {
+                                                    monitorInfraUtils.
+                                                        onStatusLinkClick(nodeIp);
+                                                }
+                            });
+                        }
+                    });
+                    */
                     return obj;
                 }
             }
@@ -130,6 +158,7 @@ define([
                              key: 'databaseProcessStatusList.' +
                                  monitorInfraConstants.UVEModuleIds['DATABASE'],
                              label: 'Database',
+                             keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          }
                     ]
@@ -146,16 +175,19 @@ define([
                     {
                         key: 'formattedAvailableSpace',
                         label: 'Available Space',
+                        keyClass: 'indent-right',
                         templateGenerator: 'TextGenerator'
                     },
                     {
                         key: 'formattedUsedSpaceWithPercentage',
                         label: 'Used Space',
+                        keyClass: 'indent-right',
                         templateGenerator: 'TextGenerator'
                     },
                     {
                         key: 'formattedAnalyticsDbSize',
                         label: 'Analytics DB Size',
+                        keyClass: 'indent-right',
                         templateGenerator: 'TextGenerator'
                     }
 
