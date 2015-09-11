@@ -1744,6 +1744,760 @@ define([
             return (obj['ip'] == noDataStr) ? obj['name'] : obj['ip'];
         }
 
+
+        self.getUnderlayPRouterInterfaceTabViewConfig = function (viewConfig) {
+            return {
+                elementId: ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID,
+                title: ctwl.UNDERLAY_PROUTER_INTERFACES_TITLE,
+                view: "GridView",
+                viewConfig: {
+                    elementConfig:{
+                        header: {
+                            title: {
+                                text: contrail.format('Interfaces ( {0} )',
+                                    viewConfig['hostName'])
+                            },
+                            defaultControls: {
+                                collapseable: true,
+                                exportable: true,
+                                refreshable: false,
+                                searchable: true
+                            }
+                        },
+                        body: {
+                            options: {
+                                autoRefresh: false,
+                                checkboxSelectable: false,
+                                fixedRowHeight: 30
+                            },
+                            dataSource: {
+                                data: []
+                            }
+                        },
+                        columnHeader: {
+                            columns: [{
+                                field:'ifDescr',
+                                name:'Name',
+                                minWidth: 150,
+                            },{
+                                field:'ifAdminStatus',
+                                name:'Status',
+                                minWidth: 100,
+                                formatter:function(r,c,v,cd,dc) {
+                                    var adminStatus =
+                                        getValueByJsonPath(dc,'raw_json;ifAdminStatus','-'),
+                                        operStatus =
+                                        getValueByJsonPath(dc,'raw_json;ifOperStatus','-');
+                                    if(adminStatus == 1 && operStatus == 1) {
+                                        return 'Up';
+                                    } else if (adminStatus == 1 && operStatus != 1) {
+                                        return 'Oper Down';
+                                    } else if (adminStatus != 1 && operStatus != 1) {
+                                        return 'Admin Down';
+                                    } else {
+                                        return '-';
+                                    }
+                                }
+                            },{
+                                field:'ifPhysAddress',
+                                name:'MAC Address',
+                                minWidth:150,
+                            },{
+                                field:'ifIndex',
+                                name:'Index',
+                                minWidth: 150
+                            },{
+                                field:'bandwidth',
+                                name:'Traffic (In/Out)',
+                                minWidth:150,
+                                formatter:function(r,c,v,cd,dc) {
+                                    return contrail.format("{0} / {1}",formatBytes(dc['ifInOctets']),formatBytes(dc['ifOutOctets']));
+                                }
+                            }]
+                        }
+                    }
+                }
+
+            }
+        };
+
+        self.getUnderlayDetailsTabViewConfig = function(viewConfig) {
+            return {
+                elementId: ctwc.UNDERLAY_DETAILS_TAB_ID,
+                title: ctwl.TITLE_DETAILS,
+                view: "DetailsView",
+                viewConfig: {
+                    data: viewConfig.data,
+                    templateConfig: monitorInfraUtils.
+                        getUnderlayDetailsTabTemplateConfig(),
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                }
+            }
+        };
+
+        self.getUnderlayDetailsTabTemplateConfig = function() {
+            return {
+                advancedViewOptions: false,
+                templateGenerator: 'RowSectionTemplateGenerator',
+                templateGeneratorConfig: {
+                    rows: [
+                        {
+                            templateGenerator: 'ColumnSectionTemplateGenerator',
+                            templateGeneratorConfig: {
+                                columns: [
+                                    {
+                                        class: 'span6',
+                                        rows: [
+                                            {
+                                                title: ctwl.UNDERLAY_PROUTER_DETAILS,
+                                                templateGenerator:
+                                                    'BlockListTemplateGenerator',
+                                                templateGeneratorConfig: [
+                                                    {
+                                                        key: 'hostName',
+                                                        templateGenerator:
+                                                            'TextGenerator'
+                                                    },{
+                                                        key: 'description',
+                                                        templateGenerator:
+                                                            'TextGenerator'
+                                                    },{
+                                                        key: 'intfCnt',
+                                                        templateGenerator:
+                                                            'LinkGenerator',
+                                                        templateGeneratorConfig: {
+                                                            formatter: 'link',
+                                                            template:
+                                                                ctwc.URL_NETWORK,
+                                                            params: {}
+                                                        }
+                                                    },{
+                                                        key: 'managementIP',
+                                                        templateGenerator:
+                                                            'TextGenerator',
+                                                    }
+                                                ]
+                                            }
+                                        ]
+                                    }
+                                ]
+                            }
+                        },
+                    ]
+                }
+            }
+        };
+
+        self.getTrafficStatisticsTabViewConfig = function (data) {
+            var ajaxConfig = {};
+            var endpoints = ifNull(data['endpoints'],[]);
+            var sourceType = getValueByJsonPath(data,
+                'sourceElement;attributes;nodeDetails;node_type','-');
+            var targetType = getValueByJsonPath(data,
+                'targetElement;attributes;nodeDetails;node_type','-');
+            var view = 'LineWithFocusChartView', modelMap = null;
+            var viewConfig = {}, viewPathPrefix;
+            if(sourceType == ctwc.PROUTER && targetType == ctwc.PROUTER) {
+                var postData = {
+                        "data": {
+                             "endpoints": endpoints,
+                             "sampleCnt": 150,
+                             "minsSince": 180
+                    }
+                };
+                ajaxConfig = {
+                    url: '/api/tenant/networking/underlay/prouter-link-stats',
+                    type: 'POST',
+                    "data": JSON.stringify(postData),
+                };
+                viewConfig.view = view;
+                viewConfig.link = ctwc.PROUTER;
+                viewConfig.modelConfig = {};
+                viewConfig.modelConfig.remote = {
+                    ajaxConfig: ajaxConfig,
+                };
+            } else if(sourceType == ctwc.PROUTER && targetType == ctwc.VROUTER) {
+                var vrouter = (sourceType == ctwc.VROUTER) ?
+                    data['sourceElement']['attributes']['nodeDetails']['name']:
+                    data['targetElement']['attributes']['nodeDetails']['name'];
+                var params = {
+                    minsSince: 60,
+                    sampleCnt: 120,
+                    useServerTime: true,
+                    vrouter: vrouter,
+                };
+                ajaxConfig = {
+                    url: '/api/tenant/networking/underlay/vrouter/stats?'+$.param(params)
+                };
+                viewConfig.view = view;
+                viewConfig.link = ctwc.VROUTER;
+                viewConfig.parseFn = ctwp.parseTrafficLineChartData;
+                viewConfig.modelConfig = {};
+                viewConfig.modelConfig.remote = {
+                     ajaxConfig: ajaxConfig,
+                     dataParser: function (response) {
+                         return [response];
+                     }
+                };
+            } else if(sourceType == ctwc.VIRTUALMACHINE ||
+                    targetType == ctwc.VIRTUALMACHINE) {
+                var instanceUUID = getValueByJsonPath(data,
+                    'targetElement;attributes;nodeDetails;name','-');
+                var virtualNetwork = getValueByJsonPath(data,
+                    'targetElement;attributes;nodeDetails;more_attributes;'+
+                    'interface_list;0;virtual_network','-');
+                var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
+                view = 'InstanceTrafficStatsView';
+                viewPathPrefix = 'monitor/networking/ui/js/views/';
+                modelMap = {};
+                modelMap[modelKey] =
+                    ctwvc.getInstanceTabViewModelConfig(instanceUUID);
+                viewConfig.modelKey = modelKey;
+                viewConfig.parseFn = ctwp.parseTrafficLineChartData;
+                viewConfig.link = ctwc.VIRTUALMACHINE;
+            }
+            return {
+                view: view,
+                viewPathPrefix: viewPathPrefix,
+                elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
+                title: ctwl.TITLE_TRAFFIC_STATISTICS,
+                viewConfig: viewConfig,
+                modelMap: modelMap
+            };
+        },
+
+        self.parsePRouterLinkStats = function (response) {
+            var result = [];
+            for(var i = 0; i < response.length; i++) {
+                var rawFlowData = response[i];
+                var lclData = ifNull(rawFlowData[0],{});
+                var rmtData = ifNull(rawFlowData[1],{});
+                var lclFlows =
+                    getValueByJsonPath(lclData,'flow-series;value',[]);
+                var rmtFlows =
+                    getValueByJsonPath(rmtData,'flow-series;value',[]),
+                    chartTitle,
+                    lclNodeName =
+                        getValueByJsonPath(lclData,'summary;name','-'),
+                    lclInfName =
+                        getValueByJsonPath(lclData,'summary;if_name','-'),
+                    rmtNodeName =
+                        getValueByJsonPath(rmtData,'summary;name','-'),
+                    rmtIntfName =
+                        getValueByJsonPath(rmtData,'summary;if_name','-');
+
+                chartTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',
+                                lclNodeName,lclInfName,rmtNodeName,rmtIntfName);
+                var inPacketsLocal = {
+                    key: contrail.format('{0} ({1})',lclNodeName,lclInfName),
+                        values:[]
+                },
+                    inPacketsRemote = {
+                        key: contrail.format('{0} ({1})',rmtNodeName,rmtIntfName),
+                        values:[]
+                };
+                for(var j = 0; j < lclFlows.length; j++) {
+                    var lclFlowObj = lclFlows[j];
+                    inPacketsLocal['values'].push({
+                        x: Math.floor(lclFlowObj['T=']/1000),
+                        y: ifNull(lclFlowObj['SUM(ifStats.ifInPkts)'],0)
+                    });
+                }
+                for(var j = 0; j < rmtFlows.length; j++) {
+                    var rmtFlowObj = rmtFlows[j];
+                    inPacketsRemote['values'].push({
+                        x: Math.floor(rmtFlowObj['T=']/1000),
+                        y: ifNull(rmtFlowObj['SUM(ifStats.ifInPkts)'],0)
+                    });
+                }
+                var chartData = [inPacketsLocal,inPacketsRemote];
+                
+                options = {
+                    height:300,
+                    yAxisLabel: 'Packets per 72 secs',
+                    y2AxisLabel: 'Packets per 72 secs',
+                    defaultSelRange: 9 //(latest 9 samples)
+                };
+                result.push({
+                   chartData: chartData,
+                   options: options,
+                   chartTitle: chartTitle
+                });
+                return result;
+            }
+        },
+
+        self.getTraceFlowVrouterGridColumns = function () {
+            var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+            computeNodes = graphView.model.vRouters;
+            return [
+                {
+                    field:'peer_vrouter',
+                    name:"Other Virtual Router",
+                    minWidth:170,
+                    formatter: function(r,c,v,cd,dc){
+                        var name = $.grep(computeNodes,function(value,idx){
+                                        return (getValueByJsonPath(value,'more_attributes;VrouterAgent;self_ip_list;0','-') == dc['peer_vrouter']);
+                                   });
+                        if(validateIPAddress(dc['peer_vrouter']))
+                            return contrail.format('{0} ({1})',getValueByJsonPath(name,'0;name','-'),dc['peer_vrouter']);
+                        else
+                            return '-';
+                    }
+                },{
+                    field:"protocol",
+                    name:"Protocol",
+                    minWidth:40,
+                    formatter:function(r,c,v,cd,dc){
+                        return formatProtocol(dc['protocol']);
+                    }
+                },{
+                    field:"src_vn",
+                    name:"Source Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var srcVN = dc['src_vn'] != null ? dc['src_vn'] :
+                            noDataStr;
+                        return formatVN(srcVN);
+                    }
+                },{
+                    field:"sip",
+                    name:"Source IP",
+                    minWidth:60,
+                    formatter:function(r,c,v,cd,dc) {
+                        if(validateIPAddress(dc['sip']))
+                            return dc['sip']
+                        else
+                            noDataStr;
+                    }
+                },{
+                    field:"src_port",
+                    name:"Source Port",
+                    minWidth:50
+                },{
+                    field:"direction",
+                    name:"Direction",
+                    minWidth:40,
+                    formatter: function(r,c,v,cd,dc) {
+                        if (dc['direction'] == 'ingress')
+                            return 'INGRESS'
+                        else if (dc['direction'] == 'egress')
+                            return 'EGRESS'
+                        else
+                            return '-';
+                    }
+                },{
+                    field:"dst_vn",
+                    name:"Destination Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var destVN = dc['dst_vn'] != null ? dc['dst_vn'] :
+                            noDataStr;
+                        return formatVN(destVN);
+                    }
+                },{
+                    field:"dip",
+                    name:"Destination IP",
+                    minWidth:60,
+                    formatter:function(r,c,v,cd,dc) {
+                        if(validateIPAddress(dc['dip']))
+                            return dc['dip']
+                        else
+                            noDataStr;
+                    }
+                },{
+                    field:"dst_port",
+                    name:"Destination Port",
+                    minWidth:50
+                },{
+                    field:"stats_bytes",
+                    name:"Bytes/Pkts",
+                    minWidth:120,
+                    formatter:function(r,c,v,cd,dc){
+                        return contrail.format("{0}/{1}",
+                            formatBytes(dc['stats_bytes']),dc['stats_packets']);
+                    },
+                    searchFn:function(d){
+                        return d['stats_bytes']+ '/ ' +d['stats_packets'];
+                    }
+                }
+            ];
+        },
+        self.getTraceFlowVMGridColumns = function () {
+            return [
+                    {
+                        field: 'formattedOtherVrouter',
+                        name: "Other Virtual Router",
+                        minWidth:170,
+                    },{
+                        field: 'formattedVrouter',
+                        name: "Virtual Router",
+                        minWidth:170,
+                    },{
+                        field:"protocol",
+                        name:"Protocol",
+                        minWidth:40,
+                        formatter:function(r,c,v,cd,dc){
+                            return formatProtocol(dc['protocol']);
+                        }
+                    },{
+                        field:"formattedSrcVN",
+                        name:"Source Network",
+                        minWidth:110,
+                    },{
+                        field:"sourceip",
+                        name:"Source IP",
+                        minWidth:60,
+                        formatter:function(r,c,v,cd,dc) {
+                            if(validateIPAddress(dc['sourceip']))
+                                return dc['sourceip']
+                            else
+                                noDataStr;
+                        }
+                    },{
+                        field:"sport",
+                        name:"Source Port",
+                        minWidth:50
+                    },{
+                        field:"direction_ing",
+                        name:"Direction",
+                        minWidth:40,
+                        formatter: function(r,c,v,cd,dc) {
+                            if (dc['direction_ing'] == 1)
+                                return 'INGRESS'
+                            else if (dc['direction_ing'] == 0)
+                                return 'EGRESS'
+                            else
+                                return '-';
+                        }
+                    },{
+                        field:"formattedDestVN",
+                        name:"Destination Network",
+                        minWidth:110,
+                        formatter: function (r,c,v,cd,dc) {
+                            var destVN = dc['destvn'] != null ? dc['destvn'] :
+                                noDataStr;
+                            return formatVN(destVN);
+                        }
+                    },{
+                        field:"destip",
+                        name:"Destination IP",
+                        minWidth:60,
+                        formatter:function(r,c,v,cd,dc) {
+                            if(validateIPAddress(dc['destip']))
+                                return dc['destip']
+                            else
+                                noDataStr;
+                        }
+                    },{
+                        field:"dport",
+                        name:"Destination Port",
+                        minWidth:50
+                    },{
+                        field:"agg-bytes",
+                        name:"Bytes/Pkts",
+                        minWidth:120,
+                        formatter:function(r,c,v,cd,dc){
+                            return contrail.format("{0}/{1}",
+                                formatBytes(dc['agg-bytes']),dc['agg-packets']);
+                        },
+                        searchFn:function(d){
+                            return d['agg-bytes']+ '/ ' +d['agg-packets'];
+                        }
+                    }
+                ];
+        },
+
+        self.getSearchFlowGridColumns = function () {
+            return [
+                {
+                    field: 'formattedOtherVrouter',
+                    name: "Other Virtual Router",
+                    minWidth:170,
+                },{
+                    field: 'formattedVrouter',
+                    name: "Virtual Router",
+                    minWidth:170,
+                },{
+                    field:"protocol",
+                    name:"Protocol",
+                    minWidth:40,
+                    formatter:function(r,c,v,cd,dc){
+                        return formatProtocol(dc['protocol']);
+                    }
+                },{
+                    field:"formattedSrcVN",
+                    name:"Source Network",
+                    minWidth:110,
+                },{
+                    field:"sourceip",
+                    name:"Source IP",
+                    minWidth:60,
+                    formatter:function(r,c,v,cd,dc) {
+                        if(validateIPAddress(dc['sourceip']))
+                            return dc['sourceip']
+                        else
+                            noDataStr;
+                    }
+                },{
+                    field:"sport",
+                    name:"Source Port",
+                    minWidth:50
+                },{
+                    field:"direction_ing",
+                    name:"Direction",
+                    minWidth:40,
+                    formatter: function(r,c,v,cd,dc) {
+                        if (dc['direction_ing'] == 1)
+                            return 'INGRESS'
+                        else if (dc['direction_ing'] == 0)
+                            return 'EGRESS'
+                        else
+                            return '-';
+                    }
+                },{
+                    field:"formattedDestVN",
+                    name:"Destination Network",
+                    minWidth:110,
+                    formatter: function (r,c,v,cd,dc) {
+                        var destVN = dc['destvn'] != null ? dc['destvn'] :
+                            noDataStr;
+                        return formatVN(destVN);
+                    }
+                },{
+                    field:"destip",
+                    name:"Destination IP",
+                    minWidth:60,
+                    formatter:function(r,c,v,cd,dc) {
+                        if(validateIPAddress(dc['destip']))
+                            return dc['destip']
+                        else
+                            noDataStr;
+                    }
+                },{
+                    field:"dport",
+                    name:"Destination Port",
+                    minWidth:50
+                },{
+                    field:"stats_bytes",
+                    name:"Bytes/Pkts",
+                    minWidth:120,
+                    formatter:function(r,c,v,cd,dc){
+                        return contrail.format("{0}/{1}",
+                            formatBytes(dc['agg-bytes']),dc['agg-packets']);
+                    },
+                    searchFn:function(d){
+                        return d['agg-bytes']+ '/ ' +d['agg-packets'];
+                    }
+                }
+            ];
+        };
+        self.getUnderlayGraphInstance = function () {
+            return $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+        };
+
+        self.showFlowPath = function (connectionWrapIds, offsetWidth, graphView) {
+            if(offsetWidth == null)
+                offsetWidth = 5;
+            if(!(connectionWrapIds instanceof Array))
+                return;
+            var hopLength = connectionWrapIds.length;
+            for(var i=0;i<hopLength;i++) {
+                var isDirectionCrt =
+                    monitorInfraUtils.checkLinkDirection(connectionWrapIds[i], graphView);
+                self.addOffsetPath(connectionWrapIds[i], offsetWidth, isDirectionCrt);
+            }
+        };
+
+        self.checkLinkDirection = function (connectionWrapId, graphView) {
+            var connectionWrapElem = $('#' + connectionWrapId),
+                flowPath = graphView['flowPath'];
+            if(connectionWrapElem.length > 0) {
+                connectionWrapElem = $(connectionWrapElem[0]);
+            } else {
+                return;
+            }
+            var linkId = $(connectionWrapElem).parent().attr('model-id');
+            var linkAttrs = graphView.getCell(linkId).attributes;
+            var sourceId = linkAttrs.source.id;
+            var destId = linkAttrs.target.id;
+            var srcEl = graphView.getCell(sourceId);
+            var destEl = graphView.getCell(destId);
+            var srcNodeName = getValueByJsonPath(srcEl,'attributes;nodeDetails;name','-');
+            var destNodeName = getValueByJsonPath(destEl,'attributes;nodeDetails;name','-');
+            var isDirectionCrt = false,links = getValueByJsonPath(flowPath,'links',[]);
+            for(var i = 0; i < links.length; i ++) {
+                if(srcNodeName == getValueByJsonPath(links[i],'endpoints;0','-') &&
+                        destNodeName == getValueByJsonPath(links[i],'endpoints;1','-')) {
+                    isDirectionCrt = true
+                    break;
+                }
+            }
+            return isDirectionCrt;
+        };
+
+        self.addOffsetPath = function (connectionWrapId, offsetWidth, isDirectionCrt) {
+            var connectionWrapElem = $('#' + connectionWrapId);
+            if(connectionWrapElem.length > 0) {
+                connectionWrapElem = $(connectionWrapElem[0]);
+            } else {
+                return;
+            }
+            var path = connectionWrapElem.attr('d');
+            var pathCoords;
+            if(typeof(path) == 'string') {
+                pathCoords = path.match(/M ([\d.]+) ([\d.]+) C ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+) ([\d.]+)/);
+                if((pathCoords instanceof Array) && pathCoords.length == 9) {
+                    pathCoords.shift();
+                    pathCoords = $.map(pathCoords,function(val) {
+                        return parseFloat(val);
+                    });
+                    var offsetPath;
+                    if(offsetWidth < 0) {
+                        offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_down');
+                    } else {
+                        offsetPath = connectionWrapElem.clone().prop('id',connectionWrapId + '_up');
+                    }
+                    var curve = new Bezier(pathCoords);
+                    var inclinedVerticalLine = false;
+                    if(curve._linear != true) {
+                        if(!isDirectionCrt) {
+                            offsetWidth = -offsetWidth;
+                            offsetPath.attr('marker-start',"url(#bezierUp)");
+                        } else {
+                            offsetPath.attr('marker-end',"url(#bezierDown)");
+                        }
+                        //Hack,till we fix the issue,links b/w TOR and SPINES are not vertical
+                        if(Math.abs(pathCoords[pathCoords.length - 2] - pathCoords[0]) <= 10) {
+                            inclinedVerticalLine = true;
+                            if(!isDirectionCrt) {
+                                offsetPath.attr('marker-start','url(#upDeviated)');
+                            } else {
+                                offsetPath.attr('marker-end','url(#downDeviated)');
+                            }
+                        }
+                        var offsetPathStr = self.getOffsetBezierPath(pathCoords,offsetWidth);
+                        var offsetPathCords = offsetPathStr.split(' ');
+                        var offsetPathCordsLen = offsetPathCords.length;
+                        var lastX = offsetPathCords[offsetPathCords.length - 2];
+                        if(!isDirectionCrt && !inclinedVerticalLine) {
+                            lastX = parseFloat(lastX) + 10;
+                            offsetPathCords[offsetPathCords.length - 2] = lastX;
+                        } else if (isDirectionCrt && !inclinedVerticalLine)  {
+                            lastX = parseFloat(lastX) - 10;
+                            offsetPathCords[offsetPathCords.length - 2] = lastX;
+                        }
+                        offsetPath.attr('d',offsetPathCords.join(' '));
+                    } else {
+                        //Vertical line
+                        if(pathCoords[0] == pathCoords[6]) {
+                            //Pointing upwards/downwards
+                            if(!isDirectionCrt) {
+                                offsetPath.attr('transform','translate(' + offsetWidth + ',0)');
+                                offsetPath.attr('marker-start',"url(#up)");
+                            } else {
+                                offsetPath.attr('transform','translate(-' + offsetWidth + ',0)');
+                                offsetPath.attr('marker-end',"url(#down)");
+                            }
+                        }
+                        //Horizontal line
+                        if(pathCoords[1] == pathCoords[7]) {
+                            offsetPath.attr('transform','translate(0,' + offsetWidth + ')');
+                        }
+                    }
+
+                    if(!isDirectionCrt) {
+                        offsetPath.attr('class','connection-wrap-up');
+                    } else {
+                        offsetPath.attr('class','connection-wrap-down');
+                    }
+                    offsetPath.insertAfter(connectionWrapElem);
+                }
+            }
+        };
+
+        self.getOffsetBezierPath = function(pathCoords, offsetWidth) {
+            var curve = new Bezier(pathCoords);
+            if(curve._linear == true) {
+            }
+            var offsetCurve = curve.offset(offsetWidth);
+            var offsetCurvePath = "";
+            for(var i=0;i<offsetCurve.length;i++) {
+                offsetCurvePath += " " + offsetCurve[i].toSVG();
+            }
+            return offsetCurvePath;
+        };
+
+        self.getUnderlayVRouterParams = function (nodeDetails) {
+          return {
+              hostname: nodeDetails['name'],
+              ip: getValueByJsonPath(nodeDetails,
+                  'more_attributes;VrouterAgent;self_ip_list;0',
+                  '-'),
+              introspectPort:
+                  getValueByJsonPath(nodeDetails,
+                  'more_attributes;VrouterAgent;sandesh_http_port',
+                  ctwc.DEFAULT_INTROSPECTPORT)
+          };
+        };
+
+        self.showUnderlayPaths = function (data) {
+            var graphModel = monitorInfraUtils.getUnderlayGraphInstance().model;
+            var currentUrlHashObj = layoutHandler.getURLHashObj(),
+                currentPage = currentUrlHashObj.p,
+                currentParams = currentUrlHashObj.q;
+                var params = {};
+                params.srcIP = data.sourceip;
+                params.destIP = data.destip;
+                params.srcVN = data.sourcevn;
+                params.destVN = data.destvn;
+                params.sport = data.sport;
+                params.dport = data.dport;
+                params.protocol = data.protocol;
+                if(data.direction_ing === 0) {
+                    params.direction = 'egress';
+                    params.nodeIP = data.other_vrouter_ip;
+                } else {
+                    params.direction = 'ingress';
+                    params.nodeIP = data.vrouter_ip;
+                }
+                if(currentPage == 'mon_infra_underlay' &&
+                    !graphModel.checkIPInVrouterList(params)) {
+                    showInfoWindow(
+                        "Cannot Map the path for the selected flow", "Info");
+                    return;
+                }
+                if(data.hasOwnProperty('startTime') &&
+                    data.hasOwnProperty('endTime')) {
+                    params['startTime'] = data['startTime'];
+                    params['endTime'] = data['endTime'];
+                } else {
+                    params['minsSince'] = 300;
+                }
+                switch(currentPage) {
+                    case 'mon_infra_underlay':
+                        $.ajax({
+                            url: "/api/tenant/networking/underlay-path",
+                            type    : "POST",
+                            data    : {data: params},
+                        }).done (function (response) {
+                            graphModel.underlayPathReqObj = params;
+                            graphModel.flowPath.set('links', response['links']);
+                            graphModel.flowPath.set('nodes', response['nodes']);
+                            $('html,body').animate({scrollTop:0}, 500);
+                        }).fail (function () {
+                            showInfoWindow('Error in fetching details','Error');
+                        }).always (function (ajaxObj, state, error) {
+                            if(state == 'timeout') {
+                                showInfoWindow('Timeout in fetching details','Error');
+                            }
+                        });
+                        break;
+                    case 'query_flow_records':
+                        layoutHandler.setURLHashParams(params,{p:'mon_infra_underlay',merge:false});
+                        break;
+                }
+        }
     };
     return MonitorInfraUtils;
 });

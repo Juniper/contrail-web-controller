@@ -165,6 +165,40 @@ define([
              green : 'okay'
         };
         this.LINK_CONNECTOR_STRING = " --- ";
+        
+        // Underlay constants
+        this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
+        this.UNDERLAY_TAB_ID = 'underlayTabs';
+        this.TRACEFLOW_RADIOBUTTON_ID = 'traceFlowRadioBtns';
+        this.TRACEFLOW_DROPDOWN_ID = 'traceFlowDropdown';
+        this.TRACEFLOW_RESULTS_GRID_ID = 'traceFlowResultsGrid';
+        this.DEFAULT_INTROSPECTPORT = '8085';
+        this.UNDERLAY_PROUTER_INTERFACE_TAB_ID = 'pRouterInterfaces';
+        this.UNDERLAY_TRACEFLOW_TAB_ID = 'traceFlow';
+        this.UNDERLAY_DETAILS_TAB_ID = 'details';
+        this.FLOW_RECORD_TABLE = "FlowRecordTable";
+        this.FR_QUERY_PREFIX = "fr";
+        this.TIMERANGE_DROPDOWN_VALUES = [
+            {'id': 600, 'text': 'Last 10 Mins'},
+            {'id': 1800, 'text': 'Last 30 Mins'},
+            {'id': 3600, 'text': 'Last 1 Hr'},
+            {'id': 21600, 'text': 'Last 6 Hrs'},
+            {'id': 43200, 'text': 'Last 12 Hrs'},
+            {'id': -1, 'text': 'Custom'}
+        ];
+        this.UNDERLAY_SEARCHFLOW_TAB_ID = 'searchFlow';
+        this.UNDERLAY_TRAFFICSTATS_TAB_ID = 'trafficStats';
+        this.PROUTER = 'physical-router';
+        this.VROUTER = 'virtual-router';
+        this.VIRTUALMACHINE = 'virtual-machine';
+        this.UNDERLAY_LINK = 'link';
+        this.TRACEFLOW_MAXATTEMPTS = 3;
+        this.TRACEFLOW_INTERVAL = 5;
+        this.UNDERLAY_PROUTER_TAB_INDEXES = [2, 3];
+        this.UNDERLAY_LINK_TAB_INDEX = [4];
+        this.UNDERLAY_VM_TAB_INDEXES = [5, 6, 7, 8, 9, 10];
+        this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16];
+        
         this.getProjectsURL = function (domain) {
             //If the role is admin then we will display all the projects else the projects which has access
             var url = '/api/tenants/projects/' + domain,

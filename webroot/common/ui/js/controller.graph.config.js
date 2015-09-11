@@ -127,6 +127,43 @@ define([
 
             return config;
         };
+        
+        this.getPortDistributionTooltipConfig = function(onScatterChartClick) {
+            return function(data) {
+                var type = ctwl.get(data['type']),
+                    name = data['name'];
+
+                if(data['name'].toString().indexOf('-') > -1) {
+                    type += ' Range';
+                }
+
+                return {
+                    title: {
+                        name: name,
+                        type: type
+                    },
+                    content: {
+                        iconClass: false,
+                        info: [
+                            {label: 'Flows', value: data['flowCnt']},
+                            {label: 'Bandwidth', value: cowu.addUnits2Bytes(ifNull(data['origY'], data['y']))}
+                        ],
+                        actions: [
+                            {
+                                type: 'link',
+                                text: 'View',
+                                iconClass: 'icon-external-link',
+                                callback: onScatterChartClick
+                            }
+                        ],
+                        overlappedElementConfig: {
+                            dropdownTypeField: 'type'
+                        }
+                    }
+                };
+            }
+        };
+
     };
 
     return CTGraphConfig;

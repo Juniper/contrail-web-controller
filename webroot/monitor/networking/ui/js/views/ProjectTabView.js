@@ -85,7 +85,7 @@ define([
                                                         ucid: ctwc.get(ctwc.UCID_PROJECT_VN_PORT_STATS_LIST, projectFQN)
                                                     }
                                                 },
-                                                chartOptions: nmwvc.getPortDistChartOptions()
+                                                chartOptions: ctwvc.getPortDistChartOptions()
                                             }
                                         }
                                     ]
