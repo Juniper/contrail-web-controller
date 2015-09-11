@@ -1990,6 +1990,17 @@ function getpRouterLinkStats (req, res, appData)
     });
 }
 
+function getvnStatsPerVrouter (req, res, appData)
+{
+    var reqUrl = '/analytics/uves/vrouter';
+    var urlKey = ctrlGlobal.STR_GET_VN_STATS_PER_VROUTER;
+    console.log("Getting req.query as:", req.query);
+    cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
+                                             urlKey, reqUrl,
+                                             0, 1, 0, -1, true, req.query);
+}
+
+exports.getvnStatsPerVrouter = getvnStatsPerVrouter;
 exports.getUnderlayPath = getUnderlayPath;
 exports.getUnderlayTopology = getUnderlayTopology;
 exports.getUnderlayStats = getUnderlayStats;

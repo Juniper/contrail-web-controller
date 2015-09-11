@@ -79,14 +79,14 @@ define([
                                 type: 'GET'
                             },
                             dataParser: function (response) {
-                                return nmwp.parseNetwork4PortDistribution(response, networkFQN, interfaceIP);
+                                return ctwp.parseNetwork4PortDistribution(response, networkFQN, interfaceIP);
                             }
                         },
                         cacheConfig: {
                             ucid: ctwc.get(ctwc.UCID_PROJECT_VM_PORT_STATS_LIST, networkFQN, interfaceIP)
                         }
                     },
-                    chartOptions: nmwvc.getPortDistChartOptions()
+                    chartOptions: ctwvc.getPortDistChartOptions()
                 };
 
             var zoomScatterChartView = new ZoomScatterChartView({

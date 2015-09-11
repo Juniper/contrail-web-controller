@@ -793,6 +793,11 @@ function getQueryJSON4Table(queryReqObj) {
         queryJSON = _.extend({}, queryJSON, {
             "select_fields": ['vrouter', 'sourcevn', 'sourceip', 'sport', 'destvn', 'destip', 'dport', 'protocol', 'direction_ing', 'UuidKey', 'action', 'sg_rule_uuid', 'nw_ace_uuid', 'vrouter_ip', 'other_vrouter_ip', 'underlay_proto', 'underlay_source_port']
         });
+        if (autoLimit) {
+            queryJSON['limit'] = 150000;
+        } else if (formModelAttrs['limit'] != null) {
+            queryJSON['limit'] = parseInt(formModelAttrs['limit']);
+        }
     } else if (tableType == "OBJECT") {
         autoSort = (select.indexOf('MessageTS') == -1) ? false : autoSort;
 

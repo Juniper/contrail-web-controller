@@ -15,87 +15,7 @@ define([
                 networkFQN = viewConfig['networkFQN'],
                 tabsToDisplay = viewConfig['tabsToDisplay'],
                 tabObjs = [];
-            var allTabs = [
-                {
-                    elementId: ctwl.INSTANCE_DETAILS_ID,
-                    title: ctwl.TITLE_DETAILS,
-                    view: "DetailsView",
-                    viewConfig: {
-                        ajaxConfig: {
-                            url: instanceDetailsUrl,
-                            type: 'GET'
-                        },
-                        modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
-                        templateConfig: ctwu.getInstanceDetailsTemplateConfig(),
-                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                        dataParser: function (response) {
-                            return {
-                                name: instanceUUID,
-                                value: response
-                            };
-                        }
-                    }
-                },
-                {
-                    elementId: ctwl.INSTANCE_INTERFACE_ID,
-                    title: ctwl.TITLE_INTERFACES,
-                    view: "InterfaceGridView",
-                    viewPathPrefix: "monitor/networking/ui/js/views/",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: {
-                        modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
-                        instanceUUID: instanceUUID,
-                        networkFQN: networkFQN
-                    }
-                },
-                {
-                    elementId: ctwl.INSTANCE_TRAFFIC_STATS_ID,
-                    title: ctwl.TITLE_TRAFFIC_STATISTICS,
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    view: "InstanceTrafficStatsView",
-                    viewPathPrefix: "monitor/networking/ui/js/views/",
-                    viewConfig: {
-                        modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
-                        instanceUUID: instanceUUID,
-                        parseFn: ctwp.parseTrafficLineChartData
-                    }
-                },
-                {
-                    elementId: ctwl.INSTANCE_PORT_DIST_ID,
-                    title: ctwl.TITLE_PORT_DISTRIBUTION,
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    view: "InstancePortDistributionView",
-                    viewPathPrefix: "monitor/networking/ui/js/views/",
-                    viewConfig: {
-                        modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
-                        instanceUUID: instanceUUID
-                    }
-                },
-                {
-                    elementId: ctwl.INSTANCE_PORT_HEAT_CHART_ID,
-                    title: ctwl.TITLE_PORT_MAP,
-                    view: "HeatChartView",
-                    viewConfig: {
-                        ajaxConfig: {
-                            url: ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
-                            type: 'GET'
-                        },
-                        chartOptions: {getClickFn: function(){}}
-                    }
-                },
-                {
-                    elementId: ctwl.INSTANCE_CPU_MEM_STATS_ID,
-                    title: ctwl.TITLE_CPU_MEMORY,
-                    view: "LineBarWithFocusChartView",
-                    viewConfig: {
-                        modelConfig: getInstanceCPUMemModelConfig(networkFQN, instanceUUID),
-                        parseFn: ctwp.parseCPUMemLineChartData,
-                        chartOptions: {
-                            forceY1: [0, 1]
-                        }
-                    }
-                }
-            ];
+            var allTabs = self.getInstanceDetailPageTabConfig(viewConfig);
             if (tabsToDisplay == null) {
                 tabObjs = allTabs;
             } else if (typeof tabsToDisplay =='string' || $.isArray(tabsToDisplay)) {
@@ -144,7 +64,94 @@ define([
             }
 
         };
-
+        
+        self.getInstanceDetailPageTabConfig = function (viewConfig) {
+            var instanceUUID = viewConfig['instanceUUID'];
+            var networkFQN = viewConfig['networkFQN'];
+            var instanceDetailsUrl = ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID);
+            return [
+                    {
+                        elementId: ctwl.INSTANCE_DETAILS_ID,
+                        title: ctwl.TITLE_DETAILS,
+                        view: "DetailsView",
+                        viewConfig: {
+                            ajaxConfig: {
+                                url: instanceDetailsUrl,
+                                type: 'GET'
+                            },
+                            modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
+                            templateConfig: ctwu.getInstanceDetailsTemplateConfig(),
+                            app: cowc.APP_CONTRAIL_CONTROLLER,
+                            dataParser: function (response) {
+                                return {
+                                    name: instanceUUID,
+                                    value: response
+                                };
+                            }
+                        }
+                    },
+                    {
+                        elementId: ctwl.INSTANCE_INTERFACE_ID,
+                        title: ctwl.TITLE_INTERFACES,
+                        view: "InterfaceGridView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        viewConfig: {
+                            modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
+                            instanceUUID: instanceUUID,
+                            networkFQN: networkFQN
+                        }
+                    },
+                    {
+                        elementId: ctwl.INSTANCE_TRAFFIC_STATS_ID,
+                        title: ctwl.TITLE_TRAFFIC_STATISTICS,
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        view: "InstanceTrafficStatsView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        viewConfig: {
+                            modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
+                            instanceUUID: instanceUUID,
+                            parseFn: ctwp.parseTrafficLineChartData
+                        }
+                    },
+                    {
+                        elementId: ctwl.INSTANCE_PORT_DIST_ID,
+                        title: ctwl.TITLE_PORT_DISTRIBUTION,
+                        app: cowc.APP_CONTRAIL_CONTROLLER,
+                        view: "InstancePortDistributionView",
+                        viewPathPrefix: "monitor/networking/ui/js/views/",
+                        viewConfig: {
+                            modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
+                            instanceUUID: instanceUUID
+                        }
+                    },
+                    {
+                        elementId: ctwl.INSTANCE_PORT_HEAT_CHART_ID,
+                        title: ctwl.TITLE_PORT_MAP,
+                        view: "HeatChartView",
+                        viewConfig: {
+                            ajaxConfig: {
+                                url: ctwc.get(ctwc.URL_INSTANCE_DETAIL, instanceUUID),
+                                type: 'GET'
+                            },
+                            chartOptions: {getClickFn: function(){}}
+                        }
+                    },
+                    {
+                        elementId: ctwl.INSTANCE_CPU_MEM_STATS_ID,
+                        title: ctwl.TITLE_CPU_MEMORY,
+                        view: "LineBarWithFocusChartView",
+                        viewConfig: {
+                            modelConfig: getInstanceCPUMemModelConfig(networkFQN, instanceUUID),
+                            parseFn: ctwp.parseCPUMemLineChartData,
+                            chartOptions: {
+                                forceY1: [0, 1]
+                            }
+                        }
+                    }
+            ];
+        };
+        
         self.getInstanceTabViewModelConfig = function (instanceUUID) {
             var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
             var viewModelConfig = {
@@ -277,6 +284,242 @@ define([
                 };
             }
         };
+        
+        self.getUnderlayDefaultTabConfig = function (viewConfig) {
+            return [
+                {
+                    elementId: ctwc.UNDERLAY_SEARCHFLOW_TAB_ID,
+                    title: ctwl.UNDERLAY_SEARCHFLOW_TITLE,
+                    view: "SearchFlowFormView",
+                    viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: {
+                        widgetConfig: {
+                            elementId: ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.UNDERLAY_SEARCHFLOW_WIDGET_TITLE,
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },{
+                    elementId: ctwc.UNDERLAY_TRACEFLOW_TAB_ID,
+                    title: ctwl.UNDERLAY_TRACEFLOW_TITLE,
+                    view: "TraceFlowTabView",
+                    viewPathPrefix:
+                        ctwl.UNDERLAY_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: {
+                        widgetConfig: {
+                            elementId: ctwc.UNDERLAY_TRACEFLOW_TAB_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.UNDERLAY_TRACEFLOW_TITLE,
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ];
+        };
+        
+        self.getUnderlayPRouterTabConfig = function (viewConfig) {
+          return [
+              {
+                  elementId: ctwc.UNDERLAY_DETAILS_TAB_ID,
+                  title: ctwl.TITLE_DETAILS,
+                  view: "UnderlayDetailsView",
+                  viewPathPrefix:
+                      ctwl.UNDERLAY_VIEWPATH_PREFIX,
+                  app: cowc.APP_CONTRAIL_CONTROLLER,
+                  viewConfig: {
+                    
+                  }
+              }, {
+                  elementId: ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID,
+                  title: ctwl.UNDERLAY_PROUTER_INTERFACES_TITLE,
+                  view: "PRouterInterfaceView",
+                  viewPathPrefix:
+                      ctwl.UNDERLAY_VIEWPATH_PREFIX,
+                  app: cowc.APP_CONTRAIL_CONTROLLER,
+                  viewConfig: {
+                    
+                  }
+              } 
+          ]; 
+        };
+        
+        self.getUnderlayPRouterLinkTabConfig = function () {
+            return [
+                {
+                    elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
+                    title: ctwl.UNDERLAY_TRAFFIC_STATISTICS,
+                    view: "TrafficStatisticsView",
+                    viewPathPrefix:
+                        ctwl.UNDERLAY_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: {
+                          
+                    }
+                } 
+            ];
+        };
+        
+        self.getPortDistChartOptions = function() {
+            return {
+                xLabel: ctwl.X_AXIS_TITLE_PORT,
+                yLabel: ctwl.Y_AXIS_TITLE_BW,
+                forceX: [0, 1000],
+                forceY: [0, 1000],
+                tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                controlPanelConfig: {
+                    filter: {
+                        enable: true,
+                        viewConfig: getControlPanelFilterConfig()
+                    },
+                    legend: {
+                        enable: true,
+                        viewConfig: getControlPanelLegendConfig()
+                    }
+                },
+                clickCB: onScatterChartClick,
+                sizeFieldName: 'flowCnt',
+                xLabelFormat: d3.format(','),
+                yLabelFormat: function (yValue) {
+                    var formattedValue = formatBytes(yValue, false, null, 1);
+                    return formattedValue;
+                },
+                margin: {left: 70},
+                noDataMessage: cowm.DATA_SUCCESS_EMPTY
+            }
+        };
+        
+        self.getVRouterDetailsPageTabs = function (viewConfig) {
+            return [
+                {
+                    elementId: 'vrouter_detail_tab_id',
+                    title: 'Details',
+                    view: "VRouterDetailPageView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_interfaces_tab_id',
+                    title: 'Interfaces',
+                    view: "VRouterInterfacesFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_INTERFACES_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX +
+                                        ' ' + ctwl.VROUTER_INTERFACES_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+                },{
+                    elementId: 'vrouter_networks_tab_id',
+                    title: 'Networks',
+                    view: "VRouterNetworksFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_NETWORKS_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX + ' ' + ctwl.VROUTER_NETWORKS_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+                },{
+                    elementId: 'vrouter_acl_tab_id',
+                    title: 'ACL',
+                    view: "VRouterACLFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_ACL_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX +
+                                        ' ' + ctwl.VROUTER_ACL_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
+                },{
+                    elementId: 'vrouter_flows_tab_id',
+                    title: 'Flows',
+                    view: "VRouterFlowsFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_routes_tab_id',
+                    title: 'Routes',
+                    view: "VRouterRoutesFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                }
+            ]
+        };
     };
 
     function getInstanceCPUMemModelConfig(networkFQN, instanceUUID) {
@@ -307,6 +550,96 @@ define([
 
         return modelConfig;
     };
+    
+    function onScatterChartClick(chartConfig) {
+        var hashParams= {
+            fqName:chartConfig['fqName'],
+            port:chartConfig['range'],
+            type: 'flow',
+            view: 'list'
+        };
 
+        if(chartConfig['startTime'] != null && chartConfig['endTime'] != null) {
+            hashParams['startTime'] = chartConfig['startTime'];
+            hashParams['endTime'] = chartConfig['endTime'];
+        }
+
+        if(chartConfig['type'] == 'sport') {
+            hashParams['portType'] = 'src';
+        } else if(chartConfig['type'] == 'dport') {
+            hashParams['portType'] = 'dst';
+        }
+
+        if(contrail.checkIfExist(chartConfig['ipAddress'])) {
+            hashParams['ip'] = chartConfig['ipAddress'];
+        }
+
+        layoutHandler.setURLHashParams(hashParams, {p:"mon_networking_networks", merge:false});
+    };
+    
+    function getControlPanelFilterConfig() {
+        return {
+            groups: [
+                {
+                    id: 'by-node-color',
+                    title: false,
+                    type: 'checkbox-circle',
+                    items: [
+                        {
+                            text: 'Source Port',
+                            labelCssClass: 'default',
+                            filterFn: function(d) { return d.type === 'sport'; }
+                        },
+                        {
+                            text: 'Destination Port',
+                            labelCssClass: 'medium',
+                            filterFn: function(d) { return d.type === 'dport'; }
+                        }
+                    ]
+                }
+            ]
+        };
+    };
+
+    function getControlPanelLegendConfig() {
+        return {
+            groups: [
+                {
+                    id: 'by-node-color',
+                    title: 'Port Type',
+                    items: [
+                        {
+                            text: 'Source Port',
+                            labelCssClass: 'icon-circle default',
+                            events: {
+                                click: function (event) {}
+                            }
+                        },
+                        {
+                            text: 'Destination Port',
+                            labelCssClass: 'icon-circle medium',
+                            events: {
+                                click: function (event) {}
+                            }
+                        }
+                    ]
+                },
+                {
+                    id: 'by-node-size',
+                    title: 'Port Size',
+                    items: [
+                        {
+                            text: 'Flow Count',
+                            labelCssClass: 'icon-circle',
+                            events: {
+                                click: function (event) {}
+                            }
+                        }
+                    ]
+                }
+            ]
+        };
+    };
+    
     return CTViewConfig;
 });
