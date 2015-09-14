@@ -255,13 +255,13 @@ define([
                                                           elementId: 'ip_addr',
                                                           name:
                                                             'Tenant DNS Server IPs',
-                                                          view: "GridInputView",
+                                                          view: "FormInputView",
                                                           class: "", width: 200,
                                                           viewConfig:
                                                             {
+                                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                              path: "ip_addr",
-                                                             dataBindValue:
-                                                                 'ip_addr()',
+                                                             dataBindValue: 'ip_addr()',
                                                             }
                                                          },
                                                      ],
