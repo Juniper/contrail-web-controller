@@ -17,7 +17,7 @@ define([
         return {
             elementId: cowu.formatElementId([ctwl.CONFIG_LINK_LOCAL_SERVICES_PAGE_ID]),
             view: "LinkLocalServicesListView",
-            viewPathPrefix: "config/linklocalservices/ui/js/views/",
+            viewPathPrefix: "config/infra/linklocalservices/ui/js/views/",
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
         }
