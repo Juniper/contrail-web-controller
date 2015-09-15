@@ -17,7 +17,6 @@ define([
             var leftContainerElement = $('#left-column-container');
             this.$el.html(detailsTemplate);
 
-
             self.renderView4Config($('#left-column-container'), null,
                     getControlNodeDetailPageViewConfig(viewConfig));
         }
@@ -63,7 +62,13 @@ define([
 
                     obj['name'] = hostname;
 
+                    obj['ips'] = monitorInfraUtils.getControlIpAddresses(
+                                        ctrlNodeData,'details');
+
                     obj['overallNodeStatus'] = overallStatus;
+
+                    //dummy entry to show empty value in details
+                    obj['processes'] = '&nbsp;';
 
                     obj['ifMapConnectionStatus'] =
                             getIfMapConnectionStatus(ctrlNodeData);
@@ -83,11 +88,32 @@ define([
                     obj['lastLogTimestamp'] =
                             getLastLogTime(ctrlNodeData);
 
+                    var ipList = getControlNodeIpAddressList(ctrlNodeData);
+                    monitorInfraUtils.createMonInfraDetailsFooterLinks (
+                            $('#left-column-container').parent(), ipList);
+
                     return obj;
                 }
             }
         }
     }
+
+    function getControlNodeIpAddressList(data){
+        var ips = getValueByJsonPath(data,'$..bgp_router_ip_list',[]);
+        var configip = jsonPath(data,'$..ConfigData..bgp_router_parameters.address')[0];
+        var ipList = [];
+        if(ips.length > 0){
+           $.each(ips,function(idx,obj){
+              if(obj != null && ipList.indexOf(obj) == -1){
+                 ipList.push(obj);
+              }
+           });
+        }
+        if(configip != null && ipList.indexOf(configip) == -1){
+           ipList.push(configip);
+        }
+        return ipList;
+     }
 
     function getDetailsViewTemplateConfig() {
         return {
@@ -103,6 +129,7 @@ define([
                                 theme: 'widget-box',
                                 keyClass: 'label-blue',
                                 templateGenerator: 'BlockListTemplateGenerator',
+                                templateGeneratorData: 'rawData',
                                 templateGeneratorConfig: getTemplateGeneratorConfig()
                             }
                         ]
@@ -111,16 +138,17 @@ define([
             }
         };
     };
-    
+
     function getTemplateGeneratorConfig () {
-        return [
+        var templateGeneratorConfig = [];
+        templateGeneratorConfig = templateGeneratorConfig.concat([
             {
                 key: 'name',
                 label:'Hostname',
                 templateGenerator: 'TextGenerator'
             },
             {
-                key: 'ip',
+                key: 'ips',
                 label:'IP Address',
                 templateGenerator: 'TextGenerator'
             },
@@ -133,17 +161,27 @@ define([
                 key: 'overallNodeStatus',
                 label: 'Overall Node Status',
                 templateGenerator: 'TextGenerator'
-            },
-            {
-                key: 'processes',
-                label: 'Processes',
-                templateGenerator: 'TextGenerator'
-            },
-            {
-                key: 'controlProcessStatusList.contrail-control',
-                label: 'Control Node',
-                templateGenerator: 'TextGenerator'
-            },
+            }
+        ]);
+        //Add proccesses info only if the node manager is installed
+        templateGeneratorConfig = templateGeneratorConfig.concat(
+            (monitorInfraConstants.IS_NODE_MANAGER_INSTALLED)?
+                    [
+                        {
+                            key: 'processes',
+                            label: 'Processes',
+                            templateGenerator: 'TextGenerator'
+                        },
+                        {
+                            key: 'controlProcessStatusList.contrail-control',
+                            label: 'Control Node',
+                            keyClass: 'indent-right',
+                            templateGenerator: 'TextGenerator'
+                        }
+                    ]
+                        : []
+        );
+        templateGeneratorConfig = templateGeneratorConfig.concat([
             {
                 key: 'ifMapConnectionStatus',
                 label: 'Ifmap Connection',
@@ -184,7 +222,8 @@ define([
                 label: 'Last Log',
                 templateGenerator: 'TextGenerator'
             }
-        ];
+        ]);
+        return templateGeneratorConfig;
     }
 
     function getStatusesForAllControlProcesses(processStateList) {

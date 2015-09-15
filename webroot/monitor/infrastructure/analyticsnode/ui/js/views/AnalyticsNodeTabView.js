@@ -49,9 +49,9 @@ define([
                 var selTab = $(ui.newTab.context).text();
                 if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
                     $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
-                } else if (selTab == ctwl.TITLE_INSTANCES) {
-                    $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').
-                        refreshView();
+                } else if (selTab == 'Generators') {
+                    $('#analytics_node_generators_grid').
+                        data('contrailGrid').refreshView();
                 }
             },
             tabs: [

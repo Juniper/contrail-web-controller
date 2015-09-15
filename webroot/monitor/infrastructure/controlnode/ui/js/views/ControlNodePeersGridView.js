@@ -118,7 +118,11 @@ define([
         },
         body : {
             options : {
-                detail : false,
+                detail : {
+                    template:
+                        cowu.generateDetailTemplateHTML(getPeersDetailsTemplateConfig(),
+                                                        cowc.APP_CONTRAIL_CONTROLLER)
+                },
                 checkboxSelectable : false
             },
             dataSource : {
@@ -254,6 +258,26 @@ define([
             dest[key] = src[key];
         }
         return dest;
+    }
+
+    this.getPeersDetailsTemplateConfig = function () {
+        return{
+            templateGenerator: 'ColumnSectionTemplateGenerator',
+            advancedViewOptions :false,
+             templateGeneratorConfig: {
+                 columns: [
+                     {
+                         rows: [
+                             {
+                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
+                                 title: smwl.TITLE_OVERVIEW,
+                                 templateGeneratorData : 'raw_json'
+                             }
+                         ]
+                     }
+                 ]
+             }
+        }
     }
 
     return ControlNodePeersGridView;

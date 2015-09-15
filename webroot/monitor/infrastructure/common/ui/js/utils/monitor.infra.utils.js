@@ -1,7 +1,9 @@
 define([
     'underscore',
-    'contrail-list-model'
-], function (_, ContrailListModel) {
+    'contrail-list-model',
+    'js/views/LoginWindowView',
+    'js/models/LoginWindowModel'
+], function (_, ContrailListModel, LoginWindowView, LoginWindowModel) {
     var MonitorInfraUtils = function () {
         var self = this;
         self.getNodeColor = function (obj) {
@@ -379,6 +381,151 @@ define([
                 return statusTemplate({sevLevel:result['nodeSeverity'],sevLevels:sevLevels});
             return result;
         }
+        /**
+         * Util functions to create the footer links in the monitor infra details pages
+         */
+        /*self.createFooterLinks = function (parent, config) {
+            var template = contrail.getTemplate4Id('monitor-footer-links-template');
+            $('#monitor-footer-links-template').remove();
+            $(parent).append(template(config));
+            if(config.onIntrospectClick != null) {
+                $('#linkIntrospect').off('click');
+                $('#linkIntrospect').click(config.onIntrospectClick);
+            }
+            if(config.onStatusClick != null) {
+                $('#linkStatus').off('click');
+                $('#linkStatus').click(config.onStatusClick);
+            }
+        }*/
+        self.createMonInfraDetailsFooterLinks = function (parent, ipList) {
+            var ipDeferredObj = $.Deferred();
+            self.getReachableIp(ipList,
+                                "8083",ipDeferredObj);
+            ipDeferredObj.done (function (nodeIp) {
+                if(nodeIp != null) {
+                var leftColumnContainer = '#left-column-container';
+                    self.
+                        createFooterLinks(parent,
+                    [ 
+                      {
+                          name:'introspect',
+                          onClick: function () {
+                                    monitorInfraUtils.
+                                        onIntrospectLinkClick(nodeIp,
+                                                '8083');
+                                }
+                      },
+                      {
+                          name:'status',
+                          onClick : function () {
+                                            monitorInfraUtils.
+                                                onStatusLinkClick(nodeIp);
+                                        }
+                      }
+                    ]);
+                }
+            });
+        };
+
+        self.createFooterLinks = function (parent, config) {
+            var template = contrail.
+                getTemplate4Id('monitor-infra-details-footer-links-template');
+            $('#monitor-infra-details-footer-links-template').remove();
+            $(parent).append(template(config));
+            $.each(config,function(i,d){
+                var linkDiv = '<a id="mon_infra_footer_link_'+ 
+                                d.name +'" class="pull-right" >'+ 
+                                cowl.getFirstCharUpperCase(d.name) +'</a>';
+                $(parent).find('.footer-links').append(linkDiv);
+                if(d.onClick != null) {
+                    $('#mon_infra_footer_link_' + d.name).off('click');
+                    $('#mon_infra_footer_link_'  + d.name).click(d.onClick);
+                }
+            });
+        }
+
+        self.onIntrospectLinkClick = function (nodeIp, introspectPort) {
+            window.open('/proxy?proxyURL=http://'+nodeIp+':'+ introspectPort +
+                    '&indexPage', '_blank');
+        }
+
+        self.onStatusLinkClick = function (nodeIp) {
+            var loginWindow = new LoginWindowView();
+            var leftColumnContainer = '#left-column-container';
+            loginWindow.model = new LoginWindowModel();
+            loginWindow.renderLoginWindow({
+                data:{
+                    ip: nodeIp
+                },
+                callback : function (response) {
+                    var htmlString = '<pre>' +
+                        response + '</pre>';
+                    $('.contrail-status-view')
+                        .html(htmlString);
+                    $(leftColumnContainer)
+                        .find('.widget-box')
+                        .find('.list-view').hide();
+                    $(leftColumnContainer)
+                        .find('.widget-box')
+                        .find('.advanced-view').hide();
+                    $(leftColumnContainer)
+                        .find('.widget-box')
+                        .find('.contrail-status-view').show();
+                }
+            });
+        }
+
+        self.getReachableIp = function (ips,port,deferredObj){
+            var res;
+            if(ips != null && ips.length > 0){
+                var postData = getPostDataForReachableIpsCall(ips,port);
+                $.ajax({
+                    url:'/api/service/networking/get-network-reachable-ip',
+                    type:'POST',
+                    data:postData
+                }).done(function(result) {
+                    if(result != null && result['ip'] != null){
+                        res = result['ip'];
+                    }
+                    deferredObj.resolve(res);
+                }).fail(function(result) {
+                    deferredObj.resolve(res);
+                });
+            }
+        }
+
+        self.getControlIpAddresses = function (data,pageType) {
+            var ips;
+            var configip = noDataStr;
+            var ipString = "";
+            var isConfigMismatch = true;
+            try{
+                ips = ifNull(jsonPath(data,'$..bgp_router_ip_list')[0],[]);
+                configip = jsonPath(data,'$..ConfigData..bgp_router_parameters.address')[0];
+                $.each(ips, function (idx, ip){
+                    if(ip == configip){
+                        isConfigMismatch = false;
+                    }
+                    if(idx+1 == ips.length) {
+                        ipString = ipString + ip;
+                    } else {
+                        ipString = ipString + ip + ', ';
+                    }
+                });
+                if(configip != null && isConfigMismatch){
+                    if(ipString != ""){
+                        ipString += ","
+                    }
+                    if(pageType == "summary"){
+                        ipString = ipString +  configip ;
+                    } else if (pageType == "details"){
+                        ipString = ipString + "<span class='text-error' title='Config IP mismatch'> "+ configip +"</span>";
+                    }
+                }
+            } catch(e){}
+            return ipString;
+        }
+
     };
     return MonitorInfraUtils;
 });
