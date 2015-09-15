@@ -255,8 +255,6 @@ define([
         this.CONNECTED_NETWORK_TRAFFIC_STATS_DROPDOWN_ID = "connected-network-traffic-stats-dropdown";
         this.CONNECTED_NETWORK_TRAFFIC_STATS_CHART_ID = "connected-network-traffic-stats-chart";
 
-        this.QE_FLOW_SERIES_FORM_ID = "qe-flow-series-form";
-
         this.FLOWS_SCATTER_CHART_ID = "flows-scatter-chart";
         this.FLOWS_GRID_ID = "flows-grid";
 
@@ -498,7 +496,15 @@ define([
         this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
 
         // Query Engine labels
-        this.TITLE_QUERY_FLOWS_SERIES = "Query Flow Series";
+        this.QE_FLOW_SERIES_ID = "qe-flow-series";
+        this.QE_FLOW_SERIES_SECTION_ID = "qe-flow-series-section";
+        this.QE_FLOW_SERIES_TAB_ID = "qe-flow-series-tab";
+        this.QE_FLOW_SERIES_GRID_ID = "qe-flow-series-grid";
+
+        this.TITLE_QUERY = "Query";
+        this.TITLE_RESULTS = "Results";
+        this.TITLE_FLOW_SERIES = "Flow Series";
+        this.TITLE_FLOW_SERIES_RESULTS = "Flow Series Results";
 
         // VRouter Config labels
         this.CFG_VROUTER_PAGE_ID = 'config-vrouter-page';

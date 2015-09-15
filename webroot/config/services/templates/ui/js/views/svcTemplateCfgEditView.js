@@ -200,29 +200,28 @@ define([
                                                         {
                                                           elementId: 'service_interface_type',
                                                           name: 'Interface (s)',
-                                                          view: "GridDropdownView",
+                                                          view: "FormDropdownView",
                                                           class: "", width: 250,
                                                           viewConfig:
                                                             {
+                                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                              path: "service_interface_type",
-                                                             dataBindValue:
-                                                                 'service_interface_type()',
-                                                                 elementConfig : {
-                                                                    data : "['management',\
+                                                             dataBindValue: 'service_interface_type()',
+                                                             dataBindOptionList: "['management',\
                                                                     'left',\
                                                                     'right',\
-                                                                    'other']"
-
-                                                                }
+                                                                    'other']",
+                                                             elementConfig : {}
                                                             }
                                                         },
                                                         {
                                                           elementId: 'shared_ip',
                                                           name: 'Shared IP',
-                                                          view: "GridCheckboxView",
+                                                          view: "FormCheckboxView",
                                                           class: "", width: 100,
                                                           viewConfig:
                                                             {
+                                                             templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              path: "shared_ip",
                                                              dataBindValue: 'shared_ip()',
                                                             }
@@ -230,11 +229,12 @@ define([
                                                         {
                                                           elementId: 'static_route_enable',
                                                           name: 'Static Routes',
-                                                          view: "GridCheckboxView",
+                                                          view: "FormCheckboxView",
                                                           visible:"",
                                                           class: "", width: 100,
                                                           viewConfig:
                                                             {
+                                                             templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              path: "static_route_enable",
                                                              dataBindValue:
                                                                  'static_route_enable()',
