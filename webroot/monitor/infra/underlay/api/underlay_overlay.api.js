@@ -1083,8 +1083,9 @@ function getUnderlayPathByTopoData (req, topoData, srcVM, destVM, appData,
     });
 }
 
-function getvRouterByIntfIP (intfIp, vmUVE, ipPrTable)
+function getvRouterByIntfIP (intfIp, vmUVE, ipPrTable, vnFqn)
 {
+    var vRouterObj = {};
     var intfList = null;
     var intfListCnt = 0;
     if ((null == vmUVE) || (null == vmUVE['value'])) {
@@ -1102,6 +1103,9 @@ function getvRouterByIntfIP (intfIp, vmUVE, ipPrTable)
         }
         for (var j = 0; j < intfListCnt; j++) {
             if (intfList[j]['ip_address'] == intfIp) {
+                if (vnFqn != intfList[j]['virtual_network']) {
+                    continue;
+                }
                 return {'vrouter':
                     vmUVE[i]['value']['UveVirtualMachineAgent']['vrouter'],
                         'vm_name': intfList[j]['vm_name'],
@@ -1113,6 +1117,9 @@ function getvRouterByIntfIP (intfIp, vmUVE, ipPrTable)
                 var fipListLen = fipList.length;
                 for (var k = 0; k < fipListLen; k++) {
                     if (fipList[k]['ip_address'] == intfIp) {
+                        if (vnFqn != fipList[k]['virtual_network']) {
+                            continue;
+                        }
                         return {'vrouter':
                             vmUVE[i]['value']['UveVirtualMachineAgent']['vrouter'],
                                 'vm_name': intfList[j]['vm_name'],
@@ -1173,8 +1180,10 @@ function getUnderlayPath (req, res, appData)
             results[1] = mergeVMAndVMIUveData(results[1], results[2]);
             var ipPrTable = getIPToProuterMapTable(results[0]);
 
-            var srcNode = getvRouterByIntfIP(srcIP, results[1], ipPrTable);
-            var destNode = getvRouterByIntfIP(destIP, results[1], ipPrTable);
+            var srcNode =
+                getvRouterByIntfIP(srcIP, results[1], ipPrTable, srcVN);
+            var destNode =
+                getvRouterByIntfIP(destIP, results[1], ipPrTable, destVN);
             if ((null != srcNode) && (null != destNode) &&
                 (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type']) &&
                 (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type']) &&
@@ -1638,7 +1647,8 @@ function getIPToProuterMapTable (prouterData)
     return ipPrTable;
 }
 
-function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, appData, callback)
+function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, srcVN, destVN,
+                               appData, callback)
 {
     var topoData = {};
     var dataObjArr = [];
@@ -1699,8 +1709,10 @@ function getTraceFlowByReqURL (req, urlLists, srcIP, destIP, appData, callback)
                 }
             }
             topoData['links'] = [];
-            var srcNode = getvRouterByIntfIP(srcIP, results[2], ipPrTable);
-            var destNode = getvRouterByIntfIP(destIP, results[2], ipPrTable);
+            var srcNode =
+                getvRouterByIntfIP(srcIP, results[2], ipPrTable, srcVN);
+            var destNode =
+                getvRouterByIntfIP(destIP, results[2], ipPrTable, destVN);
             if (null != srcNode) {
                 if (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE ==
                     srcNode['node_type']) {
@@ -1759,6 +1771,8 @@ function getTraceFlow (req, res, appData)
     var maxHops = introData['maxHops'];
     var maxAttempts = introData['maxAttempts'];
     var interval = introData['interval'];
+    var srcVN = introData['srcVN'];
+    var destVN = introData['destVN'];
     var resolveVrfId = introData['resolveVrfId'];
     var url = '/Snh_TraceRouteReq?source_ip=' + srcIP + '&source_port=' +
         srcPort + '&dest_ip=' + destIP + '&dest_port=' + destPort +
@@ -1807,8 +1821,8 @@ function getTraceFlow (req, res, appData)
             }
             urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
                 + url;
-            getTraceFlowByReqURL(req, urlLists, srcIP, destIP, appData,
-                                 function(err, results) {
+            getTraceFlowByReqURL(req, urlLists, srcIP, destIP, srcVN, destVN,
+                                 appData, function(err, results) {
                 commonUtils.handleJSONResponse(err, res, results);
             });
         });
@@ -1816,8 +1830,8 @@ function getTraceFlow (req, res, appData)
         url += '&vrf_name=' + vrfName;
         urlLists[0] = nodeIP + '@' + global.SANDESH_COMPUTE_NODE_PORT + '@'
             + url + urlExtd;
-        getTraceFlowByReqURL(req, urlLists, srcIP, destIP, appData,
-                             function(err, results) {
+        getTraceFlowByReqURL(req, urlLists, srcIP, destIP, srcVN, destVN,
+                             appData, function(err, results) {
             commonUtils.handleJSONResponse(err, res, results);
         });
     }
