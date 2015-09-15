@@ -62,6 +62,7 @@ define([
                        view: "ControlNodeDetailPageView",
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
+                       app: cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: viewConfig
                    },
                    {
@@ -71,6 +72,7 @@ define([
                        view: "ControlNodePeersGridView",
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
+                       app: cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: viewConfig
                    }
 
