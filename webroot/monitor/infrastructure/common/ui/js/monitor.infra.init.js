@@ -10,8 +10,8 @@ define([
     'text!monitor/infrastructure/common/ui/templates/monitor.infra.tmpl'
 ], function (_, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers,
         MonitorInfraTmpls) {
-    monitorInfraUtils = new MonitorInfraUtils;
     monitorInfraConstants = new MonitorInfraConstants;
+    monitorInfraUtils = new MonitorInfraUtils;
     monitorInfraParsers = new MonitorInfraParsers;
 
     var initJSpath = pkgBaseDir +

@@ -310,6 +310,49 @@ define([
             return contrailListModel;
         };
 
+        this.loadAlertsPopup = function(cfgObj) {
+            var prefixId = 'dashboard-alerts';
+            var cfgObj = ifNull(cfgObj,{});
+            var modalTemplate =
+                contrail.getTemplate4Id('core-modal-template');
+            var modalId = 'dashboard-alerts-modal';
+            var modalLayout = modalTemplate({prefixId: prefixId, modalId: modalId});
+            if(cfgObj.model == null) {
+                require(['dashboard-alert-list-model','monitor-infra-parsers',
+                    'monitor-infra-constants','monitor-infra-utils'],
+                    function(AlertListModel,MonitorInfraParsers,MonitorInfraConstants,
+                        MonitorInfraUtils) {
+                        if(typeof(monitorInfraConstants) == 'undefined') {
+                            monitorInfraConstants = new MonitorInfraConstants();
+                        }
+                        if(typeof(monitorInfraUtils) == 'undefined') {
+                            monitorInfraUtils = new MonitorInfraUtils();
+                        }
+                        if(typeof(monitorInfraParsers) == 'undefined') {
+                            monitorInfraParsers = new MonitorInfraParsers();
+                        }
+                        cfgObj.model = new AlertListModel();
+                    });
+            }
+            cowu.createModal({
+                'modalId': modalId,
+                'className': 'modal-840',
+                'title': 'Alerts',
+                'body': modalLayout,
+                'onCancel': function() {
+                    $("#" + modalId).modal('hide');
+                }
+            });
+            var formId = prefixId + '_modal';
+            require(['alert-grid-view'], function(AlertGridView) {
+                var alertGridView = new AlertGridView({
+                    el:$("#" + modalId).find('#' + formId),
+                    model:cfgObj.model
+                });
+                alertGridView.render();
+            });
+        };
+
         this.renderView = function (renderConfig, renderCallback) {
             var parentElement = renderConfig['parentElement'],
                 viewName = renderConfig['viewName'],

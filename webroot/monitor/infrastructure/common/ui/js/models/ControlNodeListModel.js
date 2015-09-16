@@ -2,9 +2,6 @@ define([
     'contrail-list-model'
 ], function (ContrailListModel) {
     var ControlNodeListModel = function () {
-        if(ControlNodeListModel.prototype.singletonInstance) {
-            return ControlNodeListModel.prototype.singletonInstance;
-        }
         var vlRemoteConfig = [
           {
               getAjaxConfig: function() {
@@ -33,9 +30,7 @@ define([
                     ucid: ctwc.CACHE_CONTROLNODE
                 }
             };
-        ControlNodeListModel.prototype.singletonInstance =
-            new ContrailListModel(listModelConfig);
-        return ControlNodeListModel.prototype.singletonInstance;
+        return new ContrailListModel(listModelConfig);
     };
     return ControlNodeListModel;
     }
