@@ -165,9 +165,9 @@ define([
         self.v2VersionView =  function() {
             return {
                  elementId:ctwl.OVSDB_V2_VERSION_ID,
-                 visible: "showV2",
                  view:"SectionView",
                  viewConfig:{
+                     visible: "showV2",
                      rows: [
                          {
                              columns: [
@@ -229,8 +229,8 @@ define([
             return{
                 elementId: "auth_section",
                 view : "SectionView",
-                visible : "showAuth",
                 viewConfig : {
+                    visible : "showAuth",
                     rows : [
                         {
                             columns : [
@@ -263,8 +263,8 @@ define([
             return {
                 elementId : "privacy_section",
                 view : "SectionView",
-                visible : "showPrivacy",
                 viewConfig : {
+                    visible : "showPrivacy",
                     rows : [
                         {
                             columns : [
@@ -384,9 +384,9 @@ define([
         self.v3VersionView =  function() {
             return {
                 elementId:ctwl.OVSDB_V3_VERSION_ID,
-                visible: 'showV3',
                 view:"SectionView",
                 viewConfig:{
+                    visible: 'showV3',
                     rows: [
                         {
                             columns: [
@@ -485,9 +485,9 @@ define([
                     {
                         elementId: ctwl.OVSDB_ACCORDION,
                         view: "AccordianView",
-                        visible : "snmpMntd",
                         viewConfig: [
                            {
+                               visible : "snmpMntd",
                                elementId: ctwl.OVSDB_SNMP_SECTION,
                                title : ctwl.OVSDB_SNMP_SECTION_TITLE,
                                view: "SectionView",
@@ -555,8 +555,8 @@ define([
                     {
                          elementId : 'netConfSection',
                          view: "SectionView",
-                         visible : 'isJunosPortEnabled',
                          viewConfig : {
+                             visible : 'isJunosPortEnabled',
                              rows : [
                                  self.svcPortsBaseView()
                              ]
@@ -751,8 +751,8 @@ define([
                                  {
                                      elementId: ctwl.TOR_AGENT_SECTION,
                                      view: "SectionView",
-                                     visible: "showTorAgentSection",
                                      viewConfig: {
+                                        visible: "showTorAgentSection",
                                         rows: [
                                             self.torAgentSection(
                                                 torAgentVrouterDS),
