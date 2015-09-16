@@ -176,13 +176,13 @@ define([
                             {
                                 elementId: 'dns_method',
                                 view: "FormDropdownView",
-                                label: 'DNS Method',
                                 viewConfig: {
                                     //path : 'network_ipam_mgmt.ipam_dns_method',
                                     path : 'user_created_dns_method',
                                     class: 'span12',
                                     dataBindValue :
                                         'user_created_dns_method',
+                                    label: 'DNS Method',
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -204,10 +204,10 @@ define([
                             {
                                 elementId: 'virtual_dns_server_name',
                                 view: "FormDropdownView",
-                                label: 'Virtual DNS',
                                 //visible: "network_ipam_mgmt().ipam_dns_method === 'virtual-dns-server'",
-                                visible: "user_created_dns_method() == 'virtual-dns-server'",
                                 viewConfig: {
+                                    label: 'Virtual DNS',
+                                    visible: "user_created_dns_method() == 'virtual-dns-server'",
                                     path :
                                     'network_ipam_mgmt.ipam_dns_server.virtual_dns_server_name',
                                     class: 'span12',
@@ -234,8 +234,8 @@ define([
                              elementId : 'tenantDNSIPSection',
                              view: "SectionView",
                              //visible: "network_ipam_mgmt().ipam_dns_method === 'tenant-dns-server'",
-                             visible: "user_created_dns_method() == 'tenant-dns-server'",
                              viewConfig : {
+                                visible: "user_created_dns_method() == 'tenant-dns-server'",
                                  rows : [
                                      {
                                          columns : [
@@ -291,8 +291,8 @@ define([
                         {
                             elementId: 'ntpServer',
                             view: 'FormInputView',
-                            label: 'NTP Server IP',
                             viewConfig: {
+                                label: 'NTP Server IP',
                                 path : 'user_created.ntp_server',
                                 class: 'span12',
                                 dataBindValue : 'user_created().ntp_server',
@@ -306,10 +306,9 @@ define([
                         {
                             elementId: 'domainName',
                             view: 'FormInputView',
-                            label:'Domain Name',
                             //visible: "network_ipam_mgmt().ipam_dns_method != 'virtual-dns-server'",
-                            visible: "user_created_dns_method() != 'virtual-dns-server'",
                             viewConfig: {
+                                label:'Domain Name',
                                 path : 'user_created.domain_name',
                                 visible: "user_created_dns_method() != 'virtual-dns-server'",
                                 class: 'span12',

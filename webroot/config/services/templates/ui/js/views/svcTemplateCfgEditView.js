@@ -161,8 +161,8 @@ define([
                             {
                                 elementId: 'image_name',
                                 view: "FormDropdownView",
-                                label: 'Image Name',
                                 viewConfig: {
+                                    label: 'Image Name',
                                     path : 'service_template_properties.image_name',
                                     class: 'span12',
                                     dataBindValue : 'service_template_properties().image_name',
@@ -230,7 +230,6 @@ define([
                                                           elementId: 'static_route_enable',
                                                           name: 'Static Routes',
                                                           view: "FormCheckboxView",
-                                                          visible:"",
                                                           class: "", width: 100,
                                                           viewConfig:
                                                             {
@@ -292,8 +291,8 @@ define([
                                         {
                                             elementId: 'availability_zone_enable',
                                             view: "FormCheckboxView",
-                                            label: 'Availability Zone',
                                             viewConfig : {
+                                                label: 'Availability Zone',
                                                 path : 'service_template_properties.availability_zone_enable',
                                                 class : "span6",
                                                 dataBindValue : 'service_template_properties().availability_zone_enable',
@@ -309,8 +308,8 @@ define([
                                         {
                                             elementId: 'flavor',
                                             view: "FormDropdownView",
-                                            label: 'Instance Flavor',
                                             viewConfig: {
+                                                label: 'Instance Flavor',
                                                 path : 'service_template_properties.flavor',
                                                 class: 'span12',
                                                 dataBindValue : 'service_template_properties().flavor',

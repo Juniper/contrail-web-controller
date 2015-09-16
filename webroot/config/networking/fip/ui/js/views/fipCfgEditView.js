@@ -190,9 +190,9 @@ define([
                             {
                                 elementId: 'user_created_floating_ip_pool',
                                 view: "FormDropdownView",
-                                label: 'Floating IP Pool',
                                 viewConfig: {
                                     path : 'user_created_floating_ip_pool',
+                                    label: 'Floating IP Pool',
                                     class: 'span12',
                                     dataBindValue : 'user_created_floating_ip_pool',
                                     elementConfig : {
@@ -218,8 +218,8 @@ define([
                             {
                                 elementId: 'user_created_alloc_type',
                                 view: "FormDropdownView",
-                                label: 'Allocation Type',
                                 viewConfig: {
+                                    label: 'Allocation Type',
                                     path : 'user_created_alloc_type',
                                     class: 'span12',
                                     dataBindValue : 'user_created_alloc_type',
@@ -238,9 +238,9 @@ define([
                             {
                                 elementId: 'user_created_alloc_count',
                                 view: 'FormInputView',
-                                label: 'Number of IP Addresses',
-                                visible: "user_created_alloc_type() == 'dynamic'",
                                 viewConfig: {
+                                    label: 'Number of IP Addresses',
+                                    visible: "user_created_alloc_type() == 'dynamic'",
                                     path: 'user_created_alloc_count',
                                     class: 'span12',
                                     dataBindValue: 'user_created_alloc_count'
@@ -253,9 +253,9 @@ define([
                             {
                                 elementId: 'floating_ip_address',
                                 view: 'FormInputView',
-                                label: 'IP Address',
-                                visible: "user_created_alloc_type() == 'specific'",
                                 viewConfig: {
+                                    label: 'IP Address',
+                                    visible: "user_created_alloc_type() == 'specific'",
                                     placeHolder: 'Enter a Floating IP',
                                     path: 'floating_ip_address',
                                     class: 'span12',
@@ -283,8 +283,8 @@ define([
                             {
                                 elementId: 'virtual_machine_interface_refs',
                                 view: "FormDropdownView",
-                                label: 'Port',
                                 viewConfig: {
+                                    label: 'Port',
                                     path : 'virtual_machine_interface_refs',
                                     class: 'span12',
                                     dataBindValue : 'virtual_machine_interface_refs',

@@ -69,7 +69,7 @@ test("ajaxcall", function(){
         [200, { "Content-Type": "application/json" },
         JSON.stringify(SIMock.getServiceInstStatusMockData())]);
 	
-    this.server.respondWith("GET", "/api/tenants/config/service-template-images/default-domain",
+    this.server.respondWith("GET", "/api/tenants/config/service-template-images",
         [200, { "Content-Type": "application/json" },
         JSON.stringify(SIMock.getImagesMockData())]);
 		

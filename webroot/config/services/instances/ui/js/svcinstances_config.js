@@ -1634,8 +1634,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         type:"GET"
     });
     getAjaxs[2] = $.ajax({
-        url:"/api/tenants/config/service-template-images/" +
-            selectedDomainName ,
+        url:"/api/tenants/config/service-template-images/",
         type:"GET"
     });
     getAjaxs[3] = $.ajax({
