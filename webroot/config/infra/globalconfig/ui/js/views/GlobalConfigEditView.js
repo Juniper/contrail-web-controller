@@ -99,15 +99,23 @@ define([
                                     columns: [{
                                         elementId: 'encapsulation_priorities',
                                         name: 'Encapsulation Priority Order',
-                                        view: 'GridDropdownView',
+                                        view: 'FormDropdownView',
                                         width: 150,
                                         viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                             path:
                                             'encapsulation_priorities',
                                             dataBindValue:
                                                 'encapsulation_priorities()',
                                             elementConfig: {
-                                                data: '$root.getEncapPriorities()'
+                                                dataTextField: 'text',
+                                                dataValueField: 'id',
+                                                data: [{id: 'MPLS Over UDP', 
+                                                        text: 'MPLS Over UDP'},
+                                                      {id: 'MPLS Over GRE',
+                                                       text: 'MPLS Over GRE'},
+                                                      {id: 'VxLAN',
+                                                       text: 'VxLAN'}]
                                             }
                                         }
                                     }],
@@ -175,8 +183,9 @@ define([
                                     columns: [{
                                         elementId: 'ip_fabric_subnets',
                                         name: 'IP Fabric Subnets',
-                                        view: 'GridInputView',
+                                        view: 'FormInputView',
                                         viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                             path: 'ip_fabric_subnets',
                                             dataBindValue:
                                                 'ip_fabric_subnets()',
