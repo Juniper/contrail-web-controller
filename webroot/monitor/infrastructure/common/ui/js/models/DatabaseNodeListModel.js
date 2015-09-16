@@ -2,9 +2,6 @@ define([
     'contrail-list-model',
 ], function (ContrailListModel) {
     var DatabaseNodeListModel = function () {
-        if(DatabaseNodeListModel.prototype.singletonInstance) {
-            return DatabaseNodeListModel.prototype.singletonInstance;
-        }
         var listModelConfig = {
                 remote : {
                     ajaxConfig : {
@@ -13,12 +10,10 @@ define([
                     dataParser : monitorInfraParsers.parseDatabaseNodesDashboardData
                 },
                 cacheConfig : {
-                    ucid: ctwc.CACHE_DATABASENODE
+                    ucid: ctwl.CACHE_DATABASENODE
                 }
             };
-        DatabaseNodeListModel.prototype.singletonInstance =
-            new ContrailListModel(listModelConfig);
-        return DatabaseNodeListModel.prototype.singletonInstance;
+        return ContrailListModel(listModelConfig);
     };
     return DatabaseNodeListModel;
     }

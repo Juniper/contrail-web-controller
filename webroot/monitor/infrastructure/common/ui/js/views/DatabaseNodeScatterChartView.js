@@ -69,11 +69,16 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
        function onScatterChartClick(
                chartConfig) {
            var databaseNodeName = chartConfig.name, hashObj = {
-               node : databaseNodeName
+                type: "databaseNode",
+                view: "details",
+                focusedElement: {
+                    node: databaseNodeName,
+                    tab: 'details'
+                }
            };
 
            layoutHandler.setURLHashParams(hashObj, {
-               p : "monitor_infra_database",
+               p : "mon_infra_databasemvc",
                merge : false,
                triggerHashChange : true
            });

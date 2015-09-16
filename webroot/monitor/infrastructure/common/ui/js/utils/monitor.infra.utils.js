@@ -6,6 +6,448 @@ define([
 ], function (_, ContrailListModel, LoginWindowView, LoginWindowModel) {
     var MonitorInfraUtils = function () {
         var self = this;
+        var noDataStr = monitorInfraConstants.noDataStr;
+        // var isProcessExcluded = self.isProcessExcluded;
+        infraMonitorAlertUtils = {
+            /**
+            * Process-specific alerts
+            */
+            getProcessAlerts : function(data,obj,processPath) {
+                var res,filteredResponse = [],downProcess = 0,backOffProcess = 0,
+                    lastExitTime,lastStopTime,strtngProcess = 0;
+                if(processPath != null)
+                    res = getValueByJsonPath(data['value'],processPath,[]);
+                else
+                    res = ifNull(jsonPath(data,'$..NodeStatus.process_info')[0],[]);
+                var alerts=[];
+                var infoObj = {type:obj['display_type'],link:obj['link']};
+                if(obj['isUveMissing'] == true)
+                    return alerts;
+                filteredResponse = $.grep(res,function(obj,idx){
+                    return !self.isProcessExcluded(obj['process_name']);
+                })
+                if(filteredResponse.length == 0){
+                    if(IS_NODE_MANAGER_INSTALLED){
+                        alerts.push($.extend({
+                            sevLevel: sevLevels['ERROR'],
+                            name: data['name'],
+                            pName: obj['display_type'],
+                            msg: infraAlertMsgs['PROCESS_STATES_MISSING']
+                        }, infoObj));
+                    }
+                } else {
+                    for(var i=0;i<filteredResponse.length;i++) {
+                        lastExitTime =  undefined;
+                        lastStopTime =  undefined;
+                        if(filteredResponse[i]['core_file_list']!=undefined && filteredResponse[i]['core_file_list'].length>0) {
+                            var msg = infraAlertMsgs['PROCESS_COREDUMP'].format(filteredResponse[i]['core_file_list'].length);
+                            var restartCount = ifNull(filteredResponse[i]['exit_count'],0);
+                            if(restartCount > 0)
+                                msg +=", "+ infraAlertMsgs['PROCESS_RESTART'].format(restartCount);
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                sevLevel: sevLevels['INFO'],
+                                name: data['name'],
+                                pName: filteredResponse[i]['process_name'],
+                                msg: msg
+                            }, infoObj));
+                        }
+                        var procName = filteredResponse[i]['process_name'];
+                        var procState = filteredResponse[i]['process_state'];
+                        /*
+                        * Different process states and corresponding node color and message
+                        * PROCESS_STATE_STOPPPED: red, process stopped message
+                        * PROCESS_STATE_STARTING: blue, process starting message
+                        * PROCESS_STATE_BACKOFF: orange, process down message
+                        * rest all states are with red color and process down message
+                        */
+                        if (procState != null && procState != 'PROCESS_STATE_STOPPED' && procState != 'PROCESS_STATE_RUNNING'
+                            && procState != 'PROCESS_STATE_BACKOFF' && procState != 'PROCESS_STATE_STARTING') {
+                            downProcess++;
+                            if(filteredResponse[i]['last_exit_time'] != null)
+                                lastExitTime = filteredResponse[i]['last_exit_time'];
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                name: data['name'],
+                                pName: procName,
+                                msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
+                                timeStamp: lastExitTime,
+                                sevLevel: sevLevels['ERROR']
+                            }, infoObj));
+                        } else if (procState == 'PROCESS_STATE_STOPPED') {
+                            downProcess++;
+                            if(filteredResponse[i]['last_stop_time'] != null)
+                                lastStopTime = filteredResponse[i]['last_stop_time'];
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                name: data['name'],
+                                pName: procName,
+                                msg: infraAlertMsgs['PROCESS_STOPPED'].format(procName),
+                                timeStamp: lastStopTime,
+                                sevLevel: sevLevels['ERROR']
+                            }, infoObj));
+                        } else if (procState == 'PROCESS_STATE_BACKOFF') {
+                            backOffProcess++;
+                            if(filteredResponse[i]['last_exit_time'] != null)
+                                lastExitTime = filteredResponse[i]['last_exit_time'];
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                name: data['name'],
+                                pName: procName,
+                                msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(procName),
+                                timeStamp: lastExitTime,
+                                sevLevel: sevLevels['WARNING']
+                            }, infoObj));
+                        } else if (procState == 'PROCESS_STATE_STARTING') {
+                            strtngProcess++;
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                name: data['name'],
+                                pName: procName,
+                                msg: infraAlertMsgs['PROCESS_STARTING_MSG'].format(procName),
+                                timeStamp: undefined, //we are not showing the time stamp for the process in
+                                sevLevel: sevLevels['INFO'] // starting state
+                            }, infoObj));
+                            //Raise only info alert if process_state is missing for a process??
+                        } else if  (procState == null) {
+                            downProcess++;
+                            alerts.push($.extend({
+                                tooltipAlert: false,
+                                name: data['name'],
+                                pName: filteredResponse[i]['process_name'],
+                                msg: infraAlertMsgs['PROCESS_DOWN_MSG'].format(filteredResponse[i]['process_name']),
+                                timeStamp: filteredResponse[i]['last_exit_time'],
+                                sevLevel: sevLevels['INFO']
+                            }, infoObj));
+                                /*msg +=", "+infraAlertMsgs['RESTARTS'].format(restartCount);
+                            alerts.push($.extend({name:data['name'],pName:filteredResponse[i]['process_name'],type:'core',msg:msg},infoObj));*/
+                        }
+                    }
+                    if(downProcess > 0)
+                        alerts.push($.extend({
+                            detailAlert: false,
+                            sevLevel: sevLevels['ERROR'],
+                            msg: infraAlertMsgs['PROCESS_DOWN'].format(downProcess + backOffProcess)
+                        }, infoObj));
+                    else if(backOffProcess > 0)
+                        alerts.push($.extend({
+                            detailAlert: false,
+                            sevLevel: sevLevels['WARNING'],
+                            msg: infraAlertMsgs['PROCESS_DOWN'].format(backOffProcess)
+                        }, infoObj));
+                    if(strtngProcess > 0)
+                        alerts.push($.extend({
+                            detailAlert: false,
+                            sevLevel: sevLevels['INFO'],
+                            msg: infraAlertMsgs['PROCESS_STARTING'].format(strtngProcess)
+                        }, infoObj));
+                }
+                return alerts.sort(dashboardUtils.sortInfraAlerts);
+            },
+            processvRouterAlerts : function(obj) {
+                var alertsList = [];
+                var infoObj = {
+                    name: obj['name'],
+                    type: 'vRouter',
+                    ip: obj['ip'],
+                    link: obj['link']
+                };
+                if(obj['isNTPUnsynced']){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
+                    }, infoObj));
+                }
+                if(obj['isUveMissing'] == true)
+                    alertsList.push($.extend({}, {
+                        msg: infraAlertMsgs['UVE_MISSING'],
+                        sevLevel: sevLevels['ERROR'],
+                        tooltipLbl: 'Events'
+                    }, infoObj));
+                if(obj['isConfigMissing'] == true)
+                    alertsList.push($.extend({}, {
+                        msg: infraAlertMsgs['CONFIG_MISSING'],
+                        sevLevel: sevLevels['WARNING']
+                    }, infoObj));
+                //Alerts that are applicable only when both UVE & config data present
+                if(obj['isConfigMissing'] == false && obj['isUveMissing'] == false) {
+                    if(obj['uveCfgIPMisMatch'] == true)
+                        alertsList.push($.extend({}, {
+                            msg: infraAlertMsgs['CONFIG_IP_MISMATCH'],
+                            sevLevel: sevLevels['ERROR'],
+                            tooltipLbl: 'Events'
+                        }, infoObj));
+                }
+                //Alerts that are applicable only when UVE data is present
+                if(obj['isUveMissing'] == false) {
+                    if(obj['isPartialUveMissing'] == true)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['INFO'],
+                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING'],
+                            tooltipLbl: 'Events'
+                        }, infoObj));
+                    if(obj['errorIntfCnt'] > 0)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['WARNING'],
+                            msg: infraAlertMsgs['INTERFACE_DOWN'].format(obj['errorIntfCnt']),
+                            tooltipLbl: 'Events'
+                        }, infoObj));
+                    if(obj['xmppPeerDownCnt'] > 0)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['ERROR'],
+                            msg: infraAlertMsgs['XMPP_PEER_DOWN'].format(obj['xmppPeerDownCnt']),
+                            tooltipLbl: 'Events'
+                        }, infoObj));
+                }
+                return alertsList.sort(dashboardUtils.sortInfraAlerts);
+            },
+            processControlNodeAlerts : function(obj) {
+                var alertsList = [];
+                var infoObj = {
+                    name: obj['name'],
+                    type: 'Control Node',
+                    ip: obj['ip'],
+                    link: obj['link']
+                };
+                if(obj['isNTPUnsynced']){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
+                    }, infoObj));
+                }
+                if(obj['isUveMissing'] == true)
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['UVE_MISSING']
+                    }, infoObj));
+                if(obj['isConfigMissing'] == true)
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['CONFIG_MISSING']
+                    }, infoObj));
+                if(obj['isUveMissing'] == false) {
+                    //ifmap down alerts for control node
+                    if(obj['isIfmapDown']) {
+                        alertsList.push($.extend({
+                            sevLevel: sevLevels['ERROR'],
+                            msg: infraAlertMsgs['IFMAP_DOWN'],
+                            timeStamp: obj['ifmapDownAt']
+                        }, infoObj));
+                    }
+                    if(obj['isPartialUveMissing'] == true)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['INFO'],
+                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
+                        }, infoObj));
+                    if(obj['downXMPPPeerCnt'] > 0)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['WARNING'],
+                            msg: infraAlertMsgs['XMPP_PEER_DOWN'].format(obj['downXMPPPeerCnt'])
+                        }, infoObj));
+                    if(obj['downBgpPeerCnt'] > 0)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['WARNING'],
+                            msg: infraAlertMsgs['BGP_PEER_DOWN'].format(obj['downBgpPeerCnt'])
+                        }, infoObj));
+                }
+                //Alerts that are applicable only when both UVE and config data are present
+                if(obj['isUveMissing'] == false && obj['isConfigMissing'] == false) {
+                    if(typeof(obj['totalBgpPeerCnt']) == "number" &&
+                        obj['configuredBgpPeerCnt'] != obj['totalBgpPeerCnt'])
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['WARNING'],
+                            msg: infraAlertMsgs['BGP_CONFIG_MISMATCH']
+                        }, infoObj));
+                    if(obj['uveCfgIPMisMatch'])
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['ERROR'],
+                            msg: infraAlertMsgs['CONFIG_IP_MISMATCH']
+                        }, infoObj));
+                }
+                return alertsList.sort(dashboardUtils.sortInfraAlerts);
+            },
+            processConfigNodeAlerts : function(obj) {
+                var alertsList = [];
+                var infoObj = {
+                    name: obj['name'],
+                    type: 'Config Node',
+                    ip: obj['ip'],
+                    link: obj['link']
+                };
+                if(obj['isNTPUnsynced'])
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
+                    }, infoObj));
+                if(obj['isUveMissing'] == true)
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['UVE_MISSING']
+                    }, infoObj));
+        //        if(obj['isConfigMissing'] == true)
+        //            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+                if(obj['isUveMissing'] == false){
+                    if(obj['isPartialUveMissing'] == true)
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['INFO'],
+                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
+                        }, infoObj));
+                }
+                return alertsList.sort(dashboardUtils.sortInfraAlerts);
+            },
+            processAnalyticsNodeAlerts : function(obj) {
+                var alertsList = [];
+                var infoObj = {
+                    name: obj['name'],
+                    type: 'Analytics Node',
+                    ip: obj['ip'],
+                    link: obj['link']
+                };
+                if(obj['isNTPUnsynced']){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
+                    }, infoObj));
+                }
+                if(obj['isUveMissing'] == true){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['UVE_MISSING']
+                    }, infoObj));
+                }
+                if(obj['isUveMissing'] == false) {
+                    if(obj['isPartialUveMissing'] == true){
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['INFO'],
+                            msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
+                        }, infoObj));
+                    }
+                }
+                if(obj['errorStrings'] != null && obj['errorStrings'].length > 0){
+                    $.each(obj['errorStrings'],function(idx,errorString){
+                        alertsList.push($.extend({}, {
+                            sevLevel: sevLevels['WARNING'],
+                            msg: errorString
+                        }, infoObj));
+                    });
+                }
+                return alertsList.sort(dashboardUtils.sortInfraAlerts);
+            },
+            processDbNodeAlerts : function(obj) {
+                var alertsList = [];
+                var infoObj = {
+                    name: obj['name'],
+                    type: 'Database Node',
+                    ip: obj['ip'],
+                    link: obj['link']
+                };
+
+                if(obj['isNTPUnsynced']){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['NTP_UNSYNCED_ERROR']
+                    }, infoObj));
+                }
+                if(obj['isUveMissing'] == true){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['UVE_MISSING']
+                    }, infoObj));
+                }
+        //        if(obj['isConfigMissing'] == true){
+        //            alertsList.push($.extend({},{sevLevel:sevLevels['ERROR'],msg:infraAlertMsgs['CONFIG_MISSING']},infoObj));
+        //        }
+                if(obj['isUveMissing'] == false && obj['isPartialUveMissing'] == true){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['INFO'],
+                        msg: infraAlertMsgs['PARTIAL_UVE_MISSING']
+                    }, infoObj));
+                }
+                if(obj['usedPercentage'] >= 70 && obj['usedPercentage'] < 90){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['WARNING'],
+                        msg: infraAlertMsgs['SPACE_USAGE_WARNING'].format('Database')
+                    }, infoObj));
+                } else if(obj['usedPercentage'] >= 90){
+                    alertsList.push($.extend({}, {
+                        sevLevel: sevLevels['ERROR'],
+                        msg: infraAlertMsgs['SPACE_THRESHOLD_EXCEEDED'].format('Database')
+                    }, infoObj));
+                }
+                return alertsList.sort(dashboardUtils.sortInfraAlerts);
+            }
+        }
+
+        self.formatMemory = function(memory) {
+            if(memory == null || memory['res'] == null)
+                return noDataStr;
+            var usedMemory = parseInt(memory['res']) * 1024;
+            //var totalMemory = parseInt(memory['total']) * 1024;
+            return contrail.format('{0}', formatBytes(usedMemory));
+        }
+
+        self.getVrouterIpAddresses = function(data,pageType) {
+            var ips,controlIp;
+            var configip = noDataStr;
+            var ipString = "";
+            var isConfigMismatch = true;
+            try{
+                controlIp = getValueByJsonPath(data,'VrouterAgent;control_ip',noDataStr);
+                ips = getValueByJsonPath(data,'VRouterAgent;self_ip_list',[]);
+                configip = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address');
+                if(controlIp != null && controlIp != noDataStr){
+                    ipString = controlIp;
+                }
+                if(configip == controlIp) {
+                    isConfigMismatch = false;
+                }
+                $.each(ips, function (idx, ip){
+                    if(ip == configip){
+                        isConfigMismatch = false;
+                    }
+                    if(ip != controlIp){
+                        ipString += ", " + ip;
+                        if(idx == 0){
+                            ipString += "*";
+                        }
+                    } else {
+                        ipString += "*"
+                    }
+                });
+                if(configip != null && isConfigMismatch){
+                    if(ipString != ""){
+                        ipString += ","
+                    }
+                    if(pageType == "summary"){
+                        ipString = ipString +  configip ;
+                    } else if (pageType == "details"){
+                        ipString = ipString + "<span class='text-error' title='Config IP mismatch'> "+ configip +"</span>";
+                    }
+                }
+            } catch(e){}
+            return ipString;
+        }
+
+        self.parseUveHistoricalValues = function(d,path,histPath) {
+            var histData;
+            if(histPath != null)
+                histData = getValueByJsonPath(d,histPath,[]);
+            else
+                histData = ifNull(jsonPath(d,path)[0],[]);
+            var histDataArr = [];
+            $.each(histData,function(key,value) {
+                histDataArr.push([JSON.parse(key)['ts'],value]);
+            });
+            histDataArr.sort(function(a,b) { return a[0] - b[0];});
+            histDataArr = $.map(histDataArr,function(value,idx) {
+                return value[1];
+            });
+            return histDataArr;
+        }
+
+        /**
+        * Return false if is there is no severity alert that decides color
+        */
         self.getNodeColor = function (obj) {
             obj = ifNull(obj,{});
             //Check if there is any nodeAlert and if yes,
@@ -80,7 +522,7 @@ define([
             var kfilts;
             var cfilts;
             if(dsName == 'controlNodeDS') {
-                kfilts =  '*:' + UVEModuleIds['CONTROLNODE'] + '*';
+                kfilts =  '*:' + monitorInfraConstants.UVEModuleIds['CONTROLNODE'] + '*';
                 cfilts =  'ModuleClientState:client_info,'+
                           'ModuleServerState:generator_info';
             } else if(dsName == 'computeNodeDS') {
@@ -105,18 +547,18 @@ define([
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             } else if(dsName == 'analyticsNodeDS') {
-                kfilts = '*:' + UVEModuleIds['COLLECTOR'] + '*,*:' +
-                                UVEModuleIds['OPSERVER'] + '*,*:' +
-                                UVEModuleIds['QUERYENGINE'] + '*';
+                kfilts = '*:' + monitorInfraConstants.UVEModuleIds['COLLECTOR'] + '*,*:' +
+                                monitorInfraConstants.UVEModuleIds['OPSERVER'] + '*,*:' +
+                                monitorInfraConstants.UVEModuleIds['QUERYENGINE'] + '*';
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             } else if(dsName == 'configNodeDS') {
-                kfilts = '*:' + UVEModuleIds['APISERVER'] + '*';
+                kfilts = '*:' + monitorInfraConstants.UVEModuleIds['APISERVER'] + '*';
                 cfilts = 'ModuleClientState:client_info,'+
                          'ModuleServerState:generator_info';
             }
 
-            var postData = getPostData("generator",'','',cfilts,kfilts);
+            var postData = self.getPostData("generator",'','',cfilts,kfilts);
 
             ajaxConfig = {
                     url:TENANT_API_URL,
@@ -141,6 +583,232 @@ define([
             });
             return retArr;
         };
+
+        //If current process is part of exclude process list,then return true; else return false
+        self.isProcessExcluded = function(procName) {
+            //Exclude specific (node mgr,nova-compute for compute node) process alerts
+            var excludeProcessList = monitorInfraConstants.excludeProcessList;
+            var excludeProcessLen = excludeProcessList.length;
+            for(var i=0;i<excludeProcessLen;i++) {
+                if(procName.indexOf(excludeProcessList[i]) > -1)
+                    return true;
+            }
+            return false;
+        }
+
+        self.isNTPUnsynced = function(nodeStatus) {
+            if(nodeStatus == null || !nodeStatus || nodeStatus.process_status == null){
+                return false;
+            }
+            var processStatus = nodeStatus.process_status;
+            for(var i = 0; i < processStatus.length; i++){
+                var procstat = processStatus[i];
+                if(procstat.description != null &&
+                    procstat.description.toLowerCase().indexOf("ntp state unsynchronized") != -1){
+                    return true;
+                }
+            }
+        }
+        self.getPostData = function(type,module,hostname,cfilt,kfilt) {
+            var cfiltObj = {};
+            var postData;
+            if(type != null && type != ""){
+                cfiltObj["type"] = type;
+            } else {
+                return null;
+            }
+            if(module != null && module != ""){
+                cfiltObj["module"] = module;
+            }
+            if(hostname != null && hostname != ""){
+                cfiltObj["hostname"] = hostname;
+            }
+            if(cfilt != null && cfilt != ""){
+                cfiltObj["cfilt"] = cfilt;
+            }
+            if(kfilt != null && kfilt != ""){
+                cfiltObj["kfilt"] = kfilt;
+            }
+            postData = {data:[cfiltObj]};
+            return postData;
+        }
+
+        /**
+        * Claculates node status based on process_info & generators
+        * ToDo: use getOverallNodeStatusFromGenerators
+        */
+        self.getOverallNodeStatus = function(d,nodeType,processPath) {
+            var status = "--";
+            var generatorDownTime;
+            //For Analytics node if there are error strings in the UVE display it as Down
+            if(nodeType != null && nodeType == 'analytics'){
+                try{
+                    var errorStrings = jsonPath(d,"$..ModuleCpuState.error_strings")[0];
+                }catch(e){}
+                if(errorStrings && errorStrings.length > 0){
+                    return 'Down';
+                }
+            }
+            var procStateList;
+            if(processPath != null)
+                procStateList = getValueByJsonPath(d,processPath);
+            else
+                procStateList = jsonPath(d,"$..NodeStatus.process_info")[0];
+            if(procStateList != null && procStateList != undefined && procStateList != "") {
+                status = self.getOverallNodeStatusFromProcessStateList(procStateList);
+                //Check if any generator is down. This may happen if the process_info is not updated due to some reason
+                if(status.search("Up") != -1){
+                    generatorDownTime = self.getMaxGeneratorDownTime(d);
+                    if(generatorDownTime != -1){
+                        try{
+                            var resetTime = new XDate(generatorDownTime/1000);
+                            var currTime = new XDate();
+                            status = 'Down since ' + diffDates(resetTime,currTime);
+                        }catch(e){
+                            status = 'Down';
+                        }
+                    }
+                }
+            } else {
+                //For each process get the generator_info and fetch the gen_attr which is having the highest connect_time. This is because
+                //we are interseted only in the collector this is connected to the latest.
+                //From this gen_attr see if the reset_time > connect_time. If yes then the process is down track it in down list.
+                //Else it is up and track in uplist.
+                //If any of the process is down get the least reset_time from the down list and display the node as down.
+                //Else get the generator with max connect_time and show the status as Up.
+                try{
+                    var genInfos = ifNull(jsonPath(d,"$..ModuleServerState..generator_info"),[]);
+                    if(!genInfos){
+                        return 'Down';
+                    }
+                    var upGenAttrs = [];
+                    var downGenAttrs = [];
+                    var isDown = false;
+                    $.each(genInfos,function(idx,genInfo){
+                        var genAttr = self.getMaxGeneratorValueInArray(genInfo,"connect_time");
+                        var connTime = jsonPath(genAttr,"$..connect_time")[0];
+                        var resetTime = jsonPath(genAttr,"$..reset_time")[0];
+                        if(resetTime > connTime){
+                            isDown = true;
+                            downGenAttrs.push(genAttr);
+                        } else {
+                            upGenAttrs.push(genAttr);
+                        }
+                    });
+                    if(!isDown){
+                        var maxConnTimeGen = self.getMaxGeneratorValueInArray(upGenAttrs,"connect_time");
+                        var maxConnTime = jsonPath(maxConnTimeGen,"$..connect_time")[0];
+                        var connectTime = new XDate(maxConnTime/1000);
+                        var currTime = new XDate();
+                        status = 'Up since ' + diffDates(connectTime,currTime);
+                    } else {
+                        var minResetTimeGen = self.getMinGeneratorValueInArray(downGenAttrs,"reset_time");
+                        var minResetTime = jsonPath(minResetTimeGen,"$..reset_time")[0];
+                        var resetTime = new XDate(minResetTime/1000);
+                        var currTime = new XDate();
+                        status = 'Down since ' + diffDates(resetTime,currTime);
+                    }
+                }catch(e){}
+            }
+            return status;
+        }
+        self.getOverallNodeStatusFromProcessStateList = function(d) {
+            var maxUpTime=0, maxDownTime=0, isAnyNodeDown=false, status = "";
+            for(var i=0; i < d.length; i++){
+                var currProc = d[i];
+                //Exclude specific (node mgr,nova-compute for compute node) process alerts
+                if(self.isProcessExcluded(currProc['process_name']))
+                    continue;
+                if(currProc != null && currProc.process_state != null &&
+                    currProc.process_state.toUpperCase() == "PROCESS_STATE_RUNNING"){
+                    if(currProc.last_start_time != null && currProc.last_start_time > maxUpTime){
+                        maxUpTime = currProc.last_start_time;
+                    }
+                } else {
+                    if(currProc.last_exit_time != null || currProc.last_stop_time != null){
+                        isAnyNodeDown = true;
+                        var maxProcDownTime=0,exitTime=0,stopTime=0;
+                        if(currProc.last_exit_time != null){
+                            exitTime = currProc.last_exit_time;
+                        }
+                        if(currProc.last_stop_time != null){
+                            stopTime = currProc.last_stop_time;
+                        }
+                        maxProcDownTime = (exitTime > stopTime)?exitTime:stopTime;
+                        if(maxProcDownTime > maxDownTime){
+                            maxDownTime = maxProcDownTime;
+                        }
+                    }
+                }
+            }
+            if(!isAnyNodeDown && maxUpTime != 0){
+                var upTime = new XDate(maxUpTime/1000);
+                var currTime = new XDate();
+                status = 'Up since ' + diffDates(upTime,currTime);
+            } else if(maxDownTime != 0){
+                var resetTime = new XDate(maxDownTime/1000);
+                var currTime = new XDate();
+                status = 'Down since ' + diffDates(resetTime,currTime);
+            } else {
+                status = 'Down';
+            }
+            return status;
+        }
+        //returns max reset time or -1 if none are down
+        self.getMaxGeneratorDownTime = function(d) {
+            var genInfos = [];
+            var genInfoList = [];
+            var maxResetTime = -1;
+            try{
+                genInfoList = jsonPath(d,"$..ModuleServerState..generator_info");
+                for(var i=0; i < genInfoList.length; i++){
+                    var currGenInfo = genInfoList[i];
+                    var maxConnectTimeGenerator = self.getMaxGeneratorValueInArray(currGenInfo,"connect_time");
+                    var maxConnectTimeOfProcess = jsonPath(maxConnectTimeGenerator,"$..connect_time")[0];
+                    var resetTimeOfMaxConnectTimeGenerator = jsonPath(maxConnectTimeGenerator,"$..reset_time")[0];
+                    if(resetTimeOfMaxConnectTimeGenerator > maxConnectTimeOfProcess){
+                        if(maxResetTime < resetTimeOfMaxConnectTimeGenerator){
+                            maxResetTime = resetTimeOfMaxConnectTimeGenerator
+                        }
+                    }
+                }
+            }catch(e){}
+            return maxResetTime;
+        }
+
+        self.getMaxGeneratorValueInArray = function(inputArray,selector) {
+            var maxVal;
+            if(inputArray != null && inputArray['length'] != null && inputArray['length'] > 0) {
+                maxVal = inputArray[0];
+                for(var i = 1; i < inputArray.length; i++){
+                    var curSelectorVal = jsonPath(inputArray[i],"$.."+selector)[0];
+                    var maxSelectorVal = jsonPath(maxVal,"$.."+selector)[0];
+                    if(curSelectorVal > maxSelectorVal){
+                        maxVal = inputArray[i];
+                    }
+                }
+                return maxVal;
+            } else {
+                return inputArray;
+            }
+        }
+
+        self.getMinGeneratorValueInArray = function(inputArray,selector) {
+            var minVal;
+            if(inputArray != null && inputArray['length'] != null && inputArray['length'] > 0) {
+                minVal = inputArray[0];
+                for(var i = 1; i < inputArray.length; i++){
+                    var curSelectorVal = jsonPath(inputArray[i],"$.."+selector)[0];
+                    var maxSelectorVal = jsonPath(minVal,"$.."+selector)[0];
+                    if(curSelectorVal < maxSelectorVal){
+                        minVal = inputArray[i];
+                    }
+                }
+                return minVal;
+            } else {
+                return inputArray;
+            }
+        }
 
         self.getOverallNodeStatusFromGenerators = function () {
             var status = "--";
@@ -173,7 +841,7 @@ define([
                 var isDown = false;
                 $.each(genInfos,function(idx,genInfo){
                     var genAttr =
-                        getMaxGeneratorValueInArray(genInfo,"connect_time");
+                        self.getMaxGeneratorValueInArray(genInfo,"connect_time");
                     var connTime = jsonPath(genAttr,"$..connect_time")[0];
                     var resetTime = jsonPath(genAttr,"$..reset_time")[0];
                     if(resetTime > connTime){
@@ -185,7 +853,7 @@ define([
                 });
                 if(!isDown){
                     var maxConnTimeGen =
-                        getMaxGeneratorValueInArray(upGenAttrs,"connect_time");
+                        self.getMaxGeneratorValueInArray(upGenAttrs,"connect_time");
                     var maxConnTime =
                         jsonPath(maxConnTimeGen,"$..connect_time")[0];
                     var connectTime = new XDate(maxConnTime/1000);
@@ -193,7 +861,7 @@ define([
                     status = 'Up since ' + diffDates(connectTime,currTime);
                 } else {
                     var minResetTimeGen =
-                        getMinGeneratorValueInArray(downGenAttrs,"reset_time");
+                        self.getMinGeneratorValueInArray(downGenAttrs,"reset_time");
                     var minResetTime =
                         jsonPath(minResetTimeGen,"$..reset_time")[0];
                     var resetTime = new XDate(minResetTime/1000);
@@ -221,7 +889,7 @@ define([
                 var idx=0;
                 while(genData.length > 0 && idx < genData.length){
                     if(genData[idx]['name'].split(':')[0] == d['name']){
-                        d['status'] = getFinalNodeStatusFromGenerators(
+                        d['status'] = self.getFinalNodeStatusFromGenerators(
                            genData[idx]['status'],primaryData[i]);
                         d['isGeneratorRetrieved'] = true;
                         genData.splice(idx,1);
@@ -233,6 +901,34 @@ define([
             });
             primaryDS.updateData(updatedData);
         };
+
+        self.isProcessStateMissing = function(dataItem) {
+            var noProcessStateAlert = $.grep(dataItem['processAlerts'],function(obj,idx) {
+                return obj['msg'] == infraAlertMsgs['PROCESS_STATES_MISSING'];
+            });
+            if(noProcessStateAlert.length > 0)
+                return true;
+            return false;
+        };
+
+        /**
+        * ToDo: can be merged with getOverallNodeStatus
+        */
+        self.getFinalNodeStatusFromGenerators = function(statusFromGen,dataItem) {
+            if(self.isProcessStateMissing(dataItem)) {
+                return statusFromGen;
+            }
+            var statusFromProcessStateList = dataItem['status'];
+            if(statusFromProcessStateList.search("Up") != -1){
+                if(statusFromGen.search("Down") != -1){
+                    return statusFromGen;
+                } else {
+                    return statusFromProcessStateList;
+                }
+            } else {
+                return statusFromProcessStateList;
+            }
+        }
 
         // This function accepts the node data and returns the alerts
         // array which need to displayed in chart tooltip.
@@ -335,7 +1031,7 @@ define([
             }
 
             if(logLevelStats != null){
-                lastLog = getMaxGeneratorValueInArray(logLevelStats,"last_msg_timestamp");
+                lastLog = self.getMaxGeneratorValueInArray(logLevelStats,"last_msg_timestamp");
                 if(lastLog != null){
                     lastTimeStamp = lastLog.last_msg_timestamp;
                 }
@@ -406,7 +1102,7 @@ define([
                 var leftColumnContainer = '#left-column-container';
                     self.
                         createFooterLinks(parent,
-                    [ 
+                    [
                       {
                           name:'introspect',
                           onClick: function () {
@@ -433,8 +1129,8 @@ define([
             $('#monitor-infra-details-footer-links-template').remove();
             $(parent).append(template(config));
             $.each(config,function(i,d){
-                var linkDiv = '<a id="mon_infra_footer_link_'+ 
-                                d.name +'" class="pull-right" >'+ 
+                var linkDiv = '<a id="mon_infra_footer_link_'+
+                                d.name +'" class="pull-right" >'+
                                 cowl.getFirstCharUpperCase(d.name) +'</a>';
                 $(parent).find('.footer-links').append(linkDiv);
                 if(d.onClick != null) {

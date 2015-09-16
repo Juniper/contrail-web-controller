@@ -7,6 +7,10 @@ define(
        function(_) {
             var MonInfraParsers = function() {
                 var self = this;
+                var noDataStr = monitorInfraConstants.noDataStr;
+                var formatMemory = monitorInfraUtils.formatMemory;
+                var UVEModuleIds = monitorInfraConstants.UVEModuleIds;
+                var getOverallNodeStatus = monitorInfraUtils.getOverallNodeStatus;
 
                 //Parser for controlnode Dashboard data
                 this.parseControlNodesDashboardData = function (result) {
@@ -22,7 +26,7 @@ define(
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         obj['histCpuArr'] =
-                            parseUveHistoricalValues(d,'$.cpuStats.history-10');
+                            monitorInfraUtils.parseUveHistoricalValues(d,'$.cpuStats.history-10');
                         obj['uveIP'] =
                             ifNull(jsonPath(d,'$..bgp_router_ip_list')[0],[]);
                         obj['configIP'] = ifNull(jsonPath(d,
@@ -106,7 +110,7 @@ define(
                             }
                         }
                         obj['isNTPUnsynced'] =
-                            isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
+                            monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         if(obj['downBgpPeerCnt'] > 0){
                             obj['downBgpPeerCntText'] = ", <span class='text-error'>" +
                                 obj['downBgpPeerCnt'] + " Down</span>";
@@ -165,7 +169,7 @@ define(
                         obj['xField'] = 'cpu';
                         obj['yField'] = 'resMemory';
                         obj['uveIP'] = obj['ip'];
-                        obj['summaryIps'] = getVrouterIpAddresses(dValue, "summary");
+                        obj['summaryIps'] = monitorInfraUtils.getVrouterIpAddresses(dValue, "summary");
                         var iplist = getValueByJsonPath(dValue,
                             'VrouterAgent;self_ip_list', []);
                         if (obj['ip'] != '-')
@@ -177,7 +181,8 @@ define(
                                 dValue, 'VrouterAgent')) && $.isEmptyObject(
                                 getValueByJsonPath(dValue, 'VrouterStatsAgent'))) ?
                             true : false;
-                        obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(dValue,
+                        obj['isNTPUnsynced'] =
+                            monitorInfraUtils.isNTPUnsynced(jsonPath(dValue,
                             '$..NodeStatus')[0]);
                         obj['configIP'] = getValueByJsonPath(dValue,
                             'ConfigData;virtual-router;virtual_router_ip_address',
@@ -194,7 +199,7 @@ define(
                         if (obj['ip'] == '-') {
                             obj['ip'] = obj['configIP'];
                         }
-                        obj['histCpuArr'] = parseUveHistoricalValues(d,
+                        obj['histCpuArr'] = monitorInfraUtils.parseUveHistoricalValues(d,
                             '$.cpuStats.history-10');
 
                         obj['status'] = getOverallNodeStatus(d, 'compute');
@@ -249,7 +254,7 @@ define(
 
                         obj['vnCnt'] = getValueByJsonPath(dValue,
                             'VrouterAgent;vn_count', 0);
-                        obj['version'] = ifNullOrEmpty(getNodeVersion(
+                        obj['version'] = ifNullOrEmpty(self.getNodeVersion(
                             getValueByJsonPath(dValue,
                                 'VrouterAgent;build_info')), noDataStr);
                         obj['type'] = 'vRouter';
@@ -320,7 +325,7 @@ define(
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         obj['histCpuArr'] =
-                            parseUveHistoricalValues(d,'$.cpuStats.history-10');
+                            monitorInfraUtils.parseUveHistoricalValues(d,'$.cpuStats.history-10');
                         obj['pendingQueryCnt'] = ifNull(jsonPath(d,
                             '$..QueryStats.queries_being_processed')[0], []).length;
                         obj['pendingQueryCnt'] = ifNull(jsonPath(d,
@@ -364,7 +369,7 @@ define(
                         obj['errorStrings'] = ifNull(jsonPath(d,
                             "$.value.ModuleCpuState.error_strings")[0], []);
                         obj['isNTPUnsynced'] =
-                            isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
+                            monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         var isConfigDataAvailable = $.isEmptyObject(jsonPath(d,
                             '$..ConfigData')[0]) ? false : true;
                         obj['isUveMissing'] =
@@ -428,7 +433,7 @@ define(
                         obj['link'] =
                             {p:'mon_infra_config',q:{node:obj['name'],tab:''}};
                         obj['isNTPUnsynced'] =
-                            isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
+                            monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         obj['isConfigMissing'] =
                             $.isEmptyObject(getValueByJsonPath(d,
                                                     'value;ConfigData')) ? true : false;
@@ -444,7 +449,7 @@ define(
                             obj['status'] = 'Down';
                         }
                         obj['histCpuArr'] =
-                            parseUveHistoricalValues(d,'$.cpuStats.history-10');
+                            monitorInfraUtils.parseUveHistoricalValues(d,'$.cpuStats.history-10');
                         var iplist = jsonPath(d,'$..config_node_ip')[0];
                         obj['ip'] = obj['summaryIps'] = noDataStr;
                         if(iplist != null && iplist != noDataStr && iplist.length > 0){
@@ -549,7 +554,7 @@ define(
                             obj['status'] = 'Down';
                         }
                         obj['isNTPUnsynced'] =
-                            isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
+                            monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         obj['nodeAlerts'] =
                             infraMonitorAlertUtils.processDbNodeAlerts(obj);
                         obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
@@ -576,6 +581,105 @@ define(
                         }
                     }
                     return verStr;
+                };
+                this.parseGeneratorsData = function(result){
+                    var retArr = [];
+                    if(result != null && result[0] != null){
+                        result = result[0].value;
+                    } else {
+                        result = [];
+                    }
+                    $.each(result,function(idx,d){
+                        var obj = {};
+                        obj['status'] = getOverallNodeStatusFromGenerators(d);
+                        obj['name'] = d['name'];
+                        retArr.push(obj);
+                    });
+                    return retArr;
+                };
+                this.parseCpuStatsData = function(statsData){
+                    var ret = {};
+                    var retArr = [];
+                    if(statsData == null){
+                        return [];
+                    }
+                    $.each(statsData,function(idx,d){
+                        var source = d['Source'];
+                        var t = JSON.stringify({"ts":d['T']});
+
+                        if(ret[source] != null && ret[source]['history-10'] != null){
+                            var hist10 = ret[source]['history-10'];
+                            hist10[t] = d['cpu_info.cpu_share'];
+                        } else {
+                            ret[source] = {};
+                            ret[source]['history-10'] = {};
+                            ret[source]['history-10'][t] = d['cpu_info.cpu_share'];
+                        }
+                    });
+                    $.each(ret,function(key,val){
+                    var t = {};
+                    t["name"] = key;
+                    t["value"] = val;
+                    retArr.push(t);
+                    });
+                    return retArr;
+                };
+                this.parseCpuMemStats = function(statsData,nodeType){
+                    var ret = {};
+                    var retArr = {};
+                    if(statsData == null || statsData['data'] == null){
+                        return [];
+                    }
+                    statsData = statsData['data'];
+                    $.each(statsData,function(idx,d){
+                        var module = d['cpu_info.module_id'];
+                        var t = JSON.stringify({"ts":d['T']});
+                        var cpuForModule = module + '-cpu-share';
+                        var memForModule = module + '-mem-res';
+
+
+                        if(nodeType == "computeNodeDS"){
+                            cpuForModule = "contrail-vrouter-agent-cpu-share";
+                            memForModule = "contrail-vrouter-agent-mem-res";
+                            var oneMinCpuLoadModule = "contrail-vrouter-agent-one-min-cpuload";
+                            var useSysMemModule = "contrail-vrouter-agent-used-sys-mem";
+                            if(ret[oneMinCpuLoadModule] != null && ret[oneMinCpuLoadModule][0]['history-10'] != null){
+                                var memhist10 = ret[oneMinCpuLoadModule][0]['history-10'];
+                                memhist10[t] = d['cpu_info.mem_res'];
+                            } else {
+                                ret[oneMinCpuLoadModule] = [];
+                                ret[oneMinCpuLoadModule][0]={'history-10':{}};
+                                ret[oneMinCpuLoadModule][0]['history-10'][t] = d['cpu_info.one_min_cpuload'];
+                            }
+                            if(ret[useSysMemModule] != null && ret[useSysMemModule][0]['history-10'] != null){
+                                var memhist10 = ret[useSysMemModule][0]['history-10'];
+                                memhist10[t] = d['cpu_info.mem_res'];
+                            } else {
+                                ret[useSysMemModule] = [];
+                                ret[useSysMemModule][0]={'history-10':{}};
+                                ret[useSysMemModule][0]['history-10'][t] = d['cpu_info.used_sys_mem'];
+                            }
+                        }
+                        if(ret[cpuForModule] != null && ret[cpuForModule][0]['history-10'] != null){
+                            var cpuhist10 = ret[cpuForModule][0]['history-10'];
+                            cpuhist10[t] = d['cpu_info.cpu_share'];
+                        } else {
+                            ret[cpuForModule] = [];
+                            ret[cpuForModule][0]={'history-10':{}};
+                            ret[cpuForModule][0]['history-10'][t] = d['cpu_info.cpu_share'];
+                        }
+                        if(ret[memForModule] != null && ret[memForModule][0]['history-10'] != null){
+                            var memhist10 = ret[memForModule][0]['history-10'];
+                            memhist10[t] = d['cpu_info.mem_res'];
+                        } else {
+                            ret[memForModule] = [];
+                            ret[memForModule][0]={'history-10':{}};
+                            ret[memForModule][0]['history-10'][t] = d['cpu_info.mem_res'];
+                        }
+
+                    });
+                    retArr['value'] = ret;
+                    return retArr;
                 };
             };
 
