@@ -46,7 +46,9 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-            self.renderView4Config($("#" + modalId).find(formId), this.model, getAddLinkLocalServicesViewConfig(false), "llsConfigValidations", null, null, function() {
+            self.renderView4Config($("#" + modalId).find(formId), this.model,
+                                   getAddLinkLocalServicesViewConfig(false),
+                                   "llsConfigValidations", null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model, document.getElementById(modalId));
                 kbValidation.bind(self);
@@ -87,7 +89,9 @@ define([
                 $("#" + modalId).modal('hide');
             }});
 
-            self.renderView4Config($("#" + modalId).find(formId), this.model, getAddLinkLocalServicesViewConfig(true), "llsConfigValidations", null, null, function() {
+            self.renderView4Config($("#" + modalId).find(formId), this.model,
+                                   getAddLinkLocalServicesViewConfig(true),
+                                   "llsConfigValidations", null, null, function() {
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model, document.getElementById(modalId));
                 kbValidation.bind(self);
@@ -230,9 +234,10 @@ define([
                                     columns: [{
                                         elementId: 'ip_fabric_service_ip',
                                         name: 'Fabric IP',
-                                        view: "GridInputView",
+                                        view: "FormInputView",
                                         width: 150,
                                         viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                             path: 'ip_fabric_service_ip',
                                             dataBindValue: 'ip_fabric_service_ip()'
                                         }
