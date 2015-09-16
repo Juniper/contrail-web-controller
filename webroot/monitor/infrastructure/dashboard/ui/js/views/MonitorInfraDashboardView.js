@@ -6,11 +6,21 @@ define([
     'underscore',
     'backbone',
     'js/views/InfoboxesView',
+    //'confignode-scatterchart-view',
     'monitor/infrastructure/common/ui/js/views/ConfigNodeScatterChartView',
+    //'controlnode-scatterchart-view',
     'monitor/infrastructure/common/ui/js/views/ControlNodeScatterChartView',
+    //'dbnode-scatterchart-view',
     'monitor/infrastructure/common/ui/js/views/DatabaseNodeScatterChartView',
+    //'analyticsnode-scatterchart-view',
     'monitor/infrastructure/common/ui/js/views/AnalyticsNodeScatterChartView',
-    'monitor/infrastructure/dashboard/ui/js/views/VRouterDashboardView',
+    'vrouter-dashboard-view',
+    'dashboard-alert-list-model',
+    'dashboard-log-list-model',
+    'dashboard-node-list-model',
+    'dashboard-alert-list-view',
+    'dashboard-log-list-view',
+    'dashboard-sysinfo-view',
     'monitor-infra-analyticsnode-model',
     'monitor-infra-databasenode-model',
     'monitor-infra-confignode-model',
@@ -19,6 +29,8 @@ define([
 ], function(_,Backbone,InfoboxesView,ConfigNodeScatterChartView,
         ControlNodeScatterChartView,DatabaseNodeScatterChartView,
         AnalyticsNodeScatterChartView,VRouterDashboardView,
+        AlertListModel,LogListModel,NodeListModel,
+        AlertListView,LogListView,SystemInfoView,
         AnalyticsNodeListModel,DatabaseNodeListModel,ConfigNodeListModel,
         ControlNodeListModel,VRouterListModel) {
 
@@ -27,11 +39,30 @@ define([
     var MonInfraDashboardView = Backbone.View.extend({
         el: $(contentContainer),
         render: function () {
-            this.infoBoxView = new InfoboxesView({el:$(contentContainer)});
+            var self = this;
+            var dashboardTmpl = contrail.getTemplate4Id(cowc.TMPL_INFRA_DASHBOARD);
+            self.$el.append(dashboardTmpl);
+            this.infoBoxView = new InfoboxesView({el:$(contentContainer).
+                find('#dashboard-infoboxes')});
             var infoBoxList = getInfoboxesConfig();
             for(var i=0;i<infoBoxList.length;i++) {
                 this.infoBoxView.add(infoBoxList[i]);
             }
+            var alertListView = new AlertListView({
+                el: $(contentContainer).find('#alerts-box'),
+                model: new AlertListModel()
+            });
+            alertListView.render();
+            var logListView = new LogListView({
+                el: $(contentContainer).find('#logs-box'),
+                model: new LogListModel()
+            });
+            logListView.render();
+            var sysInfoView = new SystemInfoView({
+                el: $(contentContainer).find('#sysinfo-box'),
+                model: new NodeListModel()
+            });
+            sysInfoView.render();
         }
     });
 

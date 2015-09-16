@@ -90,7 +90,7 @@ define([
             var self = this;
             //Need to initialize crossfilter with model
             //If model is already populated
-            if(self.model.isRequestInProgress() == false) {
+            if(self.model.loadedFromCache) {
                 self.renderCrossFilters();
             }
             self.model.onAllRequestsComplete.subscribe(function() {

@@ -14,7 +14,9 @@ function MonInfraDashboardLoader() {
 
         if (self.monInfraDashboardView == null) {
             requirejs([pathMonInfraDashboardView], function (MonInfraDashboardView) {
-                self.monInfraDashboardView = new MonInfraDashboardView();
+                self.monInfraDashboardView = new MonInfraDashboardView({
+                    el: $(contentContainer)
+                });
                 self.monInfraDashboardView.render();
             });
         } else {

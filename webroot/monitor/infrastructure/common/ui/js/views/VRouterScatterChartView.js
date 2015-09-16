@@ -55,14 +55,18 @@ define(['underscore', 'contrail-view'], function(_, ContrailView) {
        };
 
        function onScatterChartClick(chartConfig) {
-           var controlNodeName = chartConfig.name,
+           var vRouterName = chartConfig.name,
                hashObj = {
-                   name: controlNodeName,
-                   tab: ''
-               };
+                    type: "vRouter",
+                    view: "details",
+                    focusedElement: {
+                        node: vRouterName,
+                        tab: 'details'
+                    }
+                };
 
            layoutHandler.setURLHashParams(hashObj, {
-               p: "monitor_infra_vrouter",
+               p: "mon_infra_vroutermvc",
                merge: false,
                triggerHashChange: true
            });

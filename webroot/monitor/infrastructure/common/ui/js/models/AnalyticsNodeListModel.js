@@ -1,8 +1,8 @@
 define(['contrail-list-model'], function(ContrailListModel) {
     var AnalyticsNodeListModel = function() {
-        if (AnalyticsNodeListModel.prototype.singletonInstance) {
-            return AnalyticsNodeListModel.prototype.singletonInstance;
-        }
+        // if (AnalyticsNodeListModel.prototype.singletonInstance) {
+        //     return AnalyticsNodeListModel.prototype.singletonInstance;
+        // }
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
@@ -25,7 +25,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 }, {
                     getAjaxConfig : function() {
                         var postData =
-                            getPostData("analytics-node", '', '',
+                            monitorInfraUtils.getPostData("analytics-node", '', '',
                                 'CollectorState:generator_infos', '');
                         return {
                             url : TENANT_API_URL,
@@ -45,7 +45,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 ]
             },
             cacheConfig : {
-                ucid : ctwc.CACHE_ANALYTICSNODE
+                ucid : ctwl.CACHE_ANALYTICSNODE
             }
         };
         AnalyticsNodeListModel.prototype.singletonInstance =

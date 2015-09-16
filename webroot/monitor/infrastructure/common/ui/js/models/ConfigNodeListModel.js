@@ -2,9 +2,9 @@ define([
     'contrail-list-model'
 ], function (ContrailListModel) {
     var ConfigNodeListModel = function () {
-        if(ConfigNodeListModel.prototype.singletonInstance) {
-            return ConfigNodeListModel.prototype.singletonInstance;
-        }
+        // if(ConfigNodeListModel.prototype.singletonInstance) {
+        //     return ConfigNodeListModel.prototype.singletonInstance;
+        // }
         var vlRemoteList = [
             {
                 getAjaxConfig: function() {
@@ -30,7 +30,7 @@ define([
                     vlRemoteList : vlRemoteList
                 },
                 cacheConfig : {
-                    ucid: ctwc.CACHE_CONFIGNODE
+                    ucid: ctwl.CACHE_CONFIGNODE
                 }
             };
 

@@ -4,9 +4,9 @@
 
 define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterListModel = function() {
-        if (VRouterListModel.prototype.singletonInstance) {
-            return VRouterListModel.prototype.singletonInstance;
-        }
+        // if (VRouterListModel.prototype.singletonInstance) {
+        //     return VRouterListModel.prototype.singletonInstance;
+        // }
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
@@ -29,7 +29,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 ]
             },
             cacheConfig : {
-                ucid : ctwc.CACHE_VROUTER
+                ucid : ctwl.CACHE_VROUTER
             }
         };
         VRouterListModel.prototype.singletonInstance =
