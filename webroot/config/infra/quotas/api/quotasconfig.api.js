@@ -216,7 +216,11 @@ function getProjectQuotaUsed (userObj, callback)
     var callObj = [];
     for(var featureCnt = 0; featureCnt < resources.length; featureCnt ++) {
         var reqObj = {};
-        reqObj.url = '/' + resources[featureCnt].key + '?parent_id=' + projId + '&count=true';
+        var filterStr = 'parent_id';
+        if(resources[featureCnt].key === 'floating-ips') {
+            filterStr = 'back_ref_id';
+        }
+        reqObj.url = '/' + resources[featureCnt].key + '?' + filterStr + '=' + projId + '&count=true';
         reqObj.appData = appData;
         callObj.push(reqObj);
     }
@@ -255,27 +259,35 @@ function getProjectQuotaUsed (userObj, callback)
 function getSubNetsUsedInfo(projId, usedResCnt, appData, callback)
 {
     //prepare used info count for subnets
-    var vnDetailsURL = '/virtual-networks?parent_id=' + projId + '&detail=true&fields=network_ipam_refs';
+    var vnDetailsURL = '/virtual-networks?parent_id=' + projId
+        + '&detail=true&fields=network_ipam_refs,floating_ip_pools';
     configApiServer.apiGet(vnDetailsURL, appData,
         function(err, resData) {
             if (!err) {
-                var resCnt = 0;
+                var subnetCnt = 0;
+                var fipPoolCnt = 0;
                 resData = resData['virtual-networks'];
                 if(resData != null) {
                     var resLength = resData.length;
                     for(var resDataCnt = 0; resDataCnt < resLength; resDataCnt++) {
-                        var ipams = resData[resDataCnt]['virtual-network']['network_ipam_refs'];
+                        var vn = resData[resDataCnt]['virtual-network'];
+                        var ipams = vn['network_ipam_refs'];
+                        var fipPools = vn['floating_ip_pools']
                         if(ipams) {
                             var ipamsLength = ipams.length;
                             for(var ipamCnt = 0; ipamCnt < ipamsLength; ipamCnt++) {
                                 var attr = ipams[ipamCnt]['attr'];
                                 var subnetsCnt =  attr['ipam_subnets'] ? attr['ipam_subnets'].length : 0;
-                                resCnt = resCnt + subnetsCnt;
+                                subnetCnt = subnetCnt + subnetsCnt;
                             }
+                        }
+                        if(fipPools && fipPools.length > 0) {
+                            fipPoolCnt = fipPoolCnt +  fipPools.length;
                         }
                     }
                 }
-                usedResCnt['subnet'] = resCnt;
+                usedResCnt['subnet'] = subnetCnt;
+                usedResCnt['floating_ip_pool'] = fipPoolCnt;
             }
             callback(err, usedResCnt);
         }
