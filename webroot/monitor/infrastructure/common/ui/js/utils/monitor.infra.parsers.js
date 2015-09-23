@@ -562,6 +562,7 @@ define(
                     return retArr;
 
                 }
+
                 this.getNodeVersion = function (buildStr) {
                     var verStr = '';
                     if(buildStr != null) {
@@ -570,13 +571,120 @@ define(
                              buildInfo = JSON.parse(buildStr);
                         } catch(e) {
                         }
-                        if((buildInfo != null) && (buildInfo['build-info'] instanceof Array)) {
+                        if((buildInfo != null) && (buildInfo['build-info']
+                            instanceof Array)) {
                             var buildObj = buildInfo['build-info'][0];
-                            verStr = buildObj['build-version'] + ' (Build ' + buildObj['build-number'] + ')'
+                            verStr = buildObj['build-version'] + ' (Build ' +
+                            buildObj['build-number'] + ')'
                         }
                     }
                     return verStr;
                 };
+                //Parser function for Control Node Routes
+                this.parseRoutes = function (response,routesQueryString) {
+                    var routesArr = [], routeTables = [], routeInstances = [];
+                    var routes = response;
+                    var selAddFamily = (routesQueryString['addrFamily'] == null ||
+                            routesQueryString['addrFamily'] == '')? 'All' :
+                                routesQueryString['addrFamily'];
+                    var selPeerSrc = (routesQueryString['peerSource'] == null ||
+                            routesQueryString['peerSource'] == '')? 'All' :
+                                routesQueryString['peerSource'];
+                    var selProtocol = (routesQueryString['protocol'] == null ||
+                            routesQueryString['protocol'] == '')? 'All' :
+                                routesQueryString['protocol'];
+                    routes = jsonPath(response, '$..ShowRoute');
+                    routeTables = jsonPath(response, '$..routing_table_name');
+                    routeInstances = jsonPath(response, '$..routing_instance');
+                    //routes = flattenList(routes);
+                    var routesLen = routes.length;
+                    for (var i = 0; i < routesLen; i++) {
+                     var isRtTableDisplayed = false;
+                     if(!(routes[i] instanceof Array)) {
+                        routes[i] = [routes[i]];
+                        }
+                        $.each(routes[i], function (idx, value) {
+                            var currRoute = value;
+                            var paths = jsonPath(currRoute,"$..ShowRoutePath")[0];
+                            if(!(paths instanceof Array)) {
+                              paths = [paths];
+                            }
+                            var pathsLen = paths.length;
+                            var alternatePaths = [],bestPath = {};
+                            var rtTable = routeTables[i];
+                            var securityGroup = "--";
+                            //Multiple paths can be there for a given prefix
+                            $.each(paths, function (idx,obj) {
+                              if(isRtTableDisplayed){
+                                 rtTable = '';
+                                }
+                              var rtable= routeTables[i];
+                              var origVn = obj['origin_vn'];
+                              var addfamily = '-';
+                              if(rtable != null){
+                                 addfamily = (rtable.split('.').length == 3) ?
+                                         rtable.split('.')[1] : rtable;
+                              }
+                              var rawJson = obj;
+                              var sg = getSecurityGroup(jsonPath(obj,
+                                      "$..communities..element")[0]);
+                              //Fitering based on Address Family, Peer Source and Protocol selection
+                              if((selAddFamily == "All" || selAddFamily == addfamily) &&
+                                    (selPeerSrc == "All" || selPeerSrc == obj['source']) &&
+                                    (selProtocol == "All" || selProtocol == obj['protocol'])){
+                                 var src = obj['source'];
+                                 var protocol = ifNullOrEmptyObject(
+                                         obj['protocol'],noDataStr);
+                                 var nextHop = ifNullOrEmptyObject(
+                                         obj['next_hop'],noDataStr);
+                                 var label = ifNullOrEmptyObject(
+                                         obj['label'],noDataStr);
+                                 var prefix = ifNullOrEmptyObject(
+                                         currRoute['prefix'],noDataStr);
+                                 src = ifNullOrEmptyObject(src, noDataStr).
+                                         split(":").pop();
+                                 origVn = ifNullOrEmptyObject(origVn, noDataStr) ;
+
+                                    if(idx == 0) {
+                                       routesArr.push({
+                                          prefix:prefix,
+                                          dispPrefix:prefix,
+                                          table:rtTable,
+                                          instance:routeInstances[i],
+                                          addrFamily:addfamily,
+                                          sg:ifEmpty(sg,'-'),
+                                          raw_json:rawJson,
+                                          originVn:origVn,
+                                          protocol:protocol,
+                                          source:src,
+                                          next_hop:nextHop,
+                                          label:label
+                                       });
+                                    } else {
+                                       routesArr.push({
+                                          prefix:prefix,
+                                          dispPrefix:'',
+                                          table:rtTable,
+                                          instance:routeInstances[i],
+                                          addrFamily:addfamily,
+                                          sg:ifEmpty(sg,'-'),
+                                          raw_json:rawJson,
+                                          originVn:origVn,
+                                          protocol:protocol,
+                                          source:src,
+                                          next_hop:nextHop,
+                                          label:label
+                                       });
+                                    }
+                                    isRtTableDisplayed = true;
+                              }
+                            });
+                        });
+                    }
+                    routesArr = cowu.flattenList(routesArr);
+                    return routesArr;
+
+                }
             };
 
             return MonInfraParsers;

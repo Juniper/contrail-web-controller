@@ -13,7 +13,8 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig;
 
-            self.renderView4Config(self.$el, null, getControlNodeTabsViewConfig(viewConfig));
+            self.renderView4Config(self.$el, null,
+                    getControlNodeTabsViewConfig(viewConfig));
         }
     });
 
@@ -53,6 +54,9 @@ define([
                 } else if (selTab == 'Peers') {
                     $('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).
                     data('contrailGrid').refreshView();
+                } else if (selTab == 'Routes') {
+                    $('#' + ctwl.CONTROLNODE_ROUTES_RESULTS).
+                    data('contrailGrid').refreshView();
                 }
             },
             tabs: [
@@ -74,25 +78,17 @@ define([
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: viewConfig
+                   },
+                   {
+                       elementId: ctwl.CONTROLNODE_ROUTES_GRID_VIEW_ID,
+                       title: 'Routes',
+                       view: "ControlNodeRoutesFormView",
+                       viewPathPrefix:
+                           ctwl.CONTROLNODE_VIEWPATH_PREFIX,
+                       app: cowc.APP_CONTRAIL_CONTROLLER,
+                       viewConfig: viewConfig
                    }
-
                 /*{
-                    elementId: 'controlnode_routes_id',
-                    title: 'Routes',
-                    view: "DetailsView",
-                    viewConfig: {
-                        ajaxConfig: {
-                            url:
-                        },
-                        templateConfig: getDetailsViewTemplateConfig(),
-                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                        dataParser: function(result) {
-                            return monitorInfraParsers.
-                            parseControlNodesDashboardData([result])[0];
-                        }
-                    }
-                },
-                {
                     elementId: 'controlnode_console_id',
                     title: 'Console',
                     view: "DetailsView",
