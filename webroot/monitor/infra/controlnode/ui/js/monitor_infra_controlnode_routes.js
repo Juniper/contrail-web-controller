@@ -259,8 +259,12 @@ monitorInfraControlRoutesClass = (function() {
                 //Frame the filter query string
                 var newAjaxConfig = {url:url,type:'Get'};
                 routeQueryString = { };
-                var routeInst = ddRoutingInstance.value(), routeTable = comboRoutingTable.value(),
-                    peerSource = comboPeerSource.value(), protocol = comboProtocol.value(), limit = comboLimit.value(), prefix = txtPrefixSearch.val();
+                var routeInst = ddRoutingInstance.value(), 
+                    routeTable = comboRoutingTable.value(),
+                    peerSource = comboPeerSource.value(), 
+                    protocol = comboProtocol.value(), 
+                    limit = comboLimit.value(), 
+                    prefix = txtPrefixSearch.val();
                 if (routeInst != 'All')
                     routeQueryString['routingInst'] = routeInst;
                 if (routeTable != 'All') {

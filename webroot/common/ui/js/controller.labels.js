@@ -368,9 +368,14 @@ define([
         this.CONTROLNODE_TAB_VIEW_ID = 'control_nodes_tab_view';
         this.CONTROLNODE_DETAILS_TABS_ID = 'control_nodes_details-tab';
         this.CONTROLNODE_PEERS_GRID_SECTION_ID = 'control_node_peers_grid_section_id';
-        this.CONTROLNODE_PEERS_GRID_VIEW_ID = 'controlnode_peers_id';
+        this.CONTROLNODE_PEERS_GRID_VIEW_ID = 'control_node_peers_id';
         this.CONTROLNODE_PEERS_GRID_ID = "control_node_peers_grid_id";
         this.CONTROLNODE_PEERS_TITLE = "Peers";
+        this.CONTROLNODE_ROUTES_GRID_VIEW_ID = 'control_node_routes_grid_view';
+        this.CONTROLNODE_ROUTES_ID = 'control_node_routes';
+        this.CONTROLNODE_ROUTES_GRID_ID = 'control_node_route_grid';
+        this.CONTROLNODE_ROUTES_RESULT_VIEW = 'control_node_route_results_view';
+        this.CONTROLNODE_ROUTES_RESULTS = 'controlroutes-results';
 
 
         //vRouter summary page labels

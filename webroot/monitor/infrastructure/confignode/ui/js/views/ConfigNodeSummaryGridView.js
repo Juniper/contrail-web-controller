@@ -151,14 +151,6 @@ define(
                           checkboxSelectable : false
                         },
                         dataSource : {
-                            remote : {
-                                ajaxConfig : {
-                                    url : ctwl.CONFIGNODE_SUMMARY
-                                }
-                            },
-                            cacheConfig : {
-                                ucid: ctwl.CACHE_CONFIGNODE
-                            }
                         }
                     }
                 };
