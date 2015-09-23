@@ -25,9 +25,12 @@ var portsConfig = require('../../ports/api/portsconfig.api'),
 var vnConfig = require('../../vn/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 
+var policyConfig =
+    require('../../networking/policy/api/policyconfig.api');
 var errorData = [];
 var configCBDelete = 
 {
+    'network-policy': policyConfig.deletePolicyAsync,
     'virtual-machine-interface': portsConfig.deletePortsCB
 }
 

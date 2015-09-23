@@ -494,10 +494,15 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_net_policies</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/networkpolicies/ui</rootDir>
-                                    <js>policy_config.js</js>
-                                    <view>policy_config.view</view>
-                                    <class>networkpolicyConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                    <class>renderPolicies</class>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/policy/ui</rootDir>
+                                    <js>policy.main.js</js>
+                                    <class>ConfigPoliciesLoader</class>
+                                    <function>renderPolicies</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Network Policies</searchStrings>
