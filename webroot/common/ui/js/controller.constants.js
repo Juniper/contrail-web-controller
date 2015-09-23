@@ -89,6 +89,8 @@ define([
         this.URL_LOGICAL_ROUTER_PUT = '/api/tenants/config/logicalrouter/{0}';
         this.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX = 'config/networking/logicalrouter/ui/js/views/';
 
+        this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
+        this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
         this.get = function () {
             var args = arguments;
             return cowc.getValueFromTemplate(args);
