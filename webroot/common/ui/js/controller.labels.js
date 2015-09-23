@@ -578,6 +578,22 @@ define([
         this.GLOBAL_CONFIG_PREFIX_ID = 'glblCfg';
         this.TITLE_EDIT_GLOBAL_CONFIG = 'Edit Global Config';
         this.TITLE_GLOBAL_CONFIG = 'Global Config';
+
+        //Policy Labels
+        this.CONFIG_POLICIES_PAGE_ID = "config-policies-page";
+        this.CONFIG_POLICIES_TITLE = "Policies";
+        this.TITLE_POLICY_RULE = "Policy Rules";
+        this.TITLE_ADD_POLICY = "Add Policy";
+        this.CONFIG_POLICIES_LIST_VIEW_ID = "config-policies-list-view";
+        this.CONFIG_POLICY_FORMAT_ID = "config-policies-format-id";
+        this.CONFIG_POLICY_LIST = "config-policies-list";
+        this.POLICIES_GRID_ID = "config-policies-grid-id";
+        this.TITLE_POLICY_DETAILS = "Policy Detail";
+        this.TITLE_POLICY_EDIT = "Edit";
+        this.TITLE_POLICY_DETETE = "Delete";
+        this.POLICY_PREFIX_ID = "policy";
+        this.TITLE_EDIT_POLICY = "Edit Policy";
+        this.TITLE_POLICY = 'Policy';
     };
     return CTLabels;
 });
