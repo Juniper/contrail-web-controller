@@ -20,7 +20,8 @@ define([
                 "where": null,
                 "direction": '1',
                 "filter": null,
-                "select_data_object": getSelectDataObject()
+                "select_data_object": getSelectDataObject(),
+                "where_data_object": {}
             };
 
             return $.extend(true, {}, queryModelConfig);
