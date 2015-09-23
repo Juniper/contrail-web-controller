@@ -75,6 +75,8 @@ define([
         this.URL_INSTANCE = '/#p=mon_networking_instances&q[type]=instance&q[view]=details&q[focusedElement][fqName]={{params.vn}}&q[focusedElement][uuid]={{key}}&q[focusedElement][type]=virtual-network';
         this.URL_VROUTER = '/#p=mon_infra_vrouter&q[node]={{key}}';
 
+        this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
+        this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
         this.get = function () {
             var args = arguments;
             return cowc.getValueFromTemplate(args);
