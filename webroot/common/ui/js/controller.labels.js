@@ -605,6 +605,25 @@ define([
         this.TITLE_DEL_SEC_GRP = 'Delete Security Group';
         this.TITLE_EDIT_SEC_GRP = 'Edit Security Group';
         this.SEC_GRP_DETAILS = 'Security Group Details';
+        
+        //Policy Labels
+        this.CONFIG_POLICIES_PAGE_ID = "config-policies-page";
+        this.CONFIG_POLICIES_TITLE = "Policies";
+        this.TITLE_POLICY_RULE = "Policy Rules";
+        this.TITLE_ADD_POLICY = "Create Policy";
+        this.CONFIG_POLICIES_LIST_VIEW_ID = "config-policies-list-view";
+        this.CONFIG_POLICY_FORMAT_ID = "config-policies-format-id";
+        this.CONFIG_POLICY_LIST = "config-policies-list";
+        this.POLICIES_GRID_ID = "config-policies-grid-id";
+        this.TITLE_POLICY_DETAILS = "Policy Detail";
+        this.TITLE_POLICY_EDIT = "Edit";
+        this.TITLE_POLICY_DETETE = "Delete";
+        this.TITLE_REMOVE = "Remove";
+        this.POLICY_PREFIX_ID = "policy";
+        this.TITLE_EDIT_POLICY = "Edit Policy";
+        this.TITLE_POLICY = 'Policy';
+        this.TXT_POLICY = 'policy';
+        this.POLICY_NAME = 'Policy Name';
     };
     return CTLabels;
 });

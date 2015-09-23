@@ -25,7 +25,7 @@ var computeApi = require(process.mainModule.exports["corePath"] + '/src/serverro
 var authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
 var crypto = require('crypto');
 var configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api');
-var policyConfigApi = require('../../../networkpolicies/api/policyconfig.api');
+var policyConfigApi = require('../../../networking/policy/api/policyconfig.api');
 var jsonPath = require('JSONPath').eval;
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');

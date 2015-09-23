@@ -487,22 +487,6 @@ function deletePolicyEntry(request, response, appData)
 }
 
 /**
- * @deletePolicyCb
- * private function
- * 1. Return back the response of policy delete.
- */
-function deletePolicyCb(error, policyDelResp, response) 
-{
-
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    commonUtils.handleJSONResponse(error, response, policyDelResp);
-}
-
-/**
  * @deletePolicy
  * public function
  * 1. URL /api/tenants/config/policy/:id
@@ -510,33 +494,69 @@ function deletePolicyCb(error, policyDelResp, response)
  */
 function deletePolicy(request, response, appData) 
 {
-    var polDelURL = '/network-policy/';
     var policyId = null;
     var requestParams = url.parse(request.url, true);
-
-    if (policyId = request.param('id').toString()) {
-        polDelURL += policyId;
+    policyId = request.param('id').toString();
+    if (policyId != null) {
+        deletePolicyProcess(policyId, appData, request, 
+            function(error, data){
+            if (error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            commonUtils.handleJSONResponse(error, response, data);
+        })
     } else {
         error = new appErrors.RESTServerError('Provide Policy Id');
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
+
+}
+
+function deletePolicyProcess(policyId, appData, request, callback){
+    console.log("deletePolicyProcess");
+    var polDelURL = '/network-policy/';
+    polDelURL += policyId;
     configApiServer.apiGet(polDelURL, appData, function (err, configData) {
+        console.log("configData"+JSON.stringify(configData))
         if ('virtual_network_back_refs' in configData['network-policy']) {
+            console.log("a");
             delete configData['network-policy']['virtual_network_back_refs'];
             updatePolicyWithVNs(configData, policyId, appData,
                 function (err, data) {
+            console.log("b");
                     configApiServer.apiDelete(polDelURL, appData,
                         function (error, data) {
-                            deletePolicyCb(error, data, response)
+            console.log("c");
+                            callback(error, data)
                         });
                 });
         } else {
+            console.log("else");
             configApiServer.apiDelete(polDelURL, appData,
                 function (error, data) {
-                    deletePolicyCb(error, data, response)
+                    callback(error, data)
                 });
         }
+    });
+}
+
+/**
+ * @deleteMultiplePolicyCB
+ * public function
+ * 1. Call from other API call
+ * 2. Deletes the ports from config api server
+ * 3. Return back to the called API
+ */
+function deletePolicyAsync(dataObject, callback)
+{
+    var appData =  dataObject.appData;
+    var policyId = dataObject.uuid;
+    var request = dataObject.request;
+    deletePolicyProcess(policyId, appData, request,
+                       function(err, policyData){
+        callback(null, {'error': err, 'data': policyData});
     });
 }
 
@@ -829,6 +849,7 @@ exports.createPolicy = createPolicy;
 exports.updatePolicy = updatePolicy;
 exports.createDynamicPolicy = createDynamicPolicy;
 exports.deletePolicy = deletePolicy;
+exports.deletePolicyAsync = deletePolicyAsync;
 exports.deletePolicyEntry = deletePolicyEntry;
 exports.deleteAnalyzerPolicy = deleteAnalyzerPolicy;
 exports.addPolicyEntry = addPolicyEntry;
