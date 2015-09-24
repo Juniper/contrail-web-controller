@@ -19,8 +19,7 @@ define([
             customProjectDropdownOptions = {
                 childView: {
                     init: getQuotas(viewConfig),
-                },
-                allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
+                }
             },
             customDomainDropdownOptions = {
                 childView: {
