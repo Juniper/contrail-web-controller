@@ -270,7 +270,6 @@ define([
                          rows: [
                              {
                                  templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
-                                 title: smwl.TITLE_OVERVIEW,
                                  templateGeneratorData : 'raw_json'
                              }
                          ]

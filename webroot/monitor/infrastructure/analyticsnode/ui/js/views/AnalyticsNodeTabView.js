@@ -47,8 +47,8 @@ define([
             active: 0,
             activate: function (e, ui) {
                 var selTab = $(ui.newTab.context).text();
-                if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                    $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
+                if (selTab == 'Details') {
+                    $('#' + ctwl.ANALYTICSNODE_DETAIL_PAGE_ID).trigger('refresh');
                 } else if (selTab == 'Generators') {
                     $('#analytics_node_generators_grid').
                         data('contrailGrid').refreshView();
@@ -60,6 +60,7 @@ define([
                    title: 'Details',
                    view: "AnalyticsNodeDetailPageView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
                    viewConfig: viewConfig
                },
                {
@@ -67,6 +68,7 @@ define([
                    title: 'Generators',
                    view: "AnalyticsNodeGeneratorsGridView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
                    viewConfig: viewConfig
                }
             ]
