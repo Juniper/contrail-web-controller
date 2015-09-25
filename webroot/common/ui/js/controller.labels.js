@@ -379,6 +379,7 @@ define([
 
 
         //vRouter summary page labels
+        this.VROUTER_VIEWPATH_PREFIX = 'monitor/infrastructure/vrouter/ui/js/views/';
         this.VROUTER_SUMMARY_PAGE_ID = 'monitor-vrouter-nodes';
         this.VROUTER_SUMMARY_URL =
             '/api/admin/monitor/infrastructure/vrouters/summary';
@@ -392,7 +393,13 @@ define([
         this.VROUTER_SUMMARY_SCATTERCHART_SECTION_ID =
             'vrouter-nodes-scatterchart-section';
         this.CACHE_VROUTER = 'cache-vrouter-nodes';
-
+        
+        this.VROUTER_TAB_SECTION_ID = 'vrouter_tab_section';
+        this.VROUTER_TAB_VIEW_ID = 'vrouter_tab_view';
+        this.VROUTER_DETAILS_SECTION_ID = 'vrouter_details_section';
+        this.VROUTER_DETAILS_TABS_ID = 'vrouter_details_tab';
+        this.VROUTER_DETAIL_ID = 'vrouter_detail_id;'
+ 
         //Database node labels
         this.DATABASENODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/databasenode/ui/js/views/';

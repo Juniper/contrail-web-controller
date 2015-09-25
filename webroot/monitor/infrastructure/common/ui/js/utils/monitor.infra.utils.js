@@ -344,7 +344,8 @@ define([
         }
 
         /**
-         * Function returns the overall node status html of monitor infra node details page
+         * Function returns the overall node status html of monitor infra node 
+         * details page
          */
         self.getOverallNodeStatusForDetails = function (data){
             var statusObj = this.getNodeStatusForSummaryPages(data);
@@ -353,7 +354,8 @@ define([
         }
 
         /**
-         * This function takes parsed nodeData from the infra parse functions and returns object with all alerts displaying in dashboard tooltip,
+         * This function takes parsed nodeData from the infra parse functions 
+         * and returns object with all alerts displaying in dashboard tooltip,
          * and tooltip messages array
          */
         self.getNodeStatusForSummaryPages = function (data,page) {
@@ -364,7 +366,8 @@ define([
                     msgs.push(data['alerts'][i]['msg']);
                 }
             }
-            //Status is pushed to messages array only if the status is "UP" and tooltip alerts(which are displaying in tooltip) are zero
+            //Status is pushed to messages array only if the status is "UP" 
+            //and tooltip alerts(which are displaying in tooltip) are zero
             if(ifNull(data['status'],"").indexOf('Up') > -1 && tooltipAlerts.length == 0) {
                 msgs.push(data['status']);
                 tooltipAlerts.push({msg:data['status'],sevLevel:sevLevels['INFO']});
@@ -374,11 +377,13 @@ define([
                 //tooltipAlerts.push({msg:data['status'],sevLevel:sevLevels['ERROR']})
             }
             result['alerts'] = tooltipAlerts;
-            result['nodeSeverity'] = data['alerts'][0] != null ? data['alerts'][0]['sevLevel'] : sevLevels['INFO'];
+            result['nodeSeverity'] = data['alerts'][0] != null ? 
+                    data['alerts'][0]['sevLevel'] : sevLevels['INFO'];
             result['messages'] = msgs;
              var statusTemplate = contrail.getTemplate4Id('statusTemplate');
             if(page == 'summary')
-                return statusTemplate({sevLevel:result['nodeSeverity'],sevLevels:sevLevels});
+                return statusTemplate({sevLevel:result['nodeSeverity'],
+                    sevLevels:sevLevels});
             return result;
         }
         /**
@@ -397,10 +402,10 @@ define([
                 $('#linkStatus').click(config.onStatusClick);
             }
         }*/
-        self.createMonInfraDetailsFooterLinks = function (parent, ipList) {
+        self.createMonInfraDetailsFooterLinks = function (parent, ipList, port) {
             var ipDeferredObj = $.Deferred();
             self.getReachableIp(ipList,
-                                "8083",ipDeferredObj);
+                                port,ipDeferredObj);
             ipDeferredObj.done (function (nodeIp) {
                 if(nodeIp != null) {
                 var leftColumnContainer = '#left-column-container';
@@ -412,15 +417,15 @@ define([
                           onClick: function () {
                                     monitorInfraUtils.
                                         onIntrospectLinkClick(nodeIp,
-                                                '8083');
+                                                port);
                                 }
                       },
                       {
                           name:'status',
                           onClick : function () {
-                                            monitorInfraUtils.
-                                                onStatusLinkClick(nodeIp);
-                                        }
+                                    monitorInfraUtils.
+                                        onStatusLinkClick(nodeIp);
+                                }
                       }
                     ]);
                 }
@@ -525,6 +530,19 @@ define([
             } catch(e){}
             return ipString;
         }
+        
+        self.getDisplayNameForVRouterType = function (type){
+            switch (type){
+            case 'tor-agent':
+                return 'TOR Agent';
+            case 'tor-service-node':
+                return 'TOR Service Node';
+            case 'embedded':
+                return 'Embedded';
+            case 'hypervisor':
+                return 'Hypervisor';
+        }
+    }
 
     };
     return MonitorInfraUtils;

@@ -12,9 +12,9 @@ function VRoutersLoader() {
             pathVRouterView = rootDir + '/js/views/VRouterView.js',
             renderFn = paramObject['function'];
 
-            if (self.monitorInfraView == null) {
-                requirejs([pathVRouterView], function (VRouterListView){
-                    self.monitorInfraView = new VRouterListView();
+            if (self.vrouterView == null) {
+                requirejs([pathVRouterView], function (VRouterView){
+                    self.vrouterView = new VRouterView();
                     self.renderView(renderFn, hashParams);
                 });
             } else {
@@ -23,7 +23,12 @@ function VRoutersLoader() {
     }
     this.renderView = function (renderFn, hashParams) {
         $(contentContainer).html("");
-        this.monitorInfraView[renderFn]({hashParams: hashParams});
+        if(hashParams.view == "details") {
+            this.vrouterView.renderVRouterDetails(
+                    {hashParams: hashParams});
+        } else {
+            this.vrouterView.renderVRouter({hashParams: hashParams});
+        }
     };
 
     this.updateViewByHash = function (hashObj, lastHashObj) {

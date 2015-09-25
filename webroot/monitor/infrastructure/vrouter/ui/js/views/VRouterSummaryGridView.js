@@ -72,9 +72,7 @@ define(
                             }
                         },
                         events: {
-                           onClick: function(e,dc){
-                              onComputeNodeChange(dc);
-                           }
+                           onClick: onClickHostName
                         },
                         cssClass: 'cell-hyperlink-blue',
                     },
@@ -131,7 +129,8 @@ define(
                         name:"CPU (%)",
                         minWidth:150,
                         formatter:function(r,c,v,cd,dc) {
-                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'  + ifNotNumeric(dc['cpu'],'-') +  '</span>';
+                            return '<div class="gridSparkline display-inline"></div><span class="display-inline">'
+                                + ifNotNumeric(dc['cpu'],'-') +  '</span>';
                         },
                         asyncPostRender: renderSparkLines,
                         searchFn:function(d){
@@ -164,7 +163,10 @@ define(
                         field:"intfCnt",
                         name:"Interfaces",
                         formatter:function(r,c,v,cd,dc){
-                            return contrail.format("{0} Total{1}",dc['intfCnt'],dc['errorIntfCntText']);
+                            return contrail.format(
+                                    "{0} Total{1}",
+                                    dc['intfCnt'],
+                                    dc['errorIntfCntText']);
                         },
                         minWidth:150
                     },
@@ -197,6 +199,33 @@ define(
                 };
                 return gridElementConfig;
             }
+
+            function onClickHostName(e, selRowDataItem) {
+                var name = selRowDataItem.name, hashParams = null,
+                    triggerHashChange = true, hostName;
+
+                hostName = selRowDataItem['name'];
+                var hashObj = {
+                        type: "vrouter",
+                        view: "details",
+                        focusedElement: {
+                            node: name,
+                            tab: 'details'
+                        }
+                    };
+
+                if(contrail.checkIfKeyExistInObject(true,
+                                hashParams,
+                                'clickedElement')) {
+                    hashObj.clickedElement = hashParams.clickedElement;
+                }
+
+                layoutHandler.setURLHashParams(hashObj, {
+                    p: "mon_infra_vroutermvc",
+                    merge: false,
+                    triggerHashChange: triggerHashChange});
+
+            };
 
             return VRouterNodeGridView;
         });

@@ -9,18 +9,32 @@ define([
     var VRouterView = ContrailView.extend({
         el: $(contentContainer),
         renderVRouter: function (viewConfig) {
-            this.renderView4Config(this.$el, null, getVRouterConfig());
+            this.renderView4Config(this.$el, null, getVRouterListConfig());
+        },
+        renderVRouterDetails : function (viewConfig) {
+            this.renderView4Config(this.$el, null, getVRouterDetails());
         }
     });
 
-    function getVRouterConfig() {
+    function getVRouterListConfig() {
         return {
             elementId: cowu.formatElementId([ctwl.VROUTER_SUMMARY_PAGE_ID]),
             view: "VRouterListView",
-            viewPathPrefix: "monitor/infrastructure/vrouter/ui/js/views/",
+            viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
             app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {}
         };
     };
+
+    function getVRouterDetails() {
+        return {
+            elementId: cowu.formatElementId([ctwl.CONTROLNODE_DETAILS_PAGE_ID]),
+            view: "VRouterDetailsView",
+            viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig: {}
+        };
+    };
+
     return VRouterView;
 });
