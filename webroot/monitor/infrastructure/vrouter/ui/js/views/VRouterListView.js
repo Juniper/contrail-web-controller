@@ -36,7 +36,7 @@ define(
                             elementId: ctwl.VROUTER_SUMMARY_CROSSFILTER_ID,
                             title: ctwl.VROUTER_SUMMARY_TITLE,
                             view: "VRouterCrossFiltersView",
-                            viewPathPrefix: "monitor/infrastructure/vrouter/ui/js/views/",
+                            viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {
                                 config:[{
@@ -55,8 +55,8 @@ define(
                         columns: [{
                             elementId: ctwl.VROUTER_SUMMARY_GRID_ID,
                             title: ctwl.VROUTER_SUMMARY_TITLE,
-                            view: "VRouterGridView",
-                            viewPathPrefix: "monitor/infrastructure/vrouter/ui/js/views/",
+                            view: "VRouterSummaryGridView",
+                            viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {
 

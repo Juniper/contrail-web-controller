@@ -90,7 +90,7 @@ define([
 
                     var ipList = getControlNodeIpAddressList(ctrlNodeData);
                     monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                            $('#left-column-container').parent(), ipList);
+                            $('#left-column-container').parent(), ipList, '8083');
 
                     return obj;
                 }

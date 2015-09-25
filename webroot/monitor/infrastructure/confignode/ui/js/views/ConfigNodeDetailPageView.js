@@ -74,7 +74,9 @@ define([
                     obj['lastLogTimestamp'] = getLastLogTime(result);
 
                     monitorInfraUtils.createMonInfraDetailsFooterLinks (
-                            $('#left-column-container').parent(), obj['ips'].split(','));
+                            $('#left-column-container').parent(),
+                            obj['ips'].split(','),
+                            '8084');
                     return obj;
                 }
             }

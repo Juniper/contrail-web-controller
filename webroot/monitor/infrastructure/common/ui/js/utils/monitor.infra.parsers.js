@@ -296,6 +296,7 @@ define(
                             dashboardUtils.sortInfraAlerts);
                         //Decide color based on parameters
                         obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
+                        obj['rawData'] = d;
                         retArr.push(obj);
                     }
                     retArr.sort(dashboardUtils.sortNodesByColor);
