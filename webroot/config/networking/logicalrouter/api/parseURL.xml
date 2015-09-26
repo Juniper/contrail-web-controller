@@ -8,7 +8,7 @@
     </require>
     <require>
         <define>logicalroutersconfigapi</define>
-        <path>./logicalroutersconfig.api</path>
+        <path>./logicalrouterconfig.api</path>
     </require>
     <!-- API / Feature definition for Security Group configuration -->
     <!-- 1. List Security Group -
