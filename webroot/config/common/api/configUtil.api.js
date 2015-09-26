@@ -24,11 +24,14 @@ var portsConfig = require('../../ports/api/portsconfig.api'),
                               '/src/serverroot/common/configServer.api');
 var vnConfig = require('../../vn/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
+var logicalRtr =
+    require('../../networking/logicalrouter/api/logicalrouterconfig.api');
 
 var errorData = [];
 var configCBDelete = 
 {
-    'virtual-machine-interface': portsConfig.deletePortsCB
+    'virtual-machine-interface': portsConfig.deletePortsCB,
+    'logical-router': logicalRtr.deleteLogicalRouterAsync
 }
 
 var getConfigPageRespCB = {
