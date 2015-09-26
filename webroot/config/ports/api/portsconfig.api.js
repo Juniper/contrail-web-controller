@@ -25,8 +25,8 @@ var url = require('url');
 var UUID = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var logicalRouter = require('../../logicalrouters/api/logicalroutersconfig.api');
 var configUtil = require('../../common/api/configUtil.api');
+var logicalRouter = require('../../networking/logicalrouter/api/logicalrouterconfig.api');
 
 
 /**
