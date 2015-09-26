@@ -698,6 +698,26 @@ define([
         this.PARENT_TYPE_PINF = 'physical-interface';
         this.TITLE_INTERFACE_DELETE = 'Delete Interface';
         this.TITLE_INTERFACE_MULTI_DELETE = 'Delete Interface(s)';
+        
+        //Logical Router Labels
+        this.CONFIG_LOGICAL_ROUTER_PAGE_ID = "config-logical-router-page";
+        this.CONFIG_LOGICAL_ROUTER_TITLE = "Routers";
+        this.TITLE_ADD_LOGICAL_ROUTER = "Create Routers";
+        this.CONFIG_LOGICAL_ROUTER_LIST_VIEW_ID = "config-logical-router-list-view";
+        this.CONFIG_LOGICAL_ROUTER_FORMAT_ID = "config-logical-router-format-id";
+        this.CONFIG_LOGICAL_ROUTER_LIST = "config-logical-router-list";
+        this.LOGICAL_ROUTER_GRID_ID = "config-logical-router-grid-id";
+        this.TITLE_LOGICAL_ROUTER_DETAILS = "Logical Router Detail";
+        this.TITLE_LOGICAL_ROUTER_EDIT = "Edit";
+        this.TITLE_LOGICAL_ROUTER_DELETE = "Delete";
+        this.TITLE_DEL_CONFiRM = "Confirm";
+        this.LOGICAL_ROUTER_PREFIX_ID = "logical_router";
+        this.TITLE_EDIT_LOGICAL_ROUTER = "Edit Logical Router";
+        this.ENTER_NAME = "Enter Name";
+        this.SELECT_EXT_GATEWAY = "Select External Gateway";
+        this.SELECT_CONN_NET = "Select Connected Network(s)";
+        this.TITLE_LOGICAL_ROUTER = 'Logical Router';
+
     };
     return CTLabels;
 });
