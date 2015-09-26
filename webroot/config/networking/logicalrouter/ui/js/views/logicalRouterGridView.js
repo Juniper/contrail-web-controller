@@ -1,0 +1,293 @@
+/*
+ * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ */
+
+define([
+    'underscore',
+    'backbone',
+    'config/networking/logicalrouter/ui/js/models/logicalRouterModel',
+    'config/networking/logicalrouter/ui/js/views/logicalRouterEditView',
+    'config/networking/logicalrouter/ui/js/views/logicalRouterFormatters',
+    'contrail-view'
+], function (_, Backbone, LogicalRouterModel, LogicalRouterCreateEditView,
+             logicalRouterFormatters, ContrailView) {
+    var logicalRouterCreateEditView = new LogicalRouterCreateEditView(),
+        lRFormatters = new logicalRouterFormatters(),
+        gridElId = "#" + ctwl.LOGICAL_ROUTER_GRID_ID;
+
+    var logicalRouterGridView = ContrailView.extend({
+        el: $(contentContainer),
+
+        render: function () {
+            var self = this,
+                viewConfig = this.attributes.viewConfig,
+                pagerOptions = viewConfig['pagerOptions'];
+            self.renderView4Config(self.$el, self.model,
+                                  getLogicalRouterGridViewConfig(pagerOptions));
+        }
+    });
+
+    var getLogicalRouterGridViewConfig = function (pagerOptions) {
+        return {
+            elementId: cowu.formatElementId
+                            ([ctwl.CONFIG_LOGICAL_ROUTER_LIST_VIEW_ID]),
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: ctwl.LOGICAL_ROUTER_GRID_ID,
+                                title: ctwl.CONFIG_LOGICAL_ROUTER_TITLE,
+                                view: "GridView",
+                                viewConfig: {
+                                   elementConfig: getConfiguration(pagerOptions)
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+    var rowActionConfig = [
+        ctwgc.getEditConfig('Edit', function(rowIndex) {
+            var dataItem =
+                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+
+            var logicalRouterModel = new LogicalRouterModel(dataItem);
+            logicalRouterCreateEditView.model = logicalRouterModel;
+            logicalRouterCreateEditView.renderLogicalRouterPopup({
+                                  "title": ctwl.TITLE_EDIT_LOGICAL_ROUTER +
+                                  ' (' + dataItem.name + ')',
+                                  mode: "edit",
+                                  callback: function () {
+                var dataView =
+                    $(gridElId).data("contrailGrid")._dataView;
+                dataView.refreshData();
+            }});
+        }),
+        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+            var dataItem =
+                $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
+
+            var logicalRouterModel = new LogicalRouterModel(dataItem);
+            logicalRouterCreateEditView.model = logicalRouterModel;
+            logicalRouterCreateEditView.renderDeleteLogicalRouter({
+                                  "title": ctwl.TITLE_LOGICAL_ROUTER_DETETE,
+                                  selectedGridData: [dataItem],
+                                  callback: function() {
+                var dataView =
+                    $(gridElId).data("contrailGrid")._dataView;
+                dataView.refreshData();
+            }});
+        })
+    ];
+
+    var getConfiguration = function (pagerOptions) {
+        var gridElementConfig = {
+            header: {
+                title: {
+                    text: ctwl.CONFIG_LOGICAL_ROUTER_TITLE
+                },
+                advanceControls : getHeaderActionConfig(
+                                     ctwl.LOGICAL_ROUTER_GRID_ID)
+            },
+            body: {
+                options: {
+                    autoRefresh: false,
+                    checkboxSelectable: {
+                        onNothingChecked: function(e){
+                            $('.icon-trash').parent().addClass(
+                                                         'disabled-link');
+                        },
+                        onSomethingChecked: function(e){
+                            $('.icon-trash').parent().removeClass(
+                                                         'disabled-link');
+                        }
+                    },
+                    actionCell:rowActionConfig,
+                    detail: {
+                        template: cowu.generateDetailTemplateHTML(
+                                            getLRDetailsTemplateConfig(),
+                                            cowc.APP_CONTRAIL_CONTROLLER)
+                    }
+                },
+                dataSource: {
+                }
+            },
+            columnHeader: {
+                columns: LogicalRouterColumns
+            },
+            footer: {
+                pager: contrail.handleIfNull
+                                    (pagerOptions,
+                                        { options:
+                                          { pageSize: 5,
+                                            pageSizeSelect: [5, 10, 50, 100]
+                                          }
+                                        }
+                                    )
+            }
+        };
+        return gridElementConfig;
+    };
+
+    this.LogicalRouterColumns = [
+        {
+            id:"name",
+            field:"name",
+            name:"Name",
+            minWidth : 120,
+            sortable: true
+        },
+        {
+            id:"virtual_network_refs",
+            field:"virtual_network_refs",
+            name:"External Gateway",
+            minWidth : 300,
+            sortable: true,
+            formatter: lRFormatters.extGatewayFormater
+        },
+        {
+            id:"virtual_machine_interface_refs",
+            field:"virtual_machine_interface_refs",
+            name:"Connected Network",
+            sortable: true,
+            minWidth : 400,
+            formatter: lRFormatters.conNetworkFormater
+        },
+        {
+            field:"id_perms",
+            name:"Admin State",
+            minWidth : 70,
+            formatter: lRFormatters.idPermsFormater
+        }
+    ];
+
+    function getHeaderActionConfig(gridElId) {
+        var headerActionConfig =
+        [
+            {
+                "type": "link",
+                "title": ctwl.TITLE_LOGICAL_ROUTER_DETETE,
+                "iconClass": "icon-trash",
+                "onClick": function () {
+                    var dataItem =
+                        $("#"+gridElId).data('contrailGrid').getCheckedRows();
+                    if(dataItem.length > 0) {
+                        var logicalRouterModel = new LogicalRouterModel(dataItem);
+                        logicalRouterCreateEditView.model = logicalRouterModel;
+                        logicalRouterCreateEditView.renderDeleteLogicalRouter({
+                                      "title": ctwl.TITLE_LOGICAL_ROUTER_DETETE,
+                                      selectedGridData: dataItem,
+                                      callback: function() {
+                            var dataView =
+                                $("#"+gridElId).data("contrailGrid")._dataView;
+                            dataView.refreshData();
+                        }});
+                    }
+                }
+            },
+            {
+                "type": "link",
+                "title": ctwl.TITLE_ADD_LOGICAL_ROUTER,
+                "iconClass": "icon-plus",
+                "onClick": function () {
+                    var logicalRouterModel = new LogicalRouterModel();
+                    logicalRouterCreateEditView.model = logicalRouterModel;
+                    logicalRouterCreateEditView.renderLogicalRouterPopup({
+                                     "title": ctwl.TITLE_ADD_LOGICAL_ROUTER,
+                                     mode : "add",
+                                     callback: function () {
+                        var dataView =
+                            $("#"+gridElId).data("contrailGrid")._dataView;
+                        dataView.refreshData();
+                    }});
+                }
+            }
+        ];
+        return headerActionConfig;
+    };
+
+    function getLRDetailsTemplateConfig() {
+        return {
+            templateGenerator: 'RowSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                rows: [{
+                    templateGenerator: 'ColumnSectionTemplateGenerator',
+                    templateGeneratorConfig: {
+                        columns: [{
+                            class: 'row-fluid',
+                            rows: [{
+                                title: ctwl.TITLE_LOGICAL_ROUTER_DETAILS,
+                                templateGenerator: 'BlockListTemplateGenerator',
+                                templateGeneratorConfig: [{
+                                    key: 'name',
+                                    keyClass:'span3',
+                                    name: 'name',
+                                    templateGenerator: 'TextGenerator'
+                                }, {
+                                    key: 'uuid',
+                                    keyClass:'span3',
+                                    name: 'uuid',
+                                    templateGenerator: 'TextGenerator'
+                                }, {
+                                    key: 'virtual_network_refs',
+                                    keyClass:'span3',
+                                    name: 'virtual_network_refs',
+                                    label:"External Gateway",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "extGatewayFormater"
+                                    }
+                                }, {
+                                    key: 'id_perms',
+                                    keyClass:'span3',
+                                    name: 'id_perms',
+                                    label:'SNAT',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "showSNAT"
+                                    }
+                                }, {
+                                    key: 'id_perms',
+                                    keyClass:'span3',
+                                    name: 'id_perms',
+                                    label:"Connected Network",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "conNetworkFormaterExpand"
+                                    }
+                                }, {
+                                    key: 'id_perms',
+                                    keyClass:'span3',
+                                    name: 'id_perms',
+                                    label:"Router Interfaces",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "interfaceDetailFormater"
+                                    }
+                                }]
+                            }]
+                        }]
+                    }
+                }]
+            }
+        };
+    };
+    this.extGatewayFormater = function (v, dc) {
+        return lRFormatters.extGatewayFormater("", "", v, "", dc);
+    };
+    this.interfaceDetailFormater = function (v, dc) {
+        return lRFormatters.interfaceDetailFormater("", "", v, "", dc);
+    };
+    this.conNetworkFormaterExpand = function(v, dc) {
+        return lRFormatters.conNetworkFormaterExpand("", "", v, "", dc);
+    };
+    this.showSNAT = function(v, dc) {
+        return lRFormatters.showSNAT("", "", v, "", dc);
+    };
+    return logicalRouterGridView;
+});
