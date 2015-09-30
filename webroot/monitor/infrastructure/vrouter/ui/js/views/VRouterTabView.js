@@ -52,18 +52,67 @@ define([
                     $('#' + ctwl.VROUTER_DETAIL_ID).
                         trigger('refresh');
                 } else if (selTab == 'Interfaces') {
-//                    $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
-//                    data('contrailGrid').refreshView();
+                   $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
+                   data('contrailGrid').refreshView();
                 } else if (selTab == 'Networks') {
-//                    $('#' + ctwl.VROUTER_NETWORKS_RESULTS).
-//                    data('contrailGrid').refreshView();
+                   $('#' + ctwl.VROUTER_NETWORKS_GRID_ID).
+                   data('contrailGrid').refreshView();
+                } else if (selTab == 'ACL') {
+                   $('#' + ctwl.VROUTER_ACL_GRID_ID).
+                   data('contrailGrid').refreshView();
+                } else if (selTab == 'Flows') {
+                   $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
+                   data('contrailGrid').refreshView();
+                } else if (selTab == 'Routes') {
+                   $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
+                   data('contrailGrid').refreshView();
                 }
             },
             tabs: [
                 {
-                    elementId: 'vrouter_detail_id',//ctwl.VROUTER_DETAIL_ID,
+                    elementId: 'vrouter_detail_tab_id',//ctwl.VROUTER_DETAIL_ID,
                     title: 'Details',
                     view: "VRouterDetailPageView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_interfaces_tab_id',
+                    title: 'Interfaces',
+                    view: "VRouterInterfacesFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_networks_tab_id',
+                    title: 'Networks',
+                    view: "VRouterNetworksFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_acl_tab_id',
+                    title: 'ACL',
+                    view: "VRouterACLFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_flows_tab_id',
+                    title: 'Flows',
+                    view: "VRouterFlowsFormView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_routes_tab_id',
+                    title: 'Routes',
+                    view: "VRouterRoutesFormView",
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,

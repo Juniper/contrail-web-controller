@@ -24,7 +24,8 @@ define([
 
     function getVRouterTabsViewConfig(currHashParams) {
         var options = {
-                hostname: currHashParams.focusedElement.node
+                hostname: currHashParams.focusedElement.node,
+                introspectPort: 8085
             };
         return {
             elementId: cowu.formatElementId([ctwl.VROUTER_TAB_SECTION_ID]),

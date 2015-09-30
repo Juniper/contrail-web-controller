@@ -378,6 +378,15 @@ define([
             }
         }
 
+        self.getGridPaginationControls = function() {
+            return [
+                        '<a class="widget-toolbar-icon"><i class="icon-step-forward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="icon-step-backward"></i></a>'
+                    ];
+        }
+
         self.formatMemory = function(memory) {
             if(memory == null || memory['res'] == null)
                 return noDataStr;
@@ -1040,7 +1049,7 @@ define([
         }
 
         /**
-         * Function returns the overall node status html of monitor infra node 
+         * Function returns the overall node status html of monitor infra node
          * details page
          */
         self.getOverallNodeStatusForDetails = function (data){
@@ -1050,7 +1059,7 @@ define([
         }
 
         /**
-         * This function takes parsed nodeData from the infra parse functions 
+         * This function takes parsed nodeData from the infra parse functions
          * and returns object with all alerts displaying in dashboard tooltip,
          * and tooltip messages array
          */
@@ -1062,7 +1071,7 @@ define([
                     msgs.push(data['alerts'][i]['msg']);
                 }
             }
-            //Status is pushed to messages array only if the status is "UP" 
+            //Status is pushed to messages array only if the status is "UP"
             //and tooltip alerts(which are displaying in tooltip) are zero
             if(ifNull(data['status'],"").indexOf('Up') > -1 && tooltipAlerts.length == 0) {
                 msgs.push(data['status']);
@@ -1073,7 +1082,7 @@ define([
                 //tooltipAlerts.push({msg:data['status'],sevLevel:sevLevels['ERROR']})
             }
             result['alerts'] = tooltipAlerts;
-            result['nodeSeverity'] = data['alerts'][0] != null ? 
+            result['nodeSeverity'] = data['alerts'][0] != null ?
                     data['alerts'][0]['sevLevel'] : sevLevels['INFO'];
             result['messages'] = msgs;
              var statusTemplate = contrail.getTemplate4Id('statusTemplate');
@@ -1226,7 +1235,7 @@ define([
             } catch(e){}
             return ipString;
         }
-        
+
         self.getDisplayNameForVRouterType = function (type){
             switch (type){
             case 'tor-agent':
@@ -1237,8 +1246,173 @@ define([
                 return 'Embedded';
             case 'hypervisor':
                 return 'Hypervisor';
+            }
         }
-    }
+
+        function onPrevNextClick(obj,cfg) {
+            var gridSel = $(cfg['gridSel']);
+            if(gridSel.length == 0) {
+                return;
+            }
+            var newAjaxConfig = "";
+            var cfg = ifNull(cfg,{});
+            var paginationInfo = ifNull(cfg['paginationInfo'],{});
+            //Populate last_page based on entries and first_page
+            paginationInfo['last_page'] = paginationInfo['first_page'];
+            var xStrFormat = /(begin:)\d+(,end:)\d+(,table:.*)/;
+            var entriesFormat = /.*\/(\d+)/;
+            var totalCnt;
+            if(paginationInfo['entries'] != null && paginationInfo['entries'].match(entriesFormat) instanceof Array) {
+                var patternResults = paginationInfo['entries'].match(entriesFormat);
+                //Get the total count from entries as with some filter applied,total count will not be same as table size
+                totalCnt = parseInt(patternResults[1]);
+            }
+            if(paginationInfo['last_page'] != null && paginationInfo['last_page'].match(xStrFormat) instanceof Array) {
+                if(totalCnt == null) {
+                    totalCnt = parseInt(paginationInfo['table_size']);
+                }
+                paginationInfo['last_page'] = paginationInfo['last_page'].replace(xStrFormat,'$1' + (totalCnt - (totalCnt%100)) + '$2' + ((totalCnt - (totalCnt%100)) + 99)+ '$3');
+            }
+            var getUrlFn = ifNull(cfg['getUrlFn'],$.noop);
+            var dirType = ifNull(cfg['dirType'],'');
+            var gridInst = gridSel.data('contrailGrid');
+            var urlObj = getUrlFn();
+            var urlStr = null,xKey = null;
+            if(dirType == 'next') {
+                xKey = 'next_page';
+            } else if(dirType == 'prev') {
+                xKey = 'prev_page';
+            } else if(dirType == 'first') {
+                xKey = 'first_page';
+            } else if(dirType == 'last') {
+                xKey = 'last_page';
+            }
+            if(paginationInfo[xKey] != null) {
+                urlObj['params']['x'] = paginationInfo[xKey];
+            }
+            if(typeof(urlObj) == 'object') {
+                urlStr = urlObj['url'] + '?' + $.param(urlObj['params']);
+            }
+            newAjaxConfig = {
+                        url: urlStr,
+                        type:'Get'
+                };
+            if(gridInst != null) {
+                // gridInst.showGridMessage('loading');
+                gridInst.setRemoteAjaxConfig(newAjaxConfig);
+                reloadGrid(gridInst);
+            }
+        }
+
+        self.getIntrospectPaginationInfo = function(response) {
+            var paginationInfo = {};
+            var paginationInfo = jsonPath(response,'$..Pagination');
+            if(paginationInfo instanceof Array && paginationInfo.length > 0) {
+                paginationInfo = getValueByJsonPath(paginationInfo,'0;req;PageReqData');
+            }
+            return paginationInfo;
+        }
+
+        self.updateGridTitleWithPagingInfo = function(gridSel,pagingInfo) {
+            var gridHeaderTextElem = $(gridSel).find('.grid-header-text');
+            var pageInfoTitle = '';
+            var entriesText = pagingInfo['entries'];
+            var extractedData;
+            if(typeof(entriesText) == 'string' ) {
+                extractedData = entriesText.match(/(\d+)-(\d+)\/(\d+)/);
+            }
+
+            if(extractedData instanceof Array) {
+                var startCnt = parseInt(extractedData[1]);
+                var endCnt = parseInt(extractedData[2]);
+                var totalCnt = parseInt(extractedData[3]);
+                pageInfoTitle = contrail.format(' ({0} - {1} of {2})',startCnt+1,endCnt+1,totalCnt);
+            } else {
+                if(pagingInfo['entries'] != null) {
+                    pageInfoTitle = ' (' + pagingInfo['entries'] + ')';
+                }
+            }
+            if(gridHeaderTextElem.find('span').length == 0) {
+                gridHeaderTextElem.append($('<span>',{}));
+            } else {
+                gridHeaderTextElem.find('span').text('');
+            }
+            gridHeaderTextElem.find('span').text(pageInfoTitle);
+        }
+
+        self.bindGridPrevNextListeners = function(cfg) {
+            var cfg = ifNull(cfg,{});
+            var gridSel = cfg['gridSel'];
+            var paginationInfo;
+            gridSel.find('i.icon-step-forward').parent().click(function() {
+                paginationInfo = cfg['paginationInfoFn']();
+                //Ignore if already on first page
+                if(paginationInfo['last_page'] == '') {
+                    return;
+                }
+                onPrevNextClick(cfg['obj'], {
+                    dirType: 'last',
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+            gridSel.find('i.icon-forward').parent().click(function() {
+                paginationInfo = cfg['paginationInfoFn']();
+                //Ignore if already on first page
+                if(paginationInfo['next_page'] == '') {
+                    return;
+                }
+                onPrevNextClick(cfg['obj'], {
+                    dirType: 'next',
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+            gridSel.find('i.icon-step-backward').parent().click(function() {
+                paginationInfo = cfg['paginationInfoFn']();
+                //Ignore if already on last page
+                if(paginationInfo['first_page'] == '') {
+                    return;
+                }
+                onPrevNextClick(cfg['obj'], {
+                    dirType: 'first',
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+            gridSel.find('i.icon-backward').parent().click(function() {
+                paginationInfo = cfg['paginationInfoFn']();
+                //Ignore if already on last page
+                if(paginationInfo['prev_page'] == '') {
+                    return;
+                }
+                onPrevNextClick(cfg['obj'], {
+                    dirType: 'prev',
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+            gridSel.parent().find('.btn-display').click(function() {
+                paginationInfo = cfg['paginationInfoFn']();
+                onPrevNextClick(cfg['obj'], {
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+            gridSel.parent().find('.btn-reset').click(function() {
+                cfg['resetFn']();
+                onPrevNextClick(cfg['obj'],{
+                    gridSel: gridSel,
+                    paginationInfo: paginationInfo,
+                    getUrlFn: cfg['getUrlFn']
+                });
+            });
+        }
 
     };
     return MonitorInfraUtils;

@@ -76,6 +76,9 @@ define([
             ingressFlowCount: "Ingress Flow Count",
             egressFlowCount: "Egress Flow Count",
 
+            /* Monitor Infra */
+            vrouter_routes_radio: 'Show Routes',
+
             /* Instance Details */
             cpu_one_min_avg: 'CPU Utilization (%)',
             rss: 'Used Memory',
@@ -399,6 +402,47 @@ define([
         this.VROUTER_DETAILS_SECTION_ID = 'vrouter_details_section';
         this.VROUTER_DETAILS_TABS_ID = 'vrouter_details_tab';
         this.VROUTER_DETAIL_ID = 'vrouter_detail_id;'
+
+        // this.VROUTER_NETWORKS_GRID_SECTION_ID = 'vrouter_networks_grid_section_id';
+        this.VROUTER_NETWORKS_GRID_VIEW_ID = 'vrouter_networks_id';
+        this.VROUTER_NETWORKS_TITLE = "Networks";
+        this.VROUTER_NETWORKS_RESULTS_VIEW = 'vrouter_networks_results_view';
+        this.VROUTER_NETWORKS_RESULTS = 'vrouter_networks-results';
+        this.VROUTER_NETWORKS_PREFIX =  'vrouter_networks';
+        this.VROUTER_NETWORKS_GRID_ID = this.VROUTER_NETWORKS_PREFIX + '-results';
+
+        // this.VROUTER_INTERFACES_GRID_SECTION_ID = 'vrouter_interfaces_grid_section_id';
+        this.VROUTER_INTERFACES_GRID_VIEW_ID = 'vrouter_interfaces_id';
+        this.VROUTER_INTERFACES_TITLE = "Interfaces";
+        this.VROUTER_INTERFACES_RESULTS_VIEW = 'vrouter_interfaces_results_view';
+        this.VROUTER_INTERFACES_RESULTS = 'vrouter_interfaces-results';
+        this.VROUTER_INTERFACES_PREFIX = 'vrouter_interfaces';
+        this.VROUTER_INTERFACES_GRID_ID = this.VROUTER_INTERFACES_PREFIX + '-results';
+
+        this.VROUTER_ROUTES_PREFIX = 'vrouter_routes';
+
+        // this.VROUTER_ROUTES_GRID_SECTION_ID = 'vrouter_routes_grid_section_id';
+        this.VROUTER_ROUTES_TITLE = "Routes";
+        this.VROUTER_ROUTES_RESULTS_VIEW = 'vrouter_routes_results_view';
+        this.VROUTER_ROUTES_RESULTS = 'vrouter_routes-results';
+        this.VROUTER_ROUTES_PREFIX = 'vrouter_routes';
+        this.VROUTER_ROUTES_GRID_ID = this.VROUTER_ROUTES_PREFIX + '-results';
+
+        // this.VROUTER_ACL_GRID_SECTION_ID = 'vrouter_acl_grid_section_id';
+        this.VROUTER_ACL_GRID_VIEW_ID = 'vrouter_acl_id';
+        this.VROUTER_ACL_TITLE = "ACL";
+        this.VROUTER_ACL_RESULTS_VIEW = 'vrouter_acl_results_view';
+        this.VROUTER_ACL_RESULTS = 'vrouter_acl-results';
+        this.VROUTER_ACL_PREFIX = 'vrouter_acl';
+        this.VROUTER_ACL_GRID_ID = this.VROUTER_ACL_PREFIX + '-results';
+
+        // this.VROUTER_FLOWS_GRID_SECTION_ID = 'vrouter_flows_grid_section_id';
+        this.VROUTER_FLOWS_GRID_VIEW_ID = 'vrouter_flows_id';
+        this.VROUTER_FLOWS_TITLE = "Flows";
+        this.VROUTER_FLOWS_RESULTS_VIEW = 'vrouter_flows_results_view';
+        this.VROUTER_FLOWS_RESULTS = 'vrouter_flows-results';
+        this.VROUTER_FLOWS_PREFIX = 'vrouter_flows';
+        this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
  
         //Database node labels
         this.DATABASENODE_VIEWPATH_PREFIX =

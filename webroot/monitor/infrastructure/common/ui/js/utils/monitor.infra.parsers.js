@@ -790,6 +790,559 @@ define(
                     retArr['value'] = ret;
                     return retArr;
                 };
+
+                this.parseVRouterInterfaceData = function(response) {
+                    var retArray = [];
+                    var sandeshData = jsonPath(response,'$..ItfSandeshData');
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    var sdata = [];
+                    if(sandeshData != null){
+                        $.each(sandeshData,function(idx,obj){
+                            if(!(obj instanceof Array)){
+                                sdata = sdata.concat([obj]);
+                            } else {
+                                sdata = sdata.concat(obj)
+                            }
+                        });
+
+                        $.each(sdata, function (idx, obj) {
+                            var rawJson = obj;
+                            obj['vn_name'] = ifNullOrEmptyObject(obj['vn_name'],noDataStr);
+                            obj['vm_uuid'] = ifNullOrEmptyObject(obj['vm_uuid'],noDataStr);
+                            obj['vm_name'] = ifNullOrEmptyObject(obj['vm_name'],noDataStr);
+
+                            var parts = obj['vn_name'].split(":"), dispVNName=obj['vn_name'];
+                            if(parts.length == 3){
+                                if(parts[2] != null) {dispVNName = parts[2];}
+                                if(parts[1] != null) {dispVNName += " ("+parts[1]+")";}
+                            }
+                            var dispVMName = obj['vm_uuid'] + ' / ' + obj['vm_name'];
+                            if(obj['vm_uuid'] == "" && obj['vm_name'] == "") {
+                                dispVMName = '';
+                            }
+                            obj['dispName'] = obj['name'];
+                            if(new RegExp(/remote-physical-port/).test(obj['type'])) {
+                                var parts = obj['name'].split(":");
+                                if(parts.length == 3) {
+                                    if(parts[0] == 'default-global-system-config') {
+                                        obj['dispName'] = contrail.format('{0}<br/> ({1})',parts[2],parts[1]);
+                                    } else {
+                                    obj['dispName'] = contrail.format('{0}<br/> ({1}:{2})',parts[2],parts[0],parts[1]);
+                                    }
+                                }
+                            }
+                            if(new RegExp(/logical-port/).test(obj['type'])) {
+                                var parts = obj['name'].split(":");
+                                if(parts.length == 4) {
+                                    if(parts[0] == 'default-global-system-config') {
+                                        obj['dispName'] = contrail.format('{0}<br/> ({1}:{2})',parts[3],parts[1],parts[2]);
+                                    } else {
+                                    obj['dispName'] = contrail.format('{0}<br/> ({1}:{2}:{3})',parts[3],parts[0],parts[1],parts[2]);
+                                    }
+                                }
+                            }
+                            if(new RegExp(/vport|logical-port|remote-physical-port/).test(obj['type'])) {
+                                if(obj.fip_list != null) {
+                                    var fipList = [];
+                                    fipList = ifNull(jsonPath(obj,"$..FloatingIpSandeshList")[0],[]);
+                                    obj['disp_fip_list'] = floatingIPCellTemplate(fipList);
+                                }
+                                retArray.push({uuid:obj['uuid'],name:obj['name'],label:obj['label'],active:obj['active'],
+                                    dispName: obj['dispName'],
+                                    type:obj['type'],
+                                    vn_name:obj['vn_name'],disp_vn_name:dispVNName,vm_uuid:obj['vm_uuid'],
+                                    vm_name:obj['vm_name'],disp_vm_name:dispVMName,ip_addr:obj['ip_addr'],
+                                    disp_fip_list:obj['disp_fip_list'],raw_json:rawJson});
+                            }
+                        });
+                    }
+                    return {
+                        paginationInfo: paginationInfo,
+                        data: retArray
+                    };
+                }
+
+                this.parseVRouterVNData = function(response) {
+                    var data = jsonPath(response,'$..VnSandeshData')[0];
+                    var paginationInfo = monitorInfraUtils.getIntrospectPaginationInfo(response);
+                    var ret = [];
+                    if(data != null){
+                        if(!(data instanceof Array)){
+                            data = [data];
+                        }
+                        $.each(data, function (idx, obj) {
+                            var rawJson = obj, acl = noDataStr, vrf = noDataStr;
+                            if(!$.isEmptyObject(obj['acl_uuid'])){
+                                acl = obj['acl_uuid'];
+                            }
+                            if(!$.isEmptyObject(obj['vrf_name'])){
+                                vrf = obj['vrf_name'];
+                            }
+                            ret.push({
+                                acl_uuid:acl,
+                                vrf_name:vrf,
+                                name:obj['name'],
+                                raw_json:rawJson
+                            });
+                        });
+                        return  {
+                            paginationInfo: paginationInfo,
+                            data : ret
+                        }
+                    }
+                    else {
+                        return {
+                            data: []
+                        }
+                    }
+                }
+
+                this.parseVRouterUnicastRoutesData = function(response){
+
+                    var ucastPaths = jsonPath(response,'$..PathSandeshData');
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    var paths = [];
+                    var uPaths = [];
+                    ucastPaths = $.each(ucastPaths,function(idx,obj) {
+                        if(obj instanceof Array) {
+                            uPaths.push(obj);
+                        } else {
+                            uPaths.push([obj]);
+                        }
+                    });
+                    var srcIPs = jsonPath(response,'$..src_ip');
+                    var srcPrefixLens = jsonPath(response,'$..src_plen');
+                    var srcVRFs = jsonPath(response,'$..src_vrf');
+
+                    $.each(uPaths,function(idx,obj) {
+                        $.each(obj,function(i,currPath) {
+                            var rawJson = currPath;
+                            if(i == 0)
+                                paths.push({
+                                    dispPrefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    prefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    src_vrf: srcVRFs[idx],
+                                    raw_json: rawJson
+                                });
+                            else
+                                paths.push({
+                                    dispPrefix: '',
+                                    prefix: srcIPs[idx] +
+                                        ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    src_vrf: srcVRFs[idx],
+                                    raw_json: rawJson
+                                });
+
+                        });
+                    });
+                /* paths = $.map(paths,function(obj,idx) {
+                        if(obj['path']['nh']['NhSandeshData']['type'] == 'Composite')
+                            return null;
+                        else
+                            return obj;
+                    });*/
+                    //console.info(paths);
+                    return {
+                        paginationInfo: paginationInfo,
+                        data: paths
+                    };
+                }
+
+                this.parseVRouterMulticastRoutesData = function(response){
+
+                    var ucastPaths = jsonPath(response,'$..RouteMcSandeshData');
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    var paths = [];
+                    var uPaths = [];
+                    ucastPaths = $.each(ucastPaths,function(idx,obj) {
+                        if(obj instanceof Array) {
+                            uPaths.push(obj);
+                        } else {
+                            uPaths.push([obj]);
+                        }
+                    });
+                    var srcIPs = jsonPath(response,'$..src');
+                    var srcPrefixLens = jsonPath(response,'$..grp');
+
+                    $.each(uPaths,function(idx,obj) {
+                        $.each(obj,function(i,currPath) {
+                            var rawJson = currPath;
+                            if(i == 0)
+                                paths.push({
+                                    dispPrefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    prefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    raw_json: rawJson
+                                });
+                            else
+                                paths.push({
+                                    dispPrefix: '',
+                                    prefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    raw_json: rawJson
+                                });
+
+                        });
+                    });
+                /* TODO i am not ignoring the composite paths for the multicast
+                    * paths = $.map(paths,function(obj,idx) {
+                        if(obj['path']['nh']['NhSandeshData']['type'] == 'Composite')
+                            return null;
+                        else
+                            return obj;
+                    }); */
+                    //console.info(paths);
+                    return {
+                        paginationInfo: paginationInfo,
+                        data: paths
+                    };
+                }
+
+                this.parseVRouterL2RoutesData = function(response){
+                    var paths = [];
+                    var l2Data = jsonPath(response,'$..RouteL2SandeshData')[0];
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    if(l2Data != null){
+                        if(!(l2Data instanceof Array)){
+                            l2Data = [l2Data];
+                        }
+                        $.each(l2Data, function(i,obj){
+                            var mac = getValueByJsonPath(obj,'mac',noDataStr);
+                            var srcVRF = getValueByJsonPath(obj,'src_vrf',noDataStr);
+                            var pathSandeshData = getValueByJsonPath(obj,'path_list;list;PathSandeshData',[]);
+                            if(!(pathSandeshData instanceof Array)){
+                                pathSandeshData = [pathSandeshData];
+                            }
+                            $.each(pathSandeshData,function(j,currPath){
+                                var rawJson = currPath;
+                                if(j == 0)
+                                    paths.push({
+                                        mac: mac,
+                                        searchMac: mac,
+                                        path: currPath,
+                                        src_vrf: srcVRF,
+                                        raw_json: rawJson
+                                    });
+                                else
+                                    paths.push({
+                                        mac: '',
+                                        searchMac: mac,
+                                        path: currPath,
+                                        src_vrf: srcVRF,
+                                        raw_json: rawJson
+                                    });
+                            });
+                        });
+                    }
+                    return {
+                        paginationInfo: paginationInfo,
+                        data: paths
+                    };
+                }
+
+                this.parseVRouterIPv6RoutesData = function(response){
+
+                    var ucastPaths = jsonPath(response,'$..PathSandeshData');
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    var paths = [];
+                    var uPaths = [];
+                    ucastPaths = $.each(ucastPaths,function(idx,obj) {
+                        if(obj instanceof Array) {
+                            uPaths.push(obj);
+                        } else {
+                            uPaths.push([obj]);
+                        }
+                    });
+                    var srcIPs = jsonPath(response,'$..src_ip');
+                    var srcPrefixLens = jsonPath(response,'$..src_plen');
+                    var srcVRFs = jsonPath(response,'$..src_vrf');
+
+                    $.each(uPaths,function(idx,obj) {
+                        $.each(obj,function(i,currPath) {
+                            var rawJson = currPath;
+                            if(i == 0)
+                                paths.push({
+                                    dispPrefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    prefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    src_vrf: srcVRFs[idx],
+                                    raw_json: rawJson
+                                });
+                            else
+                                paths.push({
+                                    dispPrefix: '',
+                                    prefix: srcIPs[idx] + ' / ' + srcPrefixLens[idx],
+                                    path: currPath,
+                                    src_ip: srcIPs[idx],
+                                    src_plen: srcPrefixLens[idx],
+                                    src_vrf: srcVRFs[idx],
+                                    raw_json: rawJson
+                                });
+
+                        });
+                    });
+                    return {
+                        paginationInfo: paginationInfo,
+                        data: paths
+                    };
+                }
+
+                this.parseVRouterFlowsData = function(response,deferredObj){
+                    var origResponse = response;
+                    var isFromACLFlows = false;
+                    var ret = [];
+                    response = jsonPath(origResponse,"$..SandeshFlowData")[0];
+                    if (response == null){
+                        isFromACLFlows = true;
+                        response = jsonPath(origResponse,"$..FlowSandeshData")[0];
+                    }
+                    var flowKey = jsonPath(origResponse,"$..flow_key")[0];
+                    var iterationKey = jsonPath(origResponse,"$..iteration_key")[0];
+                // var retArr = [];
+                /* for (var i = 0; i < response.length; i++) {
+                        var currACL = response[i];
+                        for (var j = 0; j < currACL['flowData'].length; j++) {
+                            var currFlow = currACL['flowData'][j];
+                            var aclUuid = currACL['acl_uuid'];
+                            retArr.push($.extend(currFlow, {acl_uuid:aclUuid}));
+                        }
+                    }*/
+                    if( response != null ){
+                        if(!(response instanceof Array)){
+                            response = [response];
+                        }
+                        if(isFromACLFlows) {
+                            var aclUUID = $('#aclDropDown').data('contrailDropdown').value();
+                            $.each(response,function(idx,obj) {
+                                var rawJson = obj;
+
+                                ret.push({acl_uuid:(idx != 0)? '' : aclUUID,
+                                    searchUUID:aclUUID,
+                                    src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
+                                    dst_vn:ifNullOrEmptyObject(obj['dest_vn'],noDataStr),
+                                    sip:ifNullOrEmptyObject(obj['src'],noDataStr),
+                                    src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
+                                    dst_port:ifNullOrEmptyObject(obj['dst_port'],noDataStr),
+                                    setup_time_utc:ifNullOrEmptyObject(obj['setup_time_utc'],noDataStr),
+                                    protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
+                                    dip:ifNullOrEmptyObject(obj['dst'],noDataStr),
+                                    stats_bytes:ifNullOrEmptyObject(obj['bytes'],noDataStr),
+                                    stats_packets:ifNullOrEmptyObject(obj['packets'],noDataStr),
+                                    direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
+                                    peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
+                                    deny:ifNullOrEmptyObject(obj['implicit_deny'],noDataStr),
+                                    raw_json:rawJson});
+                            });
+                        } else {
+                            $.each(response,function(idx,obj) {
+                                var rawJson = obj;
+                                ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn'],noDataStr),
+                                    dst_vn:ifNullOrEmptyObject(obj['dst_vn'],noDataStr),
+                                    protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
+                                    sip:ifNullOrEmptyObject(obj['sip'],noDataStr),
+                                    src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
+                                    dip:ifNullOrEmptyObject(obj['dip'],noDataStr),
+                                    dst_port:ifNullOrEmptyObject(obj['dst_port'],noDataStr),
+                                    setup_time_utc:ifNullOrEmptyObject(obj['setup_time_utc'],noDataStr),
+                                    stats_bytes:ifNullOrEmptyObject(obj['stats_bytes'],noDataStr),
+                                    stats_packets:ifNullOrEmptyObject(obj['stats_packets'],noDataStr),
+                                    direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
+                                    peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
+                                    deny:ifNullOrEmptyObject(obj['implicit_deny'],noDataStr),
+                                    raw_json:rawJson});
+                            });
+                        }
+                    }
+                    //Push the flowKey to the stack for Next use
+                    if(flowKey != null && !$.isEmptyObject(flowKey)){
+                        //Had to add this hack because sometimes we get into to
+                        //this parse function twice leading this to be added twice to the stack
+                        if(flowKey != "0:0:0:0:0.0.0.0:0.0.0.0" &&
+                            flowKeyStack[flowKeyStack.length - 1] != flowKey)
+                            flowKeyStack.push(flowKey);
+                    }
+                    if((flowKey == null) || (flowKey == "0:0:0:0:0.0.0.0:0.0.0.0")) {
+                        lastFlowReq = true;
+                    }
+                    //Push the aclIterKey to the stack for Next use
+                    if(iterationKey != null && !$.isEmptyObject(iterationKey)){
+                        //Had to add this hack because sometimes we get into to
+                        //this parse function twice leading this to be added twice to the stack
+                        if(iterationKey.indexOf('0:0:0:0:0.0.0.0:0.0.0.0') == -1 &&
+                            aclIterKeyStack[aclIterKeyStack.length - 1] != iterationKey)
+                            aclIterKeyStack.push(iterationKey);
+                    }
+                    //$('#flowCnt').text(response.flowData.length);
+                    if(deferredObj != null)
+                        deferredObj.resolve();
+                    return  {
+                        paginationInfo: paginationInfo,
+                        data: ret
+                    };
+                }
+
+                self.mergeACLAndSGData = function(sgData,aclListModel) {
+                    var primaryData = aclListModel.getItems();
+                    //map all the sg ids with uuids
+                    var sgMap = {};
+                    var sgList = ifNull(jsonPath(sgData,"$.SgListResp.sg_list.list.SgSandeshData")[0],[]);
+                    if(!(sgList instanceof Array)){
+                        sgList = [sgList];
+                    }
+                    $.each(sgList,function(idx,obj){
+                        sgMap[sgList[idx]['sg_id']] =  sgList[idx]['sg_uuid'];
+                    });
+                    $.each(primaryData,function(idx,obj){
+                        if(obj['srcType'] == 'sg'){
+                            if(sgMap[obj['srcSgId']] != null){
+                                obj['src_vn'] = 'SG : ' + sgMap[obj['srcSgId']];
+                            } else {
+                                obj['src_vn'] = obj['srcSgId'];
+                            }
+                        }
+                        if(obj['dstType'] == 'sg'){
+                            if(sgMap[obj['dstSgId']] != null){
+                                obj['dst_vn'] = 'SG : ' + sgMap[obj['dstSgId']];
+                            } else {
+                                obj['dst_vn'] = obj['dstSgId'];
+                            }
+                        }
+                    });
+                    aclListModel.setItems(primaryData);
+                    // aclGrid._grid.invalidate();
+                    // aclGrid.refreshView();
+                }
+
+                this.parseVRouterACLData = function(response) {
+
+                    var retArr = [];
+                    paginationInfo = getIntrospectPaginationInfo(response);
+                    response = getValueByJsonPath(response,"__AclResp_list;AclResp;acl_list;list;AclSandeshData");
+                    //Loop through ACLs
+                    if(response != null){
+                        if(!(response instanceof Array)) {
+                            response = [response];
+                        }
+                        for (var i = 0; i < response.length; i++) {
+                            var currACL = [];
+                            currACL = getValueByJsonPath(response[i],"entries;list;AclEntrySandeshData",[]);
+                            //Loop through ACEs
+                            if(!(currACL instanceof Array)) {
+                                currACL = [currACL];
+                            }
+                            for (var j = 0; j < currACL.length; j++) {
+                                var currACE = currACL[j];
+                                    var dispuuid = uuid = response[i]['uuid'];
+                                    var flowCnt = response[i]['flow_count'];
+                                    if(flowCnt == null){
+                                        flowCnt = 0;
+                                    }
+                                    if(j > 0) {
+                                        dispuuid = '';
+                                        flowCnt = '';
+                                    }
+                                    var protoRange = srcPortRange = dstPortRange =
+                                        actionVal = srcVn = destVn = aceid =
+                                        srcType = dstType = srcSgId = dstSgId =
+                                        noDataStr;
+                                    protoRange = getValueByJsonPath(currACE,
+                                        "proto_l;list;SandeshRange;min") + " - " +
+                                        getValueByJsonPath(currACE,"proto_l;list;SandeshRange;max");
+                                    srcPortRange = getValueByJsonPath(currACE,
+                                        "src_port_l;list;SandeshRange;min") + " - " +
+                                        getValueByJsonPath(currACE,"src_port_l;list;SandeshRange;max");
+                                    dstPortRange = getValueByJsonPath(currACE,
+                                        "dst_port_l;list;SandeshRange;min") + " - " +
+                                        getValueByJsonPath(currACE,"dst_port_l;list;SandeshRange;max");
+                                    var actionList = jsonPath(currACE,'$.action_l.list.ActionStr..action');
+                                    if(!(actionList instanceof Array)){
+                                        actionList = [actionList];
+                                    }
+                                    srcType = getValueByJsonPath(currACE,"src_type");
+                                    dstType = getValueByJsonPath(currACE,"dst_type");
+                                    try{
+                                        srcVn = ifNullOrEmptyObject(getValueByJsonPath(currACE,"src"),noDataStr);
+                                        if(srcType == 'sg'){
+                                            srcSgId = srcVn;
+                                            srcVn = noDataStr;
+                                        } else {
+                                            var srcVnParts = srcVn.split(' ');
+                                            if(srcVnParts.length > 1){
+                                                srcVn = '';
+                                                $.each(srcVnParts,function(i,part){
+                                                    if(i != 0){
+                                                        srcVn = srcVn + ' / ' + part;
+                                                    } else {
+                                                        srcVn = part;
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }catch(e){}
+                                    try{
+                                        destVn = ifNullOrEmptyObject(getValueByJsonPath(currACE,"dst"),noDataStr);
+                                        if(dstType == 'sg'){
+                                            dstSgId = destVn;
+                                            destVn = noDataStr;
+                                        } else {
+                                            var dstVnParts = destVn.split(' ');
+                                            if(dstVnParts.length > 1){
+                                                destVn = '';
+                                                $.each(dstVnParts,function(i,part){
+                                                    if(i != 0){
+                                                        destVn = destVn + ' / ' + part;
+                                                    } else {
+                                                        destVn = part;
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    }catch(e){}
+                                    try{
+                                        aceid = ifNull(currACE['ace_id'],noDataStr);
+                                    }catch(e){}
+                                    retArr.push({uuid:uuid,
+                                        dispuuid:dispuuid,
+                                        dst_vn:destVn,
+                                        src_vn:srcVn,
+                                        srcSgId:srcSgId,
+                                        dstSgId:dstSgId,
+                                        srcType:srcType,
+                                        dstType:dstType,
+                                        flow_count:flowCnt,
+                                        aceId:aceid,
+                                        proto:protoRange,
+                                        src_port:srcPortRange,
+                                        dst_port:dstPortRange,
+                                        actionList:actionList,
+                                        raw_json:response[i]});
+                            }
+                        }
+                    /* TODO for context switching if(selectedAcl != null){
+                            comboAcl.select(function(dataItem) {
+                                return dataItem.text === selectedAcl;
+                            });
+                        } else {
+                            onAclSelect();
+                        } */
+                    }
+                    return {
+                        data: retArr,
+                        paginationInfo: paginationInfo
+                    }
+                }
             };
 
             return MonInfraParsers;

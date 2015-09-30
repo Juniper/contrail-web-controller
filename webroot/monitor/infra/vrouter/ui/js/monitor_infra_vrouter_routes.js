@@ -182,7 +182,7 @@ monitorInfraComputeRoutesClass = (function() {
                       if(response != null) {
                           var ret = [];
                           var vrfs = response.getElementsByTagName('VrfSandeshData');
-                          $.each(vrfs,function(idx,vrfXmlObj){
+                          $.each(vrfs,function(idx,vrfXmlObj) {
                               var name = getValueByJsonPath(vrfXmlObj.getElementsByTagName('name'),'0;innerHTML','');
                               var ucIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('ucindex'),'0;innerHTML','');
                               var mcIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('mcindex'),'0;innerHTML','');
