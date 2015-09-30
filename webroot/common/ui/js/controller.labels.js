@@ -442,6 +442,8 @@ define([
         this.ANALYTICSNODE_GENERATORS_GRID_SECTION_ID = 'analytics_node_generators_grid_section';
         this.ANALYTICSNODE_GENERATORS_GRID_ID = 'analytics_node_generators_grid';
         this.ANALYTICSNODE_GENERATORS_TITLE = 'Generators';
+        this.ANALYTICSNODE_QEQUERIES_GRID_ID = 'analytics_node_qequeries_grid';
+        this.ANALYTICSNODE_QEQUERIES_TITLE = 'QE Queries';
 
 
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
