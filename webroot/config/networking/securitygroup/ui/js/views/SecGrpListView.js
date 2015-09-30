@@ -139,11 +139,6 @@ define([
                                 viewPathPrefix: "config/networking/securitygroup/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    pagerOptions: {
-                                        options: {
-                                            pageSize: 10, pageSizeSelect: [10, 50, 100]
-                                        }
-                                    }
                                 }
                             }
                         ]

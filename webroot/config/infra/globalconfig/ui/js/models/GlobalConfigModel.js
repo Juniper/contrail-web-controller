@@ -154,8 +154,7 @@ define([
                 putData['global-system-config'] = {};
 
                 ajaxConfig = {};
-                delete newGlobalConfig['errors'];
-                delete newGlobalConfig['locks'];
+                ctwu.deleteCGridData(newGlobalConfig);
 
                 putData['global-vrouter-config']
                        ['vxlan_network_identifier_mode'] =

@@ -115,10 +115,7 @@ define([
                 var newQuotaLimit = this.model().attributes;
 
                 ajaxConfig = {};
-                delete newQuotaLimit['cgrid'];
-                delete newQuotaLimit['errors'];
-                delete newQuotaLimit['locks'];
-                delete newQuotaLimit['elementConfigMap'];
+                ctwu.deleteCGridData(newQuotaLimit);
                 for (key in newQuotaLimit) {
                     if (null != newQuotaLimit[key]) {
                         if ('Unlimited' == newQuotaLimit[key]) {

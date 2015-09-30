@@ -353,6 +353,22 @@ define([
             });
         };
 
+        this.deleteCGridData = function(data) {
+            if ('cgrid' in data) {
+                delete data['cgrid'];
+            }
+            if ('errors' in data) {
+                delete data['errors'];
+            }
+            if ('locks' in data) {
+                delete data['locks'];
+            }
+            if ('elementConfigMap' in data) {
+                delete data['elementConfigMap'];
+            }
+            return data;
+        };
+
         this.renderView = function (renderConfig, renderCallback) {
             var parentElement = renderConfig['parentElement'],
                 viewName = renderConfig['viewName'],

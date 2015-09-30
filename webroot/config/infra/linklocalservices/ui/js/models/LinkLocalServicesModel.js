@@ -206,18 +206,11 @@ define([
                     putData['global-vrouter-config']['linklocal_services']
                     ['linklocal_service_entry'].length;
                 for (var i = 0; i < dataLen; i++) {
-                    delete
-                        putData['global-vrouter-config']['linklocal_services']
-                        ['linklocal_service_entry'][i]['cgrid'];
+                    ctwu.deleteCGridData(putData['global-vrouter-config']['linklocal_services']
+                                         ['linklocal_service_entry'][i]);
                     delete
                         putData['global-vrouter-config']['linklocal_services']
                         ['linklocal_service_entry'][i]['lls_fab_address_ip'];
-                    delete
-                        putData['global-vrouter-config']['linklocal_services']
-                        ['linklocal_service_entry'][i]['errors'];
-                    delete
-                        putData['global-vrouter-config']['linklocal_services']
-                        ['linklocal_service_entry'][i]['locks'];
                     delete
                         putData['global-vrouter-config']['linklocal_services']
                         ['linklocal_service_entry'][i]['ipFabAddresses'];

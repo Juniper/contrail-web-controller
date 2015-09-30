@@ -160,11 +160,10 @@ define([
                 newSecGrpData['configured_security_group_id'] =
                     Number(newSecGrpData['configured_security_group_id']);
                 ajaxConfig = {};
-                delete newSecGrpData['cgrid'];
-                delete newSecGrpData['errors'];
-                delete newSecGrpData['locks'];
+                ctwu.deleteCGridData(newSecGrpData);
                 delete newSecGrpData['rules'];
                 delete newSecGrpData['sgRules'];
+                delete newSecGrpData['customValue'];
 
                 var putData = {};
                 putData['security-group'] = newSecGrpData;
