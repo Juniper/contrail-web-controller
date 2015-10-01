@@ -13,7 +13,7 @@ define([
             'virtual_machine_interface': -1,
             'floating_ip': -1,
             'floating_ip_pool': null,
-            'access_control_list': null,
+            'network_policy': null,
             'logical_router': -1,
             'network_ipam': null,
             'service_instance': null,
@@ -46,7 +46,7 @@ define([
                     return this.validateStringOrNumber('Floating IP Pool',
                                                        val, attr, computed);
                 },
-                'access_control_list': function(val, attr, computed) {
+                'network_policy': function(val, attr, computed) {
                     return this.validateStringOrNumber('Policy',
                                                        val, attr, computed);
                 },

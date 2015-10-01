@@ -48,7 +48,7 @@ define([
         {key : "virtual_machine_interface", name :"Ports"},
         {key : "floating_ip", name : "Floating IPs"},
         {key : "floating_ip_pool", name :"Floating IP Pools"},
-        {key : "access_control_list", name : "Policies"},
+        {key : "network_policy", name : "Policies"},
         {key : "logical_router", name : "Routers"},
         {key : "network_ipam", name :"Network IPAMs"},
         {key : "service_instance", name :"Service Instances"},
@@ -68,10 +68,6 @@ define([
             results[i] = {};
             results[i]['name'] = quotaList[i]['name'];
             results[i]['used'] = response[1]['used'][key];
-            if ('access_control_list' == key) {
-                results[i]['used'] =
-                    response[1]['used']['network_policy'];
-            }
             results[i]['limit'] = response[0]['quota'][key];
         }
         return results;

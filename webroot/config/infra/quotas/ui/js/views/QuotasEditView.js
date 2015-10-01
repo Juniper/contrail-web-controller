@@ -178,13 +178,13 @@ define([
                                 }
                             },
                             {
-                                elementId: 'access_control_list',
+                                elementId: 'network_policy',
                                 view: 'FormComboboxView',
                                 viewConfig: {
                                     label: 'Policies',
-                                    path: 'access_control_list',
+                                    path: 'network_policy',
                                     class: 'span12',
-                                    dataBindValue: 'access_control_list',
+                                    dataBindValue: 'network_policy',
                                     elementConfig: {
                                         placeholder: 'Not Set',
                                         dataTextField : "text",
