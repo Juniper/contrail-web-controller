@@ -72,10 +72,10 @@
         <callback>qeapi.getTables</callback>
     </item>
     <item>
-        <url>/api/qe/table/values/:tableName/:column</url>
-        <method>get</method>
+        <url>/api/qe/table/column/values</url>
+        <method>post</method>
         <feature>query-engine</feature>
-        <callback>qeapi.getColumnValues</callback>
+        <callback>qeapi.getTableColumnValues</callback>
     </item>
     <item>
         <url>/api/qe/table/schema/:tableName</url>

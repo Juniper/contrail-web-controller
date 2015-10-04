@@ -77,6 +77,74 @@ define([
             }
             return JSON.stringify(engQueryJSON);
         };
+
+
+        self.getFromTimeElementConfig = function(fromTimeId, toTimeId) {
+            return {
+                onShow: function(cdt) {
+                    this.setOptions(getFromTimeShowOptions(toTimeId, cdt));
+                },
+                onClose: function(cdt) {
+                    this.setOptions(getFromTimeShowOptions(toTimeId, cdt));
+                },
+                onSelectDate: function(cdt) {
+                    this.setOptions(getFromTimeSelectOptions(toTimeId, cdt));
+                }
+            };
+        };
+
+        self.getToTimeElementConfig = function(fromTimeId, toTimeId) {
+            return {
+                onShow: function(cdt) {
+                    this.setOptions(getToTimeShowOptions(fromTimeId, cdt));
+                },
+                onClose: function(cdt) {
+                    this.setOptions(getToTimeShowOptions(fromTimeId, cdt));
+                },
+                onSelectDate: function(cdt) {
+                    this.setOptions(getToTimeSelectOptions(fromTimeId, cdt));
+                }
+            };
+        };
+
+        self.addFlowMissingPoints = function(tsData, options, plotFields, color, counter) {
+            var fromTime = options.fromTime,
+                toTime = options.toTime,
+                interval = options.interval * 1000,
+                plotData = [], addPoint, flowClassId = null,
+                sumBytes = [], sumPackets = [];
+
+            for (var key in tsData) {
+                if (tsData[key]['flow_class_id'] != null) {
+                    flowClassId = tsData[key]['flow_class_id'];
+                    break;
+                }
+            }
+
+            for (var i = fromTime + interval; i <= toTime; i += interval) {
+                for (var k = 0; k < plotFields.length; k++) {
+                    addPoint = {'x':i, 'flow_class_id':flowClassId};
+                    if (tsData[i.toString()] != null) {
+                        addPoint['y'] = tsData[i.toString()][plotFields[k]];
+                    } else {
+                        addPoint['y'] = 0;
+                    }
+                    if(plotFields[k] == 'sum_bytes') {
+                        sumBytes.push(addPoint);
+                    } else if (plotFields[k] == 'sum_packets') {
+                        sumPackets.push(addPoint);
+                    }
+                }
+            }
+
+            if(sumBytes.length > 0) {
+                plotData.push({'key': "#" + counter + ': Sum Bytes', color: color, values: sumBytes});
+            } else if(sumPackets.length > 0) {
+                plotData.push({'key': "#" + counter + ': Sum Packets', color: color, values: sumPackets});
+            }
+
+            return plotData;
+        };
     };
 
     function getTimeRangeObj(formModelAttrs, serverCurrentTime) {
@@ -137,6 +205,52 @@ define([
     function ceilFromTime(fromTimeUTC, TGSecs){
         fromTimeUTC = TGSecs * Math.ceil(fromTimeUTC/TGSecs);
         return fromTimeUTC;
+    };
+
+    function getFromTimeShowOptions(toTimeId, cdt) {
+        var d = new Date($('#' + toTimeId + '_datetimepicker').val()),
+            dateString = moment(d).format('MMM DD, YYYY'),
+            timeString = moment(d).format('hh:mm:ss A');
+
+        return {
+            maxDate: dateString ? dateString : false,
+            maxTime: timeString ? timeString : false
+        };
+    };
+
+    function getFromTimeSelectOptions(toTimeId, cdt) {
+        var d = new Date($('#' + toTimeId + '_datetimepicker').val()),
+            toDateString = moment(d).format('MMM DD, YYYY'),
+            timeString = moment(d).format('hh:mm:ss A'),
+            fromDateString = moment(cdt).format('MMM DD, YYYY');
+
+        return {
+            maxDate: toDateString ? toDateString : false,
+            maxTime: (fromDateString == toDateString) ? timeString : false
+        };
+    };
+
+    function getToTimeShowOptions(fromTimeId, cdt) {
+        var d = new Date($('#' + fromTimeId + '_datetimepicker').val()),
+            dateString = moment(d).format('MMM DD, YYYY'),
+            timeString = moment(d).format('hh:mm:ss A');
+
+        return {
+            minDate: dateString ? dateString : false,
+            minTime: timeString ? timeString : false
+        };
+    };
+
+    function getToTimeSelectOptions(fromTimeId, cdt) {
+        var d = new Date($('#' + fromTimeId + '_datetimepicker').val()),
+            fromDateString = moment(d).format('MMM dd, yyyy'),
+            timeString = moment(d).format('hh:mm:ss A'),
+            toDateString = moment(cdt).format('MMM DD, YYYY');
+
+        return {
+            minDate: fromDateString ? fromDateString : false,
+            minTime: (toDateString == fromDateString) ? timeString : false
+        };
     };
 
     return QEUtils;

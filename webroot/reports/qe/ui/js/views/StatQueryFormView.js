@@ -6,23 +6,23 @@ define([
     'underscore',
     'query-form-view',
     'knockback',
-    'reports/qe/ui/js/models/FlowSeriesFormModel'
-], function (_, QueryFormView, Knockback, FlowSeriesFormModel) {
+    'reports/qe/ui/js/models/StatQueryFormModel'
+], function (_, QueryFormView, Knockback, StatQueryFormModel) {
 
-    var FlowSeriesQueryView = QueryFormView.extend({
-        render: function (options) {
+    var StatQueryFormView = QueryFormView.extend({
+        render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
-                flowSeriesQueryModel = new FlowSeriesFormModel(),
+                statQueryFormModel = new StatQueryFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = "#qe-" + qewc.FS_QUERY_PREFIX + "-form";
+                queryFormId = "#qe-" + qewc.STAT_QUERY_PREFIX + "-form";
 
-            self.model = flowSeriesQueryModel;
-            self.$el.append(queryPageTmpl({queryPrefix: qewc.FS_QUERY_PREFIX }));
+            self.model = statQueryFormModel;
+            self.$el.append(queryPageTmpl({queryPrefix: qewc.STAT_QUERY_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(ctwl.QE_FLOW_SERIES_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(ctwl.QE_FLOW_SERIES_ID));
+                self.model.showErrorAttr(ctwl.QE_STAT_QUERY_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(ctwl.QE_STAT_QUERY_ID));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     self.renderQueryResult();
@@ -36,16 +36,14 @@ define([
 
         renderQueryResult: function() {
             var self = this,
-                queryFormId = "#qe-" + qewc.FS_QUERY_PREFIX + "-form",
-                queryResultId = "#qe-" + qewc.FS_QUERY_PREFIX + "-results",
+                queryResultId = "#qe-" + qewc.STAT_QUERY_PREFIX + "-results",
                 responseViewConfig = {
-                    view: "FlowSeriesResultView",
+                    view: "StatQueryResultView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {}
                 };
 
-            $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
         },
 
@@ -56,6 +54,31 @@ define([
                 view: "SectionView",
                 viewConfig: {
                     rows: [
+                        {
+                            columns: [
+                                {
+                                    elementId: 'table_name', view: "FormDropdownView",
+                                    viewConfig: {
+                                        path: 'table_name', dataBindValue: 'table_name', class: "span3",
+                                        elementConfig: {
+                                            defaultValueId: 0, allowClear: false, placeholder: ctwl.QE_SELECT_STAT_TABLE,
+                                            dataTextField: "name", dataValueField: "name",
+                                            dataSource: {
+                                                type: 'remote', url: qewc.URL_TABLES, parse: function (response) {
+                                                    var parsedOptionList = [];
+                                                    for(var i = 0; i < response.length; i++) {
+                                                        if(response[i].type == 'STAT') {
+                                                            parsedOptionList.push(response[i]);
+                                                        }
+                                                    }
+                                                    return parsedOptionList;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        },
                         {
                             columns: [
                                 {
@@ -140,13 +163,6 @@ define([
                                             self.renderWhere();
                                         }
                                     }}
-                                },
-                                {
-                                    elementId: 'direction', view: "FormDropdownView",
-                                    viewConfig: {
-                                        path: 'direction', dataBindValue: 'direction', class: "span3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: qewc.DIRECTION_DROPDOWN_VALUES}
-                                    }
                                 }
                             ]
                         },
@@ -191,5 +207,5 @@ define([
         }
     });
 
-    return FlowSeriesQueryView;
+    return StatQueryFormView;
 });

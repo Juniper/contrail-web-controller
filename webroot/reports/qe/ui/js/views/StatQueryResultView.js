@@ -8,22 +8,21 @@ define([
     'contrail-list-model'
 ], function (_, QueryResultView, ContrailListModel) {
 
-    var FlowSeriesResultView = QueryResultView.extend({
+    var StatQueryResultView = QueryResultView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 serverCurrentTime = getCurrentTime4MemCPUCharts(),
-                queryFormModel = self.model,
-                modelMap = contrail.handleIfNull(self.modelMap, {});
+                queryFormModel = self.model;
 
             var postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime),
-                fsRemoteConfig = {
+                statRemoteConfig = {
                     url: "/api/qe/query",
                     type: 'POST',
                     data: JSON.stringify(postDataObj)
                 },
                 listModelConfig = {
                     remote: {
-                        ajaxConfig: fsRemoteConfig,
+                        ajaxConfig: statRemoteConfig,
                         dataParser: function(response) {
                             return response['data'];
                         }
@@ -32,74 +31,58 @@ define([
 
             var contrailListModel = new ContrailListModel(listModelConfig);
 
-            modelMap[qewc.UMID_FLOW_SERIES_FORM_MODEL] = queryFormModel;
-
             $.ajax({
                 url: '/api/service/networking/web-server-info'
             }).done(function (resultJSON) {
                 serverCurrentTime = resultJSON['serverUTCTime'];
             }).always(function() {
-                self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, fsRemoteConfig, serverCurrentTime), null, null, modelMap)
+                self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, statRemoteConfig, serverCurrentTime))
             });
         },
 
-        getViewConfig: function (postDataObj, fsRemoteConfig, serverCurrentTime) {
+        getViewConfig: function (postDataObj, statRemoteConfig, serverCurrentTime) {
             var self = this, viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                fsGridColumns = qewgc.getColumnDisplay4Grid(qewc.FS_QUERY_PREFIX, selectArray);
+                statGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, selectArray);
 
             var resultsViewConfig = {
-                elementId: ctwl.QE_FLOW_SERIES_TAB_ID,
+                elementId: ctwl.QE_STAT_QUERY_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
                     theme: cowc.TAB_THEME_OVERCAST,
                     activate: function (e, ui) {
                         var selTab = $(ui.newTab.context).text();
                         if (selTab == ctwl.TITLE_RESULTS) {
-                            $('#' + ctwl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid').refreshView();
+                            $('#' + ctwl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').refreshView();
                         } else if (selTab == ctwl.TITLE_CHART) {
-                            $('#' + ctwl.QE_FLOW_SERIES_CHART_ID).find('svg').trigger('refresh');
-                            $('#' + ctwl.QE_FLOW_SERIES_CHART_GRID_ID).data('contrailGrid').refreshView();
+                            $('#' + ctwl.QE_STAT_QUERY_CHART_ID).find('svg').trigger('refresh');
+                            $('#' + ctwl.QE_STAT_QUERY_CHART_GRID_ID).data('contrailGrid').refreshView();
                         }
                     },
                     tabs: [
                         {
-                            elementId: ctwl.QE_FLOW_SERIES_GRID_ID,
+                            elementId: ctwl.QE_STAT_QUERY_GRID_ID,
                             title: ctwl.TITLE_RESULTS,
                             view: "GridView",
                             viewConfig: {
-                                elementConfig: getFlowSeriesGridConfig(fsRemoteConfig, fsGridColumns, pagerOptions)
+                                elementConfig: getStatQueryGridConfig(statRemoteConfig, statGridColumns, pagerOptions)
                             }
                         }
                     ]
                 }
-            }
-
-            if(selectArray.indexOf("T=") != -1) {
-                resultsViewConfig['viewConfig']['tabs'].push({
-                    elementId: ctwl.QE_FLOW_SERIES_CHART_ID,
-                    title: ctwl.TITLE_CHART,
-                    view: "FlowSeriesLineChartView",
-                    viewPathPrefix: "reports/qe/ui/js/views/",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: {
-                        queryId: postDataObj.queryId,
-                        selectArray: selectArray
-                    }
-                });
-            }
+            };
 
             return resultsViewConfig;
         }
     });
 
-    function getFlowSeriesGridConfig(fsRemoteConfig, fsGridColumns, pagerOptions) {
+    function getStatQueryGridConfig(statRemoteConfig, statGridColumns, pagerOptions) {
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_FLOW_SERIES,
+                    text: ctwl.TITLE_STATS_QUERY,
                     icon : 'icon-table'
                 },
                 defaultControls: {
@@ -117,8 +100,9 @@ define([
                 },
                 dataSource: {
                     remote: {
-                        ajaxConfig: fsRemoteConfig,
+                        ajaxConfig: statRemoteConfig,
                         dataParser: function(response) {
+                            console.log(response);
                             return response['data'];
                         },
                         serverSidePagination: true
@@ -126,7 +110,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: fsGridColumns
+                columns: statGridColumns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 100, pageSizeSelect: [100, 200, 300, 500] } })
@@ -135,5 +119,5 @@ define([
         return gridElementConfig;
     };
 
-    return FlowSeriesResultView;
+    return StatQueryResultView;
 });

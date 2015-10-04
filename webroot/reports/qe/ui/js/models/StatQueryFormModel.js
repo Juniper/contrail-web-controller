@@ -7,12 +7,12 @@ define([
     'knockout',
     'query-form-model'
 ], function (_, Knockout, QueryFormModel) {
-    var FormSeriesFormModel = QueryFormModel.extend({
+    var StatQueryFormModel = QueryFormModel.extend({
 
-        defaultSelectFields: ['flow_class_id', 'direction_ing'],
+        defaultSelectFields: [],
 
         constructor: function (modelData) {
-            var defaultConfig = qewmc.getQueryModel(qewc.FLOW_SERIES_TABLE, qewc.FS_QUERY_PREFIX);
+            var defaultConfig = qewmc.getQueryModel(null, qewc.STAT_QUERY_PREFIX);
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
@@ -23,5 +23,5 @@ define([
         validations: {}
     });
 
-    return FormSeriesFormModel;
+    return StatQueryFormModel;
 });

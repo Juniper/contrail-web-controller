@@ -20,6 +20,9 @@ define([
             {'id': '0', 'text': 'EGRESS'}
         ];
 
+        this.URL_TABLES = "/api/qe/tables";
+        this.URL_PREFIX_TABLE_SCHEMA = "/api/qe/table/schema/";
+
         this.FS_QUERY_PREFIX = "fs";
         this.FC_QUERY_PREFIX = "fc";
         this.FR_QUERY_PREFIX = "fr";
@@ -27,6 +30,11 @@ define([
 
         this.DEFAULT_QUERY_PREFIX = 'query';
         this.FLOW_SERIES_TABLE = "FlowSeriesTable";
+        this.FLOW_CLASS = "FlowClass";
+
+        this.UMID_FLOW_SERIES_FORM_MODEL = "qe:fs-form-model";
+        this.UMID_FLOW_SERIES_CHART_MODEL = "qe:fs-chart-model";
+        this.UMID_FLOW_SERIES_LINE_CHART_MODEL = "qe:fs-line-chart-model";
     };
     return QEConstants;
 });

@@ -8,13 +8,15 @@ define([
     'reports/qe/ui/js/qe.utils',
     'reports/qe/ui/js/qe.model.config',
     'reports/qe/ui/js/qe.grid.config',
+    'reports/qe/ui/js/qe.parsers',
     'text!reports/qe/ui/templates/qe.tmpl',
     'reports/qe/ui/js/qe.main'
-], function (_, QEConstants, QEUtils, QEModelConfig, QEGridConfig, QETemplates) {
+], function (_, QEConstants, QEUtils, QEModelConfig, QEGridConfig, QEParsers, QETemplates) {
     qewc = new QEConstants();
     qewu = new QEUtils();
     qewmc = new QEModelConfig();
     qewgc = new QEGridConfig();
+    qewp = new QEParsers();
 
     $("body").append(QETemplates);
 

@@ -24,6 +24,14 @@ define([
         switch(queryPrefix) {
             case qewc.FS_QUERY_PREFIX:
                 return columnDisplayMap[qewc.FLOW_SERIES_TABLE];
+
+            case qewc.FC_QUERY_PREFIX:
+                return columnDisplayMap[qewc.FLOW_CLASS];
+
+            default:
+                if(queryPrefix.indexOf("StatTable") != -1) {
+                    return columnDisplayMap["defaultStatColumns"].concat(columnDisplayMap[queryPrefix]);
+                }
         }
     };
 
@@ -47,13 +55,13 @@ define([
             {select:"avg(packets)", display:{id:"avg(packets)", field:"avg(packets)", width:100, name:"AVG (Packets)", format:"{0:n0}", groupable:false}}
         ],
         "FlowClass":[
-            {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", name:"Source VN", width:275, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
-            {select:"destvn", display:{id:"destvn", field:"destvn", name:"Destination VN", width:275, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
-            {select:"sourceip", display:{id:"sourceip", field:"sourceip", name:"Source IP", width:120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
-            {select:"destip", display:{id:"destip", field:"destip", name:"Destination IP", width:120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
-            {select:"sport", display:{id:"sport", field:"sport", name:"Source Port", width:120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
-            {select:"dport", display:{id:"dport", field:"dport", name:"Destination Port", width:120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
-            {select:"protocol", display:{id:"protocol", field:"protocol", name:"Protocol", width:80, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}}
+            {select:"sourcevn", display:{id:"sourcevn", field:"sourcevn", name:"Source VN", width:250, minWidth: 250, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
+            {select:"destvn", display:{id:"destvn", field:"destvn", name:"Destination VN", width:250, minWidth: 250, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},
+            {select:"sourceip", display:{id:"sourceip", field:"sourceip", name:"Source IP", width:120, minWidth: 120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourceip);}}},
+            {select:"destip", display:{id:"destip", field:"destip", name:"Destination IP", width:120, minWidth: 120, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destip);}}},
+            {select:"sport", display:{id:"sport", field:"sport", name:"Source Port", width:80, minWidth: 80, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sport);}}},
+            {select:"dport", display:{id:"dport", field:"dport", name:"Destination Port", width:80, minWidth: 80, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.dport);}}},
+            {select:"protocol", display:{id:"protocol", field:"protocol", name:"Protocol", width:80, minWidth: 80, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(getProtocolName(dc.protocol));}}}
         ],
         "StatTable.AnalyticsCpuState.cpu_info" : [
             {select:"COUNT(cpu_info)", display:{id:'COUNT(cpu_info)', field:'COUNT(cpu_info)', width:120, name:"Count (CPU Info)", format:"{0:n0}", groupable:false}},
@@ -1296,6 +1304,13 @@ define([
             {select:"SUM(if_stats.out_bytes)", display:{id:'SUM(if_stats.out_bytes)', field:'SUM(if_stats.out_bytes)', width:150, name:"SUM (Out Bytes)", format:"{0:n0}", groupable:false}},
             {select:"MIN(if_stats.out_bytes)", display:{id:'MIN(if_stats.out_bytes)', field:'MIN(if_stats.out_bytes)', width:150, name:"MIN (Out Bytes)", format:"{0:n0}", groupable:false}},
             {select:"MAX(if_stats.out_bytes)", display:{id:'MAX(if_stats.out_bytes)', field:'MAX(if_stats.out_bytes)', width:150, name:"MAX (Out Bytes)", format:"{0:n0}", groupable:false}},
+        ],
+        "defaultStatColumns": [
+            {select:"T", display:{id:"T", field:"T", width:210, name:"Time", formatter: function(r, c, v, cd, dc) { return formatMicroDate(dc.T); }, filterable:false, groupable:false}},
+            {select:"T=", display:{id: 'T=', field:'["T="]', width:210, name:"Time", formatter: function(r, c, v, cd, dc) { return formatMicroDate(dc['T=']); }, filterable:false, groupable:false}},
+            {select:"UUID", display:{id:"UUID", field:"UUID", name:"UUID",  width:280, groupable:true}},
+            {select:"name", display:{id:'name', field:'name', width:150, name:"Name", groupable:false}},
+            {select:"Source", display:{id:'Source', field:'Source', width:150, name:"Source", groupable:false}}
         ]
     };
 
