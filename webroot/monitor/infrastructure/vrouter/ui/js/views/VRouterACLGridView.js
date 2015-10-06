@@ -69,7 +69,7 @@ define([
                            name:"Protocol",
                            minWidth:76,
                            formatter:function(r,c,v,cd,dc) {
-                               return formatProtcolRange(dc['proto']);
+                               return monitorInfraParsers.formatProtcolRange(dc['proto']);
                            }
                        },
                        {
@@ -90,7 +90,7 @@ define([
                            name:"Source Port",
                            minWidth:95,
                            formatter:function(r,c,v,cd,dc){
-                               return formatPortRange(dc['src_port']);
+                               return monitorInfraParsers.formatPortRange(dc['src_port']);
                            }
                        },
                        {
@@ -110,7 +110,7 @@ define([
                            field:"dst_port",
                            name:"Destination Port",
                            formatter:function(r,c,v,cd,dc){
-                               return formatPortRange(dc['dst_port']);
+                               return monitorInfraParsers.formatPortRange(dc['dst_port']);
                            },
                            minWidth:120
                        },

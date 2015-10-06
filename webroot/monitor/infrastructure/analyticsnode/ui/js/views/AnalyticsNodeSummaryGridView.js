@@ -73,7 +73,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        minWidth:110,
                        sortable:true,
                        formatter:function(r,c,v,cd,dc){
-                           return summaryIpDisplay(dc['ip'],
+                           return monitorInfraParsers.summaryIpDisplay(dc['ip'],
                                    dc['summaryIps']);
                        },
                        exportConfig: {
@@ -97,16 +97,16 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                        name:"Status",
                        sortable:true,
                        formatter:function(r,c,v,cd,dc) {
-                           return getNodeStatusContentForSummayPages(dc,'html');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
                        },
                        searchFn:function(d) {
-                           return getNodeStatusContentForSummayPages(d,'text');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                        },
                        minWidth:110,
                        exportConfig: {
                            allow: true,
                            advFormatter: function(dc) {
-                               return getNodeStatusContentForSummayPages(dc,
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,
                                    'text');
                            }
                        }
