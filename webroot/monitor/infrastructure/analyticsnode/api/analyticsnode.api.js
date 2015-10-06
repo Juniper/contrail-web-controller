@@ -390,9 +390,9 @@ function fillHostDetailsToAnalyticsQueryStatsUVE (collUVE, qStats, ipList,
                 ip = jsonPath(collUVE[j], "$..self_ip_list");
                 if (ip[0][0] == ipList[i][0]) {
                     if (details) {
-                        collUVE[j]['QueryStats'] = {};
-                        collUVE[j]['QueryStats'] =
-                            commonUtils.cloneObj(qStats[i]);
+                        collUVE[j][0]['value']['QueryStats'] = {};
+                        collUVE[j][0]['value']['QueryStats'] =
+                            commonUtils.cloneObj(qStats[i])
                     } else {
                         collUVE[j]['value']['QueryStats'] = {};
                         collUVE[j]['value']['QueryStats'] =

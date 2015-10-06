@@ -8,7 +8,7 @@ define([
     'contrail-list-model'
 ], function (_, ContrailView, ContrailListModel) {
     var hostname;
-    var AnalyticsNodePeersGridView = ContrailView.extend({
+    var AnalyticsNodeGeneratorsGridView = ContrailView.extend({
         el: $(contentContainer),
 
         render: function () {
@@ -226,5 +226,5 @@ define([
         }
     }
 
-    return AnalyticsNodePeersGridView;
+    return AnalyticsNodeGeneratorsGridView;
 });

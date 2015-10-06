@@ -50,8 +50,11 @@ define([
                 if (selTab == 'Details') {
                     $('#' + ctwl.ANALYTICSNODE_DETAIL_PAGE_ID).trigger('refresh');
                 } else if (selTab == 'Generators') {
-                    $('#analytics_node_generators_grid').
+                    $('#' + ctwl.ANALYTICSNODE_GENERATORS_GRID_ID).
                         data('contrailGrid').refreshView();
+                } else if (selTab == 'QE Queries') {
+                    $('#' + ctwl.ANALYTICSNODE_QEQUERIES_GRID_ID).
+                    data('contrailGrid').refreshView();
                 }
             },
             tabs: [
@@ -67,6 +70,14 @@ define([
                    elementId: 'analyticsnode_generators_id',
                    title: 'Generators',
                    view: "AnalyticsNodeGeneratorsGridView",
+                   viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewConfig: viewConfig
+               },
+               {
+                   elementId: 'analyticsnode_qequery_id',
+                   title: 'QE Queries',
+                   view: "AnalyticsNodeQEQueriesGridView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                    app: cowc.APP_CONTRAIL_CONTROLLER,
                    viewConfig: viewConfig
