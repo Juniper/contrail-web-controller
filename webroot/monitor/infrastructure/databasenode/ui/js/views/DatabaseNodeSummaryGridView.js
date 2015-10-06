@@ -80,16 +80,16 @@ define(
                        name:"Status",
                        sortable:true,
                        formatter:function(r,c,v,cd,dc) {
-                           return getNodeStatusContentForSummayPages(dc,'html');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
                        },
                        searchFn:function(d) {
-                           return getNodeStatusContentForSummayPages(d,'text');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                        },
                        minWidth:110,
                        exportConfig: {
                            allow: true,
                            advFormatter: function(dc) {
-                               return getNodeStatusContentForSummayPages(dc,
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,
                                    'text');
                            }
                        }

@@ -68,7 +68,7 @@ define(
                        field:"ip",
                        name:"IP Address",
                        formatter:function(r,c,v,cd,dc){
-                           return summaryIpDisplay(dc['ip'],dc['summaryIps']);
+                           return monitorInfraParsers.summaryIpDisplay(dc['ip'],dc['summaryIps']);
                        },
                        minWidth:90,
                        exportConfig: {
@@ -89,10 +89,10 @@ define(
                        name:"Status",
                        sortable:true,
                        formatter:function(r,c,v,cd,dc) {
-                           return getNodeStatusContentForSummayPages(dc,'html');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
                        },
                        searchFn:function(d) {
-                           return getNodeStatusContentForSummayPages(d,'text');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                        },
                        minWidth:150
                    },

@@ -21,6 +21,7 @@ define([
                     getVRouterDetailPageViewConfig(viewConfig));
         }
     });
+    var noDataStr = monitorInfraConstants.noDataStr;
     var getVRouterDetailPageViewConfig = function (viewConfig) {
         var hostname = viewConfig['hostname'];
         return {
@@ -46,9 +47,11 @@ define([
                     try{
                         overallStatus = monitorInfraUtils.
                             getOverallNodeStatusForDetails(obj);
-                    }catch(e){overallStatus = "<span> "+statusTemplate({
-                            sevLevel:sevLevels['ERROR'],
-                            sevLevels:sevLevels})+" Down</span>";}
+                    }catch(e){
+                        overallStatus = "<span> "+statusTemplate({
+                        sevLevel:sevLevels['ERROR'],
+                        sevLevels:sevLevels})+" Down</span>";
+                    }
 
                     try{
                         //Add the process status list with uptime
@@ -331,7 +334,7 @@ define([
     }
 
     function getAnalyticsMessages (vrouterData) {
-        var msgs = getAnalyticsMessagesCountAndSize(vrouterData,
+        var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(vrouterData,
                 ['contrail-vrouter-agent']);
         return msgs['count']  + ' [' + formatBytes(msgs['size']) + ']';
     }
@@ -368,7 +371,7 @@ define([
 
     function getLastLogTime(vrouterData) {
         var lmsg;
-        lmsg = getLastLogTimestamp(vrouterData,"compute");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(vrouterData,"compute");
         if(lmsg != null){
             try{
                 return new Date(parseInt(lmsg)/1000).toLocaleString();

@@ -191,9 +191,9 @@ and need to add the iconClass tag wherever we need to show some icons
                     <resources>
                         <resource>
                             <rootDir>/monitor/infra/common/ui</rootDir>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
-                            <view>monitor_infra_common.view</view>
+                            <!-- <js>monitor_infra_constants.js</js> -->
+                            <!-- <js>monitor_infra_utils.js</js> -->
+                            <!-- <view>monitor_infra_common.view</view> -->
                         </resource>
                     </resources>
                     <iconClass>icon-desktop</iconClass>

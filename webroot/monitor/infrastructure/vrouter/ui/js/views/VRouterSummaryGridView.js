@@ -80,7 +80,8 @@ define(
                         field:"ip",
                         name:"IP Address",
                         formatter:function(r,c,v,cd,dc){
-                            return summaryIpDisplay(dc['ip'],dc['summaryIps']);
+                            return monitorInfraParsers.summaryIpDisplay(dc['ip'],
+                                dc['summaryIps']);
                         },
                         minWidth:110,
                         exportConfig: {
@@ -100,16 +101,16 @@ define(
                         field:"status",
                         name:"Status",
                         formatter: function(r,c,v,cd,dc) {
-                            return getNodeStatusContentForSummayPages(dc,'html');
+                            return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
                         },
                         searchFn: function(d) {
-                            return getNodeStatusContentForSummayPages(d,'text');
+                            return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                         },
                         minWidth:150,
                         exportConfig: {
                             allow: true,
                             advFormatter: function(dc) {
-                                return getNodeStatusContentForSummayPages(dc,'text');
+                                return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
                             }
                         },
                     },

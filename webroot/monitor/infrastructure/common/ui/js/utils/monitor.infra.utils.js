@@ -1012,6 +1012,28 @@ define([
             });
             return {count:count,size:size};
         }
+        self.getAllLogLevelStats = function(d,proc,logLevelStats) {
+            var allStats = [],obj = {};
+            for(var key in d){
+                var label = key.toUpperCase();
+                if(label.indexOf(proc.toUpperCase()) != -1){
+                    obj[key] = d[key];
+                }
+            }
+            allStats =  ifNullOrEmptyObject(jsonPath(obj,"$..log_level_stats"),[]);
+            if(allStats instanceof Array){
+                for(var i = 0; i < allStats.length;i++){
+                    if(!($.isEmptyObject(allStats[i]))){
+                        if( allStats[i] instanceof Array){
+                            logLevelStats = logLevelStats.concat(allStats[i]);
+                        } else {
+                            logLevelStats.push(allStats[i]);
+                        }
+                    }
+                }
+            }
+            return logLevelStats;
+        }
 
         //Given the data and the node type get the last log time stamp for the node
         self.getLastLogTimestamp = function (d, nodeType){
@@ -1033,10 +1055,10 @@ define([
                     procsList = monitorInfraConstants.configProcsForLastTimeStamp;
                 }
                 $.each(procsList,function(idx,proc){
-                    logLevelStats = getAllLogLevelStats(d,proc,logLevelStats);
+                    logLevelStats = self.getAllLogLevelStats(d,proc,logLevelStats);
                 });
             } else {
-                logLevelStats = getAllLogLevelStats(d,"",logLevelStats);
+                logLevelStats = self.getAllLogLevelStats(d,"",logLevelStats);
             }
 
             if(logLevelStats != null){
@@ -1046,6 +1068,16 @@ define([
                 }
             }
             return lastTimeStamp;
+        }
+
+        self.getPostDataForReachableIpsCall = function(ips,port) {
+            var postData;
+            var ipPortList = [];
+            $.each(ips,function(idx,obj){
+                ipPortList.push({ip:obj,port:port});
+            });
+            postData = {data:ipPortList};
+            return postData;
         }
 
         /**
@@ -1092,6 +1124,27 @@ define([
             return result;
         }
         /**
+        * This function takes parsed nodeData from the infra parse functions and
+        * returns the status column text/html for the summary page grid
+        */
+        self.getNodeStatusContentForSummayPages = function(data,type){
+            var obj = getNodeStatusForSummaryPages(data);
+            if(obj['alerts'].length > 0) {
+                if(type == 'html')
+                    return '<span title="'+obj['messages'].join(',&#10 ')+
+                        '" class=\"infra-nodesatus-text-ellipsis\">'+
+                        obj['messages'].join(',')+'</span>';
+                else if(type == 'text')
+                    return obj['messages'].join(',');
+            } else {
+                if(type == 'html')
+                    return "<span> "+data['status']+"</span>";
+                else if(type == 'text')
+                    return data['status'];
+            }
+        }
+
+        /**
          * Util functions to create the footer links in the monitor infra details pages
          */
         /*self.createFooterLinks = function (parent, config) {
@@ -1107,6 +1160,25 @@ define([
                 $('#linkStatus').click(config.onStatusClick);
             }
         }*/
+
+        self.getSandeshPostData = function(ip,port,url) {
+            var postData;
+            var obj = {};
+            if(ip != null && ip != ""){
+                obj["ip"] = ip;
+            } else {
+                return null;
+            }
+            if(port != null && port != ""){
+                obj["port"] = port;
+            }
+            if(url != null && url != ""){
+                obj["url"] = url;
+            }
+            postData = {data:obj};
+            return postData;
+        }
+
         self.createMonInfraDetailsFooterLinks = function (parent, ipList, port) {
             var ipDeferredObj = $.Deferred();
             self.getReachableIp(ipList,
@@ -1188,7 +1260,7 @@ define([
         self.getReachableIp = function (ips,port,deferredObj){
             var res;
             if(ips != null && ips.length > 0){
-                var postData = getPostDataForReachableIpsCall(ips,port);
+                var postData = self.getPostDataForReachableIpsCall(ips,port);
                 $.ajax({
                     url:'/api/service/networking/get-network-reachable-ip',
                     type:'POST',
@@ -1413,6 +1485,66 @@ define([
                 });
             });
         }
+        self.vRouterBubbleSizeFn = function(mergedNodes) {
+            return d3.max(mergedNodes,function(d) {
+                return d.size;
+            });
+        },
+        self.onvRouterDrillDown = function(currObj) {
+            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
+        },
+        self.onControlNodeDrillDown = function(currObj) {
+            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_control'});
+        },
+        self.onAnalyticNodeDrillDown = function(currObj) {
+            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_analytics'});
+        },
+        self.onConfigNodeDrillDown = function(currObj) {
+            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
+        },
+        self.onDbNodeDrillDown = function(currObj) {
+            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
+        },
+        self.vRouterTooltipFn = function(currObj,formatType) {
+            if(currObj['children'] != null && currObj['children'].length == 1)
+                return getNodeTooltipContents(currObj['children'][0],formatType);
+            else
+                return getNodeTooltipContents(currObj,formatType);
+        },
+        self.vRouterBucketTooltipFn = function(currObj,formatType) {
+            return getNodeTooltipContentsForBucket(currObj,formatType);
+        },
+        self.controlNodetooltipFn = function(currObj,formatType) {
+            return getNodeTooltipContents(currObj,formatType);
+        },
+        self.analyticNodeTooltipFn = function(currObj,formatType) {
+            var tooltipContents = [];
+            if(currObj['pendingQueryCnt'] != null && currObj['pendingQueryCnt'] > 0)
+                tooltipContents.push({label:'Pending Queries', value:currObj['pendingQueryCnt']});
+            return getNodeTooltipContents(currObj,formatType).concat(tooltipContents);
+        },
+        self.configNodeTooltipFn = function(currObj,formatType) {
+            return getNodeTooltipContents(currObj,formatType);
+        },
+        self.dbNodeTooltipFn = function(currObj,formatType) {
+            return getDbNodeTooltipContents(currObj,formatType);
+        },
+
+        //Start: Handlebar register helpers
+        Handlebars.registerPartial('statusTemplate',$('#statusTemplate').html());
+
+        Handlebars.registerHelper('renderStatusTemplate', function(sevLevel, options) {
+            var selector = '#statusTemplate',
+                source = $(selector).html(),
+                html = Handlebars.compile(source)({sevLevel:sevLevel,sevLevels:sevLevels});
+            return new Handlebars.SafeString(html);
+        });
+
+        Handlebars.registerHelper('getInfraDetailsPageCPUChartTitle',function() {
+            return infraDetailsPageCPUChartTitle;
+        })
+
+        //End: Handlebar register helpers
 
     };
     return MonitorInfraUtils;

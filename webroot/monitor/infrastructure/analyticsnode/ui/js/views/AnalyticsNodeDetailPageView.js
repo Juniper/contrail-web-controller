@@ -348,7 +348,7 @@ define([
 
     function getLastLogTime(aNodeData) {
         var lmsg;
-        lmsg = getLastLogTimestamp(aNodeData,"analytics");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(aNodeData,"analytics");
         if(lmsg != null){
             try{
                 return new Date(parseInt(lmsg)/1000).toLocaleString();
