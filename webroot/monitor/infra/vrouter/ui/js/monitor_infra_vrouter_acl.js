@@ -344,7 +344,8 @@ monitorInfraComputeACLClass = (function() {
             aclGrid.refreshView();
         }
         function getSGUUIDs(ip){
-            var postData = getSandeshPostData(ip, obj['introspectPort'], "/Snh_SgListReq");
+            var postData = monitorInfraUrls.getSandeshPostData(ip, 
+                obj['introspectPort'], "/Snh_SgListReq");
             $.ajax({
                 url:SANDESH_DATA_URL,
                 type:'POST',

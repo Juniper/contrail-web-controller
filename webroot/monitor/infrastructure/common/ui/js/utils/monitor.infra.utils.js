@@ -1092,6 +1092,27 @@ define([
             return result;
         }
         /**
+        * This function takes parsed nodeData from the infra parse functions and 
+        * returns the status column text/html for the summary page grid
+        */
+        self.getNodeStatusContentForSummayPages = function(data,type){
+            var obj = getNodeStatusForSummaryPages(data);
+            if(obj['alerts'].length > 0) {
+                if(type == 'html')
+                    return '<span title="'+obj['messages'].join(',&#10 ')+
+                        '" class=\"infra-nodesatus-text-ellipsis\">'+
+                        obj['messages'].join(',')+'</span>';
+                else if(type == 'text')
+                    return obj['messages'].join(',');
+            } else {
+                if(type == 'html')
+                    return "<span> "+data['status']+"</span>";
+                else if(type == 'text')
+                    return data['status'];
+            }
+        }
+
+        /**
          * Util functions to create the footer links in the monitor infra details pages
          */
         /*self.createFooterLinks = function (parent, config) {
@@ -1107,6 +1128,25 @@ define([
                 $('#linkStatus').click(config.onStatusClick);
             }
         }*/
+        
+        self.getSandeshPostData = function(ip,port,url) {
+            var postData;
+            var obj = {};
+            if(ip != null && ip != ""){
+                obj["ip"] = ip;
+            } else {
+                return null;
+            }
+            if(port != null && port != ""){
+                obj["port"] = port;
+            }
+            if(url != null && url != ""){
+                obj["url"] = url;
+            }
+            postData = {data:obj};
+            return postData;
+        }
+
         self.createMonInfraDetailsFooterLinks = function (parent, ipList, port) {
             var ipDeferredObj = $.Deferred();
             self.getReachableIp(ipList,

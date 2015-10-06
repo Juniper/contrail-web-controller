@@ -1343,6 +1343,10 @@ define(
                         paginationInfo: paginationInfo
                     }
                 }
+
+                this.summaryIpDisplay = function (ip,tooltip){
+                    return '<span title="'+ tooltip +'">' + ip + '</span>';
+                }
             };
 
             return MonInfraParsers;

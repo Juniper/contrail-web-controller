@@ -74,7 +74,7 @@ define(
                        name:"IP Address",
                        minWidth:90,
                        formatter:function(r,c,v,cd,dc){
-                           return summaryIpDisplay(dc['ip'],
+                           return monitorInfraParsers.summaryIpDisplay(dc['ip'],
                                            dc['summaryIps']);
                        },
                        exportConfig: {
@@ -94,17 +94,17 @@ define(
                        field:"status",
                        name:"Status",
                        formatter:function(r,c,v,cd,dc) {
-                           return getNodeStatusContentForSummayPages(dc,'html');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'html');
                        },
                        searchFn:function(dc) {
-                           return getNodeStatusContentForSummayPages(dc,'text');
+                           return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
                        },
                        minWidth:110,
                        exportConfig: {
                            allow: true,
                            advFormatter: function(dc) {
                                return
-                                   getNodeStatusContentForSummayPages(dc,'text');
+                                   monitorInfraUtils.getNodeStatusContentForSummayPages(dc,'text');
                            }
                        }
                    },
