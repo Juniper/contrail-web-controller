@@ -143,9 +143,11 @@ define([
                                             defaultValueId: 0,
                                             dataSource: {
                                                 type: 'remote',
-                                                url: monitorInfraUrls['VROUTER_ACL']  + '?' + $.param({
-                                                                ip: hostname,
-                                                                introspectPort: viewConfig['introspectPort']}),
+                                                url: monitorInfraConstants.monitorInfraUrls['VROUTER_ACL'] 
+                                                    + '?' + $.param({
+                                                        ip: hostname,
+                                                        introspectPort: viewConfig['introspectPort']
+                                                    }),
                                                 parse:function(response){
                                                     var retArr = [{text:'All',value:'All'}];
                                                     response = jsonPath(response,'$..AclSandeshData')[0];

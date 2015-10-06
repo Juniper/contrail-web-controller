@@ -100,7 +100,7 @@ define([
                     vlRemoteConfig: {
                         vlRemoteList: [{
                             getAjaxConfig: function(responseJSON) {
-                                var postData = getSandeshPostData(ifNull(viewConfig['ip'],
+                                var postData = monitorInfraUtils.getSandeshPostData(ifNull(viewConfig['ip'],
                                     viewConfig['hostname']),introspectPort,
                                     '/Snh_SgListReq');
                                 return {
