@@ -10,7 +10,6 @@ define([
     'co-grid-view-test-suite'
 ], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
-    console.log('in the PROJECT lsit view test !!!!!');
     var moduleId = cttm.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE;
 
     var fakeServerConfig = CUnit.getDefaultFakeServerConfig();
@@ -30,7 +29,7 @@ define([
             body: JSON.stringify(TestMockdata.domainsMockData)
         }));
         responses.push(CUnit.createFakeServerResponse( {
-            url: /\/api\/tenants\/projects\/default-domain.*$/,
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
         responses.push(CUnit.createFakeServerResponse({
