@@ -53,6 +53,7 @@ require([
         controllerTestAppPathObj["network-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListView.mock.data";
         controllerTestAppPathObj["project-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/ProjectListView.mock.data";
         controllerTestAppPathObj["instance-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/InstanceListView.mock.data";
+        controllerTestAppPathObj["instance-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/InstanceView.mock.data";
         controllerTestAppPathObj["network-list-view-custom-test-suite"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListView.custom.test.suite";
 
         return controllerTestAppPathObj;

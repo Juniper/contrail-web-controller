@@ -16,9 +16,10 @@ module.exports = function (grunt) {
 
         {pattern: 'contrail-web-core/webroot/assets/**/*.css', included: false},
         {pattern: 'contrail-web-core/webroot/css/**/*.css', included: false},
+        {pattern: 'contrail-web-core/webroot/css/**/*.ttf', included: false},
+        {pattern: 'contrail-web-core/webroot/css/**/*.woff', included: false},
         {pattern: 'contrail-web-core/webroot/test/ui/**/*.css', included: false},
 
-        {pattern: 'contrail-web-core/webroot/font/**/*.woff', included: false},
         {pattern: 'contrail-web-core/webroot/assets/**/*.woff', included: false},
         {pattern: 'contrail-web-core/webroot/assets/**/*.ttf', included: false},
 
@@ -44,15 +45,13 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
         {pattern: 'contrail-web-core/webroot/templates/*.tmpl', included: false},
 
-        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/InstanceListView.mock.data.js', included: false},
-        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/ProjectListView.mock.data.js', included: false},
-        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.mock.data.js', included: false}
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/*.mock.data.js', included: false}
     ];
     var karmaConfig = {
         options: {
             configFile: 'karma.config.js'
         },
-        networks: {
+        networkListView: {
             options: {
                 files: [
                     {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/NetworkListView.test.js', included: false},
@@ -60,26 +59,80 @@ module.exports = function (grunt) {
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputFile: __dirname + '/reports/network-list-view-test-results.xml',
+                    suite: 'networkListView'
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/network-list-view-test-results.html'
+                },
+                coverageReporter: {
+                    type : 'html',
+                    dir : __dirname + '/reports/coverage/networkListView/'
                 }
             }
         },
-        projects: {
+        projectListView: {
             options: {
                 files: [
                     {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/ProjectListView.test.js', included: false}
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputFile: __dirname + '/reports/project-list-view-test-results.xml',
+                    suite: 'projectListView'
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/project-list-view-test-results.html'
+                },
+                coverageReporter: {
+                    type : 'html',
+                    dir : __dirname + '/reports/coverage/projectListView/'
                 }
             }
         },
-        instances: {
+        instanceListView: {
             options: {
                 files: [
                     {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/InstanceListView.test.js', included: false}
                 ],
                 preprocessors: {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputFile: __dirname + '/reports/instance-list-view-test-results.xml',
+                    suite: 'instanceListView',
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/instance-list-view-test-results.html'
+                },
+                coverageReporter: {
+                    type : 'html',
+                    dir : __dirname + '/reports/coverage/instanceListView/'
+                }
+            }
+        },
+        instanceView: {
+            options: {
+                files: [
+                    {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/test/ui/InstanceView.test.js', included: false}
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputFile: __dirname + '/reports/instance-view-test-results.xml',
+                    suite: 'InstanceView',
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/instance-view-test-results.html'
+                },
+                coverageReporter: {
+                    type : 'html',
+                    dir : __dirname + '/reports/coverage/InstanceView/'
                 }
             }
         }
@@ -101,19 +154,22 @@ module.exports = function (grunt) {
             files: ["Gruntfile.js"]
         },
         nm : {
-            networks: 'networks',
-            projects: 'projects',
-            instances: 'instances'
+            networkListView : 'networkListView',
+            projectListView : 'projectListView',
+            instanceListView: 'instanceListView',
+            instanceView    : 'instanceView'
         }
     });
 
     grunt.registerMultiTask('nm', 'Network Monitoring Test Cases', function () {
-        if (this.target == 'networks') {
-            grunt.task.run('karma:networks');
-        } else if (this.target == 'projects') {
-            grunt.task.run('karma:projects');
-        } else if (this.target == 'instances') {
-            grunt.task.run('karma:instances');
+        if (this.target == 'networkListView') {
+            grunt.task.run('karma:networkListView');
+        } else if (this.target == 'projectListView') {
+            grunt.task.run('karma:projectListView');
+        } else if (this.target == 'instanceListView') {
+            grunt.task.run('karma:instanceListView');
+        } else if (this.target == 'instanceView') {
+            grunt.task.run('karma:instanceView');
         }
     });
 };

@@ -9,6 +9,7 @@ define([
         this.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE = 'Neworks List view - Common Tests';
         this.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE = 'Projects List view - Common Tests';
         this.INSTANCES_LIST_VIEW_COMMON_TEST_MODULE = 'Instances List view - Common Tests';
+        this.INSTANCE_VIEW_COMMON_TEST_MODULE = 'Instance view - Common Tests';
 
         this.NETWORKS_GRID_MODULE = 'Networks Grid -  NM Tests';
         this.PROJECTS_GRID_MODULE = 'Projects Grid -  NM Tests';
