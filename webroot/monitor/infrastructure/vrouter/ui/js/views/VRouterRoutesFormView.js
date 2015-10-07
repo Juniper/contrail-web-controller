@@ -55,7 +55,7 @@ define([
             var self = this,
                 prefix = ctwl.VROUTER_ROUTES_PREFIX;
                 hostname = viewConfig['hostname'],
-                introspectPort = ifNull(viewConfig['introspectPort'],8085);
+                introspectPort = viewConfig['introspectPort'];
                 queryResultId = "#" + prefix + "-results",
 
                 responseViewConfig = {
@@ -85,7 +85,7 @@ define([
                 var selectedVrf = self.model.vrf_name();
                 var ucIndex = getIndexForType(selectedVrf,'ucast');
                 var urlParams = {
-                    ip : hostname,
+                    ip : monitorInfraUtils.getIPOrHostName(viewConfig),
                     introspectPort : introspectPort,
                     vrfindex: ucIndex
                 }
@@ -99,7 +99,7 @@ define([
                 var selectedVrf = self.model.vrf_name();
                 var l2index = getIndexForType(selectedVrf,'l2');
                 var urlParams = {
-                    ip : hostname,
+                    ip : monitorInfraUtils.getIPOrHostName(viewConfig),
                     introspectPort : introspectPort,
                     vrfindex: l2index
                 }
@@ -113,7 +113,7 @@ define([
                 var selectedVrf = self.model.vrf_name();
                 var mcIndex = getIndexForType(selectedVrf,'mcast');
                 var urlParams = {
-                    ip : hostname,
+                    ip : monitorInfraUtils.getIPOrHostName(viewConfig),
                     introspectPort : introspectPort,
                     vrfindex: mcIndex
                 }
@@ -127,7 +127,7 @@ define([
                 var selectedVrf = self.model.vrf_name();
                 var ucIndex = getIndexForType(selectedVrf,'ucast6');
                 var urlParams = {
-                    ip : hostname,
+                    ip : monitorInfraUtils.getIPOrHostName(viewConfig),
                     introspectPort : introspectPort,
                     vrfindex: ucIndex
                 }
@@ -215,7 +215,7 @@ define([
                                                 type:'remote',
                                                 url: contrail.format(
                                                     monitorInfraConstants.monitorInfraUrls['VROUTER_VRF_LIST'],
-                                                    hostname,ifNull(viewConfig['introspectPort'],8085)),
+                                                    hostname,viewConfig['introspectPort']),
                                                 async: true,
                                                 dataType: 'xml',
                                                // dataTextField:'text',

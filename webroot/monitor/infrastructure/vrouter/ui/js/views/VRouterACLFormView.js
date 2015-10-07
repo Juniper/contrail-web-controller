@@ -55,7 +55,7 @@ define([
             var self = this,
                 prefix = ctwl.VROUTER_ACL_PREFIX;
                 hostname = viewConfig['hostname'],
-                introspectPort = ifNull(viewConfig['introspectPort'],8085);
+                introspectPort = viewConfig['introspectPort'];
                 queryResultId = "#" + prefix + "-results",
                 responseViewConfig = {
                     elementId: ctwl.VROUTER_ACL_RESULTS_VIEW,
@@ -69,7 +69,7 @@ define([
             function constructVRouterACLUrl(viewConfig) {
                 var url = monitorInfraConstants.monitorInfraUrls['VROUTER_ACL'];
                 var urlParams = $.extend({
-                        ip: hostname,
+                        ip: monitorInfraUtils.getIPOrHostName(viewConfig),
                         introspectPort: introspectPort
                     },queryParams);
                 return {
@@ -100,8 +100,9 @@ define([
                     vlRemoteConfig: {
                         vlRemoteList: [{
                             getAjaxConfig: function(responseJSON) {
-                                var postData = monitorInfraUtils.getSandeshPostData(ifNull(viewConfig['ip'],
-                                    viewConfig['hostname']),introspectPort,
+                                var postData = monitorInfraUtils.getSandeshPostData(
+                                    monitorInfraUtils.getIPOrHostName(viewConfig),
+                                    introspectPort,
                                     '/Snh_SgListReq');
                                 return {
                                     url: SANDESH_DATA_URL,
@@ -167,7 +168,7 @@ define([
                                     elementId: 'vrouter_acl_query',
                                     view: "FormButtonView",
                                     viewConfig: {
-                                        label: "Display Routes",
+                                        label: "Search",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'

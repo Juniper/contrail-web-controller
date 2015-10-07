@@ -1603,6 +1603,16 @@ define([
             }
             return postData;
         }
+        self.getComputeNodeDetails = function(deferredObj,hostname) {
+            $.ajax({
+                url: contrail.format(monitorInfraConstants.monitorInfraUrls['VROUTER_DETAILS'] , hostname,true)
+            }).done(function(result) {
+                deferredObj.resolve(result);
+            });
+        }
+        self.getIPOrHostName = function(obj) {
+            return (obj['ip'] == noDataStr) ? obj['name'] : obj['ip'];
+        }
 
     };
     return MonitorInfraUtils;
