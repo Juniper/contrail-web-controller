@@ -17,14 +17,14 @@ define([
                 hostname = viewConfig['hostname'],
                 prefix = ctwl.VROUTER_FLOWS_PREFIX;
                 routesTmpl = contrail.getTemplate4Id(
-                            ctwc.TMPL_QUERY_PAGE),
+                            ctwc.TMPL_FORM_RESULT),
                 vRouterFlowsFormModel = new VRouterFlowsFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ?
                         viewConfig.widgetConfig : null,
                 routesFormId = "#" + prefix + "-form";
 
             self.model = vRouterFlowsFormModel;
-            self.$el.append(routesTmpl({queryPrefix: prefix}));
+            self.$el.append(routesTmpl({prefix: prefix}));
 
             self.renderView4Config($(self.$el).find(routesFormId),
                     this.model,

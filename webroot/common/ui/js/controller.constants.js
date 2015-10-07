@@ -96,6 +96,7 @@ define([
         this.TMPL_GRAPH_CONTROL_PANEL_SEARCH = "graph-control-panel-search-template";
         this.TMPL_QUERY_SELECT = "query-select-popup-template";
         this.TMPL_QUERY_PAGE = "query-page-template";
+        this.TMPL_FORM_RESULT = 'form-result-page-template';
 
         this.DEFAULT_DOMAIN = "default-domain";
         this.UCID_PREFIX_MN = "monitor-networking";
@@ -125,6 +126,8 @@ define([
         this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
         this.UCID_INSTANCE_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:interfaces";
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
+        
+        this.UCID_NODE_CPU_MEMORY_LIST = 'node_details' + "{0}:cpu-memory";
 
         this.GRAPH_DIR_LR = "LR";
         this.GRAPH_DIR_TB = "TB";

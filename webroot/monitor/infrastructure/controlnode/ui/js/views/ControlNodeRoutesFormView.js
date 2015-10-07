@@ -17,14 +17,14 @@ define([
                 hostname = viewConfig['hostname'],
                 prefix = 'controlroutes',
                 routesTmpl = contrail.getTemplate4Id(
-                            ctwc.TMPL_QUERY_PAGE),
+                            ctwc.TMPL_FORM_RESULT),
                 controlNodeRoutesModel = new ControlNodeRoutesModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ?
                         viewConfig.widgetConfig : null,
                 routesFormId = "#" + prefix + "-form";
 
             self.model = controlNodeRoutesModel;
-            self.$el.append(routesTmpl({queryPrefix: prefix}));
+            self.$el.append(routesTmpl({prefix: prefix}));
 
             self.renderView4Config($(self.$el).find(routesFormId),
                     this.model,
@@ -177,6 +177,7 @@ define([
                                     view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'routes_limit',
+                                        label: 'Limit',
                                         dataBindValue: 'routes_limit',
                                         class: "span2",
                                         elementConfig: {
@@ -248,8 +249,8 @@ define([
                                 {
                                     elementId: 'run_query',
                                     view: "FormButtonView",
-                                    label: "Display Routes",
                                     viewConfig: {
+                                        label: "Display Routes",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
@@ -259,7 +260,6 @@ define([
                                 {
                                     elementId: 'reset_query',
                                     view: "FormButtonView",
-                                    label: "Reset",
                                     viewConfig: {
                                         label: "Reset",
                                         class: 'display-inline-block margin-0-10-0-0',

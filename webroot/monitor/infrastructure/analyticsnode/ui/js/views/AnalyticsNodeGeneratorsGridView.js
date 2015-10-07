@@ -7,6 +7,7 @@ define([
     'contrail-view',
     'contrail-list-model'
 ], function (_, ContrailView, ContrailListModel) {
+    var noDataStr = monitorInfraConstants.noDataStr;
     var hostname;
     var AnalyticsNodeGeneratorsGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -191,7 +192,7 @@ define([
     function getStatusForGenerator(data,collectorName,strtTime){
         if(data != null) {
             var maxConnectTimeGenerator =
-                getMaxGeneratorValueInArray(data,"connect_time");
+                monitorInfraUtils.getMaxGeneratorValueInArray(data,"connect_time");
             var maxResetTime =
                 jsonPath(maxConnectTimeGenerator,"$..reset_time")[0];
             var maxConnectTime =

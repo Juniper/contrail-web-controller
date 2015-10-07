@@ -6,6 +6,7 @@ define([
     'underscore',
     'contrail-view'
 ], function (_, ContrailView) {
+    var noDataStr = monitorInfraConstants.noDataStr;
     var AnalyticsNodesDetailPageView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {

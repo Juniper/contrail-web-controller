@@ -1545,6 +1545,64 @@ define([
         })
 
         //End: Handlebar register helpers
+        self.getMaxGeneratorValueInArray = function (inputArray,selector) {
+            var maxVal;
+            if(inputArray != null && inputArray['length'] != null && inputArray['length'] > 0) {
+                maxVal = inputArray[0];
+                for(var i = 1; i < inputArray.length; i++){
+                    var curSelectorVal = jsonPath(inputArray[i],"$.."+selector)[0];
+                    var maxSelectorVal = jsonPath(maxVal,"$.."+selector)[0];
+                    if(curSelectorVal > maxSelectorVal){
+                        maxVal = inputArray[i];
+                    }
+                }
+                return maxVal;
+            } else {
+                return inputArray;
+            }
+        }
+        
+        self.getPostDataForCpuMemStatsQuery = function (dsName,source) {
+            var postData = {
+                    pageSize:50,
+                    page:1,
+//                    timeRange:600,
+                    tgUnits:'secs',
+//                    fromTimeUTC:'now-10m',
+                    fromTimeUTC:'now-2h',
+                    toTimeUTC:'now',
+                    async:true,
+                    queryId:randomUUID(),
+                    reRunTimeRange:600,
+                    select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id',
+                    groupFields:['Source'],
+                    plotFields:['cpu_info.cpu_share']
+            }
+            
+            if (dsName == monitorInfraConstants.CONTROL_NODE) {
+                postData['table'] = 'StatTable.ControlCpuState.cpu_info';
+                postData['where'] = '(cpu_info.module_id = contrail-control)';
+            } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
+                postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+                postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
+                postData['where'] = '';
+            } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
+                postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
+                if(source == "details"){
+                    postData['where'] = '(cpu_info.module_id = contrail-collector) OR (cpu_info.module_id = contrail-query-engine) OR (cpu_info.module_id = contrail-analytics-api)';
+                } else {
+                    postData['where'] = '(cpu_info.module_id = contrail-collector)';
+                }
+            } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
+                postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
+                if(source == "details"){
+                    postData['where'] = '(cpu_info.module_id = contrail-api) OR (cpu_info.module_id = contrail-svc-monitor) OR (cpu_info.module_id = contrail-schema)';
+                } else {
+                    postData['where'] = '(cpu_info.module_id = contrail-api)';
+                }
+            }
+            return postData;
+        }
 
     };
     return MonitorInfraUtils;

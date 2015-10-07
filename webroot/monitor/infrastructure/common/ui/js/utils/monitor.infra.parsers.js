@@ -587,6 +587,22 @@ define(
                     return verStr;
                 };
                 //Parser function for Control Node Routes
+                
+                this.getSecurityGroup = function (sg){
+                    var ret = "";
+                    sg = ifNullOrEmptyObject(sg,[]);
+                    for(var i=0; i < sg.length; i++){
+                        if(sg[i].search("security group") != -1) {
+                            if(ret == ""){
+                                ret = sg[i].split(":")[1];
+                            } else {
+                                ret = ret + ", " + sg[i].split(":")[1];
+                            }
+                        }
+                    }
+                    return ret;
+                }
+                
                 this.parseRoutes = function (response,routesQueryString) {
                     var routesArr = [], routeTables = [], routeInstances = [];
                     var routes = response;
@@ -632,7 +648,7 @@ define(
                                          rtable.split('.')[1] : rtable;
                               }
                               var rawJson = obj;
-                              var sg = getSecurityGroup(jsonPath(obj,
+                              var sg = self.getSecurityGroup(jsonPath(obj,
                                       "$..communities..element")[0]);
                               //Fitering based on Address Family, Peer Source and Protocol selection
                               if((selAddFamily == "All" || selAddFamily == addfamily) &&

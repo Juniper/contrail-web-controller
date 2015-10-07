@@ -160,6 +160,7 @@ define([
     }
 
     this.processPeerDetails = function(bgpPeerInfo,type,ret,hostname){
+      var noDataStr = monitorInfraConstants.noDataStr;
       for(var i = 0; i < bgpPeerInfo.length; i++) {
          var obj = {};
          obj['raw_json'] = bgpPeerInfo[i];
