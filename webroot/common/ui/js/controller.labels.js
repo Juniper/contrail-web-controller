@@ -212,7 +212,6 @@ define([
         this.PROJECT_NETWORKS_ID = "project-networks";
         this.PROJECT_NETWORK_GRID_ID = "project-network-grid";
         this.PROJECT_INSTANCES_ID = "project-instances";
-        this.PROJECT_INSTANCE_GRID_ID = "project-instance-grid";
         this.PROJECTS_SCATTER_CHART_ID = "projects-scatter-chart";
         this.PROJECT_FLOW_GRID_ID = "project-flow-grid";
         this.PROJECT_FILTER_PROTOCOL_MULTISELECT_ID = "project-filter-protocol-multiselect-id";

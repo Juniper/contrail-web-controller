@@ -51,9 +51,15 @@ require([
         controllerTestAppPathObj["ct-test-utils"] = ctBaseDir + "/test/ui/ct.test.utils";
         controllerTestAppPathObj["ct-test-messages"] = ctBaseDir + "/test/ui/ct.test.messages";
         controllerTestAppPathObj["network-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListView.mock.data";
+        controllerTestAppPathObj["network-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkView.mock.data";
         controllerTestAppPathObj["project-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/ProjectListView.mock.data";
+        controllerTestAppPathObj["project-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/ProjectView.mock.data";
+        controllerTestAppPathObj["dashboard-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/DashboardView.mock.data";
         controllerTestAppPathObj["instance-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/InstanceListView.mock.data";
         controllerTestAppPathObj["instance-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/InstanceView.mock.data";
+        controllerTestAppPathObj["flow-list-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/FlowListView.mock.data";
+        controllerTestAppPathObj["flow-grid-view-mock-data"] = ctBaseDir + "/monitor/networking/ui/test/ui/FlowGridView.mock.data";
+
         controllerTestAppPathObj["network-list-view-custom-test-suite"] = ctBaseDir + "/monitor/networking/ui/test/ui/NetworkListView.custom.test.suite";
 
         return controllerTestAppPathObj;

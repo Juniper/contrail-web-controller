@@ -106,7 +106,7 @@ define([
             }
         }
     };
-    pageConfig.loadTimeout = 2000;
+    pageConfig.loadTimeout = 5000;
 
     var getTestConfig = function() {
         return {

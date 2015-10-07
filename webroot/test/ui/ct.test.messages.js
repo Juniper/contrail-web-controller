@@ -7,9 +7,13 @@ define([
 ], function (_) {
     var TMessages = function() {
         this.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE = 'Neworks List view - Common Tests';
+        this.NETWORKS_VIEW_COMMON_TEST_MODULE = 'Neworks View - Common Tests';
         this.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE = 'Projects List view - Common Tests';
+        this.PROJECTS_VIEW_COMMON_TEST_MODULE = 'Projects view - Common Tests';
         this.INSTANCES_LIST_VIEW_COMMON_TEST_MODULE = 'Instances List view - Common Tests';
         this.INSTANCE_VIEW_COMMON_TEST_MODULE = 'Instance view - Common Tests';
+        this.FLOW_LIST_VIEW_COMMON_TEST_MODULE = 'Flow List view - Common Tests';
+        this.FLOW_GRID_VIEW_COMMON_TEST_MODULE = 'Flow Grid view - Common Tests';
 
         this.NETWORKS_GRID_MODULE = 'Networks Grid -  NM Tests';
         this.PROJECTS_GRID_MODULE = 'Projects Grid -  NM Tests';
