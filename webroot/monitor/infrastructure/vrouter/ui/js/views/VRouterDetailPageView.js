@@ -32,7 +32,7 @@ define([
                 ajaxConfig: {
                     url: contrail.format(monitorInfraConstants.
                             monitorInfraUrls['VROUTER_DETAILS'],
-                            hostname,true),
+                            monitorInfraUtils.getIPOrHostName(viewConfig),true),
                     type: 'GET'
                 },
                 templateConfig: getDetailsViewTemplateConfig(),
@@ -40,8 +40,10 @@ define([
                 dataParser: function(result) {
                     var vrouterData = result;
                     var obj = monitorInfraParsers.
-                                parsevRoutersDashboardData([{name:hostname,
-                                    value:result}])[0];
+                                parsevRoutersDashboardData([{
+                                    name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                                    value: result
+                                }])[0];
                     //Further parsing required for Details page done below
                     var overallStatus;
                     try{

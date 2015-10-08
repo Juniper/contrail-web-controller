@@ -250,7 +250,7 @@ define([
                                     elementId: 'run_query',
                                     view: "FormButtonView",
                                     viewConfig: {
-                                        label: "Display Routes",
+                                        label: "Search",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'

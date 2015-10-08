@@ -70,7 +70,7 @@ define([
             },
             tabs: [
                 {
-                    elementId: 'vrouter_detail_tab_id',//ctwl.VROUTER_DETAIL_ID,
+                    elementId: 'vrouter_detail_tab_id',
                     title: 'Details',
                     view: "VRouterDetailPageView",
                     viewPathPrefix:

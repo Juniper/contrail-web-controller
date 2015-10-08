@@ -308,7 +308,7 @@ monitorInfraComputeFlowsClass = (function() {
             } 
             reloadGrid(flowGrid);
         }
-        function getAclSgUuuidString (data,isSearch){
+        function getAclSgUuuidString (data,isSearch) {
             //if the request is based on a particular acl return the uuid
             if(data['acl_uuid'] != null && data['acl_uuid'] != 'All'){
                 if(isSearch){

@@ -55,7 +55,7 @@ define([
             var self = this,
                 prefix = ctwl.VROUTER_NETWORKS_PREFIX;
                 hostname = viewConfig['hostname'],
-                introspectPort = ifNull(viewConfig['introspectPort'],8085);
+                introspectPort = viewConfig['introspectPort'];
                 queryResultId = "#" + prefix + "-results",
                 responseViewConfig = {
                     elementId: ctwl.VROUTER_NETWORKS_RESULTS_VIEW,
@@ -69,7 +69,7 @@ define([
             function constructvRouterVNUrl(viewConfig) {
                 var url = monitorInfraConstants.monitorInfraUrls['VROUTER_NETWORKS'];
                 var urlParams = $.extend({
-                        ip: hostname,
+                        ip: monitorInfraUtils.getIPOrHostName(hostname),
                         introspectPort: introspectPort
                     },queryParams);
                 return {
@@ -146,7 +146,7 @@ define([
                                     elementId: 'vrouter_networks_query',
                                     view: "FormButtonView",
                                     viewConfig: {
-                                        label: "Display Routes",
+                                        label: "Search",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'

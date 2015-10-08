@@ -18,7 +18,55 @@ define([
         getViewConfig: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 hostname = viewConfig['hostname'],
+                noDataStr = monitorInfraConstants.noDataStr,
                 pagerOptions = viewConfig['pagerOptions'];
+
+            function getAclSgUuuidString (data,isSearch) {
+                //if the request is based on a particular acl return the uuid
+                if(data['acl_uuid'] != null && data['acl_uuid'] != 'All'){
+                    if(isSearch){
+                        return data['searchUUID'];
+                    } else {
+                        return data['acl_uuid'];
+                    }
+                }
+                var aclUuidList = ifNull(jsonPath(data,"$..policy..FlowAclUuid..uuid"),noDataStr);
+                var outPolicyAclUuidList = ifNull(jsonPath(data,"$..out_policy..FlowAclUuid..uuid"),noDataStr);
+                var sgUuidList = ifNull(jsonPath(data,"$..sg..FlowAclUuid..uuid"),noDataStr);
+                var outSgUuidList = ifNull(jsonPath(data,"$..out_sg..FlowAclUuid..uuid"),noDataStr);
+                
+                var ret = '';
+                if(aclUuidList.length > 0){
+                    ret += "<span class='text-info'>Policy:</span>";
+                }
+                $.each(aclUuidList,function(idx,aclUuid){
+                    ret += "</br>" + aclUuid;
+                });
+                if(outPolicyAclUuidList.length > 0){
+                    ret += (ret != '')?" </br><span class='text-info'>Out Policy:</span>" : 
+                        "<span class='text-info'>Out Policy:</span>";
+                }
+                $.each(outPolicyAclUuidList,function(idx,outPolicyAclUuid){
+                    ret += "</br>" + outPolicyAclUuid;
+                });
+                if(sgUuidList.length > 0){
+                    ret += (ret != '')?"</br><span class='text-info'>SG:</span>" : 
+                        "<span class='text-info'>SG:</span>";
+                }
+                $.each(sgUuidList,function(idx,sgUuid){
+                    ret += "</br>" + sgUuid;
+                });
+                if(outSgUuidList.length > 0){
+                    ret += (ret != '')?"</br><span class='text-info'>Out SG:</span>" : 
+                        "<span class='text-info'>Out SG:</span>";
+                }
+                $.each(outSgUuidList,function(idx,outSgUuid){
+                    ret += "</br>" + outSgUuid;
+                });
+                return (ret == '')? noDataStr: ret;
+            }
+
+
             var columns = [
                             {
                                 field:"acl_uuid",
@@ -126,7 +174,10 @@ define([
                     text: 'Flows',
                     icon : 'icon-table'
                 },
-                customControls : monitorInfraUtils.getGridPaginationControls(),
+                customControls : [
+                        '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                        '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+                    ],
                 defaultControls: {
                     collapseable: false,
                     exportable: true,
@@ -138,10 +189,14 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    fixedRowHeight: 30,
+                    // fixedRowHeight: 30,
                     sortable: false
                 },
                 dataSource: {
+                    remote: {
+                        ajaxConfig: {
+                        }
+                    }
                 }
             },
             columnHeader: {
@@ -150,7 +205,5 @@ define([
         };
         return gridElementConfig;
     };
-
-
     return VRouterFlowsGridView;
 });
