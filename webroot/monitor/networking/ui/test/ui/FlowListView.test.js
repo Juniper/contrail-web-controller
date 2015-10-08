@@ -1,0 +1,104 @@
+/*
+ * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ */
+define([
+    'co-test-unit',
+    'ct-test-utils',
+    'ct-test-messages',
+    'flow-list-view-mock-data',
+    'co-grid-contrail-list-model-test-suite',
+    'co-grid-view-test-suite',
+    'co-chart-view-zoom-scatter-test-suite'
+], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartViewTestSuite) {
+
+    var moduleId = cttm.PROJECTS_VIEW_COMMON_TEST_MODULE;
+
+    var fakeServerConfig = CUnit.getDefaultFakeServerConfig();
+
+    var fakeServerResponsesConfig = function() {
+        var responses = [];
+
+        /*
+         * Full Query
+         * /api/admin/reports/query?port=34560-34815
+         * &timeRange=600
+         * &table=FlowSeriesTable
+         * &fromTimeUTC=1443571409000
+         * &toTimeUTC=1443572009000
+         * &select=sourcevn%2C+destvn%2C+sourceip%2C+destip%2C+protocol%2C+sport%2C+dport%2C+sum(bytes)%2C+sum(packets)%2Cflow_count
+         * &where=
+         *       (sport%3D34560-34815+AND+sourcevn%3Ddefault-domain%3Aadmin%3Afrontend+AND+protocol%3D6)
+         *       +OR+
+         *       (sport%3D34560-34815+AND+sourcevn%3Ddefault-domain%3Aadmin%3Afrontend+AND+protocol%3D1)
+         *       +OR+
+         *       (sport%3D34560-34815+AND+sourcevn%3Ddefault-domain%3Aadmin%3Afrontend+AND+protocol%3D17)
+         * */
+
+        responses.push(CUnit.createFakeServerResponse( {
+            method: "GET",
+            url: cttu.getRegExForUrl('/api/admin/reports/query?port=34560-34815&timeRange=600&table=FlowSeriesTable'),
+            body: JSON.stringify(TestMockdata.flowsMockData)
+        }));
+
+        return responses;
+    };
+    fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
+
+    var pageConfig = CUnit.getDefaultPageConfig();
+    pageConfig.hashParams = {
+        p: 'mon_networking_networks',
+        q: {
+            "fqName": "default-domain:admin:frontend",
+            "port": "34560-34815",
+            "type": "flow",
+            "view": "list",
+            "startTime": "1443571409000",
+            "endTime": "1443572009000",
+            "portType": "src"
+        }
+    };
+    pageConfig.loadTimeout = 5000;
+
+    var getTestConfig = function() {
+        return {
+            rootView: mnPageLoader.mnView,
+            tests: [
+                {
+                    viewId: ctwl.PROJECT_FLOW_GRID_ID,
+                    suites: [
+                        {
+                            class: GridViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        },
+                        {
+                            class: GridListModelTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW,
+                            modelConfig: {
+                                dataGenerator: cttu.commonGridDataGenerator,
+                                dataParsers: {}
+                            }
+                        }
+                    ]
+                },
+                {
+                    viewId: ctwl.FLOWS_SCATTER_CHART_ID,
+                    suites: [
+                        {
+                            class: ZoomScatterChartViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        }
+                    ]
+                }
+            ]
+        };
+
+    };
+
+    var pageTestConfig = CUnit.createPageTestConfig(moduleId, fakeServerConfig, pageConfig, getTestConfig);
+
+    CUnit.startTestRunner(pageTestConfig);
+
+});
