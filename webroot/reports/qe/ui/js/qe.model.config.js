@@ -7,10 +7,11 @@ define([
 ], function (_) {
     var QEDefaultConfig = function () {
 
-        this.getQueryModel = function (tableName, queryPrefix) {
-            var queryModelConfig = {
-                "table_name": tableName,
-                "query_prefix": contrail.checkIfExist(queryPrefix) ? queryPrefix : qewc.DEFAULT_QUERY_PREFIX,
+        this.getQueryModelConfig = function (customModelConfig) {
+            var defaultModelConfig = {
+                "table_name": null,
+                "table_type": null,
+                "query_prefix": qewc.DEFAULT_QUERY_PREFIX,
                 "time_range": 1800,
                 "from_time": Date.now() - (10 * 60 * 1000),
                 "to_time": Date.now(),
@@ -24,7 +25,9 @@ define([
                 "where_data_object": {}
             };
 
-            return $.extend(true, {}, queryModelConfig);
+            var modelConfig = $.extend(true, {}, defaultModelConfig, customModelConfig);
+
+            return modelConfig;
         };
     };
 

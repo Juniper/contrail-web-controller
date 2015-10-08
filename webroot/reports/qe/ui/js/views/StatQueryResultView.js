@@ -11,31 +11,31 @@ define([
     var StatQueryResultView = QueryResultView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
-                serverCurrentTime = getCurrentTime4MemCPUCharts(),
-                queryFormModel = self.model;
-
-            var postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime),
-                statRemoteConfig = {
-                    url: "/api/qe/query",
-                    type: 'POST',
-                    data: JSON.stringify(postDataObj)
-                },
-                listModelConfig = {
-                    remote: {
-                        ajaxConfig: statRemoteConfig,
-                        dataParser: function(response) {
-                            return response['data'];
-                        }
-                    }
-                };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
+                serverCurrentTime = qewu.getCurrentTime4Client(),
+                queryFormModel = self.model,
+                contrailListModel;
 
             $.ajax({
                 url: '/api/service/networking/web-server-info'
             }).done(function (resultJSON) {
                 serverCurrentTime = resultJSON['serverUTCTime'];
             }).always(function() {
+                var postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime),
+                    statRemoteConfig = {
+                        url: "/api/qe/query",
+                        type: 'POST',
+                        data: JSON.stringify(postDataObj)
+                    },
+                    listModelConfig = {
+                        remote: {
+                            ajaxConfig: statRemoteConfig,
+                            dataParser: function(response) {
+                                return response['data'];
+                            }
+                        }
+                    };
+
+                contrailListModel = new ContrailListModel(listModelConfig);
                 self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, statRemoteConfig, serverCurrentTime))
             });
         },
@@ -45,7 +45,7 @@ define([
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                statGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, selectArray);
+                statGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_STAT_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
                 elementId: ctwl.QE_STAT_QUERY_TAB_ID,

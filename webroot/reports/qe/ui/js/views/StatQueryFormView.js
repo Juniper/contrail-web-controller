@@ -15,7 +15,7 @@ define([
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 statQueryFormModel = new StatQueryFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = "#qe-" + qewc.STAT_QUERY_PREFIX + "-form";
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
 
             self.model = statQueryFormModel;
             self.$el.append(queryPageTmpl({queryPrefix: qewc.STAT_QUERY_PREFIX }));
@@ -36,7 +36,7 @@ define([
 
         renderQueryResult: function() {
             var self = this,
-                queryResultId = "#qe-" + qewc.STAT_QUERY_PREFIX + "-results",
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 responseViewConfig = {
                     view: "StatQueryResultView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
@@ -113,7 +113,8 @@ define([
                                     elementId: 'select', view: "FormTextAreaView",
                                     viewConfig: {path: 'select', dataBindValue: 'select', class: "span9", editPopupConfig: {
                                         renderEditFn: function() {
-                                            self.renderSelect();
+                                            var tableName = self.model.table_name();
+                                            self.renderSelect({className: qewu.getModalClass4Table(tableName)});
                                         }
                                     }}
                                 },
@@ -160,7 +161,7 @@ define([
                                     elementId: 'where', view: "FormTextAreaView",
                                     viewConfig: {path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*", editPopupConfig: {
                                         renderEditFn: function() {
-                                            self.renderWhere();
+                                            self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
                                         }
                                     }}
                                 }
@@ -172,7 +173,7 @@ define([
                                     elementId: 'filter', view: "FormTextAreaView",
                                     viewConfig: {path: 'filter', dataBindValue: 'filter', class: "span9", editPopupConfig: {
                                         renderEditFn: function() {
-                                            self.renderFilter();
+                                            self.renderFilter({className: cowc.QE_MODAL_CLASS_700});
                                         }
                                     }}
                                 }

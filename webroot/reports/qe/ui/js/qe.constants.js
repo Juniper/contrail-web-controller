@@ -20,6 +20,13 @@ define([
             {'id': '0', 'text': 'EGRESS'}
         ];
 
+        this.TIME_GRANULARITY_INTERVAL_VALUES = {
+            secs: 1000,
+            mins: 60 * 1000,
+            hrs: 60 * 60 * 1000,
+            days: 24 * 60 * 60 * 1000
+        };
+
         this.URL_TABLES = "/api/qe/tables";
         this.URL_PREFIX_TABLE_SCHEMA = "/api/qe/table/schema/";
 
@@ -27,10 +34,9 @@ define([
         this.FC_QUERY_PREFIX = "fc";
         this.FR_QUERY_PREFIX = "fr";
         this.STAT_QUERY_PREFIX = "stat";
+        this.OBJECT_LOGS_PREFIX = "ol";
 
         this.DEFAULT_QUERY_PREFIX = 'query';
-        this.FLOW_SERIES_TABLE = "FlowSeriesTable";
-        this.FLOW_CLASS = "FlowClass";
 
         this.UMID_FLOW_SERIES_FORM_MODEL = "qe:fs-form-model";
         this.UMID_FLOW_SERIES_CHART_MODEL = "qe:fs-chart-model";

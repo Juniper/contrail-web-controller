@@ -107,6 +107,20 @@ define([
             };
         };
 
+        self.getModalClass4Table = function(tableName) {
+            switch (tableName) {
+                case "StatTable.ServerMonitoringSummary.resource_info_stats":
+                    return "modal-1120";
+
+                case "StatTable.ServerMonitoringInfo.file_system_view_stats.physical_disks":
+                    return "modal-1120";
+
+                default:
+                    return cowc.QE_DEFAULT_MODAL_CLASSNAME;
+            }
+        };
+
+        //TODO- remove this
         self.addFlowMissingPoints = function(tsData, options, plotFields, color, counter) {
             var fromTime = options.fromTime,
                 toTime = options.toTime,
@@ -145,6 +159,39 @@ define([
 
             return plotData;
         };
+
+        self.getCurrentTime4Client = function() {
+            var now = new Date(), currentTime;
+            currentTime = now.getTime();
+            return currentTime;
+        };
+
+        self.addFSMissingPoints = function(chartDataRow, queryFormModel, plotFields, color, counter) {
+            var chartDataValues = chartDataRow.values,
+                newChartDataValues = {},
+                emptyChartDataValue  = {},
+                toTime = queryFormModel.to_time(),
+                fromTime = queryFormModel.from_time(),
+                timeGranularity = queryFormModel.time_granularity(),
+                timeGranularityUnit = queryFormModel.time_granularity_unit(),
+                timeInterval = timeGranularity * qewc.TIME_GRANULARITY_INTERVAL_VALUES[timeGranularityUnit];
+
+            $.each(plotFields, function(plotFieldKey, plotFieldValue) {
+                emptyChartDataValue[plotFieldValue] = 0;
+            });
+
+            for (var i = fromTime; i <= toTime; i += timeInterval) {
+                if (!contrail.checkIfExist(chartDataValues[i])) {
+                    newChartDataValues[i] = emptyChartDataValue
+                } else {
+                    newChartDataValues[i] = chartDataValues[i];
+                }
+            }
+
+            chartDataRow.values = newChartDataValues;
+
+            return chartDataRow;
+        };
     };
 
     function getTimeRangeObj(formModelAttrs, serverCurrentTime) {
@@ -167,12 +214,12 @@ define([
                 toTimeUTC = now.getTime();
             }
             fromTimeUTC = toTimeUTC - (timeRange * 1000);
-            if (queryPrefix !== 'fs' && queryPrefix !== 'stat') {
-                toTime = "now";
-                fromTime = "now-" + timeRange + "s";
-            } else {
+            if (queryPrefix == qewc.FS_QUERY_PREFIX || queryPrefix == qewc.STAT_QUERY_PREFIX) {
                 toTime = toTimeUTC;
                 fromTime = fromTimeUTC;
+            } else {
+                toTime = "now";
+                fromTime = "now-" + timeRange + "s";
             }
         } else {
             // used for custom time range
@@ -187,6 +234,7 @@ define([
         if (typeof fromTimeUTC !== 'undefined' && typeof tgMicroSecs !== 'undefined') {
             fromTimeUTC = ceilFromTime(fromTimeUTC, tgMicroSecs);
         }
+
         return {fromTime: fromTime, toTime: toTime, fromTimeUTC: fromTimeUTC, toTimeUTC: toTimeUTC, reRunTimeRange: timeRange};
     };
 

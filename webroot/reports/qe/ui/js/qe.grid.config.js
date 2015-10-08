@@ -6,9 +6,9 @@ define([
     'underscore'
 ], function (_) {
     var QEGridConfig = function () {
-        this.getColumnDisplay4Grid = function(queryPrefix, selectArray) {
+        this.getColumnDisplay4Grid = function(tableName, tableType, selectArray) {
             var newColumnDisplay = [],
-                columnDisplay = getColumnDisplay4Query(queryPrefix);
+                columnDisplay = getColumnDisplay4Query(tableName, tableType);
 
             $.each(columnDisplay, function(key, val){
                 if (selectArray.indexOf(val.select) != -1) {
@@ -20,18 +20,13 @@ define([
         };
     };
 
-    function getColumnDisplay4Query(queryPrefix) {
-        switch(queryPrefix) {
-            case qewc.FS_QUERY_PREFIX:
-                return columnDisplayMap[qewc.FLOW_SERIES_TABLE];
-
-            case qewc.FC_QUERY_PREFIX:
-                return columnDisplayMap[qewc.FLOW_CLASS];
-
-            default:
-                if(queryPrefix.indexOf("StatTable") != -1) {
-                    return columnDisplayMap["defaultStatColumns"].concat(columnDisplayMap[queryPrefix]);
-                }
+    function getColumnDisplay4Query(tableName, tableType) {
+        if(tableType == cowc.QE_STAT_TABLE_TYPE) {
+            return columnDisplayMap["defaultStatColumns"].concat(contrail.checkIfExist(columnDisplayMap[tableName]) ? columnDisplayMap[tableName] : []);
+        } else if (tableType == cowc.QE_OBJECT_TABLE_TYPE) {
+            return columnDisplayMap["defaultObjectColumns"].concat(contrail.checkIfExist(columnDisplayMap[tableName]) ? columnDisplayMap[tableName] : []);
+        } else {
+            return contrail.checkIfExist(columnDisplayMap[tableName]) ? columnDisplayMap[tableName] : []
         }
     };
 
@@ -1311,6 +1306,14 @@ define([
             {select:"UUID", display:{id:"UUID", field:"UUID", name:"UUID",  width:280, groupable:true}},
             {select:"name", display:{id:'name', field:'name', width:150, name:"Name", groupable:false}},
             {select:"Source", display:{id:'Source', field:'Source', width:150, name:"Source", groupable:false}}
+        ],
+        "defaultObjectColumns": [
+            {select: "MessageTS", display:{id: "MessageTS", field: "MessageTS", name: "Time", width:210, filterable:false, groupable:false, formatter: function(r, c, v, cd, dc) { return (dc.MessageTS && dc.MessageTS != '')  ? (formatMicroDate(dc.MessageTS)) : ''; }}},
+            {select: "ObjectId", display:{id:"ObjectId", field:"ObjectId", name:"Object Id", width:150, searchable: true, formatter: function(r, c, v, cd, dc) { return handleNull4Grid(dc.ObjectId);}}},
+            {select: "Source", display:{id:"Source", field:"Source", name:"Source", width:150, searchable: true, formatter: function(r, c, v, cd, dc) { return handleNull4Grid(dc.Source);}}},
+            {select: "ModuleId", display:{id: "ModuleId", field: "ModuleId", name: "Module Id", width: 150, searchable:true, formatter: function(r, c, v, cd, dc) { return handleNull4Grid(dc.ModuleId);}}},
+            {select: "Messagetype", display:{id:"Messagetype", field:"Messagetype", name:"Message Type", width:300, searchable:true, formatter: function(r, c, v, cd, dc) { return handleNull4Grid(dc.Messagetype); }}},
+            {select: "SystemLog", display:{id:"SystemLog", field:"SystemLog", name:"System Log", width:300, searchable:true, formatter: function(r, c, v, cd, dc) { return formatXML2JSON(dc.SystemLog); }}}
         ]
     };
 

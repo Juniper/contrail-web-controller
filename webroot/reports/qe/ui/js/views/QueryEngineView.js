@@ -15,6 +15,10 @@ define([
 
         renderStatQuery: function (viewConfig) {
             this.renderView4Config(this.$el, null, getStatQueryViewConfig(viewConfig));
+        },
+
+        renderObjectLogs: function (viewConfig) {
+            this.renderView4Config(this.$el, null, getObjectLogsViewConfig(viewConfig));
         }
     });
 
@@ -76,6 +80,47 @@ define([
                                 viewConfig: {
                                     widgetConfig: {
                                         elementId: ctwl.QE_STAT_QUERY_ID + '-widget',
+                                        view: "WidgetView",
+                                        viewConfig: {
+                                            header: {
+                                                title: ctwl.TITLE_QUERY,
+                                                iconClass: "icon-search"
+                                            },
+                                            controls: {
+                                                top: {
+                                                    default: {
+                                                        collapseable: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+    function getObjectLogsViewConfig(config) {
+        var hashParams = config['hashParams'];
+
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: ctwl.QE_OBJECT_LOGS_ID,
+                                view: "ObjectLogsFormView",
+                                viewPathPrefix: "reports/qe/ui/js/views/",
+                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                viewConfig: {
+                                    widgetConfig: {
+                                        elementId: ctwl.QE_OBJECT_LOGS_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: {

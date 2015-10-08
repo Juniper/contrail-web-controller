@@ -996,7 +996,7 @@ function getInstanceConnectedGraph(req, res, appData) {
         instanceUrl, interfaceUrl, networkUrl,
         dataObjArr = [];
 
-    instanceUrl = '/analytics/virtual-machine/' + instanceUUID + '?cfilt=' + instanceFilters.join(',');
+    instanceUrl = '/analytics/uves/virtual-machine/' + instanceUUID + '?cfilt=' + instanceFilters.join(',');
     commonUtils.createReqObj(dataObjArr, instanceUrl, global.HTTP_REQUEST_GET, null, opApiServer, null, appData);
 
     async.map(dataObjArr, commonUtils.getServerResponseByRestApi(configApiServer, false), function (err, instanceData) {

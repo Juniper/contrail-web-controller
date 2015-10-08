@@ -118,7 +118,7 @@ define([
     }
 
     function getChartGridViewConfig(flowUrl, selectArray, modelMap) {
-        var columnDisplay = qewgc.getColumnDisplay4Grid(qewc.FC_QUERY_PREFIX, selectArray),
+        var columnDisplay = qewgc.getColumnDisplay4Grid(cowc.FLOW_CLASS, cowc.QE_FLOW_TABLE_TYPE, selectArray),
             lineWithFocusChartModel = modelMap[qewc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
             chartListModel = modelMap[qewc.UMID_FLOW_SERIES_CHART_MODEL],
             chartColorAvailableKeys = ['id_0', null, null, null, null],
@@ -204,9 +204,13 @@ define([
         });
 
         chartListModel.onAllRequestsComplete.subscribe(function() {
-            var chartColorAvailableKeys = ['id_0', null, null, null, null];
+            if (chartListModel.getLength() > 0) {
+                var chartColorAvailableKeys = ['id_0', null, null, null, null];
+                lineWithFocusChartModel.setData(formatChartData(modelMap, chartColorAvailableKeys));
+            } else {
+                lineWithFocusChartModel.setData([])
+            }
 
-            lineWithFocusChartModel.setData(formatChartData(modelMap, chartColorAvailableKeys));
         });
 
         return chartListModel;
@@ -228,13 +232,12 @@ define([
                         color: d3_category5[colorKey]
                     };
 
+                qewu.addFSMissingPoints(chartDataRow, queryFormModel, ['sum(bytes)','sum(packets)'])
+
                 $.each(chartDataRow.values, function (fcItemKey, fcItemValue) {
                     var ts = parseInt(fcItemKey);
                     chartDataValue.values.push({x: ts, y: fcItemValue['sum(bytes)'], 'sum(bytes)': fcItemValue['sum(bytes)'], 'sum(packets)': fcItemValue['sum(packets)']});
                 });
-
-                //TODO - Add this
-                //qewu.addFSMissingPoints
 
                 chartData.push(chartDataValue);
             }

@@ -30,6 +30,10 @@ function QELoader() {
             case 'renderStatQuery':
                 this.qeView.renderStatQuery({hashParams: hashParams});
                 break;
+
+            case 'renderObjectLogs':
+                this.qeView.renderObjectLogs({hashParams: hashParams});
+                break;
         }
     },
 

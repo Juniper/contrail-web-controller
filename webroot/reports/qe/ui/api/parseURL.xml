@@ -83,11 +83,5 @@
         <feature>query-engine</feature>
         <callback>qeapi.getTableSchema</callback>
     </item>
-    <item>
-        <url>/api/qe/object-ids/:objectType</url>
-        <method>get</method>
-        <feature>query-engine</feature>
-        <callback>qeapi.getObjectIds</callback>
-    </item>
 </urlLists>
 
