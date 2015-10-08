@@ -155,7 +155,8 @@ define(
                     body : {
                         options : {
                           detail : false,
-                          checkboxSelectable : false
+                          checkboxSelectable : false,
+                          enableAsyncPostRender:true
                         },
                         dataSource : {
                             remote : {

@@ -20,6 +20,8 @@ define([
 
             self.renderView4Config($('#left-column-container'), null,
                     getConfigNodeDetailPageViewConfig(viewConfig));
+            self.renderView4Config($('#right-column-container'), null,
+                    getConfigNodeDetailChartViewConfig(viewConfig));
         }
     });
     var getConfigNodeDetailPageViewConfig = function (viewConfig) {
@@ -83,6 +85,17 @@ define([
             }
         }
     }
+
+    function getConfigNodeDetailChartViewConfig (viewConfig) {
+        return {
+            elementId: 'confignode_detail_charts_id',
+            title: ctwl.TITLE_DETAILS,
+            view: "ConfigNodeDetailsChartsView",
+            viewPathPrefix : ctwl.CONFIGNODE_VIEWPATH_PREFIX,
+            viewConfig: viewConfig
+        }
+    }
+
     function getDetailsViewTemplateConfig() {
         return {
             advancedViewOptions: false,

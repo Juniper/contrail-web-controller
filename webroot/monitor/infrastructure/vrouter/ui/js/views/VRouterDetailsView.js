@@ -19,6 +19,7 @@ define([
             var vRouterDefObj = $.Deferred();
             tabConfig = getVRouterTabsViewConfig (currentHashParams,vRouterDefObj);
 
+            pushBreadcrumb([currentHashParams.focusedElement.node]);
             vRouterDefObj.done(function(tabConfig) {
                 self.renderView4Config(self.$el, null, tabConfig, null, null, null);
             });

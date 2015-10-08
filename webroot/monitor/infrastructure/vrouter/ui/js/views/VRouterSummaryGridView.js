@@ -184,6 +184,7 @@ define(
                     body : {
                         options : {
                           detail : false,
+                          enableAsyncPostRender:true,
                           checkboxSelectable : false
                         },
                         dataSource : {

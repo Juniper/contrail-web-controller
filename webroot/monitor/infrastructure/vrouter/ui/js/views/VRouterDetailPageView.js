@@ -19,6 +19,8 @@ define([
 
             self.renderView4Config($('#left-column-container'), null,
                     getVRouterDetailPageViewConfig(viewConfig));
+            self.renderView4Config($('#right-column-container'), null,
+                    getVRouterDetailChartViewConfig(viewConfig));
         }
     });
     var noDataStr = monitorInfraConstants.noDataStr;
@@ -32,7 +34,7 @@ define([
                 ajaxConfig: {
                     url: contrail.format(monitorInfraConstants.
                             monitorInfraUrls['VROUTER_DETAILS'],
-                            monitorInfraUtils.getIPOrHostName(viewConfig),true),
+                            hostname,true),
                     type: 'GET'
                 },
                 templateConfig: getDetailsViewTemplateConfig(),
@@ -106,6 +108,16 @@ define([
                     return obj;
                 }
             }
+        }
+    }
+
+    function getVRouterDetailChartViewConfig (viewConfig) {
+        return {
+            elementId: 'vrouter_detail_charts_id',
+            title: ctwl.TITLE_DETAILS,
+            view: "VRouterDetailsChartsView",
+            viewPathPrefix : ctwl.VROUTER_VIEWPATH_PREFIX,
+            viewConfig: viewConfig
         }
     }
 

@@ -13,8 +13,17 @@ define([
                       .parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
                               response,contrailListModel);
               }
+          },
+          {
+              getAjaxConfig: function(responseJSON) {
+                  return monitorInfraUtils.getAjaxConfigForInfraNodesCpuStats(
+                          monitorInfraConstants.CONTROL_NODE,responseJSON,'summary');
+              },
+              successCallback: function(response, contrailListModel) {
+                  monitorInfraUtils.parseAndMergeCpuStatsWithPrimaryDataForInfraNodes(
+                  response, contrailListModel);
+              }
           }
-                              //Need to add cpu stats
         ];
         var listModelConfig = {
                 remote : {

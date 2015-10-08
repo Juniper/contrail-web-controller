@@ -6,7 +6,9 @@ define([
     'underscore',
     'contrail-view'
 ], function (_, ContrailView) {
+    var noDataStr = monitorInfraConstants.noDataStr;
     var ControlNodesDetailPageView = ContrailView.extend({
+
         el: $(contentContainer),
 
         render: function () {
@@ -19,8 +21,21 @@ define([
 
             self.renderView4Config($('#left-column-container'), null,
                     getControlNodeDetailPageViewConfig(viewConfig));
+            self.renderView4Config($('#right-column-container'), null,
+                    getControlNodeDetailChartViewConfig(viewConfig));
         }
     });
+
+    function getControlNodeDetailChartViewConfig (viewConfig) {
+        return {
+            elementId: 'controlnode_detail_charts_id',
+            title: ctwl.TITLE_DETAILS,
+            view: "ControlNodeDetailsChartsView",
+            viewPathPrefix : ctwl.CONTROLNODE_VIEWPATH_PREFIX,
+            viewConfig: viewConfig
+        }
+    }
+
     var getControlNodeDetailPageViewConfig = function (viewConfig) {
         var hostname = viewConfig['hostname'];
         return {
@@ -246,6 +261,7 @@ define([
     //Derive the IFmap connection status from the parsed data
     function getIfMapConnectionStatus(ctrlNodeData) {
         var cnfNode = '';
+        var noDataStr = monitorInfraConstants.noDataStr;
         try {
             var url = ctrlNodeData.BgpRouterState.ifmap_info.url;
             if (url != null && url != undefined && url != "") {
@@ -290,6 +306,7 @@ define([
 
     //Derive the ip and status of Analytics Node this is connecting to
     function getAnalyticsNodeDetails(ctrlNodeData) {
+        var noDataStr = monitorInfraConstants.noDataStr;
         var anlNode = noDataStr;
         var secondaryAnlNode, status;
         try{
@@ -368,7 +385,7 @@ define([
 
     function getLastLogTime(ctrlNodeData) {
         var lmsg;
-        lmsg = getLastLogTimestamp(ctrlNodeData,"control");
+        lmsg = monitorInfraUtils.getLastLogTimestamp(ctrlNodeData,"control");
         if(lmsg != null){
            try{
               return new Date(parseInt(lmsg)/1000).toLocaleString();

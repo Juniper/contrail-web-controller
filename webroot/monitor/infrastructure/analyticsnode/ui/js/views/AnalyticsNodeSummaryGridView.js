@@ -161,6 +161,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                     body : {
                         options : {
                           detail : false,
+                          enableAsyncPostRender:true,
                           checkboxSelectable : false
                         },
                         dataSource : {

@@ -19,6 +19,8 @@ define([
 
             self.renderView4Config($('#left-column-container'), null,
                     getAnalyticsNodeDetailPageViewConfig(viewConfig));
+            self.renderView4Config($('#right-column-container'), null,
+                    getAnalyticsNodeDetailChartViewConfig(viewConfig));
         }
     });
     var getAnalyticsNodeDetailPageViewConfig = function (viewConfig) {
@@ -84,6 +86,16 @@ define([
                     return obj;
                 }
             }
+        }
+    }
+
+    function getAnalyticsNodeDetailChartViewConfig (viewConfig) {
+        return {
+            elementId: 'analytics_detail_charts_id',
+            title: ctwl.TITLE_DETAILS,
+            view: "AnalyticsNodeDetailsChartsView",
+            viewPathPrefix : ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
+            viewConfig: viewConfig
         }
     }
 
