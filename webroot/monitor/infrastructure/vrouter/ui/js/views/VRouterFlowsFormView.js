@@ -93,9 +93,6 @@ define([
                         ajaxConfig : remoteConfig,
                         dataParser :  function(response) {
                             var retData = monitorInfraParsers.parseVRouterFlowsData(response);
-                            // paginationInfo = retData['paginationInfo'];
-                            // monitorInfraUtils.updateGridTitleWithPagingInfo(
-                            //     $('#' + ctwl.VROUTER_FLOWS_GRID_ID),paginationInfo);
                             return retData['data'];
                         }
                     },

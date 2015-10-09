@@ -215,7 +215,7 @@ define([
                                                 type:'remote',
                                                 url: contrail.format(
                                                     monitorInfraConstants.monitorInfraUrls['VROUTER_VRF_LIST'],
-                                                    hostname,viewConfig['introspectPort']),
+                                                    monitorInfraUtils.getIPOrHostName(viewConfig),viewConfig['introspectPort']),
                                                 async: true,
                                                 dataType: 'xml',
                                                // dataTextField:'text',

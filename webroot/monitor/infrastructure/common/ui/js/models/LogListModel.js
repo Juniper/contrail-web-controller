@@ -4,9 +4,6 @@
 
 define(['contrail-list-model'], function(ContrailListModel) {
     var LogListModel = function() {
-        if (LogListModel.prototype.singletonInstance) {
-            return LogListModel.prototype.singletonInstance;
-        }
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
@@ -69,9 +66,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
             });
             return retArr;
         };
-        LogListModel.prototype.singletonInstance =
-            new ContrailListModel(listModelConfig);
-        return LogListModel.prototype.singletonInstance;
+        return ContrailListModel(listModelConfig);
     };
     return LogListModel;
 });
