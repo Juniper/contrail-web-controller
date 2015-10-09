@@ -1115,7 +1115,7 @@ define(
                     };
                 }
 
-                this.parseVRouterFlowsData = function(response,deferredObj){
+                this.parseVRouterFlowsData = function(response,deferredObj) {
                     var origResponse = response;
                     var isFromACLFlows = false;
                     var ret = [];
@@ -1204,7 +1204,6 @@ define(
                     if(deferredObj != null)
                         deferredObj.resolve();
                     return  {
-                        paginationInfo: paginationInfo,
                         data: ret
                     };
                 }

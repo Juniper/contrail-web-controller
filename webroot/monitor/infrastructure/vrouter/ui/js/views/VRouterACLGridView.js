@@ -156,7 +156,7 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    fixedRowHeight: 30,
+                    // fixedRowHeight: 30,
                     sortable: false
                 },
                 dataSource: {

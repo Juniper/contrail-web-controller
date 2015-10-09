@@ -69,7 +69,7 @@ define([
             function constructvRouterVNUrl(viewConfig) {
                 var url = monitorInfraConstants.monitorInfraUrls['VROUTER_NETWORKS'];
                 var urlParams = $.extend({
-                        ip: monitorInfraUtils.getIPOrHostName(hostname),
+                        ip: monitorInfraUtils.getIPOrHostName(viewConfig),
                         introspectPort: introspectPort
                     },queryParams);
                 return {
