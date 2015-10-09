@@ -139,7 +139,7 @@ define([
 
             if (this.model().isValid(true, "secGrpConfigValidations")) {
                 var locks = this.model().attributes.locks.attributes;
-                var newSecGrpData = this.model().attributes;
+                var newSecGrpData = $.extend({}, true, this.model().attributes);
 
                 var ruleList = this.getSecGrpRuleList(newSecGrpData);
                 var fqnArr = [];

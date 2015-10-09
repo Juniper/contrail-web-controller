@@ -41,6 +41,7 @@ define([
 
         this.URL_QUERY = '/api/admin/reports/query';
         this.URL_GET_GLOBAL_VROUTER_CONFIG = '/api/tenants/config/global-vrouter-config';
+
         this.URL_GET_PROJECT_QUOTA_USED =
             '/api/tenants/config/project-quotas-info?id={0}';
         this.URL_GET_GLOBAL_VROUTER_CONFIG =
@@ -51,6 +52,12 @@ define([
             '/api/tenants/config/securitygroup-details?projUUID={0}'
         this.URL_GET_SEC_GRP_LIST =
             '/api/tenants/config/securitygroup';
+        this.URL_GET_LIST_SERVICE_INSTS_CONFIG =
+            '/api/tenants/config/list-service-instances/{0}';
+        this.URL_GET_SERVICE_INSTS_STATUS =
+            '/api/tenants/config/service-instances-status/{0}';
+        this.URL_GET_SERVICE_INST_TMPLTS =
+            '/api/tenants/config/service-instance-templates/{0}';
 
         this.FILTERS_COLUMN_VN = ['UveVirtualNetworkAgent:interface_list', 'UveVirtualNetworkAgent:in_bandwidth_usage', 'UveVirtualNetworkAgent:out_bandwidth_usage',
             'UveVirtualNetworkConfig:connected_networks', 'UveVirtualNetworkAgent:virtualmachine_list', 'UveVirtualNetworkAgent:acl', 'UveVirtualNetworkAgent:total_acl_rules',
