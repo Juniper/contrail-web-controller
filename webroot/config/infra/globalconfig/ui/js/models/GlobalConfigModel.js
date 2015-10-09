@@ -149,7 +149,8 @@ define([
 
             if (this.model().isValid(true, "globalConfigValidations")) {
                 var locks = this.model().attributes.locks.attributes;
-                var newGlobalConfig = this.model().attributes;
+                var newGlobalConfig =
+                    $.extend({}, true, this.model().attributes);
                 putData['global-vrouter-config'] = {};
                 putData['global-system-config'] = {};
 
@@ -207,7 +208,7 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.LINK_LOCAL_SERVICES_PREFIX_ID));
+                    callbackObj.error(this.getFormErrorText(ctwl.GLOBAL_CONFIG_PREFIX_ID));
                 }
             }
             return returnFlag;

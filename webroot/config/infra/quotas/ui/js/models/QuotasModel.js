@@ -112,7 +112,7 @@ define([
 
             if (this.model().isValid(true, "quotasConfigValidations")) {
                 var locks = this.model().attributes.locks.attributes;
-                var newQuotaLimit = this.model().attributes;
+                var newQuotaLimit = $.extend({}, true, this.model().attributes);
 
                 ajaxConfig = {};
                 ctwu.deleteCGridData(newQuotaLimit);
@@ -153,7 +153,7 @@ define([
                 });
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
-                    callbackObj.error(this.getFormErrorText(ctwl.LINK_LOCAL_SERVICES_PREFIX_ID));
+                    callbackObj.error(this.getFormErrorText(ctwl.QUOTAS_PREFIX_ID));
                 }
             }
             return returnFlag;
