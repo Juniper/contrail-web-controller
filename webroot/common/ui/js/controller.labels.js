@@ -673,6 +673,22 @@ define([
         this.TITLE_DEL_SEC_GRP = 'Delete Security Group';
         this.TITLE_EDIT_SEC_GRP = 'Edit Security Group';
         this.SEC_GRP_DETAILS = 'Security Group Details';
+
+        /* Service Instance */
+        this.CONFIG_SERVICE_INSTANCES_PAGE_ID =
+            'config-service-instances-page';
+        this.CONFIG_SERVICE_INSTANCES_LIST_VIEW_ID =
+            'config-service-instances-list';
+        this.CONFIG_SERVICE_INSTANCES_SECTION_ID = 'svcInst';
+        this.CONFIG_SERVICE_INSTANCES_ID = 'config-service-instances';
+        this.TITLE_SERVICE_INSTANCES = 'Service Instances';
+        this.SERVICE_INSTANCES_GRID_ID = 'service-instances-grid';
+        this.SERVICE_INSTANCES_PREFIX_ID = 'service_instances';
+        this.TITLE_CREATE_LLS = 'Create Service Instance';
+        this.TITLE_ADD_SERVICE_INSTANCE = 'Add Service Instance';
+        this.TITLE_DEL_SERVICE_INSTANCES = 'Delete Service Instance';
+        this.TITLE_EDIT_SERVICE_INSTANCE = 'Edit Service Instance';
+        this.SVC_INST_DETAILS = 'Service Instance Details';
     };
     return CTLabels;
 });
