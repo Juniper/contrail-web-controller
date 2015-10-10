@@ -4,13 +4,20 @@
 
 define(['underscore', 'contrail-view'],function(_, ContrailView){
    var ConfigNodeScatterChartView = ContrailView.extend({
-                                       render : function (){
-                                           this.renderView4Config(this.$el,
-                                           this.model,
-                                           getConfigNodeScatterChartViewConfig()
-                                           );
-                                       }
-                                    });
+        render : function (){
+            var widgetConfig = getValueByJsonPath(this,'attributes;viewConfig;widgetConfig');
+            if(widgetConfig != null) {
+                this.renderView4Config(this.$el,
+                this.model,
+                widgetConfig
+                );
+            }
+            this.renderView4Config(this.$el,
+            this.model,
+            getConfigNodeScatterChartViewConfig()
+            );
+        }
+    });
 
    function getConfigNodeScatterChartViewConfig() {
        return {
@@ -78,7 +85,7 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                 };
 
            layoutHandler.setURLHashParams(hashObj, {
-               p : "mon_infra_configmvc",
+               p : "mon_infra_config",
                merge : false,
                triggerHashChange : true
            });

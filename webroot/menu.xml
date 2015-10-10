@@ -21,14 +21,12 @@ and need to add the iconClass tag wherever we need to show some icons
             </resources>
             <iconClass>icon-bar-chart</iconClass>
             <items>
-                  <item>
-                    <label>Infrastructure</label>
+                <item>
+                    <label>Infrastructure MVC</label>
+                    <init>/monitor/infrastructure/common/ui/js/monitor.infra.init.js</init>
                     <resources>
                         <resource>
                             <rootDir>/monitor/infra/common/ui</rootDir>
-                            <js>monitor_infra_constants.js</js>
-                            <js>monitor_infra_utils.js</js>
-                            <view>monitor_infra_common.view</view>
                         </resource>
                     </resources>
                     <iconClass>icon-desktop</iconClass>
@@ -37,7 +35,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <role>superAdmin</role>
                         </roles>
                         <orchModels>
-                            <model>openstack</model>
+                           <model>openstack</model>
                             <model>cloudstack</model>
                             <model>vcenter</model>
                         </orchModels>
@@ -47,18 +45,18 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <hash>mon_infra_dashboard</hash>
                             <label>Dashboard</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/dashboard/ui</rootDir>
-                                    <view>monitor_infra_dashboard.view</view>
-                                    <js>monitor_infra_dashboard.js</js>
-                                    <class>infraMonitorDashboardView</class>
-                                </resource>
-                            </resources>
-                            <queryParams>
-                                <tab>vRouters</tab>
-                            </queryParams>
                             <searchStrings>Infrastructure Dashboard</searchStrings>
+                              <resources>
+                                  <resource>
+                                      <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
+                                      <template>monInfraDashboard.tmpl</template>
+                                      <js>monInfraDashboard.main.js</js>
+                                      <class>monInfraDashboardLoader</class>
+                                  </resource>
+                              </resources>
+                              <queryParams>
+                                  <tab>vRouters</tab>
+                              </queryParams>
                         </item>
                         <item>
                             <hash>mon_infra_mx</hash>
@@ -104,172 +102,6 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Control Nodes</label>
                             <resources>
                                 <resource>
-                                    <rootDir>/monitor/infra/controlnode/ui</rootDir>
-                                    <view>monitor_infra_controlnode.view</view>
-                                    <js>monitor_infra_controlnode.js</js>
-                                    <js>monitor_infra_controlnode_summary.js</js>
-                                    <js>monitor_infra_controlnode_details.js</js>
-                                    <js>monitor_infra_controlnode_peers.js</js>
-                                    <js>monitor_infra_controlnode_routes.js</js>
-                                    <class>ctrlNodesView</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Monitor Control Nodes</searchStrings>
-                        </item>
-                        <item>
-                            <hash>mon_infra_vrouter</hash>
-                            <label>Virtual Routers</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
-                                    <view>monitor_infra_vrouter.view</view>
-                                    <js>monitor_infra_vrouter.js</js>
-                                    <js>monitor_infra_vrouter_summary.js</js>
-                                    <js>monitor_infra_vrouter_details.js</js>
-                                    <js>monitor_infra_vrouter_interfaces.js</js>
-                                    <js>monitor_infra_vrouter_networks.js</js>
-                                    <js>monitor_infra_vrouter_acl.js</js>
-                                    <js>monitor_infra_vrouter_flows.js</js>
-                                    <js>monitor_infra_vrouter_routes.js</js>
-                                    <class>cmpNodesView</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Monitor Compute Nodes</searchStrings>
-                        </item>
-                        <item>
-                            <hash>mon_infra_analytics</hash>
-                            <label>Analytics Nodes</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/analyticsnode/ui</rootDir>
-                                    <view>monitor_infra_analyticnode.view</view>
-                                    <js>monitor_infra_analyticnode.js</js>
-                                    <js>monitor_infra_analyticsnode_summary.js</js>
-                                    <js>monitor_infra_analyticsnode_details.js</js>
-                                    <js>monitor_infra_analyticsnode_generators.js</js>
-                                    <js>monitor_infra_analyticsnode_qequeries.js</js>
-                                    <class>aNodesView</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Monitor Analytics Nodes</searchStrings>
-                        </item>
-                        <item>
-                            <hash>mon_infra_config</hash>
-                            <label>Config Nodes</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/confignode/ui</rootDir>
-                                    <view>monitor_infra_confignode.view</view>
-                                    <js>monitor_infra_confignode.js</js>
-                                    <js>monitor_infra_confignode_summary.js</js>
-                                    <js>monitor_infra_confignode_details.js</js>
-                                    <class>confNodesView</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Monitor Config Nodes</searchStrings>
-                        </item>
-                        <item>
-                            <hash>mon_infra_database</hash>
-                            <label>Database Nodes</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/dbnode/ui</rootDir>
-                                    <view>monitor_infra_dbnode.view</view>
-                                    <js>monitor_infra_dbnode.js</js>
-                                    <js>monitor_infra_dbnode_summary.js</js>
-                                    <js>monitor_infra_dbnode_details.js</js>
-                                    <class>databaseNodesView</class>
-                                </resource>
-                            </resources>
-                            <searchStrings>Monitor Database Nodes</searchStrings>
-                        </item>
-                    </items>
-                </item>
-                <item>
-                    <label>Infrastructure MVC</label>
-                    <init>/monitor/infrastructure/common/ui/js/monitor.infra.init.js</init>
-                    <resources>
-                        <resource>
-                            <rootDir>/monitor/infra/common/ui</rootDir>
-                            <!-- <js>monitor_infra_constants.js</js> -->
-                            <!-- <js>monitor_infra_utils.js</js> -->
-                            <!-- <view>monitor_infra_common.view</view> -->
-                        </resource>
-                    </resources>
-                    <iconClass>icon-desktop</iconClass>
-                    <access>
-                        <roles>
-                            <role>superAdmin</role>
-                        </roles>
-                        <orchModels>
-                           <model>test</model>
-                           <!-- <model>openstack</model> -->
-                           <!--  <model>cloudstack</model> -->
-                           <!--  <model>vcenter</model>  -->
-                        </orchModels>
-                        <accessFn>hideInFederatedvCenter</accessFn>
-                    </access>
-                    <items>
-                        <item>
-                            <hash>mon_infra_dashboardmvc</hash>
-                            <label>Dashboard</label>
-                            <searchStrings>Infrastructure Dashboard</searchStrings>
-                              <resources>
-                                  <resource>
-                                      <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
-                                      <template>monInfraDashboard.tmpl</template>
-                                      <js>monInfraDashboard.main.js</js>
-                                      <class>monInfraDashboardLoader</class>
-                                  </resource>
-                              </resources>
-                              <queryParams>
-                                  <tab>vRouters</tab>
-                              </queryParams>
-                        </item>
-                        <item>
-                            <hash>mon_infra_mxmvc</hash>
-                            <label>MX Visualisation</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/mx/ui</rootDir>
-                                    <view>monitor_infra_mx.view</view>
-                                    <js>monitor_infra_mx.js</js>
-                                    <class>mxRenderer</class>
-                                </resource>
-                            </resources>
-                        </item>
-                        <item>
-                            <hash>mon_infra_underlaymvc</hash>
-                            <label>Physical Topology</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/monitor/infra/underlay/ui</rootDir>
-                                    <view>monitor_infra_underlay.view</view>
-                                    <view>flow_queries.view</view>
-                                    <view>queries.view</view>
-                                    <js>monitor_infra_underlay.js</js>
-                                    <js>flow_queries.js</js>
-                                    <class>underlayRenderer</class>
-                                </resource>
-                                <resource>
-                                    <rootDir>/monitor/infra/vrouter/ui</rootDir>
-                                    <view>monitor_infra_vrouter.view</view>
-                                    <js>monitor_infra_vrouter.js</js>
-                                    <js>monitor_infra_vrouter_flows.js</js>
-                                    <js>monitor_infra_vrouter_details.js</js>
-                                    <js>monitor_infra_vrouter_interfaces.js</js>
-                                    <js>monitor_infra_vrouter_networks.js</js>
-                                    <js>monitor_infra_vrouter_acl.js</js>
-                                    <js>monitor_infra_vrouter_flows.js</js>
-                                    <js>monitor_infra_vrouter_routes.js</js>
-                                </resource>
-                            </resources>
-                        </item>
-                        <item>
-                            <hash>mon_infra_controlmvc</hash>
-                            <label>Control Nodes</label>
-                            <resources>
-                                <resource>
                                     <rootDir>/monitor/infrastructure/controlnode/ui</rootDir>
                                     <js>controlnode.main.js</js>
                                     <class>controlNodesLoader</class>
@@ -279,7 +111,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Monitor Control Nodes</searchStrings>
                         </item>
                         <item>
-                            <hash>mon_infra_vroutermvc</hash>
+                            <hash>mon_infra_vrouter</hash>
                             <label>Virtual Routers</label>
                             <resources>
                                 <resource>
@@ -292,7 +124,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Monitor Compute Nodes</searchStrings>
                         </item>
                         <item>
-                            <hash>mon_infra_analyticsmvc</hash>
+                            <hash>mon_infra_analytics</hash>
                             <label>Analytics Nodes</label>
                             <resources>
                                 <resource>
@@ -305,7 +137,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Monitor Analytics Nodes</searchStrings>
                         </item>
                         <item>
-                            <hash>mon_infra_configmvc</hash>
+                            <hash>mon_infra_config</hash>
                             <label>Config Nodes</label>
                             <resources>
                                 <resource>
@@ -318,7 +150,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Monitor Config Nodes</searchStrings>
                         </item>
                         <item>
-                            <hash>mon_infra_databasemvc</hash>
+                            <hash>mon_infra_database</hash>
                             <label>Database Nodes</label>
                             <resources>
                                 <resource>

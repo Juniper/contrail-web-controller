@@ -1388,7 +1388,7 @@ define([
         self.updateGridTitleWithPagingInfo = function(gridSel,pagingInfo) {
             var gridHeaderTextElem = $(gridSel).find('.grid-header-text');
             var pageInfoTitle = '';
-            var entriesText = pagingInfo['entries'];
+            var entriesText = getValueByJsonPath(pagingInfo,'entries','');
             var extractedData;
             if(typeof(entriesText) == 'string' ) {
                 extractedData = entriesText.match(/(\d+)-(\d+)\/(\d+)/);
@@ -1400,7 +1400,7 @@ define([
                 var totalCnt = parseInt(extractedData[3]);
                 pageInfoTitle = contrail.format(' ({0} - {1} of {2})',startCnt+1,endCnt+1,totalCnt);
             } else {
-                if(pagingInfo['entries'] != null) {
+                if(pagingInfo != null && pagingInfo['entries'] != null) {
                     pageInfoTitle = ' (' + pagingInfo['entries'] + ')';
                 }
             }

@@ -136,7 +136,7 @@ define([
                 },
                 customControls : monitorInfraUtils.getGridPaginationControls(),
                 defaultControls: {
-                    collapseable: false,
+                    collapseable: true,
                     exportable: true,
                     refreshable: false,
                     searchable: true

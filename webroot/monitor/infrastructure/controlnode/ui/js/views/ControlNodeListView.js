@@ -24,6 +24,25 @@ define(
                             view : "ControlNodeScatterChartView",
                             viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                             app : cowc.APP_CONTRAIL_CONTROLLER,
+                            viewConfig: {
+                                widgetConfig: {
+                                    elementId: ctwc.CONTROLNODE_SUMMARY_CHART_ID + '-widget',
+                                    view: "WidgetView",
+                                    viewConfig: {
+                                        header: {
+                                            title: ctwl.CONTROLNODE_SUMMARY_TITLE,
+                                            // iconClass: "icon-search"
+                                        },
+                                        controls: {
+                                            top: {
+                                                default: {
+                                                    collapseable: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }]
                     },{
                         columns : [{

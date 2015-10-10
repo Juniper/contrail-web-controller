@@ -395,6 +395,7 @@ function getvRouterDetailConfigUVEData (configData, uuidList, nodeList, addGen,
     }
     postData['cfilt'] = ['VrouterStatsAgent:cpu_info',
         'VrouterAgent:virtual_machine_list',
+        'VrouterAgent:vn_count',
         'VrouterAgent:self_ip_list',
         'VrouterAgent:xmpp_peer_list',
         'VrouterAgent:total_interface_count',

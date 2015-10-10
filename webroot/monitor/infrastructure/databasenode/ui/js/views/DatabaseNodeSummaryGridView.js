@@ -162,7 +162,7 @@ define(
                 }
 
                 layoutHandler.setURLHashParams(hashObj, {
-                    p: "mon_infra_databasemvc",
+                    p: "mon_infra_database",
                     merge: false,
                     triggerHashChange: triggerHashChange});
 

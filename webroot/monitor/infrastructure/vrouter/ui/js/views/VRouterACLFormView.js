@@ -155,7 +155,7 @@ define([
                                     elementId: 'acl_uuid',
                                     view: "FormInputView",
                                     viewConfig: {
-                                        label: 'Name',
+                                        label: 'UUID',
                                         path: 'acl_uuid',
                                         dataBindValue: 'acl_uuid',
                                         class: "span6",
@@ -169,6 +169,7 @@ define([
                                     view: "FormButtonView",
                                     viewConfig: {
                                         label: "Search",
+                                        iconClass: "icon-search",
                                         class: 'display-inline-block margin-0-10-0-0',
                                         elementConfig: {
                                             btnClass: 'btn-primary'

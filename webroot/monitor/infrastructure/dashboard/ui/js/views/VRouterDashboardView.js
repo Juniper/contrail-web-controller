@@ -4,18 +4,55 @@
 
 define(
     ['underscore', 'contrail-view', 'monitor-infra-vrouter-model'],
-    function(
-        _, ContrailView, VRouterListModel) {
-        var VRouterDashobardView = ContrailView.extend({
-            render: function() {
-                var vRouterListModel = new VRouterListModel();
-                this.renderView4Config(this.$el,
-                    vRouterListModel,
-                    getVRouterListViewConfig());
-            }
-        });
+    function(_, ContrailView, VRouterListModel,BarChartInfoView) {
+        var VRouterDashobardView = ContrailView.extend(
+           (function() {
+                var self = this;
+                //Returning inside IIFE to make private static variable
+                var totalCntModel = new Backbone.Model({
+                    vnCnt:''
+                });
+                return {
+                        render: function() {
+                            var self = this;
+                            var vRouterListModel = new VRouterListModel();
 
-        function getVRouterListViewConfig() {
+                            this.renderView4Config(self.$el,
+                                vRouterListModel,
+                                getVRouterListViewConfig({totalCntModel:totalCntModel}),null,null,null,
+                                function() {
+                                    updateVnCnt(totalCntModel);
+                                });
+                        }
+                    }
+            })()
+        );
+
+        function updateVnCnt(totalCntModel) {
+            var self = this;
+            var vnCnt;
+            //Issue a call to get Network count
+            $.ajax({
+                url:'/api/tenant/networking/virtual-networks/list',
+                type:'POST',
+                data:{}
+            }).done(function(response) {
+                if(response != null) {
+                    $.each(response,function(idx,obj) {
+                        if((obj['name'].indexOf(':default-project:') == -1) && obj['name'] != '__UNKNOWN__') {
+                            if($.isNumeric(vnCnt)) {
+                                vnCnt++;
+                            } else {
+                                vnCnt = 1;
+                            }
+                        }
+                    });
+                    totalCntModel.set({vnCnt:vnCnt});
+                }
+            });
+        }
+
+        function getVRouterListViewConfig(cfgObj) {
             return {
                 elementId: cowu.formatElementId([
                     ctwl.VROUTER_DASHBOARD_SECTION_ID
@@ -38,8 +75,9 @@ define(
                                     title:'Interfaces'
                                 },{
                                     field:'vnCnt',
-                                    title:'Networks'
-                                }]
+                                    title:'VNs'
+                                }],
+                                totalCntModel: cfgObj['totalCntModel']
                             }
                         },{
                             elementId: ctwl.VROUTER_DASHBOARD_CHART_ID,

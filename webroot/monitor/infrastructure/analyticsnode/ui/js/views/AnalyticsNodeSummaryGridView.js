@@ -199,7 +199,7 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                 }
 
                 layoutHandler.setURLHashParams(hashObj, {
-                    p: "mon_infra_analyticsmvc",
+                    p: "mon_infra_analytics",
                     merge: false,
                     triggerHashChange: triggerHashChange});
 

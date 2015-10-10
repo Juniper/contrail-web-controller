@@ -26,7 +26,7 @@ define([
             var crossFilterCfg = getValueByJsonPath(self,'attributes;viewConfig;config',[]);
             //Clean-up the charts section if it's already rendered before
             self.$el.find('.charts').empty();
-            var vRoutersData = self.model.getItems();
+            var vRoutersData = self.model.getFilteredItems();
             var vRouterCF = crossfilter(vRoutersData);
             var dimensions = {};
             var filterDimension = vRouterCF.dimension(function(d) {
@@ -93,7 +93,7 @@ define([
             if(self.model.loadedFromCache) {
                 self.renderCrossFilters();
             }
-            self.model.onAllRequestsComplete.subscribe(function() {
+            self.model.onDataUpdate.subscribe(function() {
                 self.renderCrossFilters();
             });
         }

@@ -396,6 +396,7 @@ define([
             'vrouter-nodes-scatterchart-section';
         this.CACHE_VROUTER = 'cache-vrouter-nodes';
         
+        this.VROUTER_TAB_SEARCH_PREFIX = 'Search';
         this.VROUTER_TAB_SECTION_ID = 'vrouter_tab_section';
         this.VROUTER_TAB_VIEW_ID = 'vrouter_tab_view';
         this.VROUTER_DETAILS_SECTION_ID = 'vrouter_details_section';

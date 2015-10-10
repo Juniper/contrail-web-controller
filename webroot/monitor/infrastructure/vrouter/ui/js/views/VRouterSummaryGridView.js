@@ -222,7 +222,7 @@ define(
                 }
 
                 layoutHandler.setURLHashParams(hashObj, {
-                    p: "mon_infra_vroutermvc",
+                    p: "mon_infra_vrouter",
                     merge: false,
                     triggerHashChange: triggerHashChange});
 

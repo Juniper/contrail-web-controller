@@ -336,7 +336,7 @@ define(
                         obj['type'] = 'analyticsNode';
                         obj['display_type'] = 'Analytics Node';
                         obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
-                            '$.CollectorState.build_info')[0]), '-');
+                            '$.value.CollectorState.build_info')[0]), '-');
                         try {
                             obj['status'] = getOverallNodeStatus(d, "analytics");
                         } catch(e) {
@@ -513,6 +513,7 @@ define(
                             'value;ConfigData')) ? true : false;
                         obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(d,
                             'value;databaseNode'))) ? true : false;
+                        obj['version'] = noDataStr;
                         var configData;
                         if(!obj['isConfigMissing']){
                             configData = getValueByJsonPath(d,'value;ConfigData');

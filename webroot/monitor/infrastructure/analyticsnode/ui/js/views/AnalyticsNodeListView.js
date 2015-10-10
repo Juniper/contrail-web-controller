@@ -25,6 +25,25 @@ define(
                                     view : "AnalyticsNodeScatterChartView",
                                     viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
                                     app : cowc.APP_CONTRAIL_CONTROLLER,
+                                    viewConfig: {
+                                        widgetConfig: {
+                                            elementId: ctwc.ANALYTICSNODE_SUMMARY_CHART_ID + '-widget',
+                                            view: "WidgetView",
+                                            viewConfig: {
+                                                header: {
+                                                    title: ctwl.ANALYTICSNODE_SUMMARY_TITLE,
+                                                    // iconClass: "icon-search"
+                                                },
+                                                controls: {
+                                                    top: {
+                                                        default: {
+                                                            collapseable: true
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }]
                             },{
                                 columns : [{

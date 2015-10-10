@@ -24,7 +24,26 @@ define(
                                 title : ctwl.DATABASENODE_SUMMARY_TITLE,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
                                 view : "DatabaseNodeScatterChartView",
-                                viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH
+                                viewPathPrefix: ctwl.MONITOR_INFRA_VIEW_PATH,
+                                viewConfig: {
+                                    widgetConfig: {
+                                        elementId: ctwc.DATABASENODE_SUMMARY_CHART_ID + '-widget',
+                                        view: "WidgetView",
+                                        viewConfig: {
+                                            header: {
+                                                title: ctwl.DATABASENODE_SUMMARY_TITLE,
+                                                // iconClass: "icon-search"
+                                            },
+                                            controls: {
+                                                top: {
+                                                    default: {
+                                                        collapseable: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                             }]
                         },
                         {

@@ -30,6 +30,25 @@ define(
                             viewPathPrefix: "monitor/infrastructure/" +
                                 "common/ui/js/views/",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
+                            viewConfig: {
+                                widgetConfig: {
+                                    elementId: ctwc.VROUTER_SUMMARY_CHART_ID + '-widget',
+                                    view: "WidgetView",
+                                    viewConfig: {
+                                        header: {
+                                            title: ctwl.VROUTER_SUMMARY_TITLE,
+                                            // iconClass: "icon-search"
+                                        },
+                                        controls: {
+                                            top: {
+                                                default: {
+                                                    collapseable: true
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }]
                     }, {
                         columns: [{

@@ -28,6 +28,25 @@ define(
                                 viewPathPrefix:
                                     ctwl.MONITOR_INFRA_VIEW_PATH,
                                 app : cowc.APP_CONTRAIL_CONTROLLER,
+                                viewConfig: {
+                                    widgetConfig: {
+                                        elementId: ctwc.CONFIGNODE_SUMMARY_CHART_ID + '-widget',
+                                        view: "WidgetView",
+                                        viewConfig: {
+                                            header: {
+                                                title: ctwl.CONFIGNODE_SUMMARY_TITLE,
+                                                // iconClass: "icon-search"
+                                            },
+                                            controls: {
+                                                top: {
+                                                    default: {
+                                                        collapseable: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
                                     } ]
                         },{
                             columns : [ {

@@ -177,7 +177,7 @@ define(
                 }
 
                 layoutHandler.setURLHashParams(hashObj, {
-                    p: "mon_infra_configmvc",
+                    p: "mon_infra_config",
                     merge: false,
                     triggerHashChange: triggerHashChange});
 

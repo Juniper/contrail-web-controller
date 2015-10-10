@@ -284,34 +284,7 @@ define([
                                         }
                                     }
                                 }],
-                        },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'vrouter_flows_query',
-                                    view: "FormButtonView",
-                                    viewConfig: {
-                                        label: "Search",
-                                        class: 'display-inline-block margin-0-10-0-0',
-                                        elementConfig: {
-                                            btnClass: 'btn-primary'
-                                        }
-                                    }
-                                },
-                                {
-                                    elementId: 'vrouter_flows_reset',
-                                    view: "FormButtonView",
-                                    viewConfig: {
-                                        label: "Reset",
-                                        class: 'display-inline-block margin-0-10-0-0',
-                                        elementConfig: {
-                                            onClick: "reset"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    ]
+                        }]
                 }
             };
         }

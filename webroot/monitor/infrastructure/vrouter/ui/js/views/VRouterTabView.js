@@ -84,7 +84,25 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_INTERFACES_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX + ' ' + ctwl.VROUTER_INTERFACES_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
                 },{
                     elementId: 'vrouter_networks_tab_id',
                     title: 'Networks',
@@ -92,7 +110,25 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_NETWORKS_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX + ' ' + ctwl.VROUTER_NETWORKS_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
                 },{
                     elementId: 'vrouter_acl_tab_id',
                     title: 'ACL',
@@ -100,7 +136,25 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: $.extend({},viewConfig,{
+                        widgetConfig: {
+                            elementId: ctwl.VROUTER_ACL_GRID_ID + '-widget',
+                            view: "WidgetView",
+                            viewConfig: {
+                                header: {
+                                    title: ctwl.VROUTER_TAB_SEARCH_PREFIX + ' ' + ctwl.VROUTER_ACL_TITLE,
+                                    // iconClass: "icon-search"
+                                },
+                                controls: {
+                                    top: {
+                                        default: {
+                                            collapseable: true
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    })
                 },{
                     elementId: 'vrouter_flows_tab_id',
                     title: 'Flows',

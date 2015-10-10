@@ -41,9 +41,11 @@ define([
         render: function () {
             var self = this;
             var dashboardTmpl = contrail.getTemplate4Id(cowc.TMPL_INFRA_DASHBOARD);
-            self.$el.append(dashboardTmpl);
-            this.infoBoxView = new InfoboxesView({el:$(contentContainer).
-                find('#dashboard-infoboxes')});
+            self.$el.html(dashboardTmpl);
+            this.infoBoxView = new InfoboxesView({
+                el: $(contentContainer).
+                    find('#dashboard-infoboxes')
+            });
             var infoBoxList = getInfoboxesConfig();
             for(var i=0;i<infoBoxList.length;i++) {
                 this.infoBoxView.add(infoBoxList[i]);
