@@ -519,12 +519,16 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>BGP Routers</label>
                             <hash>config_infra_bgp</hash>
                             <resources>
-                                <resource>
-                                    <rootDir>/config/bgp/ui</rootDir>
-                                    <view>bgp_config.view</view>
-                                    <js>bgp_config.js</js>
-                                    <class>bgpConfigObj</class>
+                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
                                 </resource>
+                                <resource>
+                                    <rootDir>/config/infra/bgp/ui</rootDir>
+                                    <js>bgp.main.js</js>
+                                    <class>configBGPPageLoader</class>
+                                    <function>renderBGP</function>
+                                 </resource>
                             </resources>
                             <searchStrings>Configure BGP Routers</searchStrings>
                         </item>
