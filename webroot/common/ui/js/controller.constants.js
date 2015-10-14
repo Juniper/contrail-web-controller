@@ -126,7 +126,7 @@ define([
         this.UCID_CONNECTED_NETWORK_TRAFFIC_STATS_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:traffic-stats";
         this.UCID_INSTANCE_INTERFACE_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:interfaces";
         this.UCID_INSTANCE_CPU_MEMORY_LIST = this.UCID_PREFIX_MN_LISTS + "{0}:{1}:cpu-memory";
-        
+
         this.UCID_NODE_CPU_MEMORY_LIST = 'node_details' + "{0}:cpu-memory";
 
         this.GRAPH_DIR_LR = "LR";
@@ -419,6 +419,66 @@ define([
         this.URL_ALARM_DETAILS_IN_CHUNKS =
             '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
 
+        //BGP
+        this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';
+        this.URL_GET_ASN = '/api/tenants/admin/config/global-asn';
+        this.BGP_ADDRESS_FAMILY_DATA = [
+                                           {
+                                               text : 'inet-vpn',
+                                               value : 'inet-vpn',
+                                               locked : true
+                                           },
+                                           {
+                                               text : 'inet6-vpn',
+                                               value : 'inet6-vpn'
+                                           },
+                                           {
+                                                text : 'route-target',
+                                                value : 'route-target'
+                                           },
+                                           {
+                                                text : 'e-vpn',
+                                                value : 'e-vpn'
+                                           }
+                                       ];
+        this.CN_ADDRESS_FAMILY_DATA = [
+                                          {
+                                              text : 'route-target',
+                                              value : 'route-target',
+                                              locked : true
+                                          },
+                                          {
+                                              text : 'inet-vpn',
+                                              value : 'inet-vpn',
+                                              locked : true
+                                          },
+                                          {
+                                               text : 'inet6-vpn',
+                                               value : 'inet6-vpn',
+                                               locked : true
+                                          },
+                                          {
+                                               text : 'e-vpn',
+                                               value : 'e-vpn',
+                                               locked : true
+                                          },
+                                          {
+                                               text : 'erm-vpn',
+                                               value : 'erm-vpn',
+                                               locked : true
+                                          }
+                                      ];
+         this.AUTHENTICATION_DATA = [
+                                        {
+                                            text : 'None',
+                                            value : 'none'
+                                        },
+                                        {
+                                            text : 'md5',
+                                            value : 'md5'
+                                        }
+                                    ];
+
         //Physical Routers constants
         this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =
             '/api/tenants/config/physical-routers-with-intf-count';
@@ -430,8 +490,8 @@ define([
         this.URL_VIRTUAL_NETWORK_DETAILS =
             'api/tenants/config/virtual-networks';
         this.SNMP_VERSION_DATA = [
-            {'value' : 'v2', "text" : '2'},
-            {'value' : 'v3', "text" : '3'}
+            {'value' : 'v2', "label" : '2'},
+            {'value' : 'v3', "label" : '3'}
         ];
         this.SNMP_SECURITY_LEVEL = [
             {'value' : 'none', "text" : 'None'},
