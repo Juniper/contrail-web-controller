@@ -552,40 +552,6 @@ define([
         this.TOR_AGENT = "TOR Agent";
         this.TITLE_EDIT_PHYSICAL_ROUTER = "Edit Physical Router";
 
-        // Query Engine labels
-        this.QE_FLOW_SERIES_ID = "qe-flow-series";
-        this.QE_FLOW_SERIES_SECTION_ID = "qe-flow-series-section";
-        this.QE_FLOW_SERIES_TAB_ID = "qe-flow-series-tab";
-        this.QE_FLOW_SERIES_GRID_ID = "qe-flow-series-grid";
-        this.QE_FLOW_SERIES_CHART_ID = "qe-flow-series-chart";
-        this.QE_FLOW_SERIES_CHART_PAGE_ID = 'qe-flow-series-chart-page';
-        this.QE_FLOW_SERIES_LINE_CHART_ID = "qe-flow-series-line-chart"
-        this.QE_FLOW_SERIES_CHART_GRID_ID = "qe-flow-series-chart-grid";
-        this.QE_SELECT_STAT_TABLE = "Select Statistic Table";
-
-        this.QE_STAT_QUERY_ID = "qe-stat-query";
-        this.QE_STAT_QUERY_SECTION_ID = "qe-stat-query-section";
-        this.QE_STAT_QUERY_TAB_ID = "qe-stat-query-tab";
-        this.QE_STAT_QUERY_GRID_ID = "qe-stat-query-grid";
-        this.QE_STAT_QUERY_CHART_ID = "qe-stat-query-chart";
-        this.QE_STAT_QUERY_CHART_PAGE_ID = 'qe-stat-query-chart-page';
-        this.QE_STAT_QUERY_LINE_CHART_ID = "qe-stat-query-line-chart"
-        this.QE_STAT_QUERY_CHART_GRID_ID = "qe-stat-query-chart-grid";
-
-        this.QE_OBJECT_LOGS_ID = "qe-object-logs";
-        this.QE_OBJECT_LOGS_SECTION_ID = "qe--object-logs-section";
-        this.QE_OBJECT_LOGS_TAB_ID = "qe-object-logs-tab";
-        this.QE_OBJECT_LOGS_GRID_ID = "qe-object-logs-grid";
-        this.QE_SELECT_OBJECT_TABLE = "Select Object Table";
-
-        this.TITLE_QUERY = "Query";
-        this.TITLE_RESULTS = "Results";
-        this.TITLE_CHART = "Chart";
-        this.TITLE_FLOW_SERIES = "Flow Series";
-        this.TITLE_FLOW_SERIES_RESULTS = "Flow Series Results";
-        this.TITLE_STATS_QUERY = "Statistics Query";
-        this.TITLE_OBJECT_LOGS = "Object Logs";
-
         // VRouter Config labels
         this.CFG_VROUTER_PAGE_ID = 'config-vrouter-page';
         this.CFG_VROUTER_LIST_ID = 'config-vrouter-list';

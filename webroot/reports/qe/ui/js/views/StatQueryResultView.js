@@ -48,23 +48,23 @@ define([
                 statGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_STAT_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
-                elementId: ctwl.QE_STAT_QUERY_TAB_ID,
+                elementId: cowl.QE_STAT_QUERY_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
                     theme: cowc.TAB_THEME_OVERCAST,
                     activate: function (e, ui) {
                         var selTab = $(ui.newTab.context).text();
-                        if (selTab == ctwl.TITLE_RESULTS) {
-                            $('#' + ctwl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').refreshView();
-                        } else if (selTab == ctwl.TITLE_CHART) {
-                            $('#' + ctwl.QE_STAT_QUERY_CHART_ID).find('svg').trigger('refresh');
-                            $('#' + ctwl.QE_STAT_QUERY_CHART_GRID_ID).data('contrailGrid').refreshView();
+                        if (selTab == cowl.TITLE_RESULTS) {
+                            $('#' + cowl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').refreshView();
+                        } else if (selTab == cowl.TITLE_CHART) {
+                            $('#' + cowl.QE_STAT_QUERY_CHART_ID).find('svg').trigger('refresh');
+                            $('#' + cowl.QE_STAT_QUERY_CHART_GRID_ID).data('contrailGrid').refreshView();
                         }
                     },
                     tabs: [
                         {
-                            elementId: ctwl.QE_STAT_QUERY_GRID_ID,
-                            title: ctwl.TITLE_RESULTS,
+                            elementId: cowl.QE_STAT_QUERY_GRID_ID,
+                            title: cowl.TITLE_RESULTS,
                             view: "GridView",
                             viewConfig: {
                                 elementConfig: getStatQueryGridConfig(statRemoteConfig, statGridColumns, pagerOptions)
@@ -82,7 +82,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_STATS_QUERY,
+                    text: cowl.TITLE_STATS_QUERY,
                     icon : 'icon-table'
                 },
                 defaultControls: {

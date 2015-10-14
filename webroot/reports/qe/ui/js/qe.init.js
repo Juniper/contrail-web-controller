@@ -4,15 +4,13 @@
 
 define([
     'underscore',
-    'reports/qe/ui/js/qe.constants',
     'reports/qe/ui/js/qe.utils',
     'reports/qe/ui/js/qe.model.config',
     'reports/qe/ui/js/qe.grid.config',
     'reports/qe/ui/js/qe.parsers',
     'text!reports/qe/ui/templates/qe.tmpl',
     'reports/qe/ui/js/qe.main'
-], function (_, QEConstants, QEUtils, QEModelConfig, QEGridConfig, QEParsers, QETemplates) {
-    qewc = new QEConstants();
+], function (_, QEUtils, QEModelConfig, QEGridConfig, QEParsers, QETemplates) {
     qewu = new QEUtils();
     qewmc = new QEModelConfig();
     qewgc = new QEGridConfig();

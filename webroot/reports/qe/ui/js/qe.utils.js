@@ -120,6 +120,19 @@ define([
             }
         };
 
+        self.formatReRunTime = function(reRunTimeRange) {
+            var formattedReRunTime = 'custom', timeInSecs;
+            if(reRunTimeRange != null && reRunTimeRange != '0') {
+                timeInSecs = parseInt(reRunTimeRange);
+                if(timeInSecs <= 3600) {
+                    formattedReRunTime = 'Last ' + timeInSecs/60 + ' mins';
+                } else if ( timeInSecs <= 43200) {
+                    formattedReRunTime = 'Last ' + timeInSecs/3600 + ' hrs';
+                }
+            }
+            return formattedReRunTime;
+        };
+
         //TODO- remove this
         self.addFlowMissingPoints = function(tsData, options, plotFields, color, counter) {
             var fromTime = options.fromTime,
@@ -170,11 +183,11 @@ define([
             var chartDataValues = chartDataRow.values,
                 newChartDataValues = {},
                 emptyChartDataValue  = {},
-                toTime = queryFormModel.to_time(),
-                fromTime = queryFormModel.from_time(),
+                toTime = queryFormModel.to_time_utc(),
+                fromTime = queryFormModel.from_time_utc(),
                 timeGranularity = queryFormModel.time_granularity(),
                 timeGranularityUnit = queryFormModel.time_granularity_unit(),
-                timeInterval = timeGranularity * qewc.TIME_GRANULARITY_INTERVAL_VALUES[timeGranularityUnit];
+                timeInterval = timeGranularity * cowc.TIME_GRANULARITY_INTERVAL_VALUES[timeGranularityUnit];
 
             $.each(plotFields, function(plotFieldKey, plotFieldValue) {
                 emptyChartDataValue[plotFieldValue] = 0;
@@ -214,7 +227,7 @@ define([
                 toTimeUTC = now.getTime();
             }
             fromTimeUTC = toTimeUTC - (timeRange * 1000);
-            if (queryPrefix == qewc.FS_QUERY_PREFIX || queryPrefix == qewc.STAT_QUERY_PREFIX) {
+            if (queryPrefix == cowc.FS_QUERY_PREFIX || queryPrefix == cowc.STAT_QUERY_PREFIX) {
                 toTime = toTimeUTC;
                 fromTime = fromTimeUTC;
             } else {

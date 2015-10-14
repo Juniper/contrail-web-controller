@@ -19,20 +19,25 @@ define([
             }
 
             contrailListModel.onAllRequestsComplete.subscribe(function() {
-                self.renderFlowSeriesLineChart()
+                //TODO: Load chart only if data is not queued.
+                if (contrailListModel.getItems().length > 0) {
+                    self.renderFlowSeriesLineChart()
+                }
             });
         },
 
         renderFlowSeriesLineChart: function() {
-            var self = this,
-                viewConfig = self.attributes.viewConfig,
-                queryId = viewConfig['queryId'],
-                selectArray = viewConfig['selectArray'],
-                modelMap = contrail.handleIfNull(self.modelMap, {});
+            var self = this;
+            if (self.model.getLength() > 0) {
+                var viewConfig = self.attributes.viewConfig,
+                    queryId = viewConfig['queryId'],
+                    selectArray = viewConfig['selectArray'],
+                    modelMap = contrail.handleIfNull(self.modelMap, {});
 
-            modelMap[qewc.UMID_FLOW_SERIES_LINE_CHART_MODEL] = new ContrailListModel({data: []});
-            modelMap[qewc.UMID_FLOW_SERIES_CHART_MODEL] = getChartDataModel(queryId, modelMap);
-            self.renderView4Config(self.$el, null, getQueryChartViewConfig(queryId, selectArray, modelMap), null, null, modelMap);
+                modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL] = new ContrailListModel({data: []});
+                modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL] = getChartDataModel(queryId, modelMap);
+                self.renderView4Config(self.$el, null, getQueryChartViewConfig(queryId, selectArray, modelMap), null, null, modelMap);
+            }
         }
     });
 
@@ -40,19 +45,19 @@ define([
         var flowUrl = '/api/admin/reports/query/flow-classes?queryId=' + queryId;
 
         return {
-            elementId: ctwl.QE_FLOW_SERIES_CHART_PAGE_ID,
+            elementId: cowl.QE_FLOW_SERIES_CHART_PAGE_ID,
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: ctwl.QE_FLOW_SERIES_LINE_CHART_ID,
+                                elementId: cowl.QE_FLOW_SERIES_LINE_CHART_ID,
                                 title: cowl.TITLE_CHART,
                                 view: "LineWithFocusChartView",
                                 viewConfig: {
                                     widgetConfig: {
-                                        elementId: ctwl.QE_FLOW_SERIES_LINE_CHART_ID + '-widget',
+                                        elementId: cowl.QE_FLOW_SERIES_LINE_CHART_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: false,
@@ -83,7 +88,7 @@ define([
                                         yFormatter: function(d) { return cowu.addUnits2Bytes(d, false, false, 1); }
                                     },
                                     loadChartInChunks: true,
-                                    modelKey: qewc.UMID_FLOW_SERIES_LINE_CHART_MODEL
+                                    modelKey: cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL
                                 }
                             }
                         ]
@@ -91,7 +96,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.QE_FLOW_SERIES_CHART_GRID_ID,
+                                elementId: cowl.QE_FLOW_SERIES_CHART_GRID_ID,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig: getChartGridViewConfig(flowUrl, selectArray, modelMap)
@@ -119,8 +124,8 @@ define([
 
     function getChartGridViewConfig(flowUrl, selectArray, modelMap) {
         var columnDisplay = qewgc.getColumnDisplay4Grid(cowc.FLOW_CLASS, cowc.QE_FLOW_TABLE_TYPE, selectArray),
-            lineWithFocusChartModel = modelMap[qewc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
-            chartListModel = modelMap[qewc.UMID_FLOW_SERIES_CHART_MODEL],
+            lineWithFocusChartModel = modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
+            chartListModel = modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL],
             chartColorAvailableKeys = ['id_0', null, null, null, null],
             display = [
                 {
@@ -191,7 +196,7 @@ define([
     };
 
     function getChartDataModel(queryId, modelMap) {
-        var lineWithFocusChartModel = modelMap[qewc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
+        var lineWithFocusChartModel = modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
             chartUrl = '/api/admin/reports/query/chart-data?queryId=' + queryId,
             chartListModel = new ContrailListModel({
             remote: {
@@ -217,8 +222,8 @@ define([
     };
 
     function formatChartData(modelMap, chartColorAvailableKeys) {
-        var queryFormModel = modelMap[qewc.UMID_FLOW_SERIES_FORM_MODEL],
-            chartListModel = modelMap[qewc.UMID_FLOW_SERIES_CHART_MODEL],
+        var queryFormModel = modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL],
+            chartListModel = modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL],
             chartData = [];
 
         $.each(chartColorAvailableKeys, function(colorKey, colorValue) {

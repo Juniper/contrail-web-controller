@@ -34,6 +34,10 @@ function QELoader() {
             case 'renderObjectLogs':
                 this.qeView.renderObjectLogs({hashParams: hashParams});
                 break;
+
+            case 'renderFlowQueue':
+                this.qeView.renderFlowQueue({hashParams: hashParams});
+                break;
         }
     },
 

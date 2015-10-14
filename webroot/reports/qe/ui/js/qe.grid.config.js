@@ -18,6 +18,79 @@ define([
 
             return newColumnDisplay;
         };
+
+        this.getQueueColumnDisplay = function() {
+            return [
+                { id: "startTime", field: "startTime", name:"Date", width:150, minWidth: 150, formatter: function(r, c, v, cd, dc) {
+                        return moment(dc.startTime).format('YYYY-MM-DD HH:mm:ss');
+                    }
+                },
+                { id:"opsQueryId", field:"opsQueryId", name:"Query Id", width:200, sortable:false },
+                { id:"reRunTimeRange", field:"reRunTimeRange", name:"Time Range", width:100, minWidth: 100, sortable:false, formatter: function(r, c, v, cd, dc) {
+                        return qewu.formatReRunTime(dc.reRunTimeRange);
+                    },
+                },
+                { id: "engQuery", field: "engQueryStr", name: "Query", width: 400, formatter: function(r, c, v, cd, dc) {
+                        if(!contrail.checkIfExist(dc.engQueryStr)) {
+                            return "";
+                        }
+                        var engQueryObj = JSON.parse(dc.engQueryStr),
+                            engQueryStr = '';
+
+                        $.each(engQueryObj, function(key, val){
+                            if(key == 'select' && val != ''){
+                                engQueryStr += '<div class="row-fluid"><span class="bolder">' + key.toUpperCase() + '</span> &nbsp;*</div>';
+                            }
+                            else if((key == 'where' || key == 'filter') && val == ''){
+                                engQueryStr += '';
+                            }
+                            else {
+                                var formattedKey = key;
+                                if(key == 'from_time' || key == 'to_time'){
+                                    formattedKey = key.split('_').join(' ');
+                                }
+                                engQueryStr += '<div class="row-fluid word-break-normal"><span class="bolder">' + formattedKey.toUpperCase() + '</span> &nbsp;' + val + '</div>';
+                            }
+                        });
+                        return engQueryStr;
+                    },
+                    sortable:false,
+                    exportConfig: {
+                        allow: true,
+                        advFormatter: function(dc) {
+                            var engQueryObj = JSON.parse(dc.engQueryStr),
+                                engQueryStr = '';
+                            $.each(engQueryObj, function(key, val){
+                                if(key == 'select' && val != ''){
+                                    engQueryStr += key.toUpperCase() + ' * ';
+                                }
+                                else if((key == 'where' || key == 'filter') && val == ''){
+                                    engQueryStr += '';
+                                }
+                                else {
+                                    var formattedKey = key;
+                                    if(key == 'from_time' || key == 'to_time'){
+                                        formattedKey = key.split('_').join(' ');
+                                    }
+                                    engQueryStr += formattedKey.toUpperCase() + ' ' + val + ' ';
+                                }
+                            });
+                            return engQueryStr;
+                        }
+                    }
+                },
+                { id:"progress", field:"progress", name:"Progress", width:75, formatter: function(r, c, v, cd, dc) {
+                        return (dc.status != 'error' && dc.progress != '' && parseInt(dc.progress) > 0) ? (dc.progress + '%') : '-';
+                    }
+                },
+                { id:"count", field:"count", name:"Records", width:75 },
+                { id:"status", field:"status", name:"Status", width:100 },
+                { id:"timeTaken", field:"timeTaken", name:"Time Taken", width:100, sortable:true, formatter: function(r, c, v, cd, dc) {
+                        return ((dc.timeTaken == -1) ? '-' : (parseInt(dc.timeTaken) + ' secs'));
+                    }
+                }
+            ];
+        };
     };
 
     function getColumnDisplay4Query(tableName, tableType) {
@@ -33,6 +106,7 @@ define([
     var columnDisplayMap  = {
         "FlowSeriesTable": [
             {select:"T", display:{id:"T", field:"T", width:180, minWidth:180, name:"Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.T);}, filterable:false, groupable:false}},
+            {select:"T=", display:{id:"T", field:"T", width:180, minWidth:180, name:"Time", formatter: function(r, c, v, cd, dc){ return formatMicroDate(dc.T);}, filterable:false, groupable:false}},
             {select:"vrouter", display:{id:"vrouter",field:"vrouter", width:150, name:"Virtual Router", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.vrouter);}}},
             {select:"sourcevn", display:{id:"sourcevn",field:"sourcevn", width:250, name:"Source VN", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.sourcevn);}}},
             {select:"destvn", display:{id:"destvn", field:"destvn", width:250, name:"Destination VN", groupable:false, formatter: function(r, c, v, cd, dc){ return handleNull4Grid(dc.destvn);}}},

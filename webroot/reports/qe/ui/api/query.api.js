@@ -261,10 +261,11 @@ function executeQuery(res, options) {
                 initPollingConfig(options, queryJSON.start_time, queryJSON.end_time)
                 options['url'] = jsonData['href'];
                 options['opsQueryId'] = parseOpsQueryIdFromUrl(jsonData['href']);
-                setTimeout(fetchQueryResults, 1000, res, jsonData, options);
+                setTimeout(fetchQueryResults, 3000, res, jsonData, options);
                 options['intervalId'] = setInterval(fetchQueryResults, options.pollingInterval, res, jsonData, options);
                 options['timeoutId'] = setTimeout(stopFetchQueryResult, options.pollingTimeout, options);
             } else {
+                console.log("### async === false");
                 processQueryResults(res, jsonData, options);
             }
         }, async ? asyncHeader : {});
@@ -289,8 +290,8 @@ function initPollingConfig(options, fromTime, toTime) {
         timeRange = (toTime - fromTime) / 60000000;
     }
     if (timeRange <= 720) {
-        options.pollingInterval = 5000;
-        options.maxCounter = 2;
+        options.pollingInterval = 10000;
+        options.maxCounter = 1;
         options.pollingTimeout = 3600000;
     } else if (timeRange > 720 && timeRange <= 1440) {
         options.pollingInterval = 30000;

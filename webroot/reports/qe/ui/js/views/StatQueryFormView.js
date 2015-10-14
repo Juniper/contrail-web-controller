@@ -15,17 +15,19 @@ define([
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 statQueryFormModel = new StatQueryFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
 
             self.model = statQueryFormModel;
-            self.$el.append(queryPageTmpl({queryPrefix: qewc.STAT_QUERY_PREFIX }));
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.STAT_QUERY_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(ctwl.QE_STAT_QUERY_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(ctwl.QE_STAT_QUERY_ID));
+                self.model.showErrorAttr(cowl.QE_STAT_QUERY_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_STAT_QUERY_ID));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
-                    self.renderQueryResult();
+                    if (self.model.model().isValid(true, 'runQueryValidation')) {
+                        self.renderQueryResult();
+                    }
                 });
             });
 
@@ -36,14 +38,16 @@ define([
 
         renderQueryResult: function() {
             var self = this,
-                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 responseViewConfig = {
                     view: "StatQueryResultView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {}
-                };
+                },
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
 
+            $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
         },
 
@@ -57,14 +61,16 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'table_name', view: "FormDropdownView",
+                                    elementId: 'table_name', view: "FormComboboxView",
                                     viewConfig: {
-                                        path: 'table_name', dataBindValue: 'table_name', class: "span3",
+                                        path: 'table_name',
+                                        dataBindValue: 'table_name',
+                                        class: "span3",
                                         elementConfig: {
-                                            defaultValueId: 0, allowClear: false, placeholder: ctwl.QE_SELECT_STAT_TABLE,
+                                            defaultValueId: 0, allowClear: false, placeholder: cowl.QE_SELECT_STAT_TABLE,
                                             dataTextField: "name", dataValueField: "name",
                                             dataSource: {
-                                                type: 'remote', url: qewc.URL_TABLES, parse: function (response) {
+                                                type: 'remote', url: cowc.URL_TABLES, parse: function (response) {
                                                     var parsedOptionList = [];
                                                     for(var i = 0; i < response.length; i++) {
                                                         if(response[i].type == 'STAT') {
@@ -85,7 +91,7 @@ define([
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'time_range', dataBindValue: 'time_range', class: "span3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: qewc.TIMERANGE_DROPDOWN_VALUES}}
+                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES}}
                                 },
                                 {
                                     elementId: 'from_time', view: "FormDateTimePickerView",
@@ -111,12 +117,16 @@ define([
                             columns: [
                                 {
                                     elementId: 'select', view: "FormTextAreaView",
-                                    viewConfig: {path: 'select', dataBindValue: 'select', class: "span9", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            var tableName = self.model.table_name();
-                                            self.renderSelect({className: qewu.getModalClass4Table(tableName)});
+                                    viewConfig: {
+                                        path: 'select', dataBindValue: 'select', class: "span9",
+                                        disabled: 'isDisabledSelect()',
+                                        editPopupConfig: {
+                                            renderEditFn: function(event) {
+                                                var tableName = self.model.table_name();
+                                                self.renderSelect({className: qewu.getModalClass4Table(tableName)});
+                                            }
                                         }
-                                    }}
+                                    }
                                 },
                                 {
                                     elementId: 'time-granularity-section',
@@ -159,11 +169,14 @@ define([
                             columns: [
                                 {
                                     elementId: 'where', view: "FormTextAreaView",
-                                    viewConfig: {path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
+                                    viewConfig: {
+                                        path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*",
+                                        editPopupConfig: {
+                                            renderEditFn: function() {
+                                                self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
+                                            }
                                         }
-                                    }}
+                                    }
                                 }
                             ]
                         },

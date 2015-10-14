@@ -46,7 +46,7 @@ define([
                 }
 
                 contrailListModel = new ContrailListModel(listModelConfig);
-                modelMap[qewc.UMID_FLOW_SERIES_FORM_MODEL] = queryFormModel;
+                modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL] = queryFormModel;
                 self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, fsRemoteConfig, serverCurrentTime), null, null, modelMap);
             });
         },
@@ -59,23 +59,23 @@ define([
                 fsGridColumns = qewgc.getColumnDisplay4Grid(cowc.FLOW_SERIES_TABLE, cowc.QE_FLOW_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
-                elementId: ctwl.QE_FLOW_SERIES_TAB_ID,
+                elementId: cowl.QE_FLOW_SERIES_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
                     theme: cowc.TAB_THEME_OVERCAST,
                     activate: function (e, ui) {
                         var selTab = $(ui.newTab.context).text();
-                        if (selTab == ctwl.TITLE_RESULTS) {
-                            $('#' + ctwl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid').refreshView();
-                        } else if (selTab == ctwl.TITLE_CHART) {
-                            $('#' + ctwl.QE_FLOW_SERIES_CHART_ID).find('svg').trigger('refresh');
-                            $('#' + ctwl.QE_FLOW_SERIES_CHART_GRID_ID).data('contrailGrid').refreshView();
+                        if (selTab == cowl.TITLE_RESULTS) {
+                            $('#' + cowl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid').refreshView();
+                        } else if (selTab == cowl.TITLE_CHART) {
+                            $('#' + cowl.QE_FLOW_SERIES_CHART_ID).find('svg').trigger('refresh');
+                            $('#' + cowl.QE_FLOW_SERIES_CHART_GRID_ID).data('contrailGrid').refreshView();
                         }
                     },
                     tabs: [
                         {
-                            elementId: ctwl.QE_FLOW_SERIES_GRID_ID,
-                            title: ctwl.TITLE_RESULTS,
+                            elementId: cowl.QE_FLOW_SERIES_GRID_ID,
+                            title: cowl.TITLE_RESULTS,
                             view: "GridView",
                             viewConfig: {
                                 elementConfig: getFlowSeriesGridConfig(fsRemoteConfig, fsGridColumns, pagerOptions)
@@ -87,8 +87,8 @@ define([
 
             if(selectArray.indexOf("T=") != -1) {
                 resultsViewConfig['viewConfig']['tabs'].push({
-                    elementId: ctwl.QE_FLOW_SERIES_CHART_ID,
-                    title: ctwl.TITLE_CHART,
+                    elementId: cowl.QE_FLOW_SERIES_CHART_ID,
+                    title: cowl.TITLE_CHART,
                     view: "FlowSeriesLineChartView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
@@ -107,7 +107,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.TITLE_FLOW_SERIES,
+                    text: cowl.TITLE_FLOW_SERIES,
                     icon : 'icon-table'
                 },
                 defaultControls: {

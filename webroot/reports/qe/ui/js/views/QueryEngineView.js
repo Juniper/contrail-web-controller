@@ -19,6 +19,10 @@ define([
 
         renderObjectLogs: function (viewConfig) {
             this.renderView4Config(this.$el, null, getObjectLogsViewConfig(viewConfig));
+        },
+
+        renderFlowQueue: function (viewConfig) {
+            this.renderView4Config(this.$el, null, getQueueViewConfig(viewConfig));
         }
     });
 
@@ -32,17 +36,17 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.QE_FLOW_SERIES_ID,
+                                elementId: cowl.QE_FLOW_SERIES_ID,
                                 view: "FlowSeriesFormView",
                                 viewPathPrefix: "reports/qe/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     widgetConfig: {
-                                        elementId: ctwl.QE_FLOW_SERIES_ID + '-widget',
+                                        elementId: cowl.QE_FLOW_SERIES_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: {
-                                                title: ctwl.TITLE_QUERY,
+                                                title: cowl.TITLE_QUERY,
                                                 iconClass: "icon-search"
                                             },
                                             controls: {
@@ -73,17 +77,17 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.QE_STAT_QUERY_ID,
+                                elementId: cowl.QE_STAT_QUERY_ID,
                                 view: "StatQueryFormView",
                                 viewPathPrefix: "reports/qe/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     widgetConfig: {
-                                        elementId: ctwl.QE_STAT_QUERY_ID + '-widget',
+                                        elementId: cowl.QE_STAT_QUERY_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: {
-                                                title: ctwl.TITLE_QUERY,
+                                                title: cowl.TITLE_QUERY,
                                                 iconClass: "icon-search"
                                             },
                                             controls: {
@@ -114,17 +118,17 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.QE_OBJECT_LOGS_ID,
+                                elementId: cowl.QE_OBJECT_LOGS_ID,
                                 view: "ObjectLogsFormView",
                                 viewPathPrefix: "reports/qe/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     widgetConfig: {
-                                        elementId: ctwl.QE_OBJECT_LOGS_ID + '-widget',
+                                        elementId: cowl.QE_OBJECT_LOGS_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: {
-                                                title: ctwl.TITLE_QUERY,
+                                                title: cowl.TITLE_QUERY,
                                                 iconClass: "icon-search"
                                             },
                                             controls: {
@@ -136,6 +140,31 @@ define([
                                             }
                                         }
                                     }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
+    function getQueueViewConfig(config) {
+        var hashParams = config['hashParams'];
+
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: cowl.QE_FLOW_QUEUE_ID,
+                                view: "QueryQueueView",
+                                viewPathPrefix: "reports/qe/ui/js/views/",
+                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                viewConfig: {
+                                    queueType: cowc.QE_FLOW_QUERY_QUEUE
                                 }
                             }
                         ]

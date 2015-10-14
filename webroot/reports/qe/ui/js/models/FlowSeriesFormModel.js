@@ -12,7 +12,7 @@ define([
         defaultSelectFields: ['flow_class_id', 'direction_ing'],
 
         constructor: function (modelData) {
-            var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.FLOW_SERIES_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: qewc.FS_QUERY_PREFIX});
+            var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.FLOW_SERIES_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: cowc.FS_QUERY_PREFIX});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
@@ -20,7 +20,14 @@ define([
             return this;
         },
 
-        validations: {}
+        validations: {
+            runQueryValidation: {
+                'select': {
+                    required: true,
+                    msg: smwm.getRequiredMessage('select')
+                }
+            },
+        }
     });
 
     return FormSeriesFormModel;

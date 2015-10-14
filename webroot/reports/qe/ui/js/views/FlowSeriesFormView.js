@@ -15,17 +15,19 @@ define([
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 flowSeriesQueryModel = new FlowSeriesFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
 
             self.model = flowSeriesQueryModel;
-            self.$el.append(queryPageTmpl({queryPrefix: qewc.FS_QUERY_PREFIX }));
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.FS_QUERY_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(ctwl.QE_FLOW_SERIES_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(ctwl.QE_FLOW_SERIES_ID));
+                self.model.showErrorAttr(cowl.QE_FLOW_SERIES_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_FLOW_SERIES_ID));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
-                    self.renderQueryResult();
+                    if (self.model.model().isValid(true, 'runQueryValidation')) {
+                        self.renderQueryResult();
+                    }
                 });
             });
 
@@ -36,8 +38,8 @@ define([
 
         renderQueryResult: function() {
             var self = this,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
-                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + qewc.FS_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 responseViewConfig = {
                     view: "FlowSeriesResultView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
@@ -62,7 +64,7 @@ define([
                                     elementId: 'time_range', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'time_range', dataBindValue: 'time_range', class: "span3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: qewc.TIMERANGE_DROPDOWN_VALUES}}
+                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.TIMERANGE_DROPDOWN_VALUES}}
                                 },
                                 {
                                     elementId: 'from_time', view: "FormDateTimePickerView",
@@ -145,7 +147,7 @@ define([
                                     elementId: 'direction', view: "FormDropdownView",
                                     viewConfig: {
                                         path: 'direction', dataBindValue: 'direction', class: "span3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: qewc.DIRECTION_DROPDOWN_VALUES}
+                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.DIRECTION_DROPDOWN_VALUES}
                                     }
                                 }
                             ]
