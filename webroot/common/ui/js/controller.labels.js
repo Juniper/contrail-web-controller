@@ -698,6 +698,21 @@ define([
         this.PARENT_TYPE_PINF = 'physical-interface';
         this.TITLE_INTERFACE_DELETE = 'Delete Interface';
         this.TITLE_INTERFACE_MULTI_DELETE = 'Delete Interface(s)';
+
+        //BGP Router labels
+        this.CONFIG_BGP_LIST_ID = "config-bgp-list";
+        this.BGP_GRID_ID = "bgp-grid";
+        this.CONFIG_BGP_SECTION_ID = "config-bgp-section";
+        this.CONFIG_BGP_LIST_VIEW_ID = "config-bgp-list-view";
+        this.TITLE_BGP = "BGP Routers";
+        this.BGP_PREFIX_ID = 'bgp_router';
+        this.TITLE_BGP_DETAILS =  'Details';
+        this.TITLE_BGP_PROPERTIES =  'BGP Properties';
+        this.TITLE_ADD_BGP = 'Create BGP Router';
+        this.TITLE_EDIT_BGP = 'Edit BGP Router';
+        this.CONTROL_NODE_TYPE = 'control_node';
+        this.TITLE_BGP_DELETE = 'Delete BGP Router';
+        this.TITLE_BGP_MULTI_DELETE = 'Delete BGP Router(s)';
     };
     return CTLabels;
 });

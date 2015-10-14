@@ -46,6 +46,34 @@ define([
             }
         ];
 
+        this.bgpRouterColumns = [
+                {
+                    field:"ip",
+                    id:"ip",
+                    name:"IP Address",
+                    sortable: true,
+                    sorter : comparatorIP
+                },
+                {
+                    field:"role",
+                    id:"role",
+                    name:"Type",
+                    sortable: true
+                },
+                {
+                    field:"vendor",
+                    id:"vendor",
+                    name:"Vendor",
+                    sortable: true
+                },
+                {
+                    field:"name",
+                    id:"name",
+                    name:"HostName",
+                    sortable: true
+                }
+        ];
+
         this.getVMInterfacesLazyRemoteConfig = function () {
             return [
                 {

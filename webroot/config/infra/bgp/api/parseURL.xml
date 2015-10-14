@@ -3,7 +3,7 @@
 -->
 
 <urlLists>
-    <!-- Define module name here which is being referenced in the generated 
+    <!-- Define module name here which is being referenced in the generated
          file
      -->
     <require>
@@ -19,6 +19,12 @@
         <method>get</method>
         <feature>monitoring</feature>
         <callback>adminapi.getControlNodeDetailsFromConfig</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/bgp/get-bgp-routers</url>
+        <method>get</method>
+        <feature>monitoring</feature>
+        <callback>adminapi.getAllBGPRouters</callback>
     </item>
     <item>
         <url>/api/admin/bgp-routers/:type</url>
