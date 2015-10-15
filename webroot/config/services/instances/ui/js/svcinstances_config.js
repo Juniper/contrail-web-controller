@@ -11,7 +11,7 @@ function ServicesInstances() {
     var txtsvcInstanceName, txtMaximumInstances,txt_ln_dis;
 
     //Dropdowns
-    var ddDomain, ddProject, ddsvcTemplate,ddZone,ddZoneHost;
+    var ddDomain, ddProject, ddsvcTemplate,ddZone,ddZoneHost, ddHAMode;
 
     //Grids
     var gridsvcInstances;
@@ -294,6 +294,21 @@ function initComponents() {
         dataValueField:"value"
     });
 
+    var haModeVal = [
+        {text:"None", value:"none"},
+        {text:"Active-Active", value:"active-active"},
+        {text:"Active-Standby", value:"active-standby"}
+    ];
+
+    ddHAMode = $("#ddHAMode").contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        placeholder: "Select HA Mode"
+    });
+    $("#ddHAMode").data("contrailDropdown").setData(haModeVal);
+    $("#ddHAMode").data("contrailDropdown").value(haModeVal[0].value);
+    $("#ddHAMode").data("contrailDropdown").text(haModeVal[0].text);
+
     gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
     gridsvcInstances.showGridMessage('loading');
 
@@ -446,6 +461,18 @@ function initActions() {
             if (maxInstancesTxt != "")
                 maxInstances = parseInt(maxInstancesTxt);
 
+            if(parseInt(maxInstances) > 1) {
+                if($("#ddHAMode").data("contrailDropdown").value() == "active-active" ||
+                    $("#ddHAMode").data("contrailDropdown").value() == "active-standby") {
+                    serviceInstance["service-instance"]["service_instance_properties"]["ha_mode"] = 
+                        $("#ddHAMode").data("contrailDropdown").value();                    
+                } else {
+                    //serviceInstance["service-instance"]["service_instance_properties"]["ha_mode"] = null;                    
+                }
+
+            } else {
+                //serviceInstance["service-instance"]["service_instance_properties"]["ha_mode"] = null;
+            }
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"] = {};
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"]["max_instances"] = maxInstances;
             
@@ -931,6 +958,7 @@ function successHandlerForGridsvcInstanceRow(result) {
         var svc_ordered_interfaces = false;
         var svc_image = "-";
         var availability_zone = "";
+        var ha_mode = "-";
         var showDetail = true;
 
         var svc_tmpl_name_text = svcInstance.service_template_refs[0].to[1];
@@ -963,6 +991,13 @@ function successHandlerForGridsvcInstanceRow(result) {
         if(availability_zone == "" || availability_zone == null){
             availability_zone = "ANY:ANY";
         }
+
+        if(null !== svcInstance['service_instance_properties']['ha_mode'] && 
+            typeof svcInstance['service_instance_properties']['ha_mode'] !== "undefined" 
+            && svcInstance['service_instance_properties']['ha_mode'].trim() !== ""){
+            ha_mode = svcInstance['service_instance_properties']['ha_mode'];
+        }
+
         if("ordered_interfaces" in templateDetail["service_template_properties"] 
            && (templateDetail["service_template_properties"]["ordered_interfaces"] != null 
            && templateDetail["service_template_properties"]["ordered_interfaces"] != undefined 
@@ -1133,6 +1168,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             "order":svc_ordered_interfaces,
             "All_Network":all_network,
             "availability_zone":availability_zone,
+            "ha_mode": ha_mode,
 //            "vmStatus":vmStatus,
             "vmStatus":"update",
             "vmStatusData":"update",
@@ -1465,6 +1501,22 @@ function zoneChange(who){
     var ddZoneText = $("#ddZone").data("contrailDropdown").text();
     setHostForZone(ddZoneText);
 }
+
+function toggleStateHAMode() {
+    try{
+        if(parseInt($(txtMaximumInstances).val()) > 1) {
+            $("#ddHAMode").removeAttr("disabled","disabled");
+            $("#ddHAMode").data("contrailDropdown").enable();
+        } else {
+            $("#ddHAMode").data("contrailDropdown").value("none");
+            $("#ddHAMode").attr("disabled","disabled");
+        }
+    } catch(e) {
+        $("#ddHAMode").data("contrailDropdown").value("none");
+        $("#ddHAMode").attr("disabled","disabled");
+    }
+}
+
 function svcTemplateChange(who,editData,mode) {
     
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
@@ -1473,6 +1525,8 @@ function svcTemplateChange(who,editData,mode) {
     $("#maxInstances").addClass("hide");
     $("#avilZone").addClass("hide");
     $(txtMaximumInstances).val("1");
+    $("#ddHAMode").data("contrailDropdown").value("none");
+    $("#ddHAMode").attr("disabled","disabled");
 
     closeAllStaticRout();
 
@@ -1528,6 +1582,18 @@ function svcTemplateChange(who,editData,mode) {
                 }
             }
             $(txtMaximumInstances).val(editData.ServiceProperties.scale_out.max_instances);
+            var ha_mode = editData.ServiceProperties.ha_mode;
+            if(null !== ha_mode && typeof ha_mode === "string" &&
+                ha_mode.trim() !== "" && ha_mode.trim() !== "-")
+                $("#ddHAMode").data("contrailDropdown").value(ha_mode);
+            else
+                $("#ddHAMode").data("contrailDropdown").value("none");
+            if(parseInt(editData.ServiceProperties.scale_out.max_instances) > 1) {
+                $("#ddHAMode").removeAttr("disabled","disabled");
+                $("#ddHAMode").data("contrailDropdown").enable();
+            } else {
+                $("#ddHAMode").attr("disabled","disabled");
+            }
         }
         if(mode == "edit"){
             if(data != null || data != undefined)
@@ -1596,6 +1662,9 @@ function clearPopupValues() {
     var ddsvcTemplateData = $("#ddsvcTemplate").data("contrailDropdown").getAllData();
     if(ddsvcTemplateData.length > 0)
         $("#ddsvcTemplate").data("contrailDropdown").value(ddsvcTemplateData[0].value);
+    var ddHAModeTempData = $("#ddHAMode").data("contrailDropdown").getAllData();
+    if(ddHAModeTempData.length > 0)
+        $("#ddHAMode").data("contrailDropdown").value(ddHAModeTempData[0].value);
 }
 /*
  * Create Window
@@ -1894,6 +1963,12 @@ function destroy() {
     if(isSet(ddProject)) {
         ddProject.destroy();
         ddProject = $();
+    }
+
+    ddHAMode = $("#ddHAMode").data("contrailDropdown");
+    if(isSet(ddHAMode)) {
+        ddHAMode.destroy();
+        ddHAMode = $();
     }
     
     txtsvcInstanceName = $("#txtsvcInstanceName");
