@@ -756,12 +756,12 @@ function initActions() {
                 typeof vnConfig["virtual-network"]["virtual_network_properties"] === "undefined")
             vnConfig["virtual-network"]["virtual_network_properties"] = {};
 
-        if(mode === "edit" && currentVn.hasOwnProperty("virtual_network_properties") &&
+        /*if(mode === "edit" && currentVn.hasOwnProperty("virtual_network_properties") &&
             currentVn["virtual_network_properties"].hasOwnProperty("rpf") && 
             null  !== currentVn["virtual_network_properties"]["rpf"]) {
             vnConfig["virtual-network"]["virtual_network_properties"]["rpf"] = 
                 currentVn["virtual_network_properties"]["rpf"];
-        }
+        }*/
 
         if(typeof fwdMode !== "undefined" && "" !== fwdMode) {
             vnConfig["virtual-network"]["virtual_network_properties"]
@@ -775,6 +775,10 @@ function initActions() {
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = true;
         else
             vnConfig["virtual-network"]["virtual_network_properties"]["allow_transit"] = false;
+        if($("#chk_rpf")[0].checked === true)
+            vnConfig["virtual-network"]["virtual_network_properties"]["rpf"] = "enable";
+        else
+            vnConfig["virtual-network"]["virtual_network_properties"]["rpf"] = "disable";
         if($("#chk_flood_unknown_unicast")[0].checked === true)
             vnConfig["virtual-network"]["flood_unknown_unicast"] = true;
         else
@@ -2105,6 +2109,18 @@ function successHandlerForGridVNRow(result) {
         else {
             at = "Disabled";
         }
+        var rpf = jsonPath(vn, "$.virtual_network_properties.rpf");
+        if (rpf !== false && typeof rpf !== "undefined" && rpf.length > 0 && rpf[0] != null && rpf[0] != undefined) {
+            rpf = rpf[0];
+        } else {
+            rpf = "enable";
+        }
+        if(String(rpf) === "disable")
+            rpf = "Disabled";
+        else {
+            rpf = "Enabled";
+        }
+
         var AllowTransit = at;
         var staticIPAddressing = jsonPath(vn, "$.external_ipam");
         if (staticIPAddressing !== false && typeof staticIPAddressing !== "undefined" && staticIPAddressing.length > 0 && staticIPAddressing[0] != null && staticIPAddressing[0] != undefined) {
@@ -2333,6 +2349,7 @@ function successHandlerForGridVNRow(result) {
                 "ForwardingMode": fwdMode,
                 "VxLanId": vxlanid,
                 "AllowTransit": AllowTransit,
+                "RPF": rpf,
                 "flood_unknown_unicast": flood_unknown_unicast,
                 "staticIPAddressing" : staticIPAddressing,
                 "NetworkUUID": uuid,
@@ -2470,6 +2487,7 @@ function clearValuesFromDomElements() {
     $("#router_external")[0].checked = false;
     $("#is_shared")[0].checked = false;
     $("#allow_transit")[0].checked = false;
+    $("#chk_rpf")[0].checked = true;
     $('#static_ip').attr('disabled',false);
     $('#static_ip')[0].checked = false;
     $('#static_ip').parents('.control-group').hide();
@@ -2839,6 +2857,13 @@ function showVNEditWindow(mode, rowIndex) {
                             $("#allow_transit")[0].checked = true;
                         else
                             $("#allow_transit")[0].checked = false;
+                    }
+                    if(null !== vnProps["rpf"] && 
+                        typeof vnProps["rpf"] === "string" &&
+                        "disable" ===  vnProps["rpf"].trim()) {
+                            $("#chk_rpf")[0].checked = false;
+                    } else {
+                        $("#chk_rpf")[0].checked = true;
                     }
                 }
                 if(isVCenter()) {
