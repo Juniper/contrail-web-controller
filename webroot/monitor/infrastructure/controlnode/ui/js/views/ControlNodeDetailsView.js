@@ -16,15 +16,8 @@ define([
             var currentHashParams = layoutHandler.getURLHashParams(),
                 tabConfig = {};
 
-//            if (contrail.checkIfExist(currentHashParams.clickedElement)) {
-                tabConfig = getControlNodeTabsViewConfig (currentHashParams);
-//            } else {
-//                tabConfig = ctwgrc.getTabsViewConfig(ctwc.GRAPH_ELEMENT_NETWORK, {
-//                    fqName: networkFQN,
-//                    uuid: networkUUID
-//                });
-//            }
-
+            tabConfig = getControlNodeTabsViewConfig (currentHashParams);
+            pushBreadcrumb([currentHashParams.focusedElement.node]);
             this.renderView4Config(this.$el, null, tabConfig, null, null, null);
         }
     });

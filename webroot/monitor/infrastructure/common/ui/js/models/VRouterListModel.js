@@ -21,8 +21,17 @@ define(['contrail-list-model'], function(ContrailListModel) {
                         monitorInfraUtils.parseAndMergeGeneratorWithPrimaryDataForInfraNodes(
                         response, contrailListModel);
                     }
+                },
+                {
+                    getAjaxConfig: function(responseJSON) {
+                        return monitorInfraUtils.getAjaxConfigForInfraNodesCpuStats(
+                                monitorInfraConstants.COMPUTE_NODE,responseJSON,'summary');
+                    },
+                    successCallback: function(response, contrailListModel) {
+                        monitorInfraUtils.parseAndMergeCpuStatsWithPrimaryDataForInfraNodes(
+                        response, contrailListModel);
+                    }
                 }
-                //Need to add cpu stats
                 ]
             },
             cacheConfig : {

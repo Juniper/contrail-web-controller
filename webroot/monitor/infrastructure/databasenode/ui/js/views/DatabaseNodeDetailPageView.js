@@ -19,6 +19,8 @@ define([
 
             self.renderView4Config($('#left-column-container'), null,
                     getDatabaseNodeDetailPageViewConfig(viewConfig));
+            self.renderView4Config($('#right-column-container'), null,
+                    getDatabaseNodeDetailChartViewConfig(viewConfig));
         }
     });
     var getDatabaseNodeDetailPageViewConfig = function (viewConfig) {
@@ -69,32 +71,19 @@ define([
 
                     obj['databaseUsage'] = '&nbsp;';
 
-                    /* TODO Not required for DB Node. need to see if reqd in future
-                    var ipDeferredObj = $.Deferred();
-                    monitorInfraUtils.getReachableIp(obj['ip'].split(','),
-                            "8089",ipDeferredObj);
-                    ipDeferredObj.done (function (nodeIp) {
-                        if(nodeIp != null) {
-                        var leftColumnContainer = '#left-column-container';
-                            monitorInfraUtils.
-                                createFooterLinks($(leftColumnContainer).parent(),
-                            {
-                                onIntrospectClick: function () {
-                                            monitorInfraUtils.
-                                                onIntrospectLinkClick(nodeIp,
-                                                        '8089');
-                                        },
-                                onStatusClick : function () {
-                                                    monitorInfraUtils.
-                                                        onStatusLinkClick(nodeIp);
-                                                }
-                            });
-                        }
-                    });
-                    */
                     return obj;
                 }
             }
+        }
+    }
+
+    function getDatabaseNodeDetailChartViewConfig (viewConfig) {
+        return {
+            elementId: 'database_detail_charts_id',
+            title: ctwl.TITLE_DETAILS,
+            view: "DatabaseNodeDetailsChartsView",
+            viewPathPrefix : ctwl.DATABASENODE_VIEWPATH_PREFIX,
+            viewConfig: viewConfig
         }
     }
 

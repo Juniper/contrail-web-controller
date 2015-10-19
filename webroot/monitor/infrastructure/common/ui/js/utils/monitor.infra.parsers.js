@@ -588,7 +588,7 @@ define(
                     return verStr;
                 };
                 //Parser function for Control Node Routes
-                
+
                 this.getSecurityGroup = function (sg){
                     var ret = "";
                     sg = ifNullOrEmptyObject(sg,[]);
@@ -603,7 +603,7 @@ define(
                     }
                     return ret;
                 }
-                
+
                 this.parseRoutes = function (response,routesQueryString) {
                     var routesArr = [], routeTables = [], routeInstances = [];
                     var routes = response;
@@ -1457,7 +1457,8 @@ define(
                         var label = nhData['label'];
                         var mcDataString = '';
                         var mcData;
-                        if (nextHopData['mc_list'] != null && nextHopData['mc_list']['list'] != null && nextHopData['mc_list']['list']['McastData'] != null) {
+                        if (nextHopData['mc_list'] != null &&
+                                nextHopData['mc_list']['list'] != null && nextHopData['mc_list']['list']['McastData'] != null) {
                             mcData = nextHopData['mc_list']['list']['McastData'];
                             if (mcData.length > 1) {
                                 for (var a = 0; a < mcData.length; a++) {

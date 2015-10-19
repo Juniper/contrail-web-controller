@@ -577,6 +577,19 @@ define([
             return ajaxConfig;
         };
 
+        self.getAjaxConfigForInfraNodesCpuStats = function (dsName,responseJSON,source) {
+            var ajaxConfig = {};
+            //build the query
+            var postData = self.getPostDataForCpuMemStatsQuery(dsName,source);
+            ajaxConfig = {
+                url: monitorInfraConstants.monitorInfraUrls['QUERY'],
+                type:'POST',
+                data:JSON.stringify(postData)
+            }
+            return ajaxConfig;
+        };
+
+
         self.parseInfraGeneratorsData = function(result) {
             var retArr = [];
             if(result != null && result[0] != null){
@@ -910,6 +923,78 @@ define([
             });
             primaryDS.updateData(updatedData);
         };
+
+        self.parseAndMergeCpuStatsWithPrimaryDataForInfraNodes =
+            function (response,primaryDS) {
+            var statsData = self.parseCpuStatsDataToHistory10(response)
+//            statsDSData = statsDSData['dataSource'].getItems();
+            var primaryData = primaryDS.getItems();
+            var updatedData = [];
+          //to avoid the change event getting triggered copy the data into another array and use it.
+//            var statsData = [];
+//            $.each(statsDSData,function (idx,obj){
+//                statsData.push(obj);
+//            });
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(statsData.length > 0 && idx < statsData.length){
+                    if(statsData[idx]['name'] == d['name']){
+                        d['histCpuArr'] = self.parseUveHistoricalValues(statsData[idx],'$.value.history-10');
+                        statsData.splice(idx,1);
+                        break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+        }
+
+        self.parseUveHistoricalValues = function (d,path,histPath) {
+            var histData;
+            if(histPath != null)
+                histData = getValueByJsonPath(d,histPath,[]);
+            else
+                histData = ifNull(jsonPath(d,path)[0],[]);
+            var histDataArr = [];
+            $.each(histData,function(key,value) {
+                histDataArr.push([JSON.parse(key)['ts'],value]);
+            });
+            histDataArr.sort(function(a,b) { return a[0] - b[0];});
+            histDataArr = $.map(histDataArr,function(value,idx) {
+                return value[1];
+            });
+            return histDataArr;
+        }
+
+        self.parseCpuStatsDataToHistory10 = function(statsData){
+            var ret = {};
+            var retArr = [];
+            if(statsData == null && statsData['data'] == null && statsData.length == 0){
+                return [];
+            }
+            statsData = statsData['data'];
+            $.each(statsData,function(idx,d){
+                var source = d['Source'];
+                var t = JSON.stringify({"ts":d['T']});
+
+                if(ret[source] != null && ret[source]['history-10'] != null){
+                    var hist10 = ret[source]['history-10'];
+                    hist10[t] = d['cpu_info.cpu_share'];
+                } else {
+                    ret[source] = {};
+                    ret[source]['history-10'] = {};
+                    ret[source]['history-10'][t] = d['cpu_info.cpu_share'];
+                }
+            });
+            $.each(ret,function(key,val){
+               var t = {};
+               t["name"] = key;
+               t["value"] = val;
+               retArr.push(t);
+            });
+            return retArr;
+        },
 
         self.isProcessStateMissing = function(dataItem) {
             var noProcessStateAlert = $.grep(dataItem['processAlerts'],function(obj,idx) {
@@ -1561,14 +1646,13 @@ define([
                 return inputArray;
             }
         }
-        
-        self.getPostDataForCpuMemStatsQuery = function (dsName,source) {
+
+        self.getPostDataForCpuMemStatsQuery = function (dsName,chartType) {
             var postData = {
                     pageSize:50,
                     page:1,
 //                    timeRange:600,
                     tgUnits:'secs',
-//                    fromTimeUTC:'now-10m',
                     fromTimeUTC:'now-2h',
                     toTimeUTC:'now',
                     async:true,
@@ -1578,27 +1662,55 @@ define([
                     groupFields:['Source'],
                     plotFields:['cpu_info.cpu_share']
             }
-            
+
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
                 postData['table'] = 'StatTable.ControlCpuState.cpu_info';
                 postData['where'] = '(cpu_info.module_id = contrail-control)';
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
-                postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                 postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
+                if (chartType != "summary") {
+                    if(chartType == 'vRouterAgent') {
+                        postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                    } else if (chartType == 'vRouterSystem') {
+                        postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+                    }
+                } else {
+                    postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                }
                 postData['where'] = '';
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
                 postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
-                if(source == "details"){
-                    postData['where'] = '(cpu_info.module_id = contrail-collector) OR (cpu_info.module_id = contrail-query-engine) OR (cpu_info.module_id = contrail-analytics-api)';
+                postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                if (chartType != "summary") {
+                    if(chartType == 'analyticsCollector') {
+                        postData['where'] = '(cpu_info.module_id = contrail-collector)';
+                    } else if (chartType == 'analyticsQE') {
+                        postData['where'] = '(cpu_info.module_id = contrail-query-engine)';
+                    } else if (chartType == 'analyticsAnalytics') {
+                        postData['where'] = '(cpu_info.module_id = contrail-analytics-api)';
+                    }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-collector)';
                 }
             } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
                 postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
-                if(source == "details"){
-                    postData['where'] = '(cpu_info.module_id = contrail-api) OR (cpu_info.module_id = contrail-svc-monitor) OR (cpu_info.module_id = contrail-schema)';
+                if (chartType != "summary") {
+                    if(chartType == 'configAPIServer') {
+                        postData['where'] = '(cpu_info.module_id = contrail-api)';
+                    } else if (chartType == 'configServiceMonitor') {
+                        postData['where'] = '(cpu_info.module_id = contrail-svc-monitor)';
+                    } else if (chartType == 'configSchema') {
+                        postData['where'] = '(cpu_info.module_id = contrail-schema)';
+                    }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-api)';
+                }
+            } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
+                postData['table'] = 'StatTable.DatabaseUsageInfo.database_usage';
+                if(chartType == 'database') {
+                    postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
+                    postData['plotFields'] = 'database_usage.disk_space_used_1k';
+                    postData['where'] = "";
                 }
             }
             return postData;

@@ -15,7 +15,7 @@ define([
 
             var currentHashParams = layoutHandler.getURLHashParams(),
                 tabConfig = getAnalyticsTabsViewConfig (currentHashParams);
-
+            pushBreadcrumb([currentHashParams.focusedElement.node]);
             this.renderView4Config(this.$el, null, tabConfig, null, null, null);
         }
     });

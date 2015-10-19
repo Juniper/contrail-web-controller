@@ -14,6 +14,12 @@ define([
         this.configNodeTabs = ['details', 'console', 'generators', 'qequeries'];
         this.dbNodeTabs = ['details'];
 
+        this.COMPUTE_NODE = 'computeNode';
+        this.CONTROL_NODE = 'controlNode';
+        this.ANALYTICS_NODE = 'analyticsNode';
+        this.CONFIG_NODE = 'configNode';
+        this.DATABASE_NODE = 'databaseNode';
+
         this.excludeProcessList = ['contrail-config-nodemgr','contrail-analytics-nodemgr','contrail-control-nodemgr','contrail-snmp-collector','contrail-topology',
             'contrail-vrouter-nodemgr','openstack-nova-compute','contrail-svc-monitor','contrail-schema','contrail-discovery','contrail-zookeeper','redis-sentinel','contrail-device-manager'];
         this.vRouterDashboardChartInitialized = false;
