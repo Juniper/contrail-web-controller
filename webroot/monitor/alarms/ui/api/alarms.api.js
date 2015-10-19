@@ -20,22 +20,8 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
 
 function getAlarms(req, res, appData)
 {
-    opApiServer.apiGet('/analytics/alarms', appData, function(err, alarmLst) {
-        var alarmLstLen = alarmLst.length;
-        var alarmObjArry = [];
-        if(err || alarmLstLen == 0) {
-            commonUtils.handleJSONResponse(err, res, null);
-        }
-        for(var i = 0; i < alarmLstLen; i++) {
-            var name = alarmLst[i].name;
-            var alarmSubStr = name.substr(0, name.length - 1);
-            var alarmUrl = '/analytics/alarms/' + alarmSubStr + '/*';
-            commonUtils.createReqObj(alarmObjArry, alarmUrl, global.HTTP_REQUEST_DELETE,
-                                        null, opApiServer, null, appData);
-        }
-        async.mapLimit(alarmObjArry, global.ASYNC_MAP_LIMIT_COUNT, getAlarmsAsync, function(error, result) {
-            commonUtils.handleJSONResponse(error, res, result);
-        });
+    opApiServer.apiGet('/analytics/alarms', appData, function(err, result) {
+        commonUtils.handleJSONResponse(err, res, result);
     });
 }
 
