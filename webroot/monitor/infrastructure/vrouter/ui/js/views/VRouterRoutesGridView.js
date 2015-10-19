@@ -174,7 +174,12 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
-                    sortable: false
+                    sortable: false,
+                    detail : {
+                        template:
+                            cowu.generateDetailTemplateHTML(getRoutesDetailsTemplateConfig(),
+                                                            cowc.APP_CONTRAIL_CONTROLLER)
+                    }
                 },
                 dataSource: {
                 }
@@ -186,6 +191,23 @@ define([
         return gridElementConfig;
     };
 
-
+    this.getRoutesDetailsTemplateConfig = function() {
+        return{
+            templateGenerator: 'ColumnSectionTemplateGenerator',
+            advancedViewOptions :false,
+             templateGeneratorConfig: {
+                 columns: [
+                     {
+                         rows: [
+                             {
+                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
+                                 templateGeneratorData : 'raw_json'
+                             }
+                         ]
+                     }
+                 ]
+             }
+        }
+    }
     return VRouterRoutesGridView;
 });

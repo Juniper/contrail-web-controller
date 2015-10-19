@@ -27,7 +27,7 @@ define([
                         dataParser: processPeerInfo
                     },
                     cacheConfig: {
-                        ucid: "controlnode_peers_list"
+//                        ucid: "controlnode_peers_list"
                     }
             }
             var contrailListModel = new ContrailListModel(remoteAjaxConfig);
@@ -118,23 +118,11 @@ define([
         },
         body : {
             options : {
-                detail : {
-                    template:
-                        cowu.generateDetailTemplateHTML(getPeersDetailsTemplateConfig(),
-                                                        cowc.APP_CONTRAIL_CONTROLLER)
-                },
+                detail : cowu.getDetailTemplateConfigToDisplayRawJSON(),
                 checkboxSelectable : false
             },
             dataSource : {
                 data : []
-            // remote : {
-            // ajaxConfig : {
-            // url : ctwl.CONTROLNODE_SUMMARY
-            //                        }
-            //                    },
-            //                    cacheConfig : {
-            //                    // ucid: smwc.UCID_ALL_CLUSTER_LIST
-            //                    }
             }
         }
     };
@@ -259,25 +247,6 @@ define([
             dest[key] = src[key];
         }
         return dest;
-    }
-
-    this.getPeersDetailsTemplateConfig = function () {
-        return{
-            templateGenerator: 'ColumnSectionTemplateGenerator',
-            advancedViewOptions :false,
-             templateGeneratorConfig: {
-                 columns: [
-                     {
-                         rows: [
-                             {
-                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
-                                 templateGeneratorData : 'raw_json'
-                             }
-                         ]
-                     }
-                 ]
-             }
-        }
     }
 
     return ControlNodePeersGridView;
