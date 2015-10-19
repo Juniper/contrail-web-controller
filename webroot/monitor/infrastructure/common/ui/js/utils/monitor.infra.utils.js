@@ -577,10 +577,12 @@ define([
             return ajaxConfig;
         };
 
-        self.getAjaxConfigForInfraNodesCpuStats = function (dsName,responseJSON,source) {
+        self.getAjaxConfigForInfraNodesCpuStats = function (dsName,responseJSON) {
             var ajaxConfig = {};
             //build the query
-            var postData = self.getPostDataForCpuMemStatsQuery(dsName,source);
+            var postData = self.getPostDataForCpuMemStatsQuery({
+                nodeType:dsName,
+                node:''});
             ajaxConfig = {
                 url: monitorInfraConstants.monitorInfraUrls['QUERY'],
                 type:'POST',
@@ -1665,7 +1667,10 @@ define([
             }
         }
 
-        self.getPostDataForCpuMemStatsQuery = function (dsName,chartType) {
+        self.getPostDataForCpuMemStatsQuery = function (options) {
+            var dsName = options.nodeType,
+                moduleType = options.moduleType,
+                node = options.node;
             var postData = {
                     pageSize:50,
                     page:1,
@@ -1683,53 +1688,56 @@ define([
 
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
                 postData['table'] = 'StatTable.ControlCpuState.cpu_info';
-                postData['where'] = '(cpu_info.module_id = contrail-control)';
+                if (moduleType != null && moduleType != '') {
+                    postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-control)';
+                } else {
+                    postData['where'] = '(cpu_info.module_id = contrail-control)';
+                }
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
                 postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
-                if (chartType != "summary") {
-                    if(chartType == 'vRouterAgent') {
+                if (moduleType != null && moduleType != '') {
+                    if(moduleType == 'vRouterAgent') {
                         postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
-                    } else if (chartType == 'vRouterSystem') {
+                    } else if (moduleType == 'vRouterSystem') {
                         postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                     }
+                    postData['where'] = '(Source = '+ node +')';
                 } else {
                     postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                    postData['where'] = '';
                 }
-                postData['where'] = '';
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
                 postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
                 postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
-                if (chartType != "summary") {
-                    if(chartType == 'analyticsCollector') {
-                        postData['where'] = '(cpu_info.module_id = contrail-collector)';
-                    } else if (chartType == 'analyticsQE') {
-                        postData['where'] = '(cpu_info.module_id = contrail-query-engine)';
-                    } else if (chartType == 'analyticsAnalytics') {
-                        postData['where'] = '(cpu_info.module_id = contrail-analytics-api)';
+                if (moduleType != null && moduleType != '') {
+                    if(moduleType == 'analyticsCollector') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-collector)';
+                    } else if (moduleType == 'analyticsQE') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-query-engine)';
+                    } else if (moduleType == 'analyticsAnalytics') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-analytics-api)';
                     }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-collector)';
                 }
             } else if (dsName == monitorInfraConstants.CONFIG_NODE) {
                 postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
-                if (chartType != "summary") {
-                    if(chartType == 'configAPIServer') {
-                        postData['where'] = '(cpu_info.module_id = contrail-api)';
-                    } else if (chartType == 'configServiceMonitor') {
-                        postData['where'] = '(cpu_info.module_id = contrail-svc-monitor)';
-                    } else if (chartType == 'configSchema') {
-                        postData['where'] = '(cpu_info.module_id = contrail-schema)';
+                if (moduleType != null && moduleType != '') {
+                    if(moduleType == 'configAPIServer') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-api)';
+                    } else if (moduleType == 'configServiceMonitor') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-svc-monitor)';
+                    } else if (moduleType == 'configSchema') {
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-schema)';
                     }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-api)';
                 }
             } else if (dsName == monitorInfraConstants.DATABASE_NODE) {
                 postData['table'] = 'StatTable.DatabaseUsageInfo.database_usage';
-                if(chartType == 'database') {
-                    postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
-                    postData['plotFields'] = 'database_usage.disk_space_used_1k';
-                    postData['where'] = "";
-                }
+                postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
+                postData['plotFields'] = 'database_usage.disk_space_used_1k';
+                postData['where'] = '(Source = '+ node +')';
             }
             return postData;
         }
