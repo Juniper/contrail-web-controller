@@ -398,6 +398,33 @@ define([
                 }
             });
         };
+
+        this.getDetailTemplateConfigToDisplayRawJSON = function (){
+            return {
+                template:
+                    cowu.generateDetailTemplateHTML(this.getDetailsTemplateWithRawJSON(),
+                                                    cowc.APP_CONTRAIL_CONTROLLER)
+            }
+        };
+
+        this.getDetailsTemplateWithRawJSON = function () {
+            return{
+                templateGenerator: 'ColumnSectionTemplateGenerator',
+                advancedViewOptions :false,
+                 templateGeneratorConfig: {
+                     columns: [
+                         {
+                             rows: [
+                                 {
+                                     templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
+                                     templateGeneratorData : 'raw_json'
+                                 }
+                             ]
+                         }
+                     ]
+                 }
+            }
+        };
     };
 
     return CTUtils;
