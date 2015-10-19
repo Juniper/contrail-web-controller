@@ -28,7 +28,7 @@ define([
                         dataParser: parseGenInfo
                     },
                     cacheConfig: {
-                        ucid: "analyticsnode_generators_list"
+//                        ucid: "analyticsnode_generators_list"
                     }
             }
             var contrailListModel = new ContrailListModel(remoteAjaxConfig);
@@ -95,12 +95,7 @@ define([
             },
             body : {
                 options : {
-                    detail : {
-                        template:
-                            cowu.generateDetailTemplateHTML(
-                                    getGeneratorsDetailsTemplateConfig(),
-                                    cowc.APP_CONTRAIL_CONTROLLER)
-                    },
+                    detail: ctwu.getDetailTemplateConfigToDisplayRawJSON(),
                     checkboxSelectable : false
                 },
                 dataSource : {
@@ -123,25 +118,6 @@ define([
         };
         return gridElementConfig;
 
-    }
-
-    this.getGeneratorsDetailsTemplateConfig = function () {
-        return{
-            templateGenerator: 'ColumnSectionTemplateGenerator',
-            advancedViewOptions :false,
-             templateGeneratorConfig: {
-                 columns: [
-                     {
-                         rows: [
-                             {
-                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
-                                 templateGeneratorData : 'raw_json'
-                             }
-                         ]
-                     }
-                 ]
-             }
-        }
     }
 
     this.parseGenInfo = function(response)
