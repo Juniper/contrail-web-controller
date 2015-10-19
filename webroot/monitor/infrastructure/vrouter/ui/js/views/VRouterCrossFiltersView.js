@@ -67,6 +67,7 @@ define([
                             var selIds = $.map(selRecords,function(obj,idx) {
                                 return obj.name;
                             });
+                            self.model.updateFromCrossFilter = true;
                             self.model.setFilterArgs({
                                 selIds:selIds
                             });
@@ -93,8 +94,13 @@ define([
             if(self.model.loadedFromCache) {
                 self.renderCrossFilters();
             }
+            //We shouldn't renderCrossFilters when data update triggered from them
             self.model.onDataUpdate.subscribe(function() {
-                self.renderCrossFilters();
+                if(self.model.updateFromCrossFilter == true) {
+                    self.model.updateFromCrossFilter = false;
+                } else {
+                    self.renderCrossFilters();
+                }
             });
         }
     });
