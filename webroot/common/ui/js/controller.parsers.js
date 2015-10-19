@@ -10,25 +10,26 @@ define([
 
         this.alarmDataParser = function(response) {
            var retArr = [];
-           if(response != null && response.length > 0) {
-               for(var i = 0; i < response.length; i++) {
-                   var item = response[i];
-                   if(item.value != null && item.value.length > 0) {
-                       var currItem = item.value[0];
-                       var currObject = {};
-                       currObject.name = currItem.name;
-                       if(currItem.value != null && currItem.value.UVEAlarms != null && currItem.value.UVEAlarms.alarms != null
-                           && currItem.value.UVEAlarms.alarms.length > 0) {
-                           var alertInfo = currItem.value.UVEAlarms.alarms[0];
-                           currObject.type = alertInfo.type;
-                           currObject.ack = alertInfo.ack;
-                           currObject.timestamp = getFormattedDate(alertInfo.timestamp/1000);
-                           currObject.severity = alertInfo.severity;
-                           currObject.description = alertInfo.description;
-                           retArr.push(currObject);
-                       }
-                   }
-               }
+           if(response != null && _.keys(response).length > 0) {
+                for(var currNodeType in response) {
+                    for(var i=0;i<response[currNodeType].length;i++) {
+                        var currItem = response[currNodeType][i];
+                        var currObject = {};
+                        currObject.name = currItem.name + ' (' + currNodeType + ')';
+                        if(currItem.value != null && currItem.value.UVEAlarms != null && currItem.value.UVEAlarms.alarms != null
+                            && currItem.value.UVEAlarms.alarms.length > 0) {
+                            var alertInfo = currItem.value.UVEAlarms.alarms[0];
+                            currObject.type = alertInfo.type;
+                            currObject.ack = alertInfo.ack;
+                            currObject.status = ((alertInfo.ack == null) || (alertInfo.ack == false)) ? 'Unacknowledged' : 'Acknowledged';
+                            currObject.timestamp = getFormattedDate(alertInfo.timestamp/1000);
+                            currObject.severity = alertInfo.severity;
+                            currObject.description = alertInfo.description;
+                            currObject.token = alertInfo.token;
+                            retArr.push(currObject);
+                        }
+                    }
+                }
            }
            return retArr;
         };

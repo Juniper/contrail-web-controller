@@ -24,18 +24,22 @@ define([
             // TODO: Handle multi-tenancy
             //var ucid = projectFQN != null ? (ctwc.UCID_PREFIX_MN_LISTS + projectFQN + ":virtual-networks") : ctwc.UCID_ALL_VN_LIST;
 
-            self.renderView4Config(self.$el, self.model, getAlarmGridViewConfig(alarmRemoteConfig, pagerOptions));
+            self.renderView4Config(self.$el, self.model, getAlarmGridViewConfig(alarmRemoteConfig, pagerOptions),
+                                    null,null,null,
+                                    function() {
+                                        //inialize the severity dropdown
+                                        
+                                         $('#ddSeverity').contrailDropdown({
+                                             dataTextField: 'text',
+                                             dataValueField: 'value',
+                                             change: onSeverityChanged
+                                         });
+                                         var ddSeverity = $('#ddSeverity').data('contrailDropdown');
+                                         ddSeverity.setData([{text: 'All', value: 'all'}, {text: 'Major', value: '3'}, {text: 'Minor', value: '4'}]);
+                                         ddSeverity.value('all');
+                                        GridDS = $('#' + ctwl.ALARMS_GRID_ID).data('contrailGrid')._dataView.getItems()
+                                    });
 
-            //inialize the severity dropdown
-            $('#ddSeverity').contrailDropdown({
-                dataTextField: 'text',
-                dataValueField: 'value',
-                change: onSeverityChanged
-            });
-            var ddSeverity = $('#ddSeverity').data('contrailDropdown');
-            ddSeverity.setData([{text: 'All', value: 'all'}, {text: 'Major', value: '3'}, {text: 'Minor', value: '4'}]);
-            ddSeverity.value('all');
-            GridDS = $('#' + ctwl.ALARMS_GRID_ID).data('contrailGrid')._dataView.getItems()
         }
     });
 
@@ -93,7 +97,7 @@ define([
                     refreshable: true,
                     searchable: true
                 },
-                customControls: ['<a id="btnAcknowledge" class="disabled-link" title="Acknowledge"><i class="  icon-check-sign"></i></a>', 'Severity: <div id="ddSeverity" style="width:65px;"/>']
+                customControls: ['<a id="btnAcknowledge" class="disabled-link" title="Acknowledge"><i class="  icon-check-sign"></i></a>', 'Severity: <div id="ddSeverity" style="width:90px;"/>']
             },
             body: {
                 options: {
@@ -173,7 +177,7 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    key: 'ack',
+                                                    key: 'status',
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 // {
