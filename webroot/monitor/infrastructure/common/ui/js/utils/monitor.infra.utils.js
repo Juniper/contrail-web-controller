@@ -580,7 +580,10 @@ define([
         self.getAjaxConfigForInfraNodesCpuStats = function (dsName,responseJSON,source) {
             var ajaxConfig = {};
             //build the query
-            var postData = self.getPostDataForCpuMemStatsQuery(dsName,source);
+            var postData = self.getPostDataForCpuMemStatsQuery({
+                nodeType:dsName,
+                chartType:source,
+                node:''});
             ajaxConfig = {
                 url: monitorInfraConstants.monitorInfraUrls['QUERY'],
                 type:'POST',
@@ -1647,7 +1650,10 @@ define([
             }
         }
 
-        self.getPostDataForCpuMemStatsQuery = function (dsName,chartType) {
+        self.getPostDataForCpuMemStatsQuery = function (options) {
+            var dsName = options.nodeType,
+                chartType = options.chartType,
+                node = options.node;
             var postData = {
                     pageSize:50,
                     page:1,
@@ -1665,7 +1671,7 @@ define([
 
             if (dsName == monitorInfraConstants.CONTROL_NODE) {
                 postData['table'] = 'StatTable.ControlCpuState.cpu_info';
-                postData['where'] = '(cpu_info.module_id = contrail-control)';
+                postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-control)';
             } else if (dsName == monitorInfraConstants.COMPUTE_NODE) {
                 postData['table'] = 'StatTable.ComputeCpuState.cpu_info';
                 if (chartType != "summary") {
@@ -1674,20 +1680,21 @@ define([
                     } else if (chartType == 'vRouterSystem') {
                         postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
                     }
+                    postData['where'] = '(Source = '+ node +')';
                 } else {
                     postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
+                    postData['where'] = '';
                 }
-                postData['where'] = '';
             } else if (dsName == monitorInfraConstants.ANALYTICS_NODE) {
                 postData['table'] = 'StatTable.AnalyticsCpuState.cpu_info';
                 postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
                 if (chartType != "summary") {
                     if(chartType == 'analyticsCollector') {
-                        postData['where'] = '(cpu_info.module_id = contrail-collector)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-collector)';
                     } else if (chartType == 'analyticsQE') {
-                        postData['where'] = '(cpu_info.module_id = contrail-query-engine)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-query-engine)';
                     } else if (chartType == 'analyticsAnalytics') {
-                        postData['where'] = '(cpu_info.module_id = contrail-analytics-api)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-analytics-api)';
                     }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-collector)';
@@ -1696,11 +1703,11 @@ define([
                 postData['table'] = 'StatTable.ConfigCpuState.cpu_info';
                 if (chartType != "summary") {
                     if(chartType == 'configAPIServer') {
-                        postData['where'] = '(cpu_info.module_id = contrail-api)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-api)';
                     } else if (chartType == 'configServiceMonitor') {
-                        postData['where'] = '(cpu_info.module_id = contrail-svc-monitor)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-svc-monitor)';
                     } else if (chartType == 'configSchema') {
-                        postData['where'] = '(cpu_info.module_id = contrail-schema)';
+                        postData['where'] = '(Source = '+ node +' AND cpu_info.module_id = contrail-schema)';
                     }
                 } else {
                     postData['where'] = '(cpu_info.module_id = contrail-api)';
@@ -1710,7 +1717,7 @@ define([
                 if(chartType == 'database') {
                     postData['select'] = 'Source, T, database_usage.disk_space_used_1k, database_usage.analytics_db_size_1k';
                     postData['plotFields'] = 'database_usage.disk_space_used_1k';
-                    postData['where'] = "";
+                    postData['where'] = '(Source = '+ node +')';
                 }
             }
             return postData;

@@ -6,8 +6,10 @@ define(['contrail-list-model'], function(ContrailListModel) {
     var ConfigNodeDetailsSchemaChartListModel = function(config) {
         var hostname = config['node'];
         var postData = monitorInfraUtils.
-                        getPostDataForCpuMemStatsQuery(
-                                monitorInfraConstants.CONFIG_NODE,"configSchema");
+                        getPostDataForCpuMemStatsQuery({
+                                    nodeType:monitorInfraConstants.CONFIG_NODE,
+                                    chartType:"configSchema",
+                                    node:hostname});
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
@@ -20,7 +22,7 @@ define(['contrail-list-model'], function(ContrailListModel) {
                 }
             },
             cacheConfig : {
-                ucid: ctwc.get(ctwc.UCID_NODE_CPU_MEMORY_LIST, hostname)
+//                ucid: ctwc.get(ctwc.UCID_NODE_CPU_MEMORY_LIST, hostname)
             }
         };
         return ContrailListModel(listModelConfig);
