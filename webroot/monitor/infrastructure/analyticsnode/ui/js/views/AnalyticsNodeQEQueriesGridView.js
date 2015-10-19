@@ -27,7 +27,7 @@ define([
                         dataParser: parseQEQueries
                     },
                     cacheConfig: {
-                        ucid: "analyticsnode_qequeries_list"
+//                        ucid: "analyticsnode_qequeries_list"
                     }
             }
             var contrailListModel = new ContrailListModel(remoteAjaxConfig);
@@ -94,12 +94,7 @@ define([
             },
             body : {
                 options : {
-                    detail : {
-                        template:
-                            cowu.generateDetailTemplateHTML(
-                                    getQEQueriesDetailsTemplateConfig(),
-                                    cowc.APP_CONTRAIL_CONTROLLER)
-                    },
+                    detail: cowu.getDetailTemplateConfigToDisplayRawJSON(),
                     checkboxSelectable : false
                 },
                 dataSource : {
@@ -122,25 +117,6 @@ define([
         };
         return gridElementConfig;
 
-    }
-
-    this.getQEQueriesDetailsTemplateConfig = function () {
-        return{
-            templateGenerator: 'ColumnSectionTemplateGenerator',
-            advancedViewOptions :false,
-             templateGeneratorConfig: {
-                 columns: [
-                     {
-                         rows: [
-                             {
-                                 templateGenerator: 'BlockAdvancedOnlyTemplateGenerator',
-                                 templateGeneratorData : 'raw_json'
-                             }
-                         ]
-                     }
-                 ]
-             }
-        }
     }
 
     this.parseQEQueries = function(response){

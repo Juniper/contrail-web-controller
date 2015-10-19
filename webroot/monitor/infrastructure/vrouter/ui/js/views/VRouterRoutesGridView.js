@@ -174,7 +174,8 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false,
                     fixedRowHeight: 30,
-                    sortable: false
+                    sortable: false,
+                    detail: cowu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
                 }
@@ -185,7 +186,6 @@ define([
         };
         return gridElementConfig;
     };
-
 
     return VRouterRoutesGridView;
 });

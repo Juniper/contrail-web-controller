@@ -927,14 +927,8 @@ define([
         self.parseAndMergeCpuStatsWithPrimaryDataForInfraNodes =
             function (response,primaryDS) {
             var statsData = self.parseCpuStatsDataToHistory10(response)
-//            statsDSData = statsDSData['dataSource'].getItems();
             var primaryData = primaryDS.getItems();
             var updatedData = [];
-          //to avoid the change event getting triggered copy the data into another array and use it.
-//            var statsData = [];
-//            $.each(statsDSData,function (idx,obj){
-//                statsData.push(obj);
-//            });
             $.each(primaryData,function(i,d){
                 var idx=0;
                 while(statsData.length > 0 && idx < statsData.length){
@@ -948,7 +942,31 @@ define([
                 updatedData.push(d);
             });
             primaryDS.updateData(updatedData);
-        }
+        };
+
+        self.mergeCollectorDataAndPrimaryData = function (collectorData,primaryDS){
+            var collectors = ifNull(collectorData.value,[]);
+            if(collectors.length == 0){
+                return;
+            }
+            var primaryData = primaryDS.getItems();
+            var updatedData = [];
+            $.each(primaryData,function(i,d){
+                var idx=0;
+                while(collectors.length > 0 && idx < collectors.length){
+                    if(collectors[idx]['name'] == d['name']){
+                        var genInfos = ifNull(jsonPath(collectors[idx],
+                                "$.value.CollectorState.generator_infos")[0],[]);
+                        d['genCount'] = genInfos.length;
+                        collectors.splice(idx,1);
+                        break;
+                    }
+                    idx++;
+                };
+                updatedData.push(d);
+            });
+            primaryDS.updateData(updatedData);
+        };
 
         self.parseUveHistoricalValues = function (d,path,histPath) {
             var histData;
