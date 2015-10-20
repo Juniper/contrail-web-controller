@@ -34,7 +34,7 @@ function VirtualNetworkConfig() {
     var txtVNName, txtVxLanId, txtDisName;
 
     //Multiselects
-    var msNetworkPolicies, msPhysicalRouters;
+    var msNetworkPolicies, msPhysicalRouters, msRouteTables;
 
     //Windows
     var windowCreateVN, confirmRemove, confirmMainRemove;
@@ -303,7 +303,14 @@ function initComponents() {
         dataValueField:"value",
         dropdownCssClass: 'select2-medium-width'
     });
-    
+
+    msRouteTables = $("#msRouteTables").contrailMultiselect({
+        placeholder: "Select Route Tables...",
+        dataTextField:"text",
+        dataValueField:"value",
+        dropdownCssClass: 'select2-medium-width'
+    });
+
     msPhysicalRouters = $("#msPhysicalRouters").contrailMultiselect({
         placeholder: "Select Physical Routers...",
         dataTextField:"text",
@@ -493,6 +500,24 @@ function initActions() {
             }
         }
 
+        var route_tables = $("#msRouteTables").data("contrailMultiselect").getSelectedData();
+        if (route_tables && route_tables.length > 0) {
+            vnConfig["virtual-network"]["route_table_refs"] = [];
+            for (var i = 0; i < route_tables.length; i++) {
+                vnConfig["virtual-network"]["route_table_refs"][i] = {};
+               vnConfig["virtual-network"]["route_table_refs"][i]["attr"] = {};
+                var tmpRouteTable = (route_tables[i].value).split(":");
+                var currentRouteTable = null;
+                if(tmpRouteTable.length > 0){
+                    currentRouteTable = jsonPath(currentVn, "$..route_table_refs[?(@.to[0]=='" + tmpRouteTable[0] + "' && " +
+                    "@.to[1]=='" + tmpRouteTable[1] + "' && @.to[2]=='" + tmpRouteTable[2] + "')]");
+                    vnConfig["virtual-network"]["route_table_refs"][i]["to"] = [];
+                    vnConfig["virtual-network"]["route_table_refs"][i]["to"][0] = tmpRouteTable[0];
+                    vnConfig["virtual-network"]["route_table_refs"][i]["to"][1] = tmpRouteTable[1];
+                    vnConfig["virtual-network"]["route_table_refs"][i]["to"][2] = tmpRouteTable[2];
+                }
+            }
+        }
         var allDNSServerArr = getAllDNSServer();
         var currentHostRout = [];
         var srTuples = $("#srTuples")[0].children;
@@ -2162,6 +2187,25 @@ function successHandlerForGridVNRow(result) {
             }
         }
 
+        var AttachedRouteTablesTxt = "";;
+        var routetablerefs = jsonPath(vn, "$.route_table_refs[*]");
+        if (routetablerefs === false) {
+            AttachedRouteTablesTxt = "";
+        } else {
+            if(routetablerefs.length >= 1){
+                for(var k=0; k<routetablerefs.length; k++) {
+                   var routeTableRef = routetablerefs[k]["to"];
+                    if(AttachedRouteTablesTxt != "") AttachedRouteTablesTxt += "&nbsp;&nbsp;";
+                    if(selectedDomain == routeTableRef[0] && selectedProject == routeTableRef[1]) {
+                        AttachedRouteTablesTxt += routeTableRef[2]+ "<br>";
+                    } else {
+                        AttachedRouteTablesTxt += 
+                        routeTableRef[2] + " (" + routeTableRef[0] + ":" + routeTableRef[1] + ")" + "<br>";
+                    }
+                }
+            }
+        }
+
         var subnets = jsonPath(vn, "$.network_ipam_refs[*].subnet.ipam_subnet");
         if (subnets === false) {
             subnets = "";
@@ -2335,6 +2379,7 @@ function successHandlerForGridVNRow(result) {
                 "displayName": displayName,
                 "AttachedPolicies": reorder_policies,
                 "AttachedPoliciesTxt": reorder_policiesTxt,
+                "AttachedRouteTablesTxt": AttachedRouteTablesTxt,
                 "IPBlocks": subnets,
                 "HostRoutes": hostRoutPrifix,
                 "Ipams": ipams,
@@ -2492,6 +2537,7 @@ function clearValuesFromDomElements() {
     $('#static_ip')[0].checked = false;
     $('#static_ip').parents('.control-group').hide();
     msNetworkPolicies.data("contrailMultiselect").value("");
+    msRouteTables.data("contrailMultiselect").value("");
     msPhysicalRouters.data("contrailMultiselect").value("");
     $('#txtPVlanId').parents('.control-group').hide();
     $('#txtPVlanId').val('');
@@ -2566,7 +2612,10 @@ function showVNEditWindow(mode, rowIndex) {
         url:"/api/tenants/config/physical-routers-list",
         type:"GET"
     });
-
+    getAjaxs[4] = $.ajax({
+        url:"/api/tenants/config/list-route-tables",
+        type:"GET"
+    });
     $.when.apply($, getAjaxs).then(
         function () {
             //all success
@@ -2586,6 +2635,7 @@ function showVNEditWindow(mode, rowIndex) {
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
             //var l2Mode = results[3][0].L2_enable;
             var proutersResult = results[3][0];
+            var routeTables = jsonPath(results[4][0], "$.route-tables[*]");
             //if(l2Mode == false){
             //    $("#ddFwdMode").data("contrailDropdown").enable(false);
             //    $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
@@ -2617,7 +2667,24 @@ function showVNEditWindow(mode, rowIndex) {
                 }
             }
             msNetworkPolicies.data("contrailMultiselect").setData(nps);
-            
+
+            var route_tables = [];
+            configObj["route-tables"] = [];
+            if (null !== routeTables && typeof routeTables === "object" && routeTables.length > 0) {
+                for (var i = 0; i < routeTables.length; i++) {
+                    configObj["route-tables"][i] = {};
+                    configObj["route-tables"][i] = routeTables[i];
+                    var domain = routeTables[i]["fq_name"][0];
+                    var project = routeTables[i]["fq_name"][1];
+                    if(domain === selectedDomain && project === selectedProject) {
+                        route_tables[route_tables.length] = {text:routeTables[i]["fq_name"][2],value:routeTables[i]["fq_name"].join(":")};
+                    } else {
+                        route_tables[route_tables.length] = {text:routeTables[i]["fq_name"][2]+" ("+routeTables[i]["fq_name"][0]+":"+routeTables[i]["fq_name"][1]+") " ,value:routeTables[i]["fq_name"].join(":")};
+                    }
+                }
+            }
+            msRouteTables.data("contrailMultiselect").setData(route_tables);
+
             var nwIpams = jsonPath(results[1][0], "$.network-ipams[*]");
             if (null !== nwIpams && typeof nwIpams === "object" && nwIpams.length > 0) {
                 configObj["network-ipams"] = [];
@@ -2704,6 +2771,17 @@ function showVNEditWindow(mode, rowIndex) {
                     msNetworkPolicies.data("contrailMultiselect").value(reordered_policies);
                 else
                     msNetworkPolicies.data("contrailMultiselect").value("");
+
+                var routetables = jsonPath(selectedVN, "$.route_table_refs[*]");
+                if(false !== routetables && routetables.length > 0) {
+                    var rtables = []
+                    for(var j=0; j<routetables.length; j++) {
+                        rtables.push(routetables[j]["to"].join(":"));
+                    }
+                    msRouteTables.data("contrailMultiselect").value(rtables);
+                } else {
+                    msRouteTables.data("contrailMultiselect").value("");
+                }
 
                 var ipams = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.ipam");
                 var ipBlocks = jsonPath(selectedVN, "$.network_ipam_refs[*].subnet.ipam_subnet");
@@ -3099,7 +3177,13 @@ function destroy() {
         msNetworkPolicies.destroy();
         msNetworkPolicies = $();
     }
-    
+
+    msRouteTables = $("#msRouteTables").data("contrailMultiselect");
+    if(isSet(msRouteTables)) {
+        msRouteTables.destroy();
+        msRouteTables = $();
+    }
+
     msPhysicalRouters = $("#msPhysicalRouters").data("contrailMultiselect");
     if(isSet(msPhysicalRouters)) {
         msPhysicalRouters.destroy();

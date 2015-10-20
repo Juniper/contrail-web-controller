@@ -123,6 +123,17 @@
                                                 </div>
                                             </div>
                                         </div>
+                                        <div class="control-group">
+                                            <label class="control-label">Flow Export Rate</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <input id="txtFlowExportRate"
+                                                        type="text" name="txtFlowExportRate"
+                                                         class="span6">
+                                                    </input>
+                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="rule-item-header margin-0-0-10 span6" style="margin-left:30px !important;width:66%">
                                             <div class="row-fluid">
                                                 <div class="span10">

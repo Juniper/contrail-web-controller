@@ -570,6 +570,19 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Manage Floating IPs</searchStrings>
                         </item>
+                        <item>
+                          <label>Route Tables</label>
+                          <hash>config_net_rt</hash>
+                          <resources>
+                            <resource>
+                              <rootDir>/config/routetables/ui</rootDir>
+                              <view>routetable_config.view</view>
+                              <js>routetable_config.js</js>
+                              <class>routeTableConfigObj</class>
+                            </resource>
+                          </resources>
+                          <searchStrings>Configure Route Tables</searchStrings>
+                        </item>
                    </items>
                 </item>
                 <item>

@@ -92,6 +92,13 @@ function initComponents() {
                             ele = '-';
                         }
                         return ele;
+                    } else if(dc.property === 'Flow Export Rate') {
+                        if(null !== dc.value && typeof dc.value === "string" &&
+                            dc.value.trim() !== "") {
+                            return dc.value;
+                        } else {
+                            return "-";
+                        }
                     } else {
                         return dc.value;
                     }
@@ -282,6 +289,7 @@ function initActions() {
         	}
         }
         var forwarding_mode = $("#ddForwardingMode").data("contrailDropdown").value();
+        var flowExportRate = $("#txtFlowExportRate").val()
         if(null === configObj["global-vrouter-config"] ||
         	typeof configObj["global-vrouter-config"] === "undefined" ||
         	null === configObj["global-vrouter-config"]["uuid"] ||
@@ -306,6 +314,12 @@ function initActions() {
             } else {
                 //Add forwarding_mode only for l2_l3, l2, l3.
                 globalVRouterConfig["global-vrouter-config"]["forwarding_mode"] = forwarding_mode;
+            }
+            if(null !== flowExportRate && typeof flowExportRate === "string" &&
+                flowExportRate.trim() !== "") {
+                globalVRouterConfig["global-vrouter-config"]["flow_export_rate"] = parseInt(flowExportRate);
+            } else {
+                globalVRouterConfig["global-vrouter-config"]["flow_export_rate"] = null;
             }
             fwdOptnURL = "/api/tenants/config/global-vrouter-config/" + gvrId + "/forwarding-options";
             fwdOptnActionType = "PUT";
@@ -424,6 +438,7 @@ function setEditPopupData() {
         $("#epTuples").append(epEntry);
     }
     $('#txtgasn').val(ggasn);
+    $("#txtFlowExportRate").val(actFlowExportRate);
     if(isiBGPAutoMesh) {
          $('#chk_ibgp_auto_mesh').attr('checked', 'checked');
     } else {
@@ -456,7 +471,12 @@ function populateData(result) {
 			//Set default 'automatic' for VxLANIdentifierMode
             actVxlan = vxLanIdentifierModeValues[0];
 		}
-
+        if(null !== gvrConfig["flow_export_rate"] && 
+            typeof gvrConfig["flow_export_rate"] !== "undefined") {
+            actFlowExportRate = gvrConfig["flow_export_rate"]+"";
+        } else {
+            actFlowExportRate = "";
+        }
         if(null !== gvrConfig["forwarding_mode"] && 
             typeof gvrConfig["forwarding_mode"] !== "undefined") {
             orig_forwarding_mode = gvrConfig["forwarding_mode"];
@@ -482,6 +502,8 @@ function populateData(result) {
 	} else {
 		//Set default 'automatic' for VxLANIdentifierMode
         actVxlan = vxLanIdentifierModeValues[0];
+        actFlowExportRate = "";
+        $("#txtFlowExportRate").val("")
 		//Add default MPLSoGRE even if nothing is configured. TBD
 		var epEntry = createEPEntry("MPLSoUDP", 0);
 		$("#epTuples").append(epEntry);
@@ -507,6 +529,7 @@ function populateData(result) {
     }
     gridDS.push({'property' : 'Global ASN', 'value' : ggasn});
     gridDS.push({'property' : 'iBGP Auto Mesh', 'value' : isiBGPAutoMesh});
+    gridDS.push({'property' : 'Flow Export Rate', 'value' : actFlowExportRate});
     gridDS.push({'property' : 'IP Fabric Subnets', 'value':ipFabricSubnets});
     gridDS.push({'property' : 'Forwarding Mode', 'value': (null === orig_forwarding_mode || (typeof orig_forwarding_mode === "string" && 
         orig_forwarding_mode.trim() === "" )) ? fwdModeMap["default"] : fwdModeMap[orig_forwarding_mode]});
@@ -782,6 +805,13 @@ function validate() {
     var vxlanid = $('input:radio[name=vxlanMode]:checked').val();
     var priorities = [];
     var epTuples = $("#epTuples")[0].children;
+    var flowExportRate = $("#txtFlowExportRate").val();
+    if(null !== flowExportRate && typeof flowExportRate === "string" &&
+        isNumber(flowExportRate.trim()) === false) {
+        showInfoWindow("Flow Export Rate should be numeric.", "Invalid Input");
+        return false;
+    }
+
     if (epTuples && epTuples.length > 0) {
     	var encapsulationLabels = ["MPLS Over GRE","MPLS Over UDP","VxLAN"];
     	var encapsulationValues = ["MPLSoGRE","MPLSoUDP","VXLAN"];
