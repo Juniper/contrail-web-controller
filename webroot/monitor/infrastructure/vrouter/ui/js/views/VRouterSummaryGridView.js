@@ -183,6 +183,7 @@ define(
                     },
                     body : {
                         options : {
+                          lazyLoading: false,
                           detail : false,
                           enableAsyncPostRender:true,
                           checkboxSelectable : false

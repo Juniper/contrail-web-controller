@@ -55,7 +55,18 @@ define(
                         obj['shape'] = 'circle';
                         obj['name'] = d['name'];
                         obj['link'] =
-                            {p:'mon_infra_control',q:{node:obj['name'],tab:''}};
+                            {
+                                p: 'mon_infra_control',
+                                q: {
+                                    type: 'controlNode',
+                                    view: 'details',
+                                    focusedElement: {
+                                        node: obj['name'],
+                                        tab:'details'
+                                    }
+                                },
+                                merge:false
+                            };
                         obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
                             '$.value.BgpRouterState.build_info')[0]),'-');
                         obj['totalPeerCount'] =
@@ -243,9 +254,14 @@ define(
                         obj['name'] = d['name'];
                         obj['link'] = {
                             p: 'mon_infra_vrouter',
+                            merge:false,
                             q: {
-                                node: obj['name'],
-                                tab: ''
+                                type: "vRouter",
+                                view: "details",
+                                focusedElement: {
+                                    node: obj['name'],
+                                    tab: 'details'
+                                }
                             }
                         };
                         obj['instCnt'] = getValueByJsonPath(dValue,
@@ -363,9 +379,14 @@ define(
                         obj['name'] = d['name'];
                         obj['link'] = {
                             p : 'mon_infra_analytics',
+                            merge:false,
                             q : {
-                                node : obj['name'],
-                                tab : ''
+                                type: "analyticsNode",
+                                view: "details",
+                                focusedElement: {
+                                    node: obj['name'],
+                                    tab: 'details'
+                                }
                             }
                         };
                         obj['errorStrings'] = ifNull(jsonPath(d,
@@ -433,7 +454,18 @@ define(
                         obj['display_type'] = 'Config Node';
                         obj['name'] = d['name'];
                         obj['link'] =
-                            {p:'mon_infra_config',q:{node:obj['name'],tab:''}};
+                            {
+                                p: 'mon_infra_config',
+                                merge: false,
+                                q: {
+                                    type: "configNode",
+                                    view: "details",
+                                    focusedElement: {
+                                        node: obj['name'],
+                                        tab: 'details'
+                                    }
+                                }
+                            };
                         obj['isNTPUnsynced'] =
                             monitorInfraUtils.isNTPUnsynced(jsonPath(d,'$..NodeStatus')[0]);
                         obj['isConfigMissing'] =
@@ -546,8 +578,17 @@ define(
                         obj['type'] = 'dbNode';
                         obj['display_type'] = 'Database Node';
                         obj['name'] = d['name'];
-                        obj['link'] = {p:'mon_infra_database',
-                            q:{node:obj['name'],tab:''}};
+                        obj['link'] = {
+                            p: 'mon_infra_database',
+                            q: {
+                                type: "databaseNode",
+                                view: "details",
+                                focusedElement: {
+                                    node: obj['name'],
+                                    tab: 'details'
+                                }
+                            }
+                        };
                         obj['processAlerts'] =
                             infraMonitorAlertUtils.getProcessAlerts(d,obj);
                         obj['isPartialUveMissing'] = false;

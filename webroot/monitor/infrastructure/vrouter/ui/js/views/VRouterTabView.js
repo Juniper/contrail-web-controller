@@ -47,8 +47,7 @@ define([
             active: 0,
             activate: function (e, ui) {
                 var selTab = $(ui.newTab.context).text();
-                if (selTab ==
-                        'Details') {
+                if (selTab == 'Details') {
                     $('#' + ctwl.VROUTER_DETAIL_ID).
                         trigger('refresh');
                 } else if (selTab == 'Interfaces') {

@@ -30,7 +30,7 @@ define(
 
         function updateVnCnt(totalCntModel) {
             var self = this;
-            var vnCnt;
+            var vnCnt = 0;
             //Issue a call to get Network count
             $.ajax({
                 url:'/api/tenant/networking/virtual-networks/list',

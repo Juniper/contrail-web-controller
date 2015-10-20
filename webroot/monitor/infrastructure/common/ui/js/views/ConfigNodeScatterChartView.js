@@ -117,22 +117,12 @@ define(['underscore', 'contrail-view'],function(_, ContrailView){
                content : {
                    iconClass : false,
                    info : tooltipData,
-                   actions : [ {
+                   actions : [{
                        type : 'link',
                        text : 'View',
                        iconClass : 'icon-external-link',
-                       callback : function(
-                               data) {
-                           var nodeName = data.name, hashObj = {
-                               node : nodeName
-                           };
-                           layoutHandler.setURLHashParams(hashObj, {
-                               p : "mon_infra_config",
-                               merge : false,
-                               triggerHashChange : true
-                           });
-                       }
-                   } ]
+                       callback : onScatterChartClick
+                   }]
                },
                delay : cowc.TOOLTIP_DELAY
            };
