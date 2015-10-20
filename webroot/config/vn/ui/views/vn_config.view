@@ -83,6 +83,13 @@
             </div>
             <div class="row-fluid">
                 <div>
+                    <span class="span2"><label>Attached Route Table(s)</label></span>
+                    <span class="span10">: {{{AttachedRouteTablesTxt}}}
+                    </span>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div>
                     <span class="span2"><label>Floating IP Pools</label></span>
                     <span class="span10">: {{#FipList this}} {{/FipList}}</span>
                 </div>
@@ -172,9 +179,9 @@
                         <div class="controls">
                             <div class="row-fluid">
                                 <div id="msNetworkPolicies" placeholder="Select Policies..." class="span8" ></div>
+                            </div>
                         </div>
                     </div>
-                </div>
                 <div class="row-fluid">
                     <div class="widget-box transparent">
                         <div class="widget-header">
@@ -459,7 +466,32 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="row-fluid">
+                    <div>
+                        <div class="widget-box transparent collapsed">
+                            <div class="widget-header">
+                                <h4 class="smaller" onclick="scrollUp('#windowCreateVN',this,true)">
+                                    <i class="icon-caret-right grey" ></i>
+                                    <span>Route Tables</span>
+                                </h4>
+                            </div>
+                            <div class="widget-body">
+                                <div class="widget-main padding-4">
+                                    <div class="row-fluid margin-0-0-10">
+                                        <div class="control-group">
+                                            <label class="control-label">Route Table(s)</label>
+                                            <div class="controls">
+                                                <div class="row-fluid">
+                                                    <div id="msRouteTables" placeholder="Select Route Tables..." class="span8" ></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

@@ -1,0 +1,129 @@
+<!--
+ Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="gridRTDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Display Name</label></div>
+                <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span11">
+                                {{display_name}}
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>UUID</label></div>
+                <div class="span10">
+                        <div class="row-fluid">
+                            <div class="span11">
+                                {{uuid}}
+                            </div>
+                        </div>
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Associated Networks</label></div>
+                <div class="span10">
+                    {{{virtual_network_back_refs_string}}}
+                </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Routes</label></div>
+                <div class="span10">
+                    {{{routes_string}}}
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script id="create-rt-template" type="text/x-handlebars-template">
+<!-- Modal -->
+    <div id="windowCreateRT" class="modal modal-980 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">Name</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtRTName" placeholder="Route Table Name" class="span8" />
+                        </div>
+                    </div>
+                </div>
+                <div class="row-fluid">
+                    <div>
+                        <div class="widget-box transparent collapsed">
+                            <div class="widget-header">
+                                <h4 class="smaller" onclick="scrollUp('#windowCreateRT',this,true);">
+                                    <i class="icon-caret-right grey"></i>
+                                    <span>Routes</span>
+                                </h4>
+                            </div>
+                            <div class="widget-body">
+                                <div class="widget-main padding-4">
+                                    <div class="row-fluid margin-0-0-10">
+                                        <div class="rule-item-header margin-0-0-10">
+                                            <div class="row-fluid">
+                                                <div class="span3">
+                                                    <h6>Prefix</h6>
+                                                </div>
+                                                <div class="span3">
+                                                    <h6>Next Hop</h6>
+                                                </div>
+                                                <div class="pull-left" style="margin-left:5px">
+                                                    <div title="Add Route below" class="margin-5 padding-10-0">
+                                                        <i class="icon-plus pull-left" onclick="appendRouteEntry(this, true);"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <div id="routeTuples" class="row-fluid"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>                
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCreateRTCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCreateRTOK" class="btn btn-primary btn-mini">Save</button>
+        </div>
+    </div>
+</div>
+</script>
+<script id="rt-config-template" type="text/x-handlebars-template">    
+    <div class="row-fluid">
+        <div class="row-fluid">
+            <div class="span12">
+                <div id="gridRT"/>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center" >
+                <h6>Confirm Route Table(s) delete</h6>
+            </div>       
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>

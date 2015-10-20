@@ -53,6 +53,11 @@
         <write-access>member</write-access>
     </item>
     <item>
+        <feature>routetablesconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
+    <item>
         <feature>vCenterVNconfig</feature>
     </item>
     <item>

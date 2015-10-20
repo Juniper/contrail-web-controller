@@ -1439,7 +1439,7 @@ var interfacesLen = $("#instanceDiv").children().length;
 
  var span5H72 = document.createElement("h7");
  span5H72.className = "smaller";
- span5H72.textContent = "Next hop";
+ span5H72.textContent = "Next Hop";
  span5Div2.appendChild(span5H72);
 
  var titleDiv = document.createElement("div");

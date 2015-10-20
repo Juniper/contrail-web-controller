@@ -12,6 +12,7 @@ var configJsonModifyObj = {
         },
         'optFields': ['virtual_network_properties',
             'network_ipam_refs', 'network_policy_refs',
+            'route_table_refs',
             'route_target_list', 'is_shared',
             'router_external', 'id_perms:enable',
             'flood_unknown_unicast' ],
@@ -45,6 +46,11 @@ var configJsonModifyObj = {
         'mandateFields': ['fq_name', 'uuid', 'display_name',
                           'virtual_DNS_record_data']
     },
+    'route-table': {
+        'isConfig': true,
+        'optFields': ['routes'],
+        'mandateFields': ['fq_name', 'uuid']
+    },
     'service-instance': {
         'isConfig': true,
         'optFields': ['service_instance_properties'],
@@ -65,7 +71,7 @@ var configJsonModifyObj = {
     },
     'global-vrouter-config': {
         'isConfig': true,
-        'optFields': ['forwarding_mode', 'vxlan_network_identifier_mode', 'encapsulation_priorities', 'linklocal_services'],
+        'optFields': ['forwarding_mode', 'vxlan_network_identifier_mode', 'encapsulation_priorities', 'linklocal_services', 'flow_export_rate'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-topology': {
