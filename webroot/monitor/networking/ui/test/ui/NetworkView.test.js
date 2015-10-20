@@ -128,6 +128,16 @@ define([
             rootView: mnPageLoader.mnView,
             tests: [
                 {
+                    viewId: ctwl.NETWORK_PORT_DIST_ID,
+                    suites: [
+                        {
+                            class: ZoomScatterChartViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        }
+                    ]
+                },
+                {
                     viewId: ctwl.NETWORK_DETAILS_ID,
                     suites: [
                         {
@@ -167,16 +177,6 @@ define([
                     suites: [
                         {
                             class: LineWithFocusChartViewTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.NETWORK_PORT_DIST_ID,
-                    suites: [
-                        {
-                            class: ZoomScatterChartViewTestSuite,
                             groups: ['all'],
                             severity: cotc.SEVERITY_LOW
                         }

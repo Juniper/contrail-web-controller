@@ -7,8 +7,9 @@ define([
     'ct-test-messages',
     'instance-list-view-mock-data',
     'co-grid-contrail-list-model-test-suite',
-    'co-grid-view-test-suite'
-], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+    'co-grid-view-test-suite',
+    'co-chart-view-zoom-scatter-test-suite'
+], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite) {
 
     var moduleId = cttm.INSTANCES_LIST_VIEW_COMMON_TEST_MODULE;
 
@@ -67,12 +68,22 @@ define([
             project: 'default-domain:admin'
         }
     };
-    pageConfig.loadTimeout = 2000;
+    pageConfig.loadTimeout = 5000;
 
     var getTestConfig = function() {
         return {
             rootView: mnPageLoader.mnView,
             tests: [
+                {
+                    viewId: 'instances-cpu-mem-chart',
+                    suites: [
+                        {
+                            class: ZoomScatterChartTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        }
+                    ]
+                },
                 {
                     viewId: 'project-instance-grid',
                     suites: [
@@ -88,8 +99,8 @@ define([
                             modelConfig: {
                                 dataGenerator: cttu.commonGridDataGenerator,
                                 dataParsers: {
-                                    mockDataParseFn: cttu.deleteSizeField,
-                                    gridDataParseFn: cttu.deleteSizeField
+                                    mockDataParseFn: cttu.deleteFieldsForInstanceListViewScatterChart,
+                                    gridDataParseFn: cttu.deleteFieldsForInstanceListViewScatterChart
                                 }
                             }
                         },

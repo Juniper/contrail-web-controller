@@ -55,6 +55,42 @@ define([
         return dataArr;
     };
 
+    this.deleteFieldsForNetworkListViewScatterChart = function (dataArr) {
+        _.each(dataArr, function(data) {
+            if (contrail.checkIfExist(data.size)) {
+                delete data.size;
+            }
+            if (contrail.checkIfExist(data.color)) {
+                delete data.color;
+            }
+        });
+        return dataArr;
+    };
+
+    this.deleteFieldsForInstanceListViewScatterChart = function (dataArr) {
+        _.each(dataArr, function(data) {
+            if (contrail.checkIfExist(data.size)) {
+                delete data.size;
+            }
+            if (contrail.checkIfExist(data.color)) {
+                delete data.color;
+            }
+        });
+        return dataArr;
+    };
+
+    this.deleteFieldsForProjectListViewScatterChart = function (dataArr) {
+        _.each(dataArr, function(data) {
+            if (contrail.checkIfExist(data.size)) {
+                delete data.size;
+            }
+            if (contrail.checkIfExist(data.color)) {
+                delete data.color;
+            }
+        });
+        return dataArr;
+    };
+
     this.commonDetailsDataGenerator = function (viewObj, defObj) {
         var viewConfig = cotu.getViewConfigObj(viewObj),
             modelMap = viewObj.modelMap,
@@ -83,7 +119,10 @@ define([
         getRegExForUrl: getRegExForUrl,
         commonGridDataGenerator: commonGridDataGenerator,
         commonDetailsDataGenerator: commonDetailsDataGenerator,
-        deleteSizeField: deleteSizeField
+        deleteSizeField: deleteSizeField,
+        deleteFieldsForNetworkListViewScatterChart: deleteFieldsForNetworkListViewScatterChart,
+        deleteFieldsForInstanceListViewScatterChart: deleteFieldsForInstanceListViewScatterChart,
+        deleteFieldsForProjectListViewScatterChart: deleteFieldsForProjectListViewScatterChart
     };
 
 });
