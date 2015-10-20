@@ -55,7 +55,10 @@ define([
                 dataParser: function(result) {
                     var ctrlNodeData = result;
                     var obj = monitorInfraParsers.
-                        parseControlNodesDashboardData([result])[0];
+                        parseControlNodesDashboardData([{
+                            name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                            value: result
+                        }])[0];
                     //Further parsing required for Details page done below
                     var overallStatus;
                     try{

@@ -390,9 +390,13 @@ define([
         self.formatMemory = function(memory) {
             if(memory == null || memory['res'] == null)
                 return noDataStr;
-            var usedMemory = parseInt(memory['res']) * 1024;
-            //var totalMemory = parseInt(memory['total']) * 1024;
-            return contrail.format('{0}', formatBytes(usedMemory));
+            return self.formatMemoryForDisplay (memory['res']);
+        }
+
+        self.formatMemoryForDisplay = function (memory) {
+            if (memory == null)
+                return noDataStr;
+            return contrail.format('{0}', formatBytes(parseInt(memory) * 1024));
         }
 
         self.getVrouterIpAddresses = function(data,pageType) {

@@ -18,10 +18,10 @@ define(
                     var retArr = [];
                     $.each(result,function(idx,d) {
                         var obj = {};
-                        obj['x'] = parseFloat(jsonPath(d,'$..cpu_info.cpu_share')[0]);
+                        obj['x'] = parseFloat(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].cpu_share')[0]);
                         //Info:Need to specify the processname explictly
                         //for which we need res memory && Convert to MB
-                        obj['y'] = parseInt(jsonPath(d,'$..meminfo.res')[0])/1024;
+                        obj['y'] = parseInt(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].mem_res')[0])/1024;
                         obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
@@ -47,8 +47,9 @@ define(
                         }
                         obj['summaryIps'] = monitorInfraUtils.
                                             getControlIpAddresses(d,"summary");
-                        obj['memory'] =
-                            formatMemory(ifNull(jsonPath(d,'$..meminfo')[0]),'-');
+                        obj['memory'] = monitorInfraUtils.
+                            formatMemoryForDisplay(ifNull(jsonPath(d,
+                                    '$.value.ControlCpuState.cpu_info[0].mem_res')[0]));
                         obj['size'] =
                             ifNull(jsonPath(d,'$..output_queue_depth')[0],0)+1;
                         obj['shape'] = 'circle';
@@ -1675,6 +1676,28 @@ define(
                                 wrapLabelValue('Label', lbl));
                             return x;
                     }
+                }
+
+                self.getCores = function (data) {
+                    var fileList=[],result=[];
+                    var fileArrList=[];
+                    var procCoreList = jsonPath(data,'$..NodeStatus.process_info[*].core_file_list');
+                    if (procCoreList){
+                        fileArrList = ifNull(procCoreList,[]);
+                    }
+                    // var allCoresList = ifNull(jsonPath(data,'$..NodeStatus.all_core_file_list')[0],[]);
+                    // fileArrList = fileArrList.concat([allCoresList]);
+                    for (var i=0;i<fileArrList.length;i++){
+                        var files=fileArrList[i];
+                       for (var j=0;j<files.length;j++)
+                            fileList.push(files[j])}
+                    if (fileList.length==1){
+                        result.push({lbl:'Core File',value:fileList[0]});
+                    } else if(fileList.length>1){
+                        result.push({lbl:'Cores Files',value:fileList[0]});
+                        for (var i=1;i<fileList.length;i++)
+                            result.push({lbl:'',value:fileList[i]});}
+                    return fileList;
                 }
             };
 

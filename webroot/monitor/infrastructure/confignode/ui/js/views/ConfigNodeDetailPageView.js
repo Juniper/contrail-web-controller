@@ -43,7 +43,10 @@ define([
                     var configNodeData = result;
                     var nodeIp;
                     var obj = monitorInfraParsers.
-                        parseConfigNodesDashboardData([result])[0];
+                        parseConfigNodesDashboardData([{
+                            name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                            value: result
+                        }])[0];
                     //Further parsing required for Details page done below
 
                     var overallStatus;

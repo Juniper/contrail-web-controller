@@ -42,7 +42,10 @@ define([
                     var analyticsNodeData = result;
                     var nodeIp;
                     var obj = monitorInfraParsers.
-                    parseAnalyticsNodesDashboardData([result])[0];
+                    parseAnalyticsNodesDashboardData([{
+                        name: monitorInfraUtils.getIPOrHostName(viewConfig),
+                        value: result
+                    }])[0];
                     //Further parsing required for Details page done below
 
                     var overallStatus;
