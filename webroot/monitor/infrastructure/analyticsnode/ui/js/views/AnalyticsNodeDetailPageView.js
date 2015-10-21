@@ -73,7 +73,7 @@ define([
                     //dummy entry to show empty value in details
                     obj['processes'] = '&nbsp;';
 
-                    obj['cpu'] = getCpuText(obj['cpu']);
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
 
                     obj['analyticsMessages'] = getAnalyticsMessages(
                                                         analyticsNodeData);
@@ -179,7 +179,7 @@ define([
                              key: 'analyticsProcessStatusList.' +
                                  monitorInfraConstants.
                                      UVEModuleIds['APISERVER'],
-                             label: 'API Server',
+                             label: 'OpServer',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
                          }
@@ -236,10 +236,6 @@ define([
         return ips;
     }
 
-    function getCpuText(cpu) {
-        return (cpu != '-')? cpu + ' %' : cpu;
-    }
-
     function getAnalyticsMessages(aNodeData) {
         var msgs = monitorInfraUtils.getAnalyticsMessagesCountAndSize(
                                             aNodeData,['contrail-collector']);
@@ -253,17 +249,21 @@ define([
                 var currProc = processStateList[i];
                 if (currProc.process_name == "contrail-query-engine"){
                     ret[monitorInfraConstants.UVEModuleIds['QUERYENGINE']]
-                                                = getProcessUpTime(currProc);
+                                                = monitorInfraUtils.
+                                                    getProcessUpTime(currProc);
                 }  else if (currProc.process_name ==
                                 "contrail-analytics-nodemgr"){
                     ret[monitorInfraConstants.UVEModuleIds['ANALYTICS_NODEMGR']]
-                                                = getProcessUpTime(currProc);
+                                                = monitorInfraUtils.
+                                                    getProcessUpTime(currProc);
                 }  else if (currProc.process_name == "contrail-analytics-api"){
                     ret[monitorInfraConstants.UVEModuleIds['APISERVER']]
-                                                = getProcessUpTime(currProc);
+                                                = monitorInfraUtils.
+                                                    getProcessUpTime(currProc);
                 } else if (currProc.process_name == "contrail-collector"){
                     ret[monitorInfraConstants.UVEModuleIds['COLLECTOR']]
-                                                = getProcessUpTime(currProc);
+                                                = monitorInfraUtils.
+                                                    getProcessUpTime(currProc);
                 }
             }
         }

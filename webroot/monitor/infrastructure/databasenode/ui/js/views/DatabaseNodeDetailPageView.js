@@ -150,6 +150,13 @@ define([
                              label: 'Database',
                              keyClass: 'indent-right',
                              templateGenerator: 'TextGenerator'
+                         },
+                         {
+                             key: 'databaseProcessStatusList.' +
+                                 monitorInfraConstants.UVEModuleIds['KAFKA'],
+                             label: 'Kafka',
+                             keyClass: 'indent-right',
+                             templateGenerator: 'TextGenerator'
                          }
                     ]
                     : []
@@ -194,11 +201,11 @@ define([
               if(currProc.process_name ==
                   monitorInfraConstants.UVEModuleIds['KAFKA']){
                   ret[monitorInfraConstants.UVEModuleIds['KAFKA']] =
-                      getProcessUpTime(currProc);
+                      monitorInfraUtils.getProcessUpTime(currProc);
               } else if(currProc.process_name ==
                   monitorInfraConstants.UVEModuleIds['DATABASE']){
                  ret[monitorInfraConstants.UVEModuleIds['DATABASE']] =
-                     getProcessUpTime(currProc);
+                     monitorInfraUtils.getProcessUpTime(currProc);
               }
            }
         }

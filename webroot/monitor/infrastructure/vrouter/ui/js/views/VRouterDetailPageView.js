@@ -63,11 +63,13 @@ define([
                                 "NodeStatus;process_info");
                         obj['vrouterProcessStatusList'] =
                             getStatusesForAllvRouterProcesses(procStateList);
-                    }catch(e){}
+                    }catch(e){
+                        console.log(e);
+                    }
 
                     obj['name'] = hostname;
 
-                    obj['ips'] = monitorInfraUtils.getControlIpAddresses(
+                    obj['ips'] = monitorInfraUtils.getVrouterIpAddresses(
                                         vrouterData,'details');
 
                     obj['overallNodeStatus'] = overallStatus;
@@ -95,6 +97,8 @@ define([
                             getFlowCount(vrouterData);
 
                     obj['interfaces'] = getInterfaces (obj);
+
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
 
                     obj['lastLogTimestamp'] =
                             getLastLogTime(vrouterData);
@@ -258,13 +262,13 @@ define([
             for(var i=0; i < processStateList.length; i++){
                 var currProc = processStateList[i];
                 if(currProc.process_name == "contrail-vrouter-nodemgr"){
-                    ret['contrail-vrouter-nodemgr'] = getProcessUpTime(currProc);
+                    ret['contrail-vrouter-nodemgr'] = monitorInfraUtils.getProcessUpTime(currProc);
                 } else if (currProc.process_name == "openstack-nova-compute"){
-                    ret['openstack-nova-compute'] = getProcessUpTime(currProc);
+                    ret['openstack-nova-compute'] = monitorInfraUtils.getProcessUpTime(currProc);
                 } else if (currProc.process_name == "contrail-vrouter-agent"){
-                    ret['contrail-vrouter-agent'] = getProcessUpTime(currProc);
+                    ret['contrail-vrouter-agent'] = monitorInfraUtils.getProcessUpTime(currProc);
                 } else if (currProc.process_name.indexOf('contrail-tor-agent') != -1){
-                    ret['contrail-tor-agent'] = getProcessUpTime(currProc);
+                    ret['contrail-tor-agent'] = monitorInfraUtils.getProcessUpTime(currProc);
                 }
             }
         }
