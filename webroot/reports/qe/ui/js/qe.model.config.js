@@ -21,6 +21,7 @@ define([
                 "time_granularity": 60,
                 "time_granularity_unit": 'secs',
                 "where": null,
+                "where_json": null,
                 "direction": '1',
                 "filter": null,
                 "select_data_object": getSelectDataObject(),

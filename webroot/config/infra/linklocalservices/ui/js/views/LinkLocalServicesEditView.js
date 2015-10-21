@@ -235,9 +235,9 @@ define([
                                         elementId: 'ip_fabric_service_ip',
                                         name: 'Fabric IP',
                                         view: "FormInputView",
-                                        width: 150,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                            width: 150,
                                             path: 'ip_fabric_service_ip',
                                             dataBindValue: 'ip_fabric_service_ip()'
                                         }

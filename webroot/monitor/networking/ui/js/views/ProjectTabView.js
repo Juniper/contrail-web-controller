@@ -33,16 +33,6 @@ define([
                                 view: "TabsView",
                                 viewConfig: {
                                     theme: 'classic',
-                                    activate: function (e, ui) {
-                                        var selTab = $(ui.newTab.context).text();
-                                        if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                                            $('#' + ctwl.PROJECT_PORTS_SCATTER_CHART_ID).trigger('refresh');
-                                        } else if (selTab == ctwl.TITLE_NETWORKS) {
-                                            $('#' + ctwl.PROJECT_NETWORK_GRID_ID).data('contrailGrid').refreshView();
-                                        } else if (selTab == ctwl.TITLE_INSTANCES) {
-                                            $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').refreshView();
-                                        }
-                                    },
                                     tabs: [
                                         {
                                             elementId: ctwl.PROJECT_NETWORKS_ID,
@@ -50,6 +40,13 @@ define([
                                             view: "NetworkGridView",
                                             viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    if ($('#' + ctwl.PROJECT_NETWORK_GRID_ID).data('contrailGrid')) {
+                                                        $('#' + ctwl.PROJECT_NETWORK_GRID_ID).data('contrailGrid').refreshView();
+                                                    }
+                                                }
+                                            },
                                             viewConfig: {
                                                 projectFQN: projectFQN,
                                                 parentType: 'project'
@@ -61,6 +58,14 @@ define([
                                             view: "InstanceGridView",
                                             viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    if ($('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid')) {
+                                                        $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').refreshView();
+                                                    }
+                                                },
+                                                renderOnActivate: true
+                                            },
                                             viewConfig: {
                                                 parentUUID: projectUUID,
                                                 parentType: ctwc.TYPE_PROJECT
@@ -70,6 +75,12 @@ define([
                                             elementId: ctwl.PROJECT_PORTS_SCATTER_CHART_ID,
                                             title: ctwl.TITLE_PORT_DISTRIBUTION,
                                             view: "ZoomScatterChartView",
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    $('#' + ctwl.PROJECT_PORTS_SCATTER_CHART_ID).trigger('refresh');
+                                                },
+                                                renderOnActivate: true
+                                            },
                                             viewConfig: {
                                                 modelConfig: {
                                                     remote: {

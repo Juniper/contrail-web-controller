@@ -205,6 +205,79 @@ define([
 
             return chartDataRow;
         };
+
+        self.parseWhereCollection2String = function(queryFormModel) {
+            var whereOrClauses = queryFormModel.model().get('where_or_clauses'),
+                whereOrClauseStrArr = [];
+
+            $.each(whereOrClauses.models, function(whereOrClauseKey, whereOrClauseValue) {
+                if (whereOrClauseValue.attributes.orClauseText !== '') {
+                    whereOrClauseStrArr.push('(' + whereOrClauseValue.attributes.orClauseText + ')')
+                }
+            });
+
+            return whereOrClauseStrArr.join(' OR ');
+        };
+
+        self.parseWhereCollection2JSON = function(queryFormModel) {
+            var whereOrClauses = queryFormModel.model().get('where_or_clauses'),
+                whereOrJSONArr = [];
+
+            $.each(whereOrClauses.models, function(whereOrClauseKey, whereOrClauseValue) {
+                if (whereOrClauseValue.attributes.orClauseText !== '') {
+                    whereOrJSONArr.push(parseWhereANDClause('(' + whereOrClauseValue.attributes.orClauseText + ')'));
+                }
+            });
+
+            return whereOrJSONArr;
+        };
+
+        self.parseWhereString2Collection = function(queryFormModel) {
+            queryFormModel.where_json(self.parseWhereString2JSON(queryFormModel));
+            qewu.parseWhereJSON2Collection(queryFormModel)
+        };
+
+        self.parseWhereJSON2Collection = function(queryFormModel) {
+            var whereStr = queryFormModel.model().get('where'),
+                whereOrClauseStrArr = (whereStr == null) ? [] : whereStr.split(' OR '),
+                whereOrJSON = queryFormModel.model().get('where_json'),
+                wherOrClauseObjects = [];
+
+            queryFormModel.model().get('where_or_clauses').reset();
+
+            $.each(whereOrJSON, function(whereOrJSONKey, whereOrJSONValue) {
+                wherOrClauseObjects.push({orClauseText: whereOrClauseStrArr[whereOrJSONKey], orClauseJSON: whereOrJSONValue});
+            });
+
+            queryFormModel.addNewOrClauses(wherOrClauseObjects);
+        };
+
+        self.parseWhereString2JSON = function(queryFormModel) {
+            var whereStr = queryFormModel.model().get('where'),
+                whereOrClauseStrArr = (whereStr == null) ? [] : whereStr.split(' OR '),
+                whereOrJSONArr = [];
+
+            $.each(whereOrClauseStrArr, function(whereOrClauseStrKey, whereOrClauseStrValue) {
+                if (whereOrClauseStrValue != '') {
+                    whereOrJSONArr.push(parseWhereANDClause(whereOrClauseStrValue));
+                }
+            });
+
+            return whereOrJSONArr;
+        };
+
+        self.getNameSuffixKey = function(name, nameOptionList) {
+            var nameSuffixKey = -1;
+
+            $.each(nameOptionList, function(nameOptionKey, nameOptionValue) {
+                if(nameOptionValue.name === name) {
+                    nameSuffixKey = (nameOptionValue.suffixes === null) ? -1 : nameOptionKey;
+                    return false;
+                }
+            });
+
+            return nameSuffixKey;
+        }
     };
 
     function getTimeRangeObj(formModelAttrs, serverCurrentTime) {
@@ -312,6 +385,84 @@ define([
             minDate: fromDateString ? fromDateString : false,
             minTime: (toDateString == fromDateString) ? timeString : false
         };
+    };
+
+    function parseWhereANDClause(whereANDClause) {
+        var whereANDArray = whereANDClause.replace('(', '').replace(')', '').split(' AND '),
+            whereANDLength = whereANDArray.length, i, whereANDClause, whereANDClauseArray, operator = '';
+        for (i = 0; i < whereANDLength; i += 1) {
+            whereANDArray[i] = whereANDArray[i].trim();
+            whereANDClause = whereANDArray[i];
+            if (whereANDClause.indexOf('&') == -1) {
+                if (whereANDClause.indexOf('Starts with') != -1) {
+                    operator = 'Starts with';
+                    whereANDClauseArray = whereANDClause.split(operator);
+                } else if (whereANDClause.indexOf('=') != -1) {
+                    operator = '=';
+                    whereANDClauseArray = whereANDClause.split(operator);
+                }
+                whereANDClause = {"name": "", value: "", op: ""};
+                populateWhereANDClause(whereANDClause, whereANDClauseArray[0].trim(), whereANDClauseArray[1].trim(), operator);
+                whereANDArray[i] = whereANDClause;
+            } else {
+                whereANDClauseWithSuffixArrray = whereANDClause.split('&');
+                // Treat whereANDClauseWithSuffixArrray[0] as a normal AND term and
+                // whereANDClauseWithSuffixArrray[1] as a special suffix term
+                if (whereANDClauseWithSuffixArrray != null && whereANDClauseWithSuffixArrray.length != 0) {
+                    var tempWhereANDClauseWithSuffix;
+                    for (var j = 0; j < whereANDClauseWithSuffixArrray.length; j++) {
+                        if (whereANDClauseWithSuffixArrray[j].indexOf('Starts with') != -1) {
+                            operator = 'Starts with';
+                            whereANDTerm = whereANDClauseWithSuffixArrray[j].split(operator);
+                        } else if (whereANDClauseWithSuffixArrray[j].indexOf('=') != -1) {
+                            operator = '=';
+                            whereANDTerm = whereANDClauseWithSuffixArrray[j].split(operator);
+                        }
+                        whereANDClause = {"name": "", value: "", op: ""};
+                        populateWhereANDClause(whereANDClause, whereANDTerm[0].trim(), whereANDTerm[1].trim(), operator);
+                        if (j == 0) {
+                            tempWhereANDClauseWithSuffix = whereANDClause;
+                        } else if (j == 1) {
+                            tempWhereANDClauseWithSuffix.suffix = whereANDClause;
+                        }
+                    }
+                    whereANDArray[i] = tempWhereANDClauseWithSuffix;
+                }
+            }
+        }
+        return whereANDArray;
+    };
+
+    function populateWhereANDClause(whereANDClause, fieldName, fieldValue, operator) {
+        var validLikeOPRFields = ['sourcevn', 'destvn'],
+            validRangeOPRFields = ['protocol', 'sourceip', 'destip', 'sport', 'dport'],
+            splitFieldValues;
+        whereANDClause.name = fieldName;
+        if (validLikeOPRFields.indexOf(fieldName) != -1 && fieldValue.indexOf('*') != -1) {
+            whereANDClause.value = fieldValue.replace('*', '');
+            whereANDClause.op = 7;
+        } else if (validRangeOPRFields.indexOf(fieldName) != -1 && fieldValue.indexOf('-') != -1) {
+            splitFieldValues = splitString2Array(fieldValue, '-');
+            whereANDClause.value = splitFieldValues[0];
+            whereANDClause['value2'] = splitFieldValues[1];
+            whereANDClause.op = 3;
+        } else {
+            whereANDClause.value = fieldValue;
+            whereANDClause.op = getOperatorCode(operator);
+        }
+    };
+
+    function getOperatorCode(operator) {
+        var operatorCode = -1;
+
+        $.each(cowc.OPERATOR_CODES, function(operatorCodeKey, operatorCodeValue) {
+            if(operator = operatorCodeValue) {
+                operatorCode = operatorCodeKey;
+                return false;
+            }
+        });
+
+        return operatorCode;
     };
 
     return QEUtils;

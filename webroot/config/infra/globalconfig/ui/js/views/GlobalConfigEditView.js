@@ -100,9 +100,9 @@ define([
                                         elementId: 'encapsulation_priorities',
                                         name: 'Encapsulation Priority Order',
                                         view: 'FormDropdownView',
-                                        width: 150,
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                            width: 150,
                                             path:
                                             'encapsulation_priorities',
                                             dataBindValue:

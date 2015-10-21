@@ -324,7 +324,6 @@ define([
                                             name: 'Direction',
                                             view: 'FormDropdownView',
                                             class: "",
-                                            width: 150,
                                             viewConfig: {
                                                 templateId:
                                                     cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -348,7 +347,6 @@ define([
                                             name: 'Ether Type',
                                             view: 'FormDropdownView',
                                             class: "",
-                                            width: 100,
                                             viewConfig: {
                                                 templateId:
                                                     cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -373,7 +371,6 @@ define([
                                                 "FormHierarchicalDropdownView",
                                             name: 'Address',
                                             class: "",
-                                            width: 250,
                                             viewConfig: {
                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                 width: 250,
@@ -406,7 +403,6 @@ define([
                                             name: 'Protocol',
                                             view: 'FormDropdownView',
                                             class: "",
-                                            width: 100,
                                             viewConfig: {
                                                 templateId:
                                                     cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
