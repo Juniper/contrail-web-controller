@@ -64,6 +64,16 @@ define([
             rootView: mnPageLoader.mnView,
             tests: [
                 {
+                    viewId: ctwl.FLOWS_SCATTER_CHART_ID,
+                    suites: [
+                        {
+                            class: ZoomScatterChartViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        }
+                    ]
+                },
+                {
                     viewId: ctwl.PROJECT_FLOW_GRID_ID,
                     suites: [
                         {
@@ -79,16 +89,6 @@ define([
                                 dataGenerator: cttu.commonGridDataGenerator,
                                 dataParsers: {}
                             }
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.FLOWS_SCATTER_CHART_ID,
-                    suites: [
-                        {
-                            class: ZoomScatterChartViewTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
                         }
                     ]
                 }

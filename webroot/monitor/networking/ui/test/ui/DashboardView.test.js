@@ -105,6 +105,16 @@ define([
             rootView: mnPageLoader.mnView,
             tests: [
                 {
+                    viewId: ctwl.PROJECT_PORTS_SCATTER_CHART_ID,
+                    suites: [
+                        {
+                            class: ZoomScatterChartViewTestSuite,
+                            groups: ['all'],
+                            severity: cotc.SEVERITY_LOW
+                        }
+                    ]
+                },
+                {
                     viewId: ctwl.PROJECT_NETWORK_GRID_ID,
                     suites: [
                         {
@@ -139,16 +149,6 @@ define([
                                 dataGenerator: cttu.commonGridDataGenerator,
                                 dataParsers: {}
                             }
-                        }
-                    ]
-                },
-                {
-                    viewId: ctwl.PROJECT_PORTS_SCATTER_CHART_ID,
-                    suites: [
-                        {
-                            class: ZoomScatterChartViewTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
                         }
                     ]
                 }
