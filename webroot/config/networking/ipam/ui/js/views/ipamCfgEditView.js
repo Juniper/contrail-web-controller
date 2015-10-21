@@ -256,10 +256,11 @@ define([
                                                           name:
                                                             'Tenant DNS Server IPs',
                                                           view: "FormInputView",
-                                                          class: "", width: 200,
+                                                          class: "",
                                                           viewConfig:
                                                             {
                                                              templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                             width: 200,
                                                              path: "ip_addr",
                                                              dataBindValue: 'ip_addr()',
                                                             }

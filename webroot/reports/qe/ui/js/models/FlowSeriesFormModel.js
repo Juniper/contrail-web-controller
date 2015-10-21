@@ -24,7 +24,7 @@ define([
             runQueryValidation: {
                 'select': {
                     required: true,
-                    msg: smwm.getRequiredMessage('select')
+                    msg: ctwm.getRequiredMessage('select')
                 }
             },
         }

@@ -523,9 +523,9 @@ define([
                                     name: 'Port',
                                     view: "FormInputView",
                                     class: "",
-                                    width: 200,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                        width: 200,
                                         path: "portName",
                                         dataBindValue: "portName()"
                                     }

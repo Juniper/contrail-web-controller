@@ -20,21 +20,21 @@ define([
             return this;
         },
 
-        isDisabledSelect: function() {
+        isTableNameAvailable: function() {
             var tableName = this.table_name();
 
-            return (tableName === null || tableName === '');
+            return !(tableName === null || tableName === '');
         },
 
         validations: {
             runQueryValidation: {
                 'table_name': {
                     required: true,
-                    msg: smwm.getRequiredMessage('table_name')
+                    msg: ctwm.getRequiredMessage('table_name')
                 },
                 'select': {
                     required: true,
-                    msg: smwm.getRequiredMessage('select')
+                    msg: ctwm.getRequiredMessage('select')
                 }
             },
         }

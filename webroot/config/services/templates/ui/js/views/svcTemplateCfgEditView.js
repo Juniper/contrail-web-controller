@@ -201,10 +201,11 @@ define([
                                                           elementId: 'service_interface_type',
                                                           name: 'Interface (s)',
                                                           view: "FormDropdownView",
-                                                          class: "", width: 250,
+                                                          class: "",
                                                           viewConfig:
                                                             {
                                                              templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                             width: 250,
                                                              path: "service_interface_type",
                                                              dataBindValue: 'service_interface_type()',
                                                              dataBindOptionList: "['management',\
@@ -218,12 +219,13 @@ define([
                                                           elementId: 'shared_ip',
                                                           name: 'Shared IP',
                                                           view: "FormCheckboxView",
-                                                          class: "", width: 100,
+                                                          class: "",
                                                           viewConfig:
                                                             {
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                                             width: 100,
                                                              path: "shared_ip",
-                                                             dataBindValue: 'shared_ip()',
+                                                             dataBindValue: 'shared_ip()'
                                                             }
                                                         },
                                                         {
@@ -236,9 +238,9 @@ define([
                                                              templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                                              path: "static_route_enable",
                                                              dataBindValue:
-                                                                 'static_route_enable()',
+                                                                 'static_route_enable()'
                                                             }
-                                                        },
+                                                        }
                                                       ],
                                                      rowActions: [
                                                          {onClick: "function() {\
