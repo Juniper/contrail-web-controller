@@ -623,10 +623,13 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_sc_svcInstances</hash>
                             <resources>
                                 <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
                                     <rootDir>/config/services/instances/ui</rootDir>
-                                    <js>svcinstances_config.js</js>
-                                    <view>svcinstances_config.view</view>
-                                    <class>ServicesInstancesObj</class>
+                                    <js>svcInst.main.js</js>
+                                    <class>svcInstPageLoader</class>
+                                    <function>renderSvcInst</function>
                                 </resource>
                             </resources>
                             <searchStrings>Configure Service Instances</searchStrings>

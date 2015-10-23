@@ -656,7 +656,7 @@ define([
         this.CONFIG_QUOTAS_SECTION_ID = 'config-quotas-section';
         this.CONFIG_QUOTAS_ID = 'config-quotas';
         this.QUOTAS_GRID_ID = 'quotas-grid';
-        this.QUOTAS_PREFIX_ID = 'qts';
+        this.QUOTAS_PREFIX_ID = 'quotas';
         this.TITLE_EDIT_QUOTAS = 'Edit Project Quotas';
 
         /* Global Config */
@@ -664,7 +664,7 @@ define([
         this.CONFIG_GLOBAL_CONFIG_SECTION_ID = 'config-global-config-section';
         this.CONFIG_GLOBAL_CONFIG_ID = 'config-global-config';
         this.GLOBAL_CONFIG_GRID_ID = 'global-config-grid';
-        this.GLOBAL_CONFIG_PREFIX_ID = 'glblCfg';
+        this.GLOBAL_CONFIG_PREFIX_ID = 'global_config';
         this.TITLE_EDIT_GLOBAL_CONFIG = 'Edit Global Config';
         this.TITLE_GLOBAL_CONFIG = 'Global Config';
 
@@ -682,6 +682,22 @@ define([
         this.TITLE_DEL_SEC_GRP = 'Delete Security Group';
         this.TITLE_EDIT_SEC_GRP = 'Edit Security Group';
         this.SEC_GRP_DETAILS = 'Security Group Details';
+
+        /* Service Instance */
+        this.CONFIG_SERVICE_INSTANCES_PAGE_ID =
+            'config-service-instances-page';
+        this.CONFIG_SERVICE_INSTANCES_LIST_VIEW_ID =
+            'config-service-instances-list';
+        this.CONFIG_SERVICE_INSTANCES_SECTION_ID = 'svcInst';
+        this.CONFIG_SERVICE_INSTANCES_ID = 'config-service-instances';
+        this.TITLE_SERVICE_INSTANCES = 'Service Instances';
+        this.SERVICE_INSTANCES_GRID_ID = 'service-instances-grid';
+        this.SERVICE_INSTANCES_PREFIX_ID = 'service_instance';
+        this.TITLE_CREATE_SERVICE_INSTANCE = 'Create Service Instance';
+        this.TITLE_ADD_SERVICE_INSTANCE = 'Add Service Instance';
+        this.TITLE_DEL_SERVICE_INSTANCES = 'Delete Service Instance';
+        this.TITLE_EDIT_SERVICE_INSTANCE = 'Edit Service Instance';
+        this.SVC_INST_DETAILS = 'Service Instance Details';
     };
     return CTLabels;
 });

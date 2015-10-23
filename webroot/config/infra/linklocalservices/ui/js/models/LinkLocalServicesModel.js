@@ -172,7 +172,7 @@ define([
                     putData['global-vrouter-config'] = {};
                     putData['global-vrouter-config']['linklocal_services'] = {};
                 }
-                var newLLSData = this.model().attributes;
+                var newLLSData = $.extend({}, true, this.model().attributes);
 
                 newLLSData['ip_fabric_service_ip'] =
                     this.getFabAddressList(newLLSData);
