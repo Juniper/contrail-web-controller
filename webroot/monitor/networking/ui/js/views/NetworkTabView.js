@@ -105,14 +105,14 @@ define([
                                                             type: 'GET'
                                                         },
                                                         dataParser: function (response) {
-                                                            return nmwp.parseNetwork4PortDistribution(response, networkFQN);
+                                                            return ctwp.parseNetwork4PortDistribution(response, networkFQN);
                                                         }
                                                     },
                                                     cacheConfig: {
                                                         ucid: ctwc.get(ctwc.UCID_PROJECT_VN_PORT_STATS_LIST, networkFQN)
                                                     }
                                                 },
-                                                chartOptions: nmwvc.getPortDistChartOptions()
+                                                chartOptions: ctwvc.getPortDistChartOptions()
                                             }
                                         },
                                         {

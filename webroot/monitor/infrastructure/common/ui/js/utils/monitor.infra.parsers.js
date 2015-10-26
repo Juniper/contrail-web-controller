@@ -1717,6 +1717,47 @@ define(
                                 wrapLabelValue('Label', lbl));
                             return x;
                     }
+                };
+                this.parseUnderlayFlowRecords = function (response) {
+                    var graphView =
+                        $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+                    response['vRouters'] = graphView.model.vRouters;
+                    var vRouters = ifNull(response['vRouters'],[]);
+                    $.each(ifNull(response['data'],[]),function (idx,obj) {
+                        var formattedVrouter,formattedOtherVrouter,
+                            formattedSrcVN,formattedDestVN;
+                        var vRouterIp =
+                            validateIPAddress(handleNull4Grid(obj['vrouter_ip'])) == true ?
+                            handleNull4Grid(obj['vrouter_ip']) : noDataStr,
+                                formattedVrouter = noDataStr;    
+                        var vrouter = ifNull(obj['vrouter'],noDataStr);
+                        if(vRouterIp != noDataStr || vrouter != noDataStr)
+                            formattedVrouter =
+                                contrail.format('{0} ({1})',vrouter, vRouterIp);
+                        var othervRouterIp =
+                            validateIPAddress(handleNull4Grid(obj['other_vrouter_ip'])) == true ?
+                                handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
+                                formattedOtherVrouter = noDataStr;    
+                            if(othervRouterIp != noDataStr) {
+                                $.each(vRouters,function(idx,obj){
+                                    var ipList = getValueByJsonPath(obj,
+                                        'more_attributes;VrouterAgent;self_ip_list',[]);
+                                    if(ipList.indexOf(othervRouterIp) > -1)
+                                        formattedOtherVrouter = contrail.format('{0} ({1})',
+                                            ifNull(obj['name'],noDataStr), othervRouterIp);
+                                });
+                            }
+                       var formattedSrcVN = handleNull4Grid(obj['sourcevn']);
+                       formattedSrcVN = formatVN(formattedSrcVN);
+                       var formattedDestVN = handleNull4Grid(obj['destvn']);
+                       formattedDestVN = formatVN(formattedSrcVN);
+                       obj['formattedVrouter'] = formattedVrouter;
+                       obj['formattedOtherVrouter'] = formattedOtherVrouter;
+                       obj['formattedSrcVN'] = formattedSrcVN[0]; 
+                       obj['formattedDestVN'] = formattedDestVN[0];
+                    });
+                    
+                    return response['data'];
                 }
 
                 self.getCores = function (data) {

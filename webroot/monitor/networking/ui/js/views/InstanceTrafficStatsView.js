@@ -84,7 +84,7 @@ define([
                                 url: ctwc.get(ctwc.URL_INSTANCE_TRAFFIC_STATS, 120, networkFQN, 120, interfaceIpAddress, instanceUUID, interfaceName),
                                 type: 'GET'
                             },
-                            dataParser: nmwp.vmTrafficStatsParser
+                            dataParser: ctwp.vmTrafficStatsParser
                         },
                         cacheConfig: {
                             ucid: ctwc.get(ctwc.UCID_INSTANCE_TRAFFIC_STATS_LIST, networkFQN, instanceUUID, interfaceName)

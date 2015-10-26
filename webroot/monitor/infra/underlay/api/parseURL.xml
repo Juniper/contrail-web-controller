@@ -45,5 +45,11 @@
         <feature>underlay</feature>
         <callback>underlayApi.getpRouterLinkStats</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/underlay/vrouter/stats</url>
+        <method>get</method>
+        <feature>underlay</feature>
+        <callback>underlayApi.getvnStatsPerVrouter</callback>
+    </item>
 </urlLists>
 
