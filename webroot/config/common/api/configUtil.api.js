@@ -24,11 +24,14 @@ var portsConfig = require('../../ports/api/portsconfig.api'),
                               '/src/serverroot/common/configServer.api');
 var vnConfig = require('../../vn/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
+var vdns = require('../../dns/servers/api/virtualdnsconfig.api');
 
 var errorData = [];
 var configCBDelete = 
 {
-    'virtual-machine-interface': portsConfig.deletePortsCB
+    'virtual-machine-interface': portsConfig.deletePortsCB,
+    'virtual-DNS': vdns.deleteVirtualDNSCallback
+
 }
 
 var getConfigPageRespCB = {

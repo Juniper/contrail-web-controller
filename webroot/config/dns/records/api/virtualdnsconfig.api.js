@@ -31,7 +31,7 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var opApiServer     = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/opServer.api');
 var jsonPath    = require('JSONPath').eval;
-var infraCmn    = require('../../../common/api/infra.common.api');
+var infraCmn    = require('../../../../common/api/infra.common.api');
 var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
 var discCli     = require(process.mainModule.exports["corePath"] +
@@ -48,7 +48,7 @@ if (!module.parent)
 }
 
 /**
- * listVirtualDNSs
+ * getVirtualDNSs
  * public function
  * 1. URL /api/tenants/config/virtual-DNSs/:id
  * 2. Gets list of virtual DNSs for a given domain
@@ -56,7 +56,7 @@ if (!module.parent)
  * 4. Calls listVirtualDNSsCb that process data from config
  *    api server and sends back the http response.
  */
-function listVirtualDNSs (request, response, appData) 
+function getVirtualDNSs (request, response, appData) 
 {
 
     var domainId      = null;
@@ -120,7 +120,7 @@ function listVirtualDNSsFromAllDomains (request, response, appData)
 /**
  * listVirtualDNSsCb
  * private function
- * 1. Callback for listVirtualDNSs
+ * 1. Callback for getVirtualDNSs
  * 2. Reads the response of per domain Virtual DNS list from config api server
  *    and sends it back to the client.
  */
@@ -1088,7 +1088,21 @@ function readVirtualDNSRecords (vdnRecordsObj, callback)
     });
 }
 
-exports.listVirtualDNSs           = listVirtualDNSs;
+function listVirtualDNSs (req, res, appData)
+{
+    var domain = req.param('id');
+    var dnsUrl = '/domain/' + domain;
+    configApiServer.apiGet(dnsUrl, appData, function(err, data) {
+        if ((null != err) || (null == data)) {
+            commonUtils.handleJSONResponse(err, res, data);
+            return;
+        }
+        var vdnsList = commonUtils.getValueByJsonPath(data, 'domain;virtual_DNSs', []);
+        commonUtils.handleJSONResponse(null, res, vdnsList);
+    });
+}
+
+exports.getVirtualDNSs           = getVirtualDNSs;
 exports.createVirtualDNS          = createVirtualDNS;
 exports.updateVirtualDNS          = updateVirtualDNS;
 exports.deleteVirtualDNS     	  = deleteVirtualDNS;
@@ -1101,4 +1115,4 @@ exports.updateVDNSIpams           = updateVDNSIpams;
 exports.getVirtualDNSSandeshRecords = getVirtualDNSSandeshRecords;
 exports.readVirtualDNSRecords       = readVirtualDNSRecords;
 exports.listVirtualDNSsFromAllDomains = listVirtualDNSsFromAllDomains;
-
+exports.listVirtualDNSs           = listVirtualDNSs;
