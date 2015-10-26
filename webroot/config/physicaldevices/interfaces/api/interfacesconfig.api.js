@@ -29,7 +29,7 @@ var UUID        = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
 var async = require('async');
-var ports  = require('../../../ports/api/portsconfig.api');
+var ports  = require('../../../networking/port/api/portsconfig.api');
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');
 
