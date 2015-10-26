@@ -26,12 +26,14 @@ var vnConfig = require('../../vn/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 var logicalRtr =
     require('../../networking/logicalrouter/api/logicalrouterconfig.api');
-
+var vdns = require('../../dns/servers/api/virtualdnsconfig.api');
 var errorData = [];
 var configCBDelete = 
 {
     'virtual-machine-interface': portsConfig.deletePortsCB,
-    'logical-router': logicalRtr.deleteLogicalRouterAsync
+    'logical-router': logicalRtr.deleteLogicalRouterAsync,
+    'virtual-DNS': vdns.deleteVirtualDNSCallback
+
 }
 
 var getConfigPageRespCB = {

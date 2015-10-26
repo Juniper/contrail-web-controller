@@ -253,6 +253,15 @@ define([
                 onClick: onClickFunction
             };
         };
+		this.getActiveDnsConfig = function (title, onClickFunction, divider) {
+            return {
+                title: title,
+               // iconClass: 'icon-trash',
+                width: 80,
+                divider: contrail.checkIfExist(divider) ? divider : false,
+                onClick: onClickFunction
+            }
+        };
     };
     return CTGridConfig;
 });

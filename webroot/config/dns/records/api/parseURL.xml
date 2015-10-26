@@ -1,5 +1,5 @@
 <!--
- Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  -->
 <urlLists>
     <require>
@@ -12,8 +12,8 @@
     </require>
         
     <!-- API / Feature definition for Virtual DNS configuration -->
-    <!-- 1. List Virtual DNS                 - /api/tenants/config/virtual-DNSs/:id,
-                                                 listVirtualDNSs
+    <!-- 1. Get Virtual DNS Details          - /api/tenants/config/virtual-DNSs/:id,
+                                                 getVirtualDNSs
          2. Create Virtual DNS               - /api/tenants/config/virtual-DNSs,
                                                  createVirtualDNS
          3. Delete Virtual DNS               - /api/tenants/config/virtual-DNS/:id,
@@ -32,9 +32,17 @@
          9. Update Virtual DNS
                     /api/tenants/config/virtual-DNS/:id
                         updateVirtualDNS 
+         10. List Virtual DNS Details          - /api/tenants/config/list-virtual-DNSs/:id,
+                                                 listVirtualDNSs
     -->
     <item>
         <url>/api/tenants/config/virtual-DNSs/:id</url>
+        <method>get</method>
+        <feature>virtualdnsconfig</feature>
+        <callback>virtualdnsconfigapi.getVirtualDNSs</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/list-virtual-DNSs/:id</url>
         <method>get</method>
         <feature>virtualdnsconfig</feature>
         <callback>virtualdnsconfigapi.listVirtualDNSs</callback>

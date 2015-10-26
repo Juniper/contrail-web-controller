@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+ * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
 /**
@@ -31,7 +31,7 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var opApiServer     = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/opServer.api');
 var jsonPath    = require('JSONPath').eval;
-var infraCmn    = require('../../../common/api/infra.common.api');
+var infraCmn    = require('../../../../common/api/infra.common.api');
 var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
 var discCli     = require(process.mainModule.exports["corePath"] +
@@ -336,32 +336,43 @@ function deleteVirtualDNSCb (error, vdnsDelResp, response)
  */
 function deleteVirtualDNS (request, response, appData) 
 {
-    var vdnsDelURL     = '/virtual-DNS/';
     var vdnsId         = null;
     var requestParams = url.parse(request.url, true);
 
     if (vdnsId = request.param('id').toString()) {
-        vdnsDelURL += vdnsId;
+        var vdnsObj = {'uuid': vdnsId, appData: appData};
     } else {
         error = new appErrors.RESTServerError('Virtual DNS ID is required.');
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
+    deleteVirtualDNSCallback(vdnsObj, function(error, data) {
+        commonUtils.handleJSONResponse(error, response, data);
+    });
+}
+
+function deleteVirtualDNSCallback (vdnsObj, callback) {
+    var vdnsId = vdnsObj['uuid'];
+    var appData = vdnsObj['appData'];
+    var vdnsDelURL     = '/virtual-DNS/' + vdnsId;
+
     configApiServer.apiGet(vdnsDelURL, appData, function(err, configData) {
         /* Now delete the ipam_refs */
         var vdnsPostData = commonUtils.cloneObj(configData);
         delete vdnsPostData['virtual-DNS']['network_ipam_back_refs'];
         updateVirtualDnsAssocIpamRead(err, configData, vdnsPostData, vdnsId,
                                       appData, function(err, data) {
+            console.log("I{PAM ERR:", err, data);
             if (err) {
-                deleteVirtualDNSCb(err, null, response, appData);
+                callback(err, null);
                 return;
             }
             
             /* Now delete the virtual DNS */
             configApiServer.apiDelete(vdnsDelURL, appData,
                                       function(error, data) {
-                deleteVirtualDNSCb(error, data, response, appData);
+		console.log("API DEL ERR:", vdnsDelURL, error, data);
+                callback(null, {error: error, data: data});
             });
         });
     });
@@ -648,6 +659,33 @@ function updateVDNSRecordUpdate (request, response, appData)
     });
 }
 
+function updateVDNSRecordDeleteCB (dataObj, callback)
+{
+    var vdnsId = dataObj['uuid'];
+    var appData = dataObj['appData'];
+    var vdnsDelURL     = '/virtual-DNS-record/' + vdnsId;
+	
+	configApiServer.apiGet(vdnsDelURL, appData, function(err, configData) {
+        var vdnsPostData = commonUtils.cloneObj(configData);
+        delete vdnsPostData['virtual-DNS-record']['virtual_DNS_record_data'];
+        updateVirtualDnsAssocIpamRead(err, configData, vdnsPostData, vdnsId,
+                                      appData, function(err, data) {
+       
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            
+            /* Now delete the virtual DNS */
+            configApiServer.apiDelete(vdnsDelURL, appData,
+                                      function(error, data) {
+		console.log("API DEL ERR:", vdnsDelURL, error, data);
+                callback(null, {error: error, data: data});
+            });
+        });
+	});
+}
+
 /**
  * @updateVDNSRecordDelete
  * public function
@@ -657,6 +695,9 @@ function updateVDNSRecordUpdate (request, response, appData)
  */
 function updateVDNSRecordDelete (request, response, appData) 
 {
+	updateVDNSRecordDeleteCB(dataObj, function(err, data) {
+		commonUtils.handleJSONResponse(err, response, data);
+	});
     var vdnsRecordURL = '/virtual-DNS-record';
     var virtualDNSId = null;
     var vdnsRecordId       = null;
@@ -1101,4 +1142,4 @@ exports.updateVDNSIpams           = updateVDNSIpams;
 exports.getVirtualDNSSandeshRecords = getVirtualDNSSandeshRecords;
 exports.readVirtualDNSRecords       = readVirtualDNSRecords;
 exports.listVirtualDNSsFromAllDomains = listVirtualDNSsFromAllDomains;
-
+exports.deleteVirtualDNSCallback = deleteVirtualDNSCallback;
