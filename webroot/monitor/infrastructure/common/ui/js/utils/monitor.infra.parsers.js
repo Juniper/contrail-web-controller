@@ -1740,6 +1740,10 @@ define(
                             result.push({lbl:'',value:fileList[i]});}
                     return fileList;
                 }
+
+                self.getCpuText = function (cpu) {
+                    return (cpu != '-')? cpu + ' %' : cpu;
+                }
             };
 
             return MonInfraParsers;
