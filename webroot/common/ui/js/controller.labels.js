@@ -698,6 +698,26 @@ define([
         this.PARENT_TYPE_PINF = 'physical-interface';
         this.TITLE_INTERFACE_DELETE = 'Delete Interface';
         this.TITLE_INTERFACE_MULTI_DELETE = 'Delete Interface(s)';
+        
+        //Port Labels
+        this.CONFIG_PORT_PAGE_ID = "config-port-page";
+        this.CONFIG_PORT_TITLE = "Ports";
+        this.TITLE_ADD_PORT = "Create Port";
+        this.TITLE_ADD_SUBINTERFACE = "Add SubInterface";
+        this.CONFIG_PORT_LIST_VIEW_ID = "config-port-list-view";
+        this.CONFIG_PORT_GRID_ID = "config-port-grid-id";
+        this.CONFIG_PORT_FORMAT_ID = "config-port-format-id";
+        this.CONFIG_PORT_LIST = "config-port-list";
+        this.PORT_GRID_ID = "port-grid-id";
+        this.TITLE_PORT_DETAILS = "Port Detail";
+        this.TITLE_PORT_EDIT = "Edit";
+        this.TITLE_PORT_DETETE = "Delete";
+        this.TITLE_PORT_DETETE_ALL = "Delete All";
+        this.PORT_PREFIX_ID = "port_prefix_id";
+        this.TITLE_EDIT_PORT = "Edit Port";
+        this.TITLE_PORT = 'Port';
+        this.TEXT_PORT = 'port';
+
     };
     return CTLabels;
 });
