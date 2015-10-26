@@ -19,22 +19,22 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     qs = require('querystring'),
     restler = require('restler'),
     urlMod = require('url'),
-    adminApiHelper = require('../../../common/api/adminapi.helper'),
+    adminApiHelper = require('../../../../common/api/adminapi.helper'),
     jsonPath = require('JSONPath').eval,
     configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api'),
     plugins = require(process.mainModule.exports["corePath"] + '/src/serverroot/orchestration/plugins/plugins.api'),
-    nwMonUtils = require('../../../common/api/nwMon.utils'),
-    vnConfig = require('../../vn/api/vnconfig.api'),
-    fipConfig = require('../../networking/fip/api/fipconfig.api'),
-    polConfig = require('../../networkpolicies/api/policyconfig.api'),
-    sgConfig = require('../../networking/securitygroup/api/securitygroupconfig.api'),
-    logicalRouterConfig = require('../../logicalrouters/api/logicalroutersconfig.api'),
-    portsConfig = require('../../ports/api/portsconfig.api'),
-    infConfig = require('../../physicaldevices/interfaces/api/interfacesconfig.api.js'),
-    ipamConfig = require('../../networking/ipam/api/ipamconfig.api'),
-    vdnsConfig = require('../../dns/api/virtualdnsconfig.api'),
-    svcTempl = require('../../services/templates/api/servicetemplateconfig.api'),
+    nwMonUtils = require('../../../../common/api/nwMon.utils'),
+    vnConfig = require('../../../vn/api/vnconfig.api'),
+    fipConfig = require('../../../networking/fip/api/fipconfig.api'),
+    polConfig = require('../../../networkpolicies/api/policyconfig.api'),
+    sgConfig = require('../../../networking/securitygroup/api/securitygroupconfig.api'),
+    logicalRouterConfig = require('../../../logicalrouters/api/logicalroutersconfig.api'),
+    portsConfig = require('../../../ports/api/portsconfig.api'),
+    infConfig = require('../../../physicaldevices/interfaces/api/interfacesconfig.api.js'),
+    ipamConfig = require('../../../networking/ipam/api/ipamconfig.api'),
+    vdnsConfig = require('../../../dns/api/virtualdnsconfig.api'),
+    svcTempl = require('../../../services/templates/api/servicetemplateconfig.api'),
     os = require('os'),
     request = require('request'),
     jsonDiff = require(process.mainModule.exports["corePath"] +
@@ -119,7 +119,7 @@ adminapi.getBGPRouters = function (req, res, appData) {
 			try {
 				var bgpJSON = jsonData,
 					bgpCount = bgpJSON["bgp-routers"].length,
-					i, uuid, url, 
+					i, uuid, url,
                     dataObjArr = [];
 				if (bgpCount != 0) {
 					for (i = 0; i < bgpCount; i += 1) {
@@ -166,37 +166,37 @@ function parseConfigControlNodeData (configControlNodeData)
                     adminApiHelper.getBGPRefDetails(bgpJSON["bgp-router"]["bgp_router_refs"]);
             } catch(e) {
                 resultJSON[i]["bgp_refs"] = [];
-            }   
+            }
             try {
                 resultJSON[i]["name"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].name);
             } catch(e) {
                 resultJSON[i]["name"] = global.RESP_DATA_NOT_AVAILABLE;
-            } 
+            }
             try {
                 resultJSON[i]["display_name"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].display_name);
             } catch(e) {
                 resultJSON[i]["display_name"] = global.RESP_DATA_NOT_AVAILABLE;
-            } 
+            }
             try {
                 resultJSON[i]["uuid"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].uuid);
             } catch(e) {
                 resultJSON[i]["uuid"] = global.RESP_DATA_NOT_AVAILABLE;
-            } 
+            }
             try {
                 resultJSON[i]["href"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"].href);
             } catch(e) {
                 resultJSON[i]["href"] = global.RESP_DATA_NOT_AVAILABLE;
-            }   
+            }
             try {
                 resultJSON[i]["id_perms"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["id_perms"]);
             } catch(e) {
                 resultJSON[i]["id_perms"] = global.RESP_DATA_NOT_AVAILABLE;
-            }   
+            }
             try {
                 resultJSON[i]["vendor"] =
                     bgpJSON["bgp-router"]["bgp_router_parameters"].vendor;
@@ -245,7 +245,7 @@ function parseConfigControlNodeData (configControlNodeData)
                      commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["bgp_router_parameters"].auth_data);
             } catch(e) {
                  resultJSON[i]["auth_data"] = global.RESP_DATA_NOT_AVAILABLE;
-            }   
+            }
             try {
                 resultJSON[i]["physical_routers"] =
                     commonUtils.getSafeDataToJSONify(bgpJSON["bgp-router"]["physical_router_back_refs"]);
@@ -274,13 +274,13 @@ function getControlNodeDetailsFromConfig (req, res, appData)
             var cnt = bgpList.length;
             for (var i = 0; i < cnt; i++) {
                 reqUrl = '/bgp-router/' + bgpList[i]['uuid'];
-                commonUtils.createReqObj(dataObjArr, reqUrl, null, null, 
+                commonUtils.createReqObj(dataObjArr, reqUrl, null, null,
                                          null, null, appData);
             }
             async.map(dataObjArr,
                       commonUtils.getAPIServerResponse(configApiServer.apiGet, true),
                       function(err, data) {
-                resultJSON = parseConfigControlNodeData(data);        
+                resultJSON = parseConfigControlNodeData(data);
                 commonUtils.handleJSONResponse(err, res, resultJSON);
             });
         } catch(e) {
@@ -308,11 +308,11 @@ adminapi.createBGPRouter = function (req, res, appData) {
 		bgpParams = content["bgp-router"]["bgp_router_parameters"],
 		proutersParams = content["prouter-params"];
 	logutils.logger.debug("createBGPRouter JSON: " + JSON.stringify(content));
-	delete content["bgp-router"]["bgp_router_refs"];
+	//delete content["bgp-router"]["bgp_router_refs"];
 	delete content["prouter-params"];
 		configApiServer.apiPost(url, content, appData, function (error, data) {
 			if (!error) {
-                if(bgpRefs && bgpRefs.length > 0) {
+                /*if(bgpRefs && bgpRefs.length > 0) {
 				    data["bgp-router"]["bgp_router_refs"] = bgpRefs ? bgpRefs : [];
 				    data["bgp-router"]["_type"] = type;
 				    data["bgp-router"]["parent_name"] = parentName;
@@ -321,17 +321,17 @@ adminapi.createBGPRouter = function (req, res, appData) {
 				    logutils.logger.debug("createBGPRouter Response: " + JSON.stringify(data));
 				    updateBGPRouterInternal(req, res, data["bgp-router"].uuid, data,
                                             appData);
-                } else {
+                } else {*/
                     if(proutersParams != null){
                             var bgpFqName = data["bgp-router"]["fq_name"];
-                            updatePhysicalRouters(error,data,appData,bgpFqName,proutersParams, function(error, data) {
+                            updatePhysicalRouters(error,appData,bgpFqName,proutersParams, function(error, data) {
                 				commonUtils.handleJSONResponse(error, res, data);
                 				return;
                 			});
                     } else {
                         commonUtils.handleJSONResponse(error, res, data);
                     }
-                }
+                //}
 			} else {
 				error = new appErrors.RESTServerError(messages.error.create_bgpr);
 				commonUtils.handleJSONResponse(error, res, null);
@@ -348,14 +348,14 @@ function updateBGPRouter(bgpJSON, appData, callback) {
 	var updateURL = '/bgp-router/' + updateUUID;
 	configApiServer.apiPut(updateURL, bgpJSON, appData, function (error) {
 		if (error) {
-			logutils.logger.error(e.stack);
+			logutils.logger.error(error.stack);
 			// TODO: On error all changes should be rolled back.
 		}
         callback(error);
 	}, bgpHeader);
 }
 
-function updatePhysicalRouters (error,data,appData,bgpFqName,prouterParams, callback)
+function updatePhysicalRouters (error,appData,bgpFqName,prouterParams, callback)
 {
     var oldProuter,newProuter,url;
     oldProuter = prouterParams['oldProuter'];
@@ -383,7 +383,7 @@ function updatePhysicalRouters (error,data,appData,bgpFqName,prouterParams, call
 
 function updateNewProuter(newProuter,bgpFqName,appData, callback)
 {
-    
+
     if(newProuter == null || newProuter == 'none'){
         callback(null,null);
         return;
@@ -391,7 +391,7 @@ function updateNewProuter(newProuter,bgpFqName,appData, callback)
     var url = '/physical-router/' + newProuter;
     configApiServer.apiGet(url, appData, function (error, prouterJSON) {
         if (error) {
-            callback(error,prouterJSON); 
+            callback(error,prouterJSON);
             return;
         } else {
             var bgpRef =  [{"to":bgpFqName}];
@@ -471,7 +471,7 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 				newPeer["uuid"] = newBGPRefs[i].uuid;
 				newPeer["to"] = newBGPRefs[i].to;
 				newPeer["href"] = newBGPRefs[i].href;
-				newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
+				newPeer["attr"] = newBGPRefs[i].attr;
 				newPeers[newPeers.length] = newPeer;
 			}
 		} else {
@@ -501,14 +501,14 @@ function updateBGPJSON(bgpJSON, bgpUpdates) {
 
 			for (i = 0; i < newBGPRefs.length; i += 1) {
 				var toArray = newBGPRefs[i].to;
-				if (!(toArray[toArray.length - 1] in bgpRefNames)) {
+				//if (!(toArray[toArray.length - 1] in bgpRefNames)) {
 					var newPeer = {};
 					newPeer["uuid"] = newBGPRefs[i].uuid;
 					newPeer["to"] = newBGPRefs[i].to;
 					newPeer["href"] = newBGPRefs[i].href;
-					newPeer["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
+					newPeer["attr"] = newBGPRefs[i].attr;//prepareBGPPeerAttrJSON(bgpUpdates);
 					newPeers[newPeers.length] = newPeer;
-				}
+				//}
 			}
 
 			for (i = 0; i < spliceArray.length; i += 1) {
@@ -553,17 +553,17 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 				commonUtils.handleJSONResponse(error, res, null);
                                 return;
 			} else {
-				var bgpActJSON = commonUtils.cloneObj(bgpJSON);
+				/*var bgpActJSON = commonUtils.cloneObj(bgpJSON);
 				updateBGPJSON(bgpJSON, bgpUpdates);
-				logutils.logger.debug("updateBGPRouter JSON: " + JSON.stringify(bgpJSON));
-				configApiServer.apiPut(url, bgpJSON, appData, function (error, data) {
+				logutils.logger.debug("updateBGPRouter JSON: " + JSON.stringify(bgpUpdates));*/
+				configApiServer.apiPut(url, bgpUpdates, appData, function (error, data) {
 					if (error) {
 						error = new appErrors.RESTServerError(messages.error.update_bgpr);
 						commonUtils.handleJSONResponse(error, res, null);
                                                 return;
 					}
 					try {
-						var oldJSON = bgpActJSON["bgp-router"]["bgp_router_refs"];
+						/*var oldJSON = bgpActJSON["bgp-router"]["bgp_router_refs"];
 						oldJSON = oldJSON != null ? oldJSON : [];
 						var newJSON = bgpJSON["bgp-router"]["bgp_router_refs"];
 						newJSON = newJSON != null ? newJSON : [];
@@ -571,18 +571,17 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 						var bgpPeers = bgpPeersDelta != null ? bgpPeersDelta["addedList"] : false;
 						if (bgpPeers && bgpPeers.length > 0) {
 							var bgpPeerObj = {};
-							//bgpPeerObj["uuid"] = content["bgp-router"].uuid;
-							bgpPeerObj["to"] = bgpUpdates["bgp-router"]["fq_name"];
-							bgpPeerObj["href"] = bgpUpdates["bgp-router"].href;
-							bgpPeerObj["attr"] = prepareBGPPeerAttrJSON(bgpUpdates);
-								for (var i = 0; i < bgpPeers.length; i++) {
+							for (var i = 0; i < bgpPeers.length; i++) {
+                                bgpPeerObj["to"] = bgpUpdates["bgp-router"]["fq_name"];
+                                bgpPeerObj["href"] = bgpUpdates["bgp-router"].href;
+                                bgpPeerObj['attr'] = prepareBGPPeerAttrJSON(bgpUpdates);
 								bgpPeerUUIDs.push({'uuid': bgpPeers[i].uuid, 'appData': appData,
 										   'bgpPeerObj': bgpPeerObj});
 							}
 							async.mapSeries(bgpPeerUUIDs, addBGPPeerCB, function(err, data) {
 								if (prouterParams != null) {
 									var bgpFqName = bgpUpdates["bgp-router"]["fq_name"];
-									if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) && 
+									if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) &&
 									    (bgpJSON["bgp-router"]["physical_router_back_refs"][0] != null) &&
 		    							    (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
 										prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
@@ -594,13 +593,13 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 								} else {
 								    commonUtils.handleJSONResponse(err, res, data);
 								}
-	                            
+	
 							});
 							
 						} else {
 		                    if(prouterParams != null){
 		                            var bgpFqName = bgpUpdates["bgp-router"]["fq_name"];
-		                            if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) && 
+		                            if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) &&
 	                                        (bgpJSON["bgp-router"]["physical_router_back_refs"][0] != null) &&
 	                                            (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
 	                                        prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
@@ -612,13 +611,27 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
 		                    } else {
 		                        commonUtils.handleJSONResponse(error, res, data);
 		                    }
-						}
+						}*/
+		                if(prouterParams != null){
+		                        var bgpFqName = bgpUpdates["bgp-router"]["fq_name"];
+		                        if ((bgpJSON["bgp-router"]["physical_router_back_refs"] != null) &&
+	                                    (bgpJSON["bgp-router"]["physical_router_back_refs"][0] != null) &&
+	                                        (bgpJSON["bgp-router"]["physical_router_back_refs"][0]['to'][1] != null)) {
+	                                    prouterParams['oldProuter'] = bgpJSON["bgp-router"]["physical_router_back_refs"][0]['uuid'];
+	                                }
+		                        updatePhysicalRouters(error,appData,bgpFqName,prouterParams, function(error, data) {
+		                            commonUtils.handleJSONResponse(error, res, data);
+		                            return;
+		                        });
+		                } else {
+		                    commonUtils.handleJSONResponse(error, res, data);
+		                }
 					} catch (e) {
 						logutils.logger.error(e.stack);
 						// TODO: On error all changes should be rolled back.s
 						commonUtils.handleJSONResponse(null, res, data);
 					}
-				    
+				
 				}, bgpHeader);
 			}
 		});
@@ -629,7 +642,7 @@ function updateBGPRouterInternal(req, res, id, bgpUpdates, appData) {
  * @param {Object} JSON of updates to BGP Router
  */
 function prepareBGPPeerAttrJSON(bgpUpdates) {
-    var addFamily = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"]["family"]; 
+    var addFamily = bgpUpdates["bgp-router"]["bgp_router_parameters"]["address_families"]["family"];
     var attrJSON = {"session": [
         {
             //"attributes": [{"bgp_router": null, "address_families": {"family": addFamily}}],
@@ -996,7 +1009,7 @@ function updateGlobalASNPutBgpNodes (error, bgpNodes, globalASN, response,
 
 /**
  * @updateGlobalASNGetBgpNodes
- *  Get individual BGP Nodes 
+ *  Get individual BGP Nodes
  */
 function updateGlobalASNGetBgpNodes(error, bgpNodeList, globalASN, response,
                                     appData)
@@ -1280,7 +1293,7 @@ function updateIPFabricSubnets (request, response, appData) {
  */
 function readGlobalConfigObj (error, data, globalASNBody, response, appData) {
     var gscURL = '/global-system-config/';
-    var gscObj = {};  
+    var gscObj = {};
 
     if (error) {
         commonUtils.handleJSONResponse(error, response, null);
@@ -1397,7 +1410,7 @@ function deleteBgpVRoutersUpdate (error, vRouterNodeList,
             }
         }
     }
-    
+
     async.map(dataObjArr,
               commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
               function(error, results) {
@@ -1432,7 +1445,7 @@ function deleteBgpVRoutersRead (error, bgpConfig, bgpId, response, appData)
 
     for (i = 0; i < vRoutersRefLen; i++) {
         url = '/virtual-router/' + vRoutersRef[i]['uuid'];
-        commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_GET, 
+        commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_GET,
                                  null, null, null, appData);
 
     }
@@ -1443,7 +1456,7 @@ function deleteBgpVRoutersRead (error, bgpConfig, bgpId, response, appData)
               deleteBgpVRoutersUpdate(error, results, bgpConfig, bgpId,
                                       response, appData)
     });
-} 
+}
 
 /**
  * @deleteBgpPeersUpdate
@@ -1485,7 +1498,7 @@ function deleteBgpPeersUpdate (error, bgpNodeList, bgpConfig, bgpId, response,
                                data: bgpNodeList[i]});
                 url = '/bgp-router/' + bgpRef['uuid'];
                 commonUtils.createReqObj(dataObjArr, url,
-                                         global.HTTP_REQUEST_PUT, bgpNodeList[i], 
+                                         global.HTTP_REQUEST_PUT, bgpNodeList[i],
                                          null, null, appData);
                 break;
             }
@@ -1559,19 +1572,19 @@ function deleteBGPRouter (request, response, appData)
                                  return;
                              }
                              //If there is a physical router associated with this remove the ref
-                             if ((data["bgp-router"]["physical_router_back_refs"] != null) && 
+                             if ((data["bgp-router"]["physical_router_back_refs"] != null) &&
                                      (data["bgp-router"]["physical_router_back_refs"][0] != null)) {
                                  var bgpFqName = data["bgp-router"]["fq_name"];
                                  var prouterParams = {};
                                  prouterParams['oldProuter'] = data["bgp-router"]["physical_router_back_refs"][0]['uuid'];
-                                 updatePhysicalRouters (error,data,appData,bgpFqName,prouterParams, function(error, prdata) {
+                                 updatePhysicalRouters (error,appData,bgpFqName,prouterParams, function(error, prdata) {
                                                                  deleteBgpPeersRead(error, data, id.toString(),response, appData);
                                                                  });
                              } else {
                                  deleteBgpPeersRead(error, data, id.toString(),response, appData);
                              }
                          });
-                         
+
 }
 
 function getMatchStrByType (type)
@@ -1649,7 +1662,7 @@ function createReqArrByType (dataObjArr, type, obj)
     }
 }
 
-var configCBList = 
+var configCBList =
 {
     'virtual-network': vnConfig.getPagedVirtualNetworks,
     'network-policy': polConfig.readPolicys,
@@ -1815,7 +1828,7 @@ function getApiServerDataByPage (req, res, appData)
                                          null, appData);
                 createReqArrByType(reqDataObjArr, type,
                                    {uuid: configListData[i][keyStr],
-                                    appData: appData, 
+                                    appData: appData,
                                     dataObjArr: dataObjArr});
                 found = true;
             }
@@ -1834,7 +1847,7 @@ function getApiServerDataByPage (req, res, appData)
             });
         } else {
             var dataObj = {};
-            
+
             dataObj['configData'] = configList;
             dataObj['reqDataArr'] = reqDataObjArr;
             dataObj['dataObjArr'] = dataObjArr;
@@ -1859,6 +1872,18 @@ function sendConfigPagedResponse (err, data, res, retLastKey)
     commonUtils.handleJSONResponse(err, res, result);
 }
 
+function getAllBGPRouters(req, res, appData) {
+    var url = '/bgp-routers?detail=true&fields=physical_router_back_refs';
+
+    configApiServer.apiGet(url, appData, function(err, bgpConfigList) {
+        if (err || (null == bgpConfigList)) {
+            commonUtils.handleJSONResponse(err, res, []);
+            return;
+        }
+        commonUtils.handleJSONResponse(err, res, bgpConfigList['bgp-routers']);
+    });
+}
+
 exports.updateGlobalASN = updateGlobalASN;
 exports.getGlobalASN    = getGlobalASN;
 exports.deleteBGPRouter = deleteBGPRouter;
@@ -1866,4 +1891,5 @@ exports.getControlNodeDetailsFromConfig = getControlNodeDetailsFromConfig;
 exports.getApiServerDataByPage = getApiServerDataByPage;
 exports.updateiBGPAutoMesh = updateiBGPAutoMesh;
 exports.updateIPFabricSubnets = updateIPFabricSubnets;
+exports.getAllBGPRouters = getAllBGPRouters;
 

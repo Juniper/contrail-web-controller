@@ -426,6 +426,66 @@ define([
         this.URL_ALARM_DETAILS_IN_CHUNKS =
             '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
 
+        //BGP
+        this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';
+        this.URL_GET_ASN = '/api/tenants/admin/config/global-asn';
+        this.BGP_ADDRESS_FAMILY_DATA = [
+                                           {
+                                               text : 'inet-vpn',
+                                               value : 'inet-vpn',
+                                               locked : true
+                                           },
+                                           {
+                                               text : 'inet6-vpn',
+                                               value : 'inet6-vpn'
+                                           },
+                                           {
+                                                text : 'route-target',
+                                                value : 'route-target'
+                                           },
+                                           {
+                                                text : 'e-vpn',
+                                                value : 'e-vpn'
+                                           }
+                                       ];
+        this.CN_ADDRESS_FAMILY_DATA = [
+                                          {
+                                              text : 'route-target',
+                                              value : 'route-target',
+                                              locked : true
+                                          },
+                                          {
+                                              text : 'inet-vpn',
+                                              value : 'inet-vpn',
+                                              locked : true
+                                          },
+                                          {
+                                               text : 'inet6-vpn',
+                                               value : 'inet6-vpn',
+                                               locked : true
+                                          },
+                                          {
+                                               text : 'e-vpn',
+                                               value : 'e-vpn',
+                                               locked : true
+                                          },
+                                          {
+                                               text : 'erm-vpn',
+                                               value : 'erm-vpn',
+                                               locked : true
+                                          }
+                                      ];
+         this.AUTHENTICATION_DATA = [
+                                        {
+                                            text : 'None',
+                                            value : 'none'
+                                        },
+                                        {
+                                            text : 'md5',
+                                            value : 'md5'
+                                        }
+                                    ];
+
         //Physical Routers constants
         this.URL_PHYSICAL_ROUTERS_DETAILS_IN_CHUNKS =
             '/api/tenants/config/physical-routers-with-intf-count';
