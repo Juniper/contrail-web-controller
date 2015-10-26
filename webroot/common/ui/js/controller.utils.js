@@ -9,7 +9,7 @@ define([
 
     var CTUtils = function () {
         var self = this;
-
+        var utilVariable = [];
         self.getInstanceDetailsTemplateConfig = function () {
             return {
 
@@ -425,7 +425,44 @@ define([
                  }
             }
         };
+        this.setGlobalVariable = function(key, value) {
+            utilVariable[key] = value;
+        };
+        this.getGlobalVariable = function(key) {
+            return utilVariable[key];
+        };
+        this.getAllGlobalVariable = function() {
+            return utilVariable;
+        };
+        // Accept fqname as array and 
+        // currentDomainProject as string format domain:project
+        // if currentDomainProject is empty it will try taking utilVariable
+        // Output will be in the format "element(domain:project)"
+        this.formatCurrentFQName = function(fqname, currentDomainProject){
+            var domain = "", project = "";
+            if(currentDomainProject != null && currentDomainProject != ""){
+                var domainProjectArr = currentDomainProject.split(":");
+                if(domainProjectArr == 2) {
+                    domain = domainProjectArr[0];
+                    project = domainProjectArr[1];
+                }
+            } else if(utilVariable["domain"] != null && 
+                      utilVariable["project"] != null){
+                domain = utilVariable["domain"];
+                project = utilVariable["project"];
+            } else {
+                return false;
+            }
+            if(fqname.length >= 3) {
+                if(fqname[0] == domain.name && fqname[1] == project.name) {
+                    return fqname[fqname.length-1];
+                } else {
+                    var element = fqname[fqname.length-1];
+                    var parent = fqname.splice(0,fqname.length-1);
+                    return element + " (" + parent.join(":") + ")";
+                }
+            }
+        }
     };
-
     return CTUtils;
 });
