@@ -89,6 +89,12 @@ define([
         this.URL_LOGICAL_ROUTER_PUT = '/api/tenants/config/logicalrouter/{0}';
         this.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX = 'config/networking/logicalrouter/ui/js/views/';
 
+        this.URL_All_NETWORK_IN_PROJECT = '/api/tenants/config/all-virtual-networks?uuid={0}';
+        this.URL_PORT_POST = '/api/tenants/config/ports';
+        this.URL_PORT_PUT = '/api/tenants/config/ports/{0}';
+        this.URL_PORT_VIEW_PATH_PREFIX = 'config/networking/port/ui/js/views/';
+        this.URL_GET_PORT_UUID = '/api/tenants/config/get-config-uuid-list?type=virtual-machine-interface&parentUUID={0}';
+        this.URL_GET_PORT = '/api/tenants/config/get-virtual-machine-details-paged';
         this.get = function () {
             var args = arguments;
             return cowc.getValueFromTemplate(args);

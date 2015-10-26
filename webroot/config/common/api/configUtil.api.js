@@ -13,7 +13,7 @@ var configUtil       = module.exports;
 // '/src/serverroot/common/rest.api');
 var async = require('async');
 
-var portsConfig = require('../../ports/api/portsconfig.api'),
+var portsConfig = require('../../networking/port/api/portsconfig.api'),
     logutils = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/utils/log.utils'),
     appErrors = require(process.mainModule.exports["corePath"] +

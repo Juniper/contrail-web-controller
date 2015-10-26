@@ -31,7 +31,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     sgConfig = require('../../../networking/securitygroup/api/securitygroupconfig.api'),
     logicalRouterConfig =
     require('../../../networking/logicalrouter/api/logicalrouterconfig.api'),
-    portsConfig = require('../../../ports/api/portsconfig.api'),
+    portsConfig = require('../../../networking/port/api/portsconfig.api'),
     infConfig = require('../../../physicaldevices/interfaces/api/interfacesconfig.api.js'),
     ipamConfig = require('../../../networking/ipam/api/ipamconfig.api'),
     vdnsConfig = require('../../../dns/api/virtualdnsconfig.api'),
