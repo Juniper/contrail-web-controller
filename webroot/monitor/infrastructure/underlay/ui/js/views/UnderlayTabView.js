@@ -19,9 +19,9 @@ define([
             this.renderView4Config(self.$el, self.model,
                  getUnderlayTabConfig(viewConfig), null, null, null,
                  function () {
-                    var contrailTabObj =
-                        $(self.$el).find('#contrail-tabs').data('contrailTabs');
-                    contrailTabObj.disableTab(tabsToDisable,true);
+                    var underlayTabObj =
+                        $("#"+ctwc.UNDERLAY_TAB_ID).data('contrailTabs');
+                    underlayTabObj.disableTab(tabsToDisable,true);
                  }
             );
         }

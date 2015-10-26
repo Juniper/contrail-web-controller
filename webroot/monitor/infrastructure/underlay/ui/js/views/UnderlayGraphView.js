@@ -588,8 +588,7 @@ define([
                              self.renderView4Config(
                                  $('#'+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID), null,
                                  viewConfig, null, null, null,function () {
-                                     $("#"+ctwc.UNDERLAY_TAB_ID)
-                                     .find('#contrail-tabs').tabs({ active:
+                                     $("#"+ctwc.UNDERLAY_TAB_ID).tabs({ active:
                                          ctwc.UNDERLAY_LINK_TAB_INDEX[0]});
                                  });
                              break;
@@ -920,7 +919,7 @@ define([
                 ifNull(nodeDetails['mgmt_ip'],'-'),
         };
         showHideTabs(ctwc.PROUTER);
-        $("#"+ctwc.UNDERLAY_TAB_ID).find('#contrail-tabs').tabs(
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
                 {active:ctwc.UNDERLAY_PROUTER_TAB_INDEXES[0]})
         // Rendering the details tab
         self.renderView4Config($('#'+ctwc.UNDERLAY_DETAILS_TAB_ID),
@@ -964,7 +963,7 @@ define([
         var vRouterParams =
             monitorInfraUtils.getUnderlayVRouterParams(nodeDetails);
         showHideTabs(ctwc.VROUTER);
-        $("#"+ctwc.UNDERLAY_TAB_ID).find('#contrail-tabs').tabs(
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
                 {active:ctwc.UNDERLAY_VROUTER_TAB_INDEXES[0]});
         var vRouterTabConfig = ctwvc.getVRouterDetailsPageTabs(vRouterParams);
         for (var i = 0; i < vRouterTabConfig.length; i++) {
@@ -1017,7 +1016,7 @@ define([
             networkFQN: vnList[0],
         };
         showHideTabs(ctwc.VIRTUALMACHINE);
-        $("#"+ctwc.UNDERLAY_TAB_ID).find('#contrail-tabs').tabs(
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
                 {active:ctwc.UNDERLAY_VM_TAB_INDEXES[0]});
         var instanceTabConfig =
             ctwvc.getInstanceDetailPageTabConfig(
@@ -1065,8 +1064,7 @@ define([
     function showHideTabs (contextTabsToShow) {
         var tabContexts = [ctwc.PROUTER, ctwc.VROUTER, ctwc.VIRTUALMACHINE,
             ctwc.UNDERLAY_LINK];
-        var underlayTabObj  = $("#"+ctwc.UNDERLAY_TAB_ID).find("#contrail-tabs")
-            .data('contrailTabs');
+        var underlayTabObj  = $("#"+ctwc.UNDERLAY_TAB_ID).data('contrailTabs');
         var nodeTabMap = {
             'physical-router': ctwc.UNDERLAY_PROUTER_TAB_INDEXES,
             'virtual-router': ctwc.UNDERLAY_VROUTER_TAB_INDEXES,
