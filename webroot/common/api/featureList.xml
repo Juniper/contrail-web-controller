@@ -89,10 +89,15 @@
         <write-access>member</write-access>
     </item>
     <item>
-        <feature>virtualdnsconfig</feature>
+        <feature>virtualdnsserversconfig</feature>
         <read-access>member</read-access>
         <write-access>member</write-access>
     </item>
+    <item>
+        <feature>virtualdnsrecordsconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>    
     <item>
         <feature>quotasconfig</feature>
         <read-access>member</read-access>

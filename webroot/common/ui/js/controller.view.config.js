@@ -236,6 +236,29 @@ define([
                 }
             };
         };
+		
+		self.getDNSBreadcrumbDropdownViewConfig = function(hashParams, customDNSDropdownOptions) {
+            var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
+
+            return function(domainSelectedValueData) {
+                var domain = domainSelectedValueData.value,
+                    defaultDropdownOptions = {
+                        urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
+                        cookieKey: 'dnsServer',
+                        parentSelectedValueData: domainSelectedValueData
+                    },
+                    dropdownOptions = $.extend(true, {}, defaultDropdownOptions, customDNSDropdownOptions);
+
+                return {
+                    elementId: ctwl.DNS_BREADCRUMB_DROPDOWN,
+                    view: "BreadcrumbDropdownView",
+                    viewConfig: {
+                        modelConfig: ctwu.getDNSListModelConfig(domain),
+                        dropdownOptions: dropdownOptions
+                    }
+                }
+            };
+        };
 
         self.getNetworkBreadcrumbDropdownViewConfig = function(hashParams, customNetworkDropdownOptions) {
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);

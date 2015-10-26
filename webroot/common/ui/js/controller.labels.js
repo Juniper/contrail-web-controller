@@ -128,6 +128,23 @@ define([
             ip_fabric_service_port: 'Fabric Port',
             lls_fab_address_ip: 'Address Type',
             ip_fabric_DNS_service_name: 'Fabric DNS',
+			
+			/*DNS Server*/
+			//dnsserver_name: 'Name',
+			dnsserver_domain_name: 'Domain Name',
+			dnsserver_forwarder: 'DNS Forwarder',
+			dnsserver_record_resolution_order: 'Record Resolution Order',
+			dnsserver_floating_ip_record: 'Floating IP Record',
+			dns_time_to_live: 'Time To Live',
+			dns_associate_ipams: 'Associate IPAMs',
+			
+			/*DNS Records*/
+			dnsrecords_domain_name: 'Domain Name',
+			dnsrecords_forwarder: 'DNS Forwarder',
+			dnsrecords_record_resolution_order: 'Record Resolution Order',
+			dnsrecords_floating_ip_record: 'Floating IP Record',
+			dns_time_to_live: 'Time To Live',
+			dns_associate_ipams: 'Associate IPAMs',
 
             /*Virtual Router Config*/
             virtual_router_type: "Type",
@@ -791,6 +808,34 @@ define([
         this.TITLE_POLICY = 'Policy';
         this.TXT_POLICY = 'policy';
         this.POLICY_NAME = 'Policy Name';
+
+        this.CONFIG_DNS_SERVER_PAGE_ID = 'config-dns-server-page';
+        this.CONFIG_DNS_SERVER_LIST_VIEW_ID = 'config-dns-server-list';
+        this.CONFIG_DNS_SERVER_SECTION_ID = 'dnsServer';
+        this.CONFIG_DNS_SERVER_ID = 'config-dns-server';
+        this.TITLE_DNS_SERVER = 'DNS Servers';
+        this.DNS_SERVER_GRID_ID = 'dns-server-grid';
+        this.DNS_SERVER_PREFIX_ID = 'DNS_server';
+        this.TITLE_CREATE_DNS_SERVER = 'Create DNS Server';
+        this.TITLE_DEL_DNS_SERVER = 'Delete DNS Server';
+        this.TITLE_EDIT_DNS_SERVER = 'Edit DNS Server';
+        this.DNS_SERVER_DETAILS = 'DNS Server Details';
+		
+		
+		this.CONFIG_DNS_RECORDS_PAGE_ID = 'config-dns-records-page';
+        this.CONFIG_DNS_RECORDS_LIST_VIEW_ID = 'config-dns-records-list';
+        this.CONFIG_DNS_RECORDS_SECTION_ID = 'dnsRecords';
+        this.CONFIG_DNS_RECORDS_ID = 'config-dns-records';
+        this.TITLE_DNS_RECORDS = 'DNS Records';
+        this.DNS_RECORDS_GRID_ID = 'dns-records-grid';
+        this.DNS_RECORDS_PREFIX_ID = 'DNS_records';
+        this.TITLE_CREATE_DNS_RECORD = 'Create DNS Record';
+        this.TITLE_DEL_DNS_RECORD = 'Delete DNS Record';
+        this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
+        this.DNS_RECORD_DETAILS = 'DNS Record Details';
+		this.DNS_BREADCRUMB_DROPDOWN = "dns-breadcrumb-dropdown";
+
+
     };
     return CTLabels;
 });
