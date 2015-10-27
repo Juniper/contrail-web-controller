@@ -523,10 +523,15 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_net_routers</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/logicalrouters/ui</rootDir>
-                                    <js>router_config.js</js>
-                                    <view>router_config.view</view>
-                                    <class>routerConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                    <class>renderLogicalRouter</class>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/logicalrouter/ui</rootDir>
+                                    <js>logicalRouter.main.js</js>
+                                    <class>ConfigLogicalRouterLoader</class>
+                                    <function>renderLogicalRouter</function>
                                 </resource>
                             </resources>
                             <access>

@@ -29,7 +29,8 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     fipConfig = require('../../../networking/fip/api/fipconfig.api'),
     polConfig = require('../../../networkpolicies/api/policyconfig.api'),
     sgConfig = require('../../../networking/securitygroup/api/securitygroupconfig.api'),
-    logicalRouterConfig = require('../../../logicalrouters/api/logicalroutersconfig.api'),
+    logicalRouterConfig =
+    require('../../../networking/logicalrouter/api/logicalrouterconfig.api'),
     portsConfig = require('../../../ports/api/portsconfig.api'),
     infConfig = require('../../../physicaldevices/interfaces/api/interfacesconfig.api.js'),
     ipamConfig = require('../../../networking/ipam/api/ipamconfig.api'),
