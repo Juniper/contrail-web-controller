@@ -157,6 +157,7 @@ define(
                                                 .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
                         obj['rawData'] = d;
+                        obj['cores'] = self.getCores(d);
                         retArr.push(obj);
                     });
                     retArr.sort(dashboardUtils.sortNodesByColor);
@@ -318,6 +319,7 @@ define(
                             dashboardUtils.sortInfraAlerts);
                         //Decide color based on parameters
                         obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
+                        obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
                     }
@@ -422,6 +424,7 @@ define(
                         obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                                             .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
+                        obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
                     });
@@ -512,6 +515,7 @@ define(
                             obj['nodeAlerts'].concat(obj['processAlerts'])
                                 .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
+                        obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
                     });
@@ -604,6 +608,7 @@ define(
                         obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                             .sort(dashboardUtils.sortInfraAlerts);
                         obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
+                        obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
                     });
@@ -1756,12 +1761,12 @@ define(
                        obj['formattedSrcVN'] = formattedSrcVN[0]; 
                        obj['formattedDestVN'] = formattedDestVN[0];
                     });
-                    
+
                     return response['data'];
                 }
 
                 self.getCores = function (data) {
-                    var fileList=[],result=[];
+                    var fileList=[];
                     var fileArrList=[];
                     var procCoreList = jsonPath(data,'$..NodeStatus.process_info[*].core_file_list');
                     if (procCoreList){
@@ -1772,14 +1777,9 @@ define(
                     for (var i=0;i<fileArrList.length;i++){
                         var files=fileArrList[i];
                        for (var j=0;j<files.length;j++)
-                            fileList.push(files[j])}
-                    if (fileList.length==1){
-                        result.push({lbl:'Core File',value:fileList[0]});
-                    } else if(fileList.length>1){
-                        result.push({lbl:'Cores Files',value:fileList[0]});
-                        for (var i=1;i<fileList.length;i++)
-                            result.push({lbl:'',value:fileList[i]});}
-                    return fileList;
+                           fileList.push(files[j])
+                    }
+                    return (fileList.length == 0)? '-' : fileList;
                 }
 
                 self.getCpuText = function (cpu) {

@@ -222,6 +222,11 @@ define([
                         key: 'lastLogTimestamp',
                         label: 'Last Log',
                         templateGenerator: 'TextGenerator'
+                    },
+                    {
+                        key: 'cores',
+                        label: 'Core File(s)',
+                        templateGenerator: 'TextGenerator'
                     }
                 ]
         );

@@ -134,7 +134,7 @@ define([
                                         dataBindValue: 'routing_instance',
                                         class: "span6",
                                         elementConfig: {
-                                            defaultValue:'All',
+                                            defaultValueId: 0,
                                             dataSource: {
                                                 dataType:'xml',
                                                 type:'remote',
