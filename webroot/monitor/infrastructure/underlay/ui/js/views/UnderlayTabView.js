@@ -28,34 +28,34 @@ define([
     });
 
     var getUnderlayTabConfig = function (viewConfig) {
-        
+
         var underlayModel = monitorInfraUtils.getUnderlayGraphInstance();
-        
+
         /*
          * Instance tab config (Details, Interfaces, Traffic Statistics,
          *  Port Distribution, Port Map, CPU/Memory)
-         */ 
+         */
         var instanceTabConfig =
             ctwvc.getInstanceDetailPageTabConfig(viewConfig);
-        
+
         // Underlay default tab config (Search flows & Trace flow)
         var underlayDefaultTabConfig =
             ctwvc.getUnderlayDefaultTabConfig(viewConfig);
-        
+
         // pRouter tab config (Interface tab, Traffic statistics tab, Details tab)
         var underlayPRouterTabConfig =
             ctwvc.getUnderlayPRouterTabConfig(viewConfig);
-        
+
         // TrafficStatistics tab for prouter  link
         var underlayPRouterLinkTabConfig =
             ctwvc.getUnderlayPRouterLinkTabConfig(viewConfig);
-        
+
         // vRouter tab config (Details, Interfaces, Networks, ACL, Flows, Routes)
         /*var vRouterViewConfig =
             monitorInfraUtils.getUnderlayVRouterParams(underlayModel['model']['vRouters'][0]);*/
-         
+
         var underlayVRouterTabConfig = ctwvc.getVRouterDetailsPageTabs({});
-        
+
         var underlayTabConfig = underlayDefaultTabConfig.concat(
             underlayPRouterTabConfig,underlayPRouterLinkTabConfig,
             instanceTabConfig, underlayVRouterTabConfig);
@@ -85,7 +85,7 @@ define([
             }
         };
     };
-    
+
     function activate (e, ui) {
         var selTab = $(ui.newTab.context).text();
         if (selTab == ctwl.UNDERLAY_TRACEFLOW_TITLE &&
@@ -117,6 +117,6 @@ define([
             data('contrailGrid').refreshView();
         }
     }
-    
+
     return UnderlayTabView;
 });

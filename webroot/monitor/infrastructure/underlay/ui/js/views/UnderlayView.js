@@ -11,7 +11,7 @@ define([
         el: $(contentContainer),
         renderUnderlayPage: function (viewConfig) {
             var self = this,
-                graphTabsTemplate = 
+                graphTabsTemplate =
                     contrail.getTemplate4Id(cowc.TMPL_2ROW_CONTENT_VIEW);
             this.$el.html(graphTabsTemplate);
             self.renderUnderlayGraph();
@@ -30,7 +30,7 @@ define([
                 tabConfig, null, null, null);
         }
     });
-    
+
     function getUnderlayGraphViewConfig() {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_ID]),
@@ -43,14 +43,14 @@ define([
                           viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
                           app: cowc.APP_CONTRAIL_CONTROLLER,
                           viewConfig: {
-                              
+
                           }
                       }]
                 }]
             }
         };
     };
-    
+
     function getUnderlayTabViewConfig () {
         return {
             elementId:
@@ -64,7 +64,7 @@ define([
                             viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig : {
-                                
+
                             }
                       }]
                 }]

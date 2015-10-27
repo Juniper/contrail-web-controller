@@ -69,9 +69,9 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            var tors = jsonPath(nodes, '$[?(@.chassis_type=="tor")]');
            if(false !== tors)
                this.tors = tors;
-           else 
+           else
                this.tors = [];
-           
+
            var spines = jsonPath(nodes, '$[?(@.chassis_type=="spine")]');
            if(false !== spines)
                this.spines = spines;
@@ -105,21 +105,21 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                this.VNs = vns;
            else
                this.VNs = vns;
-           
+
            var vRouterMap = {};
            $.each(this.vRouters,function(idx, obj){
-              vRouterMap[obj['name']] = obj; 
+              vRouterMap[obj['name']] = obj;
            });
            this.vRouterMap = vRouterMap;
-           
+
            var vmMap = {};
            $.each(this.VMs,function(idx,obj) {
-              vmMap[obj['name']] = obj; 
+              vmMap[obj['name']] = obj;
            });
            this.vmMap = vmMap;
-           
+
            var tmpTree = {}, tree = {}, firstLevelNodes = [];
-           
+
            for(var i=0; i<nodes.length; i++) {
                tmpTree[nodes[i].name] = nodes[i];
            }
@@ -155,7 +155,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                links: this.links,
            };
        },
-      
+
        createElementsFromAdjacencyList: function () {
            var elements = [];
            var linkElements = [];
@@ -180,7 +180,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                            return;
                        }
                    }
-               }        
+               }
                var parentNode = jsonPath(nodes, '$[?(@.name=="' +
                    parentElementLabel + '")]');
                if(false !== parentNode && parentNode.length === 1) {
@@ -195,7 +195,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                }
            });
 
-           _.each(adjacencyList, function(edges, parentElementLabel) {        
+           _.each(adjacencyList, function(edges, parentElementLabel) {
                var parentNode = jsonPath(nodes, '$[?(@.name=="' +
                    parentElementLabel + '")]');
                if(false !== parentNode && parentNode.length === 1) {
@@ -230,7 +230,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                            var childNodeType = childNode.node_type;
                            var childId = elMap.node[childNode["name"]];
                            var link_type = parentNodeType.split("-")[0][0] +
-                               parentNodeType.split("-")[1][0] + '-' + 
+                               parentNodeType.split("-")[1][0] + '-' +
                                childNodeType.split("-")[0][0] +
                                childNodeType.split("-")[1][0];
                            for(var i=0; i<links.length; i++) {
@@ -247,7 +247,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                                        "<->" + childElementLabel;
                                    if((null == elMap["link"][linkName] &&
                                        typeof elMap["link"][linkName] == "undefined") &&
-                                       null == elMap["link"][altLinkName] && 
+                                       null == elMap["link"][altLinkName] &&
                                        typeof elMap["link"][altLinkName] == "undefined") {
                                        linkElements.push(self.createLink(
                                            link, link_type, parentId, childId));
@@ -328,7 +328,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                                var childNodeType = childNode.node_type;
                                var childId = elMap.node[childNode.name];
                                var link_type = parentNodeType.split("-")[0][0] +
-                                   parentNodeType.split("-")[1][0] + '-' + 
+                                   parentNodeType.split("-")[1][0] + '-' +
                                    childNodeType.split("-")[0][0] +
                                    childNodeType.split("-")[1][0];
                                var linkEl = this.createLink(link,
@@ -380,89 +380,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            // elements must be in the graph already.
            return elements.concat(linkElements.unique());
        },
-       
-       addElementsToGraph: function (els, clickedElement) {
-           var paper = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-           $('#' + ctwl.UNDERLAY_GRAPH_ID).find("div").remove();
-           this.clear();
-           paper.setDimensions(2000,2000);
-           paper.setOrigin(0,0);
-           $('#' + ctwl.UNDERLAY_GRAPH_ID).prop('style')
-               .removeProperty('transform');
-           $('#' + ctwl.UNDERLAY_GRAPH_ID).offset({
-               "top" : $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().offset().top,
-               "left": $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().offset().left
-           });
-           //this.addCells(els);
-           var newGraphSize = joint.layout.DirectedGraph.layout(this,
-               {"rankDir" : "TB", "nodeSep" : 50, "rankSep" : 50});
-           var svgHeight = newGraphSize.height;
-           var svgWidth = newGraphSize.width;
-           var viewAreaHeight = $('#' + ctwl.UNDERLAY_GRAPH_ID).height();
-           var viewAreaWidth = $('#' + ctwl.UNDERLAY_GRAPH_ID).width();
-           var paperWidth = paper.options.width;
-           var paperHeight = paper.options.height;
-           var newPaperHeight = paperHeight;
-           var newPaperWidth = paperWidth;
-           var offsetX = 0;
-           var offsetY = 15;
-           var offset = {
-               x: 0,
-               y: 0
-           };
-           if(svgHeight > paperHeight) {
-               newPaperHeight = svgHeight;
-           }
-           if(svgWidth > paperWidth) {
-               newPaperWidth = svgWidth;
-           }
-           if(newPaperHeight !== 2000 || newPaperWidth !== 2000 )
-               paper.setDimensions(newPaperWidth, newPaperHeight);
 
-           if(svgHeight < viewAreaHeight) {
-               offsetY = (viewAreaHeight - svgHeight)/2;
-           }
-           if(svgWidth < viewAreaWidth) {
-               offsetX = (viewAreaWidth - svgWidth)/2;
-           }
-
-           offset = {
-               x: offsetX,
-               y: offsetY
-           };
-           $.each(els, function (elementKey, elementValue) {
-               elementValue.translate(offset.x, offset.y);
-           });
-           if(svgHeight > viewAreaHeight) {
-               $("#" + ctwl.UNDERLAY_GRAPH_ID).offset({
-                   "top" : -(svgHeight - viewAreaHeight)/2
-               });
-           }
-           if(svgWidth > viewAreaWidth) {
-               if(typeof clickedElement !== "undefined" &&
-                   null !== clickedElement) {
-                   var fixedDivPosition =
-                       $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().offset();
-                   var fixedDivWidth =
-                       $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().width();
-                   var fixedDivHeight =
-                       $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().height();
-                   var centerXOfFixedDiv =
-                       fixedDivPosition.left + (fixedDivWidth/2);
-                   var clickedElementAbsPosition = 
-                       $('div.font-element[font-element-model-id="'+ clickedElement.id +'"]').offset();
-                   var clickedElementAbsPositionX =
-                       clickedElementAbsPosition.left;
-                   var offsetToMoveX =
-                       clickedElementAbsPositionX - centerXOfFixedDiv;
-                   $('#' + ctwl.UNDERLAY_GRAPH_ID).css({
-                       "left": (-offsetToMoveX) + "px"
-                   });
-               }
-           }
-           this.markErrorNodes();
-       },
-       
        createLink: function (link, link_type, srcId, tgtId) {
            var options;
            var linkElement;
@@ -479,7 +397,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            linkElement = new ContrailElement('link', options);
            return linkElement;
        },
-       
+
        createNode: function (node) {
            var nodeName = node['name'],
            type = node.node_type,
@@ -506,7 +424,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                        node.more_attributes.vm_name.trim() !== "-") {
                        labelNodeName = contrail.truncateText(
                            node.more_attributes.vm_name.trim(),10);
-                   } else {    
+                   } else {
                        labelNodeName = contrail.truncateText(nodeName,10);
                    }
                    refY = .9;
@@ -538,7 +456,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            element = new ContrailElement(type, options);
            return element;
        },
-       
+
        prepareData : function (stopAt) {
            var treeModel = this.tree;
            var adjList = {};
@@ -549,7 +467,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            }
            return adjList;
        },
-       
+
        prepareDG : function (prop, propObj, adjList, stopAt) {
            if ( typeof prop === "undefined" || null === prop ||
                    {} === prop || false === prop)
@@ -570,9 +488,9 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                    }
                }
        },
-       
+
        parseTree : function (parents, tree, tmpTree) {
-           if(null !== parents && false !== parents && 
+           if(null !== parents && false !== parents &&
                    typeof parents === "object" && parents.length > 0) {
                for(var i=0; i<parents.length; i++) {
                    if(tmpTree.hasOwnProperty(parents[i].name)) {
@@ -582,7 +500,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                    var children_chassis_type =
                        this.getChildChassisType(parent_chassis_type);
                    tree[parents[i].name] = parents[i];
-                   var children = 
+                   var children =
                        this.getChildren(parents[i].name, children_chassis_type);
                    tree[parents[i].name]["children"] = {};
                    this.parseTree(children,
@@ -619,7 +537,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                child_type = child_type.trim();
                var nodes = this.nodes;
                var links = this.links;
-               //fix 
+               //fix
                var srcPoint = jsonPath(links,
                    '$[?(@.endpoints[0]=="' + parent + '")]');
                var dstPoint = jsonPath(links,
@@ -660,7 +578,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                }
                return childNodes;
        },
-       
+
        checkIPInVrouterList: function (data) {
            var vRouterList = this.vRouters;
            for(var i = 0; i < ifNull(vRouterList,[]).length; i++) {

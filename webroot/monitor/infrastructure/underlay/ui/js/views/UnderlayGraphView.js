@@ -131,49 +131,14 @@ define([
                     graphModel['underlayPathIds'] = connectionWrapIds;
                     monitorInfraUtils.showFlowPath(connectionWrapIds, null, graphModel);
                 }
-                /*var srcIP = postData.data['srcIP'];
-                var destIP = postData.data['destIP'];
-                var instances = graphModel['VMs'],srcVM = [],destVM = [];
-                for(var i = 0; i < instances.length; i++) {
-                    $.each(ifNull(instances[i]['more_attributes']['interface_list'],[]),function(idx,intfObj){
-                       if((intfObj['ip_address'] == srcIP && intfObj['ip_address'] != '0.0.0.0') || 
-                               (intfObj['ip6_address'] == srcIP && intfObj['ip6_address'] != '0.0.0.0'))
-                           srcVM = instances[i]['name'];
-                       else if((intfObj['ip_address'] == destIP && intfObj['ip_address'] != '0.0.0.0') || 
-                               (intfObj['ip6_address'] == destIP && intfObj['ip6_address'] != '0.0.0.0'))
-                           destVM = instances[i]['name'];
-                    });
-                }
-                for(var i=0; i<nodes.length; i++) {
-                    var hlNode = nodes[i];
-                    if(hlNode.node_type === 'virtual-machine') {
-                        var model_id = elementMap.node[hlNode.name];
-                        var associatedVRouter =
-                        jsonPath(instances, '$[?(@.name =="' + hlNode.name + '")]');
-                        var associatedVRouterUID = "";
-                        if(false !== associatedVRouter &&
-                            "string" !== typeof associatedVRouter &&
-                            associatedVRouter.length > 0 ) {
-                            associatedVRouter = associatedVRouter[0]['more_attributes']['vrouter'];
-                            if(null !== associatedVRouter && typeof associatedVRouter !== "undefined") {
-                                associatedVRouterUID = elementMap['node'][associatedVRouter];
-                            }
-                        }
-                        if(hlNode.name == srcVM) {
-                            //Plot green
-                            $('div.font-element[font-element-model-id="' + model_id + '"]')
-                                .find('i')
-                                .css("color", "green");
-                        } else if(hlNode.name == destVM) {
-                            //Plot red
-                            $('div.font-element[font-element-model-id="' + model_id + '"]')
-                                .find('i')
-                                .css("color", "red");
-                        }
-                    }
-                }*/
+                // When the underlay path is same for earlier flow and
+                // current flow change events are not triggering so we need to
+                // reset the nodes and links to empty array once the path is plotted.
+                graphModel.flowPath.set('nodes',[], {silent: true});
+                graphModel.flowPath.set('links',[], {silent: true});
             });
-        }
+        },
+        markers: function () {}
     });
 
     function getUnderlayGraphModelConfig() {
@@ -194,6 +159,11 @@ define([
                         var elements = underlayGraphModel.elementsDataObj.elements;
                         if (elements.length > 0) {
                             adjustDimensions(elements);
+                            var markers =
+                                monitorInfraUtils.getMarkersForUnderlay();
+                            var defs = $('#' + ctwl.UNDERLAY_GRAPH_ID ).find('svg').find('defs');
+                            for(var i=0; i<markers.length; i++)
+                                defs.append(markers[i]);
                         } else {
                             underlayGraphModel.empty = true;
                         }
@@ -1172,9 +1142,6 @@ define([
                 if (!(xhr.status === 0 && xhr.statusText === 'abort')) {
                     $(selectorId).html(notFoundTemplate(notFoundConfig));
                 }
-            },
-            successCallback: function (graphView) {
-
             }
         }
     }

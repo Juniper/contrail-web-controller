@@ -2023,7 +2023,7 @@ define([
                     });
                 }
                 var chartData = [inPacketsLocal,inPacketsRemote];
-                
+
                 options = {
                     height:300,
                     yAxisLabel: 'Packets per 72 secs',
@@ -2451,6 +2451,117 @@ define([
                   'more_attributes;VrouterAgent;sandesh_http_port',
                   ctwc.DEFAULT_INTROSPECTPORT)
           };
+        };
+
+        self.getMarkersForUnderlay = function () {
+            var marker =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker.setAttribute('id', 'head');
+            marker.setAttribute('orient', 'auto');
+            marker.setAttribute('markerWidth', '30');
+            marker.setAttribute('markerHeight', '30');
+            marker.setAttribute('refX', '2.5');
+            marker.setAttribute('refY', '3');
+
+            var path =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path.setAttribute('d', "M0,0 L0,3 L3,0");
+            path.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker.appendChild(path);
+
+            var marker1 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker1.setAttribute('id', 'up');
+            marker1.setAttribute('orient', 'auto');
+            marker1.setAttribute('markerWidth', '30');
+            marker1.setAttribute('markerHeight', '30');
+            marker1.setAttribute('refX', '0');
+            marker1.setAttribute('refY', '0');
+
+            var path1 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path1.setAttribute('d', "M0,0 L3,3 L0,3");
+            path1.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker1.appendChild(path1);
+
+            var marker2 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker2.setAttribute('id', 'down');
+            marker2.setAttribute('orient', 'auto');
+            marker2.setAttribute('markerWidth', '30');
+            marker2.setAttribute('markerHeight', '30');
+            marker2.setAttribute('refX', '3');
+            marker2.setAttribute('refY', '3');
+
+            var path2 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path2.setAttribute('d', "M0,0 L3,3 L3,0");
+            path2.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker2.appendChild(path2);
+
+            var marker3 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker3.setAttribute('id', 'bezierUp');
+            marker3.setAttribute('orient', 'auto');
+            marker3.setAttribute('markerWidth', '30');
+            marker3.setAttribute('markerHeight', '30');
+            marker3.setAttribute('refX', '.5');
+            marker3.setAttribute('refY', '3.7');
+
+            var path3 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path3.setAttribute('d', "M0,4 L4,0 L4,4");
+            path3.setAttribute('style', "stroke-width:0px;fill:#85b9dd;");
+            marker3.appendChild(path3);
+
+            var marker4 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker4.setAttribute('id', 'upDeviated');
+            marker4.setAttribute('orient', 'auto');
+            marker4.setAttribute('markerWidth', '30');
+            marker4.setAttribute('markerHeight', '30');
+            marker4.setAttribute('refX', '-1');
+            marker4.setAttribute('refY', '1');
+
+            var path4 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path4.setAttribute('d', "M0,0 L3,3 L0,3");
+            path4.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker4.appendChild(path4);
+
+            var marker5 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker5.setAttribute('id', 'bezierDown');
+            marker5.setAttribute('orient', 'auto');
+            marker5.setAttribute('markerWidth', '30');
+            marker5.setAttribute('markerHeight', '30');
+            marker5.setAttribute('refX', '2.5');
+            marker5.setAttribute('refY', '.5');
+
+            var path5 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path5.setAttribute('d', "M0,0 L0,3 L3,0");
+            path5.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker5.appendChild(path5);
+
+            var marker6 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+            marker6.setAttribute('id', 'downDeviated');
+            marker6.setAttribute('orient', 'auto');
+            marker6.setAttribute('markerWidth', '30');
+            marker6.setAttribute('markerHeight', '30');
+            marker6.setAttribute('refX', '5.5');
+            marker6.setAttribute('refY', '3');
+
+            var path6 =
+                document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            path6.setAttribute('d', "M0,0 L3,3 L3,0");
+            path6.setAttribute('style', "stroke:#85b9dd; fill:#85b9dd;");
+            marker6.appendChild(path6);
+
+            return [marker, marker1, marker2, marker3, marker4, marker5, marker6];
+
+
         };
 
         self.showUnderlayPaths = function (data) {

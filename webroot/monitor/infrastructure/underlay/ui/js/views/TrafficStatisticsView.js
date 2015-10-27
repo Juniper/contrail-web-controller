@@ -51,7 +51,7 @@ define([
                                         },chartOptions:
                                             pRouterIntfStatsObj['options']
                                     };
-                                    var pRouterStatsModel = 
+                                    var pRouterStatsModel =
                                         new ContrailListModel({
                                             data: pRouterIntfStatsObj.chartData
                                             });
@@ -59,7 +59,7 @@ define([
                                         pRouterStatsModel, trafficStatsViewConfig,
                                         null, null);
                                 }
-                                    
+
                             } else if (trafficStatsConfig.viewConfig.link ==
                                 ctwc.VROUTER) {
                                 // Prouter vrouter link
