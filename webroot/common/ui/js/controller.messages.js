@@ -24,6 +24,7 @@ define([
         this.NO_DATA_FOUND = 'No Data found.';
         this.NO_NETWORK_FOUND = 'No virtual network present in this project.';
         this.NO_VM_FOUND = 'No virtual machine present in this network.';
+        this.NO_PHYSICALDEVICES = 'No Physical Devices found';
 
         this.get = function () {
             var args = arguments;

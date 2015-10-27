@@ -11,7 +11,7 @@ define([
     var UnderlayGraphView = ContrailView.extend({
         render: function () {
             var self = this,
-                graphTemplate = 
+                graphTemplate =
                     contrail.getTemplate4Id(ctwl.TMPL_UNDERLAY_GRAPH_VIEW),
                 selectorId = '#' + ctwl.UNDERLAY_GRAPH_ID,
                 graphModel =
@@ -54,7 +54,7 @@ define([
                     if(adjList.hasOwnProperty(endpoint0)) {
                         if(adjList[endpoint0].indexOf(endpoint1) == -1)
                             adjList[endpoint0][adjList[endpoint0].length] = endpoint1;
-                    } 
+                    }
                     if(adjList.hasOwnProperty(endpoint1)) {
                         if(adjList[endpoint1].indexOf(endpoint0) == -1)
                             adjList[endpoint1][adjList[endpoint1].length] = endpoint0;
@@ -98,7 +98,7 @@ define([
                                 var childEl = childElementsArray[j];
                                 if(null === childEl || typeof childEl === "undefined")
                                     continue;
-                                if(childEl.id === link_id || 
+                                if(childEl.id === link_id ||
                                     childEl.id === alt_link_id) {
                                     childElementsArray[j] = null;
                                 }
@@ -175,7 +175,7 @@ define([
             });
         }
     });
-    
+
     function getUnderlayGraphModelConfig() {
         return  {
             forceFit: false,
@@ -192,7 +192,11 @@ define([
                     $('#' + ctwl.GRAPH_LOADING_ID).hide();
                     if (contrail.checkIfExist(underlayGraphModel.elementsDataObj)){
                         var elements = underlayGraphModel.elementsDataObj.elements;
-                        adjustDimensions(elements);
+                        if (elements.length > 0) {
+                            adjustDimensions(elements);
+                        } else {
+                            underlayGraphModel.empty = true;
+                        }
                         return false;
                     }
                 }
@@ -298,7 +302,7 @@ define([
                     $('#' + ctwl.UNDERLAY_GRAPH_ID).parent().height();
                 var centerXOfFixedDiv =
                     fixedDivPosition.left + (fixedDivWidth/2);
-                var clickedElementAbsPosition = 
+                var clickedElementAbsPosition =
                     $('div.font-element[font-element-model-id="'+ clickedElement.id +'"]').offset();
                 var clickedElementAbsPositionX =
                     clickedElementAbsPosition.left;
@@ -330,7 +334,7 @@ define([
                 }
             }
     }
-    
+
     function addDimlightToConnectedElements (type) {
         if (type == 'node') {
             $('div.font-element')
@@ -349,7 +353,7 @@ define([
                 .css('');
         }
     }
-    
+
     function addHighlightToNodesAndLinks (nodes, els, graphModel) {
         var elMap = graphModel['elementMap'];
         if(typeof nodes == "object" && nodes.length > 0) {
@@ -376,7 +380,7 @@ define([
             });
         }
     }
-    
+
     function addHighlightToNode (node_model_id) {
         $('div.font-element[font-element-model-id="' + node_model_id + '"]')
             .addClass('elementHighlighted')
@@ -392,7 +396,7 @@ define([
             .find('i')
             .css("color", "#498AB9");
     }
-    
+
     function addHighlightToLink (link_model_id) {
         $('g.link[model-id="' + link_model_id + '"]')
             .removeClassSVG('hidden')
@@ -482,7 +486,7 @@ define([
                                  graphView);
                              $(".popover").popover().hide();
                              break;
-    
+
                          case 'contrail.VirtualRouter':
                              //Rendering vRouter tabs(click handler)
                              showVRouterTabs(nodeDetails, self);
@@ -611,7 +615,7 @@ define([
                       },
              };
          }
-    
+
     function getUnderlayTooltipConfig (self) {
         var tooltipTitleTmpl =
                 contrail.getTemplate4Id(cowc.TMPL_ELEMENT_TOOLTIP_TITLE),
@@ -655,7 +659,7 @@ define([
                         tooltipLblValues.push({
                             label:'Events',
                             value: nodeDetails['errorMsg']
-                        }); 
+                        });
                     } else {
                         tooltipLblValues.push({
                             label: 'Interfaces',
@@ -663,7 +667,7 @@ define([
                         },{
                             label: 'Management IP',
                             value: ifNull(nodeDetails['mgmt_ip'],'-')
-                        }); 
+                        });
                     }
 
                     return tooltipContentTmpl({
@@ -709,7 +713,7 @@ define([
                     var vms = 0, name = getValueByJsonPath(viewElement,
                             'attributes;nodeDetails;name', '-');
                     for(var i=0; i<instances.length; i++) {
-                        if(instances[i]['more_attributes']['vrouter'] === 
+                        if(instances[i]['more_attributes']['vrouter'] ===
                             name){
                             vms++;
                         }
@@ -722,7 +726,7 @@ define([
                         text: 'View',
                         iconClass: 'icon-external-link'
                     });
-                    
+
                     var tooltipContent = [{
                             label:'Name',
                             value: name
@@ -749,7 +753,7 @@ define([
                             loadFeature({p: 'config_infra_vrouters'});
                         }
                     });
-                    
+
                     actions.push({
                         callback: function () {
                             showVRouterTabs(nodeDetails, self);
@@ -794,7 +798,7 @@ define([
                         }
                     }
                     if("" == instanceName)
-                        instanceName = 
+                        instanceName =
                             viewElement.attributes.nodeDetails['name'];
                     actions.push({
                         text: 'View',
@@ -863,7 +867,7 @@ define([
                         instanceName1 = endpoint1;
                     if("" == instanceName2)
                         instanceName2 = endpoint2;
-                    
+
                     return tooltipTitleTmpl({
                         name: instanceName1 + ctwc.LINK_CONNECTOR_STRING + instanceName2,
                         type: ctwl.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK
@@ -903,10 +907,10 @@ define([
                 },
                 dimension: { width: 400 }
             }
-        
+
         };
     };
-    
+
     function showPRouterTabs (nodeDetails, self) {
         var interfaceDetails = [];
         var data = {
@@ -958,7 +962,7 @@ define([
                 null, null, null);
         });
     }
-    
+
     function showVRouterTabs (nodeDetails, self) {
         var vRouterParams =
             monitorInfraUtils.getUnderlayVRouterParams(nodeDetails);
@@ -979,7 +983,7 @@ define([
                 null, null, null);
         }
     }
-    
+
     function showVMTabs (nodeDetails, self) {
         var ip = [],vnList = [],intfLen = 0,vmName,
         srcVN = "",instDetails = {},inBytes = 0,
@@ -987,7 +991,7 @@ define([
         var instanceUUID = nodeDetails['name'];
         var instanceDetails = nodeDetails;
         var intfList = getValueByJsonPath(instanceDetails,
-            'more_attributes;interface_list',[]); 
+            'more_attributes;interface_list',[]);
         intfLen = intfList.length;
         vmName =
             instanceDetails['more_attributes']['vm_name'];
@@ -1035,7 +1039,7 @@ define([
                 tabObj, null, null, modelMap);
         }
     }
-    
+
     function resetTopology (options) {
         var underlayGraphModel = options['model'];
         removeUnderlayPathIds();
@@ -1055,12 +1059,12 @@ define([
             showHideTabs();
         }
     }
-    
+
     function removeUnderlayPathIds() {
         $("#"+ctwl.UNDERLAY_GRAPH_ID).find(".connection-wrap-up").remove();
         $("#"+ctwl.UNDERLAY_GRAPH_ID).find(".connection-wrap-down").remove();
     }
-    
+
     function showHideTabs (contextTabsToShow) {
         var tabContexts = [ctwc.PROUTER, ctwc.VROUTER, ctwc.VIRTUALMACHINE,
             ctwc.UNDERLAY_LINK];
@@ -1079,7 +1083,7 @@ define([
                 underlayTabObj.disableTab(nodeTabMap[tabContexts[i]], true);
         }
     }
-    
+
     function clearHighlightedConnectedElements() {
         $('div.font-element')
             .removeClass('elementHighlighted')
@@ -1095,7 +1099,7 @@ define([
                 .css("color", "#555");
         $('g.element').find('text').css('fill', "#393939");
         $('g.element').find('rect').css('fill', "#393939");
-    
+
         $('g.link')
             .removeClassSVG('elementHighlighted')
             .removeClassSVG('dimHighlighted');
@@ -1116,7 +1120,7 @@ define([
         var paper = monitorInfraUtils.getUnderlayGraphInstance();
         markErrorNodes(paper.model);
     }
-    
+
     function getControlPanelConfig (self, selectorId) {
         return {
             default: {
@@ -1134,9 +1138,9 @@ define([
                 }
             }
         }
-    
+
     }
-    
+
     function getUnderlayGraphViewConfig(underlayGraphModel, selectorId, self) {
         return {
             el: $(selectorId),
@@ -1152,19 +1156,9 @@ define([
                         $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
                             iconClass: false,
                             defaultErrorMessage: false,
-                            defaultNavLinks: false
+                            defaultNavLinks: false,
+                            title: ctwm.NO_PHYSICALDEVICES
                     });
-
-                if (!contrail.checkIfExist(contrailGraphModel.elementsDataObj)) {
-                    notFoundConfig.title = ctwm.NO_DATA_FOUND;
-                } else if (contrailGraphModel.attributes.focusedElement.type ==
-                    ctwc.GRAPH_ELEMENT_PROJECT &&
-                    contrailGraphModel.elementsDataObj.elements.length == 0) {
-                    notFoundConfig.title = ctwm.NO_NETWORK_FOUND;
-                } else if (contrailGraphModel.attributes.focusedElement.type ==
-                    ctwc.GRAPH_ELEMENT_NETWORK) {
-                    notFoundConfig.title = ctwm.NO_VM_FOUND;
-                }
                 $(selectorId).html(notFoundTemplate(notFoundConfig));
             },
             failureCallback: function (contrailGraphModel) {
@@ -1180,7 +1174,7 @@ define([
                 }
             },
             successCallback: function (graphView) {
-                    
+
             }
         }
     }
