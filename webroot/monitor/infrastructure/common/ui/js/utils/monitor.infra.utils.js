@@ -2337,7 +2337,7 @@ define([
             var destEl = graphView.getCell(destId);
             var srcNodeName = getValueByJsonPath(srcEl,'attributes;nodeDetails;name','-');
             var destNodeName = getValueByJsonPath(destEl,'attributes;nodeDetails;name','-');
-            var isDirectionCrt = false,links = getValueByJsonPath(flowPath,'links',[]);
+            var isDirectionCrt = false,links = flowPath.get('links');
             for(var i = 0; i < links.length; i ++) {
                 if(srcNodeName == getValueByJsonPath(links[i],'endpoints;0','-') &&
                         destNodeName == getValueByJsonPath(links[i],'endpoints;1','-')) {
