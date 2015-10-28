@@ -179,7 +179,7 @@ define([
              green : 'okay'
         };
         this.LINK_CONNECTOR_STRING = " --- ";
-        
+
         // Underlay constants
         this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
         this.UNDERLAY_TAB_ID = 'underlayTabs';
@@ -212,7 +212,7 @@ define([
         this.UNDERLAY_LINK_TAB_INDEX = [4];
         this.UNDERLAY_VM_TAB_INDEXES = [5, 6, 7, 8, 9, 10];
         this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16];
-        
+
         this.getProjectsURL = function (domain) {
             //If the role is admin then we will display all the projects else the projects which has access
             var url = '/api/tenants/projects/' + domain,

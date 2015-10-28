@@ -133,10 +133,6 @@ define([
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
             virtual_router_ip_address: "IP Address",
-                
-            /* Underlay Labels */
-            traceflow_radiobtn_name : '',
-            traceFlowDropdown : '',
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
@@ -304,7 +300,7 @@ define([
         this.UNDERLAY_SEARCHFLOW_TITLE = 'Search Flows';
         this.UNDERLAY_TRAFFIC_STATISTICS = 'Traffic Statistics';
         this.UNDERLAY_SEARCHFLOW_WIDGET_TITLE = 'Query Flow Records';
-        
+
         //Alarms labels
         this.ALARMS_BREADCRUMB_DROPDOWN = "alarms-breadcrumb-dropdown";
         this.MONITOR_ALARMS_PAGE_ID = "monitor-alarms-page";
@@ -734,7 +730,7 @@ define([
         this.CONTROL_NODE_TYPE = 'control_node';
         this.TITLE_BGP_DELETE = 'Delete BGP Router';
         this.TITLE_BGP_MULTI_DELETE = 'Delete BGP Router(s)';
-        
+
         //Logical Router Labels
         this.CONFIG_LOGICAL_ROUTER_PAGE_ID = "config-logical-router-page";
         this.CONFIG_LOGICAL_ROUTER_TITLE = "Routers";

@@ -101,7 +101,7 @@ define([
                 }
             ]
         };
-        
+
         this.instanceInterfaceColumns = [
              {
                  field: 'ip',
@@ -152,7 +152,7 @@ define([
                  }
              }
         ];
-        
+
         this.getInterfaceStatsLazyRemoteConfig = function () {
             return [
                 {
@@ -198,7 +198,7 @@ define([
                 }
             ];
         };
-        
+
         this.getAcknowledgeAction = function (onClickFunction, divider) {
             return {
                 title: ctwl.TITLE_ACKNOWLEDGE,

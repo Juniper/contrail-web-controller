@@ -1734,7 +1734,7 @@ define(
                         var vRouterIp =
                             validateIPAddress(handleNull4Grid(obj['vrouter_ip'])) == true ?
                             handleNull4Grid(obj['vrouter_ip']) : noDataStr,
-                                formattedVrouter = noDataStr;    
+                                formattedVrouter = noDataStr;
                         var vrouter = ifNull(obj['vrouter'],noDataStr);
                         if(vRouterIp != noDataStr || vrouter != noDataStr)
                             formattedVrouter =
@@ -1742,7 +1742,7 @@ define(
                         var othervRouterIp =
                             validateIPAddress(handleNull4Grid(obj['other_vrouter_ip'])) == true ?
                                 handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
-                                formattedOtherVrouter = noDataStr;    
+                                formattedOtherVrouter = noDataStr;
                             if(othervRouterIp != noDataStr) {
                                 $.each(vRouters,function(idx,obj){
                                     var ipList = getValueByJsonPath(obj,
@@ -1758,7 +1758,7 @@ define(
                        formattedDestVN = formatVN(formattedSrcVN);
                        obj['formattedVrouter'] = formattedVrouter;
                        obj['formattedOtherVrouter'] = formattedOtherVrouter;
-                       obj['formattedSrcVN'] = formattedSrcVN[0]; 
+                       obj['formattedSrcVN'] = formattedSrcVN[0];
                        obj['formattedDestVN'] = formattedDestVN[0];
                     });
 

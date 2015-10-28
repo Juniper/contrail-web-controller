@@ -127,7 +127,7 @@ define([
 
             return config;
         };
-        
+
         this.getPortDistributionTooltipConfig = function(onScatterChartClick) {
             return function(data) {
                 var type = ctwl.get(data['type']),

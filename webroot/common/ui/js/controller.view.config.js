@@ -64,7 +64,7 @@ define([
             }
 
         };
-        
+
         self.getInstanceDetailPageTabConfig = function (viewConfig) {
             var instanceUUID = viewConfig['instanceUUID'];
             var networkFQN = viewConfig['networkFQN'];
@@ -151,7 +151,7 @@ define([
                     }
             ];
         };
-        
+
         self.getInstanceTabViewModelConfig = function (instanceUUID) {
             var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
             var viewModelConfig = {
@@ -284,7 +284,7 @@ define([
                 };
             }
         };
-        
+
         self.getUnderlayDefaultTabConfig = function (viewConfig) {
             return [
                 {
@@ -339,7 +339,7 @@ define([
                 }
             ];
         };
-        
+
         self.getUnderlayPRouterTabConfig = function (viewConfig) {
           return [
               {
@@ -350,7 +350,7 @@ define([
                       ctwl.UNDERLAY_VIEWPATH_PREFIX,
                   app: cowc.APP_CONTRAIL_CONTROLLER,
                   viewConfig: {
-                    
+
                   }
               }, {
                   elementId: ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID,
@@ -360,12 +360,12 @@ define([
                       ctwl.UNDERLAY_VIEWPATH_PREFIX,
                   app: cowc.APP_CONTRAIL_CONTROLLER,
                   viewConfig: {
-                    
+
                   }
-              } 
-          ]; 
+              }
+          ];
         };
-        
+
         self.getUnderlayPRouterLinkTabConfig = function () {
             return [
                 {
@@ -376,12 +376,12 @@ define([
                         ctwl.UNDERLAY_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {
-                          
+
                     }
-                } 
+                }
             ];
         };
-        
+
         self.getPortDistChartOptions = function() {
             return {
                 xLabel: ctwl.X_AXIS_TITLE_PORT,
@@ -410,7 +410,7 @@ define([
                 noDataMessage: cowm.DATA_SUCCESS_EMPTY
             }
         };
-        
+
         self.getVRouterDetailsPageTabs = function (viewConfig) {
             return [
                 {
@@ -550,7 +550,7 @@ define([
 
         return modelConfig;
     };
-    
+
     function onScatterChartClick(chartConfig) {
         var hashParams= {
             fqName:chartConfig['fqName'],
@@ -576,7 +576,7 @@ define([
 
         layoutHandler.setURLHashParams(hashParams, {p:"mon_networking_networks", merge:false});
     };
-    
+
     function getControlPanelFilterConfig() {
         return {
             groups: [
@@ -640,6 +640,6 @@ define([
             ]
         };
     };
-    
+
     return CTViewConfig;
 });

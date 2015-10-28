@@ -431,7 +431,7 @@ define([
                 }
             };
         };
-        
+
         this.setProjectURLHashParams = function(hashParams, projectFQN, triggerHashChange) {
             var hashObj = {
                 type: "project",

@@ -17,7 +17,7 @@ require.config({
         'controller-messages': ctBaseDir + '/common/ui/js/controller.messages',
         'controller-parsers': ctBaseDir + '/common/ui/js/controller.parsers',
         'controller-view-config': ctBaseDir + '/common/ui/js/controller.view.config',
-        'controller-init': ctBaseDir + '/common/ui/js/controller.init',        
+        'controller-init': ctBaseDir + '/common/ui/js/controller.init',
         'searchflow-model':
             'monitor/infrastructure/underlay/ui/js/models/' +
             'SearchFlowFormModel',

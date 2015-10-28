@@ -237,7 +237,7 @@ define([
            }
            return retArr;
         };
-        
+
         this.vmTrafficStatsParser = function (response) {
             return [response];
         };
@@ -246,7 +246,7 @@ define([
             var interfaceMap = self.instanceInterfaceDataParser(response)
             return _.values(interfaceMap);
         };
-        
+
         this.parseInstanceInterfaceStats = function (response) {
             var retArr = $.map(ifNull(response['value'], response), function (obj, idx) {
                 var item = {};
@@ -258,7 +258,7 @@ define([
             });
             return retArr;
         };
-        
+
         this.parseNetwork4PortDistribution = function(response, networkFQN, interfaceIP) {
             var srcPortdata  = response ? ctwp.parsePortDistribution(ifNull(response['sport'], []), {
                     startTime: response['startTime'],
@@ -287,7 +287,7 @@ define([
 
             return chartData;
         };
-        
+
 
         this.parsePortDistribution = function (responseData, parserConfig) {
             var portCF = crossfilter(responseData),
