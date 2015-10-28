@@ -2,7 +2,7 @@
  * Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
  */
 
-define([ 
+define([
          'underscore',
          'contrail-view',
          'knockback',
@@ -14,23 +14,23 @@ define([
                         viewConfig = this.attributes.viewConfig;
                     var traceFlowModel = new TraceFlowTabModel();
                     traceFlowModel.showvRouter = ko.computed((function() {
-                        return (this.traceflow_radiobtn_name() == 'vRouter') ? true : false; 
+                        return (this.traceflow_radiobtn_name() == 'vRouter') ? true : false;
                     }), traceFlowModel);
-                     
+
                     traceFlowModel.showInstance = ko.computed((function() {
-                        return (this.traceflow_radiobtn_name() == 'instance') ? true : false; 
+                        return (this.traceflow_radiobtn_name() == 'instance') ? true : false;
                     }), traceFlowModel);
-                    
+
                     // Setting the first vRouter in the dropdown to model
                     // as workaround once the defaultValueId is setting to model
                     // can be removed
-                    
+
                     var vRouters = getValueByJsonPath(self,'model;vRouters',[]);
                     var virtualMachines = getValueByJsonPath(self,'model;VMs',[]);
                     if(vRouters.length > 0) {
                         traceFlowModel.vrouter_dropdown_name(vRouters[0]['name']);
                     }
-                    
+
                     if(virtualMachines.length > 0) {
                         traceFlowModel.instance_dropdown_name(virtualMachines[0]['name']);
                     }
@@ -61,15 +61,15 @@ define([
                             viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {
-                                
+
                             }
                         };
-    
+
                     self.renderView4Config(
                         $("#" + ctwc.UNDERLAY_TRACEFLOW_TAB_ID + "-tab").find(traceFlowResultId),
                         self.model, responseViewConfig);
                 },
-                
+
                 getTraceFlowTabViewConfig: function () {
                     var self = this;
                     return {
@@ -126,7 +126,7 @@ define([
                                             },
                                             change: function () {
                                                 self.renderTraceFlowResult();
-                                            } 
+                                            }
                                         }
                                     }
                                }, {
@@ -169,9 +169,9 @@ define([
                         }
                     };
                 }
-                
+
             });
-            
+
             function getTraceFlowDropdown(response, type) {
                 var nodes = ifNull(response['nodes'], []);
                 var vRoutersCombobox = [], instComboboxData = [];

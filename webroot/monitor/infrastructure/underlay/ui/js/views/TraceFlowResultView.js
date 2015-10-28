@@ -121,7 +121,7 @@ define([
                         title:'TraceFlow',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowId,targetElement){
-                            $(gridId + "div.selected-slick-row").each(
+                            $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
                                     }
@@ -134,7 +134,7 @@ define([
                         title:'Reverse TraceFlow',
                         iconClass: 'icon-contrail-reverse-flow',
                         onClick: function(rowId,targetElement){
-                            $(gridId + "div.selected-slick-row").each(
+                            $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
                                     }
@@ -170,7 +170,7 @@ define([
         };
         return gridElementConfig;
     };
-    
+
     function getSelectedvRouterIP (vRouterName, graphModel) {
         var ip = "";
         if (graphModel != null && graphModel.vRouterMap[vRouterName] != null) {
@@ -180,7 +180,7 @@ define([
         }
         return ip;
     }
-    
+
     function doTraceFlow (rowId, formModel) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
@@ -188,7 +188,7 @@ define([
         var graphModel = graphView.model;
         var contextVrouterIp;
         if(formModel != null && formModel.showvRouter())
-            contextVrouterIp = 
+            contextVrouterIp =
                 getSelectedvRouterIP(formModel.vrouter_dropdown_name(), graphModel);
         var dataItem = ifNull(flowGrid._grid.getDataItem(rowId),{});
         /*
@@ -226,7 +226,7 @@ define([
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
-                } 
+                }
             }
             if(dataItem['raw_json'] != null &&
                 dataItem['raw_json']['vrf'] != null) {
@@ -265,7 +265,7 @@ define([
                         'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                     if(vrfList[0] != null)
                         nwFqName += ":"+vrfList[0];
-                } else 
+                } else
                     // if there is no vrf name in the response then
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
@@ -274,7 +274,7 @@ define([
             });
         }
     }
-    
+
     function doReverseTraceFlow (rowId, formModel) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
@@ -283,7 +283,7 @@ define([
         var dataItem = ifNull(flowGrid._grid.getDataItem(rowId),{});
         var contextVrouterIp = '';
         if(formModel != null && formModel.showvRouter())
-            contextVrouterIp = 
+            contextVrouterIp =
                 getSelectedvRouterIP(formModel.vrouter_dropdown_name(), graphModel);
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
@@ -313,7 +313,7 @@ define([
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
-                } 
+                }
             }
             nwFqName = dataItem['destvn'] != null ?
                 dataItem['destvn'] : dataItem['dst_vn'];
@@ -352,7 +352,7 @@ define([
                         'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                     if(vrfList[0] != null)
                         nwFqName += ":"+vrfList[0];
-                } else 
+                } else
                     // if there is no vrf name in the response then
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
@@ -361,7 +361,7 @@ define([
             });
         }
     }
-    
+
     function doTraceFlowRequest (postData) {
         $.ajax({
             url:'/api/tenant/networking/trace-flow',
@@ -373,7 +373,10 @@ define([
         }).done(function(response) {
             /*if(postData['startAt'] != null && underlayLastInteracted > postData['startAt'])
                 return;*/
-            
+            if (typeof response == 'string') {
+                showInfoWindow(response,'Error');
+                return;
+            }
             if(response.nodes.length > 0) {
                 var maxAttempts = postData.maxAttempts;
                 var starString = '';
@@ -408,9 +411,12 @@ define([
                 }
             }
             var graphView = monitorInfraUtils.getUnderlayGraphInstance();
-            graphModel.underlayPathReqObj = params;
-            graphView.model.flowPath.set('links', ifNull(response['links'], []));
-            graphView.model.flowPath.set('nodes', ifNull(response['nodes'], []));
+            var graphModel = graphView != null ? graphView.model : null;
+            if (graphModel != null) {
+                graphModel.underlayPathReqObj = postData;
+                graphModel.flowPath.set('links',ifNull(response['links'], []));
+                graphModel.flowPath.set('nodes',ifNull(response['nodes'], []));
+            }
             if(typeof response != 'string')
                 $('html,body').animate({scrollTop:0}, 500);
         }).fail(function(error,status) {
@@ -420,7 +426,7 @@ define([
                 showInfoWindow('Timeout in fetching details','Error');
             } else if (status != 'success') {
                 showInfoWindow('Error in fetching details','Error');
-            } 
+            }
         });
     }
     return TraceFlowResultView;
