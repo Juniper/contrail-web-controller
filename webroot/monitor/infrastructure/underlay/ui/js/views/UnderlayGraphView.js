@@ -109,7 +109,11 @@ define([
                 childElementsArray = childElementsArray.filter(function(n){ return n != undefined });
                 addElementsToGraph(childElementsArray);
                 adjustDimensions(childElementsArray, graphModel);
-                //_this.renderUnderlayViz();
+                // Need to call the initClickevents again because
+                // to bind events to newly added elements like vRouters
+                cowu.bindPopoverInTopology(getUnderlayTooltipConfig(self),
+                    graphView);
+                $(".popover").popover().hide();
                 var connectionWrapIds = [];
                 for (var i = 0; i < links.length; i++) {
                     var endpoints = links[i].endpoints;

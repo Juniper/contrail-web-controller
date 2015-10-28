@@ -133,6 +133,10 @@ define([
             virtual_router_type: "Type",
             physical_router_back_refs: "Physical Routers",
             virtual_router_ip_address: "IP Address",
+
+            /* Underlay Labels */
+            traceflow_radiobtn_name : '',
+            traceFlowDropdown : '',
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
