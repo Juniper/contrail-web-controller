@@ -62,6 +62,9 @@ define([
                     return obj['alerts'];
                 });
                 alerts = flattenList(alerts);
+                alerts = _.filter(alerts,function(currAlertObj) {
+                    return currAlertObj['detailAlert'] != false
+                });
 
                 //Remove all existing analytics node alerts
                 delRowsFromDataView(alertListModel,function(obj) {

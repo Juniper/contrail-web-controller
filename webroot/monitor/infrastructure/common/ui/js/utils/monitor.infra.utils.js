@@ -124,6 +124,8 @@ define([
                         }
                     }
                     if(downProcess > 0)
+                        //Only detail alerts are shown in Alerts Grid/Alerts Container
+                        //set deailAlert to false to show an alert only in tooltip
                         alerts.push($.extend({
                             detailAlert: false,
                             sevLevel: sevLevels['ERROR'],

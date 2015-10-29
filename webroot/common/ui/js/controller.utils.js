@@ -317,6 +317,16 @@ define([
                 contrail.getTemplate4Id('core-modal-template');
             var modalId = 'dashboard-alerts-modal';
             var modalLayout = modalTemplate({prefixId: prefixId, modalId: modalId});
+            var formId = prefixId + '_modal';
+            cowu.createModal({
+                'modalId': modalId,
+                'className': 'modal-840',
+                'title': 'Alerts',
+                'body': modalLayout,
+                'onCancel': function() {
+                    $("#" + modalId).modal('hide');
+                }
+            });
             if(cfgObj.model == null) {
                 require(['dashboard-alert-list-model','monitor-infra-parsers',
                     'monitor-infra-constants','monitor-infra-utils'],
@@ -332,25 +342,23 @@ define([
                             monitorInfraParsers = new MonitorInfraParsers();
                         }
                         cfgObj.model = new AlertListModel();
+                        require(['alert-grid-view'], function(AlertGridView) {
+                            var alertGridView = new AlertGridView({
+                                el:$("#" + modalId).find('#' + formId),
+                                model:cfgObj.model
+                            });
+                            alertGridView.render();
+                        });
                     });
-            }
-            cowu.createModal({
-                'modalId': modalId,
-                'className': 'modal-840',
-                'title': 'Alerts',
-                'body': modalLayout,
-                'onCancel': function() {
-                    $("#" + modalId).modal('hide');
-                }
-            });
-            var formId = prefixId + '_modal';
-            require(['alert-grid-view'], function(AlertGridView) {
-                var alertGridView = new AlertGridView({
-                    el:$("#" + modalId).find('#' + formId),
-                    model:cfgObj.model
+            } else {
+                require(['alert-grid-view'], function(AlertGridView) {
+                    var alertGridView = new AlertGridView({
+                        el:$("#" + modalId).find('#' + formId),
+                        model:cfgObj.model
+                    });
+                    alertGridView.render();
                 });
-                alertGridView.render();
-            });
+            }
         };
 
         this.deleteCGridData = function(data) {
