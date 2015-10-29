@@ -91,6 +91,12 @@ define([
 
         this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
         this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
+
+        this.URL_PORT_POST = '/api/tenants/config/ports';
+        this.URL_PORT_PUT = '/api/tenants/config/ports/{0}';
+        this.URL_PORT_VIEW_PATH_PREFIX = 'config/networking/port/ui/js/views/';
+        this.URL_GET_PORT_UUID = '/api/tenants/config/get-config-uuid-list?type=virtual-machine-interface&parentUUID={0}';
+        this.URL_GET_PORT = '/api/tenants/config/get-virtual-machine-details-paged';
         this.get = function () {
             var args = arguments;
             return cowc.getValueFromTemplate(args);
