@@ -1878,13 +1878,12 @@ define([
                                                     },{
                                                         key: 'intfCnt',
                                                         templateGenerator:
-                                                            'TextGenerator',
-                                                        /*templateGeneratorConfig: {
+                                                            'LinkGenerator',
+                                                        valueClass: 'intfCnt',
+                                                        templateGeneratorConfig: {
                                                             formatter: 'link',
-                                                            template:
-                                                                ctwc.URL_NETWORK,
                                                             params: {}
-                                                        }*/
+                                                        }
                                                     },{
                                                         key: 'managementIP',
                                                         templateGenerator:
