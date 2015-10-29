@@ -620,7 +620,7 @@ define([
                             ],
                             gridActions: [
                                 {onClick: "function() { addRule(); }",
-                                 buttonTitle: "Add"}
+                                 buttonTitle: "Add Rule"}
                             ]
                         }
                     }]

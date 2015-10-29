@@ -88,7 +88,7 @@ define([
             var ajaxConfig = {}, returnFlag = true;
             popupData = allData;
             if (this.model().isValid(true, "policyValidations")) {
-                var newPolicyData = $.extend({},this.model().attributes);
+                var newPolicyData = $.extend(true,{},this.model().attributes);
                 var selectedProjectUUID = ctwu.getGlobalVariable('project').uuid;
                 var selectedDomain = ctwu.getGlobalVariable('domain').name;
                 var selectedProject = ctwu.getGlobalVariable('project').name;
@@ -99,8 +99,8 @@ define([
 
                 var policeyRuleJSON =
                   newPolicyData["network_policy_entries"]["policy_rule"];
-                var policeyRule = $.extend({},policeyRuleJSON);
-                policeyRule = policeyRule.toJSON();
+                var policeyRuleVal = $.extend(true,{},policeyRuleJSON);
+                var policeyRule = policeyRuleVal.toJSON();
                 var newPoliceyRule = [];
                 policeyRuleLen = policeyRule.length;
                 for (var i=0;i<policeyRuleLen;i++){
@@ -111,8 +111,9 @@ define([
                       (policeyRule[i].simple_action()).toLowerCase();
                     newPoliceyRule[i].application =
                                       policeyRule[i].application();
-                    newPoliceyRule[i].rule_sequence =
-                                      policeyRule[i].rule_sequence();
+                    newPoliceyRule[i].rule_sequence = {};
+                    newPoliceyRule[i].rule_sequence.major = -1;
+                    newPoliceyRule[i].rule_sequence.minor = -1;
                     newPoliceyRule[i].direction = policeyRule[i].direction();
                     newPoliceyRule[i].protocol =
                                      (policeyRule[i].protocol()).toLowerCase();

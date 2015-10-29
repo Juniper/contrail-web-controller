@@ -783,7 +783,7 @@ define([
         this.CONFIG_POLICY_LIST = "config-policies-list";
         this.POLICIES_GRID_ID = "config-policies-grid-id";
         this.TITLE_POLICY_DETAILS = "Policy Detail";
-        this.TITLE_POLICY_EDIT = "Edit";
+        this.TITLE_POLICY_EDIT = "Edit Policy ";
         this.TITLE_POLICY_DETETE = "Delete";
         this.TITLE_REMOVE = "Remove";
         this.POLICY_PREFIX_ID = "policy";
