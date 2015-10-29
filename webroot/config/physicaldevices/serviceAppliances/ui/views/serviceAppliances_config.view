@@ -1,0 +1,123 @@
+<script type="text/x-handlebars-template" id="gridServiceAppliancesDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Name</label></div>
+                <div class="span10"> {{name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>UUID</label></div>
+                <div class="span10"> {{uuid}}</div>
+            </div>
+	    <div class="row-fluid">
+                <div class="span2"><label>Physical Interfaces</label></div>
+                <div class="span10">{{interfaces}}</div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="serviceAppliances-config-template">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="gridServiceAppliances"/>
+        </div>
+    </div>
+    
+    <div id="addServiceApplianceWindow" class="modal modal-700 hide " tabindex="-1">	
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+	        <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid">
+                 
+                 <label class="control-label span4" >Name</label>
+                 
+            </div>  
+            <div class="row-fluid">
+                 <div class="span4">
+                     <input type="text" id="txtServiceApplianceName" class="span12"/>	
+                 </div> 
+            </div>     
+            <div id ="vmSection" class="pull-down-30">   
+
+            </div>
+
+
+	    <div class="control-group"  id="routerDiv">
+                <label class="control-label" class="span2">Physical Router</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div id="ddPhysicalRouter" class="span10" placeholder="Select Physical Router"></div>
+                        </div>
+                    </div>
+            </div> 
+
+           <div class="control-group">
+                      <label class="control-label">Physical Interfaces</label>
+                      <div class="controls">
+                          <div class="row-fluid">
+                              <div id="txtpanel" class="hide">
+                                  <input id="txtfamily"class="span10" type="text"/>
+                              </div>   
+                              <div id="multipanel">
+                                  <input type="text" class="span10" id="multifamily" />
+                              </div>                                
+                          </div>
+                      </div>                       
+                  </div>     
+
+
+            <div class="control-group"  id="serviceApplianceSetDiv">
+                <label class="control-label" class="span2">Service Appliance Set</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div id="ddServiceApplianceSet" class="span10" placeholder="Select Service Appliance Set"></div>
+                        </div>
+                    </div>
+            </div>        
+        </div>
+
+        <div class="modal-footer">
+	         <button  id="btnAddServiceApplianceCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>	
+             <button  id="btnAddServiceApplianceOk" class="btn btn-primary btn-mini">Save</button>
+        </div>  
+    </div>
+    
+    <div id="confirmMainDelete" class="modal modal-420 hide" tabindex="-1" role="dialog">
+         <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+              <h6 class="modal-header-title"></h6>
+         </div>
+        <div class="modal-body">
+             <div class="row-fluid text-center">
+                  <h6 id="txtConfirm">Confirm Service Appliance(s) delete</h6>
+             </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfDelMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfDelMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="delete-serviceAppliance-action-template">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="deleteServiceAppliances">
+        <i class="icon-trash"></i>
+    </a>
+<!--
+    <ul class="pull-right dropdown-menu dropdown-caret">
+        <li id='deleteServiceAppliance'>
+            <a id='btnDeleteServiceAppliance'>
+                Delete
+            </a>
+            <div class="line-separator"></div>
+        </li>
+        <li id='deleteAllServiceAppliance'>
+            <a id='btnDeleteAllServiceAppliance'>
+                Delete All
+            </a>
+        </li>
+    </ul>
+-->
+</script>
