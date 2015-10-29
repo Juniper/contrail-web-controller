@@ -27,11 +27,14 @@ var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 var logicalRtr =
     require('../../networking/logicalrouter/api/logicalrouterconfig.api');
 
+var policyConfig =
+    require('../../networking/policy/api/policyconfig.api');
 var errorData = [];
 var configCBDelete = 
 {
     'virtual-machine-interface': portsConfig.deletePortsCB,
-    'logical-router': logicalRtr.deleteLogicalRouterAsync
+    'logical-router': logicalRtr.deleteLogicalRouterAsync,
+    'network-policy': policyConfig.deletePolicyAsync
 }
 
 var getConfigPageRespCB = {
