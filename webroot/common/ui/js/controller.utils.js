@@ -228,6 +228,35 @@ define([
             };
         };
 
+        this.getDNSListModelConfig = function(dns) {
+            return {
+                remote: {
+                    ajaxConfig: {
+                        url: '/api/tenants/config/list-virtual-DNSs/' + dns
+                    },
+                    dataParser: function(response) {
+                        return  $.map(response, function (n, i) {
+                            return {
+                                fq_name: n.to.join(':'),
+                                name: n.to[1],
+                                value: n.uuid
+                            };
+                        });
+                    },
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate = contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig = $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE, {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                }/*,
+                cacheConfig : {
+                    ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_DNS, dns),
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.PROJECT_CACHE_UPDATE_INTERVAL
+                }*/
+            };
+        };
         this.getProjects4Domain = function(domain) {
             var listModelConfig = {
                 remote: {
