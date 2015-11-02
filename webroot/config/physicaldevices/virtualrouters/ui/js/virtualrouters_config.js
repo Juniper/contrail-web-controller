@@ -249,9 +249,9 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
         if(type != 'hypervisor' && type != '' &&  type != 'empty') {
-            postObject["virtual-router"]["virtual_router_type"] = [type];
+            postObject["virtual-router"]["virtual_router_type"] = type;
         } else {
-            postObject["virtual-router"]["virtual_router_type"] = [];
+            postObject["virtual-router"]["virtual_router_type"] = null;
         }
         if(mode === 'edit') {
             postObject["virtual-router"]["uuid"] = gblSelRow.uuid;
@@ -295,7 +295,7 @@ function virtualRoutersConfig() {
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
                     actualType : rowData.virtual_router_type != null ? rowData.virtual_router_type : '',
-                    type : rowData.virtual_router_type != null && rowData.virtual_router_type.length > 0 ? rowData.virtual_router_type : ['hypervisor'],
+                    type : rowData.virtual_router_type != null ? rowData.virtual_router_type : 'hypervisor',
                     physical_routers : pRouters.length > 0 ? pRouters : '-'
                 });
             }
