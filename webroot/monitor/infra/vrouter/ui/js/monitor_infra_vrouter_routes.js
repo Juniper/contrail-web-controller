@@ -183,11 +183,11 @@ monitorInfraComputeRoutesClass = (function() {
                           var ret = [];
                           var vrfs = response.getElementsByTagName('VrfSandeshData');
                           $.each(vrfs,function(idx,vrfXmlObj){
-                              var name = getValueByJsonPath(vrfXmlObj.getElementsByTagName('name'),'0;innerHTML','');
-                              var ucIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('ucindex'),'0;innerHTML','');
-                              var mcIndex = getValueByJsonPath(vrfXmlObj.getElementsByTagName('mcindex'),'0;innerHTML','');
-                              var l2Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('l2index'),'0;innerHTML','');
-                              var uc6Index = getValueByJsonPath(vrfXmlObj.getElementsByTagName('uc6index'),'0;innerHTML','');
+                              var name = $(vrfXmlObj.getElementsByTagName('name')[0]).text();
+                              var ucIndex = $(vrfXmlObj.getElementsByTagName('ucindex')[0]).text();
+                              var mcIndex = $(vrfXmlObj.getElementsByTagName('mcindex')[0]).text();
+                              var l2Index = $(vrfXmlObj.getElementsByTagName('l2index')[0]).text();
+                              var uc6Index = $(vrfXmlObj.getElementsByTagName('uc6index')[0]).text();
                               var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
                               ret.push({name:name,value:value});
                           });
