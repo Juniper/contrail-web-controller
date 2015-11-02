@@ -407,8 +407,11 @@ var infraMonitorUtils = {
             obj['isUveMissing'] = ($.isEmptyObject(getValueByJsonPath(dValue,'VrouterAgent')) && $.isEmptyObject(getValueByJsonPath(dValue,'VrouterStatsAgent'))) ? true : false;
             obj['isNTPUnsynced'] = isNTPUnsynced(jsonPath(dValue,'$..NodeStatus')[0]);
             obj['configIP'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_ip_address','-');
-            obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
-            if(obj['vRouterType'] == ''){
+            obj['vRouterType'] = getValueByJsonPath(dValue,'ConfigData;virtual-router;virtual_router_type','hypervisor');
+            if(obj['vRouterType'] instanceof Array) {
+                obj['vRouterType'] = obj['vRouterType'][0];
+            }
+            if(obj['vRouterType'] == '' || obj['vRouterType'] == null){
                 obj['vRouterType'] = 'hypervisor';//set default to hypervisor 
             }
             obj['moduleId'] = getValueByJsonPath(dValue,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
