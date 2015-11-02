@@ -150,7 +150,7 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: 'bgp_router_parameters_vendor',
+                                    elementId: 'user_created_vendor',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         disabled : 'disableAttr',
@@ -191,7 +191,7 @@ define([
                         {
                             columns : [
                                 {
-                                    elementId: 'bgp_router_parameters_address',
+                                    elementId: 'user_created_address',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         placeholder : 'xxx.xxx.xxx.xxx',
@@ -202,7 +202,7 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: 'bgp_router_parameters_identifier',
+                                    elementId: 'user_created_identifier',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         placeholder : 'xxx.xxx.xxx.xxx',
@@ -218,7 +218,7 @@ define([
                             columns : [
                                 {
                                     elementId:
-                                        'bgp_router_parameters_autonomous_system',
+                                        'user_created_autonomous_system',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         disabled : 'disableAttr',
@@ -232,7 +232,7 @@ define([
                                     }
                                 },
                                 {
-                                    elementId: 'address_families_family',
+                                    elementId: 'user_created_address_family',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
                                         disabled : 'disableAttr',

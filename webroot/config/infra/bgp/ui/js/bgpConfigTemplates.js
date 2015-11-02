@@ -8,7 +8,7 @@ define(['underscore'], function(_){
         self.advancedOptions = function(disableId) {
             return [
                 {
-                    elementId : 'advance_options_accrodion',
+                    elementId : 'advance_options_accordion',
                     view : 'AccordianView',
                     viewConfig : [
                         {
@@ -34,7 +34,7 @@ define(['underscore'], function(_){
                                         }
                                     },
                                     {
-                                        elementId: 'bgp_port',
+                                        elementId: 'port',
                                         view: 'FormInputView',
                                         viewConfig: {
                                             placeholder : '1 - 9999',
@@ -52,7 +52,7 @@ define(['underscore'], function(_){
                             {
                                 columns : [
                                     {
-                                        elementId: 'auth_key_type',
+                                        elementId: 'user_created_auth_key_type',
                                         view: 'FormDropdownView',
                                         viewConfig: {
                                             path:
@@ -71,10 +71,9 @@ define(['underscore'], function(_){
                                         }
                                     },
                                     {
-                                        elementId: 'auth_key',
+                                        elementId: 'user_created_auth_key',
                                         view: 'FormInputView',
                                         viewConfig: {
-                                            placeholder :  'Enter a key',
                                             disabled: 'disableAuthKey',
                                             type: "password",
                                             path:
@@ -89,7 +88,7 @@ define(['underscore'], function(_){
                             },
                             {
                                 columns :[{
-                                    elementId: 'physical_router',
+                                    elementId: 'user_created_physical_router',
                                     view: 'FormDropdownView',
                                     viewConfig: {
                                         visible : 'showPhysicalRouter',
@@ -188,17 +187,17 @@ define(['underscore'], function(_){
                                                 }
                                             },
                                             {
-                                                elementId: 'authenticationType',
+                                                elementId: 'user_created_auth_key_type',
                                                 name: 'Authentication Mode',
                                                 view: "FormDropdownView",
                                                 class: "",
-                                                width: 200,
+                                                width: 150,
                                                 viewConfig: {
                                                     path:
                                                         "user_created_auth_key_type",
                                                     dataBindValue:
                                                         "user_created_auth_key_type()",
-                                                    width: 200,
+                                                    width: 150,
                                                     templateId:
                                                       cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                     elementConfig : {
@@ -210,16 +209,14 @@ define(['underscore'], function(_){
                                                 }
                                             },
                                             {
-                                                elementId: 'authenticationKey',
+                                                elementId: 'user_created_auth_key',
                                                 name: 'Authentication Key',
                                                 view: 'FormInputView',
-                                                width: 200,
+                                                width: 180,
                                                 viewConfig: {
                                                     disabled :
                                                         'disableAuthKey()',
-                                                    /*placeholder :
-                                                        'Enter a key',*/
-                                                    width: 200,
+                                                    width: 180,
                                                     type: "password",
                                                     path:
                                                     'user_created_auth_key',
