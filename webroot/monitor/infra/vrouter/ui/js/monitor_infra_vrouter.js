@@ -51,7 +51,13 @@ computeNodeView = function () {
                 computeNodeInfo['ip'] = getValueByJsonPath(data,'VrouterAgent;self_ip_list;0',getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_ip_address'));
                 computeNodeInfo['introspectPort'] = getValueByJsonPath(data,'VrouterAgent;sandesh_http_port',defaultIntrospectPort);
                 computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', UVEModuleIds['VROUTER_AGENT']);
-                computeNodeInfo['vRouterType'] = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
+                computeNodeInfo['vRouterType'] = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_type','hypervisor');
+                if(typeof computeNodeInfo['vRouterType'] === 'object') {
+                    computeNodeInfo['vRouterType'] = computeNodeInfo['vRouterType'][0];
+                }
+                if(computeNodeInfo['vRouterType'] == '' || computeNodeInfo['vRouterType'] == null) {
+                    computeNodeInfo['vRouterType'] = 'hypervisor';
+                }
                 self.populateComputeNode(computeNodeInfo);
             });
         } else {

@@ -249,9 +249,9 @@ function virtualRoutersConfig() {
         postObject["virtual-router"]["name"] = name;
         postObject["virtual-router"]["virtual_router_ip_address"] = ipAddress;
         if(type != 'hypervisor' && type != '' &&  type != 'empty') {
-            postObject["virtual-router"]["virtual_router_type"] = [type];
+            postObject["virtual-router"]["virtual_router_type"] = type;
         } else {
-            postObject["virtual-router"]["virtual_router_type"] = [];
+            postObject["virtual-router"]["virtual_router_type"] = null;
         }
         if(mode === 'edit') {
             postObject["virtual-router"]["uuid"] = gblSelRow.uuid;
@@ -283,6 +283,7 @@ function virtualRoutersConfig() {
             for(var i = 0; i < result.length;i++) {
                 var rowData = result[i]['virtual-router'];
                 var pRouters = [];
+                var virtualRouterType;
                 var pRouterBackRefs = rowData['physical_router_back_refs'];
                 if(pRouterBackRefs != null && pRouterBackRefs.length > 0) {
                     var pRouterBackRefsLen = pRouterBackRefs.length;                
@@ -290,12 +291,17 @@ function virtualRoutersConfig() {
                         pRouters.push(pRouterBackRefs[j].to[1]);
                     }
                 }
+                if(typeof rowData.virtual_router_type === 'object') {
+                    virtualRouterType = rowData.virtual_router_type[0];
+                } else {
+                    virtualRouterType = rowData.virtual_router_type;
+                }
                 gridDS.push({
                     uuid : rowData.uuid,
                     name : rowData.name,
                     ip_address : rowData.virtual_router_ip_address,
-                    actualType : rowData.virtual_router_type != null ? rowData.virtual_router_type : '',
-                    type : rowData.virtual_router_type != null && rowData.virtual_router_type.length > 0 ? rowData.virtual_router_type : ['hypervisor'],
+                    actualType : virtualRouterType != null ? virtualRouterType : '',
+                    type : virtualRouterType != null ? virtualRouterType : 'hypervisor',
                     physical_routers : pRouters.length > 0 ? pRouters : '-'
                 });
             }
