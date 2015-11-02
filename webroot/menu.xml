@@ -652,7 +652,6 @@ and need to add the iconClass tag wherever we need to show some icons
                         </orchModels>
                     </access>
                     <iconClass>icon-globe</iconClass>
-                    <init>/config/networking.init.js</init>
                     <items>
                        <item>
                             <label>Servers</label>
