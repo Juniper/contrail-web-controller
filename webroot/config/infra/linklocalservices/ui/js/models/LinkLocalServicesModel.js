@@ -52,11 +52,6 @@ define([
         validations: {
             llsConfigValidations: {
                 'linklocal_service_name': function(val, attr, data) {
-                    /* Currently diabled in viewConfig does not make combobox to
-                     * be disabled, so just returning now, will enable once the
-                     * issue gets fixed.
-                     */
-                    return;
                     var svcNameEnabled =
                         $('#linklocal_service_name_combobox').data('contrailCombobox').isEnabled();
                     if (false == svcNameEnabled) {

@@ -85,6 +85,27 @@ define([
             name: 'Value',
             formatter: function(row, col, val, d, rowData) {
                 var dispStr = "";
+                if ('forwarding_mode' == rowData['key']) {
+                    if (("" == val) || (undefined == val)) {
+                        return 'Default';
+                    }
+                    if ('l2' == val) {
+                        return 'L2 Only';
+                    }
+                    if ('l3' == val) {
+                        return 'L3 Only';
+                    }
+                    if ('l2_l3' == val) {
+                        return 'L2 and L3';
+                    }
+                }
+                if ('flow_export_rate' == rowData['key']) {
+                    if ((undefined == val) || ("" == val)) {
+                        return "-";
+                    } else {
+                        return val;
+                    }
+                }
                 if ('vxlan_network_identifier_mode' == rowData['key']) {
                     if ("automatic" == val) {
                         return 'Auto Configured';

@@ -13,8 +13,10 @@ define([
     var gcUtils = new GlobalConfigUtils();
     var GlobalConfigModel = ContrailModel.extend({
         defaultConfig: {
+            'flow_export_rate': "",
             'vxlan_network_identifier_mode': null,
             'autonomous_system': 64513,
+            'forwarding_mode': "Default",
             'ibgp_auto_mesh': true,
         },
         validations: {
@@ -157,6 +159,18 @@ define([
                 ajaxConfig = {};
                 ctwu.deleteCGridData(newGlobalConfig);
 
+                if ('forwarding_mode' in newGlobalConfig) {
+                    if ("Default" == newGlobalConfig['forwarding_mode']) {
+                        newGlobalConfig['forwarding_mode'] = null;
+                    }
+                }
+
+                if (null != newGlobalConfig['flow_export_rate']) {
+                    putData['global-vrouter-config']['flow_export_rate'] =
+                        parseInt(newGlobalConfig['flow_export_rate']);
+                }
+                putData['global-vrouter-config']['forwarding_mode'] =
+                    newGlobalConfig['forwarding_mode'];
                 putData['global-vrouter-config']
                        ['vxlan_network_identifier_mode'] =
                     newGlobalConfig['vxlan_network_identifier_mode'];

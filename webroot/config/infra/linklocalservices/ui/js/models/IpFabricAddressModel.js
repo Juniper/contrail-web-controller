@@ -27,12 +27,11 @@ define([
         validations: {
             fabAddressValidation: {
                 'ip_fabric_service_ip': function(value, attr, obj) {
-                    if ('IP' == obj['lls_fab_address_ip']) {
+                    if ('IP' == $("#lls_fab_address_ip_dropdown").val()) {
                         if (value.trim() === "") {
                             return "Fabric Service IP is required"
                         }
-                        return
-                            Backbone.Validation.validators.pattern(value,
+                        return Backbone.Validation.validators.pattern(value,
                                                                    attr,
                                                                    cowc.PATTERN_IP_ADDRESS,
                                                                    this);
