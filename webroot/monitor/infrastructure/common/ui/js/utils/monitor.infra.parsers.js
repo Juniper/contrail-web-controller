@@ -50,8 +50,7 @@ define(
                         obj['memory'] = monitorInfraUtils.
                             formatMemoryForDisplay(ifNull(jsonPath(d,
                                     '$.value.ControlCpuState.cpu_info[0].mem_res')[0]));
-                        obj['size'] =
-                            ifNull(jsonPath(d,'$..output_queue_depth')[0],0)+1;
+                        obj['size'] = ifNull(jsonPath(d,'$..output_queue_depth')[0],0);
                         obj['shape'] = 'circle';
                         obj['name'] = d['name'];
                         obj['link'] =
@@ -177,6 +176,7 @@ define(
                         var dValue = result[i]['value'];
                         obj['cpu'] = getValueByJsonPath(dValue,
                             'VrouterStatsAgent;cpu_info;cpu_share', '--');
+                        obj['x'] = $.isNumeric(obj['cpu']) ? obj['cpu'] : NaN;
                         obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(
                             2)) : NaN;
                         obj['ip'] = getValueByJsonPath(dValue,
@@ -232,7 +232,6 @@ define(
                             'VrouterStatsAgent;cpu_info;meminfo;res', '-');
                         obj['resMemory'] = $.isNumeric(obj['resMemory']) ? parseFloat(
                             parseFloat(obj['resMemory'] / 1024).toFixed(2)) : NaN;
-                        obj['x'] = obj['cpu'];
                         obj['y'] = obj['resMemory'];
                         obj['virtMemory'] = parseInt(getValueByJsonPath(dValue,
                                 'VrouterStatsAgent;cpu_info;meminfo;virt', '--')) /
@@ -242,7 +241,7 @@ define(
                                 0) +
                             getValueByJsonPath(dValue,
                                 'VrouterStatsAgent;phy_if_1min_usage;0;in_bandwidth_usage',
-                                0) + 1;
+                                0);
                         obj['size'] = getValueByJsonPath(dValue,
                                 'VrouterStatsAgent;phy_if_5min_usage;0;out_bandwidth_usage',
                                 0) +
@@ -355,7 +354,7 @@ define(
                             '$..QueryStats.queries_being_processed')[0], []).length;
                         obj['pendingQueryCnt'] = ifNull(jsonPath(d,
                             '$..QueryStats.pending_queries')[0], []).length;
-                        obj['size'] = obj['pendingQueryCnt'] + 1;
+                        obj['size'] = obj['pendingQueryCnt'];
                         obj['shape'] = 'circle';
                         obj['type'] = 'analyticsNode';
                         obj['display_type'] = 'Analytics Node';
@@ -453,7 +452,7 @@ define(
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         //Re-visit once average response time added for config nodes
-                        obj['size'] = 1;
+                        obj['size'] = 0;
                         obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
                             '$.value.configNode.ModuleCpuState.build_info')[0]),'-');
                         obj['shape'] = 'circle';
@@ -580,7 +579,7 @@ define(
                             obj['formattedUsedSpace']  + ' (' +
                             obj['formattedUsedPercentage'] + ')' :
                                 '-';
-                        obj['size'] = obj['usedPercentage']  ;
+                        obj['size'] = obj['usedPercentage'];
                         obj['shape'] = 'circle';
                         obj['type'] = 'dbNode';
                         obj['display_type'] = 'Database Node';

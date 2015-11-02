@@ -3,8 +3,10 @@
  */
 
 define(
-    ['underscore', 'contrail-view', 'monitor-infra-vrouter-model'],
-    function(_, ContrailView, VRouterListModel,BarChartInfoView) {
+    ['underscore', 'contrail-view', 'monitor-infra-vrouter-model',
+    'contrail-list-model','cf-datasource'],
+    function(_, ContrailView, VRouterListModel,ContrailListModel,
+        CFDataSource) {
         var VRouterDashobardView = ContrailView.extend(
            (function() {
                 var self = this;
@@ -15,12 +17,31 @@ define(
                 return {
                         render: function() {
                             var self = this;
-                            var vRouterListModel = new VRouterListModel();
+                            var cfDataSource = new CFDataSource();
+                            var vRouterUIListModel = new ContrailListModel({data:[]});
+                            self.cfDataSource = cfDataSource;
+                            function onUpdatevRouterListModel() {
+                                cfDataSource.updateData(self.model.getItems());
 
+                                if(cfDataSource.getDimension('colorFilter') == null) {
+                                    cfDataSource.addDimension('colorFilter',function(d) {
+                                        return d['color'];
+                                    });
+                                }
+                                cfDataSource.fireCallBacks({source:'fetch'});
+                            }
+                            cfDataSource.addCallBack('updateCFListModel',function(data) {
+                                //Update listUIModel with crossfilter data
+                                vRouterUIListModel.setData(cfDataSource.getFilteredData());
+                            });
                             this.renderView4Config(self.$el,
-                                vRouterListModel,
-                                getVRouterListViewConfig({totalCntModel:totalCntModel}),null,null,null,
+                                vRouterUIListModel,
+                                getVRouterListViewConfig({totalCntModel:totalCntModel,cfDataSource:cfDataSource}),null,null,null,
                                 function() {
+                                    self.model.onDataUpdate.subscribe(onUpdatevRouterListModel);
+                                    if(self.model.loadedFromCache) {
+                                        onUpdatevRouterListModel();
+                                    }
                                     updateVnCnt(totalCntModel);
                                 });
                         }
@@ -88,7 +109,8 @@ define(
                             view: "VRouterScatterChartView",
                             viewConfig : {
                                 // class: 'span9'
-                                'margin-left': '160px'
+                                'margin-left': '160px',
+                                cfDataSource : cfgObj['cfDataSource']
                             },
                             viewPathPrefix: "monitor/infrastructure/" +
                                 "common/ui/js/views/",
