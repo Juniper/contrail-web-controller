@@ -18,7 +18,6 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
        adjacencyList : [],
        underlayAdjacencyList : [],
        connectedElements : [],
-       jointjsElements : [],
        selectedElement : {},
        flowPath: new Backbone.Model({
                      nodes: [],
@@ -148,9 +147,8 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            this.underlayAdjacencyList = adjacencyList;
            var els = this.createElementsFromAdjacencyList();
            //this.addElementsToGraph(els, null);
-           this.jointjsElements = els;
            return {
-               elements: this.jointjsElements,
+               elements: els,
                nodes: this.nodes,
                links: this.links,
            };
@@ -266,7 +264,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                }
            });
 
-           for(var i=0; i<links.length; i++) {
+           /*for(var i=0; i<links.length; i++) {
                var link = links[i];
                if(link.endpoints[0] === link.endpoints[1])
                    continue;
@@ -373,7 +371,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                        }
                    }
                }
-           }
+           }*/
            this.connectedElements = conElements;
            // Links must be added after all the elements. This is because when the links
            // are added to the graph, link source/target
