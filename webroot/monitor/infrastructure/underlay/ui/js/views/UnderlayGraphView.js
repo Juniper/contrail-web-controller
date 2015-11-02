@@ -7,6 +7,7 @@ define([
     'contrail-view',
     'underlay-graph-model',
     'graph-view',
+    'contrail-list-model',
 ], function (_, ContrailView, UnderlayGraphModel, GraphView, ContrailListModel) {
     var UnderlayGraphView = ContrailView.extend({
         render: function () {
@@ -435,7 +436,7 @@ define([
                                      adjList[nodeDetails['name']] = childrenName;
                                      underlayGraphModel['adjacencyList'] = adjList;
                                      var childElementsArray = underlayGraphModel
-                                         .createElementsFromAdjacencyList(underlayGraphModel);
+                                         .createElementsFromAdjacencyList();
                                      addElementsToGraph(childElementsArray);
                                      adjustDimensions(childElementsArray,
                                           dblClickedElement,
@@ -484,7 +485,7 @@ define([
                              }
                              underlayGraphModel['adjacencyList'] = newAdjList;
                              var childElementsArray = underlayGraphModel
-                                 .createElementsFromAdjacencyList(underlayGraphModel);
+                                 .createElementsFromAdjacencyList();
                              addElementsToGraph(childElementsArray, underlayGraphModel);
                              adjustDimensions(childElementsArray, dblClickedElement,
                                   underlayGraphModel);
@@ -925,21 +926,19 @@ define([
             };
             interfaceDetails.push(rowObj);
         }
-        require(['contrail-list-model'], function(ContrailListModel) {
-            var contrailListModel =
-                new ContrailListModel({
-                    data: interfaceDetails
-                });
-            // Rendering the interfaces tab
-            self.renderView4Config(
-                $('#'+ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID),
-                contrailListModel,
-                monitorInfraUtils.
-                    getUnderlayPRouterInterfaceTabViewConfig({
-                        hostName:data.hostName
-                    }),
-                null, null, null);
-        });
+        var contrailListModel =
+            new ContrailListModel({
+                data: interfaceDetails
+            });
+        // Rendering the interfaces tab
+        self.renderView4Config(
+            $('#'+ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID),
+            contrailListModel,
+            monitorInfraUtils.
+                getUnderlayPRouterInterfaceTabViewConfig({
+                    hostName:data.hostName
+                }),
+            null, null, null);
     }
 
     function showVRouterTabs (nodeDetails, self) {
@@ -1031,7 +1030,7 @@ define([
         var adjList = _.clone(underlayGraphModel['underlayAdjacencyList']);
         underlayGraphModel['adjacencyList']= adjList;
         var childElementsArray =
-            underlayGraphModel.createElementsFromAdjacencyList(underlayGraphModel);
+            underlayGraphModel.createElementsFromAdjacencyList();
         addElementsToGraph(childElementsArray, underlayGraphModel);
         adjustDimensions(childElementsArray);
         if(options['resetBelowTabs'] == true) {

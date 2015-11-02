@@ -34,7 +34,17 @@ define([
                 postDataObj =
                     queryFormModel.getQueryRequestPostData(serverCurrentTime, reqObj),
                 searchFlowGridColumns =
-                    monitorInfraUtils.getSearchFlowGridColumns();
+                    monitorInfraUtils.getSearchFlowGridColumns(),
+                gridId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
+            var endTime = postDataObj['formModelAttrs'].to_time_utc;
+            var startTime = postDataObj['formModelAttrs'].from_time_utc;
+            if(postDataObj['formModelAttrs'].time_range != -1) {
+                endTime = new Date().getTime();
+                startTime =
+                    endTime - (1000 * parseInt(postDataObj['formModelAttrs'].time_range));
+            }
+            $(gridId).data('startTimeUTC',startTime);
+            $(gridId).data('endTimeUTC', endTime);
             var searchFlowRemoteConfig = {
                 url: "/api/qe/query",
                 type: 'POST',
@@ -86,7 +96,7 @@ define([
                             dataItem['startTime'] = startTime;
                             dataItem['endTime'] = endTime;
                             dataItem['startAt'] = new Date().getTime();
-                            $(gridId + "div.selected-slick-row").each(
+                            $(gridId + " div.selected-slick-row").each(
                                 function(idx,obj){
                                     $(obj).removeClass('selected-slick-row');
                                 }
