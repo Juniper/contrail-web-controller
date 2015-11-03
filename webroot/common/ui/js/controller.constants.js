@@ -118,6 +118,7 @@ define([
         this.TMPL_GRAPH_CONTROL_PANEL_SEARCH = "graph-control-panel-search-template";
         this.TMPL_QUERY_SELECT = "query-select-popup-template";
         this.TMPL_QUERY_PAGE = "query-page-template";
+        this.TMPL_QUERY_QUEUE_PAGE = "query-queue-page-template";
         this.TMPL_FORM_RESULT = 'form-result-page-template';
 
         this.DEFAULT_DOMAIN = "default-domain";
@@ -189,6 +190,10 @@ define([
         };
         this.LINK_CONNECTOR_STRING = " --- ";
 
+
+        // Config DB constants
+        this.TMPL_CDB_ITEM_DELETE = "cdb-delete-item-template";
+
         // Underlay constants
         this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
         this.UNDERLAY_TAB_ID = 'underlayTabs';
@@ -199,8 +204,6 @@ define([
         this.UNDERLAY_PROUTER_INTERFACE_TAB_ID = 'pRouterInterfaces';
         this.UNDERLAY_TRACEFLOW_TAB_ID = 'traceFlow';
         this.UNDERLAY_DETAILS_TAB_ID = 'details';
-        this.FLOW_RECORD_TABLE = "FlowRecordTable";
-        this.FR_QUERY_PREFIX = "fr";
         this.TIMERANGE_DROPDOWN_VALUES = [
             {'id': 600, 'text': 'Last 10 Mins'},
             {'id': 1800, 'text': 'Last 30 Mins'},

@@ -4,19 +4,17 @@
 
 define([
     'underscore',
-    'text!reports/qe/ui/templates/qe.tmpl',
-    'reports/qe/ui/js/qe.main'
-], function (_, QETemplates) {
-    $("body").append(QETemplates);
+    'setting/configdb/ui/js/cdb.main'
+], function (_) {
 
-    var initJSpath = pkgBaseDir + '/reports/qe/ui/js/qe.init.js',
+    var initJSpath = pkgBaseDir + '/setting/configdb/ui/js/cdb.init.js',
         initStatus = contentHandler.initFeatureModuleMap[initJSpath],
         deferredObj = initStatus['deferredObj'];
 
     initStatus['isInProgress'] = false;
     initStatus['isComplete'] = true;
 
-    if (contrail.checkIfExist(deferredObj)) {
+    if(contrail.checkIfExist(deferredObj)) {
         deferredObj.resolve()
     }
 });

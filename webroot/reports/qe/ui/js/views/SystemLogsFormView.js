@@ -6,25 +6,23 @@ define([
     'underscore',
     'query-form-view',
     'knockback',
-    'reports/qe/ui/js/models/FlowSeriesFormModel'
-], function (_, QueryFormView, Knockback, FlowSeriesFormModel) {
+    'reports/qe/ui/js/models/SystemLogsFormModel'
+], function (_, QueryFormView, Knockback, SystemLogsFormModel) {
 
-    var FlowSeriesQueryView = QueryFormView.extend({
-        render: function (options) {
-            var self = this,
-                viewConfig = self.attributes.viewConfig,
-                formData = contrail.checkIfExist(viewConfig.formData) ? viewConfig.formData : {},
+    var SystemLogsFormView = QueryFormView.extend({
+        render: function () {
+            var self = this, viewConfig = self.attributes.viewConfig,
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
-                flowSeriesQueryModel = new FlowSeriesFormModel(formData),
+                systemLogs = new SystemLogsFormModel(),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX;
 
-            self.model = flowSeriesQueryModel;
-            self.$el.append(queryPageTmpl({queryPrefix: cowc.FS_QUERY_PREFIX }));
+            self.model = systemLogs;
+            self.$el.append(queryPageTmpl({queryPrefix: cowc.SYSTEM_LOGS_PREFIX }));
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(cowl.QE_FLOW_SERIES_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_FLOW_SERIES_ID));
+                self.model.showErrorAttr(cowl.QE_SYSTEM_LOGS_ID, false);
+                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_SYSTEM_LOGS_ID));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     if (self.model.model().isValid(true, 'runQueryValidation')) {
@@ -41,11 +39,11 @@ define([
         renderQueryResult: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
-                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 responseViewConfig = {
-                    view: "FlowSeriesResultView",
+                    view: "SystemLogsResultView",
                     viewPathPrefix: "reports/qe/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {}
@@ -99,44 +97,10 @@ define([
                                     elementId: 'select', view: "FormTextAreaView",
                                     viewConfig: {path: 'select', dataBindValue: 'select', class: "span9", editPopupConfig: {
                                         renderEditFn: function() {
-                                            self.renderSelect({className: cowc.QE_MODAL_CLASS_700});
+                                            var tableName = self.model.table_name();
+                                            self.renderSelect({className: qewu.getModalClass4Table(tableName)});
                                         }
                                     }}
-                                },
-                                {
-                                    elementId: 'time-granularity-section',
-                                    view: "FormCompositeView",
-                                    viewConfig: {
-                                        class: "span3",
-                                        style: 'display: none;',
-                                        path: 'time_granularity',
-                                        label: 'Time Granularity',
-                                        visible: 'select_data_object().checked_fields.indexOf("T=") != -1 ',
-                                        childView: [
-                                            {
-                                                elementId: 'time_granularity', view: "FormNumericTextboxView",
-                                                viewConfig: {
-                                                    label: false,
-                                                    path: 'time_granularity',
-                                                    dataBindValue: 'time_granularity',
-                                                    class: "span4",
-                                                    elementConfig: {min: 1}
-                                                }
-                                            },
-                                            {
-                                                elementId: 'time_granularity_unit', view: "FormDropdownView",
-                                                viewConfig: {
-                                                    label: false,
-                                                    path: 'time_granularity_unit',
-                                                    dataBindValue: 'time_granularity_unit',
-                                                    dataBindOptionList: 'getTimeGranularityUnits()',
-                                                    class: "span4",
-                                                    elementConfig: {}
-                                                }
-                                            }
-                                        ]
-
-                                    }
                                 }
                             ]
                         },
@@ -149,13 +113,6 @@ define([
                                             self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
                                         }
                                     }}
-                                },
-                                {
-                                    elementId: 'direction', view: "FormDropdownView",
-                                    viewConfig: {
-                                        path: 'direction', dataBindValue: 'direction', class: "span3",
-                                        elementConfig: {dataTextField: "text", dataValueField: "id", data: cowc.DIRECTION_DROPDOWN_VALUES}
-                                    }
                                 }
                             ]
                         },
@@ -202,5 +159,5 @@ define([
         }
     });
 
-    return FlowSeriesQueryView;
+    return SystemLogsFormView;
 });

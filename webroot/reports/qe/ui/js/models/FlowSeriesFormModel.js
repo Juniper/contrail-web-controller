@@ -22,6 +22,10 @@ define([
 
         validations: {
             runQueryValidation: {
+                'table_name': {
+                    required: true,
+                    msg: ctwm.getRequiredMessage('table name')
+                },
                 'select': {
                     required: true,
                     msg: ctwm.getRequiredMessage('select')

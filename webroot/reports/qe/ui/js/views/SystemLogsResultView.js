@@ -8,7 +8,7 @@ define([
     'contrail-list-model'
 ], function (_, QueryResultView, ContrailListModel) {
 
-    var ObjectLogsResultView = QueryResultView.extend({
+    var SystemLogsResultView = QueryResultView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 serverCurrentTime = qewu.getCurrentTime4Client(),
@@ -32,15 +32,14 @@ define([
                             dataParser: function(response) {
                                 var gridData = response['data'];
                                 for (var i = 0 ; i < gridData.length; i++) {
-                                    gridData[i]["ObjectLog"] = contrail.checkIfExist(gridData[i]["ObjectLog"]) ? qewu.formatXML2JSON(gridData[i]["ObjectLog"]) : null;
-                                    gridData[i]["SystemLog"] = contrail.checkIfExist(gridData[i]["SystemLog"]) ? qewu.formatXML2JSON(gridData[i]["SystemLog"], true) : null;
+                                    gridData[i]["Xmlmessage"] = contrail.checkIfExist(gridData[i]["Xmlmessage"]) ? qewu.formatXML2JSON(gridData[i]["Xmlmessage"], true) : null;
                                 }
                                 return gridData;
                             }
                         }
                     };
 
-                postDataObj.chunkSize = cowc.QE_RESULT_CHUNK_SIZE_1K;
+                postDataObj.chunkSize = cowc.QE_RESULT_CHUNK_SIZE_10K;
                 contrailListModel = new ContrailListModel(listModelConfig);
                 self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, listModelConfig, serverCurrentTime))
             });
@@ -51,21 +50,21 @@ define([
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                olGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_OBJECT_TABLE_TYPE, selectArray);
+                olGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_LOG_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
-                elementId: cowl.QE_OBJECT_LOGS_TAB_ID,
+                elementId: cowl.QE_SYSTEM_LOGS_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
                     theme: cowc.TAB_THEME_OVERCAST,
                     activate: function (e, ui) {},
                     tabs: [
                         {
-                            elementId: cowl.QE_OBJECT_LOGS_GRID_ID,
+                            elementId: cowl.QE_SYSTEM_LOGS_GRID_ID,
                             title: cowl.TITLE_RESULTS,
                             view: "GridView",
                             viewConfig: {
-                                elementConfig: getObjectLogsGridConfig(listModelConfig, olGridColumns, pagerOptions)
+                                elementConfig: getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions)
                             }
                         }
                     ]
@@ -76,11 +75,11 @@ define([
         }
     });
 
-    function getObjectLogsGridConfig(listModelConfig, olGridColumns, pagerOptions) {
+    function getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions) {
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_OBJECT_LOGS,
+                    text: cowl.TITLE_SYSTEM_LOGS,
                     icon : 'icon-table'
                 },
                 defaultControls: {
@@ -107,5 +106,5 @@ define([
         return gridElementConfig;
     };
 
-    return ObjectLogsResultView;
+    return SystemLogsResultView;
 });

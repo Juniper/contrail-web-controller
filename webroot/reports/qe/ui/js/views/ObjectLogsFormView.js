@@ -25,7 +25,9 @@ define([
                 Knockback.applyBindings(self.model, document.getElementById(cowl.QE_OBJECT_LOGS_ID));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
-                    self.renderQueryResult();
+                    if (self.model.model().isValid(true, 'runQueryValidation')) {
+                        self.renderQueryResult();
+                    }
                 });
             });
 
@@ -36,6 +38,9 @@ define([
 
         renderQueryResult: function() {
             var self = this,
+                viewConfig = self.attributes.viewConfig,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.OBJECT_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
+                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.OBJECT_LOGS_PREFIX + cowc.QE_RESULTS_SUFFIX,
                 responseViewConfig = {
                     view: "ObjectLogsResultView",
@@ -43,6 +48,10 @@ define([
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {}
                 };
+
+            if (widgetConfig !== null) {
+                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+            }
 
             self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
         },
@@ -132,6 +141,7 @@ define([
                                 }
                             ]
                         },
+                        /*
                         {
                             columns: [
                                 {
@@ -144,6 +154,7 @@ define([
                                 }
                             ]
                         },
+                        */
                         {
                             columns: [
                                 {

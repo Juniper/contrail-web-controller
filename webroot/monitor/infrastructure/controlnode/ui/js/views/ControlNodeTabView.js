@@ -87,8 +87,14 @@ define([
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
                        viewConfig: viewConfig
-                   }
+                   },
                 /*{
+                       elementId: ctwl.CONTROLNODE_CONSOLE_LOGS_VIEW_ID,
+                       title: 'Console',
+                       view: "NodeConsoleLogsView",
+                       viewConfig: {}
+                   },
+                {
                     elementId: 'controlnode_console_id',
                     title: 'Console',
                     view: "DetailsView",

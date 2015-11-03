@@ -35,7 +35,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <role>superAdmin</role>
                         </roles>
                         <orchModels>
-                           <model>openstack</model>
+                            <model>openstack</model>
                             <model>cloudstack</model>
                             <model>vcenter</model>
                         </orchModels>
@@ -46,17 +46,17 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>mon_infra_dashboard</hash>
                             <label>Dashboard</label>
                             <searchStrings>Infrastructure Dashboard</searchStrings>
-                              <resources>
-                                  <resource>
-                                      <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
-                                      <template>monInfraDashboard.tmpl</template>
-                                      <js>monInfraDashboard.main.js</js>
-                                      <class>monInfraDashboardLoader</class>
-                                  </resource>
-                              </resources>
-                              <queryParams>
-                                  <tab>vRouters</tab>
-                              </queryParams>
+                            <resources>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
+                                    <template>monInfraDashboard.tmpl</template>
+                                    <js>monInfraDashboard.main.js</js>
+                                    <class>monInfraDashboardLoader</class>
+                                </resource>
+                            </resources>
+                            <queryParams>
+                                <tab>vRouters</tab>
+                            </queryParams>
                         </item>
                         <item>
                             <hash>mon_infra_mx</hash>
@@ -336,7 +336,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>BGP Routers</label>
                             <hash>config_infra_bgp</hash>
                             <resources>
-                                 <resource>
+                                <resource>
                                     <rootDir>/common/ui</rootDir>
                                     <js>controller.app.js</js>
                                 </resource>
@@ -345,7 +345,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <js>bgp.main.js</js>
                                     <class>configBGPPageLoader</class>
                                     <function>renderBGP</function>
-                                 </resource>
+                                </resource>
                             </resources>
                             <searchStrings>Configure BGP Routers</searchStrings>
                         </item>
@@ -490,11 +490,11 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <js>port.main.js</js>
                                     <class>ConfigPortLoader</class>
                                     <function>renderPort</function>
-<!--                                <resource>
-                                    <rootDir>/config/ports/ui</rootDir>
-                                    <js>ports_config.js</js>
-                                    <view>ports_config.view</view>
-                                    <class>portsConfigObj</class>-->
+                                    <!--                                <resource>
+                                                                        <rootDir>/config/ports/ui</rootDir>
+                                                                        <js>ports_config.js</js>
+                                                                        <view>ports_config.view</view>
+                                                                        <class>portsConfigObj</class>-->
                                 </resource>
                             </resources>
                             <searchStrings>Ports</searchStrings>
@@ -573,7 +573,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>IP Address Management, IPAM</searchStrings>
-                            </item>
+                        </item>
                         <item>
                             <label>Floating IPs</label>
                             <hash>config_networking_fip</hash>
@@ -621,7 +621,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                             </resources>
                             <searchStrings>Service Template, Templates, Service, Configure Service Templates</searchStrings>
-                            </item>
+                        </item>
                         <item>
                             <label>Service Instances</label>
                             <hash>config_sc_svcInstances</hash>
@@ -653,20 +653,20 @@ and need to add the iconClass tag wherever we need to show some icons
                     </access>
                     <iconClass>icon-globe</iconClass>
                     <items>
-                       <item>
+                        <item>
                             <label>Servers</label>
                             <hash>config_dns_servers</hash>
-                               <resources>
-                                   <resource>
-                                       <rootDir>/common/ui</rootDir>
-                                   </resource>
-                                   <resource>
-                                       <rootDir>/config/dns/servers/ui</rootDir>
-                                       <js>DnsServer.main.js</js>
-                                       <class>DnsServerLoader</class>
-                                       <function>renderDnsServer</function>
-                                   </resource>
-                               </resources>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/dns/servers/ui</rootDir>
+                                    <js>DnsServer.main.js</js>
+                                    <class>DnsServerLoader</class>
+                                    <function>renderDnsServer</function>
+                                </resource>
+                            </resources>
                             <searchStrings>Configure DNS Servers</searchStrings>
                         </item>
                         <item>
@@ -674,7 +674,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <hash>config_dns_records</hash>
                             <resources>
                                 <resource>
-                                   <rootDir>/common/ui</rootDir>
+                                    <rootDir>/common/ui</rootDir>
                                 </resource>
                                 <resource>
                                     <rootDir>/config/dns/records/ui</rootDir>
@@ -708,7 +708,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Quotas</label>
                         </item>
                         -->
-        </items>
+            </items>
         </item>
         <item>
             <label>Setting</label>
@@ -729,30 +729,33 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Config DB</label>
                     <iconClass>icon-contrail-config-db</iconClass>
+                    <init>/setting/configdb/ui/js/cdb.init.js</init>
                     <items>
                         <item>
                             <hash>setting_configdb_fqname</hash>
                             <label>FQ Name Table</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/setting/config_db</rootDir>
-                                    <view>cdb_query.view</view>
-                                    <js>cdb_query.js</js>
-                                    <class>fqNameTableObj</class>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>cdbPageLoader</class>
+                                <function>renderFQTable</function>
+                            </loader>
+                            <queryParams>
+                                <view>list</view>
+                                <type>fqTableNames</type>
+                            </queryParams>
+                            <searchStrings>FQ Name Table</searchStrings>
                         </item>
                         <item>
                             <hash>setting_configdb_uuid</hash>
                             <label>UUID Table</label>
-                            <resources>
-                                <resource>
-                                    <rootDir>/setting/config_db</rootDir>
-                                    <view>cdb_query.view</view>
-                                    <js>cdb_query.js</js>
-                                    <class>uuidTableObj</class>
-                                </resource>
-                            </resources>
+                            <loader>
+                                <class>cdbPageLoader</class>
+                                <function>renderUUIDTable</function>
+                            </loader>
+                            <queryParams>
+                                <view>list</view>
+                                <type>uuidTableNames</type>
+                            </queryParams>
+                            <searchStrings>UUID Table</searchStrings>
                         </item>
                     </items>
                 </item>
@@ -794,9 +797,85 @@ and need to add the iconClass tag wherever we need to show some icons
                 <item>
                     <label>Flows</label>
                     <iconClass>icon-exchange</iconClass>
+                    <init>/reports/qe/ui/js/qe.init.js</init>
                     <items>
                         <item>
                             <hash>query_flow_series</hash>
+                            <label>Flow Series</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderFlowSeries</function>
+                            </loader>
+                            <searchStrings>Query Flow Series</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_flow_record</hash>
+                            <label>Flow Record</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderFlowRecord</function>
+                            </loader>
+                            <searchStrings>Query Flow Record</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_flow_queue</hash>
+                            <label>Flow Queue</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderFlowQueue</function>
+                            </loader>
+                            <searchStrings>Flow Query Queue</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Logs</label>
+                    <iconClass>icon-contrail-system-logs</iconClass>
+                    <init>/reports/qe/ui/js/qe.init.js</init>
+                    <items>
+                        <item>
+                            <hash>query_log_system</hash>
+                            <label>System Logs</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderSystemLogs</function>
+                            </loader>
+                            <searchStrings>Query System Logs</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_log_object</hash>
+                            <label>Object Logs</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderObjectLogs</function>
+                            </loader>
+                            <searchStrings>Query Object Logs</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <item>
+                    <label>Statistics</label>
+                    <iconClass>icon-contrail-system-stats</iconClass>
+                    <init>/reports/qe/ui/js/qe.init.js</init>
+                    <items>
+                        <item>
+                            <hash>query_stat_query</hash>
+                            <label>Query</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderStatQuery</function>
+                            </loader>
+                            <searchStrings>Query Statistics</searchStrings>
+                        </item>
+                    </items>
+                </item>
+                <!--
+                <item>
+                    <label>Old Queries</label>
+                    <iconClass>icon-sign-blank</iconClass>
+                    <items>
+                        <item>
+                            <hash>query_flow_series2</hash>
                             <label>Flow Series</label>
                             <resources>
                                 <resource>
@@ -810,7 +889,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Query Flow Series</searchStrings>
                         </item>
                         <item>
-                            <hash>query_flow_records</hash>
+                            <hash>query_flow_records2</hash>
                             <label>Flow Records</label>
                             <resources>
                                 <resource>
@@ -824,8 +903,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Query Flow Records</searchStrings>
                         </item>
                         <item>
-                            <hash>query_flow_queue</hash>
-                            <label>Query Queue</label>
+                            <hash>query_flow_queue2</hash>
+                            <label>Flow Query Queue</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
@@ -837,14 +916,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Flow Query Queue</searchStrings>
                         </item>
-                    </items>
-                </item>
-                <item>
-                    <label>Logs</label>
-                    <iconClass>icon-contrail-system-logs</iconClass>
-                    <items>
                         <item>
-                            <hash>query_log_system</hash>
+                            <hash>query_log_system2</hash>
                             <label>System Logs</label>
                             <resources>
                                 <resource>
@@ -858,7 +931,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Query System Logs</searchStrings>
                         </item>
                         <item>
-                            <hash>query_log_object</hash>
+                            <hash>query_log_object2</hash>
                             <label>Object Logs</label>
                             <resources>
                                 <resource>
@@ -872,8 +945,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Query Object Logs</searchStrings>
                         </item>
                         <item>
-                            <hash>query_log_queue</hash>
-                            <label>Query Queue</label>
+                            <hash>query_log_queue2</hash>
+                            <label>Logs Query Queue</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
@@ -885,15 +958,9 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Logs Query Queue</searchStrings>
                         </item>
-                    </items>
-                </item>
-                <item>
-                    <label>Statistics</label>
-                    <iconClass>icon-contrail-system-stats</iconClass>
-                    <items>
                         <item>
-                            <hash>query_stat_query</hash>
-                            <label>Query</label>
+                            <hash>query_stat_query2</hash>
+                            <label>Stat Query</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
@@ -906,8 +973,8 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Query Statistics</searchStrings>
                         </item>
                         <item>
-                            <hash>query_stat_queue</hash>
-                            <label>Query Queue</label>
+                            <hash>query_stat_queue2</hash>
+                            <label>Stat Query Queue</label>
                             <resources>
                                 <resource>
                                     <rootDir>/reports</rootDir>
@@ -921,6 +988,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                     </items>
                 </item>
+                -->
             </items>
         </item>
     </items>

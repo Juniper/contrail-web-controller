@@ -482,6 +482,8 @@ define([
         this.CONTROLNODE_PEERS_TITLE = "Peers";
         this.CONTROLNODE_ROUTES_GRID_VIEW_ID =
             'control_node_routes_grid_view';
+        this.CONTROLNODE_CONSOLE_LOGS_VIEW_ID =
+            'control_node_console_logs_view';
         this.CONTROLNODE_ROUTES_ID = 'control_node_routes';
         this.CONTROLNODE_ROUTES_GRID_ID = 'control_node_route_grid';
         this.CONTROLNODE_ROUTES_RESULT_VIEW =
@@ -1018,6 +1020,29 @@ define([
         this.TITLE_EDIT_DNS_RECORD = 'Edit DNS Record';
         this.DNS_RECORD_DETAILS = 'DNS Record Details';
         this.DNS_BREADCRUMB_DROPDOWN = "dns-breadcrumb-dropdown";
+
+
+        //Config DB Labels - Start
+        this.CDB_FQ_TABLE_NAMES_GRID_ID = "cdb-fq-table-names-grid";
+        this.CDB_TITLE_FQ_TABLE_NAMES = "FQ Names Table Keys";
+
+        this.CDB_FQ_KEY_TABLE_NAMES_SECTION_ID = "cdb-fq-key-table-names-section";
+        this.CDB_FQ_TABLE_NAMES_SECTION_ID = "cdb-fq-table-names-section";
+        this.CDB_UUID_TABLE_NAMES_SECTION_ID = "cdb-uuid-table-names-section";
+        this.CDB_UUID_KEY_TABLE_NAMES_SECTION_ID = "cdb-uuid-key-table-names-section";
+
+        this.CDB_FQ_KEY_TABLE_NAMES_GRID_ID = "cdb-fq-key-table-names-grid";
+        this.CDB_TITLE_FQ_KEY_TABLE_NAMES = "Key Values";
+
+        this.CDB_UUID_TABLE_GRID_ID = "cdb-uuid-table-grid";
+        this.CDB_TITLE_UUID_KEY_TABLE= "UUID Table Keys";
+
+        this.CDB_UUID_KEY_TABLE_GRID_ID = "cdb-uuid-key-table-grid";
+        this.CDB_TITLE_UUID_KEY_TABLE_NAMES= "UUID Key Values";
+
+        this.CDB_TITLE_FQ_TABLE = "FQ Name Table";
+        this.CDB_TITLE_UUID_TABLE = "UUID Name Table";
+        //Config DB Labels - End
 
 
     };

@@ -26,6 +26,9 @@ define([
         this.NO_VM_FOUND = 'No virtual machine present in this network.';
         this.NO_PHYSICALDEVICES = 'No Physical Devices found';
 
+        this.CASSANDRA_ERROR = 'Cassandra client could not fetch data from server. Please check cassandra config parameters.';
+        this.NO_RECORDS_IN_DB = 'No records found in DB.';
+
         this.get = function () {
             var args = arguments;
             return cowu.getValueFromTemplate(args);

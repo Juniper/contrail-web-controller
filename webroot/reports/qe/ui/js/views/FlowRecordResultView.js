@@ -8,7 +8,7 @@ define([
     'contrail-list-model'
 ], function (_, QueryResultView, ContrailListModel) {
 
-    var StatQueryResultView = QueryResultView.extend({
+    var FlowRecordResultView = QueryResultView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 serverCurrentTime = qewu.getCurrentTime4Client(),
@@ -23,16 +23,20 @@ define([
                 serverCurrentTime = resultJSON['serverUTCTime'];
             }).always(function() {
                 var postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime),
-                    statRemoteConfig = {
+                    frRemoteConfig = {
                         url: "/api/qe/query",
                         type: 'POST',
                         data: JSON.stringify(postDataObj)
                     },
                     listModelConfig = {
                         remote: {
-                            ajaxConfig: statRemoteConfig,
+                            ajaxConfig: frRemoteConfig,
                             dataParser: function(response) {
                                 return response['data'];
+                            },
+                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
+                            successCallback: function(resultJSON, contrailListModel, response) {
+                                // TODO: Show Message if query is queued.
                             }
                         }
                     };
@@ -43,48 +47,37 @@ define([
                 }
 
                 contrailListModel = new ContrailListModel(listModelConfig);
-                modelMap[cowc.UMID_STAT_QUERY_FORM_MODEL] = queryFormModel;
-                self.renderView4Config(self.$el, contrailListModel, self.getStatResultGridTabViewConfig(postDataObj, statRemoteConfig, serverCurrentTime), null, null, modelMap, function(statResultView) {
-                    var selectArray = queryFormModel.select().replace(/ /g, "").split(",");
-
-                    if(selectArray.indexOf("T=") != -1) {
-                        contrailListModel.onAllRequestsComplete.subscribe(function () {
-                            //TODO: Load chart only if data is not queued.
-                            if (contrailListModel.getItems().length > 0) {
-                                statResultView.childViewMap[cowl.QE_STAT_QUERY_TAB_ID].renderNewTab(cowl.QE_STAT_QUERY_TAB_ID, self.getStatResultChartTabViewConfig(postDataObj));
-                            }
-                        });
-                    }
-                });
+                modelMap[cowc.UMID_FLOW_RECORD_FORM_MODEL] = queryFormModel;
+                self.renderView4Config(self.$el, contrailListModel, self.getFlowRecordResultGridTabViewConfig(postDataObj, frRemoteConfig, serverCurrentTime), null, null, modelMap);
             });
         },
 
-        getStatResultGridTabViewConfig: function (postDataObj, statRemoteConfig, serverCurrentTime) {
+        getFlowRecordResultGridTabViewConfig: function (postDataObj, frRemoteConfig, serverCurrentTime) {
             var self = this, viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                statGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_STAT_TABLE_TYPE, selectArray);
+                frGridColumns = qewgc.getColumnDisplay4Grid(cowc.FLOW_RECORD_TABLE, cowc.QE_FLOW_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
-                elementId: cowl.QE_STAT_QUERY_TAB_ID,
+                elementId: cowl.QE_FLOW_RECORD_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
                     theme: cowc.TAB_THEME_OVERCAST,
                     tabs: [
                         {
-                            elementId: cowl.QE_STAT_QUERY_GRID_ID,
+                            elementId: cowl.QE_FLOW_RECORD_GRID_ID,
                             title: cowl.TITLE_RESULTS,
                             view: "GridView",
                             tabConfig: {
-                                activate: function (event, ui) {
-                                    if ($('#' + cowl.QE_STAT_QUERY_GRID_ID)) {
-                                        $('#' + cowl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').refreshView();
+                                activate: function(event, ui) {
+                                    if ($('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid')) {
+                                        $('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid').refreshView();
                                     }
                                 }
                             },
                             viewConfig: {
-                                elementConfig: getStatQueryGridConfig(statRemoteConfig, statGridColumns, pagerOptions)
+                                elementConfig: getFlowRecordGridConfig(frRemoteConfig, frGridColumns, pagerOptions)
                             }
                         }
                     ]
@@ -93,43 +86,13 @@ define([
 
             return resultsViewConfig;
         },
-
-        getStatResultChartTabViewConfig: function(postDataObj) {
-            var queryFormModel = this.model,
-                selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                statChartTabViewConfig = [];
-
-            statChartTabViewConfig.push({
-                elementId: cowl.QE_STAT_QUERY_CHART_ID,
-                title: cowl.TITLE_CHART,
-                view: "StatLineChartView",
-                viewPathPrefix: "reports/qe/ui/js/views/",
-                app: cowc.APP_CONTRAIL_CONTROLLER,
-                tabConfig: {
-                    activate: function (event, ui) {
-                        $('#' + cowl.QE_STAT_QUERY_CHART_ID).find('svg').trigger('refresh');
-                        if ($('#' + cowl.QE_STAT_QUERY_CHART_GRID_ID).data('contrailGrid')) {
-                            $('#' + cowl.QE_STAT_QUERY_CHART_GRID_ID).data('contrailGrid').refreshView();
-                        }
-                    },
-                    renderOnActivate: true
-                },
-                viewConfig: {
-                    queryId: postDataObj.queryId,
-                    selectArray: selectArray
-                }
-            });
-
-            return statChartTabViewConfig;
-        }
-
     });
 
-    function getStatQueryGridConfig(statRemoteConfig, statGridColumns, pagerOptions) {
+    function getFlowRecordGridConfig(frRemoteConfig, frGridColumns, pagerOptions) {
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_STATS_QUERY,
+                    text: cowl.TITLE_FLOW_RECORD,
                     icon : 'icon-table'
                 },
                 defaultControls: {
@@ -147,7 +110,7 @@ define([
                 },
                 dataSource: {
                     remote: {
-                        ajaxConfig: statRemoteConfig,
+                        ajaxConfig: frRemoteConfig,
                         dataParser: function(response) {
                             return response['data'];
                         },
@@ -156,7 +119,7 @@ define([
                 }
             },
             columnHeader: {
-                columns: statGridColumns
+                columns: frGridColumns
             },
             footer: {
                 pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 100, pageSizeSelect: [100, 200, 300, 500] } })
@@ -165,5 +128,5 @@ define([
         return gridElementConfig;
     };
 
-    return StatQueryResultView;
+    return FlowRecordResultView;
 });

@@ -181,6 +181,7 @@ define([
                                 }
                             ]
                         },
+                        /*
                         {
                             columns: [
                                 {
@@ -197,6 +198,7 @@ define([
                                 }
                             ]
                         },
+                        */
                         {
                             columns: [
                                 {

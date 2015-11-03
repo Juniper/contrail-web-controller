@@ -12,21 +12,22 @@ define([
     var FlowSeriesLineChartView = QueryLineChartView.extend({
         render: function() {
             var self = this;
+
             if (self.model.getLength() > 0) {
                 var viewConfig = self.attributes.viewConfig,
                     queryId = viewConfig['queryId'],
                     selectArray = viewConfig['selectArray'],
                     modelMap = contrail.handleIfNull(self.modelMap, {});
 
-                modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL] = new ContrailListModel({data: []});
-                modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL] = getChartDataModel(queryId, modelMap);
+                modelMap[cowc.UMID_STAT_QUERY_LINE_CHART_MODEL] = new ContrailListModel({data: []});
+                modelMap[cowc.UMID_STAT_QUERY_CHART_MODEL] = getChartDataModel(queryId, modelMap);
                 self.renderView4Config(self.$el, null, getQueryChartViewConfig(queryId, selectArray, modelMap), null, null, modelMap);
             }
         }
     });
 
     function getQueryChartViewConfig(queryId, selectArray, modelMap) {
-        var queryFormModel = modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL],
+        var queryFormModel = modelMap[cowc.UMID_STAT_QUERY_FORM_MODEL],
             flowUrl = '/api/qe/query/chart-groups?queryId=' + queryId,
             aggregateSelectFields = qewu.getAggregateSelectFields(queryFormModel),
             chartAxesOptions = {};
@@ -43,19 +44,19 @@ define([
         });
 
         return {
-            elementId: cowl.QE_FLOW_SERIES_CHART_PAGE_ID,
+            elementId: cowl.QE_STAT_QUERY_CHART_PAGE_ID,
             view: "SectionView",
             viewConfig: {
                 rows: [
                     {
                         columns: [
                             {
-                                elementId: cowl.QE_FLOW_SERIES_LINE_CHART_ID,
+                                elementId: cowl.QE_STAT_QUERY_LINE_CHART_ID,
                                 title: cowl.TITLE_CHART,
                                 view: "LineWithFocusChartView",
                                 viewConfig: {
                                     widgetConfig: {
-                                        elementId: cowl.QE_FLOW_SERIES_LINE_CHART_ID + '-widget',
+                                        elementId: cowl.QE_STAT_QUERY_LINE_CHART_ID + '-widget',
                                         view: "WidgetView",
                                         viewConfig: {
                                             header: false,
@@ -77,7 +78,7 @@ define([
                                         chartAxesOptionKey: aggregateSelectFields[0]
                                     },
                                     loadChartInChunks: true,
-                                    modelKey: cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL
+                                    modelKey: cowc.UMID_STAT_QUERY_LINE_CHART_MODEL
                                 }
                             }
                         ]
@@ -85,7 +86,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: cowl.QE_FLOW_SERIES_CHART_GRID_ID,
+                                elementId: cowl.QE_STAT_QUERY_CHART_GRID_ID,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig: getChartGridViewConfig(flowUrl, selectArray, modelMap)
@@ -112,9 +113,10 @@ define([
     }
 
     function getChartGridViewConfig(flowUrl, selectArray, modelMap) {
-        var columnDisplay = qewgc.getColumnDisplay4Grid(cowc.FLOW_CLASS, cowc.QE_FLOW_TABLE_TYPE, selectArray),
-            lineWithFocusChartModel = modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
-            chartListModel = modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL],
+        var statTableName = modelMap[cowc.UMID_STAT_QUERY_FORM_MODEL].table_name(),
+            columnDisplay = qewgc.getColumnDisplay4ChartGroupGrid(statTableName, cowc.QE_STAT_TABLE_TYPE, selectArray, true),
+            lineWithFocusChartModel = modelMap[cowc.UMID_STAT_QUERY_LINE_CHART_MODEL],
+            chartListModel = modelMap[cowc.UMID_STAT_QUERY_CHART_MODEL],
             chartColorAvailableKeys = ['id_0', null, null, null, null],
             display = [
                 {
@@ -185,7 +187,7 @@ define([
     };
 
     function getChartDataModel(queryId, modelMap) {
-        var lineWithFocusChartModel = modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
+        var lineWithFocusChartModel = modelMap[cowc.UMID_STAT_QUERY_LINE_CHART_MODEL],
             chartUrl = '/api/admin/reports/query/chart-data?queryId=' + queryId,
             chartListModel = new ContrailListModel({
             remote: {
@@ -211,8 +213,8 @@ define([
     };
 
     function formatChartData(modelMap, chartColorAvailableKeys) {
-        var queryFormModel = modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL],
-            chartListModel = modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL],
+        var queryFormModel = modelMap[cowc.UMID_STAT_QUERY_FORM_MODEL],
+            chartListModel = modelMap[cowc.UMID_STAT_QUERY_CHART_MODEL],
             aggregateSelectFields = qewu.getAggregateSelectFields(queryFormModel),
             chartData = [];
 
@@ -222,7 +224,7 @@ define([
                 var chartDataRow = chartListModel.getItemById(colorValue),
                     chartDataValue = {
                         cgrid: 'id_' + colorKey,
-                        key: '#' + colorKey + ' Sum(Bytes)',
+                        key: '#' + colorKey,
                         values: [],
                         color: d3_category5[colorKey]
                     };
@@ -245,7 +247,7 @@ define([
         });
 
         return chartData
-    };
+    }
 
     function getFilterConfig(aggregateSelectFields, modelMap) {
         var filterConfig = {
@@ -264,7 +266,7 @@ define([
                 text: selectFieldValue,
                 events: {
                     click: function(event) {
-                        var chartModel = $('#' + cowl.QE_FLOW_SERIES_LINE_CHART_ID).data('chart'),
+                        var chartModel = $('#' + cowl.QE_STAT_QUERY_LINE_CHART_ID).data('chart'),
                             chartOptions = chartModel.chartOptions,
                             chartAxesOption = chartOptions.chartAxesOptions[selectFieldValue];
 
@@ -273,8 +275,8 @@ define([
                             .tickFormat(chartAxesOption['yFormatter'])
                             .showMaxMin(false);
 
-                        $('#' + cowl.QE_FLOW_SERIES_LINE_CHART_ID).data('chart').chartOptions.chartAxesOptionKey = selectFieldValue;
-                        $('#' + cowl.QE_FLOW_SERIES_LINE_CHART_ID).data('chart').update();
+                        $('#' + cowl.QE_STAT_QUERY_LINE_CHART_ID).data('chart').chartOptions.chartAxesOptionKey = selectFieldValue;
+                        $('#' + cowl.QE_STAT_QUERY_LINE_CHART_ID).data('chart').update();
                     }
                 }
             })

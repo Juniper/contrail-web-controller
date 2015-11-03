@@ -12,7 +12,7 @@ define([
 
         constructor: function (modelData) {
             var defaultConfig = qewmc.getQueryModelConfig({
-                                    table_name: ctwc.FLOW_RECORD_TABLE,
+                                    table_name: cowc.FLOW_RECORD_TABLE,
                                     limit: 5000,
                                     time_range: 600,
                                     table_type: cowc.QE_FLOW_TABLE_TYPE,
@@ -20,7 +20,7 @@ define([
                                             "sourcevn, sourceip, sport, destvn," +
                                             "destip, dport, protocol, agg-bytes," +
                                             "agg-packets, direction_ing",
-                                    query_prefix: ctwc.FR_QUERY_PREFIX});
+                                    query_prefix: cowc.FR_QUERY_PREFIX});
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
 

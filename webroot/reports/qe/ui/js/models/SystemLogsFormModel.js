@@ -7,23 +7,19 @@ define([
     'knockout',
     'query-form-model'
 ], function (_, Knockout, QueryFormModel) {
-    var StatQueryFormModel = QueryFormModel.extend({
+    var SystemLogsFormModel = QueryFormModel.extend({
 
         defaultSelectFields: [],
 
+        disableSelectFields: ['Type', 'SequenceNum', 'Context', 'Keyword'],
+
         constructor: function (modelData) {
-            var defaultConfig = qewmc.getQueryModelConfig({table_type: cowc.QE_STAT_TABLE_TYPE, query_prefix: cowc.STAT_QUERY_PREFIX});
+            var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.MESSAGE_TABLE, table_type: cowc.QE_LOG_TABLE_TYPE, query_prefix: cowc.SYSTEM_LOGS_PREFIX});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
 
             return this;
-        },
-
-        isTableNameAvailable: function() {
-            var tableName = this.table_name();
-
-            return !(tableName === null || tableName === '');
         },
 
         validations: {
@@ -40,5 +36,5 @@ define([
         }
     });
 
-    return StatQueryFormModel;
+    return SystemLogsFormModel;
 });

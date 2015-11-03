@@ -40,11 +40,11 @@
         <callback>qeapi.getQueryQueue</callback>
     </item>
     <item>
-        <url>/api/qe/query/flow-classes</url>
+        <url>/api/qe/query/chart-groups</url>
         <method>get</method>
         <timeout>300</timeout>
         <feature>query-engine</feature>
-        <callback>qeapi.getFlowClasses</callback>
+        <callback>qeapi.getChartGroups</callback>
     </item>
     <item>
         <url>/api/qe/query/chart-data</url>

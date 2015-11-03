@@ -75,7 +75,7 @@ define([
                                                 }
                                             });
 
-                                            portData = nmwp.parsePortDistribution(portData, $.extend({
+                                            portData = ctwp.parsePortDistribution(portData, $.extend({
                                                 startTime: portDistributionParams['startTime'],
                                                 endTime: portDistributionParams['endTime'],
                                                 bandwidthField: 'bytes',
@@ -89,7 +89,7 @@ define([
                                             chartData = chartData.concat(portData);
                                             return chartData;
                                         },
-                                        tooltipConfigCB: nmwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
+                                        tooltipConfigCB: ctwgrc.getPortDistributionTooltipConfig(onScatterChartClick),
                                         clickCB: onScatterChartClick,
                                         sizeFieldName: 'flowCnt',
                                         xLabelFormat: d3.format(','),
