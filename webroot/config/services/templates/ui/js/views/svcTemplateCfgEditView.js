@@ -20,6 +20,8 @@ define([
                 contrail.getTemplate4Id(cowc.TMPL_EDIT_FORM);
             var editLayout = editTemplate({prefixId: prefixId}),
                 self = this;
+                
+            
 
             cowu.createModal({'modalId': modalId, 'className': 'modal-480',
                              'title': options['title'], 'body': editLayout,
@@ -97,6 +99,8 @@ define([
             kbValidation.bind(self);
         }
     });
+    
+
 
     function getSvcTemplateCfgViewConfig (disableOnEdit) {
         var prefixId = ctwl.CFG_SVC_TEMPLATE_PREFIX_ID;
@@ -122,6 +126,27 @@ define([
                         ]
                     },
                     {
+                        columns : [
+                        
+                            {
+                                elementId: 'virtualization_type',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    path : 'user_created_virtualization_type',
+                                    class: 'span12',
+                                    dataBindValue : 'user_created_virtualization_type',
+                                    elementConfig : {
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        data : [{id: 'virtual-machine', text:'Virtual Machine'},
+                                                {id: 'physical-device', text:'Physical Device'}]
+                                    }
+                                    
+                                }
+                            }
+                        ]
+                    },
+                    {
                         columns: [
                             {
                                 elementId: 'service_mode',
@@ -130,6 +155,7 @@ define([
                                     path : 'service_template_properties.service_mode',
                                     class: 'span6',
                                     dataBindValue : 'service_template_properties().service_mode',
+                                    visible: "user_created_virtualization_type() != 'physical-device'",
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -146,6 +172,7 @@ define([
                                     path : 'service_template_properties.service_type',
                                     class: 'span6',
                                     dataBindValue : 'service_template_properties().service_type',
+                                    visible: "user_created_virtualization_type() != 'physical-device'",
                                     elementConfig : {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -166,6 +193,7 @@ define([
                                     path : 'service_template_properties.image_name',
                                     class: 'span12',
                                     dataBindValue : 'service_template_properties().image_name',
+                                    visible: "user_created_virtualization_type() != 'physical-device'",
                                     elementConfig : {
                                         placeholder: 'Select Image',
                                         dataTextField : "text",
@@ -174,6 +202,31 @@ define([
                                             type: 'remote',
                                             url: 'api/tenants/config/service-template-images',
                                             parse: formatSvcTemplateCfg.imageDropDownFormatter
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'service_appliance_set',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    label: 'Service Appliance Set',
+                                    path : 'service_template_properties.service_appliance_set',
+                                    class: 'span12',
+                                    visible: "user_created_virtualization_type() == 'physical-device'",
+                                    dataBindValue : 'service_template_properties().service_appliance_set',
+                                    elementConfig : {
+                                        placeholder: 'Select Service Appliance Set',
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        dataSource : {
+                                            type: 'remote',
+                                            url: '/api/admin/config/get-data?type=service-appliance-set',
+                                            parse: formatSvcTemplateCfg.serviceApplianceSetDropDownFormatter
                                         }
                                     }
                                 }
@@ -297,6 +350,7 @@ define([
                                                 label: 'Availability Zone',
                                                 path : 'service_template_properties.availability_zone_enable',
                                                 class : "span6",
+                                                visible: "user_created_virtualization_type() != 'physical-device'",
                                                 dataBindValue : 'service_template_properties().availability_zone_enable',
                                                 elementConfig : {
                                                     label:'Availability Zone',
@@ -315,6 +369,7 @@ define([
                                                 path : 'service_template_properties.flavor',
                                                 class: 'span12',
                                                 dataBindValue : 'service_template_properties().flavor',
+                                                visible: "user_created_virtualization_type() != 'physical-device'",
                                                 elementConfig : {
                                                     placeholder: 'Select Flavor',
                                                     dataTextField : "text",

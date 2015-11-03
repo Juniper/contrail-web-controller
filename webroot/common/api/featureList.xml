@@ -89,12 +89,7 @@
         <write-access>member</write-access>
     </item>
     <item>
-        <feature>virtualdnsserversconfig</feature>
-        <read-access>member</read-access>
-        <write-access>member</write-access>
-    </item>
-    <item>
-        <feature>virtualdnsrecordsconfig</feature>
+        <feature>virtualdnsconfig</feature>
         <read-access>member</read-access>
         <write-access>member</write-access>
     </item>
@@ -143,5 +138,11 @@
     </item>
     <item>
         <feature>configUtil</feature>
+    </item>
+    <item>
+        <feature>sasconfig</feature>
+    </item>
+    <item>
+        <feature>saconfig</feature>
     </item>
 </featureLists>
