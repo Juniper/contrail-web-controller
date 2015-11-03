@@ -1,22 +1,22 @@
 /*
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
-var ActiveDnsLoader = new ActiveDnsLoader();
+var DnsServerLoader = new DnsServerLoader();
 
-function ActiveDnsLoader() {
+function DnsServerLoader() {
     this.load = function(paramObject) {
         var self = this,
             currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathLLSView = rootDir + '/js/views/ActiveDnsView.js',
+            pathLLSView = rootDir + '/js/views/dnsServerView.js',
             renderFn = paramObject['function'];
 
         $(contentContainer).empty();
 
         if (self.dnsView == null) {
-            requirejs([pathLLSView], function(ActiveDnsView) {
-                self.dnsView = new ActiveDnsView();
+            requirejs([pathLLSView], function(DnsServerView) {
+                self.dnsView = new DnsServerView();
                 self.renderView(renderFn, hashParams);
             }, function(err) {
                 console.info("LLS Load error:" + err);
@@ -32,7 +32,7 @@ function ActiveDnsLoader() {
                 hashParams: hashParams
             });
         } else {
-            this.dnsView.renderActiveDns({
+            this.dnsView.renderDnsServer({
                 hashParams: hashParams
             });
         }

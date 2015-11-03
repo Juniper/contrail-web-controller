@@ -30,7 +30,7 @@ define([
         return function(domainSelectedValueData) {
             return {
                 elementId: 'ActiveDnsPageId',
-                view: "ActiveDnsListView",
+                view: "activeDnsListView",
                 viewPathPrefix: "config/dns/servers/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 viewConfig: $.extend(true, {}, viewConfig, {

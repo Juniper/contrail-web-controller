@@ -4,9 +4,9 @@
 define([
     'underscore',
     'contrail-view',
-    'config/dns/records/ui/js/models/DnsRecordsModel',
-    'config/dns/records/ui/js/views/DnsRecordsEditView',
-    'config/dns/records/ui/js/DnsRecordsFormatter'
+    'config/dns/records/ui/js/models/dnsRecordsModel',
+    'config/dns/records/ui/js/views/dnsRecordsEditView',
+    'config/dns/records/ui/js/dnsRecordsFormatter'
 ], function(_, ContrailView, DnsRecordsModel, DnsRecordsEditView,
     dnsRecordFormatters) {
     var DnsRecordsEditView = new DnsRecordsEditView(),

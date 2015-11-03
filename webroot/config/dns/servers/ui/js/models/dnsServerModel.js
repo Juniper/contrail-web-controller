@@ -18,6 +18,8 @@ define([
                 "default_ttl_seconds": null,
                 "domain_name": null,
                 "record_order": "random",
+                "external_visible": false,
+                "reverse_resolution": false
             }
         },
         addEditDnsServer: function(mode, callbackObj,

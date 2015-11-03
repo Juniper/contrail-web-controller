@@ -2,10 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define(
-    ['underscore', 'contrail-view', 'contrail-list-model',
-        'config/dns/servers/ui/js/models/DnsServerModel',
-    ],
-    function(_, ContrailView, ContrailListModel, DnsServerModel) {
+    ['underscore', 'contrail-view', 'contrail-list-model'],
+    function(_, ContrailView, ContrailListModel) {
         var DnsServerListView = ContrailView
             .extend({
                 el: $(contentContainer),
@@ -68,7 +66,7 @@ define(
                         columns: [{
                             elementId: 'DnsServerPageList',
                             title: 'DnsServerPageList',
-                            view: "DnsServerGridView",
+                            view: "dnsServerGridView",
                             viewPathPrefix: "config/dns/servers/ui/js/views/",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {}

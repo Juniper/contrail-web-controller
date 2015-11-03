@@ -2,10 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define(
-    ['underscore', 'contrail-view', 'contrail-list-model',
-        'config/dns/records/ui/js/models/DnsRecordsModel',
-    ],
-    function(_, ContrailView, ContrailListModel, DnsRecordsModel) {
+    ['underscore', 'contrail-view', 'contrail-list-model'],
+    function(_, ContrailView, ContrailListModel) {
         var DnsRecordsListView = ContrailView
             .extend({
                 el: $(contentContainer),
@@ -68,7 +66,7 @@ define(
                         columns: [{
                             elementId: 'DnsRecordsPageList',
                             title: 'DnsRecordsPageList',
-                            view: "DnsRecordsGridView",
+                            view: "dnsRecordsGridView",
                             viewPathPrefix: "config/dns/records/ui/js/views/",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {}

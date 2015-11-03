@@ -3,9 +3,7 @@
  */
 define([
     'underscore',
-    'contrail-view',
-    'config/dns/servers/ui/js/models/ActiveDnsModel',
-], function(_, ContrailView, ActiveDnsDatabaseModel) {
+    'contrail-view'], function(_, ContrailView) {
     var gridElId = "#ActiveDnsGrid";
 
     var ActiveDnsGridView = ContrailView.extend({

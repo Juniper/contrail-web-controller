@@ -2,10 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define(
-    ['underscore', 'contrail-view', 'contrail-list-model',
-        'config/dns/servers/ui/js/models/ActiveDnsModel',
-    ],
-    function(_, ContrailView, ContrailListModel, ActiveDnsModel) {
+    ['underscore', 'contrail-view', 'contrail-list-model'],
+    function(_, ContrailView, ContrailListModel) {
         var ActiveDnsListView = ContrailView
             .extend({
                 el: $(contentContainer),
@@ -86,7 +84,7 @@ define(
                         columns: [{
                             elementId: 'ActiveDnsPageList',
                             title: 'ActiveDnsPageList',
-                            view: "ActiveDnsGridView",
+                            view: "activeDnsGridView",
                             viewPathPrefix: "config/dns/servers/ui/js/views/",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
                             viewConfig: {}

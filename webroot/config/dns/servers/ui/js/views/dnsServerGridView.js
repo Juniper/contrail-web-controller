@@ -4,8 +4,8 @@
 define([
     'underscore',
     'contrail-view',
-    'config/dns/servers/ui/js/models/DnsServerModel',
-    'config/dns/servers/ui/js/views/DnsServerEditView'
+    'config/dns/servers/ui/js/models/dnsServerModel',
+    'config/dns/servers/ui/js/views/dnsServerEditView'
 ], function(_, ContrailView, DnsServerModel, DnsServerEditView) {
     var DnsServerEditView = new DnsServerEditView(),
         gridElId = "#DnsServerGrid";
@@ -258,11 +258,30 @@ define([
                                     }, {
                                         key: 'virtual_DNS_data[record_order]',
                                         templateGenerator: 'TextGenerator',
-                                        label: 'Record Resolution Order'
+                                        label: 'Record Resolution Order',
+                                        templateGeneratorConfig: {
+                                            formatter: "RecordResolutionFormatter"
+                                        }
                                     }, {
                                         key: 'virtual_DNS_data[floating_ip_record]',
                                         templateGenerator: 'TextGenerator',
                                         label: 'Floating IP Record'
+                                    }, {
+                                        key: 'virtual_DNS_data.external_visible',
+                                        templateGenerator: 'TextGenerator',
+                                        label: 'External Visibility',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: "ExternalVisibleFormatter"
+                                        }
+                                    }, {
+                                        key: 'virtual_DNS_data.reverse_resolution',
+                                        templateGenerator: 'TextGenerator',
+                                        label: 'Reverse Resolution',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: "ReverseResolutionFormatter"
+                                        }
                                     }, {
                                         key: 'network_ipam_back_refs',
                                         templateGenerator: 'TextGenerator',
@@ -272,8 +291,6 @@ define([
                                             formatter: "DnsDomIpamsFormatter"
                                         }
                                     }
-
-
                                 ]
                             }]
                         }]
@@ -303,11 +320,31 @@ define([
             }
         }
         return dispStr;
-    }
+    };
     this.DnsTtlFormatter = function(val, obj) {
         return val + " (seconds)";
-    }
-
+    };
+    this.RecordResolutionFormatter = function(val, obj) {
+       var retValue = '-';
+       switch(val) {
+           case 'random' :
+               retValue = 'Random';
+               break;
+           case 'fixed' :
+               retValue = 'Fixed';
+               break;
+           case 'round-robin' :
+               retValue = 'Round-Robin';
+               break;
+       }
+       return retValue;
+    };
+    this.ExternalVisibleFormatter = function(val, obj) {
+        return val === 'true' ? 'Enabled' : 'Disabled';
+    };
+    this.ReverseResolutionFormatter = function(val, obj) {
+        return val === 'true' ? 'Enabled' : 'Disabled';
+    };
     function getHeaderActionConfig(gridElId) {
         var headerActionConfig = [{
             "type": "link",

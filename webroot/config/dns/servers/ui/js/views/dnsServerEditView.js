@@ -310,23 +310,19 @@ define([
                             label: 'Name',
                             disabled: isDisable,
                             path: 'name',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'name'
                         }
-
-                    }]
-                }, {
-                    columns: [{
+                    },{
                         elementId: 'domain_name',
                         view: 'FormInputView',
                         viewConfig: {
                             label: 'Domain Name',
                             disabled: isDisable,
                             path: 'virtual_DNS_data.domain_name',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'virtual_DNS_data().domain_name'
                         }
-
                     }]
                 }, {
                     columns: [{
@@ -335,7 +331,7 @@ define([
                         viewConfig: {
                             label: 'DNS Forwarder',
                             path: 'virtual_DNS_data.next_virtual_DNS',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'virtual_DNS_data().next_virtual_DNS',
                             elementConfig: {
                                 placeholder: 'Enter Forwarder IP or Select a DNS Server',
@@ -348,15 +344,13 @@ define([
                                 }
                             }
                         }
-                    }]
-                }, {
-                    columns: [{
+                    },{
                         elementId: 'record_order',
                         view: "FormDropdownView",
                         viewConfig: {
                             label: 'Record Resolution Order',
                             path: 'virtual_DNS_data.record_order',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'virtual_DNS_data().record_order',
                             elementConfig: {
                                 dataTextField: "text",
@@ -381,7 +375,7 @@ define([
                         viewConfig: {
                             label: 'Floating IP Record',
                             path: 'virtual_DNS_data.floating_ip_record',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'virtual_DNS_data().floating_ip_record',
                             elementConfig: {
                                 dataTextField: "text",
@@ -401,20 +395,38 @@ define([
                                 }]
                             }
                         }
-                    }]
-                }, {
-                    columns: [{
+                    },{
                         elementId: 'default_ttl_seconds',
                         view: 'FormInputView',
                         viewConfig: {
                             label: 'Time To Live',
                             placeholder: 'TTL (86400 sec)',
                             path: 'virtual_DNS_data.default_ttl_seconds',
-                            class: 'span12',
+                            class: 'span6',
                             dataBindValue: 'virtual_DNS_data().default_ttl_seconds'
                         }
                     }]
                 }, {
+                    columns: [{
+                        elementId: 'external_visible',
+                        view: 'FormCheckboxView',
+                        viewConfig: {
+                            label: 'External Visibility',
+                            path: 'virtual_DNS_data.external_visible',
+                            class: 'span6',
+                            dataBindValue: 'virtual_DNS_data().external_visible'
+                        }
+                    },{
+                        elementId: 'reverse_resolution',
+                        view: 'FormCheckboxView',
+                        viewConfig: {
+                            label: 'Reverse Resolution',
+                            path: 'virtual_DNS_data.reverse_resolution',
+                            class: 'span6',
+                            dataBindValue: 'virtual_DNS_data().reverse_resolution'
+                        }
+                    }]
+                },{
                     columns: [{
                         elementId: 'network_ipam_back_refs',
                         view: 'FormMultiselectView',

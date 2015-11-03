@@ -656,17 +656,17 @@ and need to add the iconClass tag wherever we need to show some icons
                         <item>
                             <label>Servers</label>
                             <hash>config_dns_servers</hash>
-                            <resources>
-                                <resource>
-                                    <rootDir>/common/ui</rootDir>
-                                </resource>
-                                <resource>
-                                    <rootDir>/config/dns/servers/ui</rootDir>
-                                    <js>DnsServer.main.js</js>
-                                    <class>DnsServerLoader</class>
-                                    <function>renderDnsServer</function>
-                                </resource>
-                            </resources>
+                               <resources>
+                                   <resource>
+                                       <rootDir>/common/ui</rootDir>
+                                   </resource>
+                                   <resource>
+                                       <rootDir>/config/dns/servers/ui</rootDir>
+                                       <js>dnsServer.main.js</js>
+                                       <class>DnsServerLoader</class>
+                                       <function>renderDnsServer</function>
+                                   </resource>
+                               </resources>
                             <searchStrings>Configure DNS Servers</searchStrings>
                         </item>
                         <item>
@@ -678,7 +678,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                                 <resource>
                                     <rootDir>/config/dns/records/ui</rootDir>
-                                    <js>DnsRecords.main.js</js>
+                                    <js>dnsRecords.main.js</js>
                                     <class>DnsRecordsLoader</class>
                                     <function>renderDnsRecords</function>
                                 </resource>

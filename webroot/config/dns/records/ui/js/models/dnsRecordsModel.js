@@ -238,8 +238,14 @@ define([
                              return 'Enter a valid IP address in xxx.xxx.xxx.xxx format';
                          }
                      }
-                     if(!self.validateSpecialChar(value)) {
-                         return 'Record data field has special characters';
+                     //validating special characters
+                     if(value != null) {
+                         var iChars = "!@#$%^&*()+=_[]|';,/{}|\"<>?~`";
+                         for(var i = 0;i < value.length;i++) {
+                             if(iChars.indexOf(value[i]) != -1) {
+                                 return 'Record data field has special characters';
+                             }
+                         }
                      }
                 },
                 'virtual_DNS_record_data.record_ttl_seconds':  function(value, attr, finalObj){
@@ -254,18 +260,6 @@ define([
                     }
                 }
             }
-        },
-        validateSpecialChar : function(txt) {
-            if(txt === null || txt === undefined) {
-                return true;
-            }
-            var iChars = "!@#$%^&*()+=_[]|';,/{}|\"<>?~`";
-            for(var i = 0;i < txt.length;i++) {
-                if(iChars.indexOf(txt[i]) != -1) {
-     	    		return false;
-   		        }
-            }
-            return true;
         }
     });
     return DnsRecordsModel;
