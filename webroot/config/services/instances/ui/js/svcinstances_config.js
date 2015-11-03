@@ -136,10 +136,15 @@ function initComponents() {
                 name:"Status",
                 minWidth : 70,
                 formatter: function(r, c, v, cd, dc) {
+		    if(dc.Service_Template_Type == "physical-device" && dc.vmStatus != "update"){
+                        dc.vmStatusData = "Active";
+		        dc.vmStatus =  ('<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;' + dc.vmStatusData);
+                        return (dc.vmStatus);
+                    }
                     if(dc.vmStatusData == "Spawning"){
                         dc.vmStatus = ('<img src="/img/loading.gif">&nbsp;&nbsp;' + dc.vmStatusData);
                     } if(dc.vmStatusData == "Inactive"){ 
-                        dc.vmStatus = ('<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' + dc.vmStatusData);
+                        dc.vmStatus = ('<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' + dc.vmStatusData);  
                     } if(dc.vmStatusData == "Partially Active"){
                         dc.vmStatus =  ('<img src="/img/loading.gif">&nbsp;&nbsp;' + dc.vmStatusData);
                     } if(dc.vmStatusData == "Active"){
@@ -937,6 +942,10 @@ function successHandlerForGridsvcInstanceRow(result) {
         svc_tmpl_name =  svc_tmpl_name_text + " (" + ucfirst(getServiceMode(svc_tmpl_name_text)) + ")";
         var templateOrder = getTemplateOrder(svc_tmpl_name_text);
         var templateDetail = getTemplateDetail(svc_tmpl_name_text); 
+        var svc_template_type = null;
+        if("service_virtualization_type" in templateDetail['service_template_properties']){
+            svc_template_type = templateDetail["service_template_properties"]["service_virtualization_type"];
+        }
         
         if ('service_instance_properties' in svcInstance &&
             'scale_out' in svcInstance['service_instance_properties']) {
@@ -1126,6 +1135,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             "Service_Instance_DN":svcInstance.display_name,
             "Service_Template":svc_tmpl_name,
             "Service_Template_Name":svc_tmpl_name_text,
+            "Service_Template_Type" : svc_template_type,
             "Number_of_instances":svcScalingStr,
             "Instance_Image":svc_image,
             "showDetail":showDetail,
@@ -1208,7 +1218,7 @@ function validate() {
         }
     }
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
-    if(!checkServiceImage(templateProps.service_template_properties.image_name)){
+    if(templateProps.service_template_properties.service_virtualization_type != "physical-device" && !checkServiceImage(templateProps.service_template_properties.image_name)){
         return false;
     }
     if (isNaN($(txtMaximumInstances).val())) {
