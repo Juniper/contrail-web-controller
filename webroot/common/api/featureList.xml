@@ -45,6 +45,16 @@
         <write-access>member</write-access>
     </item>
     <item>
+        <feature>serviceapplianceconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
+    <item>
+        <feature>serviceappliancesetconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
+    <item>
         <feature>underlay</feature>
     </item>
     <item>

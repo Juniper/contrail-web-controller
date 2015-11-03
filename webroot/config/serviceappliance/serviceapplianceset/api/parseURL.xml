@@ -1,0 +1,42 @@
+<!--
+ Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
+ -->
+<urlLists>
+    <require>
+        <define>parseURLReq</define>
+        <path>process.mainModule.exports["corePath"] + '/src/serverroot/common/parseURLRequire'</path>
+    </require>
+    <require>
+        <define>serviceappliancesetconfigapi</define>
+        <path>./serviceappliancesetconfig.api</path>
+    </require>
+        
+    <!-- API / Feature definition for Service Appliance Set configuration -->
+    <!-- 1. List Service Appliance Set - /api/tenants/config/service-appliance-sets,
+                                         listServiceApplianceSet
+    -->
+    <item>
+        <url>/api/tenants/config/service-appliance-sets</url>
+        <method>get</method>
+        <feature>serviceappliancesetconfig</feature>
+        <callback>serviceappliancesetconfigapi.listServiceApplianceSet</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/service-appliance-sets</url>
+        <method>post</method>
+        <feature>serviceappliancesetconfig</feature>
+        <callback>serviceappliancesetconfigapi.createServiceApplianceSet</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/service-appliance-set/:id</url>
+        <method>put</method>
+        <feature>serviceappliancesetconfig</feature>
+        <callback>serviceappliancesetconfigapi.updateServiceApplianceSet</callback>
+    </item>
+    <item>
+        <url>/api/tenants/config/service-appliance-set/:id</url>
+        <method>delete</method>
+        <feature>serviceappliancesetconfig</feature>
+        <callback>serviceappliancesetconfigapi.deleteServiceApplianceSet</callback>
+    </item>
+</urlLists>
