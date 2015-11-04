@@ -338,7 +338,7 @@ define([
             configureValidations: {
                 'name': {
                     required: true,
-                    msg: 'Name is required'
+                    msg: 'Hostname is required'
                 },
                 'user_created_autonomous_system' : function(value, attr, finalObj){
                      var asn = parseInt(value);
@@ -347,12 +347,12 @@ define([
                      }
                 },
                 'user_created_identifier' : function(value, attr, finalObj){
-                    if (!isValidIP(value)) {
+                    if (!isValidIP(value) || value.trim().indexOf("/") != -1) {
                         return "Enter a valid BGP router ID in the format xxx.xxx.xxx.xxx";
                     }
                 },
                 'user_created_address' : function(value, attr, finalObj){
-                    if (!isValidIP(value)) {
+                    if (!isValidIP(value) || value.trim().indexOf("/") != -1) {
                         return "Enter a valid BGP router address in the format xxx.xxx.xxx.xxx";
                     }
                 },
@@ -377,9 +377,13 @@ define([
                     }
                 },
                 'user_created_vendor' : function(value, attr, finalObj){
-                    if (finalObj.user_created_role !== ctwl.CONTROL_NODE_TYPE &&
-                        (value === null || value.trim() === '' || value.toLowerCase() === "contrail")) {
-                        return "Vendor name cannot be 'contrail'. Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'.";
+                    if (finalObj.user_created_role !== ctwl.CONTROL_NODE_TYPE){
+                        if(value === null || value.trim() === '') {
+                            return "Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'";
+                        } else if(value.trim().toLowerCase() === "contrail"){
+                            return "Vendor name cannot be 'contrail'.\
+                                Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'";
+                        }
                     }
                 }
             }

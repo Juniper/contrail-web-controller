@@ -236,7 +236,8 @@ define([
                     peers.forEach(function(peer){
                         var bgpRouterASN =
                             bgpModel.user_created_autonomous_system();
-                        if(peer.peerASN().toString() === bgpRouterASN) {
+                        if(peer.peerASN().toString() ===
+                            bgpRouterASN.toString()) {
                             peer.isPeerSelected(true);
                         }
                     });
