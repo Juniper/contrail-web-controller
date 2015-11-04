@@ -38,6 +38,14 @@
                 <div class="span10"> {{floating_ip_record}} </div>
             </div>
             <div class="row-fluid">
+                <div class="span2"><label>External Visibility</label></div>
+                <div class="span10"> {{formatBoolValue external_visible}} </div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Reverse Resolution</label></div>
+                <div class="span10"> {{formatBoolValue reverse_resolution}} </div>
+            </div>
+            <div class="row-fluid">
                 <div class="span2"><label>Associated IPAMs</label></div>
                 <div class="span10"> {{Associated_IPAM}} </div>
             </div>
@@ -102,6 +110,24 @@
 	                    </div>
 	                </div>
 	            </div>
+                <div class="control-group">
+                    <label class="control-label">External Visibility</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                             <div class="pull-left margin-left-21 padding-top-5">
+                                 <input type="checkbox" id="chkExtVisible" class="ace-input"/>
+                                 <span class="ace-lbl ">&nbsp;</span>
+                             </div>
+                             <label class="pull-left margin-left-23-right-10 padding-top-5" style="margin-left:100px">
+                                 Reverse Resolution
+                             </label>
+                             <div class="pull-left margin-left-21 padding-top-5">
+                                 <input type="checkbox" id="chkRevResolution" class="ace-input"/>
+                                 <span class="ace-lbl ">&nbsp;</span>
+                             </div>
+                        </div>
+                    </div>
+                </div>
 	            <div class="control-group">
 	                <label class="control-label">Associate IPAMs</label>
 	                <div class="controls">
