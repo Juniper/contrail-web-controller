@@ -292,8 +292,7 @@ define([
     }
 
     function markErrorNodes (graphModel) {
-        var errorNodes = graphModel.uveMissingNodes.concat(
-                graphModel.configMissingNodes);
+        var errorNodes = graphModel.getErrorNodes();
             var elementMap = graphModel.elementMap;
             var elementMapNodes = ifNull(elementMap['node'],{});
             if(!$.isArray(errorNodes)) {
@@ -331,14 +330,15 @@ define([
 
     function addHighlightToNodesAndLinks (nodes, els, graphModel) {
         var elMap = graphModel['elementMap'];
+        var errorNodes = graphModel.getErrorNodes();
         if(typeof nodes == "object" && nodes.length > 0) {
             var nodeNames = [];
             for(var i=0; i<nodes.length; i++) {
-                var node = nodes[i];
-                nodeNames.push(node.name);
+                var node = nodes[i], name = node.name;
+                nodeNames.push(name);
                 var node_model_id = jsonPath(elMap, '$.node[' + node.name + ']');
                 if(false !== node_model_id && typeof node_model_id === "object" &&
-                    node_model_id.length === 1) {
+                    node_model_id.length === 1 && errorNodes.indexOf(name) == -1) {
                     node_model_id = node_model_id[0];
                     addHighlightToNode(node_model_id);
                 }
@@ -516,11 +516,8 @@ define([
                      var elementType    = clickedElement['attributes']['type'];
                      var nodeDetails =
                          clickedElement['attributes']['nodeDetails'];
-                     if(elementType === "link") {
-                         addHighlightToLink(clickedElement.id);
-                     } else {
-                         addHighlightToNode(clickedElement.id);
-                     }
+                     addHighlightToNodesAndLinks([nodeDetails], null,
+                         underlayGraphModel);
                      var data = {};
                      switch(elementType) {
                          case 'contrail.PhysicalRouter':

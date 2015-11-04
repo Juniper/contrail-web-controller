@@ -348,6 +348,7 @@ define([
         this.TITLE_GRAPH_ELEMENT_CONNECTED_NETWORK = 'link';
 
         //Underlay labels
+        this.UNDERLAY_TOPOLOGY_ID = 'underlay-topology';
         this.UNDERLAY_GRAPH_ID = "underlay-graph";
         this.URL_UNDERLAY_TOPOLOGY =
             '/api/tenant/networking/underlay-topology';

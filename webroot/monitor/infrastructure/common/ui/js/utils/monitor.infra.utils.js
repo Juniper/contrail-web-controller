@@ -1782,6 +1782,7 @@ define([
                             options: {
                                 autoRefresh: false,
                                 checkboxSelectable: false,
+                                detail: ctwu.getDetailTemplateConfigToDisplayRawJSON(),
                                 fixedRowHeight: 30
                             },
                             dataSource: {

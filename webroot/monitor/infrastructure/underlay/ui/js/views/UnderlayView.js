@@ -38,7 +38,7 @@ define([
             viewConfig: {
                 rows: [{
                       columns: [{
-                          elementId: ctwl.PROJECT_GRAPH_ID,
+                          elementId: ctwl.UNDERLAY_TOPOLOGY_ID,
                           view: "UnderlayGraphView",
                           viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
                           app: cowc.APP_CONTRAIL_CONTROLLER,

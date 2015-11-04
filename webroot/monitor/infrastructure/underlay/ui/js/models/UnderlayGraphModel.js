@@ -263,7 +263,6 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                    });
                }
            });
-
            /*for(var i=0; i<links.length; i++) {
                var link = links[i];
                if(link.endpoints[0] === link.endpoints[1])
@@ -377,6 +376,9 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            // are added to the graph, link source/target
            // elements must be in the graph already.
            return elements.concat(linkElements.unique());
+       },
+       getErrorNodes: function () {
+           return this.uveMissingNodes.concat(this.configMissingNodes);
        },
 
        createLink: function (link, link_type, srcId, tgtId) {
