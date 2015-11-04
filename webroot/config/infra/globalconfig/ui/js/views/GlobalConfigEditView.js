@@ -52,7 +52,8 @@ define([
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
+                kbValidation.bind(self, {collection:
+                                  self.model.model().attributes.ipFabricSubnets});
             });
         }
     });
@@ -67,9 +68,33 @@ define([
                     {
                         columns: [
                             {
+                                elementId: 'forwarding_mode',
+                                view: 'FormDropdownView',
+                                viewConfig: {
+                                    label: 'Forwarding Mode',
+                                    path: 'forwarding_mode',
+                                    dataBindValue:
+                                        'forwarding_mode',
+                                    class: 'span12',
+                                    elementConfig: {
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        data : [{id: 'Default', text: 'Default'},
+                                            {id: 'l2_l3', text: 'L2 and L3'},
+                                            {id: 'l2', text: 'L2 Only'},
+                                            {id: 'l3', text: 'L3 Only'}]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
                                 elementId: 'vxlan_network_identifier_mode',
                                 view: 'FormRadioButtonView',
                                 viewConfig: {
+                                    label: 'VxLAN Identifier Mode',
                                     path: 'vxlan_network_identifier_mode',
                                     dataBindValue:
                                         'vxlan_network_identifier_mode',
@@ -102,7 +127,7 @@ define([
                                         view: 'FormDropdownView',
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                            width: 150,
+                                            width: 250,
                                             path:
                                             'encapsulation_priorities',
                                             dataBindValue:
@@ -163,6 +188,7 @@ define([
                                 elementId: 'ibgp_auto_mesh',
                                 view: 'FormCheckboxView',
                                 viewConfig: {
+                                    label: 'Enable iBGP Auto Mesh',
                                     path: 'ibgp_auto_mesh',
                                     dataBindValue: 'ibgp_auto_mesh',
                                     class: 'span12'
@@ -208,6 +234,31 @@ define([
         }
     };
 
+    var advancedOptionsViewConfig = function () {
+        return {
+            elementId: 'adv_option',
+            title: 'Advanced Options',
+            view: 'SectionView',
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: 'flow_export_rate',
+                                view: 'FormInputView',
+                                viewConfig: {
+                                    path: 'flow_export_rate',
+                                    dataBindValue: 'flow_export_rate',
+                                    class: 'span12',
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    }
+ 
     function getEditGlobalConfigViewConfig () {
         var prefixId = ctwl.GLOBAL_CONFIG_PREFIX_ID;
         var globalConfigViewConfig = {
@@ -231,7 +282,15 @@ define([
                                 viewConfig: [
                                     bgpOptionsViewConfig()
                                 ]
+                            },
+                            {
+                                elementId: 'advancedOptions',
+                                view: 'AccordianView',
+                                viewConfig: [
+                                    advancedOptionsViewConfig()
+                                ]
                             }
+
                         ]
                     }
                 ]

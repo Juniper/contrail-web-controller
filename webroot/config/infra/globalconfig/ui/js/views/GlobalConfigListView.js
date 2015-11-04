@@ -66,7 +66,7 @@ define([
                     response['global-system-config'] = {};
                 }
                 var globalVRConfigMapLen = globalVRConfigMap.length;
-                for (var i = 2; i < globalVRConfigMapLen; i++) {
+                for (var i = 4; i < globalVRConfigMapLen; i++) {
                     var key = globalVRConfigMap[i]['key'];
                     var value = response['global-system-config'][key];
                     var encap =
@@ -117,10 +117,13 @@ define([
     ];
 
     var globalVRConfigMap = [
+        {'key': 'forwarding_mode',
+         'name': 'Forwarding Mode'},
         {'key': 'vxlan_network_identifier_mode',
          'name': 'VxLAN Identifier Mode'},
         {'key': 'encapsulation_priorities',
          'name': 'Encapsulation Priority Order',},
+        {'key': 'flow_export_rate', 'name': 'Flow Export Rate'},
         {'key': 'autonomous_system', 'name': 'Global ASN'},
         {'key': 'ibgp_auto_mesh', 'name': 'iBGP Auto Mesh'},
         {'key': 'ip_fabric_subnets', 'name': 'IP Fabric Subnets'}
@@ -136,7 +139,7 @@ define([
             response = {};
             response['global-vrouter-config'] = {};
         }
-        for (var i = 0; i < 2; i++) {
+        for (var i = 0; i < 4; i++) {
             dataItems[i] = {};
             var key = globalVRConfigMap[i]['key'];
             dataItems[i]['name'] = globalVRConfigMap[i]['name'];
