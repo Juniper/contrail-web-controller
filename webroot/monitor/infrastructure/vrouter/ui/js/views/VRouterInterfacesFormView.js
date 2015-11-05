@@ -39,6 +39,10 @@ define([
                                 document.getElementById(prefix + '-container'));
                         kbValidation.bind(self);
                         self.renderQueryResult(viewConfig);
+                        $("#vrouter_interfaces_reset").on('click', function() {
+                            self.model.reset();
+                            self.renderQueryResult(viewConfig);
+                        });
                         $("#vrouter_interfaces_query").on('click', function() {
                             self.renderQueryResult(viewConfig);
                         });
@@ -213,10 +217,7 @@ define([
                                     view: "FormButtonView",
                                     viewConfig: {
                                         label: "Reset",
-                                        class: 'display-inline-block margin-0-10-0-0',
-                                        elementConfig: {
-                                            onClick: "reset"
-                                        }
+                                        class: 'display-inline-block margin-0-10-0-0'
                                     }
                                 }
                             ]

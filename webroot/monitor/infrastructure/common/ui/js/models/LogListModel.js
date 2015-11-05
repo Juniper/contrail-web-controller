@@ -31,8 +31,12 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     obj['link'] = {
                         p: 'mon_infra_config',
                         q: {
-                            node: obj['Source'],
-                            tab: ''
+                            type: "configNode",
+                            view: "details",
+                            focusedElement: {
+                                node: obj['Source'],
+                                tab: 'details'
+                            }
                         }
                     };
                 } else if($.inArray(obj['ModuleId'],[UVEModuleIds['COLLECTOR'],
@@ -41,25 +45,37 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     obj['link'] = {
                         p: 'mon_infra_analytics',
                         q: {
-                            node: obj['Source'],
-                            tab: ''
-                        }
+                            type: 'controlNode',
+                            view: 'details',
+                            focusedElement: {
+                                node: obj['Source'],
+                                tab:'details'
+                            }
+                        },
                     };
                 } else if($.inArray(obj['ModuleId'],[UVEModuleIds['VROUTER_AGENT']]) != -1) {
                     obj['link'] = {
                         p: 'mon_infra_vrouter',
                         q: {
-                            node: obj['Source'],
-                            tab: ''
+                            type: "vRouter",
+                            view: "details",
+                            focusedElement: {
+                                node: obj['Source'],
+                                tab: 'details'
+                            }
                         }
                     };
                 } else if($.inArray(obj['ModuleId'],[UVEModuleIds['CONTROLNODE']]) != -1) {
                     obj['link'] = {
                         p: 'mon_infra_control',
                         q: {
-                            node: obj['Source'],
-                            tab: ''
-                        }
+                            type: 'controlNode',
+                            view: 'details',
+                            focusedElement: {
+                                node: obj['Source'],
+                                tab:'details'
+                            }
+                        },
                     };
                 };
                 return obj;

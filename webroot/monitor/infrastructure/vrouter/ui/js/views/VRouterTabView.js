@@ -47,25 +47,29 @@ define([
             active: 0,
             activate: function (e, ui) {
                 var selTab = $(ui.newTab.context).text();
+                var currGrid;
                 if (selTab == 'Details') {
                     $('#' + ctwl.VROUTER_DETAIL_ID).
                         trigger('refresh');
+                    return;
                 } else if (selTab == 'Interfaces') {
-                   $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
-                   data('contrailGrid').refreshView();
+                   currGrid = $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).
+                   data('contrailGrid');
                 } else if (selTab == 'Networks') {
-                   $('#' + ctwl.VROUTER_NETWORKS_GRID_ID).
-                   data('contrailGrid').refreshView();
+                   currGrid = $('#' + ctwl.VROUTER_NETWORKS_GRID_ID).
+                   data('contrailGrid');
                 } else if (selTab == 'ACL') {
-                   $('#' + ctwl.VROUTER_ACL_GRID_ID).
-                   data('contrailGrid').refreshView();
+                   currGrid = $('#' + ctwl.VROUTER_ACL_GRID_ID).
+                   data('contrailGrid');
                 } else if (selTab == 'Flows') {
-                   $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
-                   data('contrailGrid').refreshView();
+                   currGrid = $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
+                   data('contrailGrid');
                 } else if (selTab == 'Routes') {
-                   $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
-                   data('contrailGrid').refreshView();
+                   currGrid = $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
+                   data('contrailGrid');
                 }
+                if(currGrid != null)
+                    currGrid.refreshView();
             },
             tabs: ctwvc.getVRouterDetailsPageTabs(viewConfig)
         }

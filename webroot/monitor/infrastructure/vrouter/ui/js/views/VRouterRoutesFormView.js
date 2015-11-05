@@ -42,8 +42,9 @@ define([
                         $("#vrouter_routes_radio").on('change', function() {
                             self.renderQueryResult(viewConfig);
                         });
-                        $("#vrf_name").on('change', function() {
-                            self.renderQueryResult(viewConfig);
+                        self.model.__kb.view_model.model().on('change:vrf_name',
+                            function() {
+                                self.renderQueryResult(viewConfig);
                         });
                     }
             );

@@ -39,6 +39,10 @@ define([
                                 document.getElementById(prefix + '-container'));
                         kbValidation.bind(self);
                         self.renderQueryResult(viewConfig);
+                        $("#vrouter_networks_reset").on('click', function() {
+                            self.model.reset();
+                            self.renderQueryResult(viewConfig);
+                        });
                         $("#vrouter_networks_query").on('click', function() {
                             self.renderQueryResult(viewConfig);
                         });
@@ -108,7 +112,7 @@ define([
                         monitorInfraUtils.bindGridPrevNextListeners({
                             gridSel: $('#' + ctwl.VROUTER_NETWORKS_GRID_ID),
                             model: self.model,
-                            resetForm : function() {
+                            resetFn: function() {
                                     self.model.reset();
                                 },
                             obj:viewConfig,
@@ -159,10 +163,7 @@ define([
                                     view: "FormButtonView",
                                     viewConfig: {
                                         label: "Reset",
-                                        class: 'display-inline-block margin-0-10-0-0',
-                                        elementConfig: {
-                                            onClick: "reset"
-                                        }
+                                        class: 'display-inline-block margin-0-10-0-0'
                                     }
                                 }
                             ]
