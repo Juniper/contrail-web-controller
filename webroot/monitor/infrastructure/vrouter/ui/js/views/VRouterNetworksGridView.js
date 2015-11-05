@@ -80,6 +80,7 @@ define([
                     searchable: true
                 }
             },
+            footer:false,
             body: {
                 options: {
                     autoRefresh: false,

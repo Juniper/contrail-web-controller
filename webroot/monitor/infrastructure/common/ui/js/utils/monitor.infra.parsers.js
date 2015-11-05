@@ -64,8 +64,7 @@ define(
                                         node: obj['name'],
                                         tab:'details'
                                     }
-                                },
-                                merge:false
+                                }
                             };
                         obj['version'] = ifEmpty(self.getNodeVersion(jsonPath(d,
                             '$.value.BgpRouterState.build_info')[0]),'-');
@@ -108,7 +107,7 @@ define(
                         obj['isIfmapDown'] = false;
                         if(obj['isUveMissing'] == false) {
                             obj['isPartialUveMissing'] = (isEmptyObject(jsonPath(d,
-                                '$.value.BgpRouterState.cpu_info')[0]) || isEmptyObject(
+                                '$.value.ControlCpuState.cpu_info')[0]) || isEmptyObject(
                                 jsonPath(d,'$.value.BgpRouterState.build_info')[0]) ||
                                 (obj['configIP'] == '-') || obj['uveIP'].length == 0)
                                 ? true : false;
@@ -255,7 +254,6 @@ define(
                         obj['name'] = d['name'];
                         obj['link'] = {
                             p: 'mon_infra_vrouter',
-                            merge:false,
                             q: {
                                 type: "vRouter",
                                 view: "details",
@@ -381,7 +379,6 @@ define(
                         obj['name'] = d['name'];
                         obj['link'] = {
                             p : 'mon_infra_analytics',
-                            merge:false,
                             q : {
                                 type: "analyticsNode",
                                 view: "details",
@@ -459,7 +456,6 @@ define(
                         obj['link'] =
                             {
                                 p: 'mon_infra_config',
-                                merge: false,
                                 q: {
                                     type: "configNode",
                                     view: "details",

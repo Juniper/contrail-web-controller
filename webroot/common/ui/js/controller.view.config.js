@@ -463,7 +463,8 @@ define([
                                 controls: {
                                     top: {
                                         default: {
-                                            collapseable: true
+                                            collapseable: true,
+                                            collapsedOnLoad:true
                                         }
                                     }
                                 }
@@ -489,7 +490,8 @@ define([
                                 controls: {
                                     top: {
                                         default: {
-                                            collapseable: true
+                                            collapseable: true,
+                                            collapsedOnLoad:true
                                         }
                                     }
                                 }
@@ -516,7 +518,8 @@ define([
                                 controls: {
                                     top: {
                                         default: {
-                                            collapseable: true
+                                            collapseable: true,
+                                            collapsedOnLoad:true
                                         }
                                     }
                                 }
