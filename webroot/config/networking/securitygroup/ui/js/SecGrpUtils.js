@@ -86,7 +86,7 @@ define([
                 if ((rule.src_addresses[0].security_group != "local") &&
                     (rule.src_addresses[0].security_group != null)) {
                     remoteAddr = rule.src_addresses[0].security_group;
-                    parType = 'SecurityGroup';
+                    parType = 'Security Group';
                 }  else if (rule.src_addresses[0].subnet !== null) {
                     remoteAddr = rule.src_addresses[0].subnet.ip_prefix + "/" +
                         rule.src_addresses[0].subnet.ip_prefix_len;
@@ -95,7 +95,7 @@ define([
                 if ((rule.dst_addresses[0].security_group != "local") &&
                     (rule.dst_addresses[0].security_group != null)) {
                     remoteAddr = rule.dst_addresses[0].security_group;
-                    parType = 'SecurityGroup';
+                    parType = 'Security Group';
                 }  else if(rule.dst_addresses[0].subnet !== null) {
                     remoteAddr = rule.dst_addresses[0].subnet.ip_prefix + "/" +
                         rule.dst_addresses[0].subnet.ip_prefix_len;
@@ -114,10 +114,10 @@ define([
                 var remoteAddr = uiRules[i]['remoteAddr'];
                 var remotePorts = uiRules[i]['remotePorts'];
                 var remoteAddrArr = remoteAddr.split(':');
-                if (3 == remoteAddrArr.length) {
-                    selectedRemoteAddrType = 'SecurityGroup';
-                } else {
+                if (isValidIP(remoteAddr)) {
                     selectedRemoteAddrType = 'CIDR';
+                } else {
+                    selectedRemoteAddrType = 'Security Group';
                 }
                 sgConfig[i] = {};
                 sgConfig[i]["direction"] = ">";
@@ -180,7 +180,7 @@ define([
 
                 if (direction == "Ingress") {
                     sgConfig[i]["dst_addresses"][0]["security_group"] = "local";
-                    if (selectedRemoteAddrType == "SecurityGroup") {
+                    if (selectedRemoteAddrType == "Security Group") {
                         if (remoteAddr.split(":").length == 3) {
                             sgConfig[i]["src_addresses"][0]["security_group"] =
                                 remoteAddr;
@@ -220,7 +220,7 @@ define([
                     }
                 } else if(direction == "Egress"){
                     sgConfig[i]["src_addresses"][0]["security_group"] = "local";
-                    if (selectedRemoteAddrType == "SecurityGroup") {
+                    if (selectedRemoteAddrType == "Security Group") {
                         if (remoteAddr.split(":").length == 3) {
                             sgConfig[i]["dst_addresses"][0]["security_group"] =
                                 remoteAddr;
@@ -315,6 +315,7 @@ define([
                                 elementId: 'rules',
                                 view: 'FormEditableGridView',
                                 viewConfig: {
+                                        label: 'Security Group Rules',
                                         path: 'rules',
                                         validations: 'secGrpRulesValidation',
                                         collection: 'rules',
@@ -390,7 +391,7 @@ define([
                                                         },
                                                         {
                                                             grpName :
-                                                                'SecurityGroup',
+                                                                'Security Group',
                                                             iconClass:
                                                                 'icon-contrail-security-group'
                                                         }
@@ -448,7 +449,7 @@ define([
                                         onClick: "function() {\
                                             $root.addSecGrpRule();\
                                         }",
-                                        buttonTitle: "Add"
+                                        buttonTitle: "Add Rule"
                                     }]
                                 }
                             }]
@@ -489,43 +490,35 @@ define([
             }
             return returnString;
         },
-        self.addCurrentSG = function (currentSG) {
-            var isAvailable = false;
-            if (null == currentSG) {
-                return;
-            }
-            currentSG = currentSG.trim();
-            if ("" == currentSG) {
-                return;
-            }
-            var remoteAddValue = window.sg.secGrpList;
-            var allSecurietyGroup = remoteAddValue[1].children;
-            var sgLen = allSecurietyGroup.length;
-            for (var i = 0; i < sgLen; i++) {
-                var tempLoopSGVal = allSecurietyGroup[i].value;
-                if (tempLoopSGVal.split(":").length > 1) {
-                    if ((currentSG == tempLoopSGVal) ||
-                        (currentSG == tempLoopSGVal.split(":")[2])) {
-                        isAvailable = true;
-                        break;
-                    }
-                } else {
-                    allSecurietyGroup.splice(i , 1);
-                    sgLen--;
+        self.addCurrentSG = function () {
+            try {
+                var secGrpName = $('#display_name').find('input').val();
+                if ((null != secGrpName) && ("" != secGrpName.trim())) {
+                    secGrpName = getCookie('domain') + ":" + getCookie('project') +
+                        ":" + secGrpName.trim();
                 }
+            } catch(e) {
+                secGrpName = "";
             }
-            if (isAvailable ==  false) {
-                var value = getCookie('domain') + ":" + getCookie('project') +
-                    ":" + currentSG;
-                allSecurietyGroup.unshift({"id": value,
-                                          "parent": "SecurityGroup",
-                                          "text": currentSG + " (Current)",
-                                          "value": value});
+            if ((null != secGrpName) && ("" != secGrpName.trim())) {
+                var remoteAddValue = window.sg.secGrpList;
+                var allSecurietyGroup = remoteAddValue[1].children;
+                if ((null != allSecurietyGroup[0]) &&
+                    ('Current Security Group' !=
+                     allSecurietyGroup[0]['text'])) {
+                    allSecurietyGroup.unshift({"id": secGrpName,
+                                               "parent": "Security Group",
+                                               "text": 'Current Security Group',
+                                               "value": secGrpName});
+                } else {
+                    allSecurietyGroup[0]['value'] = secGrpName;
+                    allSecurietyGroup[0]['id'] = secGrpName;
+                }
                 remoteAddValue[1].children = allSecurietyGroup;
                 window.sg.secGrpList = remoteAddValue;
             }
         },
-        self.resetDataSource = function () {
+        self.deleteCurrentSG = function () {
             var remoteAddValue = window.sg.secGrpList;
             if ((null == remoteAddValue) || (null == remoteAddValue[1]) ||
                 (null == remoteAddValue[1].children)) {
@@ -540,7 +533,8 @@ define([
                 (null == allSecurietyGroup[0].text)) {
                 return;
             }
-            var ctSGIdx = allSecurietyGroup[0].text.indexOf(" (Current)");
+            var ctSGIdx =
+                allSecurietyGroup[0].text.indexOf("Current Security Group");
             if (ctSGIdx > -1) {
                 allSecurietyGroup.splice(0, 1);
                 remoteAddValue[1].children = allSecurietyGroup;
@@ -557,12 +551,12 @@ define([
             var fqNameValue = sgFqn.join(':');
             if ((sgFqn[0] == domain) && (sgFqn[1] == project)) {
                 return {text: sgFqn[2], value: fqNameValue, groupName:
-                    "SecurityGroup", id: fqNameValue};
+                    "Security Group", id: fqNameValue};
             }
             var fqNameTxt = sgFqn[2] +' (' +
                 sgFqn[0] + ':' + sgFqn[1] + ')';
             return {text : fqNameTxt, value : fqNameValue,
-                    groupName: "SecurityGroup", id: fqNameValue};
+                    groupName: "Security Group", id: fqNameValue};
         }
     };
     return secGrpUtils;

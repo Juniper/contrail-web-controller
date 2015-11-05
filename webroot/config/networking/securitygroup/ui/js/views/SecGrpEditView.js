@@ -51,7 +51,7 @@ define([
                                    getEditSecGrpViewConfig(options['isEdit']),
                                    "secGrpConfigValidations",
                                    null, null, function() {
-                sgUtils.resetDataSource();
+                sgUtils.deleteCurrentSG();
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
@@ -116,7 +116,10 @@ define([
                                     path: 'display_name',
                                     class: 'span9',
                                     dataBindValue: 'display_name',
-                                    placeHolder: 'Security Group Name'
+                                    placeHolder: 'Security Group Name',
+                                    onBlur: function() {
+                                        sgUtils.addCurrentSG();
+                                    }
                                 }
                             }
                         ]
@@ -125,12 +128,22 @@ define([
                         columns: [
                             {
                                 elementId: 'is_sec_grp_id_auto',
-                                view: 'FormCheckboxView',
+                                view: 'FormDropdownView',
                                 viewConfig: {
-                                    label: 'Security Group ID (Auto)',
+                                    label: 'Security Group ID',
                                     path: 'is_sec_grp_id_auto',
                                     class: 'span3',
                                     dataBindValue: 'is_sec_grp_id_auto',
+                                    elementConfig: {
+                                        dataTextField: 'text',
+                                        dataValueField: 'value',
+                                        data: [
+                                            {text: 'Auto',
+                                             value: true},
+                                            {text: 'Configured',
+                                             value: false}
+                                        ]
+                                    }
                                 }
                             },
                             {
