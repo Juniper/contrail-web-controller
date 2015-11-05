@@ -21,7 +21,7 @@ define([
                 left_virtual_network: "",
                 management_virtual_network: "",
                 right_virtual_network: "",
-                ha_mode: 'active-active',
+                ha_mode: "",
                 scale_out: {
                     max_instances: 1
                 },
@@ -33,6 +33,7 @@ define([
             no_of_instances: 1,
             availability_zone: 'ANY',
             host_list: [],
+            host: null,
             parent_uuid: null
         },
         validations: {
@@ -106,7 +107,7 @@ define([
                 intfTypes =
                     tmpl.substr(intfTypeStrStart + 1,
                                 intfTypeStrEnd - intfTypeStrStart - 1);
-                intfTypes = intfTypes.split(',');
+                intfTypes = intfTypes.split(', ');
                 var svcTmplObjsByFqn = $(gridElId).data('svcInstTmplts');
                 if (null != tmpl) {
                     var tmplFqn = getCookie('domain') + ':' +
@@ -279,9 +280,10 @@ define([
                 }
             }
             var siP = this.model().get('service_instance_properties');
-            siProp['ha_mode'] = 'standalone';
             if ((null != siP) && (null != siP['ha_mode'])) {
-                siProp['ha_mode'] = siP['ha_mode'];
+                if ("" != siP['ha_mode']) {
+                    siProp['ha_mode'] = siP['ha_mode'];
+                }
             }
             siProp['interface_list'] = intfList;
             return siProp;
@@ -313,6 +315,17 @@ define([
                 newSvcInst['service_instance_properties']['scale_out']
                     ['max_instances'] =
                     parseInt(newSvcInst['no_of_instances']);
+                var availZone = "";
+                if ('ANY' != newSvcInst['availability_zone']) {
+                    availZone = newSvcInst['availability_zone'];
+                }
+                if ('ANY' != newSvcInst['host']) {
+                    availZone += ':' + newSvcInst['host'];
+                }
+                if ("" != availZone) {
+                    newSvcInst['service_instance_properties']
+                        ['availability_zone'] = availZone;
+                }
                 delete newSvcInst['interfaces'];
                 delete newSvcInst['host_list'];
                 delete newSvcInst['service_template'];
@@ -320,6 +333,8 @@ define([
                 delete newSvcInst['statusDetails'];
                 delete newSvcInst['svcTmplDetails'];
                 delete newSvcInst['no_of_instances'];
+                delete newSvcInst['availability_zone'];
+                delete newSvcInst['host'];
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
                 }

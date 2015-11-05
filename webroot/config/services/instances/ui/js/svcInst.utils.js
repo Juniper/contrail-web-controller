@@ -21,7 +21,7 @@ define([
             if ((domain == vnFqn[0]) && (project == vnFqn[1])) {
                 return vnFqn[2];
             }
-            return vnFqn[2] + "(" + vnFqn[0] + ":" + vnFqn[1] + ")";
+            return vnFqn[2] + " (" + vnFqn[0] + ":" + vnFqn[1] + ")";
         }
         this.virtNwListFormatter = function(response) {
             var vnListResp =
@@ -57,7 +57,7 @@ define([
 
             dispStr += "[" +
                 getValueByJsonPath(svcTempProp, 'service_mode', '-') + " (" +
-                svcIntfTypes.join(',') + ")]";
+                svcIntfTypes.join(', ') + ")]";
             return dispStr;
         },
         this.getSvcTmplIntfTypes = function(svcTmpl) {
@@ -109,6 +109,36 @@ define([
                 }
             }
             return window.vnList[0];
+        },
+        this.getPowerState = function(val) {
+            var powerString="";
+            switch(val){
+            case 0:
+            case 0x00:
+                powerString = "NOSTATE";
+                break;
+            case 1:
+            case 0x01:
+                powerString = "RUNNING";
+                break;
+            case 3:
+            case 0x03:
+                powerString = "PAUSED";
+                break;
+            case 4:
+            case 0x04:
+                powerString = "SHUTDOWN";
+                break;
+            case 6:
+            case 0x06:
+                powerString = "CRASHED";
+                break;
+            case 7:
+            case 0x07:
+                powerString = "SUSPENDED";
+                break;
+            }
+            return(powerString);
         },
         this.getIntfVNCollectionView = function(isDisabled) {
             return {
