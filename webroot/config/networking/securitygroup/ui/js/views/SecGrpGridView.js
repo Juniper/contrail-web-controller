@@ -152,12 +152,14 @@ define([
 
     function showHideModelAttr (secGrpModel) {
         secGrpModel.showConfigSecGrpID = ko.computed((function() {
-            return (true == this.is_sec_grp_id_auto()) ? false : true;
+            return ((true == this.is_sec_grp_id_auto()) ||
+                    ("true" == this.is_sec_grp_id_auto())) ? false : true;
         }), secGrpModel);
     }
 
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
+            sgUtils.deleteCurrentSG();
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
             var secGrpModel = new SecGrpModel(dataItem);
@@ -237,9 +239,10 @@ define([
             },
             {
                 "type": "link",
-                "title": ctwl.TITLE_EDIT_SEC_GRP,
+                "title": ctwl.TITLE_CREATE_SEC_GRP,
                 "iconClass": 'icon-plus',
                 "onClick": function() {
+                    sgUtils.addCurrentSG();
                     var projFqn = [getCookie('domain'),
                         getCookie('project')];
                     secGrpModel = new SecGrpModel();
