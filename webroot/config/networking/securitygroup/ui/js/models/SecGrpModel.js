@@ -31,7 +31,8 @@ define([
 
             switch (attributePath) {
             case 'configured_security_group_id':
-                if (true == attributes['is_sec_grp_id_auto']) {
+                if ((true == attributes['is_sec_grp_id_auto']) ||
+                    ("true" == attributes['is_sec_grp_id_auto'])) {
                     needValidate = false;
                 }
                 break;
@@ -53,7 +54,8 @@ define([
                     required: true
                 },
                 'configured_security_group_id': function(val, attr, obj) {
-                    if (false == obj['is_sec_grp_id_auto']) {
+                    if ((false == obj['is_sec_grp_id_auto']) ||
+                        ("false" == obj['is_sec_grp_id_auto'])) {
                         if ((null == val) || ("" == val.trim())) {
                             return "Security Group ID is required";
                         }
@@ -98,6 +100,10 @@ define([
             }
             ruleCollectionModel = new Backbone.Collection(ruleModels);
             modelConfig['rules'] = ruleCollectionModel;
+            if (null == modelConfig['uuid']) {
+                /* Create */
+                modelConfig = this.createDefaultRules(modelConfig);
+            }
             return modelConfig;
         },
         getRemoteAddresses: function() {
@@ -110,13 +116,26 @@ define([
         },
         addSecGrpRule: function() {
             var ruleName = this.model().attributes['display_name'];
-            sgUtils.addCurrentSG(ruleName);
             var rules = this.model().attributes['rules'];
             var newRule = new SecGrpRulesModel(
                 {direction: 'Ingress', ethertype: 'IPv4', protocol: 'TCP',
                  remotePorts: '0 - 65535',
                  customValue: {'text': '0.0.0.0/0', groupName: 'CIDR'}});
             rules.add([newRule]);
+        },
+        createDefaultRules: function(model) {
+            var rules = model['rules'];
+            var newRule = new SecGrpRulesModel(
+                {direction: 'Egress', ethertype: 'IPv4', protocol: 'ANY',
+                 remotePorts: '0 - 65535',
+                 customValue: {'text': '0.0.0.0/0', groupName: 'CIDR'}});
+            rules.add([newRule]);
+            newRule = new SecGrpRulesModel(
+                {direction: 'Egress', ethertype: 'IPv6', protocol: 'ANY',
+                 remotePorts: '0 - 65535',
+                 customValue: {'text': '::/0', groupName: 'CIDR'}});
+            rules.add([newRule]);
+            return model;
         },
         getSecGrpRuleList: function(attr) {
             var rulesArr = [];
@@ -164,6 +183,7 @@ define([
                 delete newSecGrpData['rules'];
                 delete newSecGrpData['sgRules'];
                 delete newSecGrpData['customValue'];
+                delete newSecGrpData['is_sec_grp_id_auto'];
 
                 var putData = {};
                 putData['security-group'] = newSecGrpData;

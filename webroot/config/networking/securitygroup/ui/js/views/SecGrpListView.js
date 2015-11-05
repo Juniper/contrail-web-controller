@@ -71,14 +71,14 @@ define([
                         if ((fqname[0] === projFqn[0]) &&
                             (fqname[1] === projFqn[1])) {
                             allSecGrpList.push({text : fqname[2], value :
-                                       fqNameValue, parent : "SecurityGroup",
+                                       fqNameValue, parent : "Security Group",
                                        id: fqNameValue});
                         } else {
                             var fqNameTxt = fqname[2] +' (' +
                                 fqname[0] + ':' + fqname[1] + ')';
                             otherSecGrpList.push({text : fqNameTxt, value :
                                                   fqNameValue, parent :
-                                                  "SecurityGroup", id:
+                                                  "Security Group", id:
                                                   fqNameValue});
                         }
                     }
@@ -87,8 +87,8 @@ define([
                 var addrFields = [];
                 addrFields.push({text : 'CIDR', id :'subnet',  children :
                             [{text:'Enter a CIDR', value:"-1/0", disabled :
-                            true, parent :"CIDR", id: "-1/0"}]}, {text : 'SecurityGroup', id
-                            : 'SecurityGroup', children : allSecGrpList});
+                            true, parent :"CIDR", id: "-1/0"}]}, {text : 'Security Group', id
+                            : 'Security Group', children : allSecGrpList});
                 secGrpList = addrFields;
                 window.sg = {};
                 window.sg.secGrpList = secGrpList;
