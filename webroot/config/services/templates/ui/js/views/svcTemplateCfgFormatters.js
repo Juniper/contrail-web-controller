@@ -199,6 +199,23 @@ define([
             return imageList;
         };
 
+        
+                /*
+         * @serviceApplianceSetDropDownFormatter
+         */
+        this.serviceApplianceSetDropDownFormatter = function(response) {
+            var sasResponse = getValueByJsonPath(response,
+                    'data', []);
+            var sasList = [];
+
+            $.each(sasResponse, function (i, obj) {
+                sasList.push({id: obj['service-appliance-set'].fq_name, text: obj['service-appliance-set'].name});
+            });
+
+            return sasList;
+        };
+        
+        
         /*
          * @flavorDropDownFormatter
          */

@@ -29,10 +29,8 @@ function ServicesInstances() {
 
     //Windows
     var windowCreateSvcInstances, confirmDelete, consoleWindow;
-    
     //Timers
-    var svcInstanceTimer;
-    
+    var svcInstanceTimer; 
     var serviceTemplteType;
     var InstanceDOMOrder;
     var templateImages;
@@ -136,10 +134,15 @@ function initComponents() {
                 name:"Status",
                 minWidth : 70,
                 formatter: function(r, c, v, cd, dc) {
+                    if(dc.Service_Template_Type == "physical-device" && dc.vmStatus != "update"){
+                        dc.vmStatusData = "Active";
+                        dc.vmStatus =  ('<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;' + dc.vmStatusData);
+                        return (dc.vmStatus);
+                    }
                     if(dc.vmStatusData == "Spawning"){
                         dc.vmStatus = ('<img src="/img/loading.gif">&nbsp;&nbsp;' + dc.vmStatusData);
-                    } if(dc.vmStatusData == "Inactive"){ 
-                        dc.vmStatus = ('<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' + dc.vmStatusData);
+                    } if(dc.vmStatusData == "Inactive"){
+                        dc.vmStatus = ('<div class="status-badge-rounded status-inactive"></div>&nbsp;&nbsp;' + dc.vmStatusData); 
                     } if(dc.vmStatusData == "Partially Active"){
                         dc.vmStatus =  ('<img src="/img/loading.gif">&nbsp;&nbsp;' + dc.vmStatusData);
                     } if(dc.vmStatusData == "Active"){
@@ -172,7 +175,7 @@ function initComponents() {
                          All_Network[i];
                         }
                     }
-                }*/                
+                }*/
 /* To do        template:'# for(var i=0;i<All_Network.length;i++){ #'+
                          '#     if(i >0) { #,'+
                          '#         if((i) % 3 == 0) { #<br>'+
@@ -238,7 +241,7 @@ function initComponents() {
                 },
                 empty: {
                     text: 'No Service Instances Found.'
-                }, 
+                },
                 errorGettingData: {
                     type: 'error',
                     iconClasses: 'icon-warning',
@@ -299,7 +302,7 @@ function initComponents() {
 
     confirmDelete = $("#confirmDelete");
     confirmDelete.modal({backdrop:'static', keyboard: false, show:false});
-    
+
     consoleWindow = $("#consoleWindow");
     consoleWindow.modal({backdrop:'static', keyboard: false, show:false});
 
@@ -386,9 +389,9 @@ function refreshSvcInstances(reload) {
 /* istanbul ignore next */
 function initActions() {
     btnCreatesvcInstances.click(function (a) {
-        if(!$(this).hasClass('disabled-link')) {     
+        if(!$(this).hasClass('disabled-link')) {
             //svcInstancesCreateWindow("add");
-        }    
+        }
     });
 
     btnDeletesvcInstances.click(function (a) {
@@ -448,7 +451,7 @@ function initActions() {
 
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"] = {};
             serviceInstance["service-instance"]["service_instance_properties"]["scale_out"]["max_instances"] = maxInstances;
-            
+
             var avaiZone;
             if($("#ddZoneHost").data("contrailDropdown").value() == "ANY") {
                 if($("#ddZone").data("contrailDropdown").value() == "ANY") {
@@ -459,7 +462,7 @@ function initActions() {
             } else {
                 avaiZone = $("#ddZone").data("contrailDropdown").value()+":"+$("#ddZoneHost").data("contrailDropdown").value();
             }
-			if(avaiZone != ""){
+            if(avaiZone != ""){
                 serviceInstance["service-instance"]["service_instance_properties"]["availability_zone"] = avaiZone;
             }
 
@@ -526,17 +529,17 @@ function populateDomains(result) {
             domains.push(tmpDomain);
         }
         $("#ddDomainSwitcher").data("contrailDropdown").setData(domains);
-        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                        
+        var sel_domain = getSelectedDomainProjectObjNew("ddDomainSwitcher", "contrailDropdown", 'domain');                   
         $("#ddDomainSwitcher").data("contrailDropdown").value(sel_domain);
         fetchProjects("populateProjects", "failureHandlerForGridsTemp");
     } else {
         $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
         btnCreatesvcInstances.addClass('disabled-link');
-        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');        
+        setDomainProjectEmptyMsg('ddDomainSwitcher', 'domain');
         setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
         gridsvcInstances.showGridMessage("empty");
         emptyCookie('domain');
-        emptyCookie('project');        
+        emptyCookie('project');
     }
 }
 /* istanbul ignore next */
@@ -552,7 +555,7 @@ function populateProjects(result) {
         var projects = [];
         for (i = 0; i < result.projects.length; i++) {
             var project = result.projects[i];
-            //if(!checkSystemProject(project.fq_name[1])) {                                                        
+            //if(!checkSystemProject(project.fq_name[1])){           
                 tempProjectDetail = {text:project.fq_name[1], value:project.uuid};
                 projects.push(tempProjectDetail);
             //}
@@ -573,7 +576,7 @@ function populateProjects(result) {
         btnCreatesvcInstances.addClass('disabled-link');
         setDomainProjectEmptyMsg('ddProjectSwitcher', 'project');
         gridsvcInstances.showGridMessage("empty");
-        emptyCookie('project');                
+        emptyCookie('project');
     }
 }
 
@@ -595,7 +598,6 @@ function fetchDataForGridsvcInstances() {
     gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
     gridsvcInstances.showGridMessage('loading');
     doAjaxCall("/api/tenants/config/service-instance-templates/" + selectedDomain, "GET", null, "successTemplateDetail", "failureTemplateDetail", null, null);
-    
 }
 
 function successTemplateDetail(result) {
@@ -616,12 +618,12 @@ function failureTemplateDetail(result) {
 function successHandlerForGridsvcInstance(result) {
     $("#gridsvcInstances").data("contrailGrid")._dataView.setData([]);
     if(result && result.length > 0){
-    doAjaxCall("/api/tenants/config/service-instances-status/" + $("#ddProjectSwitcher").data("contrailDropdown").value(), 
+    doAjaxCall("/api/tenants/config/service-instances-status/" + $("#ddProjectSwitcher").data("contrailDropdown").value(),
                "POST", JSON.stringify(result), "successHandlerForGridStatusUpdate",
                "failureHandlerForGridsStatusUpdate", null, null, 905000);
     } else {
         gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
-        gridsvcInstances.showGridMessage('empty');        
+        gridsvcInstances.showGridMessage('empty');
     }
     successHandlerForGridsvcInstanceRow(result);
 }
@@ -693,7 +695,7 @@ function updateStatus(svcDS,vmStatusData,vmStatus,VMDetails){
                     InstDetail[1] = VMDetails[l]['server']['name'];
                     InstDetail[2] = VMDetails[l]['server']['status'];
                     InstDetail[3] = getPowerState(VMDetails[l]['server']['OS-EXT-STS:power_state']);
-                
+
                     for (var vmVNs in VMDetails[l]['server']['addresses']) {
                         address += vmVNs.toString();
                         if (VMDetails[l]['server']['addresses'][vmVNs].length) {
@@ -708,7 +710,7 @@ function updateStatus(svcDS,vmStatusData,vmStatus,VMDetails){
                     InstDetail[4] = address;
                     InstDetailArr.push(InstDetail);
                 }
-            }    
+            }
             svcDS.vmStatus = vmStatus;
             svcDS.vmStatusData = vmStatusData;
             svcDS.InstDetailArr = InstDetailArr;
@@ -767,8 +769,8 @@ function getTemplateOrder(templateName){
              }
         }
     }
-    return []; 
-    
+    return [];
+
 }
 function getTemplateDetail(templateName){
     for(var i = 0; i < serviceTemplteType.length; i++){
@@ -776,8 +778,8 @@ function getTemplateDetail(templateName){
             return(serviceTemplteType[i]["service-template"]);
         }
     }
-    return []; 
-    
+    return [];
+
 }
 function checkServiceImage(servicetemplateImage){
     var imageAvailable = false;
@@ -898,7 +900,6 @@ function createStaticRouteEntry(data, id,element,containerInst) {
     rootDiv.appendChild(divRowFluidMargin5);
 
     return rootDiv; 
-    
 }
 function deleteStaticRouteEntry(who) {
     var templateDiv = who.parentNode.parentNode.parentNode;
@@ -937,7 +938,11 @@ function successHandlerForGridsvcInstanceRow(result) {
         svc_tmpl_name =  svc_tmpl_name_text + " (" + ucfirst(getServiceMode(svc_tmpl_name_text)) + ")";
         var templateOrder = getTemplateOrder(svc_tmpl_name_text);
         var templateDetail = getTemplateDetail(svc_tmpl_name_text); 
-        
+        var svc_template_type = null;
+        if("service_virtualization_type" in templateDetail['service_template_properties']){
+            svc_template_type = templateDetail["service_template_properties"]["service_virtualization_type"];
+        }
+
         if ('service_instance_properties' in svcInstance &&
             'scale_out' in svcInstance['service_instance_properties']) {
             var svcScaling = svcInstance['service_instance_properties']['scale_out'];
@@ -953,8 +958,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             var InterfaceList = svcInstance['service_instance_properties']['interface_list'];
             for (var inc=0; inc < templateOrder.length; inc++){
                 var interfaceTemp = svcInstance['service_instance_properties']['interface_list'][i];
-                
-            }        
+            }
         }
         var statRoutes = [];
         var enableControles = false;
@@ -963,10 +967,10 @@ function successHandlerForGridsvcInstanceRow(result) {
         if(availability_zone == "" || availability_zone == null){
             availability_zone = "ANY:ANY";
         }
-        if("ordered_interfaces" in templateDetail["service_template_properties"] 
-           && (templateDetail["service_template_properties"]["ordered_interfaces"] != null 
-           && templateDetail["service_template_properties"]["ordered_interfaces"] != undefined 
-           && templateDetail["service_template_properties"]["ordered_interfaces"] != "false" 
+        if("ordered_interfaces" in templateDetail["service_template_properties"]
+           && (templateDetail["service_template_properties"]["ordered_interfaces"] != null
+           && templateDetail["service_template_properties"]["ordered_interfaces"] != undefined
+           && templateDetail["service_template_properties"]["ordered_interfaces"] != "false"
            && templateDetail["service_template_properties"]["ordered_interfaces"] != false)){
             svc_image = templateDetail["service_template_properties"]["image_name"];
             var templateType = templateDetail["service_template_properties"]["service_type"];
@@ -1126,6 +1130,7 @@ function successHandlerForGridsvcInstanceRow(result) {
             "Service_Instance_DN":svcInstance.display_name,
             "Service_Template":svc_tmpl_name,
             "Service_Template_Name":svc_tmpl_name_text,
+            "Service_Template_Type" : svc_template_type,
             "Number_of_instances":svcScalingStr,
             "Instance_Image":svc_image,
             "showDetail":showDetail,
@@ -1208,7 +1213,7 @@ function validate() {
         }
     }
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
-    if(!checkServiceImage(templateProps.service_template_properties.image_name)){
+    if(templateProps.service_template_properties.service_virtualization_type != "physical-device" && !checkServiceImage(templateProps.service_template_properties.image_name)){
         return false;
     }
     if (isNaN($(txtMaximumInstances).val())) {
@@ -1350,7 +1355,7 @@ var interfacesLen = $("#instanceDiv").children().length;
  widgetHeaderH5.setAttribute("onclick", "scrollUp(\"#windowCreateSvcInstances\",this,true);");
 
  var widgetHeaderH5I = document.createElement("i");
- widgetHeaderH5I.className = "icon-caret-right grey"; 
+ widgetHeaderH5I.className = "icon-caret-right grey";
  widgetHeaderH5.appendChild(widgetHeaderH5I);
 
  var widgetHeaderH5Span = document.createElement("span");
@@ -1398,7 +1403,7 @@ var interfacesLen = $("#instanceDiv").children().length;
 
  var span5H71 = document.createElement("h7");
  span5H71.className = "smaller";
- span5H71.textContent = "Prefix"; 
+ span5H71.textContent = "Prefix";
  span5Div1.appendChild(span5H71);
 
  var span5H72 = document.createElement("h7");
@@ -1448,7 +1453,7 @@ var interfacesLen = $("#instanceDiv").children().length;
             $(selectNet).data("contrailDropdown").value("Auto Configured"); 
             $(widgetDiv).addClass("hide");
         }
-        
+
         if("static_routes" in editData && editData.static_routes != null && "route" in editData.static_routes){
         for(var inc=0;inc<(editData.static_routes.route).length;inc++){
             appendStaticRouteEntry(this, true,'interface_' + interfacesLen + '_srTuple','Interface '+(interfacesLen+1),editData.static_routes.route[inc].prefix);
@@ -1457,7 +1462,7 @@ var interfacesLen = $("#instanceDiv").children().length;
     } else {
         $(selectNet).data("contrailDropdown").enable(true);
     }
-    
+
  
     return intfDiv;
 }
@@ -1466,7 +1471,7 @@ function zoneChange(who){
     setHostForZone(ddZoneText);
 }
 function svcTemplateChange(who,editData,mode) {
-    
+
     var templateProps = JSON.parse($("#ddsvcTemplate").data("contrailDropdown").value());
     var tmplSvcScaling = templateProps["service_template_properties"]["service_scaling"];
     var availZone = templateProps["service_template_properties"]["availability_zone_enable"];
@@ -1481,7 +1486,7 @@ function svcTemplateChange(who,editData,mode) {
         $("#maxInstances").removeClass("hide");
     }
     if(availZone == true || availZone == "True" || availZone === "true") {
-        $("#avilZone").removeClass("hide");        
+        $("#avilZone").removeClass("hide");
     }
     var svcTmplIntf = [];
     svcTmplIntf = templateProps["service_template_properties"]["interface_type"];
@@ -1490,7 +1495,7 @@ function svcTemplateChange(who,editData,mode) {
         var showAuto = true;
         var showOption = true;
         if(svcTmplIntf[i]["service_interface_type"] != "management"){
-            if(templateProps.service_template_properties.service_mode == "in-network" 
+            if(templateProps.service_template_properties.service_mode == "in-network"
                 || templateProps.service_template_properties.service_mode == "in-network-nat"){
                 showAuto = false;
             }
@@ -1504,7 +1509,7 @@ function svcTemplateChange(who,editData,mode) {
         } else {
             showOption = false;
         }
-        
+
         var data = null;
         if(editData != undefined){
             if("interface_list" in editData.ServiceProperties){
@@ -1568,19 +1573,19 @@ function pullInst(type,templateInstDetail){
 }
 function closeAllStaticRout(){
     var widgetBoxElem = $("#lNetDiv").find('#widgetStaticRoutes');
-    $(widgetBoxElem).addClass('collapsed'); 
+    $(widgetBoxElem).addClass('collapsed');
     widgetBoxElem = $(widgetBoxElem).find('.widget-toolbar i');
     $(widgetBoxElem).addClass('icon-chevron-down');
     $(widgetBoxElem).removeClass('icon-chevron-up');
 
     widgetBoxElem = $("#rNetDiv").find('#widgetStaticRoutes');
-    $(widgetBoxElem).addClass('collapsed'); 
+    $(widgetBoxElem).addClass('collapsed');
     widgetBoxElem = $(widgetBoxElem).find('.widget-toolbar i');
     $(widgetBoxElem).addClass('icon-chevron-down');
     $(widgetBoxElem).removeClass('icon-chevron-up');
 
     widgetBoxElem = $("#maxInstances").find('#widgetStaticRoutes');
-    $(widgetBoxElem).addClass('collapsed'); 
+    $(widgetBoxElem).addClass('collapsed');
     widgetBoxElem = $(widgetBoxElem).find('.widget-toolbar i');
     $(widgetBoxElem).addClass('icon-chevron-down');
     $(widgetBoxElem).removeClass('icon-chevron-up');
@@ -1630,7 +1635,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
         type:"GET"
     });
     getAjaxs[1] = $.ajax({
-        url:"/api/tenants/config/virtual-networks", 
+        url:"/api/tenants/config/virtual-networks",
         type:"GET"
     });
     getAjaxs[2] = $.ajax({
@@ -1687,12 +1692,12 @@ function svcInstancesCreateWindow(mode,rowIndex) {
             if(svcTemplateObjs != "false" && svcTemplateObjs != false)
                 var svcTemplatesLen = svcTemplateObjs.length;
             for (var i = 0; i < svcTemplatesLen; i++) {
-                var svcMode = (svcTemplateObjs[i].service_template_properties.service_mode == null) ? 
+                var svcMode = (svcTemplateObjs[i].service_template_properties.service_mode == null) ?
                            "Service Mode is Inactive" : svcTemplateObjs[i].service_template_properties.service_mode;
 
                 if("ordered_interfaces" in svcTemplateObjs[i].service_template_properties
                     && (svcTemplateObjs[i].service_template_properties.ordered_interfaces != null 
-                    && svcTemplateObjs[i].service_template_properties.ordered_interfaces != undefined 
+                    && svcTemplateObjs[i].service_template_properties.ordered_interfaces != undefined
                     && svcTemplateObjs[i].service_template_properties.ordered_interfaces != "false" 
                     && svcTemplateObjs[i].service_template_properties.ordered_interfaces != false )){
                     var addedData = "["+svcMode+" (";
@@ -1718,7 +1723,7 @@ function svcInstancesCreateWindow(mode,rowIndex) {
 
             }
             templateImages = jsonPath(results[2], "$..name");
-			//svcTemplates = [];
+            //svcTemplates = [];
 
             if(svcTemplates.length > 0){
                 $("#ddsvcTemplate").data("contrailDropdown").setData(svcTemplates);
@@ -1735,11 +1740,11 @@ function svcInstancesCreateWindow(mode,rowIndex) {
                 gridsvcInstances.showGridMessage('errorGettingData');
                 return;
             }
-            networks = []; 
+            networks = [];
             var currentProjectname = $("#ddProjectSwitcher").data("contrailDropdown").text();
             for(var j=0;j < results[1][0]['virtual-networks'].length;j++){
                 var val="";
-                var networklen = results[1][0]['virtual-networks'][j].fq_name.length; 
+                var networklen = results[1][0]['virtual-networks'][j].fq_name.length;
                 for(var k=0;k<networklen;k++){
                     val += results[1][0]['virtual-networks'][j].fq_name[k];
                     if(k < networklen-1) {
@@ -1894,7 +1899,7 @@ function destroy() {
         ddProject.destroy();
         ddProject = $();
     }
-    
+ 
     txtsvcInstanceName = $("#txtsvcInstanceName");
     if(isSet(txtsvcInstanceName)) {
         txtsvcInstanceName.remove();
@@ -1920,7 +1925,7 @@ function destroy() {
     }
 
     btnCreatesvcInstencesCancel = $("#btnCreatesvcInstencesCancel");
-    if(isSet(btnCreatesvcInstencesCancel)) {    
+    if(isSet(btnCreatesvcInstencesCancel)) {
         btnCreatesvcInstencesCancel.remove();
         btnCreatesvcInstencesCancel = $();
     }
@@ -1942,13 +1947,13 @@ function destroy() {
         btnCnfDelSInstPopupCancel.remove();
         btnCnfDelSInstPopupCancel = $();
     }
-    
+
     ddsvcTemplate = $("#ddsvcTemplate").data("contrailDropdown");
     if(isSet(ddsvcTemplate)) {
         ddsvcTemplate.destroy();
         ddsvcTemplate = $();
     }
-    
+
     gridsvcInstances = $("#gridsvcInstances").data("contrailGrid");
     if(isSet(gridsvcInstances)) {
         gridsvcInstances.destroy();
@@ -1963,7 +1968,7 @@ function destroy() {
         consoleWindow.remove();
         consoleWindow = $();
     }
-    
+
     confirmDelete = $("#confirmDelete");
     if(isSet(confirmDelete)) {
         confirmDelete.remove();
@@ -1975,14 +1980,14 @@ function destroy() {
         windowCreateSvcInstances.remove();
         windowCreateSvcInstances = $();
     }
-    
+
     var gridsTempDetailSVCInstences = $("#gridsTempDetailSVCInstences");
     if(isSet(gridsTempDetailSVCInstences)) {
         gridsTempDetailSVCInstences.remove();
         $("#gridsTempDetailSVCInstences").empty();
         gridsTempDetailSVCInstences = $();
     }
-    
+
     var svcInstancesConfigTemplate = $("#svcInstances-config-template");
     if(isSet(svcInstancesConfigTemplate)) {
         svcInstancesConfigTemplate.remove();
@@ -2034,13 +2039,13 @@ Handlebars.registerHelper("instDetail",function(InstDetailArr,options) {
         returnHtml += '<div class="span2">' + InstDetailArr[k][1] +'</div>';
         returnHtml += '<div class="span2">';
         var Stat = String(InstDetailArr[k][2]).toUpperCase();
-        if(Stat == "SPAWNING"){ 
+        if(Stat == "SPAWNING"){
             returnHtml += '<img src="/img/loading.gif">';
         } else if(Stat == "INACTIVE") {
             returnHtml += '<span class="status-badge-rounded status-inactive"></span>';
         } else if(Stat == "PARTIALLY ACTIVE"){
             returnHtml += '<img src="/img/loading.gif">'
-        } else if(Stat == "ACTIVE"){ 
+        } else if(Stat == "ACTIVE"){
             returnHtml += '<span class="status-badge-rounded status-active"></span>'
         } else if(Stat == "UPDATE"){
             returnHtml += 'Updating';

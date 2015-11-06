@@ -448,6 +448,32 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Interfaces</searchStrings>
                         </item>
+                        <item>
+                            <label>Service Appliance Sets</label>
+                            <hash>config_pd_serviceApplianceSets</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/serviceApplianceSets/ui</rootDir>
+                                    <js>serviceApplianceSets_config.js</js>
+                                    <view>serviceApplianceSets_config.view</view>
+                                    <class>serviceApplianceSetsConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Service Appliance Sets</searchStrings>
+                        </item>
+                        <item>
+                            <label>Service Appliances</label>
+                            <hash>config_pd_serviceAppliances</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/config/physicaldevices/serviceAppliances/ui</rootDir>
+                                    <js>serviceAppliances_config.js</js>
+                                    <view>serviceAppliances_config.view</view>
+                                    <class>serviceAppliancesConfigObj</class>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure Service Appliances</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>

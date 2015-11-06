@@ -1,0 +1,94 @@
+<script type="text/x-handlebars-template" id="gridServiceApplianceSetsDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Name</label></div>
+                <div class="span10"> {{name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>UUID</label></div>
+                <div class="span10"> {{uuid}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Service Appliances</label></div>
+                <div class="span10"> {{serviceAppliances}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Service Templates</label></div>
+                <div class="span10"> {{serviceTemplates}}</div>
+            </div>
+        </div>
+    </div>
+</script>
+<script type="text/x-handlebars-template" id="serviceApplianceSets-config-template">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="gridServiceApplianceSets"/>
+        </div>
+    </div>
+    
+    <div id="addServiceApplianceSetWindow" class="modal modal-700 hide " tabindex="-1"> 
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+          <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid">
+                 
+                 <label class="control-label span4" >Name</label>
+                 
+            </div>  
+            <div class="row-fluid">
+                 <div class="span4">
+                     <input type="text" id="txtServiceApplianceSetName" class="span12"/>  
+                 </div> 
+            </div>     
+            <div id ="vmSection" class="pull-down-30">   
+
+            </div>  
+
+         
+        </div>
+        <div class="modal-footer">
+           <button  id="btnAddServiceApplianceSetCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button> 
+             <button  id="btnAddServiceApplianceSetOk" class="btn btn-primary btn-mini">Save</button>
+        </div>  
+    </div>
+    
+    <div id="confirmMainDelete" class="modal modal-420 hide" tabindex="-1" role="dialog">
+         <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+              <h6 class="modal-header-title"></h6>
+         </div>
+        <div class="modal-body">
+             <div class="row-fluid text-center">
+                  <h6 id="txtConfirm">Confirm Service Appliance Set(s) delete</h6>
+             </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfDelMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfDelMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="delete-serviceApplianceSet-action-template">
+    <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="deleteServiceApplianceSets">
+        <i class="icon-trash"></i>
+    </a>
+<!--
+    <ul class="pull-right dropdown-menu dropdown-caret">
+        <li id='deleteServiceApplianceSet'>
+            <a id='btnDeleteServiceApplianceSet'>
+                Delete
+            </a>
+            <div class="line-separator"></div>
+        </li>
+        <li id='deleteAllServiceApplianceSet'>
+            <a id='btnDeleteAllServiceApplianceSet'>
+                Delete All
+            </a>
+        </li>
+    </ul>
+-->
+</script>
