@@ -22,7 +22,7 @@ define(
                         //Info:Need to specify the processname explictly
                         //for which we need res memory && Convert to MB
                         obj['y'] = parseInt(jsonPath(d,'$.value.ControlCpuState.cpu_info[0].mem_res')[0])/1024;
-                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
+                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
                         obj['histCpuArr'] =
@@ -167,13 +167,16 @@ define(
                 //Parser for vRouters data
                 this.parsevRoutersDashboardData = function (result) {
                     var retArr = [];
+                    if(result.data != null) {
+                        result = result.data;
+                    }
                     var vRouterCnt = result.length;
                     for (var i = 0; i < vRouterCnt; i++) {
                         var obj = {};
                         var d = result[i];
                         var dValue = result[i]['value'];
-                        obj['cpu'] = parseFloat(getValueByJsonPath(dValue,
-                            'VrouterStatsAgent;cpu_info;cpu_share', '--'));
+                        obj['cpu'] = getValueByJsonPath(dValue,
+                            'VrouterStatsAgent;cpu_info;cpu_share', '--');
                         obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(
                             2)) : NaN;
                         obj['ip'] = getValueByJsonPath(dValue,
@@ -338,7 +341,7 @@ define(
                             parseInt(jsonPath(d,'$..ModuleCpuState.module_cpu_info' +
                             '[?(@.module_id=="contrail-collector")]..meminfo.res')[0])
                             / 1024;
-                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
+                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y'] * 1024 * 1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
@@ -441,7 +444,7 @@ define(
                         obj['y'] = parseInt(jsonPath(d,
                             '$..ModuleCpuState.module_cpu_info'+
                             '[?(@.module_id=="contrail-api")]..meminfo.res')[0])/1024;
-                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : '-';
+                        obj['cpu'] = $.isNumeric(obj['x']) ? obj['x'].toFixed(2) : NaN;
                         obj['memory'] = formatBytes(obj['y']*1024*1024);
                         obj['x'] = $.isNumeric(obj['x']) ? obj['x'] : 0;
                         obj['y'] = $.isNumeric(obj['y']) ? obj['y'] : 0;
@@ -1778,8 +1781,8 @@ define(
                     return (fileList.length == 0)? '-' : fileList;
                 }
 
-                self.getCpuText = function (cpu) {
-                    return (cpu != '-')? cpu + ' %' : cpu;
+                self.getCpuText = function (cpu, noCpuText) {
+                    return (cpu != null && cpu != NaN)? cpu + ' %' : noCpuText;
                 }
             };
 
