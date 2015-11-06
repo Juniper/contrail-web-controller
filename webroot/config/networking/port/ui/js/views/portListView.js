@@ -41,6 +41,7 @@ define([
     fetchPortData : function (result) {
         if(result.length > 0) {
             self.fetchPortWithUUID(result, function() {
+                //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
                 return [];
             });
         }
@@ -67,12 +68,15 @@ define([
                         return;
                     }
                     self.appendNewData(result);
+                    self.portGetChunkCnt = 200;
                         cbparam.allUUID = cbparam.allUUID.slice(
                                           self.portGetChunkCnt,
                                           cbparam.allUUID.length);
                     if(cbparam.allUUID.length > 0) {
+                        //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
                         self.fetchPortChunk(cbparam.allUUID, cbparam.cbparam);
                     } else {
+                        //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").removeGridMessage();
                         callback;
                     }
                 },
@@ -84,6 +88,7 @@ define([
     },
 
     appendNewData: function(result){
+        //$("#"+ctwl.PORT_GRID_ID).data("contrailGrid").showGridMessage("loading");
         var gridData = self.contrailListModel.getItems();
         var newData = [];
         $.extend(true, newData, gridData);

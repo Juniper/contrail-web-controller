@@ -77,6 +77,7 @@ define([
                    && newLRData.virtual_network_refs[0].uuid == ""){
                    newLRData.virtual_network_refs = [];
                 }
+                /* Revert back once idperms is fixed from API
                 var idPerms = JSON.parse(newLRData.id_perms.enable);
                 var idPermsUUID = "";
                 if("uuid" in newLRData.id_perms) {
@@ -87,6 +88,8 @@ define([
                 newLRData.id_perms.enable = idPerms;
                 if(idPermsUUID != "")
                 newLRData.id_perms.uuid = idPermsUUID;
+                */
+                delete(newLRData.id_perms);
                 //Externel Network
                 var extNetworkUUID = newLRData.extNetworkUUID
                 newLRData["virtual_network_refs"] = [];

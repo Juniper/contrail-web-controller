@@ -25,17 +25,24 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
                                         (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
-        }//,
+        },
 
 
-        /*validations: {
-            fixedIPValidations: {
-                'fixedIp': {
-                    required: true,
-                    msg: 'Enter Subnet IP address'
+        validations: {
+            staticRouteValidations: {
+                'prefix': function(value, attr, finalObj) {
+                    if (typeof value === "undefined" || value.trim() === "") {
+                        return "Enter Static Route Prefix";
+                    }
+                    if (!isValidIP(value.trim())) {
+                        return "Enter valid Static Route Prefix";
+                    }
+                    if((value.trim()).split("/").length != 2) {
+                        return "Enter valid Static Rout Prefix with the format xxx.xxx.xxx.xxx/xx";
+                    }
                 }
             }
-        }*/
+        }
     });
     return staticRouteModel;
 });

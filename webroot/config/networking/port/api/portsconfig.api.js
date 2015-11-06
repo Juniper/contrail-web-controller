@@ -807,7 +807,8 @@ function compareUpdateVMI (error, request, portPutData, vmiData, appData, callba
     }
 
     var vmiUUID = vmiData['virtual-machine-interface']['uuid'];
-    portPutData["virtual-machine-interface"]["id_perms"]["uuid"] = vmiData['virtual-machine-interface']["id_perms"]["uuid"];
+    delete portPutData["virtual-machine-interface"]["id_perms"];
+    //portPutData["virtual-machine-interface"]["id_perms"]["uuid"] = vmiData['virtual-machine-interface']["id_perms"]["uuid"];
 
     var DataObjectLenDetail = [];
     var DataObjectArr = [];
