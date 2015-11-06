@@ -177,16 +177,16 @@ define([
                                      tempInc++){
                     if("virtual_network_refs" in connectedNetworksVMI[tempInc]){
                         var vmi_vn =
-                        connectedNetworksVMI[tempInc]["virtual_network_refs"];
+                        connectedNetworksVMI[tempInc]["virtual_network_refs"][0];
                         if(vmi_vn["uuid"] == vmi.value){
-                            uuid = vmi_vn[0]["uuid"];
-                            to = vmi_vn[0]["to"];
+                            uuid = connectedNetworksVMI[tempInc]["uuid"];
+                            to = connectedNetworksVMI[tempInc]["to"];
                         }
                     }
                 }
             }
-            if(vmi.uuid != null ) {
-                vmiRef["uuid"] = vmi.uuid;
+            if(uuid != null ) {
+                vmiRef["uuid"] = uuid;
                 vmiRef["to"] = [];
                 vmiRef["to"] = to;
             } else {
