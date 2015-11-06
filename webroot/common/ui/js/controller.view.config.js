@@ -452,7 +452,14 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_DETAIL_PAGE_ID)) {
+                                $('#' + ctwl.VROUTER_DETAIL_PAGE_ID).trigger('refresh');
+                            }
+                        }
+                    }
                 },{
                     elementId: 'vrouter_interfaces_tab_id',
                     title: 'Interfaces',
@@ -480,7 +487,15 @@ define([
                                 }
                             }
                         }
-                    })
+                    }),
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_INTERFACES_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_INTERFACES_GRID_ID).data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 },{
                     elementId: 'vrouter_networks_tab_id',
                     title: 'Networks',
@@ -507,7 +522,16 @@ define([
                                 }
                             }
                         }
-                    })
+                    }),
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_NETWORKS_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_NETWORKS_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 },{
                     elementId: 'vrouter_acl_tab_id',
                     title: 'ACL',
@@ -535,7 +559,16 @@ define([
                                 }
                             }
                         }
-                    })
+                    }),
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_ACL_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_ACL_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 },{
                     elementId: 'vrouter_flows_tab_id',
                     title: 'Flows',
@@ -543,7 +576,16 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_FLOWS_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 },{
                     elementId: 'vrouter_routes_tab_id',
                     title: 'Routes',
@@ -551,7 +593,16 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_ROUTES_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 },{
                     elementId: 'vrouter_virtualmachines',
                     title: 'Instances',
@@ -559,7 +610,16 @@ define([
                     viewPathPrefix:
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_INSTANCE_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 }
             ]
         };

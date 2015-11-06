@@ -34,7 +34,7 @@ define([
                 var outPolicyAclUuidList = ifNull(jsonPath(data,"$..out_policy..FlowAclUuid..uuid"),noDataStr);
                 var sgUuidList = ifNull(jsonPath(data,"$..sg..FlowAclUuid..uuid"),noDataStr);
                 var outSgUuidList = ifNull(jsonPath(data,"$..out_sg..FlowAclUuid..uuid"),noDataStr);
-                
+
                 var ret = '';
                 if(aclUuidList.length > 0){
                     ret += "<span class='text-info'>Policy:</span>";
@@ -43,21 +43,21 @@ define([
                     ret += "</br>" + aclUuid;
                 });
                 if(outPolicyAclUuidList.length > 0){
-                    ret += (ret != '')?" </br><span class='text-info'>Out Policy:</span>" : 
+                    ret += (ret != '')?" </br><span class='text-info'>Out Policy:</span>" :
                         "<span class='text-info'>Out Policy:</span>";
                 }
                 $.each(outPolicyAclUuidList,function(idx,outPolicyAclUuid){
                     ret += "</br>" + outPolicyAclUuid;
                 });
                 if(sgUuidList.length > 0){
-                    ret += (ret != '')?"</br><span class='text-info'>SG:</span>" : 
+                    ret += (ret != '')?"</br><span class='text-info'>SG:</span>" :
                         "<span class='text-info'>SG:</span>";
                 }
                 $.each(sgUuidList,function(idx,sgUuid){
                     ret += "</br>" + sgUuid;
                 });
                 if(outSgUuidList.length > 0){
-                    ret += (ret != '')?"</br><span class='text-info'>Out SG:</span>" : 
+                    ret += (ret != '')?"</br><span class='text-info'>Out SG:</span>" :
                         "<span class='text-info'>Out SG:</span>";
                 }
                 $.each(outSgUuidList,function(idx,outSgUuid){
@@ -171,8 +171,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'Flows',
-                    icon : 'icon-table'
+                    text: 'Flows'
                 },
                 customControls : [
                         '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
@@ -198,6 +197,19 @@ define([
                     remote: {
                         ajaxConfig: {
                         }
+                    }
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Flows..',
+                    },
+                    empty: {
+                        text: 'No Flows to display'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
                     }
                 }
             },

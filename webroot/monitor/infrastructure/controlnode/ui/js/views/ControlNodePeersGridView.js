@@ -123,7 +123,20 @@ define([
             },
             dataSource : {
                 data : []
-            }
+            },
+            statusMessages: {
+                loading: {
+                   text: 'Loading Peers..',
+                },
+                empty: {
+                   text: 'No Peers to display'
+                }, 
+                errorGettingData: {
+                   type: 'error',
+                   iconClasses: 'icon-warning',
+                   text: 'Error in getting Data.'
+                }
+             }
         }
     };
     return gridElementConfig;

@@ -43,22 +43,21 @@ define([
         return {
             theme: 'default',
             active: 0,
-            activate: function (e, ui) {
-                var selTab = $(ui.newTab.context).text();
-                if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                    $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
-                } else if (selTab == ctwl.TITLE_INSTANCES) {
-                    $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').
-                        refreshView();
-                }
-            },
             tabs: [
                {
                    elementId: 'databasenode_detail_id',
                    title: 'Details',
                    view: "DatabaseNodeDetailPageView",
                    viewPathPrefix: ctwl.DATABASENODE_VIEWPATH_PREFIX,
-                   viewConfig: viewConfig
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if ($('#' + ctwl.DBNODE_DETAIL_PAGE_ID)) {
+                               $('#' + ctwl.DBNODE_DETAIL_PAGE_ID).trigger('refresh');
+                           }
+                       },
+                       renderOnActivate: true
+                   }
                }
             ]
         }

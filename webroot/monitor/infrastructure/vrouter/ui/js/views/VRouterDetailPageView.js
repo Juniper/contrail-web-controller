@@ -98,7 +98,7 @@ define([
 
                     obj['interfaces'] = getInterfaces (obj);
 
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
 
                     obj['lastLogTimestamp'] =
                             getLastLogTime(vrouterData);

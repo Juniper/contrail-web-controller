@@ -103,7 +103,7 @@ define([
                     obj['vRouterPeerDetails'] =
                             getVRouterPeersDetails(ctrlNodeData,obj);
 
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
 
                     obj['lastLogTimestamp'] =
                             getLastLogTime(ctrlNodeData);

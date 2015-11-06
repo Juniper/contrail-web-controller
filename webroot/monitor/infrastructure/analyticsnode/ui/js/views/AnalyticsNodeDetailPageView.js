@@ -73,7 +73,7 @@ define([
                     //dummy entry to show empty value in details
                     obj['processes'] = '&nbsp;';
 
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
 
                     obj['analyticsMessages'] = getAnalyticsMessages(
                                                         analyticsNodeData);
