@@ -724,12 +724,18 @@ function getQueryJSON4Table(queryReqObj) {
 
     if (tableType == 'LOG') {
         queryJSON = _.extend({}, queryJSON, {
-            "select_fields": ["MessageTS", "Type", "Source", "ModuleId", "Messagetype", "Xmlmessage", "Level", "Category"],
+            "select_fields": ["MessageTS", "Type", "Level"],
             "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]],
             "sort_fields": ['MessageTS'],
             "sort": 2,
             "limit": 150000
         });
+
+        if(formModelAttrs['log_level'] != null && formModelAttrs['log_level'] != "") {
+            for(var i = 0; i < queryJSON.filter.length; i++) {
+                queryJSON.filter[i].push({"name": "Level", "value": formModelAttrs['log_level'], "op": 5})
+            }
+        }
     } else if (tableName == 'FlowSeriesTable') {
         autoSort = (select.indexOf('T=') == -1 && select.indexOf('T') == -1) ? false : autoSort;
 
