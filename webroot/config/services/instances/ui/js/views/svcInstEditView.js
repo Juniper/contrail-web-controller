@@ -152,7 +152,7 @@ define([
                                         tmpl.substr(intfTypeStrStart + 1,
                                                     intfTypeStrEnd -
                                                     intfTypeStrStart - 1);
-                                    window.intfTypes = itfTypes.split(',');
+                                    window.intfTypes = itfTypes.split(', ');
                                     self.model.formatModelConfigColl(window.intfTypes);
                                 },
                                 placeholder: 'Select template',
@@ -189,6 +189,7 @@ define([
                         elementId: 'ha_mode',
                         view: 'FormDropdownView',
                         viewConfig: {
+                            disabled: 'isHAModeDropDownDisabled',
                             visible: 'showInstCnt',
                             class: 'span6',
                             path: 'service_instance_properties.ha_mode',
@@ -197,8 +198,10 @@ define([
                             elementConfig: {
                                 dataTextField : "text",
                                 dataValueField : "id",
-                                data : [{id: 'active-active',
-                                            text: 'Standalone'},
+                                data : [{id: "",
+                                            text: 'None'},
+                                        {id: 'active-active',
+                                            text: 'Active-Active'},
                                         {id: 'active-standby',
                                             text: 'Active-Standby'}]
                             }

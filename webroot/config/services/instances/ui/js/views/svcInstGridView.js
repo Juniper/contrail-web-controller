@@ -6,10 +6,12 @@ define([
     'underscore',
     'contrail-view',
     'config/services/instances/ui/js/models/svcInstModel',
-    'config/services/instances/ui/js/views/svcInstEditView'
-], function (_, ContrailView, SvcInstModel, SvcInstEditView) {
+    'config/services/instances/ui/js/views/svcInstEditView',
+    'config/services/instances/ui/js/svcInst.utils'
+], function (_, ContrailView, SvcInstModel, SvcInstEditView, svcInstUtils) {
     var svcInstEditView = new SvcInstEditView(),
     gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
+    var svcUtils = new svcInstUtils();
 
     var SvcInstGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -114,7 +116,7 @@ define([
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
             var svcInstModel = new SvcInstModel(dataItem);
-            showHideModelAttr(svcInstModel);
+            addModelAttr(svcInstModel);
             svcInstEditView.model = svcInstModel;
             svcInstEditView.renderConfigureSvcInst({
                                   "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
@@ -155,27 +157,31 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'span12',
                             rows: [{
                                 title: ctwl.SVC_INST_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [
                                     {
+                                        keyClass: 'span2',
                                         key: 'name',
                                         label: 'Instance Name',
                                         templateGenerator: 'TextGenerator',
                                     },
                                     {
                                         key: 'display_name',
+                                        keyClass: 'span2',
                                         label: 'Display Name',
                                         templateGenerator: 'TextGenerator',
                                     },
                                     {
                                         key: 'uuid',
+                                        keyClass: 'span2',
                                         templateGenerator: 'TextGenerator'
                                     },
                                     {
                                         key: 'service_template_refs',
+                                        keyClass: 'span2',
                                         label: 'Template',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -184,6 +190,7 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
+                                        keyClass: 'span2',
                                         label: 'Number of instances',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -192,6 +199,16 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
+                                        keyClass: 'span2',
+                                        label: 'HA Mode',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'haModeFormatter',
+                                        }
+                                    },
+                                    {
+                                        key: 'service_instance_properties',
+                                        keyClass: 'span2',
                                         label: 'Networks',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -200,6 +217,7 @@ define([
                                     },
                                     {
                                         key: 'svcTmplDetails',
+                                        keyClass: 'span2',
                                         label: 'Image',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -208,6 +226,7 @@ define([
                                     },
                                     {
                                         key: 'svcTmplDetails',
+                                        keyClass: 'span2',
                                         label: 'Flavor',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
@@ -216,11 +235,22 @@ define([
                                     },
                                     {
                                         key: 'service_instance_properties',
+                                        keyClass: 'span2',
                                         label: 'Availability Zone',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter:
                                                 'availabilityZoneFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'statusDetails',
+                                        keyClass: 'span2',
+                                        valueClass: 'span11',
+                                        label: 'Instance Status',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcInstStatusFormatter'
                                         }
                                     }
                                 ]
@@ -289,7 +319,14 @@ define([
         return "-";
     }
 
-    function networksFormatter (row, col, val, d, rowData) {
+    function haModeFormatter (row, col, val, d, rowData) {
+        var haMode = getValueByJsonPath(rowData,
+                                        'service_instance_properties;ha_mode',
+                                        '-');
+        return haMode;
+    }
+
+    function networksFormatter (row, col, val, d, rowData, isExpand) {
         var dispStr = "";
         if (null != rowData['service_instance_properties']) {
             var svcInstProp = rowData['service_instance_properties'];
@@ -297,19 +334,31 @@ define([
                 dispStr += 'Management Network : ';
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['management_virtual_network']);
-                dispStr += ', ';
+                if (isExpand) {
+                    dispStr += '<br>';
+                } else {
+                    dispStr += ', ';
+                }
             }
             if (null != svcInstProp['left_virtual_network']) {
                 dispStr += "Left Network : ";
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['left_virtual_network']);
-                dispStr += ', ';
+                if (isExpand) {
+                    dispStr += '<br>';
+                } else {
+                    dispStr += ', ';
+                }
             }
             if (null != svcInstProp['right_virtual_network']) {
                 dispStr += "Right Network : ";
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['right_virtual_network']);
-                dispStr += ', ';
+                if (isExpand) {
+                    dispStr += '<br>';
+                } else {
+                    dispStr += ', ';
+                }
             }
             /* Now check if we have other network */
             var intfList = svcInstProp['interface_list'];
@@ -371,6 +420,112 @@ define([
         return "ANY:ANY";
     }
 
+    function svcInstStatusFormatter (row, col, val, d, rowData) {
+        var vmDetails =
+            getValueByJsonPath(rowData,
+                               'statusDetails;VMDetails', []);
+        var vmCnt = vmDetails.length;
+        var returnHtml = '';
+        var statusDataList = [];
+        for (var i = 0; i < vmCnt; i++) {
+            var serId = getValueByJsonPath(vmDetails[i], 'server;id', null);
+            if (null == serId) {
+                console.error("serId got errorceous");
+                continue;
+            }
+            var serName = getValueByJsonPath(vmDetails[i], 'server;name', "-");
+            var serStatus = getValueByJsonPath(vmDetails[i], 'server;status',
+                                               "-");
+            var pwrState = getValueByJsonPath(vmDetails[i],
+                                              'server;OS-EXT-STS:power_state',
+                                              '-');
+            pwrState = svcUtils.getPowerState(pwrState);
+            var addr = getValueByJsonPath(vmDetails[i], 'server;addresses', {});
+            var addrStr = "";
+            for (key in addr) {
+                addrStr += key.toString();
+                if (addr[key].length > 0) {
+                    addrStr += ':';
+                    addrStr += (null != addr[key][0]['addr']) ?
+                        addr[key][0]['addr'] : '-';
+                } else {
+                    addrStr += "~~";
+                }
+                addrStr += ' ';
+            }
+            statusDataList.push({id: serId, name: serName, status: serStatus,
+                                address: addrStr, state: pwrState});
+        }
+        var cnt = statusDataList.length;
+        if (!cnt) {
+            return 'No Service Instance found.';
+        }
+        var statusHeader =
+            '<tr class="bgCol">' +
+                 '<td class="span3"><label>Virtual Machine</label></td>' +
+                 '<td class="span2"><label>Status</label></td>' +
+                 '<td class="span2"><label>Power State</label></td>' +
+                 '<td class="span3"><label>Networks</label></td>' +
+                 '<td class="span2"><label></label></td>' +
+              '</tr>'
+        returnHtml += statusHeader;
+        for (i = 0; i < cnt; i++) {
+            returnHtml += '<tr>';
+            returnHtml += '<td class="span3">' + statusDataList[i]['name'] +
+                '</td>';
+            returnHtml += '<td class="span2">';
+            var stat = String(statusDataList[i]['status']).toUpperCase();
+            if ('SPAWNING' == stat) {
+                returnHtml += '<img src="/img/loading.gif">';
+            } else if ('INACTIVE' == stat) {
+                returnHtml += '<span class="status-badge-rounded status-inactive"></span>';
+            } else if ('PARTIALLY ACTIVE' == stat) {
+                returnHtml += '<img src="/img/loading.gif">'
+            } else if ('ACTIVE' == stat) {
+                returnHtml += '<span class="status-badge-rounded status-active"></span>'
+            } else if ('UPDATE' == stat) {
+                returnHtml += 'Updating';
+            }
+            returnHtml += statusDataList[i]['status'] + ' </td>';
+            returnHtml += '<td class="span2">' + statusDataList[i]['state'] +
+                '</td>';
+            var instDetailStr = statusDataList[i]['address'].split('~~');
+            if (instDetailStr.length > 1) {
+                returnHtml += '<td class="span3">';
+                var msgSplit = instDetailStr[0].split(" ");
+                var msgStr = msgSplit[msgSplit.length - 1] +
+                    " IP Address not assigned.";
+                var strLen = instDetailStr.length;
+                for(var inc = 0; inc < strLen - 1; inc++) {
+                    returnHtml += '&nbsp;&nbsp;<span class="status-badge-rounded status-inactive" title="#= msgStr #" ></span>'
+                    returnHtml += instDetailStr[inc + 1];
+                }
+                returnHtml += '</td>';
+            } else {
+                returnHtml += '<td class="span2">'+ instDetailStr +'</td>';
+            }
+            returnHtml += '<td class="span2"><u><a onClick="showViewConsoleWindow(\'' +
+                statusDataList[i]['id'] +'\', \''+ statusDataList[i]['name'] +
+                '\');"> View Console </a></u></td>';
+            returnHtml += '</tr>';
+        }
+        returnHtml = "<table>" + returnHtml + "</table>";
+        return returnHtml;
+    }
+
+    this.showViewConsoleWindow = function(vmUUID, name) {
+        var selectedProject = window.projectDomainData.name;
+        var ajaxConfig = {
+            url: '/api/tenants/config/service-instance-vm?project_id=' +
+                     selectedProject + "&vm_id=" + vmUUID,
+            type: "GET"
+        };
+        contrail.ajaxHandler(ajaxConfig, null, function(result) {
+            var href = jsonPath(result, "$.console.url")[0];
+            window.open(href);
+        });
+    }
+
     function statusFormatter (row, col, val, d, rowData) {
         var svcTmplDetails =
             getValueByJsonPath(rowData, 'svcTmplDetails', null);
@@ -422,7 +577,7 @@ define([
     }
 
     this.networksFormatter = function(val, rowData) {
-        return networksFormatter(null, null, val, null, rowData);
+        return networksFormatter(null, null, val, null, rowData, true);
     }
 
     this.imagesFormatter = function (val, rowData) {
@@ -437,8 +592,16 @@ define([
         return availabilityZoneFormatter(null, null, val, null, rowData);
     }
 
+    this.svcInstStatusFormatter = function(val, rowData) {
+        return svcInstStatusFormatter(null, null, val, null, rowData);
+    }
+
     this.instCountFormatter = function(val, rowData) {
         return instCountFormatter(null, null, val, null, rowData);
+    }
+
+    this.haModeFormatter = function(val, rowData) {
+        return haModeFormatter(null, null, val, null, rowData);
     }
 
     function getVirtualNetworkDisplay (vnFQN) {
@@ -485,7 +648,7 @@ define([
             }
         },
         {
-            name: 'Number of instances',
+            name: '# instances',
             width: 35,
             formatter: function(row, col, val, d, rowData) {
                 return instCountFormatter(row, col, val, d, rowData);
@@ -494,7 +657,7 @@ define([
         {
             name: 'Networks',
             formatter: function(row, col, val, d, rowData) {
-                return networksFormatter(row, col, val, d, rowData);
+                return networksFormatter(row, col, val, d, rowData, false);
             }
         }
     ];
@@ -516,14 +679,21 @@ define([
                 uiSvcTmplStr.substr(intfTypeStrStart + 1,
                                intfTypeStrEnd -
                                intfTypeStrStart - 1);
-            window.intfTypes = itfTypes.split(',');
+            window.intfTypes = itfTypes.split(', ');
             window.intfToBeTaken = window.intfTypes[0];
         }
         return svcInstTmplts[tmpl];
     }
 
-    function showHideModelAttr (model)
+    function addModelAttr (model)
     {
+        model.isHAModeDropDownDisabled = ko.computed((function() {
+            var instCnt = this.no_of_instances();
+            if (instCnt > 1) {
+                return false;
+            }
+            return true;
+        }), model);
         model.showInstCnt = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
             var svcScaling =
@@ -540,41 +710,6 @@ define([
                                    false);
             return availZoneEnable;
         }), model);
-        /*
-        model.showStaticRTs = ko.computed((function() {
-            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
-            if ((null == window.intfToBeTaken) || (null == svcTmpl)) {
-                return false;
-            }
-            var intf = window.intfToBeTaken.toLowerCase();
-            var intfTypes =
-                getValueByJsonPath(svcTmpl,
-                                   'service_template_properties;interface_type',
-                                   []);
-            var cnt = intfTypes.length;
-            for (var i = 0; i < cnt; i++) {
-                if (intfTypes[i]['service_interface_type'] == intf) {
-                    if (intfTypes[i]['static_route_enable'] == true) {
-                        retFlag = true;
-                    } else {
-                        retFlag = false;
-                    }
-                    break;
-                }
-            }
-            if (null != window.intfTypes) {
-                var idx = window.intfTypes.indexOf(window.intfToBeTaken);
-                if (null != window.intfTypes[idx + 1]) {
-                    window.intfToBeTaken = window.intfTypes[idx + 1];
-                } else {
-                    window.intfToBeTaken = null;
-                }
-            } else {
-                window.intfToBeTaken = null;
-            }
-            return retFlag;
-        }), model);
-        */
     }
 
     function getHeaderActionConfig() {
@@ -590,7 +725,7 @@ define([
                     if (!window.svcTmplsFormatted.length) {
                         return;
                     }
-                    showHideModelAttr(svcInstModel);
+                    addModelAttr(svcInstModel);
                     svcInstEditView.model = svcInstModel;
                     svcInstEditView.renderConfigureSvcInst({
                         "title": ctwl.TITLE_CREATE_SERVICE_INSTANCE,
