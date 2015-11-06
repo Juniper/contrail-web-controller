@@ -131,8 +131,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'Interfaces',
-                    icon : 'icon-table'
+                    text: 'Interfaces'
                 },
                 customControls : monitorInfraUtils.getGridPaginationControls(),
                 defaultControls: {
@@ -152,6 +151,19 @@ define([
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Interfaces..',
+                    },
+                    empty: {
+                        text: 'No Interfaces to display'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
                 }
             },
             columnHeader: {

@@ -167,15 +167,18 @@ define(
                 //Parser for vRouters data
                 this.parsevRoutersDashboardData = function (result) {
                     var retArr = [];
+                    if(result.data != null) {
+                        result = result.data;
+                    }
                     var vRouterCnt = result.length;
                     for (var i = 0; i < vRouterCnt; i++) {
                         var obj = {};
                         var d = result[i];
                         var dValue = result[i]['value'];
-                        obj['cpu'] = parseFloat(getValueByJsonPath(dValue,
-                            'VrouterStatsAgent;cpu_info;cpu_share', '--'));
+                        obj['cpu'] = getValueByJsonPath(dValue,
+                            'VrouterStatsAgent;cpu_info;cpu_share', '--');
                         obj['cpu'] = $.isNumeric(obj['cpu']) ? parseFloat(obj['cpu'].toFixed(
-                            2)) : NaN;
+                            2)) : '-';
                         obj['ip'] = getValueByJsonPath(dValue,
                             'VrouterAgent;control_ip', '-');
                         obj['xField'] = 'cpu';
@@ -1779,7 +1782,7 @@ define(
                 }
 
                 self.getCpuText = function (cpu) {
-                    return (cpu != '-')? cpu + ' %' : cpu;
+                    return (cpu != null && cpu != '-' && cpu != '--')? cpu + ' %' : cpu;
                 }
             };
 
