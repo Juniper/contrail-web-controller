@@ -45,18 +45,6 @@ define([
         return {
             theme: 'default',
             active: 0,
-            activate: function (e, ui) {
-                var selTab = $(ui.newTab.context).text();
-                if (selTab == 'Details') {
-                    $('#' + ctwl.ANALYTICSNODE_DETAIL_PAGE_ID).trigger('refresh');
-                } else if (selTab == 'Generators') {
-                    $('#' + ctwl.ANALYTICSNODE_GENERATORS_GRID_ID).
-                        data('contrailGrid').refreshView();
-                } else if (selTab == 'QE Queries') {
-                    $('#' + ctwl.ANALYTICSNODE_QEQUERIES_GRID_ID).
-                    data('contrailGrid').refreshView();
-                }
-            },
             tabs: [
                {
                    elementId: 'analyticsnode_detail_id',
@@ -64,7 +52,15 @@ define([
                    view: "AnalyticsNodeDetailPageView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                   viewConfig: viewConfig
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if ($('#' + ctwl.ANALYTICSNODE_DETAIL_PAGE_ID)) {
+                               $('#' + ctwl.ANALYTICSNODE_DETAIL_PAGE_ID).trigger('refresh');
+                           }
+                       },
+                       renderOnActivate: true
+                   }
                },
                {
                    elementId: 'analyticsnode_generators_id',
@@ -72,7 +68,17 @@ define([
                    view: "AnalyticsNodeGeneratorsGridView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                   viewConfig: viewConfig
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if ($('#' + ctwl.ANALYTICSNODE_GENERATORS_GRID_ID).
+                                   data('contrailGrid')) {
+                               $('#' + ctwl.ANALYTICSNODE_GENERATORS_GRID_ID).
+                                       data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: true
+                   }
                },
                {
                    elementId: 'analyticsnode_qequery_id',
@@ -80,7 +86,17 @@ define([
                    view: "AnalyticsNodeQEQueriesGridView",
                    viewPathPrefix: ctwl.ANALYTICSNODE_VIEWPATH_PREFIX,
                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                   viewConfig: viewConfig
+                   viewConfig: viewConfig,
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if ($('#' + ctwl.ANALYTICSNODE_QEQUERIES_GRID_ID).
+                                   data('contrailGrid')) {
+                               $('#' + ctwl.ANALYTICSNODE_QEQUERIES_GRID_ID).
+                                   data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: true
+                   }
                }
             ]
         }
