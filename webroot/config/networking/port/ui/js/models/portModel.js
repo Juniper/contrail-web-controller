@@ -60,7 +60,8 @@ define([
             'templateGeneratorData': 'rawData',
             //'deviceComputeShow' : false,
             //'deviceRouterShow' : false,
-            'disable_sub_interface' : false
+            'disable_sub_interface' : false,
+            'subnetGroupVisible': true
         },
         setVNData: function(allNetworks) {
             self.allNetworks = allNetworks;
@@ -149,6 +150,8 @@ define([
                     fixedIP_obj.fixedIp = fixedIPobj.fixedip.ip;
                     fixedIP_obj.subnet_uuid = fixedIPobj.fixedip.subnet_uuid;
                     fixedIP_obj.uuid = fixedIPobj.uuid;
+                    fixedIP_obj.disableFIP = true;
+                    fixedIP_obj.visibleSubnet = false;
                     var fixedIPModel = new FixedIPModel(fixedIP_obj);
                     fixedIPModels.push(fixedIPModel);
                 }
@@ -268,6 +271,7 @@ define([
             if("virtual_machine_interface_properties" in modelConfig &&
                "sub_interface_vlan_tag" in
                modelConfig["virtual_machine_interface_properties"] &&
+               modelConfig["virtual_machine_interface_properties"]["sub_interface_vlan_tag"] != null &&
                modelConfig["virtual_machine_interface_properties"]["sub_interface_vlan_tag"] != ""){
                 if(modelConfig["virtual_machine_interface_properties"]["sub_interface_vlan_tag"]
                     == "addSubInterface")
@@ -296,6 +300,9 @@ define([
                     function(value, attr, finalObj) {
                     if(finalObj.is_sub_interface == true) {
                         var vlantag = value;
+                        if(vlantag == null){
+                            return "VLAN.";
+                        }
                         if(!isNumber(vlantag.trim())){
                             return "VLAN has to be a number.";
                         }
@@ -305,25 +312,69 @@ define([
                         }
                     }
                 },
+                'is_sub_interface': function(value, attr, finalObj) {
+                    if(value == true && finalObj.deviceOwnerValue == "compute") { 
+                        return "Subinterface cannot be assigned along with Compute Device Owner."
+                    }
+                },
                 'subInterfaceVMIValue': function(value, attr, finalObj) {
                     if(finalObj.is_sub_interface == true &&
                         value.trim() == "" ) {
                             return "Sub Interface cannot be empty.";
                     }
-                }
+                },
+                'macAddress': function(value, attr, finalObj) {
+                    if(value.trim() != "" && !isValidMACAddress(value)) {
+                        return "Enter valid MAC Address";
+                    }
+                },
+                'floatingIpValue': function(value, attr, finalObj) {
+                    if(value.length > 0 &&
+                       finalObj.deviceOwnerValue == "router") {
+                        return "Floating Ip cannot be assigned to Router port";
+                    }
+                },
+                'virtualMachineValue': function(value, attr, finalObj) {
+                    if(value == "" &&
+                       finalObj.deviceOwnerValue == "compute") {
+                        return "Device Owner UUID cannot be empty.";
+                    }
+                },
+                'logicalRouterValue': function(value, attr, finalObj) {
+                    if(value == "" &&
+                       finalObj.deviceOwnerValue == "router") {
+                        return "Device Owner UUID cannot be empty.";
+                    }
+                },
             }
         },
         // fixed IP collection Adding
         addFixedIP: function() {
-            var fixedIPList = this.model().attributes['fixedIPCollection'],
-                fixedIPModel = new FixedIPModel();
-                fixedIPModel.subnetDataSource = self.subnetDataSource;
-            fixedIPList.add([fixedIPModel]);
+            if(self.subnetDataSource.length > 0) {
+                var fixedIPList = this.model().attributes['fixedIPCollection'];
+                if(fixedIPList.length < self.subnetDataSource.length) {
+                    var fixedIPModel = new FixedIPModel();
+                    fixedIPModel.subnetDataSource = self.subnetDataSource;
+                    fixedIPModel.subnet_uuid = self.subnetDataSource[0].value;
+                    fixedIPList.add([fixedIPModel]);
+                }
+                var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
+                if(addbtn != undefined) {
+                    if(fixedIPList.length >= self.subnetDataSource.length) {
+                        //remove the add Fixed IP Button
+                        $(addbtn).addClass("hide");
+                    } else {
+                        $(addbtn).removeClass("hide");
+                    }
+                }
+            }
         },
         //fixed IP Delete
         deleteFixedIP: function(data, fixedIP) {
             var fixedIPCollection = data.model().collection,
                 delFixedIp = fixedIP.model();
+                addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
+            $(addbtn).removeClass("hide");
             fixedIPCollection.remove(delFixedIp);
         },
 
@@ -381,8 +432,10 @@ define([
             var ajaxConfig = {}, returnFlag = true;
             var network_subnet = allNetworksDS;
             var temp_val;
-            if (this.model().isValid(true, "portValidations")) {
-                var newPortData = $.extend({},this.model().attributes),
+            if (this.model().isValid(true, "portValidations") /*&& 
+                this.model().validateAttr(true, "staticRouteValidations") &&
+                this.model().validateAttr(true, "allowedAddressPairValidations")*/) {
+                var newPortData = $.extend(true, {}, this.model().attributes),
                     selectedDomain = ctwu.getGlobalVariable('domain').name,
                     selectedProject = ctwu.getGlobalVariable('project').name;
                 newPortData.fq_name = [selectedDomain,
@@ -419,6 +472,7 @@ define([
                     var msSGselectedData =
                         newPortData.securityGroupValue.split(",");
                     if (msSGselectedData && msSGselectedData.length > 0) {
+                        newPortData.security_group_refs = []
                         for (var i = 0; i < msSGselectedData.length; i++) {
                             if(msSGselectedData[i] != "") {
                                 var sgDta = (msSGselectedData[i]).split(":");
@@ -556,10 +610,10 @@ define([
                 var subnet_uuid = "";
                 try {
                     var obj =
-                        JSON.parse(allFixedIPCollectionValue[i].subnet_uuid());
+                        JSON.parse(allFixedIPCollectionValue[i].subnet_uuid);
                     subnet_uuid = obj.subnet_uuid;
                 } catch (exception) {
-                    subnet_uuid = allFixedIPCollectionValue[i].subnet_uuid();
+                    subnet_uuid = allFixedIPCollectionValue[i].subnet_uuid;
                 }
                 fixedIPArr[i]["subnet_uuid"] = subnet_uuid;
 
@@ -712,7 +766,9 @@ define([
                 delete(newPortData.locks);
                 delete(newPortData.rawData);
                 delete(newPortData.vmi_ref);
+                delete(newPortData.perms2);
                 delete(newPortData.disable_sub_interface);
+                delete(newPortData.subnetGroupVisible);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }

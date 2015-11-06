@@ -489,9 +489,11 @@ define([
                     lrReturn.push({"text":text,"value":deviceLRArr});
                 }
             }
-            if((!edit && lrReturn.length > 0) ||
-                (edit && portModel.model.deviceOwnerValue() != "router")) {
-                portModel.model.logicalRouterValue(lrReturn[0].value);
+            if(lrReturn.length > 0) {
+                if((!edit) ||
+                    (edit && portModel.model.deviceOwnerValue() != "router")) {
+                    portModel.model.logicalRouterValue(lrReturn[0].value);
+                }
             }
             return lrReturn;
         }
@@ -522,17 +524,10 @@ define([
                        (subInterfaceProject == selectedProject)){
                         subInterfaceParentText += ip["uuid"] + "\xa0\xa0";
                         var fixedIp = getValueByJsonPath(ip,
-                                      "instance_ip_back_refs;0;fixedipip", "");
+                                      "instance_ip_back_refs;0;fixedip;ip", "");
                         if(fixedIp != "") {
                             subInterfaceParentText += fixedIp;
                         }
-                        /*if(ip["instance_ip_back_refs"] != undefined &&
-                            ip["instance_ip_back_refs"] != null &&
-                            ip["instance_ip_back_refs"][0]["to"] != undefined &&
-                            ip["instance_ip_back_refs"][0]["to"] != null){
-                                subInterfaceParentText +=
-                                ip["instance_ip_back_refs"][0]["fixedip"]["ip"];
-                        }*/
                         var macAddress = getValueByJsonPath(ip,
                                          "virtual_machine_interface_mac_addresses;mac_address;0",
                                          null)
@@ -545,9 +540,11 @@ define([
                         var uuid = ip["uuid"];
                         var to = ip["fq_name"].join(":");
                         var subInterfaceVMI = uuid + " " + to;
-                        subInterfaceParentDatas.push(
+                        if(!(true == edit && ip["uuid"] == portModel.model.uuid())){ 
+                            subInterfaceParentDatas.push(
                                                 {"text":subInterfaceParentText,
                                                 "value":subInterfaceVMI});
+                        }
                     }
                 }
             }

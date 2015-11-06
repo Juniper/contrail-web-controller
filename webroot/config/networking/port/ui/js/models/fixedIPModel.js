@@ -12,7 +12,9 @@ define([
             'fixedIp': null,
             'subnet_uuid':'',
             'subnetDataSource' : [],
-            'uuid':''
+            'uuid':'',
+            'disableFIP':false,
+            'visibleSubnet':true
         },
 
         validateAttr: function (attributePath, validation, data) {
@@ -31,9 +33,25 @@ define([
 
         validations: {
             fixedIPValidations: {
-                'fixedIp': {
-                    required: true,
-                    msg: 'Enter Subnet IP address'
+                'fixedIp': function(value, attr, finalObj) {
+                    if(value != null) {
+                        if(value.trim() != "" && !isValidIP(value)) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                        var fixedIP = value.trim();
+                        if(fixedIP.split("/").length > 1) {
+                            return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
+                        }
+                        if(finalObj.subnet_uuid != "") {
+                            if(!isIPBoundToRange(fixedIP, finalObj.subnet_uuid)){
+                                return "Enter a fixed IP within the selected subnet range";
+                            }
+                            if(isStartAddress(fixedIP, finalObj.subnet_uuid) == true || 
+                               isEndAddress(fixedIP, finalObj.subnet_uuid) == true) {
+                                return "Fixed IP cannot be same as broadcast/start address";
+                            }
+                        }
+                    }
                 }
             }
         }

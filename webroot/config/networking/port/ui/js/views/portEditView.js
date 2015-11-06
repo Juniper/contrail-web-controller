@@ -57,7 +57,9 @@ define([
                 function(allNetworksDS, allNetwork) {
                    var disableElement = false;
                    self.model.setVNData(allNetwork);
-                   //self.model.virtualNetworkToName(allNetwork[0].value);
+                   if(options['mode'] == "add") {
+                        self.model.virtualNetworkToName(allNetworksDS[0].value);
+                   }
                    if(options['mode'] == "edit") {
                         disableElement = true;
                    }
@@ -65,10 +67,14 @@ define([
                     var subnetDS = portFormatter.fixedIpSubnetDDFormatter(
                                              allNetwork, selectedVN);
                     self.model.setSubnetDataSource(subnetDS);
-                    if(options['mode'] != "edit") {
-                    // && subnetDS.length > 0){
-                        //self.model.addFixedIP;
-                    } else {
+                    if(options['mode'] == "add") {
+                        if(subnetDS.length > 0) {
+                            self.model.addFixedIP();
+                            self.model.subnetGroupVisible(true);
+                        } else {
+                            self.model.subnetGroupVisible(false);
+                        }
+                    } else if(options['mode'] == "edit") {
                         if(self.model.security_group_refs().length <= 0) {
                             self.model.is_sec_grp(false);
                         }
@@ -78,11 +84,31 @@ define([
                         self.model, self.getConfigureViewConfig
                         (disableElement, allNetworksDS),
                         null, null, null, function(){
+                            if(options['mode'] == "edit") {
+                                //remove the add Fixed IP Button
+                                var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
+                                if(addbtn != undefined) {
+                                    if(self.model.fixedIPCollection().length >=
+                                       self.model.subnetDataSource.length) {
+                                        $(addbtn).addClass("hide");
+                                    }
+                                }
+                            }
                             self.model.showErrorAttr(prefixId +
                                             cowc.FORM_SUFFIX_ID, false);
                             Knockback.applyBindings(self.model,
                                             document.getElementById(modalId));
-                            kbValidation.bind(self);
+                            kbValidation.bind(self,
+                                {collection:
+                                  self.model.model().attributes.fixedIPCollection}
+                                /*{collection:
+                                  self.model.model().attributes.dhcpOptionCollection}
+                                {collection:
+                                  self.model.model().attributes.allowedAddressPairCollection}
+                                {collection:
+                                  self.model.model().attributes.staticRouteCollection},*/
+
+                            );
                    });
                    return;
                }
@@ -195,8 +221,13 @@ define([
                 var subnetDS = portFormatter.fixedIpSubnetDDFormatter(
                                          self.model.getVNData(),
                                          e.val);
-                self.model.setSubnetDataSource(subnetDS);
-                self.model.addFixedIP();
+                if(subnetDS.length > 0) {
+                    self.model.setSubnetDataSource(subnetDS);
+                    self.model.addFixedIP();
+                    self.model.subnetGroupVisible(true);
+                } else {
+                    self.model.subnetGroupVisible(false);
+                }
             }
         },
     getConfigureViewConfig : function(isDisable, allNetworksDS) {
@@ -221,12 +252,6 @@ define([
                             dataTextField: "text",
                             dataValueField: "value",
                             data : allNetworksDS,
-                            //parse: function(allNetworksDS) {
-                            //    return portFormatter.vnDDFormatter(
-                            //                         allNetworksDS,
-                            //                         isDisable,
-                            //                         self);
-                            //},
                             change : function (e) {
                                 self.onVNSelectionChanged(e, isDisable);
                             }
@@ -345,7 +370,7 @@ define([
                         elementId: 'fixedIPCollection',
                         view: "FormEditableGridView",
                         viewConfig: {
-                            //visible : "false",
+                            visible : "subnetGroupVisible()",
                             label:"Fixed IPs",
                             path: "fixedIPCollection",
                             validation: 'fixedIPValidations',
@@ -355,7 +380,7 @@ define([
                                 name: "Subnet",
                                 view: "FormDropdownView",
                                 viewConfig: {
-                                    //visible: "false",
+                                    visible: "visibleSubnet()",
                                     path: 'subnet_uuid',
                                     dataBindValue: 'subnet_uuid()',
                                     dataBindOptionList : "subnetDataSource()",
@@ -364,16 +389,8 @@ define([
                                     width:250,
                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     elementConfig:{
-                                        //allowClear: true,//Need to be fixed
-                                        //defaultValueId : 0,//Need to be fixed
                                         dataTextField: "text",
-                                        dataValueField: "value"//,
-                                        //parse: function(result) {
-                                        //return portFormatter.subnetDDFormatter(
-                                        //                     result,
-                                        //                     isDisable,
-                                        //                     self);
-                                        //}
+                                        dataValueField: "value"
                                     }
                                 }
                             }, {
@@ -381,7 +398,7 @@ define([
                                 name: "IP",
                                 view: "FormInputView",
                                 viewConfig: {
-                                    //disabled: isDisable,//Need to be fixed
+                                    disabled: "disableFIP()",
                                     path: 'fixedIp',
                                     placeholder: 'Fixed IP',
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
@@ -396,8 +413,9 @@ define([
                                  iconClass: 'icon-minus'
                             }],
                             gridActions: [{
+                                name:"fixedIPAddBtn",
                                 onClick: "function() { addFixedIP(); }",
-                                 buttonTitle: "Add Fixed IP"
+                                 buttonTitle: "Add Fixed IP",
                             }]
                         }
                         }]
@@ -421,7 +439,7 @@ define([
                             viewConfig: {
                                 label:"Allowed address pairs",
                                 path: "allowedAddressPairCollection",
-                                //validation: 'fixedIPValidations',
+                                validation: 'allowedAddressPairValidations',
                                 collection: "allowedAddressPairCollection",
                                 columns: [{
                                     elementId: 'ipPrefixVal',
@@ -465,7 +483,7 @@ define([
                         viewConfig: {
                             label:"DHCP Option",
                             path: "dhcpOptionCollection",
-                            //validation: 'fixedIPValidations',
+                            validation: 'dhcpValidations',
                             collection: "dhcpOptionCollection",
                             columns: [{
                                 elementId: 'dhcp_option_name',
@@ -511,7 +529,7 @@ define([
                         viewConfig: {
                             label:"Static Routes",
                             path: "staticRouteCollection",
-                            //validation: 'fixedIPValidations',
+                            validation: 'staticRouteValidations',
                             collection: "staticRouteCollection",
                             columns: [{
                                 elementId: 'prefix',
@@ -642,6 +660,7 @@ define([
                             viewConfig: {
                                 path: 'subInterfaceVMIValue',
                                 visible: "is_sub_interface",
+                                placeholder: 'Primary Interface',
                                 disabled: "disable_sub_interface()",
                                 label: "Primary Interface",
                                 dataBindValue: 'subInterfaceVMIValue',

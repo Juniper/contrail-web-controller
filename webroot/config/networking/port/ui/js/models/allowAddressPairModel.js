@@ -35,17 +35,26 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
                         (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
-        }/*,
-
+        },
 
         validations: {
-            fixedIPValidations: {
-                'fixedIp': {
-                    required: true,
-                    msg: 'Enter Subnet IP address'
+            allowedAddressPairValidations: {
+                'ipPrefixVal': function(value, attr, finalObj) {
+                    if(value.trim() == ""){
+                        return "Enter IP Address in Allowed address pairs";
+                    }
+                    if (!isValidIP(value.trim())) {
+                        return "Enter valid IP Address in Allowed address pairs";
+                    }
+                },
+                'mac': function(value, attr, finalObj) {
+                    if(value != "" &&
+                       isValidMACAddress(value) == false){
+                        return "Enter valid MAC Address in Allowed address pairs";
+                    }
                 }
             }
-        }*/
+        }
     });
     return allowAddressPairModel;
 });

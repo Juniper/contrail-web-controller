@@ -81,8 +81,6 @@ define([
             vmiData.uuid = gridDataItem.uuid;
             vmiData.to = gridDataItem.fq_name;
             var virtualMachineInterfaceRefs = [];
-            //var subInterfaceVMI = vmiData.uuid + " " + vmiData.to;
-            //dataItem.subInterfaceVMIValue = subInterfaceVMI;
             virtualMachineInterfaceRefs.push(vmiData);
             dataItem.virtual_machine_interface_refs = virtualMachineInterfaceRefs;
             dataItem.is_sub_interface = true;
@@ -92,7 +90,6 @@ define([
                                                             = 'addSubInterface';
             var portModel = new PortModel(dataItem);
             portEditView.model = portModel;
-            //portModel.editViewObj = portEditView;
             showHideModelAttrs(portModel);
             portEditView.renderPortPopup({
                                   "title": ctwl.TITLE_ADD_SUBINTERFACE +
@@ -154,6 +151,19 @@ define([
                     }
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Ports.',
+                    },
+                    empty: {
+                        text: 'No Ports Found.'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Ports.'
+                    }
                 }
             },
             columnHeader: {
@@ -274,7 +284,6 @@ define([
 
                     var portModel = new PortModel();
                     portEditView.model = portModel;
-                    //portModel.editViewObj = portEditView;
                     showHideModelAttrs(portModel);
                     portEditView.renderPortPopup({
                                      "title": ctwl.TITLE_ADD_PORT,

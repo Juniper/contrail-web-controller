@@ -24,17 +24,21 @@ define([
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
                         (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
-        }//,
+        },
 
 
-        /*validations: {
-            fixedIPValidations: {
-                'fixedIp': {
+        validations: {
+            dhcpValidations: {
+                'dhcp_option_name': {
                     required: true,
-                    msg: 'Enter Subnet IP address'
+                    msg: 'Enter DHCP Code.'
+                },
+                'dhcp_option_value': {
+                    required: true,
+                    msg: 'Enter DHCP Value.'
                 }
             }
-        }*/
+        }
     });
     return dhcpOptionModel;
 });
