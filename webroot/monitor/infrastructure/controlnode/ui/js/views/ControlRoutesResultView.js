@@ -78,8 +78,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'Routes',
-                    icon : 'icon-table'
+                    text: 'Routes'
                 },
                 defaultControls: {
                     collapseable: false,
@@ -97,6 +96,19 @@ define([
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Routes..',
+                    },
+                    empty: {
+                        text: 'No Routes to display for the given search criteria'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
                 }
             },
             columnHeader: {

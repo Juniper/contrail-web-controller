@@ -45,20 +45,6 @@ define([
         return {
             theme: 'default',
             active: 0,
-            activate: function (e, ui) {
-                var selTab = $(ui.newTab.context).text();
-                if (selTab ==
-                        ctwl.TITLE_PORT_DISTRIBUTION) {
-                    $('#' + ctwl.NETWORK_PORT_DIST_ID).
-                        trigger('refresh');
-                } else if (selTab == 'Peers') {
-                    $('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).
-                    data('contrailGrid').refreshView();
-                } else if (selTab == 'Routes') {
-                    $('#' + ctwl.CONTROLNODE_ROUTES_RESULTS).
-                    data('contrailGrid').refreshView();
-                }
-            },
             tabs: [
                    {
                        elementId: 'controlnode_detail_id',
@@ -67,7 +53,15 @@ define([
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                       viewConfig: viewConfig
+                       viewConfig: viewConfig,
+                       tabConfig: {
+                           activate: function(event, ui) {
+                               if ( $('#' + ctwl.CONTROLNODE_DETAIL_PAGE_ID)) {
+                                   $('#' + ctwl.CONTROLNODE_DETAIL_PAGE_ID).
+                                                       trigger('refresh');
+                               }
+                           }
+                       }
                    },
                    {
                        elementId:
@@ -77,7 +71,16 @@ define([
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                       viewConfig: viewConfig
+                       viewConfig: viewConfig,
+                       tabConfig: {
+                           activate: function(event, ui) {
+                               if ($('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).data('contrailGrid')) {
+                                   $('#' + ctwl.CONTROLNODE_PEERS_GRID_ID).
+                                       data('contrailGrid').refreshView();
+                               }
+                           },
+                           renderOnActivate: true
+                       }
                    },
                    {
                        elementId: ctwl.CONTROLNODE_ROUTES_GRID_VIEW_ID,
@@ -86,8 +89,17 @@ define([
                        viewPathPrefix:
                            ctwl.CONTROLNODE_VIEWPATH_PREFIX,
                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                       viewConfig: viewConfig
-                   },
+                       viewConfig: viewConfig,
+                       tabConfig: {
+                           activate: function(event, ui) {
+                               if ($('#' + ctwl.CONTROLNODE_ROUTES_RESULTS).data('contrailGrid')) {
+                                   $('#' + ctwl.CONTROLNODE_ROUTES_RESULTS).
+                                       data('contrailGrid').refreshView();
+                               }
+                           },
+                           renderOnActivate: true
+                       }
+                   }
                 /*{
                        elementId: ctwl.CONTROLNODE_CONSOLE_LOGS_VIEW_ID,
                        title: 'Console',

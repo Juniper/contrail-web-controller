@@ -69,8 +69,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'Networks',
-                    icon : 'icon-table'
+                    text: 'Networks'
                 },
                 customControls : monitorInfraUtils.getGridPaginationControls(),
                 defaultControls: {
@@ -90,6 +89,19 @@ define([
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading Networks..',
+                    },
+                    empty: {
+                        text: 'No Networks to display'
+                    }, 
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
                 }
             },
             columnHeader: {
