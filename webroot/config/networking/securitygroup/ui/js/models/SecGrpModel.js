@@ -17,7 +17,6 @@ define([
                 'policy_rule': []
             },
             'is_sec_grp_id_auto': true,
-            'customValue': {},
             'configured_security_group_id': null
         },
         validateAttr: function(attributePath, validation, data) {
@@ -100,16 +99,18 @@ define([
                 var remoteAddr = sgUtils.getRemoteAddr(polRules[i], direction);
                 var addr =remoteAddr.text;
                 if (!isValidIP(addr)) {
-                    addr = sgUtils.formatSGAddrDropDownEntry(addr.split(':'));
+                    var fomattedAddr = sgUtils.formatSGAddrDropDownEntry(addr.split(':'));
+                    addr = fomattedAddr.value;
                 } else {
-                    addr = remoteAddr;
+                    addr = remoteAddr.text + '~' + 'subnet';
                 }
                 var remotePorts =
                     polRules[i]['dst_ports'][0]['start_port'] + " - " +
                     polRules[i]['dst_ports'][0]['end_port'];
+
                 var ruleObj = {direction: direction, ethertype: ethertype,
                                protocol: protocol, remotePorts: remotePorts,
-                               customValue : addr};
+                               remoteAddr : addr};
 
                 var ruleModel = new SecGrpRulesModel(ruleObj);
                 ruleModels.push(ruleModel);
@@ -136,7 +137,7 @@ define([
             var newRule = new SecGrpRulesModel(
                 {direction: 'Ingress', ethertype: 'IPv4', protocol: 'TCP',
                  remotePorts: '0 - 65535',
-                 customValue: {'text': '0.0.0.0/0', groupName: 'CIDR'}});
+                 remoteAddr: '0.0.0.0/0~subnet'});
             rules.add([newRule]);
         },
         createDefaultRules: function(model) {
@@ -144,12 +145,12 @@ define([
             var newRule = new SecGrpRulesModel(
                 {direction: 'Egress', ethertype: 'IPv4', protocol: 'ANY',
                  remotePorts: '0 - 65535',
-                 customValue: {'text': '0.0.0.0/0', groupName: 'CIDR'}});
+                 remoteAddr: '0.0.0.0/0~subnet'});
             rules.add([newRule]);
             newRule = new SecGrpRulesModel(
                 {direction: 'Egress', ethertype: 'IPv6', protocol: 'ANY',
                  remotePorts: '0 - 65535',
-                 customValue: {'text': '::/0', groupName: 'CIDR'}});
+                 remoteAddr: '::/0~subnet'});
             rules.add([newRule]);
             return model;
         },
@@ -203,7 +204,6 @@ define([
                 ctwu.deleteCGridData(newSecGrpData);
                 delete newSecGrpData['rules'];
                 delete newSecGrpData['sgRules'];
-                delete newSecGrpData['customValue'];
                 delete newSecGrpData['is_sec_grp_id_auto'];
 
                 var putData = {};

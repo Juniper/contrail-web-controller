@@ -124,18 +124,11 @@ define([
                     newPoliceyRule[i].dst_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].dst_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].dst_addresses[0]["network_policy"] = null;
-                    var desArr = policeyRule[i].dst_addresses().split("~");
+                    var desArr = policeyRule[i].dst_address().split("~");
                     //var desArr = policeyRule[i].dst_customValue().value.split("~");
-                    if(desArr.length == 2) {
+                    if(desArr.length == 2 && desArr[1] !== 'subnet') {
                         var remoteAddrArr = desArr[0].split(':');
                         newPoliceyRule[i].dst_addresses[0][desArr[1]] = desArr[0];
-                    /*var groupName = policeyRule[i].dst_customValue().groupName;
-                    if(groupName == "Networks") {
-                        newPoliceyRule[i].dst_addresses[0]["virtual_network"] =
-                                         policeyRule[i].dst_addresses();
-                    } else if(groupName == "Policies"){
-                        newPoliceyRule[i].dst_addresses[0]["network_policy"] =
-                                         policeyRule[i].dst_addresses();*/
                     } else {
                         newPoliceyRule[i].dst_addresses[0]["subnet"] = {};
                         var subnet = desArr[0].split("/");
@@ -150,17 +143,10 @@ define([
                     newPoliceyRule[i].src_addresses[0]["virtual_network"] = null;
                     newPoliceyRule[i].src_addresses[0]["subnet"] = null;
                     newPoliceyRule[i].src_addresses[0]["network_policy"] = null;
-                    var srcArr = policeyRule[i].src_addresses().split("~");
+                    var srcArr = policeyRule[i].src_address().split("~");
                     //var srcArr = policeyRule[i].src_customValue().value.split("~");
-                    if(srcArr.length == 2) {
+                    if(srcArr.length == 2 && srcArr[1] != 'subnet') {
                         newPoliceyRule[i].src_addresses[0][srcArr[1]] = srcArr[0];
-                    /*var groupName = policeyRule[i].src_customValue().groupName;
-                    if(groupName == "Networks") {
-                        newPoliceyRule[i].src_addresses[0]["virtual_network"] =
-                                         policeyRule[i].src_addresses();
-                    } else if(groupName == "Policies"){
-                        newPoliceyRule[i].src_addresses[0]["network_policy"] =
-                                         policeyRule[i].src_addresses();*/
                     } else {
                         newPoliceyRule[i].src_addresses[0]["subnet"] = {};
                         var subnet = srcArr[0].split("/");

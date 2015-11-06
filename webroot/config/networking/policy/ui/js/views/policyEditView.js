@@ -170,13 +170,13 @@ define([
                                    id:"any~virtual_network",
                                    //"value":"any",
                                    //"id":"any",
-                                   "parent": "Networks"},
+                                   "parent": "virtual_network"},
                                  {text:"LOCAL (All Networks to which this policy is associated)",
                                  value:"local~virtual_network",
                                  id:"local~virtual_network",
                                  //"value":"local",
                                  //"id":"local",
-                                 "parent": "Networks"}];
+                                 "parent": "virtual_network"}];
 
                     if (null !== vns && typeof vns === "object" &&
                                      vns.length > 0) {
@@ -198,7 +198,7 @@ define([
                                          id : fqNameValue+"~virtual_network",
                                          //value : fqNameValue,
                                          //id : fqNameValue,
-                                         parent : "Networks" });
+                                         parent : "virtual_network" });
                                 } else {
                                     allVns.push({text : vn["fq_name"][2],
                                                  value:(vn["fq_name"]).join(":")
@@ -207,7 +207,7 @@ define([
                                                        +"~virtual_network",
                                                  //value:(vn["fq_name"]).join(":"),
                                                  //id : (vn["fq_name"]).join(":"),
-                                                       parent : "Networks" });
+                                                       parent : "virtual_network" });
                                 }
                             } else {
                                 var fqNameTxt = vn["fq_name"][2] +' (' +
@@ -219,7 +219,7 @@ define([
                                      id : fqNameValue+"~virtual_network",
                                      //value : fqNameValue,
                                      //id : fqNameValue,
-                                     parent : "Networks" });
+                                     parent : "virtual_network" });
                             }
                         }
                     }
@@ -251,7 +251,7 @@ define([
                                          +"~network_policy",
                                  //value : (policy["fq_name"]).join(":"),
                                  //id : (policy["fq_name"]).join(":"),
-                                 parent : "Policies"});
+                                 parent : "network_policy"});
                         }
                     }
                     returnArr["service_instances"] = [];
@@ -357,18 +357,18 @@ define([
                             allPolicies.push({text : fqNameTxt,
                                               value : fqNameValue+"~network_policy",
                                               id : fqNameValue+"~network_policy",
-                                              parent : 'Policies'});
+                                              parent : 'network_policy'});
                         }
                     }
                     var addrFields = [];
-                    addrFields.push({text : 'CIDR', id : 'subnet',
+                    addrFields.push({text : 'CIDR', value : 'subnet',
                                     children : [{
                                         text:'Enter a CIDR',
                                         value:"dummy",
                                         disabled : true }]},
-                                   {text : 'Networks', id : 'network',
+                                   {text : 'Networks', value : 'virtual_network',
                                    children : allVns},
-                                   {text : 'Policies', id : 'policy',
+                                   {text : 'Policies', value : 'network_policy',
                                    children : allPolicies});
                     returnArr["addrFields"] = addrFields;
                     callback(returnArr);
@@ -436,7 +436,7 @@ define([
                                     }}
                                 },
                                 {
-                                    elementId: 'src_addresses',
+                                    elementId: 'src_address',
                                     view:
                                         "FormHierarchicalDropdownView",
                                     name: 'Source',
@@ -445,28 +445,30 @@ define([
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         width: 150,
-                                        path: 'src_addresses',
-                                        dataBindValue: 'src_addresses()',
-                                        customValue : "src_customValue()",
+                                        path: 'src_address',
+                                        dataBindValue: 'src_address()',
                                         elementConfig: {
-                                            defaultValueId : 1,
+                                            //defaultValueId : 1,
                                             minimumResultsForSearch : 1,
                                             dataTextField: "text",
                                             dataValueField: "value",
                                             data: allData.addrFields,
                                             queryMap: [
                                             {
-                                                grpName : 'CIDR',
+                                                name : 'CIDR',
+                                                value : 'subnet',
                                                 iconClass:
                                                 'icon-contrail-network-ipam'
                                             },
                                             {
-                                                grpName : 'Networks',
+                                                name : 'Networks',
+                                                value : 'virtual_network',
                                                 iconClass:
                                                 'icon-contrail-virtual-network'
                                             },
                                             {
-                                                grpName : 'Policies',
+                                                name : 'Policies',
+                                                value : 'network_policy',
                                                 iconClass:
                                                 'icon-contrail-network-policy'
                                             }
@@ -502,7 +504,7 @@ define([
                                      }}
                                 },
                                 {
-                                    elementId: 'dst_addresses',
+                                    elementId: 'dst_address',
                                     view:
                                         "FormHierarchicalDropdownView",
                                     name: 'Destination',
@@ -511,28 +513,30 @@ define([
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                         width: 150,
-                                        path: 'dst_addresses',
-                                        dataBindValue: 'dst_addresses()',
-                                        customValue : "dst_customValue()",
+                                        path: 'dst_address',
+                                        dataBindValue: 'dst_address()',
                                         elementConfig: {
-                                            defaultValueId : 1,
+                                            //defaultValueId : 1,
                                             minimumResultsForSearch : 1,
                                             dataTextField: "text",
                                             dataValueField: "value",
                                             data: allData.addrFields,
                                             queryMap: [
                                             {
-                                                grpName : 'CIDR',
+                                                name : 'CIDR',
+                                                value : 'subnet',
                                                 iconClass:
                                                 'icon-contrail-network-ipam'
                                             },
                                             {
-                                                grpName : 'Networks',
+                                                name : 'Networks',
+                                                value : 'virtual_network',
                                                 iconClass:
                                                 'icon-contrail-virtual-network'
                                             },
                                             {
-                                                grpName : 'Policies',
+                                                name : 'Policies',
+                                                value : 'network_policy',
                                                 iconClass:
                                                 'icon-contrail-network-policy'
                                             }]

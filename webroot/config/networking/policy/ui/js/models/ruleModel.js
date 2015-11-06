@@ -21,9 +21,11 @@ define([
             'direction': '<>',
             'protocol': 'any',
             'dst_addresses': [],
+            'dst_address' : 'any~virtual_network',
             'dst_ports':[],
             'dst_ports_text':"ANY",
             'src_addresses':[],
+            'src_address' : 'any~virtual_network',
             'src_ports':[],
             'src_ports_text': 'ANY',
             'simple_action': 'pass',
@@ -107,6 +109,7 @@ define([
                 var netText = policyFormatters.formatCurrentFQNameValue(domain,
                              project,
                              vnText);
+                modelConfig["src_address"] =  src_addresses;
                 modelConfig["src_customValue"] = {
                     'text': netText,
                     'value':src_addresses,
@@ -121,6 +124,7 @@ define([
                 var text = policyFormatters.formatCurrentFQNameValue(domain,
                              project,
                              modelConfig["src_addresses"][0]["network_policy"]);
+                modelConfig["src_address"] =  src_addresses;
                 modelConfig["src_customValue"] = {
                     'text':text,
                     'value':src_addresses,
@@ -133,6 +137,7 @@ define([
                     + "/" +
                     modelConfig["src_addresses"][0]["subnet"]["ip_prefix_len"];
                 modelConfig["src_addresses"] = subnet;
+                modelConfig["src_address"] =  subnet + '~' + 'subnet';
                 modelConfig["src_customValue"] = {'text':subnet,
                                                   'groupName': 'CIDR'}
             }
@@ -153,6 +158,7 @@ define([
                            modelConfig["dst_addresses"][0]["virtual_network"]+
                            "~virtual_network";
                            //modelConfig["dst_addresses"][0]["virtual_network"];
+                modelConfig['dst_address'] = dst_addresses;
                 var dstAddText = "";
                 dstAddText = policyFormatters.formatCurrentFQNameValue(domain,
                              project,
@@ -168,6 +174,7 @@ define([
                            modelConfig["dst_addresses"][0]["network_policy"]+
                            "~network_policy";
                            //modelConfig["dst_addresses"][0]["network_policy"];
+                modelConfig['dst_address'] = dst_addresses;
                 var policyTxt =  policyFormatters.formatCurrentFQNameValue(domain, project,
                              modelConfig["dst_addresses"][0]["network_policy"]);
                 modelConfig["dst_customValue"] = {
@@ -182,6 +189,7 @@ define([
                     + "/" +
                     modelConfig["dst_addresses"][0]["subnet"]["ip_prefix_len"];
                 modelConfig["dst_addresses"] = subnet;
+                modelConfig['dst_address'] = subnet + '~' + 'subnet';
                 modelConfig["dst_customValue"] = {'text':subnet,
                                                   'groupName': 'CIDR'}
             }
