@@ -2,17 +2,19 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'co-test-unit',
+    'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'flow-grid-view-mock-data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
-], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
+], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
 
     var moduleId = cttm.PROJECTS_VIEW_COMMON_TEST_MODULE;
 
-    var fakeServerConfig = CUnit.getDefaultFakeServerConfig();
+    var testType = cotc.VIEW_TEST;
+
+    var fakeServerConfig = cotr.getDefaultFakeServerConfig();
 
     var fakeServerResponsesConfig = function() {
         var responses = [];
@@ -34,7 +36,7 @@ define([
          * */
 
 
-        responses.push(CUnit.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse( {
             method: "GET",
             url: cttu.getRegExForUrl('/api/admin/reports/query?port=9110&timeRange=600&table=FlowSeriesTable'),
             body: JSON.stringify(TestMockdata.flowsMockData)
@@ -44,7 +46,7 @@ define([
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
 
-    var pageConfig = CUnit.getDefaultPageConfig();
+    var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
         p: 'mon_networking_networks',
         q: {
@@ -85,8 +87,8 @@ define([
 
     };
 
-    var pageTestConfig = CUnit.createPageTestConfig(moduleId, fakeServerConfig, pageConfig, getTestConfig);
+    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig);
 
-    CUnit.startTestRunner(pageTestConfig);
+    cotr.startTestRunner(pageTestConfig);
 
 });
