@@ -28,7 +28,7 @@ define([
             self.$el.find('.charts').empty();
             var vRoutersData = self.model.getFilteredItems();
             var vRouterCF = crossfilter(vRoutersData);
-            var dimensions = {};
+            var dimensions = {},xScales = {};
             var filterDimension = vRouterCF.dimension(function(d) {
                 return d[crossFilterCfg[0]['field']];
             });
@@ -38,11 +38,33 @@ define([
             //Get the max bar value
             for(var i=0;i<crossFilterCfg.length;i++) {
                 var currCfg = crossFilterCfg[i];
+                var barRange = 1;
+                var maxXValue = d3.max(vRoutersData,function(d) {
+                    return d[currCfg['field']];
+                });
+                var bucketized = false;
+                if(maxXValue > 24) {
+                    bucketized = true;
+                    barRange = maxXValue/24;
+                }
+                xScales[currCfg['field']] = null;
+                if(bucketized == true)
+                    xScales[currCfg['field']] = d3.scale.quantize().domain([0,maxXValue]).range(
+                        d3.scale.ordinal().domain(d3.range(24)).rangePoints([0,maxXValue]).range());
                 dimensions[currCfg['field']] = vRouterCF.dimension(function(d) {
-                        return d[currCfg['field']];
+
+                        if(bucketized == false) {
+                            return d[currCfg['field']];
+                        } else {
+                            //Group into buckets:
+                            //  * Ensure that all bars in the same bucket return the same value
+                            return xScales[currCfg['field']](d[currCfg['field']]);
+                        }
                     });
                 var maxValue = d3.max(dimensions[currCfg['field']].group().all(),
-                    function(d) {   return d['value']; });
+                    function(d) {
+                        return d['value'];
+                    });
                 maxY = d3.max([maxY,maxValue]);
             }
 
@@ -60,6 +82,7 @@ define([
                     el: self.$el.find('.charts .chart:last'),
                     viewConfig: {
                         dimension : dimension,
+                        xScale : xScales[currCfg['field']],
                         onBrushEnd: function() {
                             //Create a new dimension and get the filtered records
                             //And add a filter on self.model with selected hostnames
