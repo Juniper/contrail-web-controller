@@ -55,26 +55,14 @@ require.config({
             'monitor/infrastructure/common/ui/js/views/AnalyticsNodeScatterChartView',
         'vrouter-dashboard-view':
             'monitor/infrastructure/dashboard/ui/js/views/VRouterDashboardView',
-        'dashboard-alert-list-model':
-            'monitor/infrastructure/common/ui/js/models/AlertListModel',
-        'dashboard-log-list-model':
-            'monitor/infrastructure/common/ui/js/models/LogListModel',
-        'dashboard-node-list-model':
-            'monitor/infrastructure/common/ui/js/models/NodeListModel',
-        'dashboard-alert-list-view':
-            'monitor/infrastructure/dashboard/ui/js/views/AlertListView',
-        'dashboard-log-list-view':
-            'monitor/infrastructure/dashboard/ui/js/views/LogListView',
-        'dashboard-sysinfo-view':
-            'monitor/infrastructure/dashboard/ui/js/views/SystemInfoView',
-        'alert-grid-view':
-            'monitor/infrastructure/dashboard/ui/js/views/AlertGridView',
         'monitor-infra-parsers':
             'monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers',
         'monitor-infra-utils':
             'monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
         'monitor-infra-constants':
-            'monitor/infrastructure/common/ui/js/utils/monitor.infra.constants'
+            'monitor/infrastructure/common/ui/js/utils/monitor.infra.constants',
+        'mon-infra-controller-dashboard':
+            'monitor/infrastructure/dashboard/ui/js/views/ControllerDashboardView'
     },
     waitSeconds: 0
 });
