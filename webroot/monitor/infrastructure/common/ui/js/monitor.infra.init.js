@@ -4,9 +4,9 @@
 
 define([
     'underscore',
-    'monitor/infrastructure/common/ui/js/utils/monitor.infra.utils',
-    'monitor/infrastructure/common/ui/js/utils/monitor.infra.constants',
-    'monitor/infrastructure/common/ui/js/utils/monitor.infra.parsers',
+    'monitor-infra-utils',
+    'monitor-infra-constants',
+    'monitor-infra-parsers',
     'text!monitor/infrastructure/common/ui/templates/monitor.infra.tmpl'
 ], function (_, MonitorInfraUtils, MonitorInfraConstants, MonitorInfraParsers, MonitorInfraTmpls) {
     monitorInfraConstants = new MonitorInfraConstants;
