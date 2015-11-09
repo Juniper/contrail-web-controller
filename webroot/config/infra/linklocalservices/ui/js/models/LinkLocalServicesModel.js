@@ -220,7 +220,17 @@ define([
                     ajaxConfig.url = '/api/tenants/config/global-vrouter-config/' +
                         uuid + '/link-local-services';
                 }
-                ajaxConfig.data = JSON.stringify(putData);
+                var newPutData = {};
+                newPutData['global-vrouter-config'] = {};
+                newPutData['global-vrouter-config']['linklocal_services'] =
+                    putData['global-vrouter-config']['linklocal_services'];
+                newPutData['global-vrouter-config']['fq_name'] =
+                    putData['global-vrouter-config']['fq_name'];
+                newPutData['global-vrouter-config']['display_name'] =
+                    putData['global-vrouter-config']['display_name'];
+                newPutData['global-vrouter-config']['uuid'] =
+                    putData['global-vrouter-config']['uuid'];
+                ajaxConfig.data = JSON.stringify(newPutData);
                 contrail.ajaxHandler(ajaxConfig, function () {
                     if (contrail.checkIfFunction(callbackObj.init)) {
                         callbackObj.init();
