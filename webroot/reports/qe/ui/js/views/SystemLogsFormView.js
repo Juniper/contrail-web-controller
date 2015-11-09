@@ -94,6 +94,15 @@ define([
                         {
                             columns: [
                                 {
+                                    elementId: 'log_level', view: "FormDropdownView",
+                                    viewConfig: { path: 'log_level', dataBindValue: 'log_level', class: "span3", elementConfig: {dataTextField: "name", dataValueField: "value", data: cowc.QE_LOG_LEVELS}}
+                                }
+
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
                                     elementId: 'select', view: "FormTextAreaView",
                                     viewConfig: {path: 'select', dataBindValue: 'select', class: "span9", editPopupConfig: {
                                         renderEditFn: function() {

@@ -9,12 +9,14 @@ define([
 ], function (_, Knockout, QueryFormModel) {
     var SystemLogsFormModel = QueryFormModel.extend({
 
-        defaultSelectFields: [],
+        defaultSelectFields: ["MessageTS", "Type"],
 
-        disableSelectFields: ['Type', 'SequenceNum', 'Context', 'Keyword'],
+        disableSelectFields: ['SequenceNum', 'Context', 'Keyword'],
+
+        disableWhereFields: ['Level'],
 
         constructor: function (modelData) {
-            var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.MESSAGE_TABLE, table_type: cowc.QE_LOG_TABLE_TYPE, query_prefix: cowc.SYSTEM_LOGS_PREFIX});
+            var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.MESSAGE_TABLE, table_type: cowc.QE_LOG_TABLE_TYPE, query_prefix: cowc.SYSTEM_LOGS_PREFIX, keywords: "", log_level: "5"});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
@@ -32,7 +34,7 @@ define([
                     required: true,
                     msg: ctwm.getRequiredMessage('select')
                 }
-            },
+            }
         }
     });
 
