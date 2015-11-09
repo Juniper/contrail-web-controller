@@ -6,9 +6,9 @@ define([
     'underscore',
     'co-test-utils',
     'co-test-constants',
-    'co-test-unit',
+    'co-test-runner',
     'ct-test-messages',
-], function (_, cotu, cotc, CUnit, cttm) {
+], function (_, cotu, cotc, cotr, cttm) {
 
     var testSuiteClass = function (viewObj, suiteConfig) {
 
@@ -24,7 +24,7 @@ define([
 
         module(cotu.formatTestModuleMessage(cttm.NETWORK_LIST_VIEW_CUSTOM_TEST, el.id));
 
-        var gridViewCustomTestSuite = CUnit.createTestSuite('GridViewCustomTestSuite');
+        var gridViewCustomTestSuite = cotr.createTestSuite('GridViewCustomTestSuite');
 
         /**
          * Grid Body group Custom test cases
@@ -38,7 +38,7 @@ define([
          * In this testcase, we'll check for second row Traffic in/out value (5th Column).
          */
 
-        bodyTestGroup.registerTest(CUnit.test(cttm.NETWORKS_GRID_COLUMN_VALUE_CHECK, function() {
+        bodyTestGroup.registerTest(cotr.test(cttm.NETWORKS_GRID_COLUMN_VALUE_CHECK, function() {
             expect(1);
             equal($($(el).find('.grid-body .slick_row_id_1 .slick-cell')[4]).text(), "12 MB / 9 MB",
                 "Custom test to assert 2nd row 5th col value");

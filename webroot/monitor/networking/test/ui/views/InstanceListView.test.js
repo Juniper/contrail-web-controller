@@ -2,18 +2,20 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 define([
-    'co-test-unit',
+    'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
     'instance-list-view-mock-data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite',
     'co-chart-view-zoom-scatter-test-suite'
-], function (CUnit, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite) {
+], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite, ZoomScatterChartTestSuite) {
 
     var moduleId = cttm.INSTANCES_LIST_VIEW_COMMON_TEST_MODULE;
 
-    var fakeServerConfig = CUnit.getDefaultFakeServerConfig();
+    var testType = cotc.VIEW_TEST;
+
+    var fakeServerConfig = cotr.getDefaultFakeServerConfig();
 
     var fakeServerResponsesConfig = function() {
         var responses = [];
@@ -27,29 +29,29 @@ define([
             /api/tenant/networking/virtual-machine-interfaces/summary  need to add
         */
 
-        responses.push(CUnit.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_DOMAINS),
             body: JSON.stringify(TestMockdata.domainsMockData)
         }));
-        responses.push(CUnit.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse( {
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.projectsMockData)
         }));
-        responses.push(CUnit.createFakeServerResponse( {
+        responses.push(cotr.createFakeServerResponse( {
             url: /\/api\/tenants\/projects\/default\-domain\:admin.*$/,
             body: JSON.stringify(TestMockdata.adminProjectMockData)
         }));
-        responses.push(CUnit.createFakeServerResponse({
+        responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: /\/api\/tenant\/networking\/virtual-machines\/details.*$/,
             body: JSON.stringify(TestMockdata.virtualMachinesMockData)
         }));
-        responses.push(CUnit.createFakeServerResponse({
+        responses.push(cotr.createFakeServerResponse({
             method: "POST",
             url: cttu.getRegExForUrl(ctwc.URL_VM_VN_STATS),
             body: JSON.stringify(TestMockdata.virtualMachinesMockStatData)
         }));
-        responses.push(CUnit.createFakeServerResponse({
+        responses.push(cotr.createFakeServerResponse({
             method: "POST",
             url: cttu.getRegExForUrl(ctwc.URL_VM_INTERFACES),
             body: JSON.stringify(TestMockdata.virtualMachinesInterfacesMockData)
@@ -59,7 +61,7 @@ define([
     };
     fakeServerConfig.getResponsesConfig = fakeServerResponsesConfig;
 
-    var pageConfig = CUnit.getDefaultPageConfig();
+    var pageConfig = cotr.getDefaultPageConfig();
     pageConfig.hashParams = {
         p: 'mon_networking_instances',
         q: {
@@ -116,8 +118,8 @@ define([
 
     };
 
-    var pageTestConfig = CUnit.createPageTestConfig(moduleId, fakeServerConfig, pageConfig, getTestConfig);
+    var pageTestConfig = cotr.createPageTestConfig(moduleId, testType, fakeServerConfig, pageConfig, getTestConfig);
 
-    CUnit.startTestRunner(pageTestConfig);
+    cotr.startTestRunner(pageTestConfig);
 
 });

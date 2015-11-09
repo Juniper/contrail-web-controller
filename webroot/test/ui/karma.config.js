@@ -4,8 +4,9 @@
 module.exports = function (config) {
     config.set({
         basePath: __dirname + '/../../../..',
+        urlRoot: '/',
         autoWatch: false,
-        frameworks: ['qunit', 'sinon', 'requirejs'],
+        frameworks: ['requirejs', 'qunit', 'sinon'],
         plugins: [
             'karma-phantomjs-launcher',
             'karma-coverage',
@@ -45,6 +46,7 @@ module.exports = function (config) {
             dir : __dirname + '/reports/coverage/'
         },
         singleRun: true,
-        colors: true
+        colors: true,
+        browserNoActivityTimeout: 60000,
     });
 };
