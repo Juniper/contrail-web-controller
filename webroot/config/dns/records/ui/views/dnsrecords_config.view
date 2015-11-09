@@ -28,6 +28,10 @@
                 <div class="span2"><label>DNS Record Class</label></div>
                 <div class="span10">{{record_class}}</div>
             </div>
+            <div class="row-fluid {{{showMXPreference record_type}}}" >
+                <div class="span2"><label>MX Preference</label></div>
+                <div class="span10">{{record_mx_preference}}</div>
+            </div>
         </div>
     </div>
 </script>
@@ -87,8 +91,16 @@
 	    	            <input type="text" id="txtRecordTTL" class="span11"/>	
 	    	        </div>
 	    	    </div>
-            </div>    
-            </form>
+            </div>
+	        <div id="mxPreference" class="control-group hide">
+	            <label  class="control-label">MX Preference</label>
+                <div class="controls">
+                    <div class="row-fluid">
+                        <input type="text" id="txtMXPreference" class="span11"/>
+                    </div>
+                </div>
+            </div>
+           </form>
         </div>
         <div class="modal-footer">
 	         <button  id="btnAddDNSRecordCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>	
