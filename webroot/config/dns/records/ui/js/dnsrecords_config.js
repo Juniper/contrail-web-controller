@@ -236,6 +236,7 @@ function dnsRecordsConfig() {
         recordTypes.push({value:'2',recordTypeName:'Canonical Name',recNamelbl:"Host Name",name:'CNAME',text:'CNAME (Alias Record)',recNamePH:"Host Name",recDataPH:"Enter Canonical Name"});
         recordTypes.push({value:'3',recordTypeName:'Host Name',recNamelbl:'IP Address',name:'PTR',text:'PTR (Reverse DNS Record)',recNamePH:"Enter an IP Address",recDataPH:"Host Name"});		
         recordTypes.push({value:'4',recordTypeName:'DNS Server',recNamelbl:'Sub Domain',name:'NS',text:'NS (Delegation Record)',recNamePH:"Enter a Sub Domain",recDataPH:"Enter Host Name or IP or Select a DNS Server"});
+        recordTypes.push({value:'5',recordTypeName:'Host Name',recNamelbl:'Domain',name:'MX',text:'MX (Mail Exchanger Record)',recNamePH:"Enter a Domain",recDataPH:"Enter Host Name"});
               
         cmbRecordType.contrailDropdown({
             dataTextField:'text',
@@ -351,12 +352,22 @@ function dnsRecordsConfig() {
         makeRecordDataCall();	
     }
     
-    function makeRecordDataCall(r) {
-        selRecordDataItem = r;
+    function makeRecordDataCall(rowData) {
+        selRecordDataItem = rowData != null ? rowData.record_data : null;
         var selectedItem = cmbRecordType.data('contrailDropdown').getSelectedData()[0];
         lblRecordTypeName.text(selectedItem.recordTypeName);
         setRecordName(selectedItem.recNamelbl);
         setRecordNameHelpText(selectedItem.recNamePH);
+        //show mx preference only for mx record
+        if(selectedItem.value === '5'){
+            $('#mxPreference').show();
+            if(rowData != null) {
+                $('#txtMXPreference').val(rowData.record_mx_preference);
+            }
+        } else {
+            $('#txtMXPreference').val('');
+            $('#mxPreference').hide();
+        }
         if(selectedItem.value === '4'){
             $("#txtRecordData").parent().hide();
             $("#cmbRecordData").parent().show();
@@ -370,10 +381,10 @@ function dnsRecordsConfig() {
             c.setData([]);
             $("#cmbRecordData").parent().hide(); 
             var c = $("#txtRecordData");
-            if(r == undefined)
+            if(rowData == undefined)
                 c.val('');
             else
-                c.val(r);
+                c.val(rowData.record_data);
             setRecordDataHelpText(selectedItem.recDataPH);        
         }
     }
@@ -413,6 +424,10 @@ function dnsRecordsConfig() {
     }
 
     function initActions() {
+        //Show MX Preference only for record_type MX
+        Handlebars.registerHelper('showMXPreference', function(recType){
+             return recType === 'MX (Mail Exchanger Record)' ? 'show' : 'hide';
+        });
         btnAddRecord.click(function(e){
             if(!$(this).hasClass('disabled-link')) { 
                 e.preventDefault();
@@ -537,7 +552,25 @@ function dnsRecordsConfig() {
                 showInfoWindow("Time To Live value should be  a number", "Input required");
                 return false;
             }
-        }	
+        }
+        if(rd === "5") {
+            var mxPref = $('#txtMXPreference').val();
+            if(mxPref == null || mxPref.trim() == ""){
+                showInfoWindow("Enter the MX Preference", "Input required");
+                return false;
+            } else if(isNaN(parseInt(mxPref))) {
+                showInfoWindow("MX Preference value should be a number",
+                    "Invalid input in MX Preference");
+                return false;
+            } else{
+                var prefValue = parseInt(mxPref);
+                if(prefValue < 0 || prefValue > 65535) {
+                    showInfoWindow("MX Preference value should be in '0 - 65535' range",
+                        "Invalid input in MX Preference");
+                    return false;
+                }
+            }
+        }
         return isSpclChar(c);	
     }
 	
@@ -590,6 +623,8 @@ function dnsRecordsConfig() {
         e.enable(true);
         txtRecordTTL.val('');
         defaultTTL = 86400;
+        $('#txtMXPreference').val('');
+        $('#mxPreference').hide();
     }
 		
     function saveRecordDetails() {
@@ -597,7 +632,8 @@ function dnsRecordsConfig() {
             hideAddRecordWindow();
         //get user entries
         var recordName = txtRecordName.val();
-        var recordType = cmbRecordType.data('contrailDropdown').getSelectedData()[0].name;
+        var recordTypeItem = cmbRecordType.data('contrailDropdown').getSelectedData()[0];
+        var recordType = recordTypeItem.name;
         var recordData = getRecordDataItem();
         var recordClass = cmbRecordClass.data('contrailDropdown').getSelectedData()[0].name;
         if(txtRecordTTL.val() != undefined && txtRecordTTL.val() !='')
@@ -610,7 +646,12 @@ function dnsRecordsConfig() {
         postData["parent_type"] = "domain";
         postData["fq_name"]	= [selDomain, String(defaultDomainName)];
         postData["virtual_DNS_records"] = [{"to" : [selDomain,String(defaultDomainName)],
-            "virtual_DNS_record_data":{"record_name" : recordName, "record_type" : recordType, "record_data" : recordData, "record_class" : recordClass, "record_ttl_seconds" : recordTTL}}];
+            "virtual_DNS_record_data":{
+                 "record_name" : recordName,"record_type" : recordType, "record_data" : recordData, "record_class" : recordClass, "record_ttl_seconds" : recordTTL}}];
+        if(recordTypeItem.value === "5") {
+            postData["virtual_DNS_records"][0]["virtual_DNS_record_data"]["record_mx_preference"] =
+                parseInt($('#txtMXPreference').val());
+        }
         var dnsRecordCfg = {};
         dnsRecordCfg["virtual-DNS"] = postData;
         var url,type;
@@ -654,8 +695,8 @@ function dnsRecordsConfig() {
         var selRecType = selRow.record_type;
         d.text(selRecType); 
         d.enable(false);
-        var selRecData = selRow.record_data;
-        makeRecordDataCall(selRecData);
+        //var selRecData = selRow.record_data;
+        makeRecordDataCall(selRow);
         var c = $("#cmbRecordClass").data("contrailDropdown"); 
         var RecClassData = c.getAllData();
         for(var i = 0; i < RecClassData.length; i++) {
@@ -727,7 +768,8 @@ function dnsRecordsConfig() {
                          "record_type" : getActualRecType(dnsRecordsData["record_type"]),
                          "record_data" : dnsRecordsData["record_data"],
                          "record_ttl_seconds" : dnsRecordsData["record_ttl_seconds"],
-                         "record_class" : dnsRecordsData["record_class"]
+                         "record_class" : dnsRecordsData["record_class"],
+                         "record_mx_preference" : dnsRecordsData["record_mx_preference"] ? dnsRecordsData["record_mx_preference"]: '-'
                    });
                 }
                 gridDNSRecords._dataView.addData(dataSource);
