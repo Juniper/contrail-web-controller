@@ -82,6 +82,9 @@ define([
                 for(var i = 0; i < result.length; i++) {
                     var lInterface = result[i]['logical-interface'];
                     lInterface.type = ctwl.LOGICAL_INF;
+                    lInterface['logical_interface_type'] =
+                        ifNull(lInterface['logical_interface_type'],
+                        ctwl.LOGICAL_INF_L2_TYPE);
                     gridDS.push(result[i]['logical-interface']);
                 }
             }
@@ -150,6 +153,9 @@ define([
                         newData[i].uuid){
                         var lInterface = result[j]['logical-interface'];
                         lInterface.type = ctwl.LOGICAL_INF;
+                        lInterface['logical_interface_type'] =
+                            ifNull(lInterface['logical_interface_type'],
+                            ctwl.LOGICAL_INF_L2_TYPE);
                         newData.splice(i + 1, 0, lInterface);
                     }
                 }
