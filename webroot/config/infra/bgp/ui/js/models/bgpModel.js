@@ -260,6 +260,7 @@ define([
                 delete newBGPRouterCfgData.user_created_role;
                 delete newBGPRouterCfgData.user_created_address;
                 delete newBGPRouterCfgData.user_created_identifier;
+                delete newBGPRouterCfgData.user_created_autonomous_system;
                 delete newBGPRouterCfgData.user_created_address_family;
                 delete newBGPRouterCfgData.user_created_auth_key_type;
                 delete newBGPRouterCfgData.user_created_auth_key;
