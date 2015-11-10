@@ -48,10 +48,15 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Infrastructure Dashboard</searchStrings>
                             <resources>
                                 <resource>
-                                    <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
-                                    <template>monInfraDashboard.tmpl</template>
+                                    <rootDir>.</rootDir>
                                     <js>monInfraDashboard.main.js</js>
                                     <class>monInfraDashboardLoader</class>
+                                </resource>
+                                <resource>
+                                    <rootDir>/monitor/infrastructure/dashboard/ui</rootDir>
+                                    <template>monInfraDashboard.tmpl</template>
+                                    <js>controllerInfraDashboard.main.js</js>
+                                    <class>controllerInfraDashboardLoader</class>
                                 </resource>
                             </resources>
                             <queryParams>
