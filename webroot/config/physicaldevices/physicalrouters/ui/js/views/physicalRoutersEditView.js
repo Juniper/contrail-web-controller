@@ -429,8 +429,12 @@ define([
                 result = result['virtual-routers'];
                 for(var i = 0; i < result.length;i++) {
                     var virtualRouter = result[i]['virtual-router'];
-                    var vRouterType = (virtualRouter['virtual_router_type'])?
-                        virtualRouter['virtual_router_type'][0] : '';
+                    var vRouterType = null;
+                    if(virtualRouter['virtual_router_type'] instanceof Array) {
+                        vRouterType = virtualRouter['virtual_router_type'][0];
+                    } else {
+                        vRouterType = virtualRouter['virtual_router_type']
+                    }
                     vRouterType = (vRouterType != null && vRouterType != '')?
                         vRouterType : 'hypervisor';
                     var vRouterIP =

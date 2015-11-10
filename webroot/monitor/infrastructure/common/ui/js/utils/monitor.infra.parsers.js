@@ -200,9 +200,13 @@ define(
                             'ConfigData;virtual-router;virtual_router_ip_address',
                             '-');
                         obj['vRouterType'] = getValueByJsonPath(dValue,
-                            'ConfigData;virtual-router;virtual_router_type;0',
+                            'ConfigData;virtual-router;virtual_router_type',
                             'hypervisor');
-                        if (obj['vRouterType'] == '') {
+                        if(obj['vRouterType'] instanceof Array) {
+                            obj['vRouterType'] = obj['vRouterType'][0];
+                        }
+                        if (obj['vRouterType'] == '' ||
+                            obj['vRouterType'] == null) {
                             obj['vRouterType'] = 'hypervisor'; //set default to hypervisor
                         }
                         obj['moduleId'] = getValueByJsonPath(dValue,

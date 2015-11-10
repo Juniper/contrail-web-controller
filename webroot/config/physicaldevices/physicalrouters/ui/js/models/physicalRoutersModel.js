@@ -118,16 +118,16 @@ define([
                 var torAgentCount = 1, tsnCount = 1;
                 $.each(selectedVRouters,function(i,vrouter){
                     var vrname = vrouter.name.trim();
-                    var vrouterType = vrouter['virtual_router_type'][0];
-                    if(vrouterType === 'embedded'){
+                    var vrouterType = vrouter['virtual_router_type'];
+                    if(vrouterType == 'embedded'){
                         vrType = 'Embedded';
                         modelConfig['user_created_torAgent' + torAgentCount] = '';
                         modelConfig['user_created_tsn' + tsnCount] = '';
-                    } else if(vrouterType === 'tor-agent'){
+                    } else if(vrouterType == 'tor-agent'){
                         vrType = 'TOR Agent';
                         modelConfig['user_created_torAgent' + torAgentCount] = vrname;
                         torAgentCount++;
-                    } else if(vrouterType === 'tor-service-node'){
+                    } else if(vrouterType == 'tor-service-node'){
                         vrType = 'TOR Agent';
                         modelConfig['user_created_tsn' + tsnCount] = vrname;
                         tsnCount++;
@@ -488,7 +488,7 @@ define([
                         "parent_type":"global-system-config",
                         "name": name,
                         "virtual_router_ip_address" : mgmtIpAddress,
-                        "virtual_router_type" : ['embedded']}});
+                        "virtual_router_type" : 'embedded'}});
                 }
                 /*ELSE dont add to the vrouters as it is already existing.
                 just add a ref to this.*/
@@ -498,7 +498,7 @@ define([
                                     "parent_type":"global-system-config",
                                     "name": name,
                                     "virtual_router_ip_address" : mgmtIpAddress,
-                                    "virtual_router_type" : ['embedded']}});
+                                    "virtual_router_type" : 'embedded'}});
             }
             virtualRouterRefs.push({"to":
                 ["default-global-system-config",name]});
@@ -538,7 +538,7 @@ define([
                           selectedVRouters.user_created_torAgent1],
                           "parent_type":"global-system-config",
                           "name": selectedVRouters.user_created_torAgent1,
-                          "virtual_router_type" : ['tor-agent']}});
+                          "virtual_router_type" : "tor-agent"}});
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",
                     selectedVRouters.user_created_torAgent1]});
@@ -564,7 +564,7 @@ define([
                         selectedVRouters.user_created_torAgent2],
                         "parent_type":"global-system-config",
                         "name": selectedVRouters.user_created_torAgent2,
-                        "virtual_router_type" : ['tor-agent']}});
+                        "virtual_router_type" : "tor-agent"}});
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",
                     selectedVRouters.user_created_torAgent2]});
@@ -587,7 +587,7 @@ define([
                         selectedVRouters.user_created_tsn1],
                         "parent_type":"global-system-config",
                         "name": selectedVRouters.user_created_tsn1,
-                        "virtual_router_type" : ['tor-service-node']}});
+                        "virtual_router_type" : "tor-service-node"}});
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",
                     selectedVRouters.user_created_tsn1]});
@@ -616,7 +616,7 @@ define([
                                      "parent_type":"global-system-config",
                                      "name": selectedVRouters.user_created_tsn2,
                                      "virtual_router_type" :
-                                         ['tor-service-node']
+                                         "tor-service-node"
                                 }
                         }
                     );

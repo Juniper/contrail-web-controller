@@ -57,11 +57,8 @@ define([
                     newvRouterCfgData['fq_name'][1] = newvRouterCfgData['name'];
                 }
 
-                if (newvRouterCfgData['virtual_router_type'] != 'hypervisor') {
-                newvRouterCfgData['virtual_router_type'] =
-                    [newvRouterCfgData['virtual_router_type']];
-                } else {
-                    newvRouterCfgData['virtual_router_type'] = [];
+                if (newvRouterCfgData['virtual_router_type'] === 'hypervisor') {
+                    newvRouterCfgData['virtual_router_type'] = null;
                 }
 
                 delete newvRouterCfgData.errors;
