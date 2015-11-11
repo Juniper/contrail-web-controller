@@ -39,7 +39,16 @@ define([
                 monitorInfraConstants.defaultIntrospectPort);
             computeNodeInfo['vrouterModuleId'] = getValueByJsonPath(data,'NodeStatus;process_status;0;module_id', 
                 monitorInfraConstants.UVEModuleIds['VROUTER_AGENT']);
-            computeNodeInfo['vRouterType'] = getValueByJsonPath(data,'ConfigData;virtual-router;virtual_router_type;0','hypervisor');
+            computeNodeInfo['vRouterType'] = getValueByJsonPath(data,
+                'ConfigData;virtual-router;virtual_router_type','hypervisor');
+            if(computeNodeInfo['vRouterType'] instanceof Array) {
+                computeNodeInfo['vRouterType'] =
+                    computeNodeInfo['vRouterType'][0];
+            }
+            if(computeNodeInfo['vRouterType'] == '' ||
+                computeNodeInfo['vRouterType'] == null) {
+                computeNodeInfo['vRouterType'] = 'hypervisor';
+            }
             vRouterDefObj.resolve({
                 elementId: cowu.formatElementId([ctwl.VROUTER_TAB_SECTION_ID]),
                 view: "SectionView",

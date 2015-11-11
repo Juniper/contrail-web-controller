@@ -40,7 +40,7 @@ define([
                 var virtualRouterRefs = dc['virtual_router_refs'];
                 $.each(virtualRouterRefs, function(i, vrouter){
                     var vrString = vrouter.name;
-                    var vrType = vrouter.virtual_router_type[0];
+                    var vrType = vrouter.virtual_router_type;
                     if(vrType.indexOf('tor-service-node') >= 0){
                           vrString += ' (ToR Service Node)';
                     }
