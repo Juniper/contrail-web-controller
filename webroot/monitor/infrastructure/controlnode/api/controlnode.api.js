@@ -598,20 +598,35 @@ function getControlNodeRoutingInstanceList (req, res, appData)
 {
     var queryData = urlMod.parse(req.url, true);
     var ip = queryData.query['ip'];
+    var nextKey = queryData.query['lastKey'];
     var hostname = queryData.query['hostname'];
 
-    var url = ip + '@' + global.SANDESH_CONTROL_NODE_PORT + '@' +
-                    '/Snh_ShowRoutingInstanceSummaryReq?';
-    var urlLists = [];
-    urlLists[0] = [url];
-    var params = {'isRawData': true};
+    var url = '/Snh_ShowRoutingInstanceSummaryReq?';
+    var dataObjArr = [];
 
-    async.map(urlLists, commonUtils.getDataFromSandeshByIPUrl(rest.getAPIServer,
-                                                              false, params),
+    if (null != nextKey) {
+        url = '/Snh_ShowRoutingInstanceSummaryReqIterate?x=' + nextKey;
+    }
+    var bgpRtrRestAPI =
+        commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT);
+    commonUtils.createReqObj(dataObjArr, url);
+    async.map(dataObjArr,
+              commonUtils.getServerRespByRestApi(bgpRtrRestAPI, true),
             function(err, results) {
         if ((null == err) && (null != results) && (null != results[0])) {
-            var isJson = false;
-            commonUtils.handleJSONResponse(err, res, results[0], isJson);
+            var data = results[0];
+            var nextKey =
+                commonUtils.getValueByJsonPath(data,
+                                               'ShowRoutingInstanceSummaryResp;next_batch',
+                                               null);
+            data['lastKey'] = nextKey;
+            if ((null == nextKey) || ("" == nextKey)) {
+                data['more'] = false;
+            } else {
+                data['more'] = true;
+            }
+            delete data['next_batch'];
+            commonUtils.handleJSONResponse(err, res, data);
         } else {
             commonUtils.handleJSONResponse(err, res, null);
         }

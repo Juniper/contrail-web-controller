@@ -10,7 +10,7 @@ define([
     'monitor/infrastructure/controlnode/ui/js/models/ControlNodeRoutesModel'
     //Remove all query references once it is moved to core
 ], function (_, Knockback, ContrailView, ContrailListModel, ControlNodeRoutesModel) {
-
+    var routingInstancesDropdownList = [{text:'All',value:'All'}];
     var ControlNodeRoutesFormView = ContrailView.extend({
         render: function (options) {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -44,7 +44,12 @@ define([
                         });
                     }
             );
-
+            var transportCfg = {
+                    url: contrail.format(monitorInfraConstants.monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], hostname, 40),
+                    timout: 300000
+                };
+            var routingInstanceDS = new ContrailDataView();
+            getOutputByPagination(routingInstanceDS,{transportCfg:transportCfg,parseFn:parseRoutingInstanceResp});
             if (widgetConfig !== null) {
                 self.renderView4Config($(self.$el).find(routesFormId),
                         self.model, widgetConfig, null, null, null);
@@ -111,15 +116,6 @@ define([
              });
             routeLimits = [{'text':'All','value':'All'}].concat(routeLimits);
             var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
-            var TIMERANGE_DROPDOWN_VALUES = [ {
-                text:"aaa",
-                id:'aaa'
-            },
-            {
-                text:"bbb",
-                id:'bbb'
-            }
-         ];
             return {
                 view: "SectionView",
                 viewConfig: {
@@ -135,28 +131,9 @@ define([
                                         class: "span6",
                                         elementConfig: {
                                             defaultValueId: 0,
-                                            dataSource: {
-                                                dataType:'xml',
-                                                type:'remote',
-                                                url: contrail.format(
-                                                        monitorInfraConstants.
-                                                        monitorInfraUrls
-                                                        ['CONTROLNODE_ROUTE_INST_LIST'],
-                                                        hostname),
-                                                async:true,
-                                                parse:function(response){
-                                                    var ret = ['All'];
-                                                    if(response != null){
-                                                        $(response.
-                                                            getElementsByTagName
-                                                                ("name")).each(function(){
-                                                            ret.push(this.innerHTML);
-                                                        });
-                                                    }
-                                                    return ret;
-                                                },
-                                                timeout:300000
-                                            },
+                                            dataTextField:'text',
+                                            dataValueField:'value',
+                                            data: routingInstancesDropdownList
                                         }
                                     }
                                 },
@@ -275,6 +252,26 @@ define([
             };
         }
     });
+    function parseRoutingInstanceResp (response){
+        var ret = [];
+        if(response != null && response['ShowRoutingInstanceSummaryResp'] != null &&
+                response['ShowRoutingInstanceSummaryResp']['instances'] != null &&
+                response['ShowRoutingInstanceSummaryResp']['instances']['list'] != null &&
+                response['ShowRoutingInstanceSummaryResp']['instances']['list']['ShowRoutingInstance'] != null){
+            var routingInstances = response['ShowRoutingInstanceSummaryResp']['instances']['list']['ShowRoutingInstance'];
+            var routingInstancesLength = routingInstances.length;
+            for(var i = 0; i < routingInstancesLength; i++) {
+                routingInstancesDropdownList.push({text:routingInstances[i]['name'],value:routingInstances[i]['name']});
+            }
 
+        }
+        var ddRoutingInstance = $( "#routing_instance_dropdown" ).data('contrailDropdown');
+        if(ddRoutingInstance != null) {
+            ddRoutingInstance.setData(routingInstancesDropdownList);
+        }
+
+        return ret;
+
+    }
     return ControlNodeRoutesFormView;
 });
