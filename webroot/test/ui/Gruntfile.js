@@ -27,7 +27,7 @@ module.exports = function (grunt) {
 
         {pattern: 'contrail-web-core/webroot/img/**/*.png', included: false},
         {pattern: 'contrail-web-core/webroot/css/**/*.png', included: false},
-        {pattern: 'contrail-web-core/webroot/assets/select2/styles/**/*.png', included: false},
+        {pattern: 'contrail-web-core/webroot/assets/**/*.png', included: false},
         {pattern: 'contrail-web-core/webroot/css/**/*.gif', included: false},
 
         //Everything except library test suites and test files.
@@ -46,7 +46,8 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
         {pattern: 'contrail-web-core/webroot/templates/*.tmpl', included: false},
 
-        {pattern: 'contrail-web-controller/webroot/monitor/networking/test/**/*.mock.data.js', included: false}
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/test/**/*.mock.data.js', included: false},
+        {pattern: 'contrail-web-controller/webroot/monitor/networking/test/**/*.unit.test.suite.js', included: false}
     ];
 
     function browserSubdirFn(browser, platform) {
@@ -295,6 +296,32 @@ module.exports = function (grunt) {
                 },
                 feature: 'nm'
             }
+        },
+        nmUnit: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/unit/nm.unit.test.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/networking/ui/js/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputFile: __dirname + '/reports/tests/nm/unit/nm-unit-test-results.xml',
+                    suite: 'InstanceView',
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/nm/unit/nm-unit-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/nm/unit/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'nm'
+            }
         }
     };
 
@@ -441,6 +468,8 @@ module.exports = function (grunt) {
             grunt.task.run('karma:flowListView');
         } else if (target == 'flowGridView') {
             grunt.task.run('karma:flowGridView');
+        } else if (target == 'unit') {
+            grunt.task.run('karma:nmUnit');
         } else if (target == 'runAllNoMerge') {
             grunt.log.writeln('>>>>>>> Running all Network Monitoring tests one by one. Results will not be Merged. <<<<<<');
             grunt.task.run(['karma:networkView', 'karma:projectListView', 'karma:projectView', 'karma:dashBoardView',
