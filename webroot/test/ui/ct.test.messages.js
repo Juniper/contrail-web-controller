@@ -6,6 +6,8 @@ define([
     'underscore'
 ], function (_) {
     var TMessages = function() {
+        this.NM_UNIT_TEST_MODULE = 'Network Monitoring Unit Tests -';
+
         this.NETWORKS_LIST_VIEW_COMMON_TEST_MODULE = 'Neworks List view - Common Tests';
         this.NETWORKS_VIEW_COMMON_TEST_MODULE = 'Neworks View - Common Tests';
         this.PROJECTS_LIST_VIEW_COMMON_TEST_MODULE = 'Projects List view - Common Tests';
