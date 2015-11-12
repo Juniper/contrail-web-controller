@@ -7,6 +7,7 @@
  */
 monitorInfraControlRoutesClass = (function() {
     var routesGrid;
+    var routingInstancesDropdownList = [{text:'All',value:'All'}]; 
     var RoutesViewModel = function () {
         this.routingInstances = ko.observableArray([]);
           this.routingInstanceValue = ko.observable('All');
@@ -114,6 +115,27 @@ monitorInfraControlRoutesClass = (function() {
         return routesArr;
     
     }
+    this.parseRoutingInstanceResp = function(response){
+        var ret = [];
+        if(response != null && response['ShowRoutingInstanceSummaryResp'] != null &&
+                response['ShowRoutingInstanceSummaryResp']['instances'] != null && 
+                response['ShowRoutingInstanceSummaryResp']['instances']['list'] != null &&
+                response['ShowRoutingInstanceSummaryResp']['instances']['list']['ShowRoutingInstance'] != null){
+            var routingInstances = response['ShowRoutingInstanceSummaryResp']['instances']['list']['ShowRoutingInstance'];
+            var routingInstancesLength = routingInstances.length;
+            for(var i = 0; i < routingInstancesLength; i++) {
+                routingInstancesDropdownList.push({text:routingInstances[i]['name'],value:routingInstances[i]['name']});
+            }
+            
+        }
+        var ddRoutingInstance = $( "#ddRoutingInstance" ).data('contrailDropdown');
+        if(ddRoutingInstance != null) {
+            ddRoutingInstance.setData(routingInstancesDropdownList);
+        }
+        
+        return ret;
+        
+    }
     
     this.populateRoutesTab = function(obj) {
          layoutHandler.setURLHashParams({tab:'routes',node: obj['name']},{triggerHashChange:false});
@@ -123,28 +145,23 @@ monitorInfraControlRoutesClass = (function() {
          var routeTableList = ["All","enet","erm-vpn","evpn","inet","inetvpn","inet6","l3vpn","rtarget"];
          var routeLimits = [10, 50, 100, 200];
          var protocols = ['All','XMPP','BGP','ServiceChain','Static'];
+         var transportCfg = {
+                 url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(obj), 40),
+                 timout: 300000
+             };
+         var routingInstanceDS = new ContrailDataView();
          
+        
          $( "#ddRoutingInstance" ).contrailDropdown({
              defaultValue:'All',
-             dataSource: {
-                 dataType:'xml',
-                 type:'remote',
-                 url: contrail.format(monitorInfraUrls['CONTROLNODE_ROUTE_INST_LIST'], getIPOrHostName(obj)),
-                 async:true,
-                 parse:function(response){
-                     var ret = ['All'];
-                     if(response != null){
-                         $(response.getElementsByTagName("name")).each(function(){
-                             ret.push(this.innerHTML);
-                         });
-                     }
-                     return ret;
-                     
-                 },
-                 timeout:300000
-             },
+             dataTextField:'text',
+             dataValueField:'value',
+             data: routingInstancesDropdownList
          });
+         
          var ddRoutingInstance = $( "#ddRoutingInstance" ).data('contrailDropdown');
+         
+         getOutputByPagination(routingInstanceDS,{transportCfg:transportCfg,parseFn:self.parseRoutingInstanceResp});
          
          $( "#comboRoutingTable" ).contrailDropdown({
             data:routeTableList
