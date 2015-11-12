@@ -1,0 +1,9 @@
+Approved+1: opencontrail-admin <ci-admin@opencontrail.org>
+Code-Review+2: opencontrail-admin <ci-admin@opencontrail.org>
+Verified+2: Zuul <zuul@lists.opencontrail.org>
+Code-Review+1: Biswajit Mandal <bmandal@juniper.net>
+Submitted-by: Zuul <zuul@lists.opencontrail.org>
+Submitted-at: Thu, 12 Nov 2015 15:09:17 -0800
+Reviewed-on: https://review.opencontrail.org/15059
+Project: Juniper/contrail-web-controller
+Branch: refs/heads/R2.21.x
