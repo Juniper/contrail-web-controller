@@ -35,6 +35,15 @@ define([
                                     gridData[i]["Xmlmessage"] = contrail.checkIfExist(gridData[i]["Xmlmessage"]) ? qewu.formatXML2JSON(gridData[i]["Xmlmessage"], true) : null;
                                 }
                                 return gridData;
+                            },
+                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
+                            successCallback: function(resultJSON, contrailListModel, response) {
+                                //TODO - Remove this setTimeout
+                                setTimeout(function(){
+                                    if (response.status === 'queued') {
+                                        $('#' + cowl.QE_SYSTEM_LOGS_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                    }
+                                }, 500);
                             }
                         }
                     };
@@ -50,21 +59,23 @@ define([
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
-                olGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_LOG_TABLE_TYPE, selectArray);
+                olGridColumns = qewgc.getColumnDisplay4Grid(postDataObj.formModelAttrs.table_name, cowc.QE_LOG_TABLE_TYPE, selectArray),
+                gridTitle = contrail.checkIfExist(viewConfig['title']) ? viewConfig['title'] : cowl.TITLE_SYSTEM_LOGS;
 
             var resultsViewConfig = {
                 elementId: cowl.QE_SYSTEM_LOGS_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
-                    theme: cowc.TAB_THEME_OVERCAST,
+                    theme: cowc.TAB_THEME_WIDGET_CLASSIC,
                     activate: function (e, ui) {},
                     tabs: [
                         {
                             elementId: cowl.QE_SYSTEM_LOGS_GRID_ID,
                             title: cowl.TITLE_RESULTS,
+                            iconClass: 'icon-table',
                             view: "GridView",
                             viewConfig: {
-                                elementConfig: getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions)
+                                elementConfig: getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions, gridTitle)
                             }
                         }
                     ]
@@ -75,11 +86,11 @@ define([
         }
     });
 
-    function getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions) {
+    function getSystemLogsGridConfig(listModelConfig, olGridColumns, pagerOptions, gridTitle) {
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_SYSTEM_LOGS,
+                    text: gridTitle,
                     icon : 'icon-table'
                 },
                 defaultControls: {
@@ -94,7 +105,14 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false
                 },
-                dataSource: { remote: $.extend(true, {}, listModelConfig.remote, { serverSidePagination: true }) }
+                dataSource: { remote: $.extend(true, {}, listModelConfig.remote, { serverSidePagination: true }) },
+                statusMessages: {
+                    queued: {
+                        type: 'status',
+                        iconClasses: '',
+                        text: 'Your query has been queued.'
+                    }
+                }
             },
             columnHeader: {
                 columns: olGridColumns

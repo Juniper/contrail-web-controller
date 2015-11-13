@@ -145,10 +145,10 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'filter', view: "FormTextAreaView",
-                                    viewConfig: {path: 'filter', dataBindValue: 'filter', class: "span9", editPopupConfig: {
+                                    elementId: 'filters', view: "FormTextAreaView",
+                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "span9", editPopupConfig: {
                                         renderEditFn: function() {
-                                            self.renderFilter({className: cowc.QE_MODAL_CLASS_700});
+                                            self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
                                         }
                                     }}
                                 }

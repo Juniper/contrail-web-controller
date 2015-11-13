@@ -42,18 +42,6 @@ define([
                                     viewConfig: {
                                         theme: 'classic',
                                         active: 1,
-                                        activate: function (e, ui) {
-                                            var selTab = $(ui.newTab.context).text();
-                                            if (selTab == ctwl.TITLE_TRAFFIC_STATISTICS) {
-                                                $('#' + ctwl.INSTANCE_TRAFFIC_STATS_ID).find('svg').trigger('refresh');
-                                            } else if (selTab == ctwl.TITLE_INTERFACES) {
-                                                $('#' + ctwl.INSTANCE_INTERFACE_GRID_ID).data('contrailGrid').refreshView();
-                                            } else if (selTab == ctwl.TITLE_CPU_MEMORY) {
-                                                $('#' + ctwl.INSTANCE_CPU_MEM_STATS_ID).find('svg').trigger('refresh');
-                                            } else if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                                                $('#' + ctwl.INSTANCE_PORT_DIST_CHART_ID).trigger('refresh');
-                                            }
-                                        },
                                         tabs: tabObjs
                                     }
                                 }
@@ -96,6 +84,13 @@ define([
                         view: "InterfaceGridView",
                         viewPathPrefix: "monitor/networking/ui/js/views/",
                         app: cowc.APP_CONTRAIL_CONTROLLER,
+                        tabConfig: {
+                            activate: function(event, ui) {
+                                if ($('#' + ctwl.INSTANCE_INTERFACE_GRID_ID).data('contrailGrid')) {
+                                    $('#' + ctwl.INSTANCE_INTERFACE_GRID_ID).data('contrailGrid').refreshView();
+                                }
+                            }
+                        },
                         viewConfig: {
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                             instanceUUID: instanceUUID,
@@ -108,6 +103,11 @@ define([
                         app: cowc.APP_CONTRAIL_CONTROLLER,
                         view: "InstanceTrafficStatsView",
                         viewPathPrefix: "monitor/networking/ui/js/views/",
+                        tabConfig: {
+                            activate: function(event, ui) {
+                                $('#' + ctwl.INSTANCE_TRAFFIC_STATS_ID).find('svg').trigger('refresh');
+                            }
+                        },
                         viewConfig: {
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                             instanceUUID: instanceUUID,
@@ -120,6 +120,11 @@ define([
                         app: cowc.APP_CONTRAIL_CONTROLLER,
                         view: "InstancePortDistributionView",
                         viewPathPrefix: "monitor/networking/ui/js/views/",
+                        tabConfig: {
+                            activate: function(event, ui) {
+                                $('#' + ctwl.INSTANCE_PORT_DIST_CHART_ID).trigger('refresh');
+                            }
+                        },
                         viewConfig: {
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                             instanceUUID: instanceUUID
@@ -141,6 +146,11 @@ define([
                         elementId: ctwl.INSTANCE_CPU_MEM_STATS_ID,
                         title: ctwl.TITLE_CPU_MEMORY,
                         view: "LineBarWithFocusChartView",
+                        tabConfig: {
+                            activate: function(event, ui) {
+                                $('#' + ctwl.INSTANCE_CPU_MEM_STATS_ID).find('svg').trigger('refresh');
+                            }
+                        },
                         viewConfig: {
                             modelConfig: getInstanceCPUMemModelConfig(networkFQN, instanceUUID),
                             parseFn: ctwp.parseCPUMemLineChartData,

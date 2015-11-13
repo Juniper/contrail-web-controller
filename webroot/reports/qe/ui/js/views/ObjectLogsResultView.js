@@ -36,11 +36,19 @@ define([
                                     gridData[i]["SystemLog"] = contrail.checkIfExist(gridData[i]["SystemLog"]) ? qewu.formatXML2JSON(gridData[i]["SystemLog"], true) : null;
                                 }
                                 return gridData;
+                            },
+                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
+                            successCallback: function(resultJSON, contrailListModel, response) {
+                                //TODO - Remove this setTimeout
+                                setTimeout(function(){
+                                    if (response.status === 'queued') {
+                                        $('#' + cowl.QE_OBJECT_LOGS_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                    }
+                                }, 500);
                             }
                         }
                     };
 
-                postDataObj.chunkSize = cowc.QE_RESULT_CHUNK_SIZE_1K;
                 contrailListModel = new ContrailListModel(listModelConfig);
                 self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, listModelConfig, serverCurrentTime))
             });
@@ -57,12 +65,13 @@ define([
                 elementId: cowl.QE_OBJECT_LOGS_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
-                    theme: cowc.TAB_THEME_OVERCAST,
+                    theme: cowc.TAB_THEME_WIDGET_CLASSIC,
                     activate: function (e, ui) {},
                     tabs: [
                         {
                             elementId: cowl.QE_OBJECT_LOGS_GRID_ID,
                             title: cowl.TITLE_RESULTS,
+                            iconClass: 'icon-table',
                             view: "GridView",
                             viewConfig: {
                                 elementConfig: getObjectLogsGridConfig(listModelConfig, olGridColumns, pagerOptions)
@@ -95,7 +104,14 @@ define([
                     autoRefresh: false,
                     checkboxSelectable: false
                 },
-                dataSource: { remote: $.extend(true, {}, listModelConfig.remote, { serverSidePagination: true }) }
+                dataSource: { remote: $.extend(true, {}, listModelConfig.remote, { serverSidePagination: true }) },
+                statusMessages: {
+                    queued: {
+                        type: 'status',
+                        iconClasses: '',
+                        text: 'Your query has been queued.'
+                    }
+                }
             },
             columnHeader: {
                 columns: olGridColumns

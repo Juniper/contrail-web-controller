@@ -21,8 +21,7 @@ define([
                 self.model = queryFormModel;
             }
 
-            if (viewConfig.queryType == 'queue') {
-
+            if (viewConfig.queryResultType == 'queue') {
                 postDataObj = {
                     pageSize: 50,
                     page: 1,
@@ -38,7 +37,7 @@ define([
                 }).always(function() {
                     var timeRange = parseInt(queryFormModel.time_range());
 
-                    postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime)
+                    postDataObj = queryFormModel.getQueryRequestPostData(serverCurrentTime);
 
                     if (timeRange !== -1) {
                         queryFormModel.to_time(serverCurrentTime);
@@ -52,6 +51,11 @@ define([
 
         renderFlowSeriesResult: function(postDataObj, queryFormModel) {
             var self = this,
+                viewConfig = self.attributes.viewConfig,
+                formData = contrail.checkIfExist(viewConfig.formData) ? viewConfig.formData : {},
+                formQueryIdSuffix = (!$.isEmptyObject(formData)) ? '-' + formData.queryId : '',
+                flowSeriesGridId = cowl.QE_FLOW_SERIES_GRID_ID + formQueryIdSuffix,
+                flowSeriesTabId = cowl.QE_FLOW_SERIES_TAB_ID + formQueryIdSuffix,
                 modelMap = contrail.handleIfNull(self.modelMap, {}),
                 contrailListModel,
                 fsRemoteConfig = {
@@ -70,7 +74,7 @@ define([
                             //TODO - Remove this setTimeout
                             setTimeout(function(){
                                 if (response.status === 'queued') {
-                                    $('#' + cowl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                    $('#' + flowSeriesGridId).data('contrailGrid').showGridMessage(response.status)
                                 }
                             }, 500);
 
@@ -87,7 +91,8 @@ define([
                     contrailListModel.onAllRequestsComplete.subscribe(function () {
                         //TODO: Load chart only if data is not queued.
                         if (contrailListModel.getItems().length > 0) {
-                            flowSeriesResultView.childViewMap[cowl.QE_FLOW_SERIES_TAB_ID].renderNewTab(cowl.QE_FLOW_SERIES_TAB_ID, self.getFlowSeriesResultChartTabViewConfig(postDataObj));
+                            flowSeriesResultView.childViewMap[flowSeriesTabId]
+                                .renderNewTab(flowSeriesTabId, self.getFlowSeriesResultChartTabViewConfig(postDataObj));
                         }
                     });
                 }
@@ -95,26 +100,32 @@ define([
         },
 
         getFlowSeriesResultGridTabViewConfig: function (postDataObj, fsRemoteConfig) {
-            var self = this, viewConfig = self.attributes.viewConfig,
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                formData = contrail.checkIfExist(viewConfig.formData) ? viewConfig.formData : {},
+                formQueryIdSuffix = (!$.isEmptyObject(formData)) ? '-' + formData.queryId : '',
+                flowSeriesGridId = cowl.QE_FLOW_SERIES_GRID_ID + formQueryIdSuffix,
+                flowSeriesTabId = cowl.QE_FLOW_SERIES_TAB_ID + formQueryIdSuffix,
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
                 fsGridColumns = qewgc.getColumnDisplay4Grid(cowc.FLOW_SERIES_TABLE, cowc.QE_FLOW_TABLE_TYPE, selectArray);
 
             var resultsViewConfig = {
-                elementId: cowl.QE_FLOW_SERIES_TAB_ID,
+                elementId: flowSeriesTabId,
                 view: "TabsView",
                 viewConfig: {
-                    theme: cowc.TAB_THEME_OVERCAST,
+                    theme: cowc.TAB_THEME_WIDGET_CLASSIC,
                     tabs: [
                         {
-                            elementId: cowl.QE_FLOW_SERIES_GRID_ID,
+                            elementId: flowSeriesGridId,
                             title: cowl.TITLE_RESULTS,
+                            iconClass: 'icon-table',
                             view: "GridView",
                             tabConfig: {
                                 activate: function(event, ui) {
-                                    if ($('#' + cowl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid')) {
-                                        $('#' + cowl.QE_FLOW_SERIES_GRID_ID).data('contrailGrid').refreshView();
+                                    if ($('#' + flowSeriesGridId).data('contrailGrid')) {
+                                        $('#' + flowSeriesGridId).data('contrailGrid').refreshView();
                                     }
                                 }
                             },
@@ -130,21 +141,27 @@ define([
         },
 
         getFlowSeriesResultChartTabViewConfig: function(postDataObj) {
-            var queryFormModel = this.model,
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                formQueryIdSuffix = '-' + postDataObj.queryId,
+                flowSeriesChartId = cowl.QE_FLOW_SERIES_CHART_ID + formQueryIdSuffix,
+                flowSeriesChartGridId = cowl.QE_FLOW_SERIES_CHART_GRID_ID + formQueryIdSuffix,
+                queryFormModel = self.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
                 flowSeriesChartTabViewConfig = [];
 
             flowSeriesChartTabViewConfig.push({
-                elementId: cowl.QE_FLOW_SERIES_CHART_ID,
+                elementId: flowSeriesChartId,
                 title: cowl.TITLE_CHART,
+                iconClass: 'icon-bar-chart',
                 view: "FlowSeriesLineChartView",
                 viewPathPrefix: "reports/qe/ui/js/views/",
                 app: cowc.APP_CONTRAIL_CONTROLLER,
                 tabConfig: {
                     activate: function (event, ui) {
-                        $('#' + cowl.QE_FLOW_SERIES_CHART_ID).find('svg').trigger('refresh');
-                        if ($('#' + cowl.QE_FLOW_SERIES_CHART_GRID_ID).data('contrailGrid')) {
-                            $('#' + cowl.QE_FLOW_SERIES_CHART_GRID_ID).data('contrailGrid').refreshView();
+                        $('#' + flowSeriesChartId).find('svg').trigger('refresh');
+                        if ($('#' + flowSeriesChartGridId).data('contrailGrid')) {
+                            $('#' + flowSeriesChartGridId).data('contrailGrid').refreshView();
                         }
                     },
                     renderOnActivate: true

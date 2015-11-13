@@ -272,6 +272,8 @@ function setOTValidValues(tableName, resetValues) {
     ]);
     setValidValues('/api/admin/table/values/' + tableName + '/ModuleId', 'ModuleId', viewModels);
     setValidValues('/api/admin/table/values/' + tableName + '/Source', 'Source', viewModels);
+
+    ///api/admin/reports/query?pageSize=50&page=1&table=StatTable.FieldNames.fields&customTable=&timeRange=1800&fromTime=Aug+07%2C+2015+02%3A53%3A36+PM&toTime=Aug+07%2C+2015+03%3A03%3A36+PM&select=Source%2C+fields.value%2C+name&tgValue=&tgUnits=secs&where=(name+%3D+MessageTable%3AModuleId)&filters=&fromTimeUTC=1438983247000&toTimeUTC=1438985047000&reRunTimeRange=1800&queryId=54B1FBE7-429B-45A6-9F7B-13FF6A02B9ED-1438985047050&async=true&engQueryStr=%7B%22select%22%3A%22Source%2C+fields.value%2C+name%22%2C%22from%22%3A%22StatTable.FieldNames.fields%22%2C%22where%22%3A%22(name+%3D+MessageTable%3AModuleId)%22%2C%22filter%22%3A%22%22%2C%22from_time%22%3A%22Aug+07%2C+2015+02%3A34%3A07+PM%22%2C%22to_time%22%3A%22Aug+07%2C+2015+03%3A04%3A07+PM%22%7D&groupFields%5B%5D=Source&groupFields%5B%5D=name&Xaxis%5B%5D=T&Xaxis%5B%5D=T%3D&_=1438985047233
     if (resetValues) {
         queries.ot.whereViewModel.whereClauseView([]);
         $('#ot-where').attr('value', '');

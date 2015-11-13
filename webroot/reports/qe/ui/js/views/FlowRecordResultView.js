@@ -36,7 +36,12 @@ define([
                             },
                             //TODO: We should not need to implement success callback in each grid to show grid message based on status
                             successCallback: function(resultJSON, contrailListModel, response) {
-                                // TODO: Show Message if query is queued.
+                                //TODO - Remove this setTimeout
+                                setTimeout(function(){
+                                    if (response.status === 'queued') {
+                                        $('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                    }
+                                }, 500);
                             }
                         }
                     };
@@ -63,11 +68,12 @@ define([
                 elementId: cowl.QE_FLOW_RECORD_TAB_ID,
                 view: "TabsView",
                 viewConfig: {
-                    theme: cowc.TAB_THEME_OVERCAST,
+                    theme: cowc.TAB_THEME_WIDGET_CLASSIC,
                     tabs: [
                         {
                             elementId: cowl.QE_FLOW_RECORD_GRID_ID,
                             title: cowl.TITLE_RESULTS,
+                            iconClass: 'icon-table',
                             view: "GridView",
                             tabConfig: {
                                 activate: function(event, ui) {
@@ -115,6 +121,13 @@ define([
                             return response['data'];
                         },
                         serverSidePagination: true
+                    }
+                },
+                statusMessages: {
+                    queued: {
+                        type: 'status',
+                        iconClasses: '',
+                        text: 'Your query has been queued.'
                     }
                 }
             },

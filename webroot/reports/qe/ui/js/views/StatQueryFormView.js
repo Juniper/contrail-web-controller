@@ -181,24 +181,22 @@ define([
                                 }
                             ]
                         },
-                        /*
                         {
                             columns: [
                                 {
-                                    elementId: 'filter', view: "FormTextAreaView",
+                                    elementId: 'filters', view: "FormTextAreaView",
                                     viewConfig: {
-                                        path: 'filter', dataBindValue: 'filter', class: "span9",
+                                        path: 'filters', dataBindValue: 'filters', class: "span9",
                                         visible: 'isTableNameAvailable()',
                                         editPopupConfig: {
                                             renderEditFn: function() {
-                                                self.renderFilter({className: cowc.QE_MODAL_CLASS_700});
+                                                self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
                                             }
                                         }
                                     }
                                 }
                             ]
                         },
-                        */
                         {
                             columns: [
                                 {

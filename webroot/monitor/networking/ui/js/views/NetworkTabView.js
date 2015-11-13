@@ -35,16 +35,6 @@ define([
                                 viewConfig: {
                                     theme: 'classic',
                                     active: 1,
-                                    activate: function (e, ui) {
-                                        var selTab = $(ui.newTab.context).text();
-                                        if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
-                                            $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
-                                        } else if (selTab == ctwl.TITLE_INSTANCES) {
-                                            $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').refreshView();
-                                        } else if (selTab == ctwl.TITLE_TRAFFIC_STATISTICS) {
-                                            $('#' + ctwl.NETWORK_TRAFFIC_STATS_ID).find('svg').trigger('refresh');
-                                        }
-                                    },
                                     tabs: [
                                         {
                                             elementId: ctwl.NETWORK_DETAILS_ID,
@@ -68,6 +58,13 @@ define([
                                             view: "InstanceGridView",
                                             viewPathPrefix: "monitor/networking/ui/js/views/",
                                             app: cowc.APP_CONTRAIL_CONTROLLER,
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    if ($('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid')) {
+                                                        $('#' + ctwl.PROJECT_INSTANCE_GRID_ID).data('contrailGrid').refreshView();
+                                                    }
+                                                }
+                                            },
                                             viewConfig: {
                                                 parentUUID: networkUUID,
                                                 parentType: ctwc.TYPE_VN
@@ -77,6 +74,11 @@ define([
                                             elementId: ctwl.NETWORK_TRAFFIC_STATS_ID,
                                             title: ctwl.TITLE_TRAFFIC_STATISTICS,
                                             view: "LineWithFocusChartView",
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    $('#' + ctwl.NETWORK_TRAFFIC_STATS_ID).find('svg').trigger('refresh');
+                                                }
+                                            },
                                             viewConfig: {
                                                 modelConfig: {
                                                     remote: {
@@ -97,6 +99,11 @@ define([
                                             elementId: ctwl.NETWORK_PORT_DIST_ID,
                                             title: ctwl.TITLE_PORT_DISTRIBUTION,
                                             view: "ZoomScatterChartView",
+                                            tabConfig: {
+                                                activate: function(event, ui) {
+                                                    $('#' + ctwl.NETWORK_PORT_DIST_ID).trigger('refresh');
+                                                }
+                                            },
                                             viewConfig: {
                                                 modelConfig: {
                                                     remote: {

@@ -123,8 +123,10 @@ function getChartData(req, res) {
 
 // Handle request to delete redis cache for given query ids.
 function deleteQueryCache4Ids(req, res) {
-    var queryIds = req.body.queryIds;
-    var queryQueue = req.body.queryQueue;
+    var queryIds = req.body.queryIds,
+        queryQueue = req.body.queryQueue;
+
+
     for (var i = 0; i < queryIds.length; i++) {
         redisClient.hdel(queryQueue, queryIds[i]);
         redisClient.keys(queryIds[i] + "*", function (error, keysArray) {
@@ -187,7 +189,6 @@ function runQuery(req, res, queryReqObj) {
         chunkSize = parseInt(queryReqObj['chunkSize']), options;
 
     options = {"queryId": queryId, "chunk": chunk, "sort": sort, "chunkSize": chunkSize, "toSort": true};
-
     logutils.logger.debug('Query Request: ' + JSON.stringify(queryReqObj));
 
     if (queryId != null) {
@@ -218,7 +219,7 @@ function getQueryOptions(queryReqObj) {
     var formModelAttrs = queryReqObj['formModelAttrs'],
         tableType = formModelAttrs['table_type'],
         queryId = queryReqObj['queryId'], chunkSize = parseInt(queryReqObj['chunkSize']),
-        async = (queryReqObj['async'] != null && queryReqObj['async'] == "true") ? true : false,
+        async = (queryReqObj['async'] != null) ? queryReqObj['async'] : false,
         reRunTimeRange = queryReqObj['reRunTimeRange'], reRunQuery = queryReqObj, engQueryStr = queryReqObj['engQueryStr'],
         saveQuery = queryReqObj['saveQuery'];
 
@@ -712,14 +713,12 @@ function setMicroTimeRange(query, fromTime, toTime) {
 function getQueryJSON4Table(queryReqObj) {
     var formModelAttrs = queryReqObj['formModelAttrs'],
         tableName = formModelAttrs['table_name'], tableType = formModelAttrs['table_type'],
-        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": [], "filter": [], "limit": 150000};
+        queryJSON = {"table": tableName, "start_time": "", "end_time": "", "select_fields": [], "filter": []};
 
     var fromTimeUTC = formModelAttrs['from_time_utc'], toTimeUTC = formModelAttrs['to_time_utc'],
-        select = formModelAttrs['select'], where = formModelAttrs['where'], filters = formModelAttrs['filter'],
-        autoLimit = queryReqObj['autoLimit'], autoSort = queryReqObj['autoSort'],
-        direction = formModelAttrs['direction'];
+        select = formModelAttrs['select'], where = formModelAttrs['where'], filters = formModelAttrs['filters'],
+        autoSort = queryReqObj['autoSort'], direction = formModelAttrs['direction'];
 
-    autoLimit = (autoLimit != null && autoLimit == "true") ? true : false;
     autoSort = (autoSort != null && autoSort == "true") ? true : false;
 
     if (tableType == 'LOG') {
@@ -727,8 +726,7 @@ function getQueryJSON4Table(queryReqObj) {
             "select_fields": ["MessageTS", "Type", "Level"],
             "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]],
             "sort_fields": ['MessageTS'],
-            "sort": 2,
-            "limit": 150000
+            "sort": 2
         });
 
         if(formModelAttrs['log_level'] != null && formModelAttrs['log_level'] != "") {
@@ -738,7 +736,6 @@ function getQueryJSON4Table(queryReqObj) {
         }
     } else if (tableName == 'FlowSeriesTable') {
         autoSort = (select.indexOf('T=') == -1 && select.indexOf('T') == -1) ? false : autoSort;
-
         queryJSON = _.extend({}, queryJSON, {"select_fields": ['flow_class_id', 'direction_ing']});
 
         if (autoSort) {
@@ -749,27 +746,15 @@ function getQueryJSON4Table(queryReqObj) {
             queryJSON['sort'] = 2;
         }
 
-        if (autoLimit) {
-            queryJSON['limit'] = 150000;
-        }
     } else if (tableName == 'FlowRecordTable') {
         queryJSON = _.extend({}, queryJSON, {"select_fields": ['direction_ing']});
 
-        if (autoLimit) {
-            queryJSON['limit'] = 150000;
-        } else if (formModelAttrs['limit'] != null) {
-            queryJSON['limit'] = parseInt(formModelAttrs['limit']);
-        }
     } else if (tableType == "OBJECT") {
         autoSort = (select.indexOf('MessageTS') == -1) ? false : autoSort;
 
         if (autoSort) {
             queryJSON['sort_fields'] = ['MessageTS'];
             queryJSON['sort'] = 2;
-        }
-
-        if (autoLimit) {
-            queryJSON['limit'] = 50000;
         }
 
     } else if (tableType == "STAT") {
@@ -781,13 +766,25 @@ function getQueryJSON4Table(queryReqObj) {
     setMicroTimeRange(queryJSON, fromTimeUTC, toTimeUTC);
     parseSelect(queryJSON, formModelAttrs);
     parseWhere(queryJSON, where);
-    //parseFSFilter(queryJSON, filters);
+    if(filters != null && filters != "") {
+        parseFilters(queryJSON, filters);
+    }
 
     if (direction != "" && parseInt(direction) >= 0) {
         queryJSON['dir'] = parseInt(direction);
     }
 
+    if(queryJSON['limit'] == null) {
+        queryJSON['limit'] = getDefaultQueryLimit(tableType);
+    }
+
     return queryJSON;
+};
+
+function getDefaultQueryLimit(tableType) {
+    var limit = (tableType == "OBJECT" || tableType == "LOG") ? 50000 : 150000;
+
+    return limit;
 };
 
 function parseSelect(query, formModelAttrs) {
@@ -824,11 +821,34 @@ function parseWhere(query, where) {
     }
 };
 
+function parseFilters(query, filters) {
+    var filtersArray = splitString2Array(filters, ","),
+        filter, filterBy, limitBy;
 
-function parseFilter(query, filters) {
+    for (var i = 0; i < filtersArray.length; i++) {
+        filter = filtersArray[i];
+
+        if(filter.indexOf('filter:') != -1) {
+            filterBy = splitString2Array(filter, ":")[1];
+
+            if(filterBy.length > 0) {
+                parseFilterBy(query, filterBy);
+            }
+
+        } else if (filter.indexOf('limit:') != -1) {
+            limitBy = splitString2Array(filter, ":")[1];
+
+            if(limitBy.length > 0) {
+                parseLimitBy(query, limitBy);
+            }
+        }
+    }
+};
+
+function parseFilterBy(query, filterBy) {
     var filtersArray, filtersLength, filterClause = [], i, filterObj;
-    if (filters != null && filters.trim() != '') {
-        filtersArray = filters.split(' AND ');
+    if (filterBy != null && filterBy.trim() != '') {
+        filtersArray = filterBy.split(' AND ');
         filtersLength = filtersArray.length;
         for (i = 0; i < filtersLength; i += 1) {
             filtersArray[i] = filtersArray[i].trim();
@@ -849,6 +869,15 @@ function parseFilterObj(filter, operator) {
         filterObj.op = getOperatorCode(operator);
     }
     return filterObj
+};
+
+function parseLimitBy(query, limitBy) {
+    try {
+        var parsedLimit = parseInt(limitBy);
+        query['limit'] = parsedLimit;
+    } catch (error) {
+        logutils.logger.error(error.stack);
+    }
 };
 
 function parseWhereANDClause(whereANDClause) {
