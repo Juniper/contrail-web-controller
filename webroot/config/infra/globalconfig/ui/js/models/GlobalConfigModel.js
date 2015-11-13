@@ -7,13 +7,14 @@ define([
     'contrail-model',
     'config/infra/globalconfig/ui/js/models/IPSubnetModel',
     'config/infra/globalconfig/ui/js/models/EncapPriorityModel',
-    'config/infra/globalconfig/ui/js/globalConfig.utils'
+    'config/infra/globalconfig/ui/js/globalConfig.utils',
+    'config/infra/globalconfig/ui/js/models/FlowAgingTimeoutModel'
 ], function (_, ContrailModel, IPSubnetModel, EncapPriorityModel,
-             GlobalConfigUtils) {
+             GlobalConfigUtils, FlowAgingTimeoutModel) {
     var gcUtils = new GlobalConfigUtils();
     var GlobalConfigModel = ContrailModel.extend({
         defaultConfig: {
-            'flow_export_rate': "",
+            'flow_export_rate': null,
             'vxlan_network_identifier_mode': null,
             'autonomous_system': 64513,
             'forwarding_mode': "Default",
@@ -22,6 +23,9 @@ define([
         validations: {
             globalConfigValidations: {
                 'autonomous_system': {
+                    pattern: 'number'
+                },
+                'flow_export_rate': {
                     pattern: 'number'
                 }
             },
@@ -61,6 +65,32 @@ define([
             if (null != modelConfig['ip_fabric_subnets']) {
                 delete modelConfig['ip_fabric_subnets'];
             }
+            /* Flow Aging Timeout */
+            var flowAgeModel;
+            var flowAgeModels = [];
+            var flowAgeCollectionModel;
+            var flowAgeTuples =
+                getValueByJsonPath(modelConfig,
+                                   'flow_aging_timeout_list;flow_aging_timeout', []);
+            var flowAgeTuplesCnt = flowAgeTuples.length;
+            for (var i = 0; i < flowAgeTuplesCnt; i++) {
+                flowAgeModel =
+                    new FlowAgingTimeoutModel({protocol:
+                                                flowAgeTuples[i]['protocol'],
+                                              port: flowAgeTuples[i]['port'],
+                                              timeout:
+                                                flowAgeTuples[i]['timeout']});
+                flowAgeModels.push(flowAgeModel);
+            }
+            flowAgeCollectionModel = new Backbone.Collection(flowAgeModels);
+            modelConfig['flowAgingTimeout'] = flowAgeCollectionModel;
+            if (null != modelConfig['flow_aging_timeout']) {
+                delete modelConfig['flow_aging_timeout'];
+            }
+            if (!('forwarding_mode' in modelConfig) ||
+                (null == modelConfig['forwarding_mode'])) {
+                modelConfig['forwarding_mode'] = 'Default';
+            }
             return modelConfig;
         },
         getEncapPriorities: function() {
@@ -88,6 +118,17 @@ define([
             var subnet = kbAddr.model();
             subnetCollection.remove(subnet);
         },
+        deleteFlowAgingTuple: function(data, flowAgeTuple) {
+            var flowAgeCollection = data.model().collection;
+            var flowAgeEntry = flowAgeTuple.model();
+            flowAgeCollection.remove(flowAgeEntry);
+        },
+        addFlowAgingTuple: function() {
+            var flowAgeCollection = this.model().get('flowAgingTimeout');
+            var newFlowAgeEntry =
+                new FlowAgingTimeoutModel({'protocol': 'ICMP', port: "", timeout: 180});
+            flowAgeCollection.add([newFlowAgeEntry]);
+        },
         getEncapPriOrdList: function(attr) {
             var encapPriOrdArr = [];
             var encapPriOrdCollection = attr.encapPriorityOrders.toJSON();
@@ -96,6 +137,24 @@ define([
                 encapPriOrdArr.push(encapPriOrdCollection[i].encapsulation_priorities());
             }
             return encapPriOrdArr;
+        },
+        getFlowAgingTupleList: function(attr) {
+            var flowTupleArr = [];
+            var flowTupleCollection = attr.flowAgingTimeout.toJSON();
+            var flowTupleCnt = flowTupleCollection.length;
+            for (var i = 0; i < flowTupleCnt; i++) {
+                var timeout = flowTupleCollection[i].timeout();
+                if (true == _.isString(timeout)) {
+                    if ("" == timeout.trim()) {
+                        timeout = 180; /* 3 Minutes */
+                    }
+                    timeout = Number(timeout);
+                }
+                flowTupleArr.push({protocol: flowTupleCollection[i].protocol(),
+                                   port: Number(flowTupleCollection[i].port()),
+                                   timeout: timeout});
+            }
+            return flowTupleArr;
         },
         addEncapPriOrders: function(data, dataObj, index) {
             var prioOrdList = [];
@@ -179,6 +238,12 @@ define([
                 putData['global-vrouter-config']['encapsulation_priorities']
                        ['encapsulation'] = [];
                 var encapList = this.getEncapPriOrdList(newGlobalConfig);
+                var flowAgeList = this.getFlowAgingTupleList(newGlobalConfig);
+                if ((null != flowAgeList) & (flowAgeList.length > 0)) {
+                    putData['global-vrouter-config']['flow_aging_timeout_list'] = {};
+                    putData['global-vrouter-config']['flow_aging_timeout_list']
+                           ['flow_aging_timeout'] = flowAgeList;
+                }
                 putData['global-vrouter-config']['encapsulation_priorities']
                     ['encapsulation'] =
                     gcUtils.mapUIEncapToConfigEncap(encapList);
