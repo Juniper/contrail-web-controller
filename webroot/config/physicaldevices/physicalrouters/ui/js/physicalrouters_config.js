@@ -963,7 +963,7 @@ function physicalRoutersConfig() {
                     "parent_type":"global-system-config",
                     "name": name,
                     "virtual_router_ip_address" : mgmtIpAddress,
-                    "virtual_router_type" : ['embedded']}});
+                    "virtual_router_type" : 'embedded'}});
             }
             //ELSE dont add to the vrouters as it is already existing. just add a ref to this.
         } else {
@@ -971,7 +971,7 @@ function physicalRoutersConfig() {
                                 "parent_type":"global-system-config",
                                 "name": name,
                                 "virtual_router_ip_address" : mgmtIpAddress,
-                                "virtual_router_type" : ['embedded']}});
+                                "virtual_router_type" : 'embedded'}});
         }
         virtualRouterRefs.push({"to":["default-global-system-config",name]});
         postObject["physical-router"]["virtual-routers"] = virtualRouters;
@@ -1024,7 +1024,7 @@ function physicalRoutersConfig() {
                                         "parent_type":"global-system-config",
                                         "name": torAgentName,
     //                                    "virtual_router_ip_address" : torAgentIp,
-                                        "virtual_router_type" : ['tor-agent']}});
+                                        "virtual_router_type" : 'tor-agent'}});
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",torAgentName]});
             }
@@ -1035,7 +1035,7 @@ function physicalRoutersConfig() {
                                         "parent_type":"global-system-config",
                                         "name": tsnName,
     //                                    "virtual_router_ip_address" : tsnIp,
-                                        "virtual_router_type" : ['tor-service-node']}});
+                                        "virtual_router_type" : 'tor-service-node'}});
                 }
                 virtualRouterRefs.push({"to":["default-global-system-config",tsnName]});
             }
@@ -1288,7 +1288,12 @@ function physicalRoutersConfig() {
             result = result['virtual-routers'];
             for(var i = 0; i < result.length;i++) {
                 var virtualRouter = result[i]['virtual-router'];
-                var vRouterType = (virtualRouter['virtual_router_type'])? virtualRouter['virtual_router_type'][0] : '';
+                var vRouterType;
+                if(virtualRouter['virtual_router_type'] instanceof Array) {
+                    vRouterType = virtualRouter['virtual_router_type'][0];
+                } else {
+                    vRouterType = virtualRouter['virtual_router_type'];
+                }
                 vRouterType = (vRouterType != null && vRouterType != '')? vRouterType : 'hypervisor';
                 var vRouterIP = (virtualRouter['virtual_router_ip_address'])? virtualRouter['virtual_router_ip_address'] : '';
               //build a map with vrouter name and type to be used in createEditWindow
