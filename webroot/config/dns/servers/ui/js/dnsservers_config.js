@@ -278,6 +278,10 @@ function initGridDNSServerDetail(e) {
 }
 
 function initActions() {
+    //format the external_visible and reverse_resolution
+    Handlebars.registerHelper('formatBoolValue', function(value){
+         return value.toString() === 'true' ? 'Enabled' : 'Disabled';
+    });
     btnCreateDNSServer.click(function (a) {
         DNSServerCreateWindow("create");
     });
@@ -325,6 +329,8 @@ function initActions() {
         var recordTypeTxt = $("#ddType").data("contrailDropdown").value();
         var assocIpamsTxt = $("#msIPams").data("contrailMultiselect").text();
         var selIPAMs = $("#msIPams").data('contrailMultiselect').getSelectedData();
+        var extVisible = $("#chkExtVisible")[0].checked;
+        var reverseResolution = $("#chkRevResolution")[0].checked;
         var assocIpams = null;
         var dnsServerCfg = {};
 
@@ -350,7 +356,8 @@ function initActions() {
         if (forwarderTxt.length) {
             dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["next_virtual_DNS"] = forwarderTxt;
         }
-
+        dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["external_visible"] = extVisible;
+        dnsServerCfg["virtual-DNS"]["virtual_DNS_data"]["reverse_resolution"] = reverseResolution;
         if (selIPAMs.length) {
             dnsServerCfg["virtual-DNS"]["network_ipam_back_refs"] = [];
             for (var i = 0; i < selIPAMs.length; i++) {
@@ -578,6 +585,8 @@ function successHandlerForDNSServerRow(result) {
         var floating_ip_record = "-"
         var forwarder = "-";
         var ipamTxt = "-";
+        var extVisible = false;
+        var reverseResolution = false;
 
         if ('virtual_DNS_data' in dnsServer) {
             dnsData = dnsServer['virtual_DNS_data'];
@@ -601,6 +610,14 @@ function successHandlerForDNSServerRow(result) {
             if ('next_virtual_DNS' in dnsData &&
                 dnsData['next_virtual_DNS'] != null) {
                 forwarder = dnsData['next_virtual_DNS'];
+            }
+            if ('external_visible' in dnsData &&
+                dnsData['external_visible'] != null) {
+                extVisible = dnsData['external_visible'];
+            }
+            if ('reverse_resolution' in dnsData &&
+                dnsData['reverse_resolution'] != null) {
+                reverseResolution = dnsData['reverse_resolution'];
             }
         }
 
@@ -626,6 +643,8 @@ function successHandlerForDNSServerRow(result) {
             "floating_ip_record": floating_ip_record,
             "forward":forwarder,
             "Associated_IPAM":ipamTxt,
+            "external_visible": extVisible,
+            "reverse_resolution": reverseResolution
         });
     }
     $("#gridDNSServer").data("contrailGrid")._dataView.addData(DNSServerData);
@@ -755,7 +774,8 @@ function populateDNSServerEditWindow(){
     cmbDNSForward = $("#cmbDNSForward").data("contrailCombobox");
     if(selectedRow.forward != "-")	
     	cmbDNSForward.text(selectedRow.forward);
-    
+    $('#chkExtVisible')[0].checked = selectedRow.external_visible;
+    $('#chkRevResolution')[0].checked = selectedRow.reverse_resolution;
     msIPams = $("#msIPams").data("contrailMultiselect");
     if(ipams !=''){
      var arry=ipams.split(',');	
