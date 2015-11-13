@@ -864,6 +864,7 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
 
     ipamLen = results.length;
 
+    var origNWIpamData = commonUtils.cloneObj(results);
     for (i = 0; i < ipamLen; i++) {
     	ipamUUID = results[i]['network-ipam']['uuid'];
         vdnsIpamRef = vdnsConfig['virtual-DNS']['ipam_uuid'][ipamUUID];
@@ -912,8 +913,11 @@ function updateVirtualDnsUpdateIpams(error, results, vdnsConfig,
         if(results[i]['network-ipam']["virtual_network_back_refs"] != null) {
             delete results[i]['network-ipam']["virtual_network_back_refs"];
         }
+        var putData =
+            jsonDiff.getConfigJSONDiff('network-ipam', origNWIpamData[i],
+                                       results[i]);
         commonUtils.createReqObj(dataObjArr, ipamURL, global.HTTP_REQUEST_PUT,
-            results[i], null, null, appData);
+                                 putData, null, null, appData);
     }
 
     async.map(dataObjArr,
