@@ -58,7 +58,7 @@ define([
                 dataParser: nmwp.instanceDataParser
             },
             vlRemoteConfig: {
-                vlRemoteList: nmwgc.getVMDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_MACHINE)
+                vlRemoteList: ctwgc.getVMDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_MACHINE)
             },
             cacheConfig : {
                 ucid: (parentUUID != null) ? (ctwc.UCID_PREFIX_MN_LISTS + parentUUID + ":" + 'virtual-machines') : ctwc.UCID_ALL_VM_LIST

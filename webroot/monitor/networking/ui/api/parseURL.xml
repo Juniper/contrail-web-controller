@@ -200,6 +200,12 @@
         <feature>monitoring</feature>
         <callback>nwMonApi.getStats</callback>
     </item>
+    <item>
+        <url>/api/tenant/networking/vrouter-virtual-machines/details</url>
+        <method>post</method>
+        <feature>monitoring</feature>
+        <callback>nwMonApi.getInstanceDetailsForVRouter</callback>
+    </item>
     <!-- End Monitor Networking APIs -->
 
     <!-- Note: This api is used only on Monitor Infrastructure page. It can be moved there. -->

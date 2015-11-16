@@ -223,7 +223,7 @@ define([
         this.UNDERLAY_PROUTER_TAB_INDEXES = [2, 3];
         this.UNDERLAY_LINK_TAB_INDEX = [4];
         this.UNDERLAY_VM_TAB_INDEXES = [5, 6, 7, 8, 9, 10];
-        this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16];
+        this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16, 17];
 
         this.getProjectsURL = function (domain) {
             //If the role is admin then we will display all the projects else the projects which has access
