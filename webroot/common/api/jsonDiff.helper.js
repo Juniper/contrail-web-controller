@@ -56,6 +56,11 @@ var configJsonModifyObj = {
         'optFields': ['service_instance_properties'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'floating-ip': {
+        'isConfig': true,
+        'optFields': ['virtual_machine_interface_refs'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name', 'project_refs']
+    },
     'logical-interface': {
         'isConfig': true,
         'preProcessCB': {

@@ -28,6 +28,8 @@ var url          = require('url');
 var UUID         = require('uuid-js');
 var configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
+var jsonDiff     = require(process.mainModule.exports["corePath"] +
+                           '/src/serverroot/common/jsondiff');
 
 /**
  * Bail out if called directly as "nodejs fipconfig.api.js"
@@ -632,11 +634,9 @@ function setFipVMInterface(error, fipConfig, fipPostData, fipId, response,
         fipPostData['floating-ip']['virtual_machine_interface_refs'] = [];
     }
 
-    fipConfig['floating-ip']['virtual_machine_interface_refs'] = [];
-    fipConfig['floating-ip']['virtual_machine_interface_refs'] =
-           fipPostData['floating-ip']['virtual_machine_interface_refs'];
-
-    configApiServer.apiPut(fipPostURL, fipConfig, appData,
+    var deltaConfig = jsonDiff.getConfigJSONDiff('floating-ip', fipConfig,
+                                                 fipPostData);
+    configApiServer.apiPut(fipPostURL, deltaConfig, appData,
                          function(error, data) {
                          setFipRead(error, data, response, appData)
                          });
