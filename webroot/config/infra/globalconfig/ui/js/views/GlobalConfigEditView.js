@@ -175,9 +175,7 @@ define([
                                     path: 'autonomous_system',
                                     dataBindValue: 'autonomous_system',
                                     class: 'span12',
-                                    elementConfig: {
-                                        placeholder: 'Enter BGP ASN Value'
-                                    }
+                                    placeholder: 'Enter BGP ASN Value'
                                 }
                             }
                         ]
@@ -234,10 +232,10 @@ define([
         }
     };
 
-    var advancedOptionsViewConfig = function () {
+    var flowOptionsViewConfig = function () {
         return {
-            elementId: 'adv_option',
-            title: 'Advanced Options',
+            elementId: 'flow_option',
+            title: 'Flow Options',
             view: 'SectionView',
             viewConfig: {
                 rows: [
@@ -250,6 +248,76 @@ define([
                                     path: 'flow_export_rate',
                                     dataBindValue: 'flow_export_rate',
                                     class: 'span12',
+                                    placeholder: 'Enter flow export rate'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'flowAgingTimeout',
+                                view: 'FormEditableGridView',
+                                viewConfig: {
+                                    path: 'flowAgingTimeout',
+                                    collection: 'flowAgingTimeout',
+                                    validation: 'flowAgingTimeoutValidation',
+                                    class: '',
+                                    columns: [{
+                                        elementId: 'protocol',
+                                        name: 'Protocol',
+                                        view: 'FormDropdownView',
+                                        viewConfig: {
+                                            templateId:
+                                                cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                            width: 200,
+                                            path: 'protocol',
+                                            dataBindValue: 'protocol()',
+                                            elementConfig: {
+                                                dataTextField: 'text',
+                                                dataValueField: 'value',
+                                                data:
+                                                    window.globalConfigProtocolList
+                                            }
+                                        }
+                                    },
+                                    {
+                                        elementId: 'port',
+                                        name: 'Port',
+                                        view: 'FormInputView',
+                                        class: "",
+                                        viewConfig: {
+                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                            width: 200,
+                                            path: 'port',
+                                            dataBindValue: 'port()',
+                                            placeholder: '0 (All Ports)'
+                                        }
+                                    },
+                                    {
+                                        elementId: 'timeout_in_seconds',
+                                        name: 'Timeout (Secs)',
+                                        view: 'FormInputView',
+                                        class: "",
+                                        viewConfig: {
+                                            width: 200,
+                                            templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                            path: 'timeout_in_seconds',
+                                            dataBindValue: 'timeout_in_seconds()',
+                                            placeholder: '180'
+                                        }
+                                    }],
+                                    rowActions: [{
+                                        onClick: "function() {\
+                                            $root.deleteFlowAgingTuple($data, this);\
+                                        }",
+                                        iconClass: 'icon-minus'
+                                    }],
+                                    gridActions: [{
+                                        onClick: "function() {\
+                                            $root.addFlowAgingTuple();\
+                                        }",
+                                    }]
                                 }
                             }
                         ]
@@ -284,10 +352,10 @@ define([
                                 ]
                             },
                             {
-                                elementId: 'advancedOptions',
+                                elementId: 'flowOptions',
                                 view: 'AccordianView',
                                 viewConfig: [
-                                    advancedOptionsViewConfig()
+                                    flowOptionsViewConfig()
                                 ]
                             }
 

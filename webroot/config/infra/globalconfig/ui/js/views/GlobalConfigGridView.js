@@ -106,6 +106,22 @@ define([
                         return val;
                     }
                 }
+                if ('flow_aging_timeout_list' == rowData['key']) {
+                    var list = getValueByJsonPath(val, 'flow_aging_timeout', []);
+                    if (!list.length) {
+                        return "-";
+                    }
+                    var cnt = list.length;
+                    for (var i = 0; i < cnt; i++) {
+                        dispStr += "Protocol: " +
+                            list[i]['protocol'].toUpperCase();
+                        dispStr += ", Port: " + list[i]['port'];
+                        dispStr += ", Timeout: " + list[i]['timeout_in_seconds']
+                            + ' seconds';
+                        dispStr += '<br>';
+                    }
+                    return dispStr;
+                }
                 if ('vxlan_network_identifier_mode' == rowData['key']) {
                     if ("automatic" == val) {
                         return 'Auto Configured';

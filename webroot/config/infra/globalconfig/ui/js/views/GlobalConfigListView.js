@@ -66,7 +66,7 @@ define([
                     response['global-system-config'] = {};
                 }
                 var globalVRConfigMapLen = globalVRConfigMap.length;
-                for (var i = 4; i < globalVRConfigMapLen; i++) {
+                for (var i = 5; i < globalVRConfigMapLen; i++) {
                     var key = globalVRConfigMap[i]['key'];
                     var value = response['global-system-config'][key];
                     var encap =
@@ -112,6 +112,19 @@ define([
                 contrailListModel.addData(dataItems);
                 globalConfigObj['global-system-config'] =
                     response['global-system-config'];
+                var flowProtoList = [];
+                var tmpFlowProtoList =
+                    JSON.parse(JSON.stringify(protocolList));
+                var protoCnt = tmpFlowProtoList.length;
+                for (var i = 0; i < protoCnt; i++) {
+                    if ('TCP' == tmpFlowProtoList[i]['name']) {
+                        continue;
+                    }
+                    flowProtoList.push({'text': tmpFlowProtoList[i]['name'],
+                                        'value':
+                                        tmpFlowProtoList[i]['name'].toLowerCase()});
+                }
+                window.globalConfigProtocolList = flowProtoList;
             }
         }
     ];
@@ -124,6 +137,7 @@ define([
         {'key': 'encapsulation_priorities',
          'name': 'Encapsulation Priority Order',},
         {'key': 'flow_export_rate', 'name': 'Flow Export Rate'},
+        {'key': 'flow_aging_timeout_list', 'name': 'Flow Aging Timeout'},
         {'key': 'autonomous_system', 'name': 'Global ASN'},
         {'key': 'ibgp_auto_mesh', 'name': 'iBGP Auto Mesh'},
         {'key': 'ip_fabric_subnets', 'name': 'IP Fabric Subnets'}
@@ -139,7 +153,7 @@ define([
             response = {};
             response['global-vrouter-config'] = {};
         }
-        for (var i = 0; i < 4; i++) {
+        for (var i = 0; i < 5; i++) {
             dataItems[i] = {};
             var key = globalVRConfigMap[i]['key'];
             dataItems[i]['name'] = globalVRConfigMap[i]['name'];
@@ -158,6 +172,9 @@ define([
                     response['global-vrouter-config']
                             ['encapsulation_priorities']['encapsulation'] =
                             dataItems[i]['value'];
+                }
+                if ('forwarding_mode' == key) {
+                    dataItems[i]['value'] = 'Default';
                 }
             } else {
                 dataItems[i]['value'] = response['global-vrouter-config'][key];
