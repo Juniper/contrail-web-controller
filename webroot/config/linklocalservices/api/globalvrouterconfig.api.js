@@ -164,6 +164,13 @@ function updateForwardingOptions (request, response, appData) {
         	    	gvrPutData["global-vrouter-config"]["forwarding_mode"];
                 gvrConfigData["global-vrouter-config"]["flow_export_rate"] =
                     gvrPutData["global-vrouter-config"]["flow_export_rate"];
+                if ('flow_aging_timeout_list' in
+                    gvrPutData["global-vrouter-config"]) {
+                    gvrConfigData["global-vrouter-config"]
+                                 ['flow_aging_timeout_list'] =
+                        gvrPutData["global-vrouter-config"]
+                                  ['flow_aging_timeout_list'];
+                }
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"] = {};
         	    gvrConfigData["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"] =
         	    	gvrPutData["global-vrouter-config"]["encapsulation_priorities"]["encapsulation"];
