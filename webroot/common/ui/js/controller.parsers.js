@@ -37,7 +37,7 @@ define([
         this.instanceDataParser = function(response) {
             var retArr = $.map(ifNull(response['data']['value'],response), function (currObject, idx) {
                 var currObj = currObject['value'];
-                //currObject['rawData'] = $.extend(true,{},currObj);
+                currObject['raw_json'] = $.extend(true,{},currObject);
                 currObject['inBytes60'] = '-';
                 currObject['outBytes60'] = '-';
                 // If we append * wildcard stats info are not there in response,so we changed it to flat
