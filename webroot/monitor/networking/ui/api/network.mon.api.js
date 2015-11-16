@@ -1019,9 +1019,9 @@ function getVMDetails(req, res, appData) {
     });
 }
 
-function processInstanceReqByLastUUID(lastUUID, count, fromConfigList,
+function processInstanceReqByLastUUID(lastUUID, count, keyToCompare,
                                       VMList, filtUrl, callback) {
-    getOpServerPagedResponseByLastKey(lastUUID, count, fromConfigList, VMList,
+    getOpServerPagedResponseByLastKey(lastUUID, count, keyToCompare, VMList,
         'virtual-machine', filtUrl, null,
         function (err, data) {
             if (data && data['data'] && (-1 == count)) {
@@ -1031,16 +1031,16 @@ function processInstanceReqByLastUUID(lastUUID, count, fromConfigList,
         });
 }
 
-function processVirtualNetworksReqByLastUUID(lastUUID, count, fromConfigList,
+function processVirtualNetworksReqByLastUUID(lastUUID, count, keyToCompare,
                                              vnList, filtUrl, tenantList, callback) {
-    getOpServerPagedResponseByLastKey(lastUUID, count, fromConfigList, vnList,
+    getOpServerPagedResponseByLastKey(lastUUID, count, keyToCompare, vnList,
         'virtual-network', filtUrl, tenantList,
         function (err, data) {
             callback(err, data);
         });
 }
 
-function getOpServerPagedResponseByLastKey(lastKey, count, isFromConfig,
+function getOpServerPagedResponseByLastKey(lastKey, count, keyToCompare,
                                            list, type, filtUrl, tenantList, callback) {
     var found = false;
     var retLastUUID = null;
@@ -1051,13 +1051,10 @@ function getOpServerPagedResponseByLastKey(lastKey, count, isFromConfig,
     resultJSON['data'] = [];
     resultJSON['lastKey'] = null;
     resultJSON['more'] = false;
-    if (true == isFromConfig) {
+    if (list[typeStr] != null) {
         list = list[typeStr];
-        matchStr = 'uuid';
-    } else {
-        matchStr = 'name';
     }
-    var index = nwMonUtils.getnThIndexByLastKey(lastKey, list, matchStr);
+    var index = nwMonUtils.getnThIndexByLastKey(lastKey, list, keyToCompare);
     if (index == -2) {
         callback(null, resultJSON);
         return;
@@ -1076,17 +1073,25 @@ function getOpServerPagedResponseByLastKey(lastKey, count, isFromConfig,
     if (-1 == count) {
         totCnt = cnt;
     } else {
-        totCnt = index + 1 + count;
+        totCnt = index + 1 + parseInt(count);
     }
     if (totCnt < cnt) {
-        retLastUUID = list[totCnt - 1][matchStr];
+        if(keyToCompare != null) {
+            retLastUUID = list[totCnt - 1][keyToCompare];
+        } else {
+            retLastUUID = list[totCnt - 1];
+        }
     }
     for (var i = index + 1; i < totCnt; i++) {
         if (list[i]) {
             if (i != index + 1) {
                 url += ',';
             }
-            url += list[i][matchStr];
+            if(keyToCompare != null) {
+                url += list[i][keyToCompare];
+            } else {
+                url += list[i];
+            }
             found = true;
         }
     }
@@ -1189,7 +1194,7 @@ function getInstanceDetailsByFqn(req, appData, callback) {
                 return;
             }
             var data = nwMonUtils.makeUVEList(vmOpList);
-            processInstanceReqByLastUUID(lastUUID, count, false, data,
+            processInstanceReqByLastUUID(lastUUID, count, 'name', data,
                 filtUrl, function (err, data) {
                     callback(err, data);
                 });
@@ -1395,6 +1400,54 @@ function getInstanceDetails(req, res, appData) {
     }
 }
 /*
+ * This function is to get the Virtual Machines
+ * details of the particular vRouter
+ */
+function getInstanceDetailsForVRouter (req, res, appData) {
+    var vRouterName = req.query['vRouter'];
+    var lastUUID = req.query['lastKey'];
+    var count = req.query['count'];
+    var filtUrl = null;
+    var resultJSON = createEmptyPaginatedData();
+    if (null == vRouterName) {
+        err = new appErrors.RESTServerError('vRouter is required');
+        commonUtils.handleJSONResponse(err, res, resultJSON);
+        return;
+    }
+    var filtData = nwMonUtils.buildBulkUVEUrls(req.body, appData);
+    if (filtData && filtData[0]) {
+        filtUrl = filtData[0]['reqUrl'];
+    }
+    var url = '/analytics/uves/vrouter/'+vRouterName+'?flat';
+    opApiServer.apiGet(url, appData, function (err, data) {
+        if(err || null == data) {
+            commonUtils.handleJSONResponse(err, res, resultJSON);
+            return;
+        }
+        var vmUUIDArr = [];
+        if(data['VrouterAgent'] != null &&
+            data['VrouterAgent']['virtual_machine_list'] != null) {
+            vmUUIDArr = data['VrouterAgent']['virtual_machine_list'];
+            vmUUIDArr.sort(function (vmUUID1, vmUUID2){
+                if(vmUUID1 > vmUUID2){
+                    return 1;
+                } else if (vmUUID1 < vmUUID2) {
+                    return -1;
+                }
+                return 0;
+            });
+            processInstanceReqByLastUUID(lastUUID, count, null, vmUUIDArr, filtUrl,
+                function (err, instDetails) {
+                    commonUtils.handleJSONResponse(err, res, instDetails);
+                    return;
+                }
+            );
+        }
+    });
+}
+
+
+/*
  * This function fetch the virtual machines for the Admin role
  */
 function getInstanceDetailsForAdmin(req, appData, callback) {
@@ -1429,7 +1482,7 @@ function getInstanceDetailsForAdmin(req, appData, callback) {
             return;
         }
         data.sort(infraCmn.sortUVEList);
-        processInstanceReqByLastUUID(lastUUID, count, false, data,
+        processInstanceReqByLastUUID(lastUUID, count, 'name', data,
             filtUrl, callback);
     });
 }
@@ -1517,7 +1570,7 @@ function getInstancesDetailsForUser(req, appData, callback) {
                             }
                         }
                         vmuuidObjArr.sort(infraCmn.sortUVEList);
-                        processInstanceReqByLastUUID(lastUUID, count, false, vmuuidObjArr,
+                        processInstanceReqByLastUUID(lastUUID, count, 'name', vmuuidObjArr,
                             filtUrl, function (err, vmdata) {
                                 callback(err, vmdata);
                             });
@@ -1980,3 +2033,4 @@ exports.getProjects = getProjects;
 exports.getVNetworks = getVNetworks;
 exports.getNetworkDomainSummary = getNetworkDomainSummary;
 exports.getNetworkDetails = getNetworkDetails;
+exports.getInstanceDetailsForVRouter = getInstanceDetailsForVRouter;

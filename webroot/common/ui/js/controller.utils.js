@@ -84,7 +84,7 @@ define([
                         }
                     ]
                 }
-            
+
             }
         }
 
@@ -450,6 +450,183 @@ define([
                 }
             }
         }
+
+
+        this.onClickNetworkMonitorGrid = function (e, selRowDataItem) {
+            var name = $(e.target).attr('name'),
+            fqName, uuid, vmName;
+
+            if ($.inArray(name, ['project']) > -1) {
+                fqName = selRowDataItem['name'];
+                ctwu.setProjectURLHashParams(null, fqName, true)
+
+            } else if ($.inArray(name, ['network']) > -1) {
+                fqName = selRowDataItem['name'];
+                ctwu.setNetworkURLHashParams(null, fqName, true)
+
+            } else if ($.inArray(name, ['instance']) > -1) {
+                fqName = selRowDataItem['vnFQN'];
+                uuid = selRowDataItem['name'];
+                vmName = selRowDataItem['vmName'];
+                if(contrail.checkIfExist(fqName) && !ctwu.isServiceVN(fqName)) {
+                    ctwu.setInstanceURLHashParams(null, fqName, uuid, vmName, true);
+                }
+            } else if ($.inArray(name, ['vRouter']) > -1) {
+                var urlObj = layoutHandler.getURLHashObj();
+                if(urlObj['p'] == 'mon_infra_vrouter' &&
+                    urlObj['q']['view'] == 'details') {
+                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:0});
+                } else {
+                    var hashObj = {
+                        type: 'vrouter',
+                        view: 'details',
+                        focusedElement: {
+                            node: selRowDataItem['vRouter'],
+                            tab: 'details'
+                        }
+                    };
+                    layoutHandler.setURLHashParams(hashObj,
+                        {
+                            p: "mon_infra_vrouter",
+                            merge: false,
+                            triggerHashChange: true
+                        }
+                    );
+                }
+            }
+        };
+
+        this.setProjectURLHashParams = function(hashParams, projectFQN, triggerHashChange) {
+            var hashObj = {
+                type: "project",
+                view: "details",
+                focusedElement: {
+                    fqName: projectFQN,
+                    type: ctwc.GRAPH_ELEMENT_PROJECT
+                }
+            };
+
+            if(contrail.checkIfKeyExistInObject(true, hashParams, 'clickedElement')) {
+                hashObj.clickedElement = hashParams.clickedElement;
+            }
+
+            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_projects", merge: false, triggerHashChange: triggerHashChange});
+
+        };
+
+        this.setProject4NetworkListURLHashParams = function(projectFQN) {
+            var hashObj = {
+                type: "network",
+                view: "list"
+            };
+
+            if (projectFQN != null) {
+                hashObj.project = projectFQN;
+            }
+
+            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_networks", merge: false, triggerHashChange: false});
+        };
+
+        this.setNetworkURLHashParams = function(hashParams, networkFQN, triggerHashChange) {
+            var hashObj = {
+                type: "network",
+                view: "details",
+                focusedElement: {
+                    fqName: networkFQN,
+                    type: ctwc.GRAPH_ELEMENT_NETWORK
+                }
+            };
+
+            if(contrail.checkIfKeyExistInObject(true, hashParams, 'clickedElement')) {
+                hashObj.clickedElement = hashParams.clickedElement;
+            }
+
+            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_networks", merge: false, triggerHashChange: triggerHashChange});
+
+        };
+
+        this.setNetwork4InstanceListURLHashParams = function(extendedHashObj) {
+            var hashObj = $.extend(true, {
+                    type: "instance",
+                    view: "list"
+                }, extendedHashObj);;
+
+            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_instances", merge: false, triggerHashChange: false});
+        };
+
+        this.setInstanceURLHashParams = function(hashParams, networkFQN, instanceUUID, vmName, triggerHashChange) {
+            var hashObj = {
+                type: "instance",
+                view: "details",
+                focusedElement: {
+                    fqName: networkFQN,
+                    type: ctwc.GRAPH_ELEMENT_INSTANCE,
+                    uuid: instanceUUID,
+                    vmName: vmName
+                }
+            };
+
+            if(contrail.checkIfKeyExistInObject(true, hashParams, 'clickedElement')) {
+                hashObj.clickedElement = hashParams.clickedElement;
+            }
+
+            layoutHandler.setURLHashParams(hashObj, {p: "mon_networking_instances", merge: false, triggerHashChange: triggerHashChange});
+        };
+
+
+        this.formatValues4TableColumn = function (valueArray) {
+            var formattedStr = '',
+            entriesToShow = 2;
+
+            if (valueArray == null) {
+                return formattedStr;
+            }
+
+            $.each(valueArray, function (idx, value) {
+                if (idx == 0) {
+                    formattedStr += value;
+                } else if (idx < entriesToShow) {
+                    formattedStr += '<br/>' + value;
+                } else {
+                    return;
+                }
+            });
+
+            if (valueArray.length > 2) {
+                formattedStr += '<br/>' + contrail.format('({0} more)', valueArray.length - entriesToShow);
+            }
+
+            return formattedStr;
+        };
+
+     // This function accepts array of ips, checks the type(IPv4/IPv6) and
+        // returns the label value html content of the first two elements of the array and more tag.
+        this.formatIPArray = function(ipArray) {
+            var formattedStr = '', entriesToShow = 2;
+
+            if (ipArray == null) {
+                return formattedStr;
+            }
+
+            $.each(ipArray, function (idx, value) {
+                var lbl = 'IPv4', isIpv6 = false;
+                isIpv6 = isIPv6(value);
+                if (idx == 0) {
+                    formattedStr += getLabelValueForIP(value);
+                } else if (idx < entriesToShow) {
+                    formattedStr += "<br/>" + getLabelValueForIP(value);
+                }
+                else
+                    return;
+            });
+
+            if (ipArray.length > 2) {
+                formattedStr += '<br/>' + contrail.format('({0} more)', ipArray.length - entriesToShow);
+            }
+
+            return contrail.format(formattedStr);
+        };
+
     };
     return CTUtils;
 });

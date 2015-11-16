@@ -552,8 +552,92 @@ define([
                         ctwl.VROUTER_VIEWPATH_PREFIX,
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: viewConfig
+                },{
+                    elementId: 'vrouter_virtualmachines',
+                    title: 'Instances',
+                    view: "VRouterVirtualMachinesGridView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig
                 }
             ]
+        };
+        self.getDetailRowInstanceTemplateConfig = function () {
+            return {
+                templateGenerator: 'RowSectionTemplateGenerator',
+                templateGeneratorConfig: {
+                    rows: [
+                        {
+                            templateGenerator: 'ColumnSectionTemplateGenerator',
+                            templateGeneratorConfig: {
+                                columns: [
+                                    {
+                                        class: 'span6',
+                                        rows: [{
+                                            title: ctwl.TITLE_INSTANCE_DETAILS,
+                                            templateGenerator:
+                                                'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'uuid',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },{
+                                                    key: 'vRouter',
+                                                    templateGenerator:
+                                                        'LinkGenerator',
+                                                    templateGeneratorConfig: {
+                                                        template:
+                                                            ctwc.URL_VROUTER,
+                                                        params: {}
+                                                    }
+                                                },{
+                                                    key: 'vn',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },{
+                                                    key: 'ip',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                                },{
+                                                    key: 'intfCnt',
+                                                    templateGenerator:
+                                                        'TextGenerator'
+                                             }]
+                                       }]
+                                    },
+                                    {
+                                        class: 'span6',
+                                        rows: [{
+                                            title: ctwl.TITLE_CPU_MEMORY_INFO,
+                                            templateGenerator: 'BlockListTemplateGenerator',
+                                            templateGeneratorConfig: [
+                                                {
+                                                    key: 'value.UveVirtualMachineAgent.cpu_info.cpu_one_min_avg',
+                                                    templateGenerator: 'TextGenerator'
+                                                },{
+                                                    key: 'value.UveVirtualMachineAgent.cpu_info.rss',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'kilo-byte'
+                                                    }
+                                                },{
+                                                    key: 'value.UveVirtualMachineAgent.cpu_info.vm_memory_quota',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'kilo-byte'
+                                                    }
+                                                }
+                                             ]
+                                        }]
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            };
         };
     };
 

@@ -34,6 +34,39 @@ define([
            return retArr;
         };
 
+        this.instanceDataParser = function(response) {
+            var retArr = $.map(ifNull(response['data']['value'],response), function (currObject, idx) {
+                var currObj = currObject['value'];
+                //currObject['rawData'] = $.extend(true,{},currObj);
+                currObject['inBytes60'] = '-';
+                currObject['outBytes60'] = '-';
+                // If we append * wildcard stats info are not there in response,so we changed it to flat
+                currObject['url'] = '/api/tenant/networking/virtual-machine/summary?fqNameRegExp=' + currObject['name'] + '?flat';
+                currObject['vmName'] = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vm_name');
+                currObject['uuid'] = currObject['name'];
+
+                var vRouter = getValueByJsonPath(currObj,'UveVirtualMachineAgent;vrouter');
+                currObject['vRouter'] = ifNull(ctwu.getDataBasedOnSource(vRouter), '-');
+                currObject['intfCnt'] = ifNull(jsonPath(currObj, '$..interface_list')[0], []).length;
+                currObject['vn'] = false;
+                currObject['ip'] = [];
+
+                var cpuInfo = getValueByJsonPath(currObj,'UveVirtualMachineAgent;cpu_info');
+                if(contrail.checkIfExist(cpuInfo)) {
+                    currObject['x'] = cpuInfo['cpu_one_min_avg'];
+                    currObject['y'] = cpuInfo['rss'];
+                } else {
+                    currObject['x'] = 0;
+                    currObject['y'] = 0;
+                }
+
+                currObject['size'] = 0;
+
+                return currObject;
+            });
+            return retArr;
+        };
+        
         this.instanceInterfaceDataParser = function(response) {
             var rawInterfaces, interface, interfaceMap = {}, uveVMInterfaceAgent;
             if(response != null && response.value != null) {
@@ -359,6 +392,19 @@ define([
                     });
             }
             return parsedData;
+        };
+
+        this.parseInstanceStats = function (response, type) {
+            response = contrail.handleIfNull(response, {});
+            var retArr = $.map(ifNull(response['value'], []), function (obj, idx) {
+                var item = {};
+                var props = ctwc.STATS_SELECT_FIELDS[type];
+                item['name'] = obj['vm_uuid'];
+                item['inBytes'] = ifNull(obj[props['inBytes']], '-');
+                item['outBytes'] = ifNull(obj[props['outBytes']], '-');
+                return item;
+            });
+            return retArr;
         };
     };
 
