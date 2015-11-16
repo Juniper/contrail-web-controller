@@ -36,60 +36,20 @@ define([
                          {
                              columns: [
                                  {
-                                     elementId: 'snmpV2Community',
+                                     elementId: 'v2_community',
                                      view: "FormInputView",
                                      viewConfig: {
                                          label : "Community",
-                                         path: "physical_router_snmp_credentials().v2_community",
+                                         path: "physical_router_snmp_credentials.v2_community",
                                          dataBindValue: "physical_router_snmp_credentials().v2_community",
                                          class: "span12"
                                      }
                                  },
                              ]
                          },
-                         {
-                             columns: [
-                                {
-                                    elementId: 'snmpLocalPort',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Local Port",
-                                        placeholder: "161",
-                                        path: "physical_router_snmp_credentials().local_port",
-                                        dataBindValue: "physical_router_snmp_credentials().local_port",
-                                        class: "span12"
-                                    }
-                                }
-                             ]
-                         },
-                         {
-                             columns: [
-                                {
-                                    elementId: 'snmpRetries',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Retries",
-                                        path: "physical_router_snmp_credentials().retries",
-                                        dataBindValue: "physical_router_snmp_credentials().retries",
-                                        class: "span12"
-                                    }
-                                }
-                             ]
-                         },
-                         {
-                             columns: [
-                                {
-                                    elementId: 'snmpTimeout',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Timeout (secs)",
-                                        path: "physical_router_snmp_credentials().timeout",
-                                        dataBindValue: "physical_router_snmp_credentials().timeout",
-                                        class: "span12"
-                                    }
-                                }
-                             ]
-                         }
+                         self.localPortView(),
+                         self.retriesView(),
+                         self.timeoutView()
                      ]
                  }
             };
@@ -231,11 +191,11 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'snmpv3EngineBoots',
+                                    elementId: 'v3_engine_boots',
                                     view: "FormInputView",
                                     viewConfig: {
                                         label : "Engine Boots",
-                                        path: "physical_router_snmp_credentials().v3_engine_boots",
+                                        path: "physical_router_snmp_credentials.v3_engine_boots",
                                         dataBindValue: "physical_router_snmp_credentials().v3_engine_boots",
                                         class: "span12"
                                     }
@@ -245,11 +205,11 @@ define([
                         {
                             columns: [
                                 {
-                                    elementId: 'snmpv3EngineTime',
+                                    elementId: 'v3_engine_time',
                                     view: "FormInputView",
                                     viewConfig: {
                                         label : "Engine Time",
-                                        path: "physical_router_snmp_credentials().v3_engine_time",
+                                        path: "physical_router_snmp_credentials.v3_engine_time",
                                         dataBindValue: "physical_router_snmp_credentials().v3_engine_time",
                                         class: "span12"
                                     }
@@ -260,6 +220,55 @@ define([
                 }
             };
         };
+        self.localPortView = function(){
+            return {
+                columns: [
+                   {
+                       elementId: 'local_port',
+                       view: "FormInputView",
+                       viewConfig: {
+                           label : "Local Port",
+                           placeholder: "161",
+                           path: "physical_router_snmp_credentials().local_port",
+                           dataBindValue: "physical_router_snmp_credentials().local_port",
+                           class: "span12"
+                       }
+                   }
+                ]
+            };
+        };
+        self.timeoutView =  function() {
+            return {
+                columns: [
+                    {
+                        elementId: 'timeout',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "Timeout (secs)",
+                            path: "physical_router_snmp_credentials.timeout",
+                            dataBindValue: "physical_router_snmp_credentials().timeout",
+                            class: "span12"
+                        }
+                    }
+                ]
+            };
+        };
+        self.retriesView = function() {
+            return {
+                columns: [
+                    {
+                        elementId: 'retries',
+                        view: "FormInputView",
+                        viewConfig: {
+                            label : "Retries",
+                            path: "physical_router_snmp_credentials.retries",
+                            dataBindValue: "physical_router_snmp_credentials().retries",
+                            class: "span12"
+                        }
+                    }
+                ]
+            };
+        };
         self.v3VersionView =  function() {
             return {
                 elementId:ctwl.OVSDB_V3_VERSION_ID,
@@ -267,49 +276,9 @@ define([
                 viewConfig:{
                     visible: 'showV3',
                     rows: [
-                        {
-                            columns: [
-                                {
-                                    elementId: 'snmpLocalPort',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Local Port",
-                                        path: "physical_router_snmp_credentials().local_port",
-                                        placeholder: "161",
-                                        dataBindValue: "physical_router_snmp_credentials().local_port",
-                                        class: "span12"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'snmpRetries',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Retries",
-                                        path: "physical_router_snmp_credentials().retries",
-                                        dataBindValue: "physical_router_snmp_credentials().retries",
-                                        class: "span12"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns: [
-                                {
-                                    elementId: 'snmpTimeout',
-                                    view: "FormInputView",
-                                    viewConfig: {
-                                        label : "Timeout(secs)",
-                                        path: "physical_router_snmp_credentials().timeout",
-                                        dataBindValue: "physical_router_snmp_credentials().timeout",
-                                        class: "span12"
-                                    }
-                                }
-                            ]
-                        },
+                        self.localPortView(),
+                        self.retriesView(),
+                        self.timeoutView(),
                         {
                             columns: [
                                 {
