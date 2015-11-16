@@ -627,6 +627,16 @@ define([
             return contrail.format(formattedStr);
         };
 
+        /** 
+         * As "Alerts" link in header can be clicked from any page,it need to know the list 
+         * of nodeListModels to loop through to generate alerts. 
+         * Return the require Aliases/URLs of all listModels for which alerts need to be processed
+         */
+        this.getNodeListModelsForAlerts = function(defObj) {
+            return ['monitor-infra-analyticsnode-model','monitor-infra-databasenode-model',
+                'monitor-infra-confignode-model','monitor-infra-controlnode-model',
+                'monitor-infra-vrouter-model'];
+        }
     };
     return CTUtils;
 });

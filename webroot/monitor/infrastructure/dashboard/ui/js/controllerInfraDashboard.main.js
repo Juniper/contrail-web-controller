@@ -13,11 +13,13 @@ function ControllerInfraDashboardLoader() {
             renderFn = paramObject['function'];
 
         if (self.monInfraDashboardView == null) {
-            require(['mon-infra-controller-dashboard'], function (ControllerDashboardView) {
-                self.monInfraDashboardView = new ControllerDashboardView({
-                    el: $(contentContainer)
+            require(['mon-infra-dashboard-view'],function() {
+                require(['mon-infra-controller-dashboard'], function (ControllerDashboardView) {
+                    self.monInfraDashboardView = new ControllerDashboardView({
+                        el: $(contentContainer)
+                    });
+                    self.monInfraDashboardView.render();
                 });
-                self.monInfraDashboardView.render();
             });
         } else {
             self.renderView(renderFn, hashParams);

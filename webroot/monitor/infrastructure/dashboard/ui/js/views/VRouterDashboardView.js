@@ -69,13 +69,16 @@ define(
                                 width: '135px',
                                 config:[{
                                     field:'instCnt',
-                                    title:'Instances'
+                                    title:'Instances',
+                                    yLbl: 'vRouters'
                                 },{
                                     field:'intfCnt',
-                                    title:'Interfaces'
+                                    title:'Interfaces',
+                                    yLbl: 'vRouters'
                                 },{
                                     field:'vnCnt',
-                                    title:'VNs'
+                                    title:'VNs',
+                                    yLbl: 'vRouters'
                                 }],
                                 totalCntModel: cfgObj['totalCntModel']
                             }
