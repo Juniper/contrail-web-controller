@@ -75,8 +75,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/network-list-view-test-results.xml',
-                    suite: 'networkListView'
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'network-list-view-test-results.xml',
+                    suite: 'networkListView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/network-list-view-test-results.html'
@@ -101,8 +103,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/network-view-test-results.xml',
-                    suite: 'networkView'
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'network-view-test-results.xml',
+                    suite: 'networkView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/network-view-test-results.html'
@@ -127,8 +131,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/project-list-view-test-results.xml',
-                    suite: 'projectListView'
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'project-list-view-test-results.xml',
+                    suite: 'projectListView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/project-list-view-test-results.html'
@@ -153,8 +159,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/project-view-test-results.xml',
-                    suite: 'projectView'
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'project-view-test-results.xml',
+                    suite: 'projectView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/project-view-test-results.html'
@@ -179,8 +187,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/dashBoard-view-test-results.xml',
-                    suite: 'dashBoardView'
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'dashBoard-view-test-results.xml',
+                    suite: 'dashBoardView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/dashBoard-view-test-results.html'
@@ -205,8 +215,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/instance-list-view-test-results.xml',
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'instance-list-view-test-results.xml',
                     suite: 'instanceListView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/instance-list-view-test-results.html'
@@ -231,8 +243,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/flow-list-view-test-results.xml',
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'flow-list-view-test-results.xml',
                     suite: 'FlowListView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/flow-list-view-test-results.html'
@@ -257,8 +271,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/flow-grid-view-test-results.xml',
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'flow-grid-view-test-results.xml',
                     suite: 'FlowGridView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/flow-grid-view-test-results.html'
@@ -283,8 +299,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/instance-view-test-results.xml',
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'instance-view-test-results.xml',
                     suite: 'InstanceView',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/views/instance-view-test-results.html'
@@ -309,8 +327,10 @@ module.exports = function (grunt) {
                     'contrail-web-controller/webroot/monitor/networking/ui/js/*.js': ['coverage']
                 },
                 junitReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/unit/nm-unit-test-results.xml',
-                    suite: 'InstanceView',
+                    outputDir: __dirname + '/reports/tests/nm/unit/',
+                    outputFile: 'nm-unit-test-results.xml',
+                    suite: 'unit',
+                    useBrowserName: false
                 },
                 htmlReporter: {
                     outputFile: __dirname + '/reports/tests/nm/unit/nm-unit-test-results.html'
@@ -343,11 +363,14 @@ module.exports = function (grunt) {
         options: {
             files: [],
             preprocessors: {
+                'contrail-web-core/webroot/js/**/*.js': ['coverage'],
                 'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
             },
             junitReporter: {
-                outputFile: __dirname + '/reports/tests/nm/nm-test-results.xml',
-                suite: 'networkMonitoring',
+                outputDir: __dirname + '/reports/tests/nm/',
+                outputFile: 'nm-test-results.xml',
+                suite: 'nm',
+                useBrowserName: false
             },
             htmlReporter: {
                 outputFile: __dirname + '/reports/tests/nm/nm-test-results.html'
@@ -372,11 +395,14 @@ module.exports = function (grunt) {
         options: {
             files: [],
             preprocessors: {
+                'contrail-web-core/webroot/js/**/*.js': ['coverage'],
                 'contrail-web-controller/webroot/monitor/**/ui/js/**/*.js': ['coverage']
             },
             junitReporter: {
-                outputFile: __dirname + '/reports/tests/web-controller-test-results.xml',
+                outputDir: __dirname + '/reports/tests/',
+                outputFile: 'web-controller-test-results.xml',
                 suite: 'webController',
+                useBrowserName: false
             },
             htmlReporter: {
                 outputFile: __dirname + '/reports/tests/web-controller-test-results.html'
