@@ -207,43 +207,40 @@ define([
     };
 
     function showHideModelAttr(model) {
-        model.hostName = ko.computed((function() {
-            if (this.user_created_record_type() == 'A') {
-                return true;
-            }
-            return false;
-        }), model);
-        model.reverseIPAddress = ko.computed((function() {
-            if (this.user_created_record_type() == 'PTR') {
-                return true;
-            }
-            return false;
-        }), model);
-        model.ipAddress = ko.computed((function() {
-
-            if (this.user_created_record_type() == 'A') {
-                return true;
-            }
-            return false;
-        }), model);
-        model.canonicalName = ko.computed((function() {
-            if (this.user_created_record_type() == 'CNAME') {
-                return true;
-            }
-            return false;
-        }), model);
-        model.subDomain = ko.computed((function() {
-            if (this.user_created_record_type() == 'NS') {
-                return true;
-            }
-            return false;
-        }), model);
         model.dnsServ = ko.computed((function() {
             if (this.user_created_record_type() == 'NS') {
                 return true;
             }
             return false;
         }), model);
+        model.__kb.view_model.model().on('change:user_created_record_type',
+            function(recordModel, recordType){
+                switch(recordType){
+                    case 'A' :
+                        model.record_name_label("Host Name");
+                        model.record_name_placeholder("Host Name to be resolved");
+                        model.record_data_label("IP Address");
+                        model.record_data_placeholder("Enter an IP Address");
+                        break;
+                    case 'CNAME' :
+                        model.record_name_label("Host Name");
+                        model.record_name_placeholder("Host Name");
+                        model.record_data_label("Canonical Name");
+                        model.record_data_placeholder("Enter Canonical Name");
+                        break;
+                    case 'PTR' :
+                        model.record_name_label("IP Address");
+                        model.record_name_placeholder("Enter an IP Address");
+                        model.record_data_label("Host Name");
+                        model.record_data_placeholder("Host Name");
+                        break;
+                    case 'NS' :
+                        model.record_name_label("Sub Domain");
+                        model.record_name_placeholder("Enter a Sub Domain");
+                        break;
+                };
+            }
+        );
     }
 
     function getHeaderActionConfig(gridElId) {

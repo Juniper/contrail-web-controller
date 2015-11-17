@@ -16,19 +16,11 @@ define([
                 "record_class": "IN",
                 "record_data": null
             },
-            "user_created_record_type": "A"
-        },
-
-        formatModelConfig: function(modelConfig) {
-            //set user_created_type
-            if (modelConfig['virtual_DNS_record_data'] !=
-                null) {
-                recData = modelConfig[
-                    'virtual_DNS_record_data'];
-                modelConfig['user_created_record_type'] =
-                    recData['record_type'];
-            }
-            return modelConfig;
+            "user_created_record_type": "A",
+            "record_name_label" : "Host Name",
+            'record_name_placeholder' : "Host Name to be resolved",
+            "record_data_label" : "IP Address",
+            "record_data_placeholder" : "Enter an IP Address"
         },
         addEditDnsRecords: function(mode, callbackObj,
             ajaxMethod) {
@@ -193,14 +185,12 @@ define([
                     callbackObj.init();
                 }
             }, function(response) {
-                console.log(response);
                 if (contrail.checkIfFunction(
                         callbackObj.success)) {
                     callbackObj.success();
                 }
                 returnFlag = true;
             }, function(error) {
-                console.log(error);
                 if (contrail.checkIfFunction(
                         callbackObj.error)) {
                     callbackObj.error(error);

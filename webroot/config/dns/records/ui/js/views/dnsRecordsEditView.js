@@ -10,7 +10,6 @@ define([
     var prefixId = "DnsRecordsPrefix";
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
-
     var DnsRecordsEditView = ContrailView.extend({
         renderAddDnsRecords: function(options) {
             var editTemplate =
@@ -157,6 +156,8 @@ define([
                 function() {
                     self.model.showErrorAttr(prefixId +
                         cowc.FORM_SUFFIX_ID, false);
+                    self.model.user_created_record_type(
+                        self.model.virtual_DNS_record_data().record_type);
                     Knockback.applyBindings(self.model,
                         document.getElementById(
                             modalId));
@@ -320,9 +321,9 @@ define([
                             elementId: 'record_name',
                             view: 'FormInputView',
                             viewConfig: {
-                                visible: 'hostName',
-                                placeholder: 'Host Name to be resolved',
-                                label: 'Host Name',
+                                templateId : 'dns-records-input-view-template',
+                                placeholder: 'record_name_placeholder',
+                                label: 'record_name_label',
                                 path: 'virtual_DNS_record_data.record_name',
                                 class: 'span12',
                                 dataBindValue: 'virtual_DNS_record_data().record_name'
@@ -334,81 +335,14 @@ define([
                             elementId: 'record_data',
                             view: 'FormInputView',
                             viewConfig: {
-                                visible: 'ipAddress',
-                                placeholder: 'Enter an IP Address',
-                                label: 'IP Address',
+                                visible: '!dnsServ()',
+                                templateId : 'dns-records-input-view-template',
+                                placeholder: 'record_data_placeholder',
+                                label: 'record_data_label',
                                 path: 'virtual_DNS_record_data.record_data',
                                 class: 'span12',
                                 dataBindValue: 'virtual_DNS_record_data().record_data'
                             }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'rev_record_name',
-                            view: 'FormInputView',
-                            viewConfig: {
-                                visible: 'reverseIPAddress',
-                                placeholder: 'Enter an IP Address',
-                                label: 'IP Address',
-                                path: 'virtual_DNS_record_data.record_name',
-                                class: 'span12',
-                                dataBindValue: 'virtual_DNS_record_data().record_name'
-                            }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'rev_record_data',
-                            view: 'FormInputView',
-                            viewConfig: {
-                                visible: 'reverseIPAddress',
-                                placeholder: 'Host Name',
-                                label: 'Host Name',
-                                path: 'virtual_DNS_record_data.record_data',
-                                class: 'span12',
-                                dataBindValue: 'virtual_DNS_record_data().record_data'
-                            }
-
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'canonical_host_name',
-                            view: 'FormInputView',
-                            viewConfig: {
-                                visible: 'canonicalName',
-                                placeholder: 'Host Name',
-                                label: 'Host Name',
-                                path: 'virtual_DNS_record_data.record_name',
-                                class: 'span12',
-                                dataBindValue: 'virtual_DNS_record_data().record_name'
-                            }
-
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'canonical_record_data',
-                            view: 'FormInputView',
-                            viewConfig: {
-                                visible: 'canonicalName',
-                                placeholder: 'Enter Canonical Name',
-                                label: 'Canonical Name',
-                                path: 'virtual_DNS_record_data.record_data',
-                                class: 'span12',
-                                dataBindValue: 'virtual_DNS_record_data().record_data'
-                            }
-                        }]
-                    }, {
-                        columns: [{
-                            elementId: 'subdomain_record_name',
-                            view: 'FormInputView',
-                            viewConfig: {
-                                visible: 'subDomain',
-                                placeholder: 'Enter a Sub Domain',
-                                label: 'Sub Domain',
-                                path: 'virtual_DNS_record_data.record_name',
-                                class: 'span12',
-                                dataBindValue: 'virtual_DNS_record_data().record_name'
-                            }
-
                         }]
                     }, {
                         columns: [{
