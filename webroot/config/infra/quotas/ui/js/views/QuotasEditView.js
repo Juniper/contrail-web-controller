@@ -88,7 +88,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'subnet',
                                 view: 'FormComboboxView',
@@ -110,7 +114,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'virtual_machine_interface',
                                 view: 'FormComboboxView',
@@ -132,7 +140,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'floating_ip',
                                 view: "FormComboboxView",
@@ -154,7 +166,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'floating_ip_pool',
                                 view: "FormComboboxView",
@@ -176,7 +192,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'network_policy',
                                 view: 'FormComboboxView',
@@ -198,7 +218,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'logical_router',
                                 view: 'FormComboboxView',
@@ -220,7 +244,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'network_ipam',
                                 view: 'FormComboboxView',
@@ -242,7 +270,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'service_instance',
                                 view: 'FormComboboxView',
@@ -264,7 +296,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'security_group',
                                 view: 'FormComboboxView',
@@ -286,7 +322,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'security_group_rule',
                                 view: 'FormComboboxView',
@@ -308,7 +348,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'loadbalancer_pool',
                                 view: 'FormComboboxView',
@@ -330,7 +374,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'loadbalancer_member',
                                 view: 'FormComboboxView',
@@ -352,7 +400,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'loadbalancer_healthmonitor',
                                 view: 'FormComboboxView',
@@ -374,7 +426,11 @@ define([
                                         }
                                     }
                                 }
-                            },
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
                             {
                                 elementId: 'virtual_ip',
                                 view: 'FormComboboxView',
