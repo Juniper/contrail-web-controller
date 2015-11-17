@@ -5,7 +5,7 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'flow-grid-view-mock-data',
+    'monitor/networking/test/ui/views/FlowGridView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite'
 ], function (cotr, cttu, cttm, TestMockdata, GridListModelTestSuite, GridViewTestSuite) {
@@ -57,7 +57,7 @@ define([
             "view": "details"
         }
     };
-    pageConfig.loadTimeout = 5000;
+    pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 5;
 
     var getTestConfig = function() {
         return {
@@ -68,13 +68,11 @@ define([
                     suites: [
                         {
                             class: GridViewTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
+                            groups: ['all']
                         },
                         {
                             class: GridListModelTestSuite,
                             groups: ['all'],
-                            severity: cotc.SEVERITY_LOW,
                             modelConfig: {
                                 dataGenerator: cttu.commonGridDataGenerator,
                                 dataParsers: {}

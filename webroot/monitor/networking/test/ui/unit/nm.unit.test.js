@@ -2,9 +2,9 @@ define([
     'co-test-runner',
     'co-test-utils',
     'ct-test-messages',
-    'nm-parsers-unit-mock-data',
+    'monitor/networking/test/ui/unit/nm.parsers.mock.data',
     'nm-parsers-unit-test-suite',
-    'nm-utils-unit-mock-data',
+    'monitor/networking/test/ui/unit/nm.utils.mock.data',
     'nm-utils-unit-test-suite',
 ], function (cotr, cotu, cttm, NMParsersUnitMockData, NMParsersUnitTestSuite, NMUtilsMockData, NMUtilsUnitTestSuite) {
 
@@ -22,7 +22,6 @@ define([
                         {
                             class: NMParsersUnitTestSuite,
                             groups: ['all'],
-                            severity: cotc.SEVERITY_LOW,
                             mockData: NMParsersUnitMockData
                         }
                     ]
@@ -34,7 +33,6 @@ define([
                         {
                             class: NMUtilsUnitTestSuite,
                             groups: ['all'],
-                            severity: cotc.SEVERITY_LOW,
                             mockData: NMUtilsMockData
                         }
                     ]

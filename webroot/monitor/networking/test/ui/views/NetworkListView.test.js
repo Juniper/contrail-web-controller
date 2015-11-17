@@ -5,7 +5,7 @@ define([
     'co-test-runner',
     'ct-test-utils',
     'ct-test-messages',
-    'network-list-view-mock-data',
+    'monitor/networking/test/ui/views/NetworkListView.mock.data',
     'co-grid-contrail-list-model-test-suite',
     'co-grid-view-test-suite',
     'co-chart-view-zoom-scatter-test-suite',
@@ -53,7 +53,7 @@ define([
             type: 'network'
         }
     };
-    pageConfig.loadTimeout = 2000;
+    pageConfig.loadTimeout = cotc.PAGE_LOAD_TIMEOUT * 2;
 
     var getTestConfig = function() {
         return {
@@ -64,8 +64,7 @@ define([
                     suites: [
                         {
                             class: ZoomScatterChartTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
+                            groups: ['all']
                         }
                     ]
                 },
@@ -74,13 +73,11 @@ define([
                     suites: [
                         {
                             class: GridViewTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
+                            groups: ['all']
                         },
                         {
                             class: GridListModelTestSuite,
                             groups: ['all'],
-                            severity: cotc.SEVERITY_LOW,
                             modelConfig: {
                                 dataGenerator: cttu.commonGridDataGenerator,
                                 dataParsers: {
@@ -91,8 +88,7 @@ define([
                         },
                         {
                             class: CustomTestSuite,
-                            groups: ['all'],
-                            severity: cotc.SEVERITY_LOW
+                            groups: ['all']
                         },
                     ]
                 }
