@@ -14,6 +14,10 @@ function ForwardingOptionsConfigObj() {
 	this.deleteEPEntry = deleteEPEntry; 
 	this.clearEPEntries = clearEPEntries;
 	this.populateData = populateData;
+    this.appendFlowAgingTimeoutEntry = appendFlowAgingTimeoutEntry;
+    this.createFlowAgingTimeoutEntry = createFlowAgingTimeoutEntry;
+    this.deleteFlowAgingTimeoutEntry = deleteFlowAgingTimeoutEntry;
+    this.clearFlowAgingTimeoutEntries = clearFlowAgingTimeoutEntries;
 	this.validate = validate;
     //Variable definitions
     //Dropdowns
@@ -33,6 +37,7 @@ function load() {
 
 function initComponents() {
     dynamicID = 0;
+    //dynamicFlowAgingTimeoutID = 0;
     $("#gridGlobalConfig").contrailGrid({
         header : {
             title : {
@@ -53,7 +58,7 @@ function initComponents() {
                 id: "value",
                 field: "value",
                 name: "Value",
-                maxWidth : 150,
+                maxWidth : 500,
                 sortable: false,
                 formatter: function(r, c, v, cd, dc) {
                     if(dc.property === 'Encapsulation Priority Order') {
@@ -331,16 +336,32 @@ function initActions() {
                 forwardingModeChanged = false;
             } 
         }
-        //post url for forwarding options
-        if(isPriorityChanged(actPriorities, priorities) || (actVxlan !== vxlanid) ||
-            (forwardingModeChanged === true)) {
-            ajaxArry.push($.ajax({
-               url : fwdOptnURL,
-               type : fwdOptnActionType,
-               contentType : "application/json; charset=utf-8",
-               data : JSON.stringify(globalVRouterConfig)
-            }));
+        /* Flow Aging Timeout*/
+        var flowAgingTimeoutTuples = $("#flowAgingTimeoutTuples")[0].children;
+        if (flowAgingTimeoutTuples && flowAgingTimeoutTuples.length > 0) {
+            var flowAgingTimeoutList = [];
+            for (var i = 0; i < flowAgingTimeoutTuples.length; i++) {
+                var id = getID(String($("#flowAgingTimeoutTuples").children()[i].id));
+                var protocal =  $('#flowAgingTimeoutTuples_' + id + '_ddProtocal').data('contrailDropdown').value();
+                var port = $('#flowAgingTimeoutTuples_' + id + '_txtPort').val();
+                port = port != null && port.trim() != '' ? parseInt(port) : 0;
+                var timeout = $('#flowAgingTimeoutTuples_' + id + '_txtTimeout').val();
+                timeout = timeout != null && timeout.trim() != '' ? parseInt(timeout) : 180;
+                flowAgingTimeoutList.push({timeout_in_seconds : timeout, protocol : protocal, port : port});
+            }
+            globalVRouterConfig["global-vrouter-config"]['flow_aging_timeout_list'] =
+                { flow_aging_timeout : flowAgingTimeoutList };
+        } else {
+            globalVRouterConfig["global-vrouter-config"]['flow_aging_timeout_list'] = null;
         }
+
+        //post url for forwarding options
+        ajaxArry.push($.ajax({
+           url : fwdOptnURL,
+           type : fwdOptnActionType,
+           contentType : "application/json; charset=utf-8",
+           data : JSON.stringify(globalVRouterConfig)
+        }));
         var autoMeshCkd =  $('#chk_ibgp_auto_mesh')[0].checked;
         var isASNSerialFlow = ($("#txtgasn").val().trim() !== ggasn.toString() && isiBGPAutoMesh != autoMeshCkd) ? true : false;
         if(isASNSerialFlow) {
@@ -449,6 +470,12 @@ function setEditPopupData() {
         var subnetEntry = createSubnetEntry(ipFabricSubnets[i], i);
         $("#subnetTuples").append(subnetEntry);
     }
+     /*Flow Aging Timeout */
+     $("#flowAgingTimeoutTuples").html("");
+    for(var i = 0; i < flowAgingTimeoutList.length; i++) {
+        var flowAgingTimeout = createFlowAgingTimeoutEntry(flowAgingTimeoutList[i], i);
+         $("#flowAgingTimeoutTuples").append(flowAgingTimeout);
+    }
 }
 
 function populateData(result) {
@@ -458,6 +485,7 @@ function populateData(result) {
     var fwdModeMap = {"default" : "Default", "l2_l3" : "L2 and L3", "l2" : "L2 Only", "l3" : "L3 Only"};
     var gridDS = [];
     var priorities;
+    var strFlowAgingTimeout = "";
     orig_forwarding_mode = "";
     $("#epTuples").html("");
 	if(null !== result) {
@@ -499,6 +527,22 @@ function populateData(result) {
 			var epEntry = createEPEntry("MPLSoGRE", 0);
 			$("#epTuples").append(epEntry);
 		}
+        /* Flow Aging Timeout */
+        flowAgingTimeoutList = getValueByJsonPath(result,
+            'global-vrouter-config;flow_aging_timeout_list;flow_aging_timeout', []);
+        if(flowAgingTimeoutList.length > 0 ) {
+            for(var i = 0; i < flowAgingTimeoutList.length; i++) {
+                strFlowAgingTimeout += "Protocol: " +
+                    flowAgingTimeoutList[i]['protocol'].toUpperCase();
+                strFlowAgingTimeout += ", Port: " + flowAgingTimeoutList[i]['port'];
+                strFlowAgingTimeout += ", Timeout: " + flowAgingTimeoutList [i]['timeout_in_seconds']
+                    + ' seconds';
+                strFlowAgingTimeout += '<br>';
+            }
+        } else {
+            strFlowAgingTimeout = '-';
+        }
+
 	} else {
 		//Set default 'automatic' for VxLANIdentifierMode
         actVxlan = vxLanIdentifierModeValues[0];
@@ -511,8 +555,11 @@ function populateData(result) {
 		$("#epTuples").append(epEntry);
 		epEntry = createEPEntry("VXLAN", 2);
 		$("#epTuples").append(epEntry);
+        strFlowAgingTimeout = '-';
 	}
     //prepare grid data
+    gridDS.push({'property' : 'Forwarding Mode', 'value': (null === orig_forwarding_mode || (typeof orig_forwarding_mode === "string" &&
+        orig_forwarding_mode.trim() === "" )) ? fwdModeMap["default"] : fwdModeMap[orig_forwarding_mode]});
     var vxLanText = (actVxlan === vxLanIdentifierModeValues[0] ) ? vxLanIdentifierModeLabels[0] : vxLanIdentifierModeLabels[1];
     gridDS.push({'property' : 'VxLAN Identifier Mode', 'value' : vxLanText});
     if(priorities != null) {
@@ -527,13 +574,11 @@ function populateData(result) {
         actPriorities = ["MPLSoUDP", "MPLSoGRE", "VXLAN"];
         gridDS.push({'property' : 'Encapsulation Priority Order', 'value' : ["MPLS Over UDP", "MPLS Over GRE", "VxLAN"]});
     }
+    gridDS.push({'property' : 'Flow Export Rate', 'value' : actFlowExportRate});
+    gridDS.push({'property' : 'Flow Aging Timeout', 'value' : strFlowAgingTimeout});
     gridDS.push({'property' : 'Global ASN', 'value' : ggasn});
     gridDS.push({'property' : 'iBGP Auto Mesh', 'value' : isiBGPAutoMesh});
-    gridDS.push({'property' : 'Flow Export Rate', 'value' : actFlowExportRate});
     gridDS.push({'property' : 'IP Fabric Subnets', 'value':ipFabricSubnets});
-    gridDS.push({'property' : 'Forwarding Mode', 'value': (null === orig_forwarding_mode || (typeof orig_forwarding_mode === "string" && 
-        orig_forwarding_mode.trim() === "" )) ? fwdModeMap["default"] : fwdModeMap[orig_forwarding_mode]});
-
     gridGlobalConfig._dataView.setData(gridDS);
 }
 
@@ -789,6 +834,147 @@ function deleteSubnetEntry(who) {
     templateDiv = $();
 }
 
+/*start flow aging timeout section */
+
+function appendFlowAgingTimeoutEntry(who, defaultRow) {
+    if(validateFlowAgingTimeoutEntry() === false)
+        return false;
+
+    var fipEntry = createFlowAgingTimeoutEntry(null, $("#flowAgingTimeoutTuples").children().length);
+    if (defaultRow) {
+        $("#flowAgingTimeoutTuples").prepend($(fipEntry));
+    } else {
+        var parentEl = who.parentNode.parentNode.parentNode;
+        parentEl.parentNode.insertBefore(fipEntry, parentEl.nextSibling);
+    }
+}
+
+function deleteFlowAgingTimeoutEntry(who) {
+    var templateDiv = who.parentNode.parentNode.parentNode;
+    $(templateDiv).remove();
+    templateDiv = $();
+}
+
+function clearFlowAgingTimeoutEntries() {
+    var tuples = $("#flowAgingTimeoutTuples")[0].children;
+    if (tuples && tuples.length > 0) {
+        var tupleLength = tuples.length;
+        for (var i = 0; i < tupleLength; i++) {
+            $(tuples[i]).empty();
+        }
+        $(tuples).empty();
+        $("#flowAgingTimeoutTuples").empty();
+    }
+}
+
+function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
+    //dynamicFlowAgingTimeoutID++;
+    var id =  len;
+    var protocalDiv = document.createElement("div");
+    protocalDiv.className = "span12";
+    protocalDiv.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_ddProtocal");
+    var protocalParentDiv = document.createElement("div");
+    protocalParentDiv.className = "span3";
+    protocalParentDiv.appendChild(protocalDiv);
+
+    var inputTxtPort = document.createElement("input");
+    inputTxtPort.type = "text";
+    inputTxtPort.className = "span12";
+    inputTxtPort.setAttribute("placeholder", "0 (All Ports)");
+    inputTxtPort.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtPort");
+    var portParentDiv = document.createElement("div");
+    portParentDiv.className = "span3";
+    portParentDiv.appendChild(inputTxtPort);
+
+    var inputTxtTimeout = document.createElement("input");
+    inputTxtTimeout.type = "text";
+    inputTxtTimeout.className = "span12";
+    inputTxtTimeout.setAttribute("placeholder", "180");
+    inputTxtTimeout.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtTimeout");
+    var timeoutParentDiv = document.createElement("div");
+    timeoutParentDiv.className = "span3";
+    timeoutParentDiv.appendChild(inputTxtTimeout);
+
+    var iBtnAddRule = document.createElement("i");
+    iBtnAddRule.className = "icon-plus";
+    iBtnAddRule.setAttribute("onclick", "appendFlowAgingTimeoutEntry(this);");
+    iBtnAddRule.setAttribute("title", "Add Flow Aging Timeouts below");
+
+    var divPullLeftMargin5Plus = document.createElement("div");
+    divPullLeftMargin5Plus.className = "pull-left margin-5";
+    divPullLeftMargin5Plus.appendChild(iBtnAddRule);
+
+    var iBtnDeleteRule = document.createElement("i");
+    iBtnDeleteRule.className = "icon-minus";
+    iBtnDeleteRule.setAttribute("onclick", "deleteFlowAgingTimeoutEntry(this);");
+    iBtnDeleteRule.setAttribute("title", "Delete Flow Aging Timeout");
+
+    var divPullLeftMargin5Minus = document.createElement("div");
+    divPullLeftMargin5Minus.className = "pull-left margin-5";
+    divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
+
+    var divRowFluidMargin5 = document.createElement("div");
+    divRowFluidMargin5.className = "row-fluid margin-0-0-5";
+    divRowFluidMargin5.appendChild(protocalParentDiv);
+    divRowFluidMargin5.appendChild(portParentDiv);
+    divRowFluidMargin5.appendChild(timeoutParentDiv);
+    divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
+    divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
+
+    var rootDiv = document.createElement("div");
+    rootDiv.id = "rule_" + id;
+    rootDiv.appendChild(divRowFluidMargin5);
+    //instantiate and set data for protocal dropdown
+    $(protocalDiv).contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+    });
+    var flowProtoList = [];
+    var tmpFlowProtoList = $.extend(true, [], protocolList);
+    var protoCnt = tmpFlowProtoList.length;
+    for (var i = 0; i < protoCnt; i++) {
+        if ('TCP' == tmpFlowProtoList[i]['name']) {
+            continue;
+        }
+        flowProtoList.push({'text': tmpFlowProtoList[i]['name'],
+                            'value': tmpFlowProtoList[i]['name'].toLowerCase()});
+    }
+    var ddProtocal = $(protocalDiv).data("contrailDropdown");
+    ddProtocal.setData(flowProtoList);
+    /*set default value as icmp */
+    ddProtocal.value('icmp');
+    if (flowAgingTimeout instanceof Object ) {
+        ddProtocal.value(flowAgingTimeout.protocol.toLowerCase());
+        $(inputTxtPort).val(flowAgingTimeout.port);
+        $(inputTxtTimeout).val(flowAgingTimeout.timeout_in_seconds);
+    }
+    return rootDiv;
+}
+
+function validateFlowAgingTimeoutEntry() {
+    var len = $("#flowAgingTimeoutTuples").children().length;
+    if(len > 0) {
+        for(var i=0; i<len; i++) {
+            var id = getID(String($("#flowAgingTimeoutTuples").children()[i].id));
+            var port =
+               $("#flowAgingTimeoutTuples_" + id + '_txtPort').val();
+            if (port != '' && port != null && isNaN(port)) {
+                showInfoWindow("Port should be a number", "Invalid input in Port");
+                return false;
+            }
+            var timeout =
+               $("#flowAgingTimeoutTuples_" + id + '_txtTimeout').val();
+            if (timeout != '' && timeout != null && isNaN(timeout)) {
+                showInfoWindow("Timeout should be a number", "Invalid input in Timeout");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+/*end  flow aging timeout section*/
+
 function clearSubnetEntries() {
     var tuples = $("#subnetTuples")[0].children;
     if (tuples && tuples.length > 0) {
@@ -833,6 +1019,9 @@ function validate() {
         if(validateSubnetEntry() === false) {
             return false;
         }
+        if(validateFlowAgingTimeoutEntry() === false) {
+            return false;
+        }
     }
     if(vxlanid === "configured" && priorities.indexOf("VXLAN") === -1) {
     	showInfoWindow("Encapsulation type 'VxLAN' is required while setting VxLAN identifier mode.", "Input Required");
@@ -843,7 +1032,7 @@ function validate() {
 
 function destroy() {
     clearEPEntries();
-
+    clearFlowAgingTimeoutEntries();
     btnSaveFwdOptions = $("#btnSaveFwdOptions");
     if(isSet(btnSaveFwdOptions)) {
         btnSaveFwdOptions.remove();

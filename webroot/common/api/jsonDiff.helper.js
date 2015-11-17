@@ -76,7 +76,7 @@ var configJsonModifyObj = {
     },
     'global-vrouter-config': {
         'isConfig': true,
-        'optFields': ['forwarding_mode', 'vxlan_network_identifier_mode', 'encapsulation_priorities', 'linklocal_services', 'flow_export_rate'],
+        'optFields': ['forwarding_mode', 'vxlan_network_identifier_mode', 'encapsulation_priorities', 'linklocal_services', 'flow_export_rate', 'flow_aging_timeout_list'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
     'physical-topology': {
