@@ -386,6 +386,32 @@ and need to add the iconClass tag wherever we need to show some icons
               </resources>
               <searchStrings>Configure Link Local Services</searchStrings>
             </item>
+            <item>
+              <label>Service Appliance Sets</label>
+              <hash>config_infra_sapset</hash>
+              <resources>
+                <resource>
+                  <rootDir>/config/serviceappliance/serviceapplianceset/ui</rootDir>
+                  <view>serviceapplianceset.view</view>
+                  <js>serviceappliancesetconfig.js</js>
+                  <class>serviceApplianceSetConfigObj</class>
+                </resource>
+              </resources>
+              <searchStrings>Configure Service Appliance Sets</searchStrings>
+            </item>
+            <item>
+              <label>Service Appliances</label>
+              <hash>config_infra_sap</hash>
+              <resources>
+                <resource>
+                  <rootDir>/config/serviceappliance/serviceappliances/ui</rootDir>
+                  <view>serviceappliance.view</view>
+                  <js>serviceapplianceconfig.js</js>
+                  <class>serviceApplianceConfigObj</class>
+                </resource>
+              </resources>
+              <searchStrings>Configure Service Appliances</searchStrings>
+            </item>
                         <item>
                             <label>Virtual Routers</label>
                             <hash>config_pd_virtualRouters</hash>

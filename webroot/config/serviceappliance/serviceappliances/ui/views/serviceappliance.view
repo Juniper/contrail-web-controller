@@ -1,0 +1,167 @@
+<!--
+Copyright (c) 2014 Juniper Networks, Inc. All rights reserved.
+-->
+<script type="text/x-handlebars-template" id="gridSapDetailTemplate">
+    <div>
+        <div class="row-fluid">
+            <div class="row-fluid">
+                <div class="span2"><label>Service Name</label></div>
+                <div class="span10"> {{service_appliance_name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>UUID</label></div>
+                <div class="span10"> {{uuid}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Display Name</label></div>
+                <div class="span10"> {{service_appliance_display_name}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Username</label></div>
+                <div class="span10">{{service_appliance_user}}</div>
+            </div>
+            <!--div class="row-fluid">
+                <div class="span2"><label>Interfaces</label></div>
+                <div class="span10"> {{sap_interface_string}}</div>
+            </div>
+            <div class="row-fluid">
+                <div class="span2"><label>Physical Interfaces</label></div>
+                <div class="span10"> {{physical_interface_refs_string}}</div>
+            </div-->
+            <div class="row-fluid">
+                <div class="span2"><label>Properties</label></div>
+                <div class="span10"> {{sap_prop_string}}</div>
+            </div>
+        </div>
+    </div>
+</script>
+
+<script type="text/x-handlebars-template" id="sap-config-template">
+    <div class="row-fluid">
+        <div class="span12">
+            <div id="gridSap"/>
+        </div>
+    </div>
+
+    <div id="windowCreateSap" class="modal  hide " tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <form class="form-horizontal">
+                <div class="control-group">
+                    <label class="control-label">Name</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtSapName" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">IP Address</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="txtSapIPAddress" class="span11"/>
+                        </div>
+                    </div>
+                </div>
+                <!--div class="control-group">
+                    <label class="control-label">Interface</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <input type="text" id="cmbSapInterface" class="span10" />
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Physical Interface(s)</label>
+                    <div class="controls">
+                        <div class="row-fluid">
+                            <div id="msPhysicalInterfaces" placeholder="Select Physical Interfaces..." class="span10" >
+                            </div>
+                        </div>
+                    </div>
+                </div-->
+                <div class="control-group">
+                    <label class="control-label">Username</label>  
+                    <div class="controls">                       
+                        <div class="row-fluid">
+                             <div class="span4">
+                                 <input type="text" id="txtSapUserName" name="txtSapUserName" title="Username" 
+                                 class="span12 pull-left"/>
+                             </div>
+                             <label class="span3 new-column-label">
+                                 Password
+                             </label>
+                             <div class ="span4">
+                                 <input title="Password"
+                                     id="txtSapPassword" class="span12" type="password" name="txtSapPassword"
+                                     value="">
+                                 </input> 
+                             </div>                                
+                        </div>  
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Properties</label>
+                    <div class="controls">
+                        <div class="row-fluid margin-0-0-10">
+                            <div class="rule-item-header span11">
+                                <div class="row-fluid">
+                                    <div class="span11">
+                                        <h6>Key Value Pairs</h6>
+                                    </div>
+                                    <div class="span1 pull-left">
+                                        <div title="Add Key Value Pair below" class="margin-5 padding-10-0">
+                                            <i id="btnCommonAddKVPair" class="pull-left icon-plus" onclick="appendSapPropEntry(this, true);"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row-fluid">
+                            <div id="sapPropTuples" class="row-fluid"></div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button  id="btnCreateSapCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button  id="btnCreateSapOK" class="btn btn-primary btn-mini">Save</button>
+        </div>
+    </div>
+
+    <div id="confirmRemove" class="modal modal-420 hide" tabindex="-1">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center">
+                <h6>Confirm Service Appliance delete</h6>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfDelPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfDelPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+
+    <div id="confirmMainRemove" class="modal modal-420 hide" tabindex="-1" role="dialog">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><i class="icon-remove"></i></button>
+            <h6 class="modal-header-title"></h6>
+        </div>
+        <div class="modal-body">
+            <div class="row-fluid text-center">
+                <h6>Confirm Service Appliance(s) delete</h6>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button id="btnCnfRemoveMainPopupCancel" class="btn btn-mini" data-dismiss="modal" aria-hidden="true">Cancel</button>
+            <button id="btnCnfRemoveMainPopupOK" class="btn btn-primary btn-mini">Confirm</button>
+        </div>
+    </div>
+</script>
