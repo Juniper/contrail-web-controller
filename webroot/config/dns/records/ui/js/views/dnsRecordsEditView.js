@@ -156,8 +156,10 @@ define([
                 function() {
                     self.model.showErrorAttr(prefixId +
                         cowc.FORM_SUFFIX_ID, false);
-                    self.model.user_created_record_type(
-                        self.model.virtual_DNS_record_data().record_type);
+                    //populate user_created_record_type for edit case
+                    var recType = getValueByJsonPath(self.model.model().attributes,
+                        'virtual_DNS_record_data;record_type', 'A');
+                    self.model.user_created_record_type(recType);
                     Knockback.applyBindings(self.model,
                         document.getElementById(
                             modalId));
@@ -299,19 +301,22 @@ define([
                                 dataBindValue: 'user_created_record_type',
                                 elementConfig: {
                                     dataTextField: "text",
-                                    dataValueField: "id",
+                                    dataValueField: "value",
                                     data: [{
                                         'text': 'A (IP Address Record)',
-                                        'id': 'A'
+                                        'value': 'A'
                                     }, {
                                         'text': 'CNAME (Alias Record)',
-                                        'id': 'CNAME'
+                                        'value': 'CNAME'
                                     }, {
                                         'text': 'PTR (Reverse DNS Record)',
-                                        'id': 'PTR'
+                                        'value': 'PTR'
                                     }, {
                                         'text': 'NS (Delegation Record)',
-                                        'id': 'NS'
+                                        'value': 'NS'
+                                    },{
+                                        'text': 'MX (Mail Exchanger Record)',
+                                        'value': 'MX'
                                     }]
                                 }
                             }
@@ -335,7 +340,7 @@ define([
                             elementId: 'record_data',
                             view: 'FormInputView',
                             viewConfig: {
-                                visible: '!dnsServ()',
+                                visible: 'user_created_record_type() !== "NS"',
                                 templateId : 'dns-records-input-view-template',
                                 placeholder: 'record_data_placeholder',
                                 label: 'record_data_label',
@@ -349,7 +354,7 @@ define([
                             elementId: 'dns_record_data',
                             view: 'FormComboboxView',
                             viewConfig: {
-                                visible: 'dnsServ',
+                                visible: 'user_created_record_type() === "NS"',
                                 label: 'DNS Server',
                                 path: 'virtual_DNS_record_data.record_data',
                                 class: 'span12',
@@ -392,14 +397,26 @@ define([
                             view: 'FormInputView',
                             viewConfig: {
                                 label: 'Time To Live',
-                                placeholder: 'TTL(86400 secs)',
+                                placeholder: 'TTL (86400 secs)',
                                 path: 'virtual_DNS_record_data.record_ttl_seconds',
                                 class: 'span12',
                                 dataBindValue: 'virtual_DNS_record_data().record_ttl_seconds'
                             }
                         }]
+                    }, {
+                        columns: [{
+                            elementId: 'record_mx_preference',
+                            view: 'FormInputView',
+                            viewConfig: {
+                                visible : 'user_created_record_type() === "MX"',
+                                label: 'MX Preference',
+                                placeholder: 'Enter a MX Preference number (0 - 65535)',
+                                path: 'virtual_DNS_record_data.record_mx_preference',
+                                class: 'span12',
+                                dataBindValue: 'virtual_DNS_record_data().record_mx_preference'
+                            }
+                        }]
                     }
-
                 ]
             }
         }
