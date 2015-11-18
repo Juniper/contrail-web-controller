@@ -202,7 +202,7 @@ define([
         {
             id: 'display_name',
             field: 'display_name',
-            name: 'Security Groups',
+            name: 'Security Group',
             cssClass :'cell-hyperlink-blue'
         },
         {
