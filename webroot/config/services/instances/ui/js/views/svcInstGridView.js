@@ -191,7 +191,7 @@ define([
                                     {
                                         key: 'service_instance_properties',
                                         keyClass: 'span2',
-                                        label: 'Number of instances',
+                                        label: '# Instances',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'instCountFormatter'
@@ -622,7 +622,7 @@ define([
         if (-1 != idx) {
             return vnArr[2];
         }
-        return vnArr[2] + "(" + vnArr[0] + ":" + vnArr[1] + ")";
+        return vnArr[2] + " (" + vnArr[0] + ":" + vnArr[1] + ")";
     };
 
     var svcInstColumns = [
