@@ -14,10 +14,10 @@ define([
             var self = this,
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
                 viewConfig = self.attributes.viewConfig,
-                formData = contrail.checkIfExist(viewConfig.formData) ? viewConfig.formData : {},
+                queryFormAttributes = contrail.checkIfExist(viewConfig.queryFormAttributes) ? viewConfig.queryFormAttributes : {},
                 queryResultType = contrail.checkIfExist(viewConfig.queryResultType) ? viewConfig.queryResultType : 'new',
-                formQueryIdSuffix = (!$.isEmptyObject(formData)) ? '-' + formData.queryId : '',
-                flowSeriesQueryModel = new FlowSeriesFormModel(formData),
+                formQueryIdSuffix = (!$.isEmptyObject(queryFormAttributes)) ? '-' + queryFormAttributes.queryId : '',
+                flowSeriesQueryModel = new FlowSeriesFormModel(queryFormAttributes.formModelAttrs),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX + formQueryIdSuffix,
                 flowSeriesId = cowl.QE_FLOW_SERIES_ID + formQueryIdSuffix;
@@ -31,12 +31,12 @@ define([
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     if (self.model.model().isValid(true, 'runQueryValidation')) {
-                        self.renderQueryResult('new', formData);
+                        self.renderQueryResult('new', queryFormAttributes);
                     }
                 });
 
                 if (queryResultType !== 'new') {
-                    self.renderQueryResult(queryResultType, formData);
+                    self.renderQueryResult(queryResultType, queryFormAttributes);
                 }
             });
 
@@ -45,10 +45,10 @@ define([
             }
         },
 
-        renderQueryResult: function(queryResultType, formData) {
+        renderQueryResult: function(queryResultType, queryFormAttributes) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                formQueryIdSuffix = (formData !== null && !$.isEmptyObject(formData)) ? '-' + formData.queryId : '',
+                formQueryIdSuffix = (queryFormAttributes !== null && !$.isEmptyObject(queryFormAttributes)) ? '-' + queryFormAttributes.queryId : '',
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_FORM_SUFFIX + formQueryIdSuffix,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FS_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX + formQueryIdSuffix,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
@@ -57,7 +57,7 @@ define([
                     viewPathPrefix: "reports/qe/ui/js/views/",
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                     viewConfig: {
-                        formData: formData,
+                        queryFormAttributes: queryFormAttributes,
                         queryResultType: queryResultType
                     }
                 };
@@ -66,6 +66,7 @@ define([
                 $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
+            self.model.is_request_in_progress(true);
             self.renderView4Config($(queryResultId), this.model, responseViewConfig);
         },
 
@@ -122,7 +123,7 @@ define([
                                         style: 'display: none;',
                                         path: 'time_granularity',
                                         label: 'Time Granularity',
-                                        visible: 'select_data_object().checked_fields.indexOf("T=") != -1 ',
+                                        visible: 'isSelectTimeChecked()',
                                         childView: [
                                             {
                                                 elementId: 'time_granularity', view: "FormNumericTextboxView",
@@ -170,7 +171,6 @@ define([
                                 }
                             ]
                         },
-                        /*
                         {
                             columns: [
                                 {
@@ -183,13 +183,13 @@ define([
                                 }
                             ]
                         },
-                        */
                         {
                             columns: [
                                 {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
                                         class: 'display-inline-block margin-0-10-0-0',
+                                        disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
                                         }

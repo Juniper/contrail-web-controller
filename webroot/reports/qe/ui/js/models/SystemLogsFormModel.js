@@ -15,11 +15,11 @@ define([
 
         disableWhereFields: ['Level'],
 
-        constructor: function (modelData) {
+        constructor: function (modelData, queryReqConfig) {
             var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.MESSAGE_TABLE, table_type: cowc.QE_LOG_TABLE_TYPE, query_prefix: cowc.SYSTEM_LOGS_PREFIX, keywords: "", log_level: "5", limit: cowc.QE_DEFAULT_LIMIT_50K});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
-            QueryFormModel.prototype.constructor.call(this, modelData, {chunkSize: cowc.QE_RESULT_CHUNK_SIZE_1K});
+            QueryFormModel.prototype.constructor.call(this, modelData, $.extend(true, queryReqConfig, {chunkSize: cowc.QE_RESULT_CHUNK_SIZE_1K}));
 
             return this;
         },

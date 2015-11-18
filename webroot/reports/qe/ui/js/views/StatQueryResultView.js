@@ -34,14 +34,12 @@ define([
                             dataParser: function(response) {
                                 return response['data'];
                             },
-                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
                             successCallback: function(resultJSON, contrailListModel, response) {
-                                //TODO - Remove this setTimeout
-                                setTimeout(function(){
-                                    if (response.status === 'queued') {
-                                        $('#' + cowl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').showGridMessage(response.status)
-                                    }
-                                }, 500);
+                                if (response.status === 'queued') {
+                                    $('#' + cowl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                } else if (contrailListModel.getItems().length == 0) {
+                                    $('#' + cowl.QE_STAT_QUERY_GRID_ID).data('contrailGrid').showGridMessage('empty')
+                                }
                             }
                         }
                     };
@@ -56,14 +54,15 @@ define([
                 self.renderView4Config(self.$el, contrailListModel, self.getStatResultGridTabViewConfig(postDataObj, statRemoteConfig, serverCurrentTime), null, null, modelMap, function(statResultView) {
                     var selectArray = queryFormModel.select().replace(/ /g, "").split(",");
 
-                    if(selectArray.indexOf("T=") != -1) {
-                        contrailListModel.onAllRequestsComplete.subscribe(function () {
+                    contrailListModel.onAllRequestsComplete.subscribe(function () {
+                        queryFormModel.is_request_in_progress(false);
+                        if(selectArray.indexOf("T=") != -1) {
                             //TODO: Load chart only if data is not queued.
                             if (contrailListModel.getItems().length > 0) {
                                 statResultView.childViewMap[cowl.QE_STAT_QUERY_TAB_ID].renderNewTab(cowl.QE_STAT_QUERY_TAB_ID, self.getStatResultChartTabViewConfig(postDataObj));
                             }
-                        });
-                    }
+                        }
+                    });
                 });
             });
         },
@@ -153,7 +152,8 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    fixedRowHeight: 30
+                    fixedRowHeight: 30,
+                    defaultDataStatusMessage: false
                 },
                 dataSource: {
                     remote: {

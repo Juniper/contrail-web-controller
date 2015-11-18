@@ -37,20 +37,22 @@ define([
                                 }
                                 return gridData;
                             },
-                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
                             successCallback: function(resultJSON, contrailListModel, response) {
-                                //TODO - Remove this setTimeout
-                                setTimeout(function(){
-                                    if (response.status === 'queued') {
-                                        $('#' + cowl.QE_OBJECT_LOGS_GRID_ID).data('contrailGrid').showGridMessage(response.status)
-                                    }
-                                }, 500);
+                                if (response.status === 'queued') {
+                                    $('#' + cowl.QE_OBJECT_LOGS_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                } else if (contrailListModel.getItems().length == 0) {
+                                    $('#' + cowl.QE_OBJECT_LOGS_GRID_ID).data('contrailGrid').showGridMessage('empty')
+                                }
                             }
                         }
                     };
 
                 contrailListModel = new ContrailListModel(listModelConfig);
-                self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, listModelConfig, serverCurrentTime))
+                self.renderView4Config(self.$el, contrailListModel, self.getViewConfig(postDataObj, listModelConfig, serverCurrentTime), null, null, null, function(){
+                    contrailListModel.onAllRequestsComplete.subscribe(function () {
+                        queryFormModel.is_request_in_progress(false);
+                    });
+                });
             });
         },
 
@@ -102,7 +104,8 @@ define([
             body: {
                 options: {
                     autoRefresh: false,
-                    checkboxSelectable: false
+                    checkboxSelectable: false,
+                    defaultDataStatusMessage: false
                 },
                 dataSource: { remote: $.extend(true, {}, listModelConfig.remote, { serverSidePagination: true }) },
                 statusMessages: {

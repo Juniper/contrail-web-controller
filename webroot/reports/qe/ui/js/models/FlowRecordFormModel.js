@@ -11,11 +11,11 @@ define([
 
         defaultSelectFields: ['direction_ing'],
 
-        constructor: function (modelData) {
+        constructor: function (modelData, queryReqConfig) {
             var defaultConfig = qewmc.getQueryModelConfig({table_name: cowc.FLOW_RECORD_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: cowc.FR_QUERY_PREFIX});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
-            QueryFormModel.prototype.constructor.call(this, modelData);
+            QueryFormModel.prototype.constructor.call(this, modelData, queryReqConfig);
 
             return this;
         },

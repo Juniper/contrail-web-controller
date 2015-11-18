@@ -11,11 +11,11 @@ define([
 
         defaultSelectFields: [],
 
-        constructor: function (modelData) {
+        constructor: function (modelData, queryReqConfig) {
             var defaultConfig = qewmc.getQueryModelConfig({table_type: cowc.QE_STAT_TABLE_TYPE, query_prefix: cowc.STAT_QUERY_PREFIX});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
-            QueryFormModel.prototype.constructor.call(this, modelData);
+            QueryFormModel.prototype.constructor.call(this, modelData, queryReqConfig);
 
             return this;
         },
