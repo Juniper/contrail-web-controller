@@ -55,6 +55,7 @@ define([
                 $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
+            self.model.is_request_in_progress(true);
             self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
         },
 
@@ -111,7 +112,7 @@ define([
                                         style: 'display: none;',
                                         path: 'time_granularity',
                                         label: 'Time Granularity',
-                                        visible: 'select_data_object().checked_fields.indexOf("T=") != -1 ',
+                                        visible: 'isSelectTimeChecked()',
                                         childView: [
                                             {
                                                 elementId: 'time_granularity', view: "FormNumericTextboxView",
@@ -159,7 +160,6 @@ define([
                                 }
                             ]
                         },
-                        /*
                         {
                             columns: [
                                 {
@@ -172,13 +172,13 @@ define([
                                 }
                             ]
                         },
-                        */
                         {
                             columns: [
                                 {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
                                         class: 'display-inline-block margin-0-10-0-0',
+                                        disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
                                         }

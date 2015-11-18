@@ -34,14 +34,12 @@ define([
                             dataParser: function(response) {
                                 return response['data'];
                             },
-                            //TODO: We should not need to implement success callback in each grid to show grid message based on status
                             successCallback: function(resultJSON, contrailListModel, response) {
-                                //TODO - Remove this setTimeout
-                                setTimeout(function(){
-                                    if (response.status === 'queued') {
-                                        $('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid').showGridMessage(response.status)
-                                    }
-                                }, 500);
+                                if (response.status === 'queued') {
+                                    $('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid').showGridMessage(response.status)
+                                } else if (contrailListModel.getItems().length == 0) {
+                                    $('#' + cowl.QE_FLOW_RECORD_GRID_ID).data('contrailGrid').showGridMessage('empty')
+                                }
                             }
                         }
                     };
@@ -53,16 +51,34 @@ define([
 
                 contrailListModel = new ContrailListModel(listModelConfig);
                 modelMap[cowc.UMID_FLOW_RECORD_FORM_MODEL] = queryFormModel;
-                self.renderView4Config(self.$el, contrailListModel, self.getFlowRecordResultGridTabViewConfig(postDataObj, frRemoteConfig, serverCurrentTime), null, null, modelMap);
+                self.renderView4Config(self.$el, contrailListModel, self.getFlowRecordResultGridTabViewConfig(postDataObj, frRemoteConfig), null, null, modelMap, function() {
+                    contrailListModel.onAllRequestsComplete.subscribe(function () {
+                        queryFormModel.is_request_in_progress(false);
+                    });
+                });
             });
         },
 
-        getFlowRecordResultGridTabViewConfig: function (postDataObj, frRemoteConfig, serverCurrentTime) {
+        getFlowRecordResultGridTabViewConfig: function (postDataObj, frRemoteConfig) {
             var self = this, viewConfig = self.attributes.viewConfig,
                 pagerOptions = viewConfig['pagerOptions'],
                 queryFormModel = this.model,
                 selectArray = queryFormModel.select().replace(/ /g, "").split(","),
                 frGridColumns = qewgc.getColumnDisplay4Grid(cowc.FLOW_RECORD_TABLE, cowc.QE_FLOW_TABLE_TYPE, selectArray);
+
+            var frDetailsColumn = [
+                {
+                    id: 'fr-details', field: "", name: "", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: {allow: false}, formatter: function (r, c, v, cd, dc) {
+                        return '<i class="icon-external-link-sign"></i>';
+                    },
+                    cssClass: 'cell-hyperlink-blue',
+                    events: {
+                        onClick: qewgc.getOnClickFlowRecord(self, queryFormModel)
+                    }
+                }
+            ];
+
+            frGridColumns = frDetailsColumn.concat(frGridColumns);
 
             var resultsViewConfig = {
                 elementId: cowl.QE_FLOW_RECORD_TAB_ID,
@@ -112,7 +128,8 @@ define([
                 options: {
                     autoRefresh: false,
                     checkboxSelectable: false,
-                    fixedRowHeight: 30
+                    fixedRowHeight: 30,
+                    defaultDataStatusMessage: false
                 },
                 dataSource: {
                     remote: {

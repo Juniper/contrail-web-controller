@@ -39,21 +39,22 @@ define([
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 queryQueueType = viewConfig.queueType,
-                pagerOptions = viewConfig['pagerOptions'];
+                pagerOptions = viewConfig['pagerOptions'],
+                queueColorMap = [null, null, null, null, null];
 
             var resultsViewConfig = {
                 elementId: cowl.QE_FLOW_QUEUE_GRID_ID,
                 title: cowl.TITLE_FLOW_QUERY_QUEUE,
                 view: "GridView",
                 viewConfig: {
-                    elementConfig: getQueryQueueGridConfig(queryQueueType, queueRemoteConfig, pagerOptions, self)
+                    elementConfig: getQueryQueueGridConfig(queryQueueType, queueRemoteConfig, pagerOptions, self, queueColorMap)
                 }
             };
 
             return resultsViewConfig;
         },
 
-        renderQueryQueueResult: function(queryQueueItem, queryResultType) {
+        renderQueryQueueResult: function(queryQueueItem, queryResultType, queueColorMap, renderCompleteCB) {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
                 childViewMap = self.childViewMap,
@@ -65,15 +66,16 @@ define([
             $(queryQueueGridId).data('contrailGrid').collapse();
 
             if (queryQueueResultTabView === null) {
-                self.renderView4Config($(queryQueueResultId), null, getQueryQueueTabViewConfig(queryQueueItem, queryResultType));
+                self.renderView4Config($(queryQueueResultId), null, getQueryQueueTabViewConfig(queryQueueItem, queryResultType, queueColorMap), null, null, null, renderCompleteCB);
             } else {
-                queryQueueResultTabView.renderNewTab(cowl.QE_FLOW_QUEUE_TAB_ID, getFlowSeriesTabConfig(queryQueueItem, queryResultType), true);
+                queryQueueResultTabView.renderNewTab(cowl.QE_FLOW_QUEUE_TAB_ID, getFlowSeriesTabConfig(queryQueueItem, queryResultType, queueColorMap), true);
+                renderCompleteCB();
             }
         }
 
     });
 
-    function getQueryQueueGridConfig(queryQueueType, queueRemoteConfig, pagerOptions, queryQueueView) {
+    function getQueryQueueGridConfig(queryQueueType, queueRemoteConfig, pagerOptions, queryQueueView, queueColorMap) {
         return {
             header: {
                 title: {
@@ -85,14 +87,40 @@ define([
                     exportable: true,
                     refreshable: true,
                     searchable: true
-                }
+                },
+                advanceControls: [
+                    {
+                        type: 'link',
+                        linkElementId: cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID,
+                        disabledLink: true,
+                        title: cowl.TITLE_DELETE_ALL_QUERY_QUEUE,
+                        iconClass: 'icon-trash',
+                        onClick: function (event, gridContainer, key) {
+                            if (!$('#' + cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID).hasClass('disabled-link')) {
+                                var gridCheckedRows = $(gridContainer).data('contrailGrid').getCheckedRows(),
+                                    queryIds = $.map(gridCheckedRows, function(rowValue, rowKey) {
+                                        return rowValue.queryReqObj.queryId;
+                                    });
+
+                                showDeleteQueueModal(queryQueueType, queryIds, queueColorMap);
+                            }
+                        }
+                    }
+                ]
             },
             body: {
                 options: {
                     autoRefresh: false,
-                    checkboxSelectable: true,
+                    checkboxSelectable: {
+                        onNothingChecked: function(e){
+                            $('#' + cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID).addClass('disabled-link');
+                        },
+                        onSomethingChecked: function(e){
+                            $('#' + cowl.QE_DELETE_MULTIPLE_QUERY_QUEUE_CONTROL_ID).removeClass('disabled-link');
+                        }
+                    },
                     actionCell: function(dc){
-                        return getQueueActionColumn(queryQueueType, dc, queryQueueView);
+                        return getQueueActionColumn(queryQueueType, dc, queryQueueView, queueColorMap);
                     }
                 },
                 dataSource: {
@@ -103,19 +131,18 @@ define([
                 columns: qewgc.getQueueColumnDisplay()
             },
             footer: {
-                pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 100, pageSizeSelect: [100, 200, 300, 500] } })
+                pager: contrail.handleIfNull(pagerOptions, { options: { pageSize: 5, pageSizeSelect: [5, 10, 25, 50] } })
             }
         };
     };
 
-    function getQueueActionColumn(queryQueueType, queryQueueItem, queryQueueView) {
+    function getQueueActionColumn(queryQueueType, queryQueueItem, queryQueueView, queueColorMap) {
         var queryQueueListModel = queryQueueView.model,
-            queryFormModelData = queryQueueItem.reRunQueryString.formModelAttrs,
+            queryFormModelData = queryQueueItem.queryReqObj.formModelAttrs,
             status = queryQueueItem.status,
-            queryId = queryQueueItem.queryId,
+            queryId = queryQueueItem.queryReqObj.queryId,
             errorMessage = queryQueueItem.errorMessage,
             reRunTimeRange = queryFormModelData.rerun_time_range,
-            reRunQueryString = queryQueueItem.reRunQueryString,
             actionCell = [];
 
         if(status == 'queued'){
@@ -127,7 +154,8 @@ define([
                 title: 'View Results',
                 iconClass: 'icon-list-alt',
                 onClick: function(rowIndex){
-                    queryQueueView.renderQueryQueueResult(queryQueueListModel.getItem(rowIndex), 'queue');
+                    var queryQueueItem = queryQueueListModel.getItem(rowIndex);
+                    viewOrRerunQueryAction (queryQueueItem, queryQueueView, queueColorMap, 'queue');
                 }
             });
         } else if(errorMessage != null) {
@@ -150,7 +178,8 @@ define([
                 title: 'Rerun Query',
                 iconClass: 'icon-repeat',
                 onClick: function(rowIndex){
-                    queryQueueView.renderQueryQueueResult(queryQueueListModel.getItem(rowIndex), 'rerun');
+                    var queryQueueItem = queryQueueListModel.getItem(rowIndex);
+                    viewOrRerunQueryAction (queryQueueItem, queryQueueView, queueColorMap, 'rerun');
                 }
             });
         }
@@ -159,52 +188,80 @@ define([
             title: 'Delete Query',
             iconClass: 'icon-trash',
             onClick: function(rowIndex){
-                var modalId = queryFormModelData.query_prefix + cowl.QE_WHERE_MODAL_SUFFIX;
-
-                cowu.createModal({
-                    modalId: modalId,
-                    className: 'modal-700',
-                    title: 'Delete Query', btnName: 'Confirm',
-                    body: 'Are you sure you want to remove this query?',
-                    onSave: function () {
-                        var postDataJSON = {queryQueue: queryQueueType, queryIds: [queryId]},
-                            ajaxConfig = {
-                                url: '/api/qe/query',
-                                type: 'DELETE',
-                                data: JSON.stringify(postDataJSON)
-                            };
-                        contrail.ajaxHandler(ajaxConfig, null, function() {
-                            var queryQueueGridId = cowc.QE_HASH_ELEMENT_PREFIX + queryQueueType + cowc.QE_QUEUE_GRID_SUFFIX;
-
-                            $(queryQueueGridId).data('contrailGrid').refreshData();
-                        });
-                        $("#" + modalId).modal('hide');
-                    }, onCancel: function () {
-                        $("#" + modalId).modal('hide');
-                    }
-                });
+                showDeleteQueueModal(queryQueueType, [queryId], queueColorMap)
             }
         });
 
         return actionCell;
-
     };
 
-    function getQueryQueueTabViewConfig(queryQueueItem, queryResultType) {
+    function viewOrRerunQueryAction (queryQueueItem, queryQueueView, queueColorMap, queryType) {
+        if (_.compact(queueColorMap).length < 5) {
+            var queryId = queryQueueItem.queryReqObj.queryId,
+                badgeColorKey = getBadgeColorkey4Value(queueColorMap, null),
+                tabLinkId = cowl.QE_FLOW_QUEUE_TAB_ID + '-' + queryId + '-tab-link';
+
+            if ($('#' + tabLinkId).length === 0) {
+                queryQueueView.renderQueryQueueResult(queryQueueItem, queryType, queueColorMap, function() {
+                    $('#label-icon-badge-' + queryId).addClass('icon-badge-color-' + badgeColorKey);
+                    $('#' + tabLinkId).find('.contrail-tab-link-icon').addClass('icon-badge-color-' + badgeColorKey);
+                    $('#' + tabLinkId).data('badge_color_key', badgeColorKey)
+                    queueColorMap[badgeColorKey] = queryId;
+                });
+            } else {
+                //TODO - create info modal
+                showInfoWindow('Query Result has already been loaded.', 'Error');
+            }
+        } else {
+            //TODO - create info modal
+            showInfoWindow('Maximum 5 Query Results can be viewed. Please close the existing query results to view new queries from queue.', 'Error');
+        }
+    }
+
+    function showDeleteQueueModal(queryQueueType, queryIds, queueColorMap) {
+        var modalId = queryQueueType + cowl.QE_WHERE_MODAL_SUFFIX;
+        cowu.createModal({
+            modalId: modalId,
+            className: 'modal-700',
+            title: 'Delete Query', btnName: 'Confirm',
+            body: 'Are you sure you want to remove this query?',
+            onSave: function () {
+                var postDataJSON = {queryQueue: queryQueueType, queryIds: queryIds},
+                    ajaxConfig = {
+                        url: '/api/qe/query',
+                        type: 'DELETE',
+                        data: JSON.stringify(postDataJSON)
+                    };
+                contrail.ajaxHandler(ajaxConfig, null, function() {
+                    var queryQueueGridId = cowc.QE_HASH_ELEMENT_PREFIX + queryQueueType + cowc.QE_QUEUE_GRID_SUFFIX;
+                    $(queryQueueGridId).data('contrailGrid').refreshData();
+
+                    $.each(queryIds, function(queryIdKey, queryIdValue) {
+                        removeBadgeColorFromQueryQueue(queueColorMap, queryIdValue.queryId);
+                    });
+                });
+                $("#" + modalId).modal('hide');
+            }, onCancel: function () {
+                $("#" + modalId).modal('hide');
+            }
+        });
+    }
+
+    function getQueryQueueTabViewConfig(queryQueueItem, queryResultType, queueColorMap) {
         return {
             elementId: cowl.QE_FLOW_QUEUE_TAB_ID,
             view: "TabsView",
             viewConfig: {
                 theme: cowc.TAB_THEME_WIDGET_CLASSIC,
-                tabs: getFlowSeriesTabConfig(queryQueueItem, queryResultType)
+                tabs: getFlowSeriesTabConfig(queryQueueItem, queryResultType, queueColorMap)
             }
         };
     };
 
-    function getFlowSeriesTabConfig(queryQueueItem, queryResultType) {
-        var formData = formatFormData(queryQueueItem),
-            queryPrefix = formData.query_prefix,
-            queryId = formData.queryId,
+    function getFlowSeriesTabConfig(queryQueueItem, queryResultType, queueColorMap) {
+        var queryFormAttributes = queryQueueItem.queryReqObj,
+            queryPrefix = queryFormAttributes.formModelAttrs.query_prefix,
+            queryId = queryFormAttributes.queryId,
             queryIdSuffix = '-' + queryId,
             tabViewName = '', tabTitle = '', tabElementId;
 
@@ -225,11 +282,21 @@ define([
             view: "SectionView",
             tabConfig: {
                 activate: function(event, ui) {
-                    var flowSeriesGridId = cowl.QE_FLOW_SERIES_GRID_ID + queryIdSuffix;
+                    var flowResultGridId = '';
 
-                    if ($('#' + flowSeriesGridId).data('contrailGrid')) {
-                        $('#' + flowSeriesGridId).data('contrailGrid').refreshView();
+                    if (queryPrefix === cowc.FS_QUERY_PREFIX) {
+                        flowResultGridId = cowl.QE_FLOW_SERIES_GRID_ID + queryIdSuffix;
+                    } else if (queryPrefix === cowc.FR_QUERY_PREFIX) {
+                        flowResultGridId = cowl.QE_FLOW_RECORD_GRID_ID + queryIdSuffix;
                     }
+
+                    if ($('#' + flowResultGridId).data('contrailGrid')) {
+                        $('#' + flowResultGridId).data('contrailGrid').refreshView();
+                    }
+                },
+                removable: true,
+                onRemoveTab: function () {
+                    removeBadgeColorFromQueryQueue(queueColorMap, queryId);
                 }
             },
             viewConfig: {
@@ -242,7 +309,7 @@ define([
                                 viewPathPrefix: "reports/qe/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
-                                    formData: formData,
+                                    queryFormAttributes: queryFormAttributes,
                                     queryResultType: queryResultType,
                                     widgetConfig: {
                                         elementId: cowl.QE_FLOW_SERIES_ID + queryIdSuffix + '-widget',
@@ -270,12 +337,27 @@ define([
         }];
     }
 
-    function formatFormData(queryQueueItem) {
-        var formModelData = queryQueueItem.reRunQueryString.formModelAttrs;
+    function removeBadgeColorFromQueryQueue(queueColorMap, queryId) {
+        var badgeColorKey = getBadgeColorkey4Value(queueColorMap, queryId);
 
-        formModelData.queryId = queryQueueItem.queryId;
+        if (badgeColorKey !== null) {
+            $('#label-icon-badge-' + queryId).removeClass('icon-badge-color-' + badgeColorKey);
+            queueColorMap[badgeColorKey] = null;
 
-        return formModelData;
+        }
+    }
+
+    function getBadgeColorkey4Value(queueColorMap, value) {
+        var badgeColorKey = null;
+
+        $.each(queueColorMap, function(colorKey, colorValue) {
+            if (colorValue === value) {
+                badgeColorKey = colorKey;
+                return false;
+            }
+        });
+
+        return badgeColorKey
     }
 
     return QueryQueueView;

@@ -16,22 +16,22 @@ define([
                 var viewConfig = self.attributes.viewConfig,
                     queryId = viewConfig['queryId'],
                     selectArray = viewConfig['selectArray'],
+                    flowSeriesChartGridId = viewConfig.flowSeriesChartGridId,
                     modelMap = contrail.handleIfNull(self.modelMap, {});
 
                 modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL] = new ContrailListModel({data: []});
                 modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL] = getChartDataModel(queryId, modelMap);
-                self.renderView4Config(self.$el, null, getQueryChartViewConfig(queryId, selectArray, modelMap), null, null, modelMap);
+                self.renderView4Config(self.$el, null, getQueryChartViewConfig(queryId, selectArray, modelMap, self, flowSeriesChartGridId), null, null, modelMap);
             }
         }
     });
 
-    function getQueryChartViewConfig(queryId, selectArray, modelMap) {
+    function getQueryChartViewConfig(queryId, selectArray, modelMap, parentView, flowSeriesChartGridId) {
         var queryFormModel = modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL],
             flowUrl = '/api/qe/query/chart-groups?queryId=' + queryId,
             queryIdSuffix = '-' + queryId,
             aggregateSelectFields = qewu.getAggregateSelectFields(queryFormModel),
             flowSeriesLineChartId = cowl.QE_FLOW_SERIES_LINE_CHART_ID + queryIdSuffix,
-            flowSeriesChartGridId = cowl.QE_FLOW_SERIES_CHART_GRID_ID + queryIdSuffix,
             chartAxesOptions = {};
 
         $.each(aggregateSelectFields, function(selectFieldKey, selectFieldValue) {
@@ -68,7 +68,7 @@ define([
                                                     custom: {
                                                         filterChart: {
                                                             enable: true,
-                                                            viewConfig: getFilterConfig(queryId, aggregateSelectFields, modelMap)
+                                                            viewConfig: getFilterConfig(queryId, aggregateSelectFields, flowSeriesLineChartId, modelMap)
                                                         }
                                                     }
                                                 }
@@ -91,7 +91,7 @@ define([
                                 elementId: flowSeriesChartGridId,
                                 view: "GridView",
                                 viewConfig: {
-                                    elementConfig: getChartGridViewConfig(flowUrl, selectArray, modelMap)
+                                    elementConfig: getChartGridViewConfig(flowUrl, selectArray, modelMap, parentView)
                                 }
                             }
                         ]
@@ -114,15 +114,13 @@ define([
         return badgeColorKey
     }
 
-    function getChartGridViewConfig(flowUrl, selectArray, modelMap) {
+    function getChartGridViewConfig(flowUrl, selectArray, modelMap, parentView) {
         var columnDisplay = qewgc.getColumnDisplay4Grid(cowc.FLOW_CLASS, cowc.QE_FLOW_TABLE_TYPE, selectArray),
             lineWithFocusChartModel = modelMap[cowc.UMID_FLOW_SERIES_LINE_CHART_MODEL],
-            chartListModel = modelMap[cowc.UMID_FLOW_SERIES_CHART_MODEL],
             chartColorAvailableKeys = ['id_0', null, null, null, null],
             display = [
                 {
-                    id: 'fc-badge', field:"", name:"", resizable: false, sortable: false,
-                    width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
+                    id: 'fc-badge', field:"", name:"", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
                     formatter: function(r, c, v, cd, dc){
                         return '<span class="label-icon-badge label-icon-badge-' + dc.cgrid + ((r === 0) ? ' icon-badge-color-0' : '') + '" data-color_key="' + ((r === 0) ? 0 : -1) + '"><i class="icon-circle"></i></span>';
                     },
@@ -147,6 +145,16 @@ define([
                                 }
                             }
                         }
+                    }
+                },
+                {
+                    id: 'fc-details', field:"", name:"", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
+                    formatter: function(r, c, v, cd, dc){
+                        return '<i class="icon-external-link-sign"></i>';
+                    },
+                    cssClass: 'cell-hyperlink-blue',
+                    events: {
+                        onClick: qewgc.getOnClickFlowRecord(parentView, parentView.modelMap[cowc.UMID_FLOW_SERIES_FORM_MODEL])
                     }
                 }
             ];
@@ -250,10 +258,8 @@ define([
         return chartData
     };
 
-    function getFilterConfig(queryId, aggregateSelectFields, modelMap) {
-        var queryIdSuffix = '-' + queryId,
-            flowSeriesLineChartId = cowl.QE_FLOW_SERIES_LINE_CHART_ID + queryIdSuffix,
-            filterConfig = {
+    function getFilterConfig(queryId, aggregateSelectFields, flowSeriesLineChartId, modelMap) {
+        var filterConfig = {
             groups: [
                 {
                     id: 'by-node-color',

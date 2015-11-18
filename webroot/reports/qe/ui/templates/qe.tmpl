@@ -10,7 +10,7 @@
         </div>
         <div class="row-fluid" data-bind="visible: select_data_object().requestState() == cowc.DATA_REQUEST_STATE_SUCCESS_NOT_EMPTY">
             <div class="row-fluid">
-                <a class="pull-right selectAllLink " data-bind="text: select_data_object().select_all_text, click: select_data_object().on_select_all"></a>
+                <a class="pull-right selectAllLink " data-bind="text: (select_data_object().checked_fields().length == 0) ? 'Select All' : 'Clear All', click: select_data_object().on_select_all"></a>
             </div>
             <div class="row-fluid row-fluid-3n" data-bind="foreach: select_data_object().select_fields()">
                 <div class="span4">

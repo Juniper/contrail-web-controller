@@ -53,6 +53,7 @@ define([
                 $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
+            self.model.is_request_in_progress(true);
             self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
         },
 
@@ -125,7 +126,6 @@ define([
                                 }
                             ]
                         },
-                        /*
                         {
                             columns: [
                                 {
@@ -138,13 +138,13 @@ define([
                                 }
                             ]
                         },
-                        */
                         {
                             columns: [
                                 {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
                                         class: 'display-inline-block margin-0-10-0-0',
+                                        disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
                                         }
