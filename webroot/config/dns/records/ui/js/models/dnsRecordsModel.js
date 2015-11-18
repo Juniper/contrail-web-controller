@@ -14,7 +14,8 @@ define([
                 "record_ttl_seconds": null,
                 "record_name": null,
                 "record_class": "IN",
-                "record_data": null
+                "record_data": null,
+                "record_mx_preference" : null
             },
             "user_created_record_type": "A",
             "record_name_label" : "Host Name",
@@ -73,6 +74,16 @@ define([
                     ]);
                 }
 
+                //send mx preference to backend only for MX type
+                if(newdnsRecordsData['user_created_record_type'] === 'MX') {
+                    var mxPreference =
+                        newdnsRecordsData['virtual_DNS_record_data']['record_mx_preference'];
+                    newdnsRecordsData['virtual_DNS_record_data']['record_mx_preference'] =
+                        parseInt(mxPreference);
+                } else {
+                    delete newdnsRecordsData['virtual_DNS_record_data']['record_mx_preference'];
+                }
+
                 newdnsRecordsData['virtual_DNS_record_data']
                     ['record_type'] = newdnsRecordsData[
                         'user_created_record_type'];
@@ -105,6 +116,10 @@ define([
                 delete newdnsRecordsData.virtual_network_back_refs;
                 delete newdnsRecordsData.href;
                 delete newdnsRecordsData.parent_href;
+                delete newdnsRecordsData.record_name_label;
+                delete newdnsRecordsData.record_name_placeholder;
+                delete newdnsRecordsData.record_data_label;
+                delete newdnsRecordsData.record_data_placeholder;
 
                 var url, type;
                 if (mode === "create") {
@@ -219,11 +234,12 @@ define([
                 },
                 'virtual_DNS_record_data.record_data':  function(value, attr, finalObj){
                      var recType = finalObj.user_created_record_type;
-                     if(recType === 'PTR') {
-                         if(value == null || value.trim() == '') {
-                             return 'Host Name is required';
-                         }
-                     } else if(recType === 'A'){
+                     if(value == null || value.trim() == '') {
+                         var recDataLabel = finalObj.record_data_label;
+                         var art = recDataLabel === 'IP Address' ? 'an ' : 'a ';
+                         return "Enter " + art + recDataLabel ;
+                     }
+                     if(recType === 'A'){
                          if(!validateIPAddress(value)){
                              return 'Enter a valid IP address in xxx.xxx.xxx.xxx format';
                          }
@@ -246,6 +262,14 @@ define([
                              }
                         } else {
                             return 'Time To Live value should be  a number';
+                        }
+                    }
+                },
+                'virtual_DNS_record_data.record_mx_preference': function(value, attr, finalObj){
+                    if(finalObj['user_created_record_type'] === 'MX') {
+                        if(value == null || value.trim() == '' || isNaN(parseInt(value)) ||
+                            value < 0 || value > 65535) {
+                            return 'Enter a value between 0 - 65535';
                         }
                     }
                 }

@@ -51,7 +51,7 @@ define([
                     rowIndex);
 
             dnsRecordsModel = new DnsRecordsModel(dataItem);
-            showHideModelAttr(dnsRecordsModel);
+            subscribeModelAttrChanges(dnsRecordsModel);
             DnsRecordsEditView.model = dnsRecordsModel;
             DnsRecordsEditView.renderEditDnsRecords({
                 "title": ctwl.TITLE_EDIT_DNS_RECORD +
@@ -197,6 +197,10 @@ define([
                                     key: 'virtual_DNS_record_data[record_class]',
                                     label: 'DNS Record Class',
                                     templateGenerator: 'TextGenerator'
+                                }, {
+                                    key: 'virtual_DNS_record_data[record_mx_preference]',
+                                    label: 'MX Preference',
+                                    templateGenerator: 'TextGenerator'
                                 }]
                             }]
                         }]
@@ -206,13 +210,7 @@ define([
         };
     };
 
-    function showHideModelAttr(model) {
-        model.dnsServ = ko.computed((function() {
-            if (this.user_created_record_type() == 'NS') {
-                return true;
-            }
-            return false;
-        }), model);
+    function subscribeModelAttrChanges(model) {
         model.__kb.view_model.model().on('change:user_created_record_type',
             function(recordModel, recordType){
                 switch(recordType){
@@ -237,6 +235,12 @@ define([
                     case 'NS' :
                         model.record_name_label("Sub Domain");
                         model.record_name_placeholder("Enter a Sub Domain");
+                        break;
+                    case 'MX' :
+                        model.record_name_label("Domain");
+                        model.record_name_placeholder("Enter a Domain");
+                        model.record_data_label("Host Name");
+                        model.record_data_placeholder("Enter Host Name");
                         break;
                 };
             }
@@ -280,7 +284,7 @@ define([
                     'configObj');
 
                 var dnsRecordsModel = new DnsRecordsModel();
-                showHideModelAttr(dnsRecordsModel);
+                subscribeModelAttrChanges(dnsRecordsModel);
                 DnsRecordsEditView.model = dnsRecordsModel;
                 DnsRecordsEditView.renderAddDnsRecords({
                     "title": ctwl.TITLE_CREATE_DNS_RECORD,
