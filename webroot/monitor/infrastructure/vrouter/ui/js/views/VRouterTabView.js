@@ -67,7 +67,10 @@ define([
                 } else if (selTab == 'Routes') {
                    currGrid = $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
                    data('contrailGrid');
-                }
+                } else if (selTab == 'Instances') {
+                    currGrid = $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
+                    data('contrailGrid');
+                 }
                 if(currGrid != null)
                     currGrid.refreshView();
             },

@@ -583,6 +583,7 @@ define([
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX +
             '-results';
 
+        this.VROUTER_INSTANCE_GRID_ID = 'vrouter_instances_grid';
         //Database node labels
         this.DATABASENODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/databasenode/ui/js/views/';
