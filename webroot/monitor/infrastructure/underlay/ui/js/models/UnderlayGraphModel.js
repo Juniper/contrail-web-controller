@@ -266,114 +266,46 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                    });
                }
            });
-           /*for(var i=0; i<links.length; i++) {
+           for(var i=0; i<links.length; i++) {
                var link = links[i];
-               if(link.endpoints[0] === link.endpoints[1])
-                   continue;
                var endpoints = link.endpoints;
                var endpoint0 = endpoints[0];
                var endpoint1 = endpoints[1];
                var linkName = endpoint0 + "<->" + endpoint1;
                var altLinkName = endpoint1 + "<->" + endpoint0;
-               if(null !== elMap["node"] && typeof elMap["node"] !== "undefined") {
-                   if(null == elMap["node"][endpoint0] &&
-                        typeof elMap["node"][endpoint0] == "undefined") {
-                       var node = jsonPath(nodes,
-                           '$[?(@.name=="' + endpoint0 + '")]');
-                       if(false !== node && node.length === 1) {
-                           node = node[0];
-                           var nodeName = node.name;
-                           var currentEl = this.createNode(node);
-                           conElements.push(currentEl);
-                           var currentElId = currentEl.id;
-                           elMap.node[nodeName] = currentElId;
-                           if(adjacencyList.hasOwnProperty(nodeName)) {
-                               elements.push(currentEl);
-                           }
-                       }
-                   }
-                   if(null == elMap["node"][endpoint1] &&
-                       typeof elMap["node"][endpoint1] == "undefined") {
-                       var node = jsonPath(nodes,
-                           '$[?(@.name=="' + endpoint1 + '")]');
-                       if(false !== node && node.length === 1) {
-                           node = node[0];
-                           var nodeName = node.name;
-                           var currentEl = this.createNode(node);
-                           conElements.push(currentEl);
-                           var currentElId = currentEl.id;
-                           elMap.node[nodeName] = currentElId;
-                           if(adjacencyList.hasOwnProperty(nodeName)) {
-                               elements.push(currentEl);
-                           }
-                       }
-                   }
+               var endpoint0Node = jsonPath(nodes, '$[?(@.name=="' + endpoint0 + '")]');
+               if(false !== endpoint0Node && endpoint0Node.length === 1) {
+                   endpoint0Node = endpoint0Node[0];
+               } else {
+                   continue;
                }
-
-               if(null !== elMap["link"] && typeof elMap["link"] !== "undefined") {
-                   if((null == elMap["link"][linkName] &&
-                       typeof elMap["link"][linkName] == "undefined") ||
-                       null == elMap["link"][altLinkName] &&
-                       typeof elMap["link"][altLinkName] == "undefined") {
-                       var parentNode = jsonPath(nodes,
-                           '$[?(@.name=="' + endpoint0 + '")]');
-                       if(false !== parentNode && parentNode.length === 1) {
-                           parentNode = parentNode[0];
-                           var parentNodeType = parentNode.node_type;
-                           var parentId = elMap.node[parentNode.name];
-                           var childNode = jsonPath(nodes,
-                               '$[?(@.name=="' + endpoint1 + '")]');
-                           if(false !== childNode && childNode.length === 1) {
-                               childNode = childNode[0];
-                               var childNodeType = childNode.node_type;
-                               var childId = elMap.node[childNode.name];
-                               var link_type = parentNodeType.split("-")[0][0] +
-                                   parentNodeType.split("-")[1][0] + '-' +
-                                   childNodeType.split("-")[0][0] +
-                                   childNodeType.split("-")[1][0];
-                               var linkEl = this.createLink(link,
-                                   link_type, parentId, childId);
-                               conElements.push(linkEl);
-                               var currentLinkId = linkEl.id;
-                               elMap.link[linkName] = currentLinkId;
-                               elMap.link[altLinkName] = currentLinkId;
-                               if(adjacencyList.hasOwnProperty(endpoint0) &&
-                                   adjacencyList.hasOwnProperty(endpoint1)) {
-                                   linkElements.push(linkEl);
-                               }
-                           }
-                       }
-                   } else {
-                       //Check if already added to linkElements to be rendered. If yes, do nothing.
-                       linkEl = jsonPath(linkElements,
-                           '$[?(@.id=="' + elMap["link"][linkName] + '")]');
-                       if(typeof linkEl === "object" && linkEl.length === 1) {
-                           //already exists, dont do anything.
-                       } else {
-                           //Check in Graph. If available, add again to render.
-                           var linkEl = this.getCell(elMap["link"][linkName]);
-                           if(null !== linkEl && typeof linkEl !== "undefined") {
-                               if(adjacencyList.hasOwnProperty(endpoint0) &&
-                                   adjacencyList.hasOwnProperty(endpoint1)) {
-                                   linkElements.push(linkEl);
-                               }
-                           } else {
-                               //Check if this element already created. If yes, add to linkElements if this link
-                               // exists in adjList
-                               linkEl = jsonPath(conElements,
-                                   '$[?(@.id=="' + elMap["link"][linkName] + '")]');
-                               if(typeof linkEl === "object" &&
-                                    linkEl.length === 1) {
-                                   if(adjacencyList.hasOwnProperty(endpoint0) &&
-                                       adjacencyList.hasOwnProperty(endpoint1)) {
-                                       linkElements.push(linkEl[0]);
-                                   }
-                               }
-                           }
-                       }
-                   }
+               var endpoint1Node = jsonPath(nodes, '$[?(@.name=="' + endpoint1 + '")]');
+               if(false !== endpoint1Node && endpoint1Node.length === 1) {
+                   endpoint1Node = endpoint1Node[0];
+               } else {
+                   continue;
                }
-           }*/
+               var endpoint0NodeType = endpoint0Node.node_type;
+               var endpoint1NodeType = endpoint1Node.node_type;
+               var link_type = endpoint0NodeType.split("-")[0][0] +
+                   endpoint0NodeType.split("-")[1][0] + '-' +
+                   endpoint1NodeType.split("-")[0][0] +
+                   endpoint1NodeType.split("-")[1][0];
+               if(null !== elMap["node"] && typeof elMap["node"] !== "undefined" &&
+                   null !== elMap["node"][endpoint0] && typeof elMap["node"][endpoint0] !== "undefined" &&
+                   null !== elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined" &&
+                   null == elMap["link"][linkName] && typeof elMap["link"][linkName] === "undefined" &&
+                   null == elMap["link"][linkName] && typeof elMap["link"][altLinkName] === "undefined") {
+                   linkElements.push(
+                       self.createLink(link, link_type, elMap["node"][endpoint0], elMap["node"][endpoint1]));
+                   var currentLink =
+                       linkElements[linkElements.length - 1];
+                   var currentLinkId = currentLink.id;
+                   conElements.push(currentLink);
+                   elMap.link[linkName] = currentLinkId;
+                   elMap.link[altLinkName] = currentLinkId;
+               }
+           }
            this.connectedElements = conElements;
            // Links must be added after all the elements. This is because when the links
            // are added to the graph, link source/target
