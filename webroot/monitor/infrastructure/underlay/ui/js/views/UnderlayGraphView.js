@@ -529,16 +529,25 @@ define([
                              graph.model.selectedElement.set({
                                  'nodeType': ctwc.PROUTER,
                                  'nodeDetail': nodeDetails});
+                             graph.model.selectedElement.set({
+                                 'nodeType': '',
+                                 'nodeDetail': {}},{silent:true});
                              break;
                          case 'contrail.VirtualRouter':
                              graph.model.selectedElement.set({
                                  'nodeType': ctwc.VROUTER,
                                  'nodeDetail': nodeDetails});
+                             graph.model.selectedElement.set({
+                                 'nodeType': '',
+                                 'nodeDetail': {}},{silent:true});
                              break;
                          case 'contrail.VirtualMachine':
                              graph.model.selectedElement.set({
                                  'nodeType': ctwc.VIRTUALMACHINE,
                                  'nodeDetail': nodeDetails});
+                             graph.model.selectedElement.set({
+                                 'nodeType': '',
+                                 'nodeDetail': {}},{silent:true});
                              break;
                          case 'link':
                              var targetElement =
@@ -562,6 +571,9 @@ define([
                              graph.model.selectedElement.set({
                                  'nodeType': ctwc.UNDERLAY_LINK,
                                  'nodeDetail': linkDetail});
+                             graph.model.selectedElement.set({
+                                 'nodeType': '',
+                                 'nodeDetail': {}},{silent:true});
                              break;
                          }
                  },

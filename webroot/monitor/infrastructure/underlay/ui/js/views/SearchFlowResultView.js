@@ -26,11 +26,14 @@ define([
         getViewConfig: function (serverCurrentTime) {
             var self = this, viewConfig = self.attributes.viewConfig,
                 queryFormModel = this.model,
+                limit = parseInt(queryFormModel.limit()),
                 reqObj = {
                     async: 'false',
-                    chunkSize: parseInt(queryFormModel.limit()),
+                    chunkSize: limit,
                     autoLimit: 'false'
-                },
+                };
+                queryFormModel.filters("limit: "+limit);
+                queryFormModel.filter_json(JSON.stringify({limit: limit}));
                 postDataObj =
                     queryFormModel.getQueryRequestPostData(serverCurrentTime, reqObj),
                 searchFlowGridColumns =
