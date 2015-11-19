@@ -141,8 +141,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'ACL',
-                    icon : 'icon-table'
+                    text: 'ACL'
                 },
                 customControls : monitorInfraUtils.getGridPaginationControls(),
                 defaultControls: {
@@ -162,6 +161,19 @@ define([
                     detail: ctwu.getDetailTemplateConfigToDisplayRawJSON()
                 },
                 dataSource: {
+                },
+                statusMessages: {
+                    loading: {
+                        text: 'Loading ACLs..',
+                    },
+                    empty: {
+                        text: 'No ACLs to display'
+                    },
+                    errorGettingData: {
+                        type: 'error',
+                        iconClasses: 'icon-warning',
+                        text: 'Error in getting Data.'
+                    }
                 }
             },
             columnHeader: {

@@ -77,7 +77,7 @@ define([
 
                     obj['analyticsDetails'] = getAnalyticsNodeDetails(result);
 
-                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu']);
+                    obj['cpu'] = monitorInfraParsers.getCpuText(obj['cpu'],'--');
 
                     obj['lastLogTimestamp'] = getLastLogTime(result);
 
