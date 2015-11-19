@@ -335,13 +335,14 @@ function initActions() {
                     destVN = getFQNofVN(selectedDomain, selectedProject, destVN);
                 }
                 var destPorts = $($(ruleTuple[6]).find("input")).val();
-                var applyServicesEnabled = $($(ruleTuple[7]).find("input"))[0].checked;
-                var mirrorServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked
+                var loggingEnabled = $($(ruleTuple[7]).find("input"))[0].checked;
+                var applyServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked;
+                var mirrorServicesEnabled = $($(ruleTuple[9]).find("input"))[0].checked
                 
                 var applyServices = [];
                 var mirrorTo = [];
                 if(applyServicesEnabled == true) {
-                    var id = $($(ruleTuple[7]).find("input"))[0].id;
+                    var id = $($(ruleTuple[8]).find("input"))[0].id;
                     var div_id = id + "_root";
                     applyServices = 
                         //$($("#" + div_id).find("select")).data("contrailMultiselect").value();
@@ -349,7 +350,7 @@ function initActions() {
                 }
                 
                 if(mirrorServicesEnabled == true) {
-                    var id = $($(ruleTuple[8]).find("input"))[0].id;
+                    var id = $($(ruleTuple[9]).find("input"))[0].id;
                     var div_id = id + "_root";
                     var div = $("#" + div_id);
                     mirrorTo = 
@@ -367,6 +368,7 @@ function initActions() {
 
                 rule["action_list"] = {};
                 rule["action_list"]["simple_action"] = action;
+                rule["action_list"]["log"] = loggingEnabled;
                 rule["action_list"]["gateway_name"] = null;
                 
                 if (applyServices && applyServices.length > 0) {
@@ -961,6 +963,19 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     divRowFluidDestPorts.setAttribute("style","width:4%");    
     divRowFluidDestPorts.appendChild(inputTxtDestPorts);
 
+    var selectLog = document.createElement("input");
+    selectLog.type = "checkbox";
+    selectLog.className = "ace-input";
+    selectLog.id = "cb_log_" + len;
+    var spanLog = document.createElement("span");
+    spanLog.className = "ace-lbl";
+    spanLog.innerHTML = "&nbsp;";
+    var divRowFluidLog = document.createElement("div");
+    divRowFluidLog.className = "span1";
+    divRowFluidLog.setAttribute("style","width:4%");
+    divRowFluidLog.appendChild(selectLog);
+    divRowFluidLog.appendChild(spanLog);
+
     var selectApplyService = document.createElement("input");
     selectApplyService.type = "checkbox";
     selectApplyService.className = "ace-input";
@@ -1014,6 +1029,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
     divRowFluidMargin10.appendChild(selectDivDirection);
     divRowFluidMargin10.appendChild(selectDivDestNetwork);
     divRowFluidMargin10.appendChild(divRowFluidDestPorts);
+    divRowFluidMargin10.appendChild(divRowFluidLog);
     divRowFluidMargin10.appendChild(divRowFluidApplyService);
     divRowFluidMargin10.appendChild(divRowFluidMirrorTo);
     divRowFluidMargin10.appendChild(divPullLeftMargin5Plus);
@@ -1199,6 +1215,10 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
                     $(selectAction).data("contrailDropdown").text(action);
                 } else {
                     $(selectAction).data("contrailDropdown").enable(false);
+                }
+                var logging = rule["action_list"]["log"];
+                if (null !== logging && typeof logging !== "undefined" && true === logging) {
+                    selectLog.setAttribute("checked", true);
                 }
             }
         } else {
@@ -2008,8 +2028,8 @@ function validate() {
                 action_value = "pass";  
             }
             action_value = action_value.toLowerCase();
-            var applyServicesEnabled = $($(ruleTuple[7]).find("input"))[0].checked;
-            var mirrorServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked
+            var applyServicesEnabled = $($(ruleTuple[8]).find("input"))[0].checked;
+            var mirrorServicesEnabled = $($(ruleTuple[9]).find("input"))[0].checked
             var applyServices = [];
             var mirrorTo = [];
             var srcGrpName = getSelectedGroupName($($($(ruleTuple[2]).find('a'))).find('i'));
@@ -2039,7 +2059,7 @@ function validate() {
             }
 
             if(applyServicesEnabled == true) {
-                var id = $($(ruleTuple[7]).find("input"))[0].id;
+                var id = $($(ruleTuple[8]).find("input"))[0].id;
                 var div_id = id + "_root";
                 applyServices = 
                     $($("#" + div_id).find("div.span11")[1]).data("contrailMultiselect").value();
@@ -2203,7 +2223,7 @@ function validate() {
             }
 
             if(mirrorServicesEnabled == true) {
-                var id = $($(ruleTuple[8]).find("input"))[0].id;
+                var id = $($(ruleTuple[9]).find("input"))[0].id;
                 var div_id = id + "_root";
                 var div = $("#" + div_id);
                 mirrorTo = 
