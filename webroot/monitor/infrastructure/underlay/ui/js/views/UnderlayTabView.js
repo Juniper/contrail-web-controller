@@ -30,9 +30,6 @@ define([
                            } else if (nodeType == ctwc.UNDERLAY_LINK) {
                                showLinkTrafficStatistics(nodeDetails, underlayTabView);
                            }
-                           graphView.model.selectedElement.set({
-                               'nodeType': '',
-                               'nodeDetail': {}},{silent:true});
                         });
                         callBackExecuted = true;
                     }
@@ -158,7 +155,7 @@ define([
 
     function showVMTabs (nodeDetails, underlayTabView) {
         var ip = [],vnList = [],intfLen = 0,vmName,
-        srcVN = "",instDetails = {},inBytes = 0,
+        instDetails = {},inBytes = 0,
         outBytes = 0;
         var instanceUUID = nodeDetails['name'];
         var instanceDetails = nodeDetails;
@@ -181,12 +178,7 @@ define([
                     intfObjFip['virtual_network'],'-'));
             }
         }
-        var vnNameArr =
-            ifNull(vnList[0].split(':'),[]);
-        var networkName = ifNull(vnNameArr[2],'-');
-        var projectName =
-            '('+ifNull(vnNameArr[1],'-')+')';
-        srcVN += networkName +" "+ projectName;
+
         var instanceObj = {
             instanceUUID: instanceUUID,
             networkFQN: vnList[0],
