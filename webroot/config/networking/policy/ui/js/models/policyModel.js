@@ -109,6 +109,8 @@ define([
                                       policeyRule[i].action_list();
                     newPoliceyRule[i].action_list.simple_action =
                       (policeyRule[i].simple_action()).toLowerCase();
+                    newPoliceyRule[i].action_list.log =
+                            (policeyRule[i].log_checked());
                     newPoliceyRule[i].application =
                                       policeyRule[i].application();
                     newPoliceyRule[i].rule_sequence = {};
