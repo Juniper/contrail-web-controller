@@ -421,7 +421,7 @@ define([
                                  name: 'Action',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 50,
+                                 width: 60,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "simple_action",
@@ -436,7 +436,7 @@ define([
                                  name: 'Protocol',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 50,
+                                 width: 60,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "protocol",
@@ -451,10 +451,10 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'Source',
                                     class: "",
-                                    width: 150,
+                                    width: 225,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                        width: 150,
+                                        width: 225,
                                         path: 'src_address',
                                         dataBindValue: 'src_address()',
                                         elementConfig: {
@@ -491,7 +491,7 @@ define([
                                  name: 'Ports',
                                  view: "FormInputView",
                                  class: "",
-                                 width: 100,
+                                 width: 40,
                                  viewConfig: {
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'src_ports_text',
@@ -503,7 +503,7 @@ define([
                                  name: 'Direction',
                                  view: "FormDropdownView",
                                  class: "",
-                                 width: 100,
+                                 width: 60,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "direction",
@@ -519,10 +519,10 @@ define([
                                         "FormHierarchicalDropdownView",
                                     name: 'Destination',
                                     class: "span2",
-                                    width: 150,
+                                    width: 225,
                                     viewConfig: {
                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                        width: 150,
+                                        width: 225,
                                         path: 'dst_address',
                                         dataBindValue: 'dst_address()',
                                         elementConfig: {
@@ -558,7 +558,7 @@ define([
                                  name: 'Ports',
                                  view: "FormInputView",
                                  class: "",
-                                 width: 100,
+                                 width: 40,
                                  viewConfig: {
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     path: 'dst_ports_text',
@@ -566,11 +566,23 @@ define([
                                     }
                                 },
                                 {
+                                 elementId: 'log_checked',
+                                 name: 'Log',
+                                 view: "FormCheckboxView",
+                                 class: "",
+                                 width: 25,
+                                 viewConfig: {
+                                    templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
+                                    path: 'log_checked',
+                                    dataBindValue: 'log_checked()'
+                                    }
+                                },
+                                {
                                  elementId: 'apply_service_check',
                                  name: 'Services',
                                  view: "FormCheckboxView",
                                  class: "",
-                                 width: 50,
+                                 width: 60,
                                  viewConfig: {
                                     templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                     path: 'apply_service_check',
@@ -582,7 +594,7 @@ define([
                                  name: 'Mirror',
                                  view: "FormCheckboxView",
                                  class: "",
-                                 width: 50,
+                                 width: 60,
                                  viewConfig: {
                                      templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW,
                                      path: 'mirror_to_check',

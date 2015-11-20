@@ -14,7 +14,9 @@ define([
             'action_list':{'simple_action':'pass',
                 'apply_service':null,
                 'gateway_name':null,
+                'log':false,
                 'mirror_to':{'analyzer_name':null}},
+            'log_checked':false,
             'apply_service_check' : false,
             'mirror_to_check' : false,
             'application':[],
@@ -71,6 +73,7 @@ define([
                 modelConfig["service_instance"] = null;
             }
             modelConfig["mirror"] = modelConfig["action_list"]["mirror_to"];
+            modelConfig["log_checked"] = modelConfig["action_list"]["log"];
             if(modelConfig["service_instance"] == null)
                 modelConfig["apply_service_check"] = false;
             else
