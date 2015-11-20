@@ -67,12 +67,14 @@ define([
                         $("#" + modalId).find("#" + modalId + "-form"),
                         self.model, getConfigureViewConfig
                         (disableElement, allData),
-                        'policyValidations', null, null, function(){
+                        null, null, null, function(){
                             self.model.showErrorAttr(prefixId +
                                             cowc.FORM_SUFFIX_ID, false);
                             Knockback.applyBindings(self.model,
                                             document.getElementById(modalId));
                             kbValidation.bind(self);
+                            //kbValidation.bind(self,{collection:
+                            //      self.model.model().attributes.policyRules});
                    });
                    return;
                }
@@ -399,12 +401,20 @@ define([
                 },{
                     columns: [{
                         elementId: 'PolicyRules',
-                        view: "FormEditableGridView",
+                        view: "FormCollectionView",
+                        //view: "FormEditableGridView",
                         viewConfig: {
                             label:"Policy Rules",
                             path: "PolicyRules",
                             validation: 'ruleValidation',
+                            templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
                             collection: "policyRules",
+                            rows:[{
+                               rowActions: [
+                                   {onClick:
+                                   "function() { $root.deleteRules($data, this); }",
+                                    iconClass: 'icon-minus'}
+                               ],
                             columns: [
                                 {
                                  elementId: 'simple_action',
@@ -578,18 +588,21 @@ define([
                                      path: 'mirror_to_check',
                                      dataBindValue: 'mirror_to_check()'
                                     }
-                                },
+                                }]
+                            },{
+                            columns: [
                                 {
                                      elementId: 'service_instance',
-                                     name: 'Service Instance',
+                                     name: 'Services',
                                      view: "FormMultiselectView",
-                                     class: "wrap",
                                      width: 100,
                                      viewConfig: {
-                                         class: "wrap",
+                                         colSpan: "11",
+                                         class: "span10",
+                                         placeHolder:"Select a service to apply...",
                                          //visible: "$root.showService",
                                          visible: "apply_service_check()",
-                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_LEFT_LABEL_VIEW,
                                          path: "service_instance",
                                          dataBindValue: "service_instance()",
                                          elementConfig:{
@@ -597,17 +610,20 @@ define([
                                              dataValueField: "value",
                                              data:allData.service_instances
                                          }
-                                         }
-                                },{
+                                     }
+                                }
+                            ]
+                            },{
+                            columns: [{
                                      elementId: 'mirror',
                                      name: 'Mirror',
-                                     view: "FormMultiselectView",
-                                     class: "wrap",
+                                     view: "FormDropdownView",
                                      width: 100,
                                      viewConfig: {
-                                         class: "wrap",
+                                         placeHolder:"Select a service to mirror...",
+                                         colSpan: "11",
                                          visible: "mirror_to_check()",
-                                         templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,
                                          path: "mirror",
                                          dataBindValue: "mirror()",
                                          elementConfig:{
@@ -617,16 +633,17 @@ define([
                                          }
                                     }
                             }],
-                            rowActions: [
+                            /*rowActions: [
                                 {onClick:
                                 "function() { $root.deleteRules($data, this); }",
                                  iconClass: 'icon-minus'}
-                            ],
+                            ]*/
+                        }],
                             gridActions: [
                                 {onClick: "function() { addRule(); }",
                                  buttonTitle: "Add Rule"}
                             ]
-                        }
+                    }
                     }]
                 }]
             }

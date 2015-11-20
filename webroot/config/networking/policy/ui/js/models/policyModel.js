@@ -169,10 +169,6 @@ define([
                         } else {
                             newPoliceyRule[i].action_list.mirror_to = {};
                             var mirrorVal = policeyRule[i].mirror();
-                            var mirrorValSplit = policeyRule[i].mirror().split(",");
-                            if(mirrorValSplit.length > 0) {
-                                mirrorVal = mirrorValSplit[0];
-                            }
                             newPoliceyRule[i].action_list.mirror_to.analyzer_name =
                                  mirrorVal;
                         }
@@ -260,7 +256,7 @@ define([
             } else {
                 if (contrail.checkIfFunction(callbackObj.error)) {
                     callbackObj.error(this.getFormErrorText
-                                     (ctwl.LOGICAL_ROUTER_PREFIX_ID));
+                                     (ctwl.POLICY_PREFIX_ID));
                 }
             }
             return returnFlag;
