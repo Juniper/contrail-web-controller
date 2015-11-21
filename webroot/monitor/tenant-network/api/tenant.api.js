@@ -72,7 +72,7 @@ function getVNOutStats(vnJSON)
 function getVNState (req, res) 
 {
 	var vn_name = req.param('vn'),
-		url = '/analytics/virtual-network/' + vn_name;
+		url = '/analytics/uves/virtual-network/' + vn_name;
 	opServer.authorize(function () {
 		opServer.api.get(url, function (error, jsonData) {
 			if (error) {
@@ -165,7 +165,7 @@ function parseVNDetails(data,vnName)
 function getVNDetails (req, res) 
 {
 	var vn_name = req.param('vn'),
-		url = '/analytics/virtual-network/' + vn_name;
+		url = '/analytics/uves/virtual-network/' + vn_name;
 	logutils.logger.debug('VN connected networks URL', url);
 	opServer.authorize(function () {
 		opServer.api.get(url, function (error, jsonData) {
@@ -239,7 +239,7 @@ function parseFlowData(data)
 function getVMState (req, res) 
 {
 	var vm_name = req.param('vm');
-	var url = '/analytics/virtual-machine/' + vm_name;
+	var url = '/analytics/uves/virtual-machine/' + vm_name;
 	opServer.authorize(function () {
 		opServer.api.get(url, function (error, projectsJSON) {
 			commonUtils.handleJSONResponse(error, res, projectsJSON);
@@ -347,7 +347,7 @@ function populateVNVMData (resultJSON, vmInsJSON, vnvm)
 function getVNVM (req, res) 
 {
 	var url, vnm = req.param('vnvm');
-	url = '/analytics/virtual-machine/' + vnm;
+	url = '/analytics/uves/virtual-machine/' + vnm;
 	opServer.authorize(function () {
 		opServer.api.get(url, function (error, vmInsJSON) {
 			var resultJSON = {};
@@ -432,7 +432,7 @@ function getProjectVNs(url, callback) {
 			if(vnCount != 0) {
 				for (j = 0; j < vnCount; j += 1) {
 					fq_name = vnsJSON['virtual-networks'][j].fq_name;
-					url = '/analytics/virtual-machine/' + fq_name.join(':');
+					url = '/analytics/uves/virtual-machine/' + fq_name.join(':');
 					instanceUrls[j] = url;
 				}
 				async.map(instanceUrls, commonUtils.getJsonViaInternalApi(opServer.api, true), function (err, results) {
@@ -608,7 +608,7 @@ function getProjectData (configObj, callback)
                     for (i = 0; i < vnCount; i += 1) {
                         uuid = vnJSON["virtual-networks"][i].uuid;
                         fq_name = vnJSON['virtual-networks'][i].fq_name;
-                        url = '/analytics/virtual-network/' + fq_name.join(':');
+                        url = '/analytics/uves/virtual-network/' + fq_name.join(':');
                         logutils.logger.debug('getProjectDetails URL:', url);
                         uveUrls[i] = [url];
                     }
@@ -851,7 +851,7 @@ function parseNetworkDetails (resultJSON, appData, jsonData, callback)
             resultJSON['policyList'][i]['uuid'] = nwPolicyRefs[i]['uuid'];
         }
         /* Now get the rest of the data from UVE */
-        var url = '/analytics/virtual-network/' + resultJSON['fq-name'];
+        var url = '/analytics/uves/virtual-network/' + resultJSON['fq-name'];
         opServer.api.get(url, function(err, vnUve) {
             parseVNUveData(resultJSON, vnUve);
             callback(resultJSON);
