@@ -228,8 +228,8 @@ define([
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);
 
             return function(domainSelectedValueData) {
-                var domain = domainSelectedValueData.name,
-                    defaultDropdownOptions = {
+
+                var defaultDropdownOptions = {
                         urlValue: (urlValue !== null) ? urlValue.split(':').splice(1, 1).join(':') : null,
                         cookieKey: cowc.COOKIE_PROJECT,
                         parentSelectedValueData: domainSelectedValueData
@@ -240,7 +240,9 @@ define([
                     elementId: ctwl.PROJECTS_BREADCRUMB_DROPDOWN,
                     view: "BreadcrumbDropdownView",
                     viewConfig: {
-                        modelConfig: ctwu.getProjectListModelConfig(domain),
+                        modelConfig:
+                            ctwu.getProjectListModelConfig(domainSelectedValueData,
+                                                           dropdownOptions),
                         dropdownOptions: dropdownOptions
                     }
                 }

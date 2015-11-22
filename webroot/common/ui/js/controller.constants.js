@@ -225,14 +225,20 @@ define([
         this.UNDERLAY_VM_TAB_INDEXES = [5, 6, 7, 8, 9, 10];
         this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16, 17];
 
-        this.getProjectsURL = function (domain) {
-            //If the role is admin then we will display all the projects else the projects which has access
-            var url = '/api/tenants/projects/' + domain,
+        this.getProjectsURL = function (domainObj, getProjectsFromIdentity) {
+            /* Default: get projects from keystone or API Server as specified in
+             * config.global.js, getDomainProjectsFromApiServer is true, then
+             * from API Server else from keystone
+             */
+            var url = '/api/tenants/config/projects/' + domainObj.value,
                 role = globalObj['webServerInfo']['role'],
                 activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode'];
 
-            if (activeOrchModel == 'vcenter' || role.indexOf(roles['TENANT']) > -1) {
-                url = '/api/tenants/config/projects';
+            /* In case of vcenter, get the projects from API Server only */
+            if ((activeOrchModel == 'vcenter') ||
+                (null == getProjectsFromIdentity) ||
+                (false == getProjectsFromIdentity)) {
+                url = '/api/tenants/projects/' + domainObj.name;
             }
             return url;
         };

@@ -19,10 +19,10 @@ define([
         getLogicalRouterConfig: function (viewConfig) {
             var hashParams = viewConfig.hashParams,
                 customProjectDropdownOptions = {
+                    getProjectsFromIdentity: true,
                     childView: {
                         init: this.getLogicalRouter(viewConfig),
                     },
-                    allDropdownOption: ctwc.ALL_PROJECT_DROPDOWN_OPTION
                 },
                 customDomainDropdownOptions = {
                     childView: {

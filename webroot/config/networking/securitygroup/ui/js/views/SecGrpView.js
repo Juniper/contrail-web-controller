@@ -17,6 +17,7 @@ define([
     function getSecGrpConfig (viewConfig) {
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
+                getProjectsFromIdentity: true,
                 childView: {
                     init: getSecGrp(viewConfig),
                 }
