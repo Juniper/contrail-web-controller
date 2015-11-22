@@ -17,6 +17,7 @@ define([
     function getQuotasConfig (viewConfig) {
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
+                config: true,
                 childView: {
                     init: getQuotas(viewConfig),
                 }

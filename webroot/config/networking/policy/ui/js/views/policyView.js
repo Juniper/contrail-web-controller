@@ -18,6 +18,7 @@ define([
         getPoliciesConfig: function (viewConfig) {
             var hashParams = viewConfig.hashParams,
                 customProjectDropdownOptions = {
+                    config: true,
                     childView: {
                         init: this.getPolicies(viewConfig),
                     }/*,

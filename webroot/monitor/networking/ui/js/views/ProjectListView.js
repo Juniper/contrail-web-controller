@@ -22,7 +22,7 @@ define([
         return {
             remote: {
                 ajaxConfig: {
-                    url: ctwc.getProjectsURL(ctwc.DEFAULT_DOMAIN),
+                        url: ctwc.getProjectsURL({name: ctwc.DEFAULT_DOMAIN}),
                         type: 'GET'
                 },
                 hlRemoteConfig: nmwgc.getProjectDetailsHLazyRemoteConfig(),

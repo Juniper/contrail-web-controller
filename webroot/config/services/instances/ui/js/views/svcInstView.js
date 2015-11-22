@@ -18,6 +18,7 @@ define([
     function getSvcInstConfig (viewConfig) {
         var hashParams = viewConfig.hashParams,
             customProjectDropdownOptions = {
+                config: true,
                 childView: {
                     init: getSvcInst(viewConfig),
                 }

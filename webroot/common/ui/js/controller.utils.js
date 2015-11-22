@@ -198,11 +198,12 @@ define([
             return contrailListModel;
         };
 
-        this.getProjectListModelConfig = function(domain) {
+        this.getProjectListModelConfig = function(domainObj, dropdownOptions) {
             return {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.getProjectsURL(domain)
+                        url: ctwc.getProjectsURL(domainObj,
+                                                 dropdownOptions)
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
@@ -221,7 +222,8 @@ define([
                     }
                 },
                 cacheConfig : {
-                    ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS, domain),
+                    ucid: ctwc.get(ctwc.UCID_BC_DOMAIN_ALL_PROJECTS,
+                                   domainObj.name),
                     loadOnTimeout: false,
                     cacheTimeout: cowc.PROJECT_CACHE_UPDATE_INTERVAL
                 }
@@ -261,7 +263,7 @@ define([
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.getProjectsURL(domain)
+                        url: ctwc.getProjectsURL({name: domain})
                     },
                     dataParser: function(response) {
                         return  $.map(response.projects, function (n, i) {
