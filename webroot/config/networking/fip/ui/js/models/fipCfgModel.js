@@ -78,15 +78,13 @@ define([
                 var allocType  = newFipCfgData['user_created_alloc_type'];
                 var fqName = newFipCfgData['user_created_floating_ip_pool'].split(":");
 
+                ctwu.deleteCGridData(newFipCfgData);
                 delete newFipCfgData['display_name'];
                 delete newFipCfgData['name'];
                 delete newFipCfgData['uuid'];
                 delete newFipCfgData['user_created_alloc_type'];
                 delete newFipCfgData['user_created_floating_ip_pool'];
                 delete newFipCfgData['virtual_machine_interface_refs'];
-                delete newFipCfgData.errors;
-                delete newFipCfgData.locks;
-                delete newFipCfgData.cgrid;
 
 
                 newFipCfgData['project_refs'] =

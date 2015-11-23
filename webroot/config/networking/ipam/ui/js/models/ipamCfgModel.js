@@ -215,9 +215,7 @@ define([
                 }
 
 
-                delete newipamCfgData.errors;
-                delete newipamCfgData.locks;
-                delete newipamCfgData.cgrid;
+                ctwu.deleteCGridData(newipamCfgData);
                 delete newipamCfgData.id_perms;
                 delete newipamCfgData.user_created;
                 delete newipamCfgData.tenant_dns_server;

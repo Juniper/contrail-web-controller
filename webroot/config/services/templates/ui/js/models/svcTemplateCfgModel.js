@@ -172,10 +172,7 @@ define([
                 newSvcTemplateCfgData['service_template_properties']['interface_type'] =
                     self.getSvcTemplateInterfaceList(newSvcTemplateCfgData);;
 
-
-                delete newSvcTemplateCfgData.errors;
-                delete newSvcTemplateCfgData.locks;
-                delete newSvcTemplateCfgData.cgrid;
+                ctwu.deleteCGridData(newSvcTemplateCfgData);
                 delete newSvcTemplateCfgData.id_perms;
                 delete newSvcTemplateCfgData.interfaces;
                 delete newSvcTemplateCfgData.service_instance_back_refs;

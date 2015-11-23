@@ -687,7 +687,7 @@ define([
         this.CONFIG_LINK_LOCAL_SERVICES_SECTION_ID = 'lls';
         this.CONFIG_LINK_LOCAL_SERVICES_ID =
             'config-link-local-services';
-        this.TITLE_LINK_LOCAL_SERVICES = 'Link Layer Services';
+        this.TITLE_LINK_LOCAL_SERVICES = 'Link Local Services';
         this.LINK_LOCAL_SERVICES_GRID_ID =
             'link-local-services-grid';
         this.LINK_LOCAL_SERVICES_PREFIX_ID = 'link_local_services';

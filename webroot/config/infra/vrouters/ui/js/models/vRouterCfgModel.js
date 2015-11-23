@@ -61,9 +61,7 @@ define([
                     newvRouterCfgData['virtual_router_type'] = null;
                 }
 
-                delete newvRouterCfgData.errors;
-                delete newvRouterCfgData.locks;
-                delete newvRouterCfgData.cgrid;
+                ctwu.deleteCGridData(newvRouterCfgData);
                 delete newvRouterCfgData.id_perms;
                 delete newvRouterCfgData.physical_router_back_refs;
                 delete newvRouterCfgData.href;
