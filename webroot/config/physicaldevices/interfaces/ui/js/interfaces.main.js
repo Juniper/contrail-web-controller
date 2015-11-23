@@ -9,17 +9,15 @@ function ConfigInterfacesLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = rootDir + '/js/views/interfacesView.js',
-            renderFn = paramObject['function'];
+            pathMNView = ctBaseDir + '/config/physicaldevices/interfaces/ui/js/views/interfacesView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
-        check4CTInit(function () {
-            if (self.mnView == null) {
-                requirejs([pathMNView], function (PhysicalDevicesView) {
-                    self.mnView = new PhysicalDevicesView();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
-                self.renderView(renderFn, hashParams);
+        require([pathMNView], function (InterfacesView) {
+            self.interfacesView = new InterfacesView();
+            self.renderView(renderFn, hashParams);
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
             }
         });
     }
@@ -27,7 +25,7 @@ function ConfigInterfacesLoader() {
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderInterfaces':
-                this.mnView[renderFn]({hashParams: hashParams});
+                this.interfacesView[renderFn]({hashParams: hashParams});
                 break;
         }
     };
@@ -40,15 +38,3 @@ function ConfigInterfacesLoader() {
     this.destroy = function () {
     };
 }
-
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
-}
-

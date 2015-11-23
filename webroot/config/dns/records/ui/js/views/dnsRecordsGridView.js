@@ -105,7 +105,7 @@ define([
                     actionCell: rowActionConfig,
                     detail: {
                         template: cowu.generateDetailTemplateHTML(
-                            getDNSDetailsTemplateConfig(),
+                            getDNSRecordsDetailsTemplateConfig(),
                             cowc.APP_CONTRAIL_CONTROLLER)
                     },
                     checkboxSelectable: {
@@ -155,7 +155,7 @@ define([
 
     ];
 
-    function getDNSDetailsTemplateConfig() {
+    function getDNSRecordsDetailsTemplateConfig() {
         return {
             templateGenerator: 'RowSectionTemplateGenerator',
             templateGeneratorConfig: {

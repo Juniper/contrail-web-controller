@@ -28,6 +28,14 @@ define([
 
         this.NETWORKS_GRID_COLUMN_VALUE_CHECK = "Network grid check for a particular column value equality";
 
+        this.PHYSICAL_ROUTERS_GRID_VIEW_COMMON_TEST_MODULE = 'Physical Routers Grid View - Common Tests';
+        this.PHYSICAL_INTERFACES_GRID_VIEW_COMMON_TEST_MODULE = 'Physical Interfaces Grid View - Common Tests';
+        this.BGP_GRID_VIEW_COMMON_TEST_MODULE = 'BGP Routers Grid View - Common Tests';
+        this.DNS_SERVERS_GRID_VIEW_TEST_MODULE = 'DNS Servers Grid View - Common Tests';
+        this.DNS_RECORDS_GRID_VIEW_TEST_MODULE = 'DNS Records Grid View - Common Tests';
+        this.ACTIVE_DNS_GRID_VIEW_TEST_MODULE = 'Active DNS Grid View - Common Tests';
+
+
         this.get = function () {
             var args = arguments;
             return args[0].replace(/\{(\d+)\}/g, function (m, n) {

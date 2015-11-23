@@ -8,18 +8,15 @@ function ConfigPhysicalRoutersLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            rootDir = currMenuObj['resources']['resource'][0]['rootDir'],
-            pathMNView = rootDir + '/js/views/physicalRoutersView.js',
-            renderFn = paramObject['function'];
+            pathMNView = ctBaseDir + '/config/physicaldevices/physicalrouters/ui/js/views/physicalRoutersView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
-        check4CTInit(function () {
-            if (self.mnView == null) {
-                requirejs([pathMNView], function (PhysicalDevicesView) {
-                    self.mnView = new PhysicalDevicesView();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
-                self.renderView(renderFn, hashParams);
+        require([pathMNView], function (PhysicalRoutersView) {
+            self.physicalRoutersView = new PhysicalRoutersView();
+            self.renderView(renderFn, hashParams);
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
             }
         });
     }
@@ -27,7 +24,7 @@ function ConfigPhysicalRoutersLoader() {
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderPhysicalRouters':
-                this.mnView[renderFn]({hashParams: hashParams});
+                this.physicalRoutersView[renderFn]({hashParams: hashParams});
                 break;
         }
     };
@@ -40,15 +37,3 @@ function ConfigPhysicalRoutersLoader() {
     this.destroy = function () {
     };
 }
-
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
-}
-

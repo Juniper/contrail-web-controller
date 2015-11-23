@@ -664,11 +664,12 @@ and need to add the iconClass tag wherever we need to show some icons
                                <resources>
                                    <resource>
                                        <rootDir>/common/ui</rootDir>
+                                       <js>controller.app.js</js>
                                    </resource>
                                    <resource>
                                        <rootDir>/config/dns/servers/ui</rootDir>
                                        <js>dnsServer.main.js</js>
-                                       <class>DnsServerLoader</class>
+                                       <class>configDNSServerLoader</class>
                                        <function>renderDnsServer</function>
                                    </resource>
                                </resources>
@@ -685,7 +686,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                     <rootDir>/config/dns/records/ui</rootDir>
                                     <js>dnsRecords.main.js</js>
                                     <template>dnsRecords.tmpl</template>
-                                    <class>DnsRecordsLoader</class>
+                                    <class>configDNSRecordsLoader</class>
                                     <function>renderDnsRecords</function>
                                 </resource>
                             </resources>

@@ -9,17 +9,15 @@ function ConfigBGPLoader() {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathMNView = rootDir + '/js/views/bgpView.js',
-            renderFn = paramObject['function'];
+            pathMNView = ctBaseDir + '/config/infra/bgp/ui/js/views/bgpView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
-        check4CTInit(function () {
-            if (self.mnView == null) {
-                requirejs([pathMNView], function (BGPView) {
-                    self.mnView = new BGPView();
-                    self.renderView(renderFn, hashParams);
-                });
-            } else {
-                self.renderView(renderFn, hashParams);
+        require([pathMNView], function(BGPView){
+            self.bgpView = new BGPView();
+            self.renderView(renderFn, hashParams);
+            if(contrail.checkIfExist(loadingStartedDefObj)) {
+                loadingStartedDefObj.resolve();
             }
         });
     }
@@ -27,7 +25,7 @@ function ConfigBGPLoader() {
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderBGP':
-                this.mnView[renderFn]({hashParams: hashParams});
+                this.bgpView[renderFn]({hashParams: hashParams});
                 break;
         }
     };
@@ -40,15 +38,3 @@ function ConfigBGPLoader() {
     this.destroy = function () {
     };
 }
-
-function check4CTInit(callback) {
-    if (!ctInitComplete) {
-        requirejs(['controller-init'], function () {
-            ctInitComplete = true;
-            callback()
-        });
-    } else {
-        callback();
-    }
-}
-

@@ -7,7 +7,7 @@ define([
     'contrail-view',
     'config/physicaldevices/interfaces/ui/js/models/interfacesModel',
     'config/physicaldevices/interfaces/ui/js/views/interfacesEditView',
-    'config/physicaldevices/interfaces/ui/js/interfacesFormatters.js'
+    'config/physicaldevices/interfaces/ui/js/interfacesFormatters'
 ], function (_, ContrailView, InterfacesModel, InterfacesEditView,
     InterfacesFormatters) {
     var interfacesEditView = new InterfacesEditView();

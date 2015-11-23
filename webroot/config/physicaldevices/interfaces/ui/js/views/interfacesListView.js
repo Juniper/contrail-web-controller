@@ -80,12 +80,15 @@ define([
             var gridDS = [];
             if(result!= null && result.length > 0) {
                 for(var i = 0; i < result.length; i++) {
-                    var lInterface = result[i]['logical-interface'];
-                    lInterface.type = ctwl.LOGICAL_INF;
-                    lInterface['logical_interface_type'] =
-                        ifNull(lInterface['logical_interface_type'],
-                        ctwl.LOGICAL_INF_L2_TYPE);
-                    gridDS.push(result[i]['logical-interface']);
+                    var lInterface = getValueByJsonPath(result[i],
+                        'logical-interface', null);
+                    if(lInterface !== null) {
+                        lInterface.type = ctwl.LOGICAL_INF;
+                        lInterface['logical_interface_type'] =
+                            ifNull(lInterface['logical_interface_type'],
+                            ctwl.LOGICAL_INF_L2_TYPE);
+                        gridDS.push(result[i]['logical-interface']);
+                    }
                 }
             }
             return gridDS;
@@ -149,7 +152,9 @@ define([
             $.extend(true, newData, gridData);
             for(var j = 0; j < result.length; j++) {
                 for(var i = newData.length - 1; i > -1; i--) {
-                    if(result[j]['logical-interface'].parent_uuid ===
+                    var logicalInf = getValueByJsonPath(result[j],
+                        'logical-interface', null);
+                    if(logicalInf !== null && logicalInf.parent_uuid ===
                         newData[i].uuid){
                         var lInterface = result[j]['logical-interface'];
                         lInterface.type = ctwl.LOGICAL_INF;

@@ -125,12 +125,6 @@ define([
                 title: {
                     text: "DNS Servers"
                 },
-                defaultControls: {
-                    collapseable: true,
-                    exportable: true,
-                    refreshable: false,
-                    searchable: true
-                },
                 advanceControls: getHeaderActionConfig(gridElId)
             },
             body: {
