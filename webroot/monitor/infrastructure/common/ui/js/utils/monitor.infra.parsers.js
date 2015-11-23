@@ -873,7 +873,7 @@ define(
                         });
 
                         $.each(sdata, function (idx, obj) {
-                            var rawJson = obj;
+                            var rawJson = $.extend({},obj,true);
                             obj['vn_name'] = ifNullOrEmptyObject(obj['vn_name'],noDataStr);
                             obj['vm_uuid'] = ifNullOrEmptyObject(obj['vm_uuid'],noDataStr);
                             obj['vm_name'] = ifNullOrEmptyObject(obj['vm_name'],noDataStr);
@@ -938,6 +938,7 @@ define(
                             data = [data];
                         }
                         $.each(data, function (idx, obj) {
+                            //Create clone of obj for rawJson if you are adding/modifying any keys in obj
                             var rawJson = obj, acl = noDataStr, vrf = noDataStr;
                             if(!$.isEmptyObject(obj['acl_uuid'])){
                                 acl = obj['acl_uuid'];
