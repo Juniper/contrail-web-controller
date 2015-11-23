@@ -21,7 +21,7 @@ define([
             cowu.createModal({
                 'modalId': modalId,
                 'className': className,
-                'title': cowl.TITLE_FLOW_DETAILS,
+                'title': cowl.TITLE_SESSION_DETAILS,
                 'body': "<div id='" + modalId + "-body" + "'></div>",
                 'onSave': function () {
                     $("#" + modalId).modal('hide');

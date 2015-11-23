@@ -122,7 +122,7 @@ define([
                 {
                     id: 'fc-badge', field:"", name:"", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
                     formatter: function(r, c, v, cd, dc){
-                        return '<span class="label-icon-badge label-icon-badge-' + dc.cgrid + ((r === 0) ? ' icon-badge-color-0' : '') + '" data-color_key="' + ((r === 0) ? 0 : -1) + '"><i class="icon-circle"></i></span>';
+                        return '<span class="label-icon-badge label-icon-badge-' + dc.cgrid + ((r === 0) ? ' icon-badge-color-0' : '') + '" data-color_key="' + ((r === 0) ? 0 : -1) + '"><i class="icon-sign-blank"></i></span>';
                     },
                     events: {
                         onClick: function(e, dc) {
@@ -150,7 +150,7 @@ define([
                 {
                     id: 'fc-details', field:"", name:"", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: { allow: false },
                     formatter: function(r, c, v, cd, dc){
-                        return '<i class="icon-external-link-sign"></i>';
+                        return '<i class="icon-external-link-sign" title="Analyze Session"></i>';
                     },
                     cssClass: 'cell-hyperlink-blue',
                     events: {
@@ -235,7 +235,7 @@ define([
                         cgrid: 'id_' + colorKey,
                         key: '#' + colorKey + ' Sum(Bytes)',
                         values: [],
-                        color: d3_category5[colorKey]
+                        color: cowc.D3_COLOR_CATEGORY7[colorKey]
                     };
 
                 qewu.addChartMissingPoints(chartDataRow, queryFormModel, aggregateSelectFields);

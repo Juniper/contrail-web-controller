@@ -92,8 +92,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: gridTitle,
-                    icon : 'icon-table'
+                    text: gridTitle
                 },
                 defaultControls: {
                     collapseable: true,

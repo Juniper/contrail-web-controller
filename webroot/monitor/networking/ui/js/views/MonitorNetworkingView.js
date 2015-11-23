@@ -263,7 +263,7 @@ define([
                 networkUUID = networkSelectedValueData.value;
 
             delete hashParams.clickedElement;
-            nmwgrc.setNetworkURLHashParams(hashParams, networkFQN, false);
+            ctwu.setNetworkURLHashParams(hashParams, networkFQN, false);
         }
     }
 
@@ -274,7 +274,7 @@ define([
                 projectUUID = projectSelectedValueData.value;
 
             delete hashParams.clickedElement;
-            nmwgrc.setProjectURLHashParams(hashParams, projectFQN, false);
+            ctwu.setProjectURLHashParams(hashParams, projectFQN, false);
         }
     }
 
@@ -301,7 +301,7 @@ define([
                         columns: [
                             {
                                 elementId: ctwl.FLOWS_GRID_ID,
-                                title: ctwl.TITLE_FLOWS,
+                                title: ctwl.TITLE_FLOW_SERIES,
                                 view: "FlowGridView",
                                 viewPathPrefix: "monitor/networking/ui/js/views/",
                                 app: cowc.APP_CONTRAIL_CONTROLLER,

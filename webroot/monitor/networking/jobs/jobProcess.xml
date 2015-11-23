@@ -8,7 +8,7 @@
     </require>
     <require>
         <define>jobsProcess</define>
-        <path>../../../../common/api/jobsProcess.api</path>
+        <path>../../../common/api/jobsProcess.api</path>
     </require>
     <!-- Define Job Names and the corresponding callback -->
     <item>

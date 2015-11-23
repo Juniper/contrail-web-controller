@@ -342,6 +342,34 @@ module.exports = function (grunt) {
                 },
                 feature: 'nm'
             }
+        },
+        ctUnit: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/common/test/ui/unit/ct.unit.test.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/common/ui/js/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir: __dirname + '/reports/tests/webController/unit/',
+                    outputFile: 'ct-unit-test-results.xml',
+                    suite: 'unit',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/webController/unit/ct-unit-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/webController/unit/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'ct'
+            }
         }
     };
 
@@ -450,14 +478,14 @@ module.exports = function (grunt) {
     };
 
     grunt.registerTask('default', function () {
-        grunt.warn('No Task specified. \n To run all the tests, run:\n grunt runAllTests \n\n ' +
-            'To run specific feature (for eg: nm) tests, run:\n grunt runAllTests:nm\n    OR \n grunt nm\n\n');
+        grunt.warn('No Task specified. \n To run all the tests, run:\n grunt run \n\n ' +
+            'To run specific feature (for eg: nm) tests, run:\n grunt run:nm\n    OR \n grunt nm\n\n');
     });
 
-    grunt.registerTask('runAllTests', 'Web Controller Test Cases', function (feature) {
+    grunt.registerTask('run', 'Web Controller Test Cases', function (feature) {
         if (feature == null) {
             grunt.log.writeln('>>>>>>>> No feature specified. will run all the feature tests. <<<<<<<');
-            grunt.log.writeln('If you need to run specific feature tests only; then run: grunt runAllTests:nm\n\n');
+            grunt.log.writeln('If you need to run specific feature tests only; then run: grunt run:nm\n\n');
             grunt.task.run('karma:runAllTests');
             grunt.log.writeln('Test results: ' + karmaConfig['runAllTests']['options']['htmlReporter']['outputFile']);
             printCoverageReportLoc(karmaConfig['runAllTests']['options']['coverageReporter'])

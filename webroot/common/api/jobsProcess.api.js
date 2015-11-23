@@ -4,7 +4,7 @@
 
 var bgpNode = require('../../monitor/infrastructure/controlnode/jobs/controlnode.jobs.api'),
     computeNode = require('../../monitor/infrastructure/vrouter/jobs/vrouternode.jobs.api'),
-    nwMonJobsApi = require('../../monitor/networking/ui/jobs/network.mon.jobs');
+    nwMonJobsApi = require('../../monitor/networking/jobs/network.mon.jobs');
 
 var jobsProcess = module.exports;
 

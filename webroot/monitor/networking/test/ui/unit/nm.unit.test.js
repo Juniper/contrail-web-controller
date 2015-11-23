@@ -15,7 +15,7 @@ define([
     function getTestConfig() {
         return {
             tests: [
-                {
+                /*{
                     moduleName: 'nm.parsers',
                     modulePathPrefix: 'monitor/networking/ui/js/',
                     suites: [
@@ -25,7 +25,7 @@ define([
                             mockData: NMParsersUnitMockData
                         }
                     ]
-                },
+                },*/
                 {
                     moduleName: 'nm.utils',
                     modulePathPrefix: 'monitor/networking/ui/js/',

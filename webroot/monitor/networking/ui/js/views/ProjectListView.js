@@ -84,7 +84,7 @@ define([
 
     var onScatterChartClick = function(chartConfig) {
         var projectFQN = chartConfig.name;
-        nmwgrc.setProjectURLHashParams(null, projectFQN, true);
+        ctwu.setProjectURLHashParams(null, projectFQN, true);
     };
 
     var getProjectTooltipConfig = function(data) {

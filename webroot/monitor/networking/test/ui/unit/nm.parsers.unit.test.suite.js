@@ -44,17 +44,6 @@ define([
         //
         //}, cotc.SEVERITY_LOW));
 
-        dataParserTestGroup.registerTest(cotr.test("testInstanceDataParser", function() {
-            //Declare the number of assert statements in current test case
-            expect(1);
-            deepEqual(
-                NMParser.instanceDataParser(mockData.getInput({fnName:'instanceDataParser',type:'test1'})),
-                mockData.getOutput({fnName:'instanceDataParser',type:'test1'}),
-                'Test instanceDataParser with valid data'
-            );
-
-        }, cotc.SEVERITY_LOW));
-
         NMParserUnitTestSuite.run(suiteConfig.groups, suiteConfig.severity);
 
     };

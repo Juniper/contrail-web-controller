@@ -3,20 +3,20 @@
  */
 
 var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    config = process.mainModule.exports["config"],
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
+    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
+    config = process.mainModule.exports["config"],
+    flowCache = require('../../../common/api/flowCache.api'),
+    nwMonUtils = require('../../../common/api/nwMon.utils'),
+    qeAPI = require('../../../reports/api/qe.api.js'),
     util = require('util'),
     qs = require('querystring'),
     async = require('async'),
     jsonPath = require('JSONPath').eval,
-    flowCache = require('../../../../common/api/flowCache.api'),
-    nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
-    qeAPI = require('../../../../reports/api/qe.api.js'),
     assert = require('assert'),
     opServer;
 

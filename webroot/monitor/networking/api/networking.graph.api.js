@@ -8,18 +8,18 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
-    config = process.mainModule.exports["config"],
+    authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api'),
     rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    async = require('async'),
-    jsonPath = require('JSONPath').eval,
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
-    infraCmn = require('../../../../common/api/infra.common.api'),
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
-    nwMonUtils = require('../../../../common/api/nwMon.utils'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
+    config = process.mainModule.exports["config"],
+    infraCmn = require('../../../common/api/infra.common.api'),
+    nwMonUtils = require('../../../common/api/nwMon.utils'),
     assert = require('assert'),
-    authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
+    async = require('async'),
+    jsonPath = require('JSONPath').eval;
 
 var opServer = rest.getAPIServer({
     apiName: global.label.OPS_API_SERVER,

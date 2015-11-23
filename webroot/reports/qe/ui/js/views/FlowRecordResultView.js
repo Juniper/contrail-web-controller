@@ -69,7 +69,7 @@ define([
             var frDetailsColumn = [
                 {
                     id: 'fr-details', field: "", name: "", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: {allow: false}, formatter: function (r, c, v, cd, dc) {
-                        return '<i class="icon-external-link-sign"></i>';
+                        return '<i class="icon-external-link-sign" title="Analyze Session"></i>';
                     },
                     cssClass: 'cell-hyperlink-blue',
                     events: {
@@ -114,8 +114,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_FLOW_RECORD,
-                    icon : 'icon-table'
+                    text: cowl.TITLE_FLOW_RECORD
                 },
                 defaultControls: {
                     collapseable: true,
@@ -144,7 +143,7 @@ define([
                     queued: {
                         type: 'status',
                         iconClasses: '',
-                        text: 'Your query has been queued.'
+                        text: cowm.QE_QUERY_QUEUED
                     }
                 }
             },

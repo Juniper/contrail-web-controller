@@ -226,7 +226,7 @@ define([
                         cgrid: 'id_' + colorKey,
                         key: '#' + colorKey,
                         values: [],
-                        color: d3_category5[colorKey]
+                        color: cowc.D3_COLOR_CATEGORY7[colorKey]
                     };
 
                 qewu.addChartMissingPoints(chartDataRow, queryFormModel, aggregateSelectFields);

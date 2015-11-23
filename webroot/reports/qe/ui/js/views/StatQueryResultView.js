@@ -138,8 +138,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_STATS_QUERY,
-                    icon : 'icon-table'
+                    text: cowl.TITLE_STATS_QUERY
                 },
                 defaultControls: {
                     collapseable: true,

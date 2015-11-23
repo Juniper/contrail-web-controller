@@ -926,7 +926,7 @@ define([
                             uuid: projectUUID
                         });
 
-                        nmwgrc.setProjectURLHashParams(null, projectFQN, false);
+                        ctwu.setProjectURLHashParams(null, projectFQN, false);
                     }
 
                     break;
@@ -943,11 +943,11 @@ define([
                         });
 
                         highlightNetwork4ZoomedElement(connectedSelectorId);
-                        nmwgrc.setNetworkURLHashParams(null, networkFQN, false);
+                        ctwu.setNetworkURLHashParams(null, networkFQN, false);
 
                     } else {
                         var projectFQN = networkFQN.split(':').splice(0, 2).join(':');
-                        nmwgrc.setProjectURLHashParams(null, projectFQN, true);
+                        ctwu.setProjectURLHashParams(null, projectFQN, true);
                     }
 
                     break;
@@ -963,9 +963,9 @@ define([
                             uuid: instanceUUID
                         });
 
-                        nmwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, false);
+                        ctwu.setInstanceURLHashParams(null, networkFQN, instanceUUID, false);
                     } else {
-                        nmwgrc.setNetworkURLHashParams(null, networkFQN, true);
+                        ctwu.setNetworkURLHashParams(null, networkFQN, true);
                     }
 
                     break;

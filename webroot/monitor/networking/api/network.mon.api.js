@@ -8,20 +8,21 @@ var cacheApi = require(process.mainModule.exports["corePath"] + '/src/serverroot
     global = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/global'),
     messages = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/messages'),
     commonUtils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/common.utils'),
-    config = process.mainModule.exports["config"],
     rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/rest.api'),
-    async = require('async'),
-    jsonPath = require('JSONPath').eval,
+    authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api'),
     opApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/opServer.api'),
     configApiServer = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/configServer.api'),
-    infraCmn = require('../../../../common/api/infra.common.api'),
     logutils = require(process.mainModule.exports["corePath"] + '/src/serverroot/utils/log.utils'),
-    nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    ctrlGlobal = require('../../../../common/api/global'),
+    infraCmn = require('../../../common/api/infra.common.api'),
+    nwMonUtils = require('../../../common/api/nwMon.utils'),
+    ctrlGlobal = require('../../../common/api/global'),
     nwMonJobs = require('../jobs/network.mon.jobs.js'),
     appErrors = require(process.mainModule.exports["corePath"] + '/src/serverroot/errors/app.errors'),
-    assert = require('assert'),
-    authApi = require(process.mainModule.exports["corePath"] + '/src/serverroot/common/auth.api');
+    config = process.mainModule.exports["config"],
+    async = require('async'),
+    jsonPath = require('JSONPath').eval,
+    assert = require('assert');
+
 
 var opServer = rest.getAPIServer({
     apiName: global.label.OPS_API_SERVER,
@@ -1031,13 +1032,11 @@ function processInstanceReqByLastUUID(lastUUID, count, keyToCompare,
         });
 }
 
-function processVirtualNetworksReqByLastUUID(lastUUID, count, keyToCompare,
-                                             vnList, filtUrl, tenantList, callback) {
-    getOpServerPagedResponseByLastKey(lastUUID, count, keyToCompare, vnList,
-        'virtual-network', filtUrl, tenantList,
+function processVirtualNetworksReqByLastUUID(lastUUID, count, keyToCompare, vnList, filtUrl, tenantList, callback) {
+    getOpServerPagedResponseByLastKey(lastUUID, count, keyToCompare, vnList, 'virtual-network', filtUrl, tenantList,
         function (err, data) {
             callback(err, data);
-        });
+    });
 }
 
 function getOpServerPagedResponseByLastKey(lastKey, count, keyToCompare,
@@ -1228,8 +1227,7 @@ function getVirtualNetworksDetailsByFqn(fqn, lastUUID, count, res, appData) {
                 return;
             }
 
-            processVirtualNetworksReqByLastUUID(lastUUID, count, false, vnList,
-                filtUrl, tenantList, function (err, data) {
+            processVirtualNetworksReqByLastUUID(lastUUID, count, 'name', vnList, filtUrl, tenantList, function (err, data) {
                     commonUtils.handleJSONResponse(err, res, data);
                 });
         });
@@ -1357,7 +1355,7 @@ function getVirtualNetworksDetails(req, res, appData) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
         }
-        processVirtualNetworksReqByLastUUID(lastUUID, count, false, vnList,
+        processVirtualNetworksReqByLastUUID(lastUUID, count, 'name', vnList,
             filtUrl, tenantList, function (err, data) {
                 commonUtils.handleJSONResponse(err, res, data);
             });

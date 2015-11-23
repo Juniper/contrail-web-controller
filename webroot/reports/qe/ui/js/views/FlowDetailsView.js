@@ -96,8 +96,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_FLOWS,
-                    icon: 'icon-table'
+                    text: cowl.TITLE_FLOW_SERIES
                 },
                 defaultControls: {
                     collapseable: false,

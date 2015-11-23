@@ -19,7 +19,7 @@ define([
                 contrailListModel = new ContrailListModel(getNetworkListModelConfig(projectFQN));
 
             self.renderView4Config(self.$el, contrailListModel, getNetworkListViewConfig());
-            nmwgrc.setProject4NetworkListURLHashParams(projectFQN);
+            ctwu.setProject4NetworkListURLHashParams(projectFQN);
         }
     });
 
@@ -97,7 +97,7 @@ define([
 
     var onScatterChartClick = function(chartConfig) {
         var networkFQN = chartConfig['name'];
-        nmwgrc.setNetworkURLHashParams(null, networkFQN, true);
+        ctwu.setNetworkURLHashParams(null, networkFQN, true);
     };
 
     var getNetworkTooltipConfig = function(data) {

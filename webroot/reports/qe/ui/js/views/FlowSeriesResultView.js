@@ -172,8 +172,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_FLOW_SERIES,
-                    icon : 'icon-table'
+                    text: cowl.TITLE_FLOW_SERIES
                 },
                 defaultControls: {
                     collapseable: true,
@@ -203,7 +202,7 @@ define([
                     queued: {
                         type: 'status',
                         iconClasses: '',
-                        text: 'Your query has been queued.'
+                        text: cowm.QE_QUERY_QUEUED
                     }
                 }
             },

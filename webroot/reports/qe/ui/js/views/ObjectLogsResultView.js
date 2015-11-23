@@ -91,14 +91,14 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: cowl.TITLE_OBJECT_LOGS,
-                    icon : 'icon-table'
+                    text: cowl.TITLE_OBJECT_LOGS
                 },
                 defaultControls: {
                     collapseable: true,
                     exportable: true,
                     refreshable: false,
-                    searchable: true
+                    searchable: true,
+                    columnPickable: true
                 }
             },
             body: {

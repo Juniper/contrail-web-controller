@@ -32,7 +32,7 @@ define([
                         columns: [
                             {
                                 elementId: ctwl.PROJECT_FLOW_GRID_ID,
-                                title: ctwl.TITLE_FLOWS,
+                                title: ctwl.TITLE_FLOW_SERIES,
                                 view: "GridView",
                                 viewConfig: {
                                     elementConfig: getProjectFlowGridConfig(flowRemoteConfig, pagerOptions)

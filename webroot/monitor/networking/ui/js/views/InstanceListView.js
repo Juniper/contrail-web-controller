@@ -32,13 +32,13 @@ define([
 
                 self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
                 extendedHashOb[parentHashtype] = parentFQN;
-                nmwgrc.setNetwork4InstanceListURLHashParams(extendedHashOb);
+                ctwu.setNetwork4InstanceListURLHashParams(extendedHashOb);
 
             } else {
                 contrailListModel = new ContrailListModel(getInstanceListModelConfig(null, null));
 
                 self.renderView4Config(self.$el, contrailListModel, getInstanceListViewConfig());
-                nmwgrc.setNetwork4InstanceListURLHashParams({});
+                ctwu.setNetwork4InstanceListURLHashParams({});
             }
         }
     });
@@ -55,7 +55,7 @@ define([
         return {
             remote: {
                 ajaxConfig: ajaxConfig,
-                dataParser: nmwp.instanceDataParser
+                dataParser: ctwp.instanceDataParser
             },
             vlRemoteConfig: {
                 vlRemoteList: ctwgc.getVMDetailsLazyRemoteConfig(ctwc.TYPE_VIRTUAL_MACHINE)
@@ -126,7 +126,7 @@ define([
             vmName = chartConfig['vmName'];
 
         if (contrail.checkIfExist(networkFQN) && !ctwu.isServiceVN(networkFQN)) {
-            nmwgrc.setInstanceURLHashParams(null, networkFQN, instanceUUID, vmName, true);
+            ctwu.setInstanceURLHashParams(null, networkFQN, instanceUUID, vmName, true);
         }
     };
 
