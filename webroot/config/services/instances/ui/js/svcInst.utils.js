@@ -145,7 +145,7 @@ define([
                 columns: [{
                     elementId: 'interfaceType',
                     view: 'FormInputView',
-                    class: "", width: 400,
+                    class: "", width: 375,
                     viewConfig: {
                         label: 'Interface Type',
                         disabled: true,
@@ -157,7 +157,7 @@ define([
                 {
                     elementId: 'virtualNetwork',
                     view: 'FormDropdownView',
-                    class: "", width: 250,
+                    class: "", width: 340,
                     viewConfig: {
                         disabled: isDisabled,
                         templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -179,6 +179,7 @@ define([
                     elementId: 'static-routes-collection',
                     view: "FormCollectionView",
                     viewConfig: {
+                        colSpan:"2",
                         visible:
                             '$root.showHideStaticRTs(interfaceIndex())',
                         path: 'staticRoutes',
@@ -201,7 +202,7 @@ define([
                             columns: [{
                                 elementId: 'prefix',
                                 view: 'FormInputView',
-                                class: "", width: 250,
+                                class: "", width: 385,
                                 viewConfig: {
                                     label: 'Prefix',
                                     templateId:
@@ -213,7 +214,7 @@ define([
                             {
                                 elementId: 'next_hop',
                                 view: 'FormInputView',
-                                class: "", width: 250,
+                                class: "", width: 345,
                                 viewConfig: {
                                     disabled: true,
                                     label: 'Next Hop',
