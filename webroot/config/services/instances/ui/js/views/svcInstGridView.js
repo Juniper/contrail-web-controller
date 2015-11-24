@@ -191,7 +191,7 @@ define([
                                     {
                                         key: 'service_instance_properties',
                                         keyClass: 'span2',
-                                        label: '# Instances',
+                                        label: '# Instance(s)',
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'instCountFormatter'
@@ -311,7 +311,7 @@ define([
                 if (1 == maxInst) {
                     return maxInst + " Instance";
                 } else {
-                    return maxInst + " Instance(s)";
+                    return maxInst + " Instances";
                 }
             }
             return maxInst;
@@ -331,33 +331,33 @@ define([
         if (null != rowData['service_instance_properties']) {
             var svcInstProp = rowData['service_instance_properties'];
             if (null != svcInstProp['management_virtual_network']) {
-                dispStr += 'Management Network : ';
+                dispStr += '<span class="gridLabel">Management: </span>';
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['management_virtual_network']);
                 if (isExpand) {
                     dispStr += '<br>';
                 } else {
-                    dispStr += ', ';
+                    dispStr += ',<br> ';
                 }
             }
             if (null != svcInstProp['left_virtual_network']) {
-                dispStr += "Left Network : ";
+                dispStr += '<span class="gridLabel">Left: </span>';
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['left_virtual_network']);
                 if (isExpand) {
                     dispStr += '<br>';
                 } else {
-                    dispStr += ', ';
+                    dispStr += ',<br> ';
                 }
             }
             if (null != svcInstProp['right_virtual_network']) {
-                dispStr += "Right Network : ";
+                dispStr += '<span class="gridLabel">Right: </span>';
                 dispStr +=
                     getVirtualNetworkDisplay(svcInstProp['right_virtual_network']);
                 if (isExpand) {
                     dispStr += '<br>';
                 } else {
-                    dispStr += ', ';
+                    dispStr += ',<br> ';
                 }
             }
             /* Now check if we have other network */
@@ -372,7 +372,7 @@ define([
                     (intfList[i]['virtual_network'] !=
                      svcInstProp['right_virtual_network'])) {
                     if (false == otherNetAdded) {
-                        dispStr += 'Other Network : ';
+                        dispStr += '<span class="gridLabel">Other: </span>';
                         otherNetAdded = true;
                     }
                     dispStr +=
@@ -451,7 +451,7 @@ define([
                 } else {
                     addrStr += "~~";
                 }
-                addrStr += ' ';
+                addrStr += ' <br>';
             }
             statusDataList.push({id: serId, name: serName, status: serStatus,
                                 address: addrStr, state: pwrState});
@@ -504,9 +504,9 @@ define([
             } else {
                 returnHtml += '<td class="span2">'+ instDetailStr +'</td>';
             }
-            returnHtml += '<td class="span2"><u><a onClick="showViewConsoleWindow(\'' +
+            returnHtml += '<td class="span2"><a onClick="showViewConsoleWindow(\'' +
                 statusDataList[i]['id'] +'\', \''+ statusDataList[i]['name'] +
-                '\');"> View Console </a></u></td>';
+                '\');"> View Console </a></td>';
             returnHtml += '</tr>';
         }
         returnHtml = "<table class='table detailsSub'>" + returnHtml + "</table>";
@@ -630,8 +630,7 @@ define([
             id: 'display_name',
             width: 55,
             field: 'display_name',
-            name: 'Service Instance',
-            cssClass :'cell-text-blue'
+            name: 'Service Instance'
         },
         {
             name: 'Service Template',
@@ -648,7 +647,7 @@ define([
             }
         },
         {
-            name: '# instances',
+            name: '# Instance(s)',
             width: 35,
             formatter: function(row, col, val, d, rowData) {
                 return instCountFormatter(row, col, val, d, rowData);

@@ -179,7 +179,7 @@ define([
                         view: 'FormInputView',
                         viewConfig: {
                             visible: 'showInstCnt',
-                            label: 'Number of instances',
+                            label: 'Number of instance(s)',
                             path: 'no_of_instances',
                             class: 'span6',
                             dataBindValue: 'no_of_instances'
