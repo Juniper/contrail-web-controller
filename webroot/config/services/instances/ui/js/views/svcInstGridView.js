@@ -509,7 +509,7 @@ define([
                 '\');"> View Console </a></u></td>';
             returnHtml += '</tr>';
         }
-        returnHtml = "<table>" + returnHtml + "</table>";
+        returnHtml = "<table class='table detailsSub'>" + returnHtml + "</table>";
         return returnHtml;
     }
 
