@@ -791,9 +791,6 @@ function initActions() {
         if(typeof fwdMode !== "undefined" && "" !== fwdMode) {
             vnConfig["virtual-network"]["virtual_network_properties"]
                 ["forwarding_mode"] = fwdMode;
-        } else {
-            vnConfig["virtual-network"]["virtual_network_properties"]
-                ["forwarding_mode"] = null;
         }
 
         if($("#allow_transit")[0].checked === true)
