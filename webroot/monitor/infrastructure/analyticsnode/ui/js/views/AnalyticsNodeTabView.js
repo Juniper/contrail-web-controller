@@ -113,6 +113,26 @@ define([
                        },
                        renderOnActivate: true
                    }
+               },
+               {
+                   elementId:
+                       ctwl.ANALYTICSNODE_ALARMS_GRID_VIEW_ID,
+                   title: 'Alarms',
+                   view: "AlarmGridView",
+                   viewPathPrefix:
+                       "monitor/alarms/ui/js/views/",
+                   app: cowc.APP_CONTRAIL_CONTROLLER,
+                   viewConfig: $.extend(viewConfig,
+                           {nodeType:monitorInfraConstants.ANALYTICS_NODE}),
+                   tabConfig: {
+                       activate: function(event, ui) {
+                           if ($('#' + ctwl.ALARMS_GRID_ID).data('contrailGrid')) {
+                               $('#' + ctwl.ALARMS_GRID_ID).
+                                   data('contrailGrid').refreshView();
+                           }
+                       },
+                       renderOnActivate: true
+                   }
                }
             ]
         }

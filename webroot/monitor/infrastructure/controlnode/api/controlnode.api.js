@@ -306,7 +306,7 @@ function getControlNodeDetailConfigUVEData (configData, addGen, appData, callbac
     }
     reqUrl = '/analytics/uves/control-node';
     var postData = {};
-    postData['cfilt'] = ['BgpRouterState','NodeStatus','ControlCpuState'];
+    postData['cfilt'] = ['BgpRouterState','NodeStatus','ControlCpuState','UVEAlarms'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
     if (null != addGen) {

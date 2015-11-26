@@ -271,7 +271,8 @@ function getvRouterDetails (req, res, appData)
             'VrouterAgent:control_ip',
             'VrouterAgent:vn_count',
             'VrouterAgent:build_info',
-            'VrouterStatsAgent', 'NodeStatus'];
+            'VrouterStatsAgent', 'NodeStatus',
+            'UVEAlarms'];
     }
 
     opServer.api.post(url,postData,
@@ -401,7 +402,7 @@ function getvRouterDetailConfigUVEData (configData, uuidList, nodeList, addGen,
         'VrouterAgent:total_interface_count',
         'VrouterAgent:down_interface_count', 'VrouterAgent:connected_networks',
         'VrouterAgent:control_ip', 'VrouterAgent:build_info',
-        'VrouterStatsAgent:cpu_share', 'NodeStatus'];
+        'VrouterStatsAgent:cpu_share', 'NodeStatus', 'UVEAlarms'];
     commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
                              postData, opApiServer, null, appData);
     if (null != addGen) {

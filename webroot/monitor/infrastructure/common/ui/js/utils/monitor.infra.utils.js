@@ -662,12 +662,15 @@ define([
             postData = {data:[cfiltObj]};
             return postData;
         }
-
+        
+       
         /**
         * Claculates node status based on process_info & generators
         * ToDo: use getOverallNodeStatusFromGenerators
         */
         self.getOverallNodeStatus = function(d,nodeType,processPath) {
+            //If the flag is set to fetch alarms from analytics use analytics alarms
+
             var status = "--";
             var generatorDownTime;
             //For Analytics node if there are error strings in the UVE display it as Down
@@ -742,6 +745,7 @@ define([
             }
             return status;
         }
+
         self.getOverallNodeStatusFromProcessStateList = function(d) {
             var maxUpTime=0, maxDownTime=0, isAnyNodeDown=false, status = "";
             for(var i=0; i < d.length; i++){
@@ -1058,7 +1062,7 @@ define([
                $.each(data['alerts'],function(idx,obj){
                   if(obj['tooltipAlert'] != false)
                       tooltipAlerts.push({
-                          label : 'Events',
+                          label : 'Alarms',
                           value : ifNull(obj['msg'],"")
                       });
                });

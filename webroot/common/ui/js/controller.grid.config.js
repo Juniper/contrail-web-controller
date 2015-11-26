@@ -9,8 +9,8 @@ define([
         this.alarmsColumns = [
             {
                 field: 'severity',
-                name: 'Severity',
-                minWidth: 100,
+                name: '',
+                minWidth: 30,
                 searchFn: function (d) {
                     return d['severity'];
                 },
@@ -18,7 +18,11 @@ define([
                 formatter : function (r, c, v, cd, dc) {
                     var formattedDiv;
                     if(dc['ack']) {
-                        formattedDiv = '<div data-color="orange" class="circle orange" style="opacity:1"></div>';
+                        if(dc['severity'] === 4) {
+                            formattedDiv = '<div data-color="orange" class="circle orange" style="opacity:1"></div>';
+                        } else if (dc['severity'] === 3) {
+                            formattedDiv = '<div data-color="red" class="circle red" style="opacity:1"></div>';
+                        }
                     } else {
                         if(dc['severity'] === 3) {
                             formattedDiv = '<div data-color="red" class="circle red filled" style="opacity:1"></div>';
@@ -32,17 +36,20 @@ define([
             {
                 field: 'timestamp',
                 name: 'Time',
-                minWidth: 200
+                minWidth: 50
             },
             {
-                field: 'type',
-                name: 'Alert',
-                minWidth: 200
+                field: 'alarm_msg',
+                name: 'Alarm',
+                minWidth: 250,
+//                formatter : function (r, c, v, cd, dc) {
+//                    return dc.description[0].rule;
+//                }
             },
             {
-                field: 'name',
+                field: 'display_name',
                 name: 'Source',
-                minWidth: 200
+                minWidth: 100
             }
         ];
 
@@ -280,6 +287,7 @@ define([
                 title: ctwl.TITLE_ACKNOWLEDGE,
                 iconClass: 'icon-check-sign',
                 width: 80,
+                disabled:true,
                 divider: contrail.checkIfExist(divider) ? divider : false,
                 onClick: onClickFunction
             };

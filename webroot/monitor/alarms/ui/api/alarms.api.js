@@ -25,6 +25,13 @@ function getAlarms(req, res, appData)
     });
 }
 
+function getAlarmTypes(req, res, appData)
+{
+    opApiServer.apiGet('/analytics/alarm-types', appData, function(err, result) {
+        commonUtils.handleJSONResponse(err, res, result);
+    });
+}
+
 function getAlarmsAsync(dataObj, callback)
 {
     var url = dataObj.reqUrl;
@@ -34,4 +41,36 @@ function getAlarmsAsync(dataObj, callback)
     });
 }
 
+function ackAlarms(req, res, appData)
+{
+    var alarms = req.body;
+    var alarmsLength = alarms.length;
+    var reqUrl = '/analytics/alarms/acknowledge';
+    var dataObjArr = [];
+    console.log('inside ack');
+
+    for(i = 0; i < alarmsLength; i++) {
+        commonUtils.createReqObj(dataObjArr, reqUrl, global.HTTP_REQUEST_POST,
+                                alarms[i], null, null, appData);
+    }
+    
+    if(dataObjArr.length > 0) {
+        async.map(dataObjArr,
+            commonUtils.getAPIServerResponse(opApiServer.apiPost, true),
+            function(error, results) {
+            console.log('got results');
+                if (error) {
+                   commonUtils.handleJSONResponse(error, res, null);
+                   return;
+                }
+                commonUtils.handleJSONResponse(error, res, results);
+            }
+        );
+    } else {
+        commonUtils.handleJSONResponse(error, res, []);
+    }
+}
+
 exports.getAlarms = getAlarms;
+exports.getAlarmTypes = getAlarmTypes;
+exports.ackAlarms = ackAlarms;

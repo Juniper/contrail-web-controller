@@ -203,6 +203,19 @@ define(
                             cacheConfig : {
                             // ucid: smwc.UCID_ALL_CLUSTER_LIST
                             }
+                        },
+                        statusMessages: {
+                            loading: {
+                                text: 'Loading Virtual Routers..',
+                            },
+                            empty: {
+                                text: 'No Virtual Routers to display'
+                            },
+                            errorGettingData: {
+                                type: 'error',
+                                iconClasses: 'icon-warning',
+                                text: 'Error in getting Data.'
+                            }
                         }
                     }
                 };
