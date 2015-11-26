@@ -135,7 +135,7 @@ define([
                         class: 'span12',
                         rows: [
                             {
-                                title: 'vRouter',
+                                title: 'Virtual Router',
                                 theme: 'widget-box',
                                 keyClass: 'label-blue',
                                 templateGenerator: 'BlockListTemplateGenerator',

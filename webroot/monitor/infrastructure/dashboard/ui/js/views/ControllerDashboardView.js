@@ -44,7 +44,7 @@ define([
         var vRouterListModel = new VRouterListModel();
 
         return [{
-            title: 'vRouters',
+            title: 'Virtual Routers',
             view: VRouterDashboardView,
             model: vRouterListModel,
             downCntFn: dashboardUtils.getDownNodeCnt
