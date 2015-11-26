@@ -388,6 +388,7 @@ define([
         this.CONFIGNODE_DETAILS_SCHEMA_CHART_WIDGET = 'config_node_details_schema_chart_widget';
         this.CONFIGNODE_CONSOLE_LOGS_VIEW_ID =
             'config_node_console_logs_view';
+        this.CONFIGNODE_ALARMS_GRID_VIEW_ID = "config_node_alarms_grid_view_id";
 
         //Control node labels
         this.CONTROLNODE_VIEWPATH_PREFIX =
@@ -439,7 +440,8 @@ define([
         this.CONTROLNODE_ROUTES_RESULT_VIEW =
             'control_node_route_results_view';
         this.CONTROLNODE_ROUTES_RESULTS = 'controlroutes-results';
-
+        this.CONTROLNODE_ALARMS_GRID_VIEW_ID =
+            "control_node_alarms_grid_view_id";
 
         //vRouter summary page labels
         this.VROUTER_VIEWPATH_PREFIX =
@@ -447,6 +449,7 @@ define([
         this.VROUTER_SUMMARY_PAGE_ID = 'monitor-vrouter-nodes';
         this.VROUTER_SUMMARY_URL =
             '/api/admin/monitor/infrastructure/vrouters/summary';
+//            'vRouters_1000_latest.json';
         this.VROUTER_SUMMARY_TITLE = 'Virtual Routers';
         this.VROUTER_SUMMARY_GRID_ID = 'vrouter-nodes-grid';
         this.VROUTER_SUMMARY_CROSSFILTER_ID =
@@ -533,6 +536,8 @@ define([
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
         this.VROUTER_FLOWS_TAB_IDX = 4;
 
+        this.VROUTER_ALARMS_GRID_VIEW_ID = "vrouter_alarms_grid_view_id";
+
         this.VROUTER_INSTANCE_GRID_ID = 'vrouter_instances_grid';
 
         this.VROUTER_CONSOLE_LOGS_VIEW_ID =
@@ -572,6 +577,7 @@ define([
         this.DATABASENODE_DETAILS_CHART_WIDGET =
             'database_details_chart_widget';
         this.DATABASENODE_TABS_ID = 'database_node_tabs';
+        this.DATABASENODE_ALARMS_GRID_VIEW_ID = "database_node_alarms_grid_view_id";
         this.CACHE_DATABASENODE = 'cache-database-nodes';
 
         //Analytics node labels
@@ -626,6 +632,7 @@ define([
         this.ANALYTICSNODE_QEQUERIES_TITLE = 'QE Queries';
         this.ANALYTICSNODE_CONSOLE_LOGS_VIEW_ID =
             'analytics_node_console_logs_view';
+        this.ANALYTICSNODE_ALARMS_GRID_VIEW_ID = "analytics_node_alarms_grid_view_id";
 
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';
@@ -972,7 +979,7 @@ define([
         this.TITLE_DEL_SVC_APPLIANCE_SET = 'Delete Service Appliance Set';
         this.TITLE_CREATE_SVC_APPLIANCE_SET = 'Create Service Appliance Set';
         this.SVC_APPLIANCE_SET_DETAILS = 'Service Appliance Set Details';
- 
+
     };
     return CTLabels;
 });

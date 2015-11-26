@@ -13,18 +13,7 @@ define([
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
 
-            var listModelConfig = {
-                remote: {
-                    ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_ALARM_DETAILS_IN_CHUNKS, 50, $.now()),
-                        type: "GET"
-                    },
-                    dataParser: ctwp.alarmDataParser
-                }
-            };
-
-            var contrailListModel = new ContrailListModel(listModelConfig);
-            self.renderView4Config(this.$el, contrailListModel, getAlarmsListViewConfig());
+            self.renderView4Config(this.$el, null, getAlarmsListViewConfig());
         }
     });
 
