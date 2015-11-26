@@ -37,7 +37,7 @@ function load() {
 
 function initComponents() {
     dynamicID = 0;
-    //dynamicFlowAgingTimeoutID = 0;
+    dynamicFlowAgingTimeoutID = 0;
     $("#gridGlobalConfig").contrailGrid({
         header : {
             title : {
@@ -868,11 +868,12 @@ function clearFlowAgingTimeoutEntries() {
 }
 
 function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
-    //dynamicFlowAgingTimeoutID++;
-    var id =  len;
+    dynamicFlowAgingTimeoutID++;
+    var id =  dynamicFlowAgingTimeoutID;
     var protocalDiv = document.createElement("div");
     protocalDiv.className = "span12";
     protocalDiv.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_ddProtocal");
+    protocalDiv.setAttribute("style", "margin-left:7px;");
     var protocalParentDiv = document.createElement("div");
     protocalParentDiv.className = "span3";
     protocalParentDiv.appendChild(protocalDiv);
@@ -880,7 +881,8 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     var inputTxtPort = document.createElement("input");
     inputTxtPort.type = "text";
     inputTxtPort.className = "span12";
-    inputTxtPort.setAttribute("placeholder", "0 (All Ports)");
+    inputTxtPort.setAttribute("placeholder", "All Ports");
+    inputTxtPort.setAttribute("style", "margin-left:6px;");
     inputTxtPort.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtPort");
     var portParentDiv = document.createElement("div");
     portParentDiv.className = "span3";
@@ -890,6 +892,7 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     inputTxtTimeout.type = "text";
     inputTxtTimeout.className = "span12";
     inputTxtTimeout.setAttribute("placeholder", "180");
+    inputTxtTimeout.setAttribute("style", "margin-left:6px;");
     inputTxtTimeout.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtTimeout");
     var timeoutParentDiv = document.createElement("div");
     timeoutParentDiv.className = "span3";
@@ -901,7 +904,8 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     iBtnAddRule.setAttribute("title", "Add Flow Aging Timeouts below");
 
     var divPullLeftMargin5Plus = document.createElement("div");
-    divPullLeftMargin5Plus.className = "pull-left margin-5";
+    divPullLeftMargin5Plus.className = "pull-left";
+    divPullLeftMargin5Plus.setAttribute("style", "margin:5px 5px 5px 19px;");
     divPullLeftMargin5Plus.appendChild(iBtnAddRule);
 
     var iBtnDeleteRule = document.createElement("i");
@@ -914,7 +918,7 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
 
     var divRowFluidMargin5 = document.createElement("div");
-    divRowFluidMargin5.className = "row-fluid margin-0-0-5";
+    divRowFluidMargin5.className = "row-fluid";
     divRowFluidMargin5.appendChild(protocalParentDiv);
     divRowFluidMargin5.appendChild(portParentDiv);
     divRowFluidMargin5.appendChild(timeoutParentDiv);
