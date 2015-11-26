@@ -37,7 +37,7 @@ function load() {
 
 function initComponents() {
     dynamicID = 0;
-    //dynamicFlowAgingTimeoutID = 0;
+    dynamicFlowAgingTimeoutID = 0;
     $("#gridGlobalConfig").contrailGrid({
         header : {
             title : {
@@ -342,12 +342,12 @@ function initActions() {
             var flowAgingTimeoutList = [];
             for (var i = 0; i < flowAgingTimeoutTuples.length; i++) {
                 var id = getID(String($("#flowAgingTimeoutTuples").children()[i].id));
-                var protocal =  $('#flowAgingTimeoutTuples_' + id + '_ddProtocal').data('contrailDropdown').value();
+                var protocol =  $('#flowAgingTimeoutTuples_' + id + '_comboProtocol').data('contrailCombobox').value();
                 var port = $('#flowAgingTimeoutTuples_' + id + '_txtPort').val();
                 port = port != null && port.trim() != '' ? parseInt(port) : 0;
                 var timeout = $('#flowAgingTimeoutTuples_' + id + '_txtTimeout').val();
                 timeout = timeout != null && timeout.trim() != '' ? parseInt(timeout) : 180;
-                flowAgingTimeoutList.push({timeout_in_seconds : timeout, protocol : protocal, port : port});
+                flowAgingTimeoutList.push({timeout_in_seconds : timeout, protocol : protocol, port : port});
             }
             globalVRouterConfig["global-vrouter-config"]['flow_aging_timeout_list'] =
                 { flow_aging_timeout : flowAgingTimeoutList };
@@ -868,19 +868,21 @@ function clearFlowAgingTimeoutEntries() {
 }
 
 function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
-    //dynamicFlowAgingTimeoutID++;
-    var id =  len;
-    var protocalDiv = document.createElement("div");
-    protocalDiv.className = "span12";
-    protocalDiv.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_ddProtocal");
-    var protocalParentDiv = document.createElement("div");
-    protocalParentDiv.className = "span3";
-    protocalParentDiv.appendChild(protocalDiv);
+    dynamicFlowAgingTimeoutID++;
+    var id =  dynamicFlowAgingTimeoutID;
+    var protocolDiv = document.createElement("div");
+    protocolDiv.className = "span12";
+    protocolDiv.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_comboProtocol");
+    protocolDiv.setAttribute("style", "margin-left:7px;");
+    var protocolParentDiv = document.createElement("div");
+    protocolParentDiv.className = "span3";
+    protocolParentDiv.appendChild(protocolDiv);
 
     var inputTxtPort = document.createElement("input");
     inputTxtPort.type = "text";
     inputTxtPort.className = "span12";
-    inputTxtPort.setAttribute("placeholder", "0 (All Ports)");
+    inputTxtPort.setAttribute("placeholder", "All Ports");
+    inputTxtPort.setAttribute("style", "margin-left:6px;");
     inputTxtPort.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtPort");
     var portParentDiv = document.createElement("div");
     portParentDiv.className = "span3";
@@ -890,6 +892,7 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     inputTxtTimeout.type = "text";
     inputTxtTimeout.className = "span12";
     inputTxtTimeout.setAttribute("placeholder", "180");
+    inputTxtTimeout.setAttribute("style", "margin-left:6px;");
     inputTxtTimeout.setAttribute("id", "flowAgingTimeoutTuples_" + id + "_txtTimeout");
     var timeoutParentDiv = document.createElement("div");
     timeoutParentDiv.className = "span3";
@@ -901,7 +904,8 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     iBtnAddRule.setAttribute("title", "Add Flow Aging Timeouts below");
 
     var divPullLeftMargin5Plus = document.createElement("div");
-    divPullLeftMargin5Plus.className = "pull-left margin-5";
+    divPullLeftMargin5Plus.className = "pull-left";
+    divPullLeftMargin5Plus.setAttribute("style", "margin:5px 5px 5px 19px;");
     divPullLeftMargin5Plus.appendChild(iBtnAddRule);
 
     var iBtnDeleteRule = document.createElement("i");
@@ -914,8 +918,8 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
 
     var divRowFluidMargin5 = document.createElement("div");
-    divRowFluidMargin5.className = "row-fluid margin-0-0-5";
-    divRowFluidMargin5.appendChild(protocalParentDiv);
+    divRowFluidMargin5.className = "row-fluid";
+    divRowFluidMargin5.appendChild(protocolParentDiv);
     divRowFluidMargin5.appendChild(portParentDiv);
     divRowFluidMargin5.appendChild(timeoutParentDiv);
     divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
@@ -924,30 +928,71 @@ function createFlowAgingTimeoutEntry(flowAgingTimeout, len) {
     var rootDiv = document.createElement("div");
     rootDiv.id = "rule_" + id;
     rootDiv.appendChild(divRowFluidMargin5);
-    //instantiate and set data for protocal dropdown
-    $(protocalDiv).contrailDropdown({
+    //instantiate and set data for protocol dropdown
+    $(protocolDiv).contrailCombobox({
         dataTextField:"text",
         dataValueField:"value",
+        placeholder:"Select a protocol or Enter a number",
+        change:function(args){
+            var parentElement =
+                args.target.parentElement.parentElement.parentElement.parentElement;
+                var id = getID(String(parentElement.id));
+                if($('#flowAgingTimeoutTuples_' + id + '_comboProtocol').data('contrailCombobox').value() === 'icmp'){
+                    $('#flowAgingTimeoutTuples_' + id + '_txtPort').val('0');
+                    $('#flowAgingTimeoutTuples_' + id + '_txtPort').attr('disabled','disabled');
+                } else {
+                    $('#flowAgingTimeoutTuples_' + id + '_txtPort').val('');
+                    $('#flowAgingTimeoutTuples_' + id + '_txtPort').removeAttr('disabled');
+                }
+        }
     });
     var flowProtoList = [];
     var tmpFlowProtoList = $.extend(true, [], protocolList);
     var protoCnt = tmpFlowProtoList.length;
     for (var i = 0; i < protoCnt; i++) {
-        if ('TCP' == tmpFlowProtoList[i]['name']) {
-            continue;
+        var protocol = tmpFlowProtoList[i]['name'].toUpperCase();
+        if (protocol === 'TCP') {
+            flowProtoList.push(
+                {
+                    'index': 0,
+                    'text': protocol,
+                    'value': protocol.toLowerCase()
+                }
+            );
+        } else if(protocol === 'UDP') {
+            flowProtoList.push(
+                {
+                    'index': 1,
+                    'text': protocol,
+                    'value': protocol.toLowerCase()
+                }
+            );
+        } else if(protocol === 'ICMP'){
+            flowProtoList.push(
+                {
+                    'index': 2,
+                    'text': protocol,
+                    'value': protocol.toLowerCase()
+                }
+            );
         }
-        flowProtoList.push({'text': tmpFlowProtoList[i]['name'],
-                            'value': tmpFlowProtoList[i]['name'].toLowerCase()});
     }
-    var ddProtocal = $(protocalDiv).data("contrailDropdown");
-    ddProtocal.setData(flowProtoList);
-    /*set default value as icmp */
-    ddProtocal.value('icmp');
-    if (flowAgingTimeout instanceof Object ) {
-        ddProtocal.value(flowAgingTimeout.protocol.toLowerCase());
-        $(inputTxtPort).val(flowAgingTimeout.port);
-        $(inputTxtTimeout).val(flowAgingTimeout.timeout_in_seconds);
+    //sort protocols by TCP, UDP and ICMP order
+    flowProtoList.sort(function(a, b){
+        return (a.index - b.index) || a.text.localeCompare(b.text);
+    });
+    var comboProtocol = $(protocolDiv).data("contrailCombobox");
+    var actProtocol = null;
+    if(comboProtocol) {
+        var actProtocol = getValueByJsonPath(flowAgingTimeout, 'protocol', '').toLowerCase();
+        comboProtocol.setData(flowProtoList);
+        comboProtocol.value(actProtocol);
     }
+    $(inputTxtPort).val(getValueByJsonPath(flowAgingTimeout, 'port', ''));
+    if(actProtocol === 'icmp') {
+        $(inputTxtPort).attr('disabled', 'disabled');
+    }
+    $(inputTxtTimeout).val(getValueByJsonPath(flowAgingTimeout, 'timeout_in_seconds', ''));
     return rootDiv;
 }
 
@@ -956,14 +1001,19 @@ function validateFlowAgingTimeoutEntry() {
     if(len > 0) {
         for(var i=0; i<len; i++) {
             var id = getID(String($("#flowAgingTimeoutTuples").children()[i].id));
-            var port =
-               $("#flowAgingTimeoutTuples_" + id + '_txtPort').val();
-            if (port != '' && port != null && isNaN(port)) {
-                showInfoWindow("Port should be a number", "Invalid input in Port");
+            var protocol = $("#flowAgingTimeoutTuples_" + id + '_comboProtocol').data('contrailCombobox').value();
+            if(protocol == null || protocol.trim() === '' ||
+                $.inArray(protocol, ['tcp','udp','icmp']) === -1 &&
+                isNaN(protocol) || parseInt(protocol) < 0 || parseInt(protocol) > 256) {
+                showInfoWindow("Select a protocol or Enter a number between 0 - 255", "Invalid input in Protocol") ;
                 return false;
             }
-            var timeout =
-               $("#flowAgingTimeoutTuples_" + id + '_txtTimeout').val();
+            var port = $("#flowAgingTimeoutTuples_" + id + '_txtPort').val();
+            if (port != '' && port != null && (isNaN(port) || parseInt(port) < 0 || parseInt(port) > 65535)) {
+                showInfoWindow("Enter a valid port between 0 - 65535", "Invalid input in Port");
+                return false;
+            }
+            var timeout = $("#flowAgingTimeoutTuples_" + id + '_txtTimeout').val();
             if (timeout != '' && timeout != null && isNaN(timeout)) {
                 showInfoWindow("Timeout should be a number", "Invalid input in Timeout");
                 return false;
