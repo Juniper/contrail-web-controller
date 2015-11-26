@@ -23,10 +23,7 @@ define([
                 'className': className,
                 'title': cowl.TITLE_SESSION_DETAILS,
                 'body': "<div id='" + modalId + "-body" + "'></div>",
-                'onSave': function () {
-                    $("#" + modalId).modal('hide');
-                },
-                'onCancel': function () {
+                'onClose': function () {
                     $("#" + modalId).modal('hide');
                 }
             });
