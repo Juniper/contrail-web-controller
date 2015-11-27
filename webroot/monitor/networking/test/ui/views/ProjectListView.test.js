@@ -35,6 +35,12 @@ define([
             url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS),
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
+
+        responses.push(cotr.createFakeServerResponse( {
+            url: cttu.getRegExForUrl(ctwc.URL_ALL_PROJECTS_VCENTER_OR_CONFIG),
+            body: JSON.stringify(TestMockdata.projectMockData)
+        }));
+
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
             url: cttu.getRegExForUrl(ctwc.URL_ALL_NETWORKS_DETAILS),

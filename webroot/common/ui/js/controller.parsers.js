@@ -153,8 +153,8 @@ define([
             }
             var response = responseArray[0],
                 rawdata = response['flow-series'],
-                inBytes = {key: "In Traffic", values: [], color: d3_category5[0]},
-                outBytes = {key: "Out Traffic", values: [], color: d3_category5[1]},
+                inBytes = {key: "In Traffic", values: [], color: cowc.D3_COLOR_CATEGORY5[0]},
+                outBytes = {key: "Out Traffic", values: [], color: cowc.D3_COLOR_CATEGORY5[1]},
                 inPackets = {key: "In Packets", values: []}, outPackets = {key: "Out Packets", values: []},
                 chartData = [inBytes, outBytes];
 
@@ -169,8 +169,8 @@ define([
         };
 
         this.parseCPUMemLineChartData = function(responseArray) {
-            var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: d3_category5[1]},
-                memoryUsage = {key: "Memory Usage", values: [], color: d3_category5[3]},
+            var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: cowc.D3_COLOR_CATEGORY5[1]},
+                memoryUsage = {key: "Memory Usage", values: [], color: cowc.D3_COLOR_CATEGORY5[3]},
                 chartData = [memoryUsage, cpuUtilization];
 
             for (var i = 0; i < responseArray.length; i++) {
@@ -182,8 +182,8 @@ define([
         };
 
         this.parseCPUMemLineChartDataForNodeDetails = function(responseArray,options) {
-            var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: d3_category5[1]},
-                memoryUsage = {key: "Memory Usage", values: [], color: d3_category5[3]},
+            var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: cowc.D3_COLOR_CATEGORY5[1]},
+                memoryUsage = {key: "Memory Usage", values: [], color: cowc.D3_COLOR_CATEGORY5[3]},
                 chartData = [memoryUsage, cpuUtilization];
 
             for (var i = 0; i < responseArray.length; i++) {

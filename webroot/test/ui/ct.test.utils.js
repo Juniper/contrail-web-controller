@@ -11,6 +11,7 @@ define([
         var regexUrlMap = {
             '/api/tenants/config/domains': /\/api\/tenants\/config\/domains.*$/,
             '/api/tenants/config/projects': /\/api\/tenants\/config\/projects.*$/,
+            '/api/tenants/projects': /\/api\/tenants\/projects.*$/,
             '/api/tenant/networking/virtual-networks/details': /\/api\/tenant\/networking\/virtual-networks\/details\?.*$/,
 
             '/api/tenant/networking/virtual-network/summary?fqNameRegExp=default-domain:admin:frontend': /\/api\/tenant\/networking\/virtual-network\/summary\?fqNameRegExp=default-domain:admin:frontend.*$/,
