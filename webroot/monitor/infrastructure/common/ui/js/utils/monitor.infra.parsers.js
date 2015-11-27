@@ -106,8 +106,8 @@ define(
                         obj['isPartialUveMissing'] = false;
                         obj['isIfmapDown'] = false;
                         if(obj['isUveMissing'] == false) {
-                            obj['isPartialUveMissing'] = (isEmptyObject(jsonPath(d,
-                                '$.value.ControlCpuState.cpu_info')[0]) || isEmptyObject(
+                            obj['isPartialUveMissing'] = (cowu.isEmptyObject(jsonPath(d,
+                                '$.value.ControlCpuState.cpu_info')[0]) || cowu.isEmptyObject(
                                 jsonPath(d,'$.value.BgpRouterState.build_info')[0]) ||
                                 (obj['configIP'] == '-') || obj['uveIP'].length == 0)
                                 ? true : false;
@@ -408,10 +408,10 @@ define(
                             infraMonitorAlertUtils.getProcessAlerts(d, obj);
                         obj['isPartialUveMissing'] = false;
                         if (obj['isUveMissing'] == false) {
-                            if (isEmptyObject(jsonPath(d,
+                            if (cowu.isEmptyObject(jsonPath(d,
                                 '$.value.ModuleCpuState.module_cpu_info'+
                                 '[?(@.module_id=="contrail-collector")].cpu_info')[0])
-                                || isEmptyObject(jsonPath(d,
+                                || cowu.isEmptyObject(jsonPath(d,
                                         '$.value.CollectorState.build_info')[0])) {
                                         obj['isPartialUveMissing'] = true;
                             }
@@ -504,10 +504,10 @@ define(
                             });
                             obj['summaryIps'] = ipString;
                         }
-                        if(isEmptyObject(jsonPath(d,
+                        if(cowu.isEmptyObject(jsonPath(d,
                            '$.value.configNode.ModuleCpuState.module_cpu_info'+
                            '[?(@.module_id=="contrail-api")].cpu_info')[0]) ||
-                           isEmptyObject(jsonPath(d,
+                           cowu.isEmptyObject(jsonPath(d,
                                 '$.value.configNode.ModuleCpuState.build_info')[0])) {
                            obj['isPartialUveMissing'] = true;
                         }
@@ -1736,16 +1736,16 @@ define(
                         var formattedVrouter,formattedOtherVrouter,
                             formattedSrcVN,formattedDestVN;
                         var vRouterIp =
-                            validateIPAddress(handleNull4Grid(obj['vrouter_ip'])) == true ?
-                            handleNull4Grid(obj['vrouter_ip']) : noDataStr,
+                            validateIPAddress(cowu.handleNull4Grid(obj['vrouter_ip'])) == true ?
+                            cowu.handleNull4Grid(obj['vrouter_ip']) : noDataStr,
                                 formattedVrouter = noDataStr;
                         var vrouter = ifNull(obj['vrouter'],noDataStr);
                         if(vRouterIp != noDataStr || vrouter != noDataStr)
                             formattedVrouter =
                                 contrail.format('{0} ({1})',vrouter, vRouterIp);
                         var othervRouterIp =
-                            validateIPAddress(handleNull4Grid(obj['other_vrouter_ip'])) == true ?
-                                handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
+                            validateIPAddress(cowu.handleNull4Grid(obj['other_vrouter_ip'])) == true ?
+                                cowu.handleNull4Grid(obj['other_vrouter_ip']) : noDataStr,
                                 formattedOtherVrouter = noDataStr;
                             if(othervRouterIp != noDataStr) {
                                 $.each(vRouters,function(idx,obj){
@@ -1756,9 +1756,9 @@ define(
                                             ifNull(obj['name'],noDataStr), othervRouterIp);
                                 });
                             }
-                       var formattedSrcVN = handleNull4Grid(obj['sourcevn']);
+                       var formattedSrcVN = cowu.handleNull4Grid(obj['sourcevn']);
                        formattedSrcVN = formatVN(formattedSrcVN);
-                       var formattedDestVN = handleNull4Grid(obj['destvn']);
+                       var formattedDestVN = cowu.handleNull4Grid(obj['destvn']);
                        formattedDestVN = formatVN(formattedSrcVN);
                        obj['formattedVrouter'] = formattedVrouter;
                        obj['formattedOtherVrouter'] = formattedOtherVrouter;

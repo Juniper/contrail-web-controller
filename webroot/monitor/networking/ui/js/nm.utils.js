@@ -75,7 +75,7 @@ define([
 
         if (fqNameLength == 2) {
             $.ajax({
-                url: cowc.getProjectsURL({name: 'default-domain'}),
+                url: ctwc.getProjectsURL({name: 'default-domain'}),
                 async: false
             }).done(function (response) {
                 $.each(response['projects'], function (idx, projObj) {

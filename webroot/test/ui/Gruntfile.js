@@ -59,6 +59,34 @@ module.exports = function (grunt) {
         options: {
             configFile: 'karma.config.js'
         },
+        instanceView: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceView.test.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir: __dirname + '/reports/tests/nm/views/',
+                    outputFile: 'instance-view-test-results.xml',
+                    suite: 'InstanceView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/nm/views/instance-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/nm/views/instanceView/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'nm'
+            }
+        },
         networkListView: {
             options: {
                 files: [
@@ -282,34 +310,6 @@ module.exports = function (grunt) {
                 coverageReporter: {
                     type: 'html',
                     dir: __dirname + '/reports/coverage/nm/views/flowGridView/',
-                    subdir: browserSubdirFn
-                },
-                feature: 'nm'
-            }
-        },
-        instanceView: {
-            options: {
-                files: [
-                    {
-                        pattern: 'contrail-web-controller/webroot/monitor/networking/test/ui/views/InstanceView.test.js',
-                        included: false
-                    }
-                ],
-                preprocessors: {
-                    'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js': ['coverage']
-                },
-                junitReporter: {
-                    outputDir: __dirname + '/reports/tests/nm/views/',
-                    outputFile: 'instance-view-test-results.xml',
-                    suite: 'InstanceView',
-                    useBrowserName: false
-                },
-                htmlReporter: {
-                    outputFile: __dirname + '/reports/tests/nm/views/instance-view-test-results.html'
-                },
-                coverageReporter: {
-                    type: 'html',
-                    dir: __dirname + '/reports/coverage/nm/views/instanceView/',
                     subdir: browserSubdirFn
                 },
                 feature: 'nm'

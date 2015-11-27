@@ -11,7 +11,7 @@ define([
     var SearchFlowResultView = QueryResultView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
-                serverCurrentTime = getCurrentTime4MemCPUCharts();
+                serverCurrentTime = chUtils.getCurrentTime4MemCPUCharts();
 
             $.ajax({
                 url: '/api/service/networking/web-server-info'

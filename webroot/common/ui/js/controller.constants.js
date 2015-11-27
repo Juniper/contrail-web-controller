@@ -9,6 +9,7 @@ define([
 
         this.URL_ALL_DOMAINS = '/api/tenants/config/domains';
         this.URL_ALL_PROJECTS = '/api/tenants/config/projects';
+        this.URL_ALL_PROJECTS_VCENTER_OR_CONFIG = '/api/tenants/projects';
 
         this.URL_PROJECT_CONNECTED_GRAPH = '/api/tenant/monitoring/project-connected-graph?fqName={0}';
         this.URL_PROJECT_CONFIG_GRAPH = '/api/tenant/monitoring/project-config-graph?fqName={0}';
@@ -237,15 +238,12 @@ define([
                 config = dropdownOptions.config;
             }
 
-            var url = '/api/tenants/config/projects/' + domainObj.value,
+            var url = '/api/tenants/config/projects/' + domainObj.name,
                 role = globalObj['webServerInfo']['role'],
                 activeOrchModel = globalObj['webServerInfo']['loggedInOrchestrationMode'];
 
             /* In case of vcenter, get the projects from API Server only */
-            if ((activeOrchModel == 'vcenter') ||
-                (((null == getProjectsFromIdentity) ||
-                (false == getProjectsFromIdentity)) &&
-                ((null == config) || (false == config)))) {
+            if ((activeOrchModel == 'vcenter') || (((null == getProjectsFromIdentity) || (false == getProjectsFromIdentity)) && ((null == config) || (false == config)))) {
                 url = '/api/tenants/projects/' + domainObj.name;
             }
             return url;

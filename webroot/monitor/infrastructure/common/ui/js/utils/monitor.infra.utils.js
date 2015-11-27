@@ -1685,7 +1685,7 @@ define([
                     fromTimeUTC:'now-2h',
                     toTimeUTC:'now',
                     async:true,
-                    queryId:randomUUID(),
+                    queryId: qewu.generateQueryUUID(),
                     reRunTimeRange:600,
                     select:'Source, T, cpu_info.cpu_share, cpu_info.mem_res, cpu_info.module_id',
                     groupFields:['Source'],
