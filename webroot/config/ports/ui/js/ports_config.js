@@ -668,7 +668,22 @@ function initActions() {
 
         }
         
-        
+        // Fat flow protocol
+        var ffpElement = "FatFlowTuples";
+        var allFFPTuples = $("#"+ffpElement)[0].children;
+        portConfig["virtual-machine-interface"]["virtual_machine_interface_fat_flow_protocols"] = {};
+        if (allFFPTuples && allFFPTuples.length > 0) {
+            portConfig["virtual-machine-interface"]["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"] = [];
+            for(i = 0 ; i< allFFPTuples.length ; i++){
+                var divid = allFFPTuples[i].id;
+                var id = getID(divid);
+                var ffpProtocol = $("#"+ffpElement+"_"+id+"_ddProtocal").data('contrailDropdown').value();
+                var ffpPort = $("#"+ffpElement+"_"+id+"_txtPort").val();
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"][i] = {};
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"][i]["protocol"] = ffpProtocol;
+                portConfig["virtual-machine-interface"]["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"][i]["port"] = Number(ffpPort);
+            }
+        }
         
         //DHCP
         var dhcpElement = "DHCPTuples";
@@ -1263,6 +1278,8 @@ function successHandlerForgridPortsRow(result) {
                              "AllowedAddressPairValue":mapedData.AllowedAddressPairValue,
                              "DHCPOption":mapedData.DHCPOption,
                              "DHCPOptionValue":mapedData.DHCPOptionValue,
+                             "FFPString":mapedData.FFPString,
+                             "FFPValue":mapedData.FFPValue,
                              "staticIPString":mapedData.staticIPString,
                              "subInterfaceFlag":mapedData.subInterfaceFlag,
                              "staticIPValue":mapedData.staticIPValue,
@@ -1412,8 +1429,29 @@ function mapVMIData(portData,selectedDomain,selectedProject){
                 }
             }
         }
-    }    
+    }
     
+    var FFPString = "";
+    var FFPValue = [];
+    if(portData["virtual_machine_interface_fat_flow_protocols"] != undefined &&
+       portData["virtual_machine_interface_fat_flow_protocols"] != null &&
+       "fat_flow_protocol" in portData["virtual_machine_interface_fat_flow_protocols"] &&
+       portData["virtual_machine_interface_fat_flow_protocols"] != null){
+        var ffpArray = portData["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"];
+        var fixedIPLength = ffpArray.length;
+        if(fixedIPLength > 0){
+            for(i = 0;i< fixedIPLength;i++){
+                if(FFPString != "") FFPString += ", ";
+                FFPString += ffpArray[i]["protocol"];
+                if("protocol" in ffpArray[i]){
+                    FFPString += ":"+ffpArray[i]["port"];
+                    FFPValue.push({"protocol":ffpArray[i]["protocol"],
+                                   "port":ffpArray[i]["port"]});
+                }
+            }
+        }
+    }
+
     var allowAddressPairText = "";
     var allowAddressPairValue = [];
     
@@ -1538,6 +1576,8 @@ function mapVMIData(portData,selectedDomain,selectedProject){
     returnMapData.floatingIPValue = floatingIPValue;
     returnMapData.DHCPOption = DHCPOption;
     returnMapData.DHCPOptionValue = DHCPOptionValue;
+    returnMapData.FFPString = FFPString;
+    returnMapData.FFPValue = FFPValue;
     returnMapData.macAddress = macAddress;
     returnMapData.AllowedAddressPair = allowAddressPairText;
     returnMapData.AllowedAddressPairValue = allowAddressPairValue;
@@ -1679,6 +1719,7 @@ function clearValuesFromDomElements() {
     $("#ddVNState").data("contrailDropdown").value("true");
     $("#FloatingIPTuples").empty();
     $("#FixedIPTuples").empty();
+    $("#FatFlowTuples").empty();
     $("#DHCPTuples").empty();
     $("#is_SG")[0].checked = true;
     $("#msSecurityGroup").data('contrailMultiselect').enable(true);
@@ -2135,6 +2176,17 @@ function showPortEditWindow(mode, rowIndex, enableSubInterfaceFlag) {
                     }
                 }
                 
+                element = "FatFlowTuples";
+                if(mapedData.FFPValue != null && mapedData.FFPValue != "" && mapedData.FFPValue.length > 0){
+                    var fatFlowLength = mapedData.FFPValue.length;
+                    for(var localInc = 0; localInc < fatFlowLength;localInc++){
+                        var fatFlow = mapedData.FFPValue[localInc];
+                        dynamicID++;
+                        var fatFlowEntry = createFFPEntry(fatFlow, dynamicID,element);
+                        $("#"+element).append(fatFlowEntry);
+                    }
+                }
+                
                 //returnMapData.staticIPString = staticIPString;
                 //returnMapData.staticIPValue = staticIPValue;
         /*element = "StaticRoutTuples";
@@ -2211,6 +2263,7 @@ function validate() {
     if(!validateAAP("AAPTuples")) return false;
     if(!validateStaticRoute("StaticRoutTuples")) return false;
     if(!validateDHCP("DHCPTuples")) return false;
+    if(!validateFatFlow("FatFlowTuples")) return false;
     var selectedFloatingIP = $("#msFloatingIp").data("contrailMultiselect").getSelectedData();
     var deviceName =  $("#ddDeviceOwnerName").data("contrailDropdown").value();
     if (selectedFloatingIP && selectedFloatingIP.length > 0 && deviceName == "router"){
@@ -2864,6 +2917,143 @@ function validateStaticRoute(element){
 
 ////////End of Static Rout///////////////////////////
 
+/////////////////////////////////////////////////////
+//////////////////Fat Flow //////////////////////////
+/////////////////////////////////////////////////////
+function appendFFPEntry(who,element, defaultRow) {
+    if(validateFatFlow(element) === false)
+        return false;
+    dynamicID++;
+    var FFPEntry = createFFPEntry(null, dynamicID,element);
+    if (defaultRow) {
+        $("#"+element).prepend($(FFPEntry));
+    } else {
+        var parentEl = who.parentNode.parentNode.parentNode;
+        parentEl.parentNode.insertBefore(FFPEntry, parentEl.nextSibling);
+    }
+    scrollUp("#windowCreatePorts", FFPEntry, false);
+}
+
+function createFFPEntry(staticIp, id,element) {
+    var ddProtocal = document.createElement("div");
+    ddProtocal.className = "span12";
+    ddProtocal.setAttribute("placeholder", "Protocol");
+    ddProtocal.setAttribute("id", element+"_"+id+"_ddProtocal");
+    var divProtocalName = document.createElement("div");
+    divProtocalName.className = "span5";
+    var divProtocolcontainer = document.createElement("div");
+    divProtocolcontainer.appendChild(ddProtocal);
+    divProtocalName.appendChild(divProtocolcontainer);
+
+    var inputTxtProtocolPort = document.createElement("input");
+    inputTxtProtocolPort.type = "text";
+    inputTxtProtocolPort.className = "span12";
+    inputTxtProtocolPort.setAttribute("placeholder", "Port");
+    inputTxtProtocolPort.setAttribute("id",element+"_"+id+"_txtPort");
+    var divProtocolPort = document.createElement("div");
+    divProtocolPort.className = "span5";
+    divProtocolPort.appendChild(inputTxtProtocolPort);
+
+    var iBtnAddRule = document.createElement("i");
+    iBtnAddRule.className = "icon-plus";
+    iBtnAddRule.setAttribute("onclick", "appendFFPEntry(this,'"+element+"',false);");
+    iBtnAddRule.setAttribute("title", "Add Fat flow protocol below");
+
+    var divPullLeftMargin5Plus = document.createElement("div");
+    divPullLeftMargin5Plus.className = "pull-left margin-5";
+    divPullLeftMargin5Plus.appendChild(iBtnAddRule);
+
+    var iBtnDeleteRule = document.createElement("i");
+    iBtnDeleteRule.className = "icon-minus";
+    iBtnDeleteRule.setAttribute("onclick", "deleteFatFlowEntry(this);");
+    iBtnDeleteRule.setAttribute("title", "Delete Fat flow protocol");
+
+    var divPullLeftMargin5Minus = document.createElement("div");
+    divPullLeftMargin5Minus.className = "pull-left margin-5";
+    divPullLeftMargin5Minus.appendChild(iBtnDeleteRule);
+
+    var divRowFluidMargin5 = document.createElement("div");
+    divRowFluidMargin5.className = "row-fluid margin-0-0-5 span10";
+    divRowFluidMargin5.appendChild(divProtocalName);
+    divRowFluidMargin5.appendChild(divProtocolPort);
+    divRowFluidMargin5.appendChild(divPullLeftMargin5Plus);
+    divRowFluidMargin5.appendChild(divPullLeftMargin5Minus);
+
+    var rootDiv = document.createElement("div");
+    rootDiv.id = "port_" + id;
+    rootDiv.className = "span12 margin-0-0-5";
+    rootDiv.appendChild(divRowFluidMargin5);
+
+    $(ddProtocal).contrailDropdown({
+        dataTextField:"text",
+        dataValueField:"value",
+        placeholder: "Protocol",
+        data:[{'text':'TCP','value':'tcp'},
+              {'text':'UDP','value':'udp'},
+              {'text':'SCTP','value':'sctp'},
+              {'text':'ICMP','value':'icmp'}
+             ],
+        change:changeICMPValue
+    });
+
+    if (null !== staticIp && typeof staticIp !== "undefined") {
+        $(ddProtocal).data("contrailDropdown").value(staticIp["protocol"]);
+        $(inputTxtProtocolPort).val(staticIp["port"]);
+        if(staticIp["protocol"] == "icmp"){
+            $(inputTxtProtocolPort).attr("disabled","disabled");
+        }
+    }
+    
+    return rootDiv;
+}
+
+function deleteFatFlowEntry(who) {
+    var templateDiv = who.parentNode.parentNode.parentNode;
+    $(templateDiv).remove();
+    templateDiv = $();
+}
+
+function validateFatFlow(element){
+    var len = $("#"+element).children().length;
+    if(len > 0) {
+        for(var i=0; i<len; i++) {
+            var elementid = getID($("#"+element).children()[i].id);
+            var fatflowProtocol = $("#"+element+"_"+elementid+"_ddProtocal").data('contrailDropdown').value()
+            if(fatflowProtocol == ""){
+                showInfoWindow("Select a protocol for Fat Flow Records", "Input required");
+                return false;
+            }
+            var fatFlow_prefix = $("#"+element +"_"+ elementid +"_txtPort").val();
+            if (typeof fatFlow_prefix === "undefined" || fatFlow_prefix.trim() === "") {
+                showInfoWindow("Enter valid port between 0 – 65535 for Fat Flow Record", "Input required");
+                return false;
+            }
+            if (!isNumber(fatFlow_prefix)) {
+                showInfoWindow("Fat Flow Protocol's Port has to be a number", "Input required");
+                return false;
+            }
+            if (Number(fatFlow_prefix) < 0 || Number(fatFlow_prefix) > 65535) {
+                showInfoWindow("Enter valid port between 0 – 65535 for Fat Flow Record", "Input required");
+                return false;
+            }
+        }
+    }
+    return true;
+}
+function changeICMPValue(e){
+    var value = e.val;
+    var id = getID(e.target.id);
+    if(value == "icmp") {
+        $("#FatFlowTuples_"+id+"_txtPort").val("0");
+        $("#FatFlowTuples_"+id+"_txtPort").attr("disabled","disabled");;
+    } else {
+        if($("#FatFlowTuples_"+id+"_txtPort").val() == "0")
+            $("#FatFlowTuples_"+id+"_txtPort").val("");
+        $("#FatFlowTuples_"+id+"_txtPort").removeAttr("disabled");
+    }
+}
+////////End of Fat Flow///////////////////////////
+
 Handlebars.registerHelper("formatDHCPOption",function(DHCPOption,options) {
     var returnHtml = '';
     if(DHCPOption.length > 0){
@@ -2878,6 +3068,32 @@ Handlebars.registerHelper("formatDHCPOption",function(DHCPOption,options) {
             returnHtml += '<div class="span2">';
             returnHtml += '<div class="span6">&nbsp;&nbsp;' + DHCPOption[k]["code"] +'</div>';
             returnHtml += '<div class="span6">' + DHCPOption[k]["value"] +'</div>';
+            returnHtml += '</div>';
+            returnHtml += '<div class="span10"></div>';
+            returnHtml += '</div>';
+        }
+        returnHtml += '</span>';
+        returnHtml += '<span class="span12"></span>';
+    } else {
+        returnHtml += '<span class="span10">:</span>';
+    }
+    return returnHtml;
+});
+
+Handlebars.registerHelper("formatFFPValue",function(FFPOption,options) {
+    var returnHtml = '';
+    if(FFPOption.length > 0){
+        returnHtml += '<span class="span10">';
+        returnHtml += '<div class="bgCol span2">';
+        returnHtml += '    <div class="span6"><label>&nbsp;&nbsp;Protocol</label></div>';
+        returnHtml += '    <div class="span6"><label>Port</label></div>';
+        returnHtml += '</div>';
+        returnHtml += '<div class="span9"></div>';
+        for(k=0;k<FFPOption.length;k++){
+            returnHtml += '<div>';
+            returnHtml += '<div class="span2">';
+            returnHtml += '<div class="span6">&nbsp;&nbsp;' + (FFPOption[k]["protocol"]).toUpperCase() +'</div>';
+            returnHtml += '<div class="span6">' + FFPOption[k]["port"] +'</div>';
             returnHtml += '</div>';
             returnHtml += '<div class="span10"></div>';
             returnHtml += '</div>';
