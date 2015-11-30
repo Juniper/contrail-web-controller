@@ -19,7 +19,10 @@ define([
                 dropdownId: ctwl.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID,
                 chartId: ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID
             }));
-
+            if(viewConfig.widgetConfig != null) {
+                self.renderView4Config(self.$el,
+                        null, viewConfig.widgetConfig, null, null, null);
+            }
             var instanceTrafficStatsDropdown = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID),
                 instanceTrafficStatsChart = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID);
 

@@ -1786,7 +1786,7 @@ define([
                                 fixedRowHeight: 30
                             },
                             dataSource: {
-                                data: []
+                                data: viewConfig['data']
                             }
                         },
                         columnHeader: {
@@ -1831,8 +1831,7 @@ define([
                             }]
                         }
                     }
-                }
-
+                },
             }
         };
 
@@ -1846,7 +1845,7 @@ define([
                     templateConfig: monitorInfraUtils.
                         getUnderlayDetailsTabTemplateConfig(),
                     app: cowc.APP_CONTRAIL_CONTROLLER,
-                }
+                },
             }
         };
 
@@ -1953,13 +1952,29 @@ define([
                          return [response];
                      }
                 };
+                viewConfig.widgetConfig = {
+                        view: 'WidgetView',
+                        elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+ '-widget',
+                        viewConfig: {
+                            header: {
+                                title:
+                                    contrail.format('Traffic Statistics of {0}',vrouter),
+                            },
+                            controls: {
+                                top: {
+                                    default: {
+                                        collapseable: true,
+                                    }
+                                }
+                            }
+                        }
+                    }
             } else if(sourceType == ctwc.VIRTUALMACHINE ||
                     targetType == ctwc.VIRTUALMACHINE) {
                 var instanceUUID = getValueByJsonPath(data,
                     'targetElement;attributes;nodeDetails;name','-');
-                var virtualNetwork = getValueByJsonPath(data,
-                    'targetElement;attributes;nodeDetails;more_attributes;'+
-                    'interface_list;0;virtual_network','-');
+                var vmName = getValueByJsonPath(data,
+                    'targetElement;attributes;nodeDetails;more_attributes;vm_name','-');
                 var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
                 view = 'InstanceTrafficStatsView';
                 viewPathPrefix = 'monitor/networking/ui/js/views/';
@@ -1969,6 +1984,23 @@ define([
                 viewConfig.modelKey = modelKey;
                 viewConfig.parseFn = ctwp.parseTrafficLineChartData;
                 viewConfig.link = ctwc.VIRTUALMACHINE;
+                viewConfig.widgetConfig = {
+                    view: 'WidgetView',
+                    elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+ '-widget',
+                    viewConfig: {
+                        header: {
+                            title:
+                                contrail.format('Traffic Statistics of {0}',vmName),
+                        },
+                        controls: {
+                            top: {
+                                default: {
+                                    collapseable: true,
+                                }
+                            }
+                        }
+                    }
+                }
             }
             return {
                 view: view,
@@ -2622,6 +2654,13 @@ define([
                         layoutHandler.setURLHashParams(params,{p:'mon_infra_underlay',merge:false});
                         break;
                 }
+        }
+
+        self.removeUnderlayTabs = function (underlayTabView) {
+            var tabCnt = $('#'+ctwc.UNDERLAY_TAB_ID +'> ul li:visible').length;
+            for (var i = (tabCnt - 1); i >= 2; i--) {
+                underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].removeTab(i);
+            }
         }
     };
     return MonitorInfraUtils;
