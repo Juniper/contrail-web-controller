@@ -369,6 +369,14 @@ define([
                                 }
                             }
                         }
+                    },
+                    tabConfig: {
+                        activate: function (event, ui){
+                            if($("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid') != null) {
+                                $("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
                     }
                 }
             ];
@@ -383,8 +391,14 @@ define([
                   viewPathPrefix:
                       ctwl.UNDERLAY_VIEWPATH_PREFIX,
                   app: cowc.APP_CONTRAIL_CONTROLLER,
-                  viewConfig: {
-
+                  viewConfig: {},
+                  tabConfig: {
+                      activate: function (event, ui) {
+                          if ($('#' + ctwc.UNDERLAY_DETAILS_TAB_ID)) {
+                              $('#' + ctwc.UNDERLAY_DETAILS_TAB_ID).trigger('refresh');
+                          }
+                      },
+                      renderOnActivate: false
                   }
               }, {
                   elementId: ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID,
@@ -393,8 +407,16 @@ define([
                   viewPathPrefix:
                       ctwl.UNDERLAY_VIEWPATH_PREFIX,
                   app: cowc.APP_CONTRAIL_CONTROLLER,
-                  viewConfig: {
-
+                  viewConfig: {},
+                  tabConfig: {
+                      activate: function (event, ui){
+                          if($("#"+ ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID).
+                               data('contrailGrid') != null) {
+                              $("#"+ ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID).
+                                  data('contrailGrid').refreshView();
+                          }
+                      },
+                      renderOnActivate: false
                   }
               }
           ];

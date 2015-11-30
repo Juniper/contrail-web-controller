@@ -12,76 +12,50 @@ define([
         render: function () {
             var self = this,
                 viewConfig = this.attributes.viewConfig;
-            var tabsToDisable = ctwc.UNDERLAY_PROUTER_TAB_INDEXES.concat(
-                ctwc.UNDERLAY_LINK_TAB_INDEX, ctwc.UNDERLAY_VM_TAB_INDEXES,
-                ctwc.UNDERLAY_VROUTER_TAB_INDEXES);
-            viewConfig['tabsToDisable'] = tabsToDisable;
+            var callBackExecuted = false;
             this.renderView4Config(self.$el, self.model,
                  getUnderlayTabConfig(viewConfig), null, null, null,
-                 function () {
-                    var underlayTabObj =
-                        $("#"+ctwc.UNDERLAY_TAB_ID).data('contrailTabs');
-                    underlayTabObj.disableTab(tabsToDisable,true);
+                 function (underlayTabView) {
+                    if(!callBackExecuted) {
+                        var graphView = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+                        underlayTabView.listenTo(graphView.model.selectedElement, 'change', function (selectedElement) {
+                           var nodeType = selectedElement['attributes']['nodeType'];
+                           var nodeDetails = selectedElement['attributes']['nodeDetail'];
+                           if(nodeType == ctwc.PROUTER) {
+                               showPRouterTabs(nodeDetails, underlayTabView);
+                           } else if (nodeType == ctwc.VROUTER) {
+                               showVRouterTabs(nodeDetails, underlayTabView);
+                           } else if (nodeType == ctwc.VIRTUALMACHINE) {
+                               showVMTabs(nodeDetails, underlayTabView);
+                           } else if (nodeType == ctwc.UNDERLAY_LINK) {
+                               showLinkTrafficStatistics(nodeDetails, underlayTabView);
+                           }
+                           graphView.model.selectedElement.set({
+                               'nodeType': '',
+                               'nodeDetail': {}},{silent:true});
+                        });
+                        callBackExecuted = true;
+                    }
                  }
             );
         }
     });
 
     var getUnderlayTabConfig = function (viewConfig) {
-
-        var underlayModel = monitorInfraUtils.getUnderlayGraphInstance();
-
-        /*
-         * Instance tab config (Details, Interfaces, Traffic Statistics,
-         *  Port Distribution, Port Map, CPU/Memory)
-         */
-        var instanceTabConfig =
-            ctwvc.getInstanceDetailPageTabConfig(viewConfig);
-
         // Underlay default tab config (Search flows & Trace flow)
         var underlayDefaultTabConfig =
             ctwvc.getUnderlayDefaultTabConfig(viewConfig);
-
-        // pRouter tab config (Interface tab, Traffic statistics tab, Details tab)
-        var underlayPRouterTabConfig =
-            ctwvc.getUnderlayPRouterTabConfig(viewConfig);
-
-        // TrafficStatistics tab for prouter  link
-        var underlayPRouterLinkTabConfig =
-            ctwvc.getUnderlayPRouterLinkTabConfig(viewConfig);
-
-        // vRouter tab config (Details, Interfaces, Networks, ACL, Flows, Routes)
-        /*var vRouterViewConfig =
-            monitorInfraUtils.getUnderlayVRouterParams(underlayModel['model']['vRouters'][0]);*/
-
-        var underlayVRouterTabConfig = ctwvc.getVRouterDetailsPageTabs({});
-
-        var underlayTabConfig = underlayDefaultTabConfig.concat(
-            underlayPRouterTabConfig,underlayPRouterLinkTabConfig,
-            instanceTabConfig, underlayVRouterTabConfig);
         return {
-            elementId: cowu.formatElementId([ctwc.UNDERLAY_TAB_ID, 'section']),
-            view: "SectionView",
+            elementId: ctwc.UNDERLAY_TAB_ID,
+            view: "TabsView",
             viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: ctwc.UNDERLAY_TAB_ID,
-                                view: "TabsView",
-                                viewConfig: {
-                                    theme: 'classic',
-                                    disabled: ifNull(
-                                        viewConfig['tabsToDisable'], []),
-                                    activate: function (e, ui) {
-                                        activate(e, ui);
-                                    },
-                                    tabs: underlayTabConfig
-                                }
-                            }
-                        ]
-                    }
-                ]
+                theme: 'classic',
+                disabled: ifNull(
+                    viewConfig['tabsToDisable'], []),
+                activate: function (e, ui) {
+                    activate(e, ui);
+                },
+                tabs: underlayDefaultTabConfig
             }
         };
     };
@@ -95,27 +69,171 @@ define([
         } else if (selTab == ctwl.TITLE_TRAFFIC_STATISTICS) {
             $('#' + ctwl.INSTANCE_TRAFFIC_STATS_ID).
             find('svg').trigger('refresh');
-        } else if (selTab == ctwl.TITLE_INTERFACES) {
+        } else if (selTab == ctwl.TITLE_INTERFACES && $(ui.newPanel).find('.contrail-grid').
+                data('contrailGrid') != null) {
             $(ui.newPanel).find('.contrail-grid').
             data('contrailGrid').refreshView();
-        } else if (selTab == ctwl.TITLE_CPU_MEMORY) {
+        } else if (selTab == ctwl.TITLE_CPU_MEMORY &&
+                $('#' + ctwl.INSTANCE_CPU_MEM_STATS_ID) != null) {
             $('#' + ctwl.INSTANCE_CPU_MEM_STATS_ID).
             find('svg').trigger('refresh');
-        } else if (selTab == ctwl.TITLE_PORT_DISTRIBUTION) {
+        } else if (selTab == ctwl.TITLE_PORT_DISTRIBUTION &&
+               $('#' + ctwl.INSTANCE_PORT_DIST_CHART_ID) != null) {
             $('#' + ctwl.INSTANCE_PORT_DIST_CHART_ID).trigger('refresh');
-        } else if (selTab == 'Networks') {
+        } else if (selTab == 'Networks' && $("#" + ctwl.VROUTER_NETWORKS_RESULTS).
+                data('contrailGrid') != null) {
             $("#" + ctwl.VROUTER_NETWORKS_RESULTS).
             data('contrailGrid').refreshView();
-        } else if (selTab == 'ACL') {
+        } else if (selTab == 'ACL' && $('#' + ctwl.VROUTER_ACL_GRID_ID).
+                data('contrailGrid') != null) {
             $('#' + ctwl.VROUTER_ACL_GRID_ID).
             data('contrailGrid').refreshView();
-        } else if (selTab == 'Flows') {
+        } else if (selTab == 'Flows' && $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
+                data('contrailGrid') != null) {
             $('#' + ctwl.VROUTER_FLOWS_GRID_ID).
             data('contrailGrid').refreshView();
-        } else if (selTab == 'Routes') {
+        } else if (selTab == 'Routes' && $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
+                data('contrailGrid') != null) {
             $('#' + ctwl.VROUTER_ROUTES_GRID_ID).
             data('contrailGrid').refreshView();
+        } else if (selTab == 'Instances' && $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
+                data('contrailGrid') != null) {
+            $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
+            data('contrailGrid').refreshView();
         }
+    }
+
+    function showPRouterTabs (nodeDetails, underlayTabView) {
+        var interfaceDetails = [];
+        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        var data = {
+            hostName : ifNull(nodeDetails['name'],'-'),
+            description: getValueByJsonPath(nodeDetails,
+                'more_attributes;lldpLocSysDesc','-'),
+            intfCnt   : getValueByJsonPath(nodeDetails,
+                'more_attributes;ifTable',[]).length,
+            managementIP :
+                ifNull(nodeDetails['mgmt_ip'],'-'),
+        };
+        // Rendering the details tab
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
+            ctwc.UNDERLAY_TAB_ID,
+            [monitorInfraUtils.getUnderlayDetailsTabViewConfig({data:data})]);
+        for(var i = 0; i < getValueByJsonPath(nodeDetails,
+            'more_attributes;ifTable',[]).length; i++ ) {
+            var intfObj =
+                nodeDetails['more_attributes']['ifTable'][i];
+            var rowObj = {
+                ifDescr: ifNull(intfObj['ifDescr'],'-'),
+                ifIndex: ifNull(intfObj['ifIndex'],'-'),
+                ifInOctets: intfObj['ifInOctets'],
+                ifOutOctets: intfObj['ifOutOctets'],
+                ifPhysAddress:
+                    ifNull(intfObj['ifPhysAddress'],'-'),
+                raw_json: intfObj
+            };
+            interfaceDetails.push(rowObj);
+        }
+        // Rendering the interfaces tab
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
+            ctwc.UNDERLAY_TAB_ID,
+            [monitorInfraUtils.getUnderlayPRouterInterfaceTabViewConfig({
+                    hostName:data.hostName,
+                    data: interfaceDetails
+                })]
+        );
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+    }
+
+    function showVRouterTabs (nodeDetails, underlayTabView) {
+        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        var vRouterParams =
+            monitorInfraUtils.getUnderlayVRouterParams(nodeDetails);
+        var vRouterTabConfig = ctwvc.getVRouterDetailsPageTabs(vRouterParams);
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
+            ctwc.UNDERLAY_TAB_ID, vRouterTabConfig
+        );
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+    }
+
+    function showVMTabs (nodeDetails, underlayTabView) {
+        var ip = [],vnList = [],intfLen = 0,vmName,
+        srcVN = "",instDetails = {},inBytes = 0,
+        outBytes = 0;
+        var instanceUUID = nodeDetails['name'];
+        var instanceDetails = nodeDetails;
+        var intfList = getValueByJsonPath(instanceDetails,
+            'more_attributes;interface_list',[]);
+        intfLen = intfList.length;
+        vmName =
+            instanceDetails['more_attributes']['vm_name'];
+        for(var j = 0; j < intfLen; j++) {
+            var intfObj = intfList[j];
+            ip.push(ifNull(intfObj['ip_address'],'-'));
+            vnList.push(
+                ifNull(intfObj['virtual_network'],'-'));
+            for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length > 0; k++) {
+                var intfObjFip =
+                    intfObj['floating_ips'][k];
+                ip.push(ifNull(
+                      intfObjFip['ip_address'],'-'));
+                vnList.push(ifNull(
+                    intfObjFip['virtual_network'],'-'));
+            }
+        }
+        var vnNameArr =
+            ifNull(vnList[0].split(':'),[]);
+        var networkName = ifNull(vnNameArr[2],'-');
+        var projectName =
+            '('+ifNull(vnNameArr[1],'-')+')';
+        srcVN += networkName +" "+ projectName;
+        var instanceObj = {
+            instanceUUID: instanceUUID,
+            networkFQN: vnList[0],
+        };
+        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        var instanceTabConfig =
+            ctwvc.getInstanceDetailPageTabConfig(
+                instanceObj);
+        var modelMap = {};
+        var modelKey =
+            ctwc.get(ctwc.UMID_INSTANCE_UVE,
+                instanceUUID);
+        modelMap[modelKey] =
+            ctwvc.getInstanceTabViewModelConfig(
+                instanceUUID);
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].modelMap = modelMap;
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
+            ctwc.UNDERLAY_TAB_ID, instanceTabConfig
+        );
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
+    }
+
+    function showLinkTrafficStatistics (linkDetails, underlayTabView) {
+        monitorInfraUtils.removeUnderlayTabs(underlayTabView);
+        var viewConfig = {
+            elementId:
+                ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
+            title: 'Traffic Statistics',
+            view: 'TrafficStatisticsView',
+            viewPathPrefix:
+                ctwl.UNDERLAY_VIEWPATH_PREFIX,
+            viewConfig: {
+                linkAttributes: linkDetails
+            },
+            tabConfig: {
+                activate: function (event, ui){
+                    if($("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid') != null) {
+                        $("#"+ ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid').refreshView();
+                    }
+                },
+                renderOnActivate: true
+            }
+        };
+        // Rendering the traffic statistics tab
+        underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
+                ctwc.UNDERLAY_TAB_ID, [viewConfig]);
+        $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
 
     return UnderlayTabView;

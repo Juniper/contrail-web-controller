@@ -119,7 +119,6 @@ define([
                                                         if(data.length > 0) {
                                                             self.model.vrouter_dropdown_name(data[0]['id']);
                                                         }
-                                                        self.renderTraceFlowResult();
                                                         return data;
                                                     }
                                                 }
@@ -154,7 +153,6 @@ define([
                                                        if(data.length > 0) {
                                                            self.model.instance_dropdown_name(data[0]['id']);
                                                        }
-                                                       self.renderTraceFlowResult();
                                                        return data;
                                                    }
                                                }

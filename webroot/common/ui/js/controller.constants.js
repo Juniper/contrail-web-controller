@@ -221,10 +221,6 @@ define([
         this.UNDERLAY_LINK = 'link';
         this.TRACEFLOW_MAXATTEMPTS = 3;
         this.TRACEFLOW_INTERVAL = 5;
-        this.UNDERLAY_PROUTER_TAB_INDEXES = [2, 3];
-        this.UNDERLAY_LINK_TAB_INDEX = [4];
-        this.UNDERLAY_VM_TAB_INDEXES = [5, 6, 7, 8, 9, 10];
-        this.UNDERLAY_VROUTER_TAB_INDEXES = [11, 12, 13, 14, 15, 16, 17];
 
         this.getProjectsURL = function (domainObj, dropdownOptions) {
             /* Default: get projects from keystone or API Server as specified in

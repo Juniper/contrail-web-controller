@@ -24,7 +24,7 @@ define([
                                 var rawTrafficStats = contrailListModel.getItems();
                                 var trafficStats = monitorInfraUtils.
                                     parsePRouterLinkStats(rawTrafficStats);
-                                for (var i = 0; i < trafficStats.length; i++) {
+                                for (var i = 0; i < ifNull(trafficStats, []).length; i++) {
                                     var pRouterIntfStatsObj = trafficStats[i];
                                     var divId = 'timeseries-chart-'+i;
                                     self.$el.append($('<div/>',{

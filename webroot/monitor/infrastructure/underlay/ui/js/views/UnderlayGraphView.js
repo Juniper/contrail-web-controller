@@ -421,8 +421,9 @@ define([
                          case 'contrail.PhysicalRouter':
                              var chassis_type    = nodeDetails['chassis_type'];
                              if(chassis_type === "tor") {
-                                 //Rendering the tabs(click handler)
-                                 showPRouterTabs(nodeDetails, self);
+                                 underlayGraphModel.selectedElement.set({
+                                     'nodeType': ctwc.PROUTER,
+                                     'nodeDetail': nodeDetails});
                                  var children = underlayGraphModel.getChildren(
                                          nodeDetails['name'], "virtual-router");
                                  var adjList = _.clone(
@@ -448,10 +449,6 @@ define([
                                          thisNode.concat(children),
                                          childElementsArray,
                                          underlayGraphModel);
-                                     underlayGraphModel.selectedElement = {
-                                         nodeType : elementType,
-                                         nodeDetail : thisNode
-                                     };
                                  }
                              }
                              // Need to call the initClickevents again because
@@ -463,8 +460,14 @@ define([
                              break;
 
                          case 'contrail.VirtualRouter':
-                             //Rendering vRouter tabs(click handler)
-                             showVRouterTabs(nodeDetails, self);
+                             /*
+                              * setting the selected element triggers
+                              * handler in underlaytabview which renders the
+                              * tabs of vrouter(click handler)
+                              */
+                             graphView.model.selectedElement.set({
+                                 'nodeType': ctwc.VROUTER,
+                                 'nodeDetail': nodeDetails});
                              var model_id = $(dblClickedElement).attr('id');
                              var children = underlayGraphModel.getChildren(
                                  nodeDetails['name'],
@@ -492,10 +495,6 @@ define([
                              addDimlightToConnectedElements('node');
                              addDimlightToConnectedElements('link');
                              var thisNode = [nodeDetails];
-                             underlayGraphModel.selectedElement = {
-                                 nodeType : elementType,
-                                 nodeDetail : thisNode
-                             };
                              addHighlightToNodesAndLinks(
                                  thisNode.concat(children),
                                  childElementsArray,
@@ -514,26 +513,34 @@ define([
                      addDimlightToConnectedElements();
                      var clickedElement = cellView.model;
                      var elementType    = clickedElement['attributes']['type'];
-                     var nodeDetails =
-                         clickedElement['attributes']['nodeDetails'];
-                     addHighlightToNodesAndLinks([nodeDetails], null,
-                         underlayGraphModel);
+                     var nodeDetails = {};
+                     if(elementType != ctwc.UNDERLAY_LINK) {
+                         nodeDetails = clickedElement['attributes']['nodeDetails'];
+                         addHighlightToNodesAndLinks([nodeDetails], null,
+                                 underlayGraphModel);
+                     }
+                     var graph =
+                         monitorInfraUtils.getUnderlayGraphInstance();
                      var data = {};
                      switch(elementType) {
                          case 'contrail.PhysicalRouter':
                              if(nodeDetails['more_attributes']['ifTable'] == '-')
                                  nodeDetails['more_attributes']['ifTable'] = [];
-                             showPRouterTabs(nodeDetails, self);
+                             graph.model.selectedElement.set({
+                                 'nodeType': ctwc.PROUTER,
+                                 'nodeDetail': nodeDetails});
                              break;
                          case 'contrail.VirtualRouter':
-                             showVRouterTabs (nodeDetails, self);
+                             graph.model.selectedElement.set({
+                                 'nodeType': ctwc.VROUTER,
+                                 'nodeDetail': nodeDetails});
                              break;
                          case 'contrail.VirtualMachine':
-                             showVMTabs (nodeDetails, self, underlayGraphModel);
+                             graph.model.selectedElement.set({
+                                 'nodeType': ctwc.VIRTUALMACHINE,
+                                 'nodeDetail': nodeDetails});
                              break;
                          case 'link':
-                             var graph =
-                                 $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
                              var targetElement =
                                  graph.model.getCell(
                                      clickedElement['attributes']['target']['id']);
@@ -543,30 +550,18 @@ define([
                              var endpoints =
                                  [sourceElement['attributes']['nodeDetails']['name'],
                                   targetElement['attributes']['nodeDetails']['name']];
-                             data['endpoints'] = endpoints;
-                             data['sourceElement'] = sourceElement;
-                             data['targetElement'] = targetElement;
-                             var viewConfig = {
-                                 elementId:
-                                     ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID,
-                                 view: 'TrafficStatisticsView',
-                                 viewPathPrefix:
-                                     ctwl.UNDERLAY_VIEWPATH_PREFIX,
-                                 viewConfig: {
-                                     linkAttributes: data
-                                 }
-                             };
-                             showHideTabs(ctwc.UNDERLAY_LINK);
-                             // Rendering the traffic statistics tab
-                             $('#'+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID).append(
-                                 '<div id="graph-loading" class="graph-loading">'
-                                  + '<p class="loading-message">Loading..<p></div>');
-                             self.renderView4Config(
-                                 $('#'+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID), null,
-                                 viewConfig, null, null, null,function () {
-                                     $("#"+ctwc.UNDERLAY_TAB_ID).tabs({ active:
-                                         ctwc.UNDERLAY_LINK_TAB_INDEX[0]});
-                                 });
+                             addHighlightToNodesAndLinks(
+                                 [targetElement['attributes']['nodeDetails'],
+                                  sourceElement['attributes']['nodeDetails']],
+                                  null,
+                                 underlayGraphModel);
+                             var linkDetail = {};
+                             linkDetail['endpoints'] = endpoints;
+                             linkDetail['sourceElement'] = sourceElement;
+                             linkDetail['targetElement'] = targetElement;
+                             graph.model.selectedElement.set({
+                                 'nodeType': ctwc.UNDERLAY_LINK,
+                                 'nodeDetail': linkDetail});
                              break;
                          }
                  },
@@ -579,11 +574,11 @@ define([
                  'cell:pointerup' :
                       function (cellView, evt, x, y) {
                           evt.stopImmediatePropagation();
-                          var graphView =
-                              monitorInfraUtils.getUnderlayGraphInstance();
                           var ids = underlayGraphModel['underlayPathIds'];
+                          var graph =
+                              monitorInfraUtils.getUnderlayGraphInstance();
                           monitorInfraUtils.showFlowPath(ids,
-                               null, graphView.model);
+                               null, graph.model);
                       },
              };
          }
@@ -664,7 +659,9 @@ define([
 
                     actions.push({
                         callback: function (key, options) {
-                            showPRouterTabs (nodeDetails, self);
+                            graphView.model.selectedElement.set({
+                                'nodeType': ctwc.PROUTER,
+                                'nodeDetail': nodeDetails});
                         }
                     });
 
@@ -728,7 +725,9 @@ define([
 
                     actions.push({
                         callback: function () {
-                            showVRouterTabs(nodeDetails, self);
+                            graphView.model.selectedElement.set({
+                                'nodeType': ctwc.VROUTER,
+                                'nodeDetail': nodeDetails});
                         }
                     });
                     return actions;
@@ -809,7 +808,9 @@ define([
                     var nodeDetails = viewElement.attributes.nodeDetails;
                     actions.push({
                         callback: function (key, options) {
-                            showVMTabs(nodeDetails, self, graphView.model);
+                            graphView.model.selectedElement.set({
+                                'nodeType': ctwc.VIRTUALMACHINE,
+                                'nodeDetail': nodeDetails});
                         }
                     });
 
@@ -883,138 +884,6 @@ define([
         };
     };
 
-    function showPRouterTabs (nodeDetails, self) {
-        var interfaceDetails = [];
-        var data = {
-            hostName : ifNull(nodeDetails['name'],'-'),
-            description: getValueByJsonPath(nodeDetails,
-                'more_attributes;lldpLocSysDesc','-'),
-            intfCnt   : getValueByJsonPath(nodeDetails,
-                'more_attributes;ifTable',[]).length,
-            managementIP :
-                ifNull(nodeDetails['mgmt_ip'],'-'),
-        };
-        showHideTabs(ctwc.PROUTER);
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
-                {active:ctwc.UNDERLAY_PROUTER_TAB_INDEXES[0]})
-        // Rendering the details tab
-        self.renderView4Config($('#'+ctwc.UNDERLAY_DETAILS_TAB_ID),
-            null,
-            monitorInfraUtils.
-                getUnderlayDetailsTabViewConfig({data:data}), null,null, null,
-                function () {
-                    $('span.intfCnt').on('click', function (){
-                        $('#'+ctwc.UNDERLAY_TAB_ID).tabs({active:
-                            ctwc.UNDERLAY_PROUTER_TAB_INDEXES[1]});
-                    });
-            });
-        for(var i = 0; i < getValueByJsonPath(nodeDetails,
-            'more_attributes;ifTable',[]).length; i++ ) {
-            var intfObj =
-                nodeDetails['more_attributes']['ifTable'][i];
-            var rowObj = {
-                ifDescr: ifNull(intfObj['ifDescr'],'-'),
-                ifIndex: ifNull(intfObj['ifIndex'],'-'),
-                ifInOctets: intfObj['ifInOctets'],
-                ifOutOctets: intfObj['ifOutOctets'],
-                ifPhysAddress:
-                    ifNull(intfObj['ifPhysAddress'],'-'),
-                raw_json: intfObj
-            };
-            interfaceDetails.push(rowObj);
-        }
-        var contrailListModel =
-            new ContrailListModel({
-                data: interfaceDetails
-            });
-        // Rendering the interfaces tab
-        self.renderView4Config(
-            $('#'+ctwc.UNDERLAY_PROUTER_INTERFACE_TAB_ID),
-            contrailListModel,
-            monitorInfraUtils.
-                getUnderlayPRouterInterfaceTabViewConfig({
-                    hostName:data.hostName
-                }),
-            null, null, null);
-    }
-
-    function showVRouterTabs (nodeDetails, self) {
-        var vRouterParams =
-            monitorInfraUtils.getUnderlayVRouterParams(nodeDetails);
-        showHideTabs(ctwc.VROUTER);
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
-                {active:ctwc.UNDERLAY_VROUTER_TAB_INDEXES[0]});
-        var vRouterTabConfig = ctwvc.getVRouterDetailsPageTabs(vRouterParams);
-        for (var i = 0; i < vRouterTabConfig.length; i++) {
-            var vRouterTabObj = vRouterTabConfig[i];
-            // As the tabs are not re-render always tab
-            // content is appending to the parent element
-            // on each click,
-            // so we are removing the HTML content;
-            $("#"+vRouterTabObj['elementId']).html('');
-            self.renderView4Config(
-                $("#"+vRouterTabObj['elementId']),
-                null, vRouterTabObj,
-                null, null, null);
-        }
-    }
-
-    function showVMTabs (nodeDetails, self) {
-        var ip = [],vnList = [],intfLen = 0,vmName,
-        srcVN = "",instDetails = {},inBytes = 0,
-        outBytes = 0;
-        var instanceUUID = nodeDetails['name'];
-        var instanceDetails = nodeDetails;
-        var intfList = getValueByJsonPath(instanceDetails,
-            'more_attributes;interface_list',[]);
-        intfLen = intfList.length;
-        vmName =
-            instanceDetails['more_attributes']['vm_name'];
-        for(var j = 0; j < intfLen; j++) {
-            var intfObj = intfList[j];
-            ip.push(ifNull(intfObj['ip_address'],'-'));
-            vnList.push(
-                ifNull(intfObj['virtual_network'],'-'));
-            for(var k = 0; k < ifNull(intfObj['floating_ips'],[]).length > 0; k++) {
-                var intfObjFip =
-                    intfObj['floating_ips'][k];
-                ip.push(ifNull(
-                      intfObjFip['ip_address'],'-'));
-                vnList.push(ifNull(
-                    intfObjFip['virtual_network'],'-'));
-            }
-        }
-        var vnNameArr =
-            ifNull(vnList[0].split(':'),[]);
-        var networkName = ifNull(vnNameArr[2],'-');
-        var projectName =
-            '('+ifNull(vnNameArr[1],'-')+')';
-        srcVN += networkName +" "+ projectName;
-        var instanceObj = {
-            instanceUUID: instanceUUID,
-            networkFQN: vnList[0],
-        };
-        showHideTabs(ctwc.VIRTUALMACHINE);
-        $("#"+ctwc.UNDERLAY_TAB_ID).tabs(
-                {active:ctwc.UNDERLAY_VM_TAB_INDEXES[0]});
-        var instanceTabConfig =
-            ctwvc.getInstanceDetailPageTabConfig(
-                instanceObj);
-        var modelMap = {};
-        var modelKey =
-            ctwc.get(ctwc.UMID_INSTANCE_UVE,
-                instanceUUID);
-        modelMap[modelKey] =
-            ctwvc.getInstanceTabViewModelConfig(
-                instanceUUID);
-        for (var i = 0; i < instanceTabConfig.length; i++) {
-            var tabObj = instanceTabConfig[i];
-            self.renderView4Config(
-                $("#"+tabObj['elementId']), null,
-                tabObj, null, null, modelMap);
-        }
-    }
-
     function resetTopology (options) {
         var underlayGraphModel = options['model'];
         removeUnderlayPathIds();
@@ -1031,32 +900,13 @@ define([
         addElementsToGraph(childElementsArray, underlayGraphModel);
         adjustDimensions(childElementsArray);
         if(options['resetBelowTabs'] == true) {
-            showHideTabs();
+            monitorInfraUtils.removeUnderlayTabs();
         }
     }
 
     function removeUnderlayPathIds() {
         $("#"+ctwl.UNDERLAY_GRAPH_ID).find(".connection-wrap-up").remove();
         $("#"+ctwl.UNDERLAY_GRAPH_ID).find(".connection-wrap-down").remove();
-    }
-
-    function showHideTabs (contextTabsToShow) {
-        var tabContexts = [ctwc.PROUTER, ctwc.VROUTER, ctwc.VIRTUALMACHINE,
-            ctwc.UNDERLAY_LINK];
-        var underlayTabObj  = $("#"+ctwc.UNDERLAY_TAB_ID).data('contrailTabs');
-        var nodeTabMap = {
-            'physical-router': ctwc.UNDERLAY_PROUTER_TAB_INDEXES,
-            'virtual-router': ctwc.UNDERLAY_VROUTER_TAB_INDEXES,
-            'virtual-machine': ctwc.UNDERLAY_VM_TAB_INDEXES,
-            'link': ctwc.UNDERLAY_LINK_TAB_INDEX
-        };
-        if(tabContexts.indexOf(contextTabsToShow) > -1) {
-            underlayTabObj.enableTab(nodeTabMap[contextTabsToShow]);
-        }
-        for (var i = 0; i < tabContexts.length; i++) {
-            if(tabContexts[i] != contextTabsToShow)
-                underlayTabObj.disableTab(nodeTabMap[tabContexts[i]], true);
-        }
     }
 
     function clearHighlightedConnectedElements() {

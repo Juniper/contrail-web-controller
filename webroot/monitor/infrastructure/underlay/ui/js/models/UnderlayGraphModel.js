@@ -18,11 +18,14 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
        adjacencyList : [],
        underlayAdjacencyList : [],
        connectedElements : [],
-       selectedElement : {},
+       selectedElement : new Backbone.Model({
+           nodeType: '',
+           nodeDetail: {}
+       }),
        flowPath: new Backbone.Model({
-                     nodes: [],
-                     links: []
-                 }),
+           nodes: [],
+           links: []
+       }),
        underlayPathIds: [],
        underlayPathReqObj: {},
        uveMissingNodes: [],
