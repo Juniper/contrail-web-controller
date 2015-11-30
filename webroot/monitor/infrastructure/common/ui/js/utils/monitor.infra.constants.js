@@ -37,6 +37,8 @@ define([
         this.IS_NODE_MANAGER_INSTALLED = true;
 
         this.monitorInfraUrls = {
+                TENANT_API_URL              : "/api/tenant/get-data",
+
                 VROUTER_BASE                : '/api/admin/monitor/infrastructure/vrouter/',
                 VROUTER_SUMMARY             : '/api/admin/monitor/infrastructure/vrouters/summary',
                 VROUTER_CACHED_SUMMARY      : '/api/admin/monitor/infrastructure/vrouters/cached-summary',

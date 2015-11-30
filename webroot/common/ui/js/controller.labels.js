@@ -372,6 +372,8 @@ define([
         this.CONFIGNODE_DETAILS_APISERVER_CHART_WIDGET = 'config_node_details_apiserver_chart_widget';
         this.CONFIGNODE_DETAILS_SERVICE_MONITOR_CHART_WIDGET = 'config_node_details_service_monitor_chart_widget';
         this.CONFIGNODE_DETAILS_SCHEMA_CHART_WIDGET = 'config_node_details_schema_chart_widget';
+        this.CONFIGNODE_CONSOLE_LOGS_VIEW_ID =
+            'config_node_console_logs_view';
 
         //Control node labels
         this.CONTROLNODE_VIEWPATH_PREFIX =
@@ -506,6 +508,10 @@ define([
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
 
         this.VROUTER_INSTANCE_GRID_ID = 'vrouter_instances_grid';
+
+        this.VROUTER_CONSOLE_LOGS_VIEW_ID =
+            'vrouter_console_logs_view';
+
         //Database node labels
         this.DATABASENODE_VIEWPATH_PREFIX =
             'monitor/infrastructure/databasenode/ui/js/views/';
@@ -592,7 +598,8 @@ define([
         this.ANALYTICSNODE_GENERATORS_TITLE = 'Generators';
         this.ANALYTICSNODE_QEQUERIES_GRID_ID = 'analytics_node_qequeries_grid';
         this.ANALYTICSNODE_QEQUERIES_TITLE = 'QE Queries';
-
+        this.ANALYTICSNODE_CONSOLE_LOGS_VIEW_ID =
+            'analytics_node_console_logs_view';
 
         this.TMPL_CORE_GENERIC_EDIT = 'core-generic-edit-form-template';
         this.TMPL_CORE_GENERIC_DEL = 'core-generic-delete-form-template';

@@ -622,6 +622,22 @@ define([
                         },
                         renderOnActivate: true
                     }
+                },
+                {
+                    elementId: ctwl.VROUTER_CONSOLE_LOGS_VIEW_ID,
+                    title: 'Console',
+                    view: "NodeConsoleLogsView",
+                    viewConfig: $.extend(viewConfig,
+                            {nodeType:monitorInfraConstants.COMPUTE_NODE}),
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + cowl.QE_SYSTEM_LOGS_GRID_ID).data('contrailGrid')) {
+                                $('#' + cowl.QE_SYSTEM_LOGS_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
                 }
             ]
         };

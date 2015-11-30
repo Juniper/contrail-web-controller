@@ -99,30 +99,23 @@ define([
                            },
                            renderOnActivate: true
                        }
-                   }
-                /*{
+                   },
+                   {
                        elementId: ctwl.CONTROLNODE_CONSOLE_LOGS_VIEW_ID,
                        title: 'Console',
                        view: "NodeConsoleLogsView",
-                       viewConfig: {}
-                   },
-                {
-                    elementId: 'controlnode_console_id',
-                    title: 'Console',
-                    view: "DetailsView",
-                    viewConfig: {
-                        ajaxConfig: {
-                            url: '',
-                            type: 'GET'
-                        },
-                        templateConfig: getDetailsViewTemplateConfig(),
-                        app: cowc.APP_CONTRAIL_CONTROLLER,
-                        dataParser: function(result) {
-                            return monitorInfraParsers.
-                            parseControlNodesDashboardData([result])[0];
-                        }
-                    }
-                }*/
+                       viewConfig: $.extend(viewConfig,
+                               {nodeType:monitorInfraConstants.CONTROL_NODE}),
+                       tabConfig: {
+                           activate: function(event, ui) {
+                               if ($('#' + cowl.QE_SYSTEM_LOGS_GRID_ID).data('contrailGrid')) {
+                                   $('#' + cowl.QE_SYSTEM_LOGS_GRID_ID).
+                                       data('contrailGrid').refreshView();
+                               }
+                           },
+                           renderOnActivate: true
+                       }
+                   }
             ]
         }
     }
