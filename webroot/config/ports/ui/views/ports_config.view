@@ -75,6 +75,13 @@
             </div>
             <div class="row-fluid">
                 <div>
+                    <span class="span2"><label>Fat Flow</label> </span>
+                    {{{formatFFPValue FFPValue}}}
+                </div>
+            </div>
+
+            <div class="row-fluid">
+                <div>
                     <span class="span2"><label>Allowed address pairs</label> </span>
                     {{{formatAAP AllowedAddressPairValue}}}
                 </div>
@@ -327,6 +334,30 @@
                                                     </div>
                                                     <div class="row-fluid" id = "divStaticRoutesAdd">
                                                         <div id="StaticRoutTuples" class="row-fluid"></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <br>
+                                            <div class="row-fluid">
+                                                <label class="control-label">Fat Flow</label>
+                                                <div class="controls">
+                                                    <div class="rule-item-header  margin-0-0-10 span10">
+                                                        <div class="row-fluid">
+                                                            <div class="span5">
+                                                                <h6>Protocol</h6>
+                                                            </div>
+                                                            <div class="span5">
+                                                                <h6>Port</h6>
+                                                            </div>
+                                                            <div class="pull-left">
+                                                                <div title="Add Fat Flow below" class="margin-5 padding-10-0">
+                                                                    <i class="pull-right icon-plus" id="FFPAdd"  onclick="appendFFPEntry(this,'FatFlowTuples', true);"></i>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="row-fluid" id = "divStaticRoutesAdd">
+                                                        <div id="FatFlowTuples" class="row-fluid"></div>
                                                     </div>
                                                 </div>
                                             </div>
