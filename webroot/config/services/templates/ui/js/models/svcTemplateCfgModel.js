@@ -17,7 +17,7 @@ define([
             'service_template_properties': {
                 'instance_data': null,
                 'availability_zone_enable': false,
-                'service_virtualization_type': null,
+                'service_virtualization_type': 'virtual-machine',
                 'image_name': null,
                 'service_mode': 'transparent',
                 'service_type': 'firewall',
@@ -27,7 +27,8 @@ define([
                 'ordered_interfaces': true,
                 'interface_type': []
             },
-            'interfaces' : []
+            'interfaces' : [],
+            'user_created_virtualization_type': 'virtual-machine'
         },
 
         formatModelConfig: function (modelConfig) {
@@ -47,9 +48,9 @@ define([
             }
 
             var ifCollectionModel = new Backbone.Collection(ifModels);
-
             modelConfig['interfaces'] = ifCollectionModel;
-
+            modelConfig['user_created_virtualization_type'] =
+                        modelConfig['service_template_properties']['service_virtualization_type'];
             return modelConfig;
         },
 
@@ -145,6 +146,16 @@ define([
                     required: true,
                     msg: 'Select a Flavor'
                 },
+            },
+      svcTemplateCfgPhysicalDeviceValidations: {
+                'name': {
+                    required: true,
+                    msg: 'Enter Name'
+                },
+                'service_template_properties.service_appliance_set': {
+                    required: true,
+                    msg: 'Select Service Appliance Set'
+                }
             }
         },
 
@@ -153,9 +164,11 @@ define([
             var postData = {'service-template':{}};
 
             var self = this;
-            if (self.model().isValid(true, "svcTemplateCfgConfigValidations")) {
+            var attributes = self.model().attributes;
+            if ((attributes['user_created_virtualization_type'] == "physical-device" && self.model().isValid(true, "svcTemplateCfgPhysicalDeviceValidations")) ||
+                (attributes['user_created_virtualization_type'] == "virtual-machine" && self.model().isValid(true, "svcTemplateCfgConfigValidations"))) {
 
-                var newSvcTemplateCfgData = $.extend(true, {}, self.model().attributes);
+                var newSvcTemplateCfgData = $.extend(true, {}, attributes);
 
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
 
@@ -173,16 +186,35 @@ define([
                     self.getSvcTemplateInterfaceList(newSvcTemplateCfgData);;
 
                 ctwu.deleteCGridData(newSvcTemplateCfgData);
+                var virtType = getValueByJsonPath(newSvcTemplateCfgData,
+                               'user_created_virtualization_type', 'virtual-machine');
+
+                newSvcTemplateCfgData['service_template_properties']['service_virtualization_type'] = virtType;
+                if ( virtType == "physical-device") {
+                    newSvcTemplateCfgData["service_appliance_set_refs"] = [];
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0] = {};
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0]["to"] = [];
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0]["to"] = (newSvcTemplateCfgData['service_template_properties']['service_appliance_set']).split(",");
+                    delete newSvcTemplateCfgData.service_template_properties.availability_zone_enable;
+                    delete newSvcTemplateCfgData.service_template_properties.flavor;
+                    delete newSvcTemplateCfgData.service_template_properties.image_name;
+                    newSvcTemplateCfgData.service_template_properties.service_mode='transparent';
+                    newSvcTemplateCfgData.service_template_properties.service_type='firewall';
+                }
+
+                delete newSvcTemplateCfgData.errors;
+                delete newSvcTemplateCfgData.locks;
+                delete newSvcTemplateCfgData.cgrid;
                 delete newSvcTemplateCfgData.id_perms;
                 delete newSvcTemplateCfgData.interfaces;
                 delete newSvcTemplateCfgData.service_instance_back_refs;
                 delete newSvcTemplateCfgData.href;
                 delete newSvcTemplateCfgData.parent_href;
                 delete newSvcTemplateCfgData.parent_uuid;
-
+                delete newSvcTemplateCfgData.user_created_virtualization_type;
+                delete newSvcTemplateCfgData.service_template_properties.service_appliance_set;
 
                 postData['service-template'] = newSvcTemplateCfgData;
-
                 ajaxConfig.async = false;
                 ajaxConfig.type  = 'POST';
                 ajaxConfig.data  = JSON.stringify(postData);

@@ -274,7 +274,7 @@ function initComponents() {
     vnAjaxcount = 0;
 
     ddFwdMode = $("#ddFwdMode").contrailDropdown({
-        data: [{id:"l2_l3", text:'L2 and L3'}, {id:"l2", text:'L2 Only'}]
+        data: [{id:"l2_l3", text:'L2 and L3'}, {id:"l2", text:'L2 Only'}, {id:"l3", text:'L3 Only'}]
     });
 
     ddAdminState = $("#ddAdminState").contrailDropdown({
@@ -2526,15 +2526,13 @@ function showVNEditWindow(mode, rowIndex) {
             var networkPolicies = jsonPath(results[0][0], "$.network-policys[*]");
             var l2Mode = results[3][0].L2_enable;
             var proutersResult = results[4][0];
-            if(l2Mode == false){
-                $("#ddFwdMode").data("contrailDropdown").enable(false);
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#divFwdMode").addClass("hide");
-            } else {
-                $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
-                $("#ddFwdMode").data("contrailDropdown").enable(true);
-                $("#divFwdMode").removeClass("hide");
-            }
+            /*
+                this dropdown is needed, 
+                because the Device manager will generate some configuration that cannot be supported for some versions of Junos.
+                Set the VN type to L3 will solve this issue
+             */
+            $("#ddFwdMode").data("contrailDropdown").value("l2_l3");
+            $("#ddFwdMode").data("contrailDropdown").enable(true);
             var nps = [];
             configObj["network-policys"] = [];
             var selectedDomain = $("#ddDomainSwitcher").data("contrailDropdown").text();

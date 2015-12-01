@@ -66,6 +66,14 @@ define([
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;image_name',
                                            null);
+                    var virtType = 
+                        getValueByJsonPath(tmpl,
+                                           'service_template_properties;service_virtualization_type',
+                                           null);
+                    if (virtType == "physical-device"){
+                        return;
+                    }
+
                     if (null == imgName) {
                         return 'Image name not found for this template';
                     }
@@ -405,4 +413,3 @@ define([
     });
     return SvcInstModel;
 });
-

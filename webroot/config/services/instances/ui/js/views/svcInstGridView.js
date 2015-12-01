@@ -541,10 +541,17 @@ define([
                 getValueByJsonPath(svcTmplDetails[0],
                                    'service_template_properties;service_type',
                                    null);
+            var svcVirtType =
+                getValueByJsonPath(svcTmplDetails[0],
+                                   'service_template_properties;service_virtualization_type',
+                                   null);
             if ((null != ordIntf) && (false != ordIntf) &&
                 ('analyzer' != svcType) && ('firewall' != svcType)) {
                 return ('<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;' +
                     'Active');
+            }
+            if (svcVirtType == 'physical-device'){
+                return ('<div class="status-badge-rounded status-active"></div>&nbsp;&nbsp;Active');
             }
         }
         var vmStatus =
@@ -763,4 +770,3 @@ define([
 
    return SvcInstGridView;
 });
-
