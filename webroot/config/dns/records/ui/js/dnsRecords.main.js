@@ -1,25 +1,27 @@
 /*
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
-var DnsRecordsLoader = new DnsRecordsLoader();
+var configDNSRecordsLoader = new ConfigDNSRecordsLoader();
 
-function DnsRecordsLoader() {
+function ConfigDNSRecordsLoader() {
     this.load = function(paramObject) {
         var self = this,
             currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathLLSView = rootDir + '/js/views/dnsRecordsView.js',
-            renderFn = paramObject['function'];
+            pathDNSRecordsView = ctBaseDir + '/config/dns/records/ui/js/views/dnsRecordsView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
         $(contentContainer).empty();
 
-        if (self.dnsView == null) {
-            requirejs([pathLLSView], function(DnsRecordsView) {
-                self.dnsView = new DnsRecordsView();
+        if (self.dnsRecordsView == null) {
+            requirejs([pathDNSRecordsView], function(DnsRecordsView) {
+                self.dnsRecordsView = new DnsRecordsView();
                 self.renderView(renderFn, hashParams);
-            }, function(err) {
-                console.info("LLS Load error:" + err);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             });
         } else {
             self.renderView(renderFn, hashParams);
@@ -29,7 +31,7 @@ function DnsRecordsLoader() {
         $(contentContainer).html("");
         switch (renderFn) {
             case 'renderDnsRecords':
-                this.dnsView[renderFn]({
+                this.dnsRecordsView[renderFn]({
                     hashParams: hashParams
                 });
                 break;

@@ -23,17 +23,9 @@ define(
                                     .dnsServer,
                                 type: "GET"
                             },
-                            dataParser: function(response) {
-
-                                var gridElId =
-                                    "#ActiveDnsGrid";
-                                $(gridElId).data(
-                                    'configObj',
-                                    response);
-                                return activeDnsDataParser(
-                                    response)
+                            dataParser: function(result) {
+                                return result;
                             }
-
                         }
                     };
 
@@ -47,33 +39,6 @@ define(
                         getActiveDnsViewConfig());
                 }
             });
-
-        var activeDnsDataParser = function(response) {
-            var responselen = response.length;
-            var ds = [];
-            for (i = 0; i < response.length; i++) {
-                if (response && response.length > i && response[i] &&
-                    response[i].VirtualDnsRecordsResponse && response[i]
-                    .VirtualDnsRecordsResponse.records && response[0].VirtualDnsRecordsResponse
-                    .records.list) {
-                    var nextRecSetKey = response[i].VirtualDnsRecordsResponse
-                        .getnext_record_set;
-                    var res = response[i].VirtualDnsRecordsResponse.records
-                        .list.VirtualDnsRecordTraceData;
-                    if (res) {
-                        if (res.length > i) {
-                            for (var j = 0; j < res.length; j++) {
-                                ds.push(res[j]);
-                            }
-                        } else {
-                            var d = res;
-                            ds.push(d);
-                        }
-                    }
-                }
-            }
-            return ds;
-        }
 
         var getActiveDnsViewConfig = function() {
             return {

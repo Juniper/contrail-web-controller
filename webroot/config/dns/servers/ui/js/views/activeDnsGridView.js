@@ -3,7 +3,8 @@
  */
 define([
     'underscore',
-    'contrail-view'], function(_, ContrailView) {
+    'contrail-view',
+    'config/dns/servers/ui/js/activeDNSFormatter'],function(_, ContrailView, activeDNSFormatter) {
     var gridElId = "#ActiveDnsGrid";
 
     var ActiveDnsGridView = ContrailView.extend({
@@ -46,22 +47,15 @@ define([
                 customControls: [
                     '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
                     '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
-                ],
-                defaultControls: {
-                    collapseable: true,
-                    exportable: true,
-                    refreshable: false,
-                    searchable: true
-                }
+                ]
             },
 
             body: {
                 options: {
-
                     detail: {
-                        //template:
-                        //  cowu.generateDetailTemplateHTML(getDNSDetailsTemplateConfig(),
-                        //                                cowc.APP_CONTRAIL_CONTROLLER)
+                        template:
+                         cowu.generateDetailTemplateHTML(getActiveDNSDetailsTemplateConfig(),
+                                                       cowc.APP_CONTRAIL_CONTROLLER)
                     },
                     checkboxSelectable: false,
                 },
@@ -74,33 +68,131 @@ define([
         };
         return gridElementConfig;
     };
-    ActiveDnsColumns = [{
+
+    var ActiveDnsColumns = [{
         id: 'name',
         field: 'name',
         name: 'Name',
-        minWidth: 300
+        minWidth: 300,
+        formatter: activeDNSFormatter.nameFormatter
     }, {
         id: 'rec_name',
         field: 'rec_name',
-        name: 'DNS Record Name'
+        name: 'DNS Record Name',
+        formatter: activeDNSFormatter.recNameFormatter
     }, {
         id: 'rec_type',
         field: 'rec_type',
-        name: 'DNS Record Type'
+        name: 'DNS Record Type',
+        formatter: activeDNSFormatter.recTypeFormatter
     }, {
         id: 'rec_data',
         field: 'rec_data',
-        name: 'DNS Record Data'
+        name: 'DNS Record Data',
+        formatter: activeDNSFormatter.recDataFormatter
     }, {
         id: 'source',
         field: 'source',
-        name: 'Source'
+        name: 'Source',
+        formatter: activeDNSFormatter.sourceFormatter
     }, {
         id: 'installed',
         field: 'installed',
-        name: 'Installed'
+        name: 'Installed',
+        formatter: activeDNSFormatter.installedFormatter
     }];
 
+    function getActiveDNSDetailsTemplateConfig() {
+        return {
+            templateGenerator: 'RowSectionTemplateGenerator',
+            templateGeneratorConfig: {
+                rows: [{
+                    templateGenerator: 'ColumnSectionTemplateGenerator',
+                    templateGeneratorConfig: {
+                        columns: [{
+                            class: 'span6',
+                            rows: [{
+                                title: 'Details',
+                                templateGenerator: 'BlockListTemplateGenerator',
+                                templateGeneratorConfig: [{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    templateGenerator: 'TextGenerator',
+                                    label: 'Name',
+                                    templateGeneratorConfig: {
+                                        formatter: 'NameFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Record Name',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'RecNameFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Record Type',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'RecTypeFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Record Data',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'RecDataFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Time To Live',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'TTLFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Source',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'SourceFormatter'
+                                    }
+                                },{
+                                    key: 'VirtualDnsRecordsResponse',
+                                    label: 'Installed',
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig: {
+                                        formatter: 'InstalledFormatter'
+                                    }
+                                }]
+                            }]
+                        }]
+                    }
+                }]
+            }
+        };
+    };
 
+
+    this.NameFormatter = function(v, dc) {
+        return activeDNSFormatter.nameFormatter("", "", v, "", dc);
+    };
+    this.RecNameFormatter = function(v, dc) {
+        return activeDNSFormatter.recNameFormatter("", "", v, "", dc);
+    };
+    this.RecTypeFormatter = function(v, dc) {
+        return activeDNSFormatter.recTypeFormatter("", "", v, "", dc);
+    };
+    this.RecDataFormatter = function(v, dc) {
+        return activeDNSFormatter.recDataFormatter("", "", v, "", dc);
+    };
+    this.SourceFormatter = function(v, dc) {
+        return activeDNSFormatter.sourceFormatter("", "", v, "", dc);
+    };
+    this.InstalledFormatter = function(v, dc) {
+        return activeDNSFormatter.installedFormatter("", "", v, "", dc);
+    };
+    this.TTLFormatter = function(v, dc) {
+        return activeDNSFormatter.ttlFormatter("", "", v, "", dc);
+    };
     return ActiveDnsGridView;
 });

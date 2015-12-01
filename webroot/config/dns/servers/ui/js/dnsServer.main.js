@@ -1,25 +1,25 @@
 /*
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
-var DnsServerLoader = new DnsServerLoader();
+var configDNSServerLoader = new ConfigDNSServerLoader();
 
-function DnsServerLoader() {
+function ConfigDNSServerLoader() {
     this.load = function(paramObject) {
         var self = this,
             currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
             rootDir = currMenuObj['resources']['resource'][1]['rootDir'],
-            pathLLSView = rootDir + '/js/views/dnsServerView.js',
-            renderFn = paramObject['function'];
+            pathDNSServersView = ctBaseDir + '/config/dns/servers/ui/js/views/dnsServerView.js',
+            renderFn = paramObject['function'],
+            loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
-        $(contentContainer).empty();
-
-        if (self.dnsView == null) {
-            requirejs([pathLLSView], function(DnsServerView) {
-                self.dnsView = new DnsServerView();
+        if(self.dnsServersView == null) {
+            require([pathDNSServersView], function(DNSServersView){
+                self.dnsServersView = new DNSServersView();
                 self.renderView(renderFn, hashParams);
-            }, function(err) {
-                console.info("LLS Load error:" + err);
+                if(contrail.checkIfExist(loadingStartedDefObj)) {
+                    loadingStartedDefObj.resolve();
+                }
             });
         } else {
             self.renderView(renderFn, hashParams);
@@ -28,11 +28,11 @@ function DnsServerLoader() {
     this.renderView = function(renderFn, hashParams) {
         $(contentContainer).html("");
         if (hashParams.view == "config_dns_activeDatabase") {
-            this.dnsView.renderActiveDns({
+            this.dnsServersView.renderActiveDns({
                 hashParams: hashParams
             });
         } else {
-            this.dnsView.renderDnsServer({
+            this.dnsServersView.renderDnsServer({
                 hashParams: hashParams
             });
         }

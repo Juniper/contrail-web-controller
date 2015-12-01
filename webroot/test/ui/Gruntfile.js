@@ -37,10 +37,9 @@ module.exports = function (grunt) {
         {pattern: 'contrail-web-controller/webroot/test/ui/*.js', included: false},
         {pattern: 'contrail-web-controller/webroot/monitor/**/*.tmpl', included: false},
         {pattern: 'contrail-web-controller/webroot/common/ui/templates/*.tmpl', included: false},
-        {pattern: 'contrail-web-controller/webroot/common/**/*.js', included: false},
+        {pattern: 'contrail-web-controller/webroot/common/**/{!(*.test.js), !(*.unit.test.js)}', included: false},
 
         {pattern: 'contrail-web-controller/webroot/monitor/networking/ui/js/**/*.js', included: false},
-
         {pattern: 'contrail-web-controller/webroot/*.xml', included: false},
 
         {pattern: 'contrail-web-core/webroot/js/**/*.js', included: false},
@@ -370,11 +369,204 @@ module.exports = function (grunt) {
                 },
                 feature: 'ct'
             }
+        },
+        physicalRoutersGridView: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/physicalrouters/ui/js/*.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/physicalrouters/ui/js/**/*.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/physicalrouters/test/ui/views/*.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/physicaldevices/physicalrouters/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir: __dirname + '/reports/tests/config/views/',
+                    outputFile: 'physical-routers-grid-view-test-results.xml',
+                    suite: 'physicalRoutersGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/config/views/physical-routers-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/physicalRoutersGridView/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        physicalInterfacesGridView: {
+            options: {
+                files: [
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/interfaces/ui/js/*.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/interfaces/ui/templates/interfaces.tmpl',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/interfaces/ui/js/**/*.js',
+                        included: false
+                    },
+                    {
+                        pattern: 'contrail-web-controller/webroot/config/physicaldevices/interfaces/test/ui/views/*.js',
+                        included: false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/physicaldevices/interfaces/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir: __dirname + '/reports/tests/config/views/',
+                    outputFile: 'physical-interfaces-grid-view-test-results.xml',
+                    suite: 'physicalInterfacesGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile: __dirname + '/reports/tests/config/views/physical-interfaces-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/physicalInterfacesGridView/',
+                    subdir: browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        bgpRoutersGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/bgp/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/bgp/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/infra/bgp/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/infra/bgp/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'bgp-routers-grid-view-test-results.xml',
+                    suite: 'bgpRoutersGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/bgp-routers-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/bgpRoutersGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        dnsServersGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/servers/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/servers/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/servers/test/ui/views/dnsServersGridView.mock.data.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/servers/test/ui/views/dnsServersGridView.test.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/dns/servers/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'dns-servers-grid-view-test-results.xml',
+                    suite: 'dnsServersGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/dns-servers-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/dnsServersGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
+        },
+        dnsRecordsGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/records/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/records/ui/templates/*.tmpl',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/records/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/dns/records/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/dns/records/ui/js/**/*.js': ['coverage']
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'dns-records-grid-view-test-results.xml',
+                    suite: 'dnsRecordsGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/dns-records-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/dnsRecordsGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
         }
     };
 
     var allTestFiles = [],
-        allNMTestFiles = [];
+        allNMTestFiles = [],
+        allConfigTestFiles = [];
 
     for (var target in karmaConfig) {
         if (target != 'options') {
@@ -382,6 +574,9 @@ module.exports = function (grunt) {
             var feature = karmaConfig[target]['options']['feature'];
             if (feature == 'nm') {
                 allNMTestFiles = allNMTestFiles.concat(karmaConfig[target]['options']['files']);
+            }
+            if(feature == 'config') {
+                allConfigTestFiles = allConfigTestFiles.concat(karmaConfig[target]['options']['files']);
             }
             karmaConfig[target]['options']['files'] = commonFiles.concat(karmaConfig[target]['options']['files']);
         }
@@ -419,6 +614,39 @@ module.exports = function (grunt) {
             }
         }
     };
+
+    karmaConfig['runAllConfigTests'] = {
+        options: {
+            files: [],
+            preprocessors: {
+                'contrail-web-core/webroot/js/**/*.js': ['coverage']
+            },
+            junitReporter: {
+                outputDir: __dirname + '/reports/tests/nm/',
+                outputFile: 'config-test-results.xml',
+                suite: 'config',
+                useBrowserName: false
+            },
+            htmlReporter: {
+                outputFile: __dirname + '/reports/tests/config/config-test-results.html'
+            },
+            coverageReporter: {
+                reporters: [
+                    {
+                        type: 'html',
+                        dir: __dirname + '/reports/coverage/config/',
+                        subdir: browserSubdirFn
+                    },
+                    {
+                        type: 'json',
+                        dir: __dirname + '/reports/coverage/config/',
+                        subdir: browserSubdirFn
+                    }
+                ]
+            }
+        }
+    };
+
     karmaConfig['runAllTests'] = {
         options: {
             files: [],
@@ -444,6 +672,7 @@ module.exports = function (grunt) {
     };
     // Now add the test files along with common files.
     karmaConfig['runAllNMTests']['options']['files'] = commonFiles.concat(allNMTestFiles);
+    karmaConfig['runAllConfigTests']['options']['files'] = commonFiles.concat(allConfigTestFiles);
     karmaConfig['runAllTests']['options']['files'] = commonFiles.concat(allTestFiles);
 
     grunt.initConfig({
@@ -529,5 +758,36 @@ module.exports = function (grunt) {
             grunt.task.run(['karma:networkView', 'karma:projectListView', 'karma:projectView', 'karma:dashBoardView',
                 'karma:instanceListView', 'karma:instanceView', 'karma:flowListView', 'karma:flowGridView']);
         }
+    });
+
+    grunt.registerTask('config', 'Config Test Cases', function(target){
+        var testDir = 'runAllConfigTests';
+        switch(target) {
+            case 'physicalrouters' :
+                grunt.task.run('karma:physicalRoutersGridView');
+                testDir = 'physicalRoutersGridView';
+                break;
+            case 'physicalinterfaces' :
+                grunt.task.run('karma:physicalInterfacesGridView');
+                break;
+            case 'bgprouters' :
+                grunt.task.run('karma:physicalRoutersGridView');
+                testDir = 'physicalInterfacesGridView';
+                break;
+            case 'dnsservers' :
+                grunt.task.run('karma:dnsServersGridView');
+                testDir = 'bgpRoutersGridView';
+                break;
+            case 'dnsrecords' :
+                grunt.task.run('karma:dnsRecordsGridView');
+                testDir = 'dnsRecordsGridView'
+                break;
+            default :
+                grunt.task.run('karma:runAllConfigTests');
+                testDir = 'runAllConfigTests';
+                break;
+        };
+        grunt.log.writeln('Test results: ' + karmaConfig[testDir]['options']['htmlReporter']['outputFile']);
+        printCoverageReportLoc(karmaConfig[testDir]['options']['coverageReporter']);
     });
 };
