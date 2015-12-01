@@ -2622,7 +2622,60 @@ define([
                         layoutHandler.setURLHashParams(params,{p:'mon_infra_underlay',merge:false});
                         break;
                 }
-        }
+        };
+
+        self.getPostDataForGeneratorType = function (options){
+            var type,moduleType="",kfilt="";
+            var nodeType = options.nodeType;
+            var cfilt = options.cfilt;
+            var hostName = options['hostname'];
+            if(nodeType == monitorInfraConstants.COMPUTE_NODE){
+                type = 'vrouter';
+                var moduleId = monitorInfraConstants.UVEModuleIds['VROUTER_AGENT'];
+//                if(obj['vrouterModuleId'] != null && obj['vrouterModuleId'] != ''){
+//                    moduleId = obj['vrouterModuleId'];
+//                }
+                kfilt = hostName+":*:" + moduleId + ":*";
+            } else if (nodeType == monitorInfraConstants.CONTROL_NODE){
+                type = 'controlnode';
+                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['CONTROLNODE'] + ":*";
+            } else if (nodeType == monitorInfraConstants.ANALYTICS_NODE){
+                type = 'contrail-collector';
+                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['COLLECTOR'] + ":*,"+
+                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['OPSERVER'] + ":*";
+            } else if (nodeType == monitorInfraConstants.CONFIG_NODE){
+                type = 'confignode';
+                kfilt = hostName+":*:" + monitorInfraConstants.UVEModuleIds['APISERVER'] + "*,"+
+                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['DISCOVERY_SERVICE'] + ":*,"+
+                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['SERVICE_MONITOR'] + ":*,"+
+                        hostName+":*:" + monitorInfraConstants.UVEModuleIds['SCHEMA'] + ":*";
+            }
+            return self.getPostData("generator","","",cfilt,kfilt);
+        };
+
+        self.getPostData = function (type,module,hostname,cfilt,kfilt){
+            var cfiltObj = {};
+            var postData;
+            if(type != null && type != ""){
+                cfiltObj["type"] = type;
+            } else {
+                return null;
+            }
+            if(module != null && module != ""){
+                cfiltObj["module"] = module;
+            }
+            if(hostname != null && hostname != ""){
+                cfiltObj["hostname"] = hostname;
+            }
+            if(cfilt != null && cfilt != ""){
+                cfiltObj["cfilt"] = cfilt;
+            }
+            if(kfilt != null && kfilt != ""){
+                cfiltObj["kfilt"] = kfilt;
+            }
+            postData = {data:[cfiltObj]};
+            return postData;
+        };
     };
     return MonitorInfraUtils;
 });
