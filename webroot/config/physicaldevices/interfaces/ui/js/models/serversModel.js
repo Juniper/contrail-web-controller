@@ -58,8 +58,10 @@ define([
         validations: {
             serverValidation : {
                 'user_created_mac_address' : function(value, attr, finalObj){
-                    if(!isValidMACAddress(value)) {
-                        return 'Enter a valid MAC Address ' + value;
+                    var macAddress =
+                        value && value.indexOf('(') !== -1 ? value.split(' ')[0] : value;
+                    if(!isValidMACAddress(macAddress)) {
+                        return 'Invalid MAC Address ' + value;
                     }
                 },
                 'user_created_instance_ip_address' : function(value, attr, finalObj){
