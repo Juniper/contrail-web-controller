@@ -18,7 +18,7 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
-            cowu.createModal({'modalId': modalId, 'className': 'modal-400',
+            cowu.createModal({'modalId': modalId, 'className': '',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
                 self.model.configureGlobalConfig(options['configData'], {
@@ -54,8 +54,6 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self, {collection:
                                   self.model.model().attributes.ipFabricSubnets});
-                kbValidation.bind(self, {collection:
-                                  self.model.model().attributes.flowAgingTimeout});
             });
         }
     });
@@ -77,7 +75,7 @@ define([
                                     path: 'forwarding_mode',
                                     dataBindValue:
                                         'forwarding_mode',
-                                    class: 'span12',
+                                    class: 'span7',
                                     elementConfig: {
                                         dataTextField : "text",
                                         dataValueField : "id",
@@ -129,7 +127,6 @@ define([
                                         view: 'FormDropdownView',
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                            width: 250,
                                             path:
                                             'encapsulation_priorities',
                                             dataBindValue:
@@ -174,9 +171,10 @@ define([
                                 elementId: 'autonomous_system',
                                 view: 'FormInputView',
                                 viewConfig: {
+                                    label: 'Autonomous System',
                                     path: 'autonomous_system',
                                     dataBindValue: 'autonomous_system',
-                                    class: 'span12',
+                                    class: 'span7',
                                     placeholder: 'Enter BGP ASN Value'
                                 }
                             }
@@ -205,15 +203,15 @@ define([
                                     path: 'ipFabricSubnets',
                                     collection: 'ipFabricSubnets',
                                     validation: 'ipFabricSubnetsValidation',
-                                    class: "span12",
+                                    class: "span8",
                                     columns: [{
                                         elementId: 'ip_fabric_subnets',
                                         name: 'IP Fabric Subnets',
                                         view: 'FormInputView',
                                         viewConfig: {
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                            width: 300,
                                             path: 'ip_fabric_subnets',
+                                            placeholder:'CIDR',
                                             dataBindValue:
                                                 'ip_fabric_subnets()',
                                         }
@@ -224,7 +222,7 @@ define([
                                     ],
                                     gridActions: [
                                         { onClick: "function() { $root.addSubnet(); }",
-                                          iconClass: 'icon-plus'}
+                                          buttonTitle:"Add Subnet"}
                                     ],
                                 }
                             }
@@ -250,8 +248,7 @@ define([
                                 viewConfig: {
                                     path: 'flow_export_rate',
                                     dataBindValue: 'flow_export_rate',
-                                    class: 'span12',
-                                    placeholder: 'Enter flow export rate'
+                                    class: 'span7'
                                 }
                             }
                         ]
@@ -262,10 +259,11 @@ define([
                                 elementId: 'flowAgingTimeout',
                                 view: 'FormEditableGridView',
                                 viewConfig: {
+                                    label: 'Protocol Flow Aging',
                                     path: 'flowAgingTimeout',
                                     collection: 'flowAgingTimeout',
                                     validation: 'flowAgingTimeoutValidation',
-                                    class: '',
+                                    class: 'rule span9',
                                     columns: [{
                                         elementId: 'protocol',
                                         name: 'Protocol',
@@ -273,17 +271,21 @@ define([
                                         viewConfig: {
                                             templateId:
                                                 cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
-                                            width: 180,
+                                            width: 150,
                                             path: 'protocol',
                                             dataBindValue: 'protocol()',
                                             elementConfig: {
-                                                placeholder: 'Protocol Code',
                                                 dataTextField: 'text',
                                                 dataValueField: 'value',
-                                                dataSource:{
-                                                    type : 'local',
-                                                    data : window.globalConfigProtocolList
-                                                }
+                                                dataSource: {
+                                                    type: 'local',
+                                                    data: [{text: 'TCP',
+                                                            value: 'tcp'},
+                                                           {text: 'UDP',
+                                                             value: 'udp'},
+                                                            {text: 'ICMP',
+                                                             value: 'icmp'}]
+                                                             }
                                             }
                                         }
                                     },
@@ -293,7 +295,6 @@ define([
                                         view: 'FormInputView',
                                         class: "",
                                         viewConfig: {
-                                            disabled : 'disablePort()',
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                             width: 150,
                                             path: 'port',
@@ -303,11 +304,11 @@ define([
                                     },
                                     {
                                         elementId: 'timeout_in_seconds',
-                                        name: 'Timeout (seconds)',
+                                        name: 'Timeout (secs)',
                                         view: 'FormInputView',
                                         class: "",
                                         viewConfig: {
-                                            width: 200,
+                                            width: 150,
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                             path: 'timeout_in_seconds',
                                             dataBindValue: 'timeout_in_seconds()',
@@ -318,12 +319,13 @@ define([
                                         onClick: "function() {\
                                             $root.deleteFlowAgingTuple($data, this);\
                                         }",
-                                        iconClass: 'icon-minus'
+                                        iconClass: 'icon-minus',
                                     }],
                                     gridActions: [{
                                         onClick: "function() {\
                                             $root.addFlowAgingTuple();\
                                         }",
+                                        buttonTitle:"Add Protocol"
                                     }]
                                 }
                             }
