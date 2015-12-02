@@ -234,18 +234,20 @@ define([
                     var checkedRows =
                         $('#' + ctwl.INTERFACES_GRID_ID).data("contrailGrid").
                         getCheckedRows();
-                    interfacesEditView.model = interfacesModel;
-                    interfacesEditView.renderDeleteInterfaces(
-                        {"title": ctwl.TITLE_INTERFACE_MULTI_DELETE,
-                            checkedRows: checkedRows,
-                            callback: function () {
-                                var dataView =
-                                    $('#' + ctwl.INTERFACES_GRID_ID).
-                                    data("contrailGrid")._dataView;
-                                dataView.refreshData();
+                    if(checkedRows && checkedRows.length > 0) {
+                        interfacesEditView.model = interfacesModel;
+                        interfacesEditView.renderDeleteInterfaces(
+                            {"title": ctwl.TITLE_INTERFACE_MULTI_DELETE,
+                                checkedRows: checkedRows,
+                                callback: function () {
+                                    var dataView =
+                                        $('#' + ctwl.INTERFACES_GRID_ID).
+                                        data("contrailGrid")._dataView;
+                                    dataView.refreshData();
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 }
 
             },
