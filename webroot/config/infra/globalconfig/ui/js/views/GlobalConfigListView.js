@@ -138,7 +138,7 @@ define([
          'name': 'Encapsulation Priority Order',},
         {'key': 'flow_export_rate', 'name': 'Flow Export Rate'},
         {'key': 'flow_aging_timeout_list', 'name': 'Flow Aging Timeout'},
-        {'key': 'autonomous_system', 'name': 'Global ASN'},
+        {'key': 'autonomous_system', 'name': 'Autonomous System'},
         {'key': 'ibgp_auto_mesh', 'name': 'iBGP Auto Mesh'},
         {'key': 'ip_fabric_subnets', 'name': 'IP Fabric Subnets'}
     ];

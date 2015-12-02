@@ -33,7 +33,7 @@ define([
                         val = val.trim();
                     }
                     if ((null == val) || ("" == val)) {
-                        return "Enter Subner Value";
+                        return "Enter Subnet Value";
                     }
                     ipArr = val.split('/');
                     if (2 != ipArr.length) {
