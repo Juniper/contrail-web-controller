@@ -76,12 +76,14 @@ define([
         {
             id: 'name',
             field: 'name',
+            width: 100,
             name: 'Configuration Option',
             cssClass: 'cell-text-blue'
         },
         {
             id: 'value',
             field: 'value',
+            width: 350,
             name: 'Value',
             formatter: function(row, col, val, d, rowData) {
                 var dispStr = "";
