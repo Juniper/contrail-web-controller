@@ -2187,7 +2187,7 @@ function successHandlerForGridVNRow(result) {
         var AttachedRouteTablesTxt = "";;
         var routetablerefs = jsonPath(vn, "$.route_table_refs[*]");
         if (routetablerefs === false) {
-            AttachedRouteTablesTxt = "";
+            AttachedRouteTablesTxt = "-";
         } else {
             if(routetablerefs.length >= 1){
                 for(var k=0; k<routetablerefs.length; k++) {
