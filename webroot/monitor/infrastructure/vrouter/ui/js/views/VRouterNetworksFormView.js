@@ -115,6 +115,13 @@ define([
                             resetFn: function() {
                                     self.model.reset();
                                 },
+                            parseFn: function(data) {
+                                var retData = monitorInfraParsers.parseVRouterVNData(data);
+                                paginationInfo = retData['paginationInfo'];
+                                monitorInfraUtils.updateGridTitleWithPagingInfo(
+                                    $('#' + ctwl.VROUTER_NETWORKS_GRID_ID),paginationInfo);
+                                return retData['data'];
+                            },
                             obj:viewConfig,
                             getUrlFn: function() {
                                 return constructvRouterVNUrl(viewConfig)
