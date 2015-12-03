@@ -107,9 +107,16 @@ define([
                 };
             var model = new ContrailListModel(listModelConfig);
             self.renderView4Config($(self.$el).find(queryResultId),
-                    model, responseViewConfig,function() {
+                    model, responseViewConfig,null,null,null,function() {
                         monitorInfraUtils.bindGridPrevNextListeners({
                             gridSel: $('#' + ctwl.VROUTER_INTERFACES_GRID_ID),
+                            parseFn: function(data) {
+                                var retData = monitorInfraParsers.parseVRouterInterfaceData(data);
+                                paginationInfo = retData['paginationInfo'];
+                                monitorInfraUtils.updateGridTitleWithPagingInfo(
+                                    $('#' + ctwl.VROUTER_INTERFACES_GRID_ID),paginationInfo);
+                                return retData['data'];
+                            },
                             model: self.model,
                             resetForm : function() {
                                     self.model.reset();

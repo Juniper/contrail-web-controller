@@ -134,9 +134,16 @@ define([
                         monitorInfraUtils.bindGridPrevNextListeners({
                             gridSel: $('#' + ctwl.VROUTER_ACL_GRID_ID),
                             model: self.model,
-                            resetForm : function() {
+                            resetFn : function() {
                                     self.model.reset();
                                 },
+                            parseFn: function(data) {
+                                var retData = monitorInfraParsers.parseVRouterACLData(data);
+                                paginationInfo = retData['paginationInfo'];
+                                monitorInfraUtils.updateGridTitleWithPagingInfo(
+                                    $('#' + ctwl.VROUTER_ACL_GRID_ID),paginationInfo);
+                                return retData['data'];
+                            },
                             obj:viewConfig,
                             getUrlFn: function() {
                                 return constructVRouterACLUrl(viewConfig)
