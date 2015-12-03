@@ -48,6 +48,10 @@ define([
             body: JSON.stringify(TestMockdata.projectMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
+            url: /\/api\/tenants\/projects\/default-domain.*$/,
+            body: JSON.stringify(TestMockdata.projectMockData)
+        }));
+        responses.push(cotr.createFakeServerResponse( {
             method: "GET",
             url: cttu.getRegExForUrl('/api/tenants/networks/default-domain:admin'),
             body: JSON.stringify(TestMockdata.networksForAdminProjectMockData)
