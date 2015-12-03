@@ -27,7 +27,7 @@ define([
             self.$el.append(routesTmpl({prefix: prefix}));
 
             self.renderView4Config($(self.$el).find(routesFormId),
-                    this.model,
+                    self.model,
                     self.getViewConfig(options,viewConfig),
                     null,
                     null,
@@ -38,13 +38,17 @@ define([
                         Knockback.applyBindings(self.model,
                                 document.getElementById(prefix + '-container'));
                         kbValidation.bind(self);
-                        // self.renderQueryResult(viewConfig);
                         $("#vrouter_routes_radio").on('change', function() {
                             self.renderQueryResult(viewConfig);
                         });
-                        self.model.__kb.view_model.model().on('change:vrf_name',
-                            function() {
+                        var timer = null;
+                        $('#vrf_name').on('change',function() {
+                            //Hack to avoid triggering change twice
+                            if(timer)
+                                clearTimeout(timer);
+                            timer = setTimeout(function() {
                                 self.renderQueryResult(viewConfig);
+                            },100);
                         });
                     }
             );
@@ -178,6 +182,7 @@ define([
                        // ucid: ctwc.CACHE_CONFIGNODE
                     }
                 };
+            //Grid model
             var model = new ContrailListModel(listModelConfig);
 
             self.renderView4Config($(self.$el).find(queryResultId),
@@ -185,10 +190,15 @@ define([
                         monitorInfraUtils.bindGridPrevNextListeners({
                             gridSel: $('#' + ctwl.VROUTER_ROUTES_GRID_ID),
                             model: self.model,
-                            resetForm : function() {
-                                    self.model.reset();
-                                },
                             obj:viewConfig,
+                            parseFn: function(data) {
+                                var routeType = self.model.route_type();
+                                var retData = routeParseMap[routeType](data);
+                                paginationInfo = retData['paginationInfo'];
+                                monitorInfraUtils.updateGridTitleWithPagingInfo(
+                                    $('#' + ctwl.VROUTER_ROUTES_GRID_ID),paginationInfo);
+                                return retData['data'];
+                            },
                             getUrlFn: function() {
                                 return constructURLMap[self.model.route_type()](viewConfig)
                             },
@@ -237,10 +247,6 @@ define([
                                                             var value = "ucast=" + ucIndex + "&&mcast=" + mcIndex + "&&l2=" + l2Index + "&&ucast6=" + uc6Index;
                                                             ret.push({text:name,id:value});
                                                         });
-                                                        //Set the firstValue in model
-                                                        if(ret.length > 0) {
-                                                            self.model.vrf_name(ret[0]['id']);
-                                                        }
                                                         self.renderQueryResult(viewConfig);
                                                         return ret;
                                                     }
