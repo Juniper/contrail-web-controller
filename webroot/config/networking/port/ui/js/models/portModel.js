@@ -24,7 +24,7 @@ define([
             'parent_type': 'project',
             'id_perms':{'enable':true},
             'virtual_network_refs':[],
-            'virtualNetworkToName' : '',
+            'virtualNetworkName' : '',
             'is_sec_grp':true,
             //'is_sec_grp_disabled':false,
             'security_group_refs':[],
@@ -80,7 +80,7 @@ define([
             var virtualNetwork = getValueByJsonPath(
                                  modelConfig['virtual_network_refs'][0],"to","");
             if(virtualNetwork != "") {
-            modelConfig['virtualNetworkToName'] =
+            modelConfig['virtualNetworkName'] =
                        modelConfig['virtual_network_refs'][0]["to"].join(":");
             }
 
@@ -292,7 +292,7 @@ define([
         },
         validations: {
             portValidations: {
-                'virtualNetworkToName': {
+                'virtualNetworkName': {
                     required: true,
                     msg: 'Enter a valid Network name.'
                 },
@@ -432,9 +432,9 @@ define([
             var ajaxConfig = {}, returnFlag = true;
             var network_subnet = allNetworksDS;
             var temp_val;
-            if (this.model().isValid(true, "portValidations") /*&& 
-                this.model().validateAttr(true, "staticRouteValidations") &&
-                this.model().validateAttr(true, "allowedAddressPairValidations")*/) {
+            if (this.model().isValid(true, "portValidations")/* && 
+                this.model().isValid("prefix", "staticRouteValidations") &&
+                this.model().isValid(["ipPrefixVal","mac"], "allowedAddressPairValidations")*/) {
                 var newPortData = $.extend(true, {}, this.model().attributes),
                     selectedDomain = ctwu.getGlobalVariable('domain').name,
                     selectedProject = ctwu.getGlobalVariable('project').name;
@@ -450,7 +450,7 @@ define([
                 var id_perms = JSON.parse(newPortData.id_perms.enable);
                 newPortData.id_perms = {};
                 newPortData.id_perms.enable = id_perms;
-                var selectedVN = newPortData["virtualNetworkToName"].split(":");
+                var selectedVN = newPortData["virtualNetworkName"].split(":");
                 temp_val = getValueByJsonPath(newPortData,
                            "virtual_network_refs;0;to","");
                 if(temp_val == "") {
@@ -744,7 +744,7 @@ define([
                 if(temp_val !=  ""){
                     delete(newPortData.routing_instance_refs);
                 }
-                delete(newPortData.virtualNetworkToName);
+                delete(newPortData.virtualNetworkName);
                 delete(newPortData.macAddress);
                 delete(newPortData.is_sec_grp);
                 delete(newPortData.is_sec_grp_disabled);

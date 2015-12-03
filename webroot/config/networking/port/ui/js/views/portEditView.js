@@ -55,15 +55,15 @@ define([
 
            this.fetchAllData(this ,
                 function(allNetworksDS, allNetwork) {
-                   var disableElement = false;
-                   self.model.setVNData(allNetwork);
-                   if(options['mode'] == "add") {
-                        self.model.virtualNetworkToName(allNetworksDS[0].value);
-                   }
-                   if(options['mode'] == "edit") {
+                    var disableElement = false;
+                    self.model.setVNData(allNetwork);
+                    if(options['mode'] == "add" && allNetworksDS.length > 0) {
+                        self.model.virtualNetworkName(allNetworksDS[0].value);
+                    }
+                    if(options['mode'] == "edit") {
                         disableElement = true;
-                   }
-                    var selectedVN = self.model.virtualNetworkToName();
+                    }
+                    var selectedVN = self.model.virtualNetworkName();
                     var subnetDS = portFormatter.fixedIpSubnetDDFormatter(
                                              allNetwork, selectedVN);
                     self.model.setSubnetDataSource(subnetDS);
@@ -79,11 +79,11 @@ define([
                             self.model.is_sec_grp(false);
                         }
                     }
-                   self.renderView4Config(
+                    self.renderView4Config(
                         $("#" + modalId).find("#" + modalId + "-form"),
                         self.model, self.getConfigureViewConfig
                         (disableElement, allNetworksDS),
-                        null, null, null, function(){
+                        'portValidations', null, null, function(){
                             if(options['mode'] == "edit") {
                                 //remove the add Fixed IP Button
                                 var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
@@ -101,15 +101,22 @@ define([
                             kbValidation.bind(self,
                                 {collection:
                                   self.model.model().attributes.fixedIPCollection}
-                                /*{collection:
+                                );
+                            kbValidation.bind(self,
+                                {collection:
                                   self.model.model().attributes.dhcpOptionCollection}
+                                );
+                            kbValidation.bind(self,
                                 {collection:
                                   self.model.model().attributes.allowedAddressPairCollection}
+                                );
+                            kbValidation.bind(self,
                                 {collection:
-                                  self.model.model().attributes.staticRouteCollection},*/
+                                  self.model.model().attributes.staticRouteCollection}
+                                );
 
-                            );
-                   });
+                        }
+                   );
                    return;
                }
            );
@@ -238,14 +245,14 @@ define([
             viewConfig:{
             rows: [{
                 columns: [{
-                    elementId: 'virtualNetworkToName',
+                    elementId: 'virtualNetworkName',
                     view: "FormDropdownView",
                     name: "Networks",
                     viewConfig: {
                         label: 'Networks',
                         disabled: isDisable,
-                        path: 'virtualNetworkToName',
-                        dataBindValue: 'virtualNetworkToName',
+                        path: 'virtualNetworkName',
+                        dataBindValue: 'virtualNetworkName',
                         class: "span6",
                         elementConfig:{
                             allowClear: true,
@@ -386,7 +393,7 @@ define([
                                     dataBindOptionList : "subnetDataSource()",
                                     class: "span6",
                                     label: 'Subnet',
-                                    width:250,
+                                    width:275,
                                     templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                     elementConfig:{
                                         dataTextField: "text",
@@ -404,6 +411,7 @@ define([
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     dataBindValue: 'fixedIp()',
                                     class: "span6",
+                                    width:275,
                                     label: 'IP'
                                 }
                             }],
@@ -450,7 +458,7 @@ define([
                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                         dataBindValue: 'ipPrefixVal()',
                                         placeholder: 'IP',
-                                        width:250,
+                                        width:275,
                                         label: 'IP'
                                     }
                                 }, {
@@ -462,6 +470,7 @@ define([
                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                         dataBindValue: 'mac()',
                                         placeholder: 'MAC',
+                                        width:275,
                                         label: 'MAC'
                                     }
                                 }],
@@ -495,7 +504,7 @@ define([
                                     dataBindValue: 'dhcp_option_name()',
                                     placeholder: 'Option code',
                                     class: "span6",
-                                    width:250,
+                                    width:275,
                                     label: 'Code'
                                 }
                             }, {
@@ -508,6 +517,7 @@ define([
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     dataBindValue: 'dhcp_option_value()',
                                     class: "span6",
+                                    width:275,
                                     label: 'Value'
                                 }
                             }],
@@ -540,7 +550,7 @@ define([
                                     placeholder: 'Prefix',
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     dataBindValue: 'prefix()',
-                                    width:250,
+                                    width:275,
                                     label: 'Prefix'
                                 }
                             }],
