@@ -266,18 +266,25 @@ define([
                                     columns: [{
                                         elementId: 'protocol',
                                         name: 'Protocol',
-                                        view: 'FormDropdownView',
+                                        view: 'FormComboboxView',
                                         viewConfig: {
                                             templateId:
-                                                cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                             width: 200,
                                             path: 'protocol',
                                             dataBindValue: 'protocol()',
                                             elementConfig: {
                                                 dataTextField: 'text',
                                                 dataValueField: 'value',
-                                                data:
-                                                    window.globalConfigProtocolList
+                                                dataSource: {
+                                                    type: 'local',
+                                                    data: [{text: 'TCP',
+                                                            value: 'tcp'},
+                                                       {text: 'UDP',
+                                                            value: 'udp'},
+                                                       {text: 'ICMP',
+                                                            value: 'icmp'}]
+                                                }
                                             }
                                         }
                                     },
@@ -291,7 +298,7 @@ define([
                                             width: 200,
                                             path: 'port',
                                             dataBindValue: 'port()',
-                                            placeholder: '0 (All Ports)'
+                                            placeholder: 'All Ports'
                                         }
                                     },
                                     {
