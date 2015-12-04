@@ -20,7 +20,26 @@ define([
                 "record_order": "random",
                 "external_visible": false,
                 "reverse_resolution": false
-            }
+            },
+            "user_created_network_ipams" : null
+        },
+        formatModelConfig: function(modelConfig) {
+             //populate user_created_network_ipams for edit case
+             var ipamBackRefs = modelConfig['network_ipam_back_refs'];
+             if(ipamBackRefs instanceof Array) {
+                 var ipamStr = '';
+                 for(var i = 0; i < ipamBackRefs.length; i++) {
+                     var ipam = ipamBackRefs[i];
+                     var formattedString = ipam.to[0] + ':' + ipam.to[1] + ':' + ipam.to[2] + '**' + ipam.uuid;
+                     if(i === 0) {
+                         ipamStr = formattedString;
+                     } else {
+                         ipamStr += ',' + formattedString;
+                     }
+                 }
+                 modelConfig['user_created_network_ipams'] = ipamStr;
+             }
+             return modelConfig;
         },
         addEditDnsServer: function(mode, callbackObj,
             ajaxMethod) {
@@ -80,11 +99,10 @@ define([
                     ];
                 }
                 //handle network ipams
-                if (newdnsServerData[
-                        'network_ipam_back_refs'] != '') {
+                if (newdnsServerData['user_created_network_ipams']) {
                     var nwIpamBackRefs = [];
                     var nwIpams = newdnsServerData[
-                        'network_ipam_back_refs'].split(
+                        'user_created_network_ipams'].split(
                         ',');
                     var nwIpamBackRefsCnt = nwIpams.length;
                     for (var i = 0; i < nwIpamBackRefsCnt; i++) {
@@ -101,6 +119,8 @@ define([
                     newdnsServerData[
                             'network_ipam_back_refs'] =
                         nwIpamBackRefs;
+                } else {
+                    delete newdnsServerData['network_ipam_back_refs'];
                 }
                 delete newdnsServerData['elementConfigMap'];
 

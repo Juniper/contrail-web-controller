@@ -45,35 +45,6 @@ if (!module.parent) {
 }
 
 /**
- * listVirtualDNSs
- * public function
- * 1. URL /api/tenants/config/virtual-DNSs/:id
- * 2. Gets list of virtual DNSs for a given domain
- * 3. Needs domain  id as the id
- * 4. Calls listVirtualDNSsCb that process data from config
- *    api server and sends back the http response.
- */
-function listVirtualDNSs(request, response, appData) {
-
-    var domainId = null;
-    var requestParams = url.parse(request.url, true);
-    var domainURL = '/domain';
-
-    if ((domainId = request.param('id'))) {
-        domainURL += '/' + domainId.toString();
-    } else {
-        /**
-         * TODO - Add Language independent error code and return
-         */
-    }
-
-    configApiServer.apiGet(domainURL, appData,
-        function(error, data) {
-            listVirtualDNSsCb(error, data, response, appData);
-        });
-}
-
-/**
  * listVirtualDNSsFromAllDomains
  * private function
  * 1. Callback for listVirtualDNSs
@@ -112,56 +83,6 @@ function listVirtualDNSsFromAllDomains(request, response, appData) {
     );
 }
 
-/**
- * listVirtualDNSsCb
- * private function
- * 1. Callback for listVirtualDNSs
- * 2. Reads the response of per domain Virtual DNS list from config api server
- *    and sends it back to the client.
- */
-function listVirtualDNSsCb(error, vdnsListData, response, appData) {
-    var vdnsURL = null;
-    var dataObjArr = [];
-    var i = 0,
-        vdnsLength = 0;
-    var vdnss = {};
-    if (error) {
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    vdnss['virtual_DNSs'] = [];
-
-    if ('virtual_DNSs' in vdnsListData['domain']) {
-        vdnss['virtual_DNSs'] =
-            vdnsListData['domain']['virtual_DNSs'];
-    }
-
-    vdnsLength = vdnss['virtual_DNSs'].length;
-
-    if (!vdnsLength) {
-        commonUtils.handleJSONResponse(error, response, vdnss);
-        return;
-    }
-
-    for (i = 0; i < vdnsLength; i++) {
-        var vdnsRef = vdnss['virtual_DNSs'][i];
-        vdnsURL = '/virtual-DNS/' + vdnsRef['uuid'];
-        commonUtils.createReqObj(dataObjArr, vdnsURL,
-            global.HTTP_REQUEST_GET, null, null, null,
-            appData);
-
-    }
-
-    async.map(dataObjArr,
-        commonUtils.getAPIServerResponse(configApiServer.apiGet, false),
-        function(error, results) {
-            virtualDNSsListAggCb(error, results, function(err, data) {
-                commonUtils.handleJSONResponse(err, response, data);
-            });
-        });
-}
-
 function getVdnsAsync(vdnsObj, callback) {
     var vdnsId = vdnsObj['uuid'];
     var appData = vdnsObj['appData'];
@@ -183,7 +104,7 @@ function readVirtualDNSs(vdnsObj, callback) {
 /**
  * virtualDNSsListAggCb
  * private function
- * 1. Callback for the listVirtualDNSsCb gets, sends all virtual DNSs to client.
+ * 1. Callback for the readVirtualDNSs gets, sends all virtual DNSs to client.
  */
 function virtualDNSsListAggCb(error, results, callback) {
     if (error) {
@@ -215,7 +136,15 @@ function createDnsSetIpam(error, vdnsConfig, vdnsPostData,
     updateVirtualDnsAssocIpamRead(error, vdnsConfig, vdnsPostData,
         dnsId, appData,
         function(err, data) {
-            setVirtualDNSRead(err, vdnsConfig, response, appData);
+            if(err && err.responseCode === 409) {
+                configApiServer.apiDelete('/virtual-DNS/' + dnsId, appData,
+                    function(dnsDeleteError, dnsDeleteData){
+                        commonUtils.handleJSONResponse(err, response, null);
+                    }
+                );
+            } else {
+                setVirtualDNSRead(err, vdnsConfig, response, appData);
+            }
         });
 }
 
@@ -361,7 +290,6 @@ function deleteVirtualDNSCallback(vdnsObj, callback) {
             vdnsId,
             appData,
             function(err, data) {
-                console.log("I{PAM ERR:", err, data);
                 if (err) {
                     callback(err, null);
                     return;
@@ -370,8 +298,6 @@ function deleteVirtualDNSCallback(vdnsObj, callback) {
                 /* Now delete the virtual DNS */
                 configApiServer.apiDelete(vdnsDelURL, appData,
                     function(error, data) {
-                        console.log("API DEL ERR:", vdnsDelURL,
-                            error, data);
                         callback(null, {
                             error: error,
                             data: data
@@ -419,30 +345,9 @@ function virtualDNSSendResponse(error, vdnsConfig, response) {
 }
 
 /**
- * @getVirtualDNS
- * public function
- * 1. URL /api/tenants/config/virtual-DNS/:id
- * 2. Gets list of virtual DNSs from config api server
- * 3. Needs tenant id
- * 4. Calls getVirtualDNSCb that process data from config
- *    api server and sends back the http response.
- */
-function getVirtualDNS(request, response, appData) {
-    var virtualDNSId = null;
-    var requestParams = url.parse(request.url, true);
-
-    if (!(virtualDNSId = request.param('id').toString())) {
-        error = new appErrors.RESTServerError('Add Virtual DNS id');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-    readVirtualDNS(response, virtualDNSId, appData);
-}
-
-/**
  * @getVirtualDNSCb
  * private function
- * 1. Callback for getVirtualDNS
+ * 1. Callback for readVirtualDNS
  * 2. Reads the response of a particular Virtual DNS from config
  *    api server
  *    - Gets each DNSRecord
@@ -542,208 +447,6 @@ function VDNSRecordAggCb(error, results, vdnsConfig, callback) {
     }
 
     callback(error, vdnsConfig);
-}
-
-/**
- * @updateVDNSRecordAdd
- * public function
- * 1. URL /api/tenants/config/virtual-DNS/:id/virtual-DNS-records
- * 2. Adds a virtual DNS record to virtual DNS
- * 3. Reads back the updated virtual DNS config and send it
- *    back to the client
- */
-function updateVDNSRecordAdd(request, response, appData) {
-    var vdnsRecordPostURL = '/virtual-DNS-records';
-    var vdnsRecordPostData = request.body;
-    var vdnsRecordCreateData = {};
-    var requestParams = url.parse(request.url, true);
-
-    if (!request.param('id').toString()) {
-        error = new appErrors.RESTServerError('Virtual DNS Id is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    if ((!('virtual_DNS_records' in vdnsRecordPostData['virtual-DNS'])) ||
-        (!vdnsRecordPostData['virtual-DNS']
-            ['virtual_DNS_records'][0]['to'].length)) {
-        error = new appErrors.RESTServerError('Virtual DNS name ' +
-            'is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-    if (typeof vdnsRecordPostData['virtual-DNS']['virtual_DNS_records'][0]['to']
-        [2] === "undefined") {
-        uuid = UUID.create();
-        vdnsRecordPostData['virtual-DNS']['virtual_DNS_records'][0]['to'][2] =
-            uuid['hex'];
-        vdnsRecordPostData['virtual-DNS']['virtual_DNS_records'][0]['name'] =
-            uuid['hex'];
-        vdnsRecordPostData['virtual-DNS']['virtual_DNS_records'][0]['uuid'] =
-            uuid['hex'];
-    }
-
-    vdnsRecordCreateData = {
-        "virtual-DNS-record": {
-            "_type": "virtual-DNS-record",
-            "fq_name": vdnsRecordPostData['virtual-DNS'][
-                'virtual_DNS_records'
-            ][0].to,
-            "name": vdnsRecordPostData['virtual-DNS']['virtual_DNS_records']
-                [0]['name'],
-            "uuid": vdnsRecordPostData['virtual-DNS']['virtual_DNS_records']
-                [0]['uuid'],
-            "parent_type": "virtual-DNS",
-            "virtual_DNS_record_data": vdnsRecordPostData['virtual-DNS'][
-                'virtual_DNS_records'
-            ][0]['virtual_DNS_record_data']
-        }
-    };
-
-    configApiServer.apiPost(vdnsRecordPostURL, vdnsRecordCreateData, appData,
-        function(error, data) {
-            if (error) {
-                commonUtils.handleJSONResponse(error, response, null);
-                return;
-            }
-            commonUtils.handleJSONResponse(error, response, data);
-        });
-}
-
-/**
- * @updateVDNSRecordUpdate
- * public function
- * 1. URL /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid
- * 2. Updates a virtual DNS record 
- * 3. Reads back the updated virtual DNS config and send it
- *    back to the client
- */
-function updateVDNSRecordUpdate(request, response, appData) {
-    var dnsRecURL = '/virtual-DNS-record/';
-    var vdnsRecPutData = request.body;
-    var requestParams = url.parse(request.url, true);
-
-    if (!(virtualDNSId = request.param('id').toString())) {
-        error = new appErrors.RESTServerError('Virtual DNS Id ' +
-            'is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    if (!(vdnsRecordId = request.param('recordid').toString())) {
-        error = new appErrors.RESTServerError('DNS Record Id is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    try {
-        var vdnsRecData =
-            vdnsRecPutData['virtual-DNS']['virtual_DNS_records'][0][
-                'virtual_DNS_record_data'
-            ];
-    } catch (e) {
-        error = new appErrors.RESTServerError('DNS Record not found');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-    dnsRecURL += vdnsRecordId;
-    configApiServer.apiGet(dnsRecURL, appData, function(err, configData) {
-        if ((null != err) || (null == configData)) {
-            commonUtils.handleJSONResponse(err, response, null);
-            return;
-        }
-        var oldConfigData = commonUtils.cloneObj(configData);
-        configData['virtual-DNS-record']['virtual_DNS_record_data'] =
-            vdnsRecData;
-        var delta =
-            jsonDiff.getConfigJSONDiff('virtual-DNS-record',
-                oldConfigData,
-                configData);
-        configApiServer.apiPut(dnsRecURL, delta, appData,
-            function(err, data) {
-                if (err) {
-                    commonUtils.handleJSONResponse(err, response,
-                        null);
-                } else {
-                    commonUtils.handleJSONResponse(err, response,
-                        data);
-                }
-            });
-    });
-}
-
-function updateVDNSRecordDeleteCB(dataObj, callback) {
-    var vdnsId = dataObj['uuid'];
-    var appData = dataObj['appData'];
-    var vdnsDelURL = '/virtual-DNS-record/' + vdnsId;
-
-    configApiServer.apiGet(vdnsDelURL, appData, function(err, configData) {
-        var vdnsPostData = commonUtils.cloneObj(configData);
-        delete vdnsPostData['virtual-DNS-record'][
-            'virtual_DNS_record_data'
-        ];
-        updateVirtualDnsAssocIpamRead(err, configData, vdnsPostData,
-            vdnsId,
-            appData,
-            function(err, data) {
-
-                if (err) {
-                    callback(err, null);
-                    return;
-                }
-
-                /* Now delete the virtual DNS */
-                configApiServer.apiDelete(vdnsDelURL, appData,
-                    function(error, data) {
-                        console.log("API DEL ERR:", vdnsDelURL,
-                            error, data);
-                        callback(null, {
-                            error: error,
-                            data: data
-                        });
-                    });
-            });
-    });
-}
-
-/**
- * @updateVDNSRecordDelete
- * public function
- * 1. URL /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid
- * 2. Deletes the record from Virtual DNS
- * 3. Reads updated config and sends it back to client
- */
-function updateVDNSRecordDelete(request, response, appData) {
-    updateVDNSRecordDeleteCB(dataObj, function(err, data) {
-        commonUtils.handleJSONResponse(err, response, data);
-    });
-    var vdnsRecordURL = '/virtual-DNS-record';
-    var virtualDNSId = null;
-    var vdnsRecordId = null;
-    var requestParams = url.parse(request.url, true);
-
-    if (!(virtualDNSId = request.param('id').toString())) {
-        error = new appErrors.RESTServerError('Virtual DNS Id ' +
-            'is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    if (!(vdnsRecordId = request.param('recordid').toString())) {
-        error = new appErrors.RESTServerError('DNS Record Id is required');
-        commonUtils.handleJSONResponse(error, response, null);
-        return;
-    }
-
-    vdnsRecordURL += "/" + vdnsRecordId;
-    configApiServer.apiDelete(vdnsRecordURL, appData,
-        function(error, data) {
-            if (error) {
-                commonUtils.handleJSONResponse(error, response, null);
-            } else {
-                commonUtils.handleJSONResponse(error, response, data);
-            }
-        });
 }
 
 /**
@@ -951,7 +654,6 @@ function updateVirtualDnsUpdateIpams(error, vdnsConfig,
         commonUtils.createReqObj(dataObjArr, ipamURL, global.HTTP_REQUEST_PUT,
             putIPAMPayload, null, null, appData);
     }
-
     async.map(dataObjArr,
         commonUtils.getAPIServerResponse(configApiServer.apiPut, false),
         function(error, results) {
@@ -1072,106 +774,11 @@ function getVirtualDNSSandeshRecords(req, res, appData) {
     });
 }
 
-/**
- * VDNSRecordsAggByConfig
- * private function
- * 1. Callback for readVirtualDNSRecords, sends virtual DNS recordss 
- *    specified in result to client.
- */
-function VDNSRecordsAggByConfig(err, result, vdnsConfig, callback) {
-    var uuid = null;
-    if (null != err) {
-        callback(err, result);
-        return;
-    }
-    var err = new appErrors.RESTServerError('VDNS Record not found in Config');
-    var vdnsRecSetObjs = {};
-    try {
-        var vdnsRecs = vdnsConfig['virtual-DNS']['virtual_DNS_records'];
-        var vdnsRecsLen = vdnsRecs.length;
-    } catch (e) {
-        callback(err, null);
-        return;
-    }
-    for (var i = 0; i < vdnsRecsLen; i++) {
-        uuid = vdnsRecs[i]['uuid'];
-        vdnsRecSetObjs[uuid] = vdnsRecs[i];
-    }
-
-    var tempConf = commonUtils.cloneObj(vdnsRecs);
-    var resLen = result.length;
-    vdnsConfig['virtual-DNS']['virtual_DNS_records'] = [];
-    for (i = 0, j = 0; i < resLen; i++) {
-        try {
-            uuid = result[i]['virtual-DNS-record']['uuid'];
-            if (vdnsRecSetObjs[uuid]) {
-                vdnsConfig['virtual-DNS']['virtual_DNS_records'][j] = {};
-                vdnsConfig['virtual-DNS']['virtual_DNS_records'][j] =
-                    vdnsRecSetObjs[uuid];
-                vdnsConfig['virtual-DNS']['virtual_DNS_records'][j][
-                    'virtual_DNS_record_data'
-                ] = result[i]['virtual-DNS-record'][
-                    'virtual_DNS_record_data'
-                ];
-                j++;
-            }
-        } catch (e) {
-            continue;
-        }
-    }
-    callback(null, vdnsConfig);
-}
-
-function readVirtualDNSRecords(vdnRecordsObj, callback) {
-    var dataObjArr = [];
-    var reqDataArr = vdnRecordsObj['reqDataArr'];
-    var configData = vdnRecordsObj['configData'];
-    var dataObjArr = vdnRecordsObj['dataObjArr'];
-    var vdnsRecData = [];
-
-    async.map(dataObjArr,
-        commonUtils.getServerResponseByRestApi(configApiServer, true),
-        function(err, result) {
-            if ((null != err) || (null == result)) {
-                callback(err, result);
-                return;
-            }
-            VDNSRecordsAggByConfig(err, result, configData, function(err,
-                data) {
-                if ((null != err) || (null == data)) {
-                    callback(err, null);
-                    return;
-                }
-                var vdnsRec = data['virtual-DNS'][
-                    'virtual_DNS_records'
-                ];
-                cnt = vdnsRec.length;
-                for (i = 0; i < cnt; i++) {
-                    if (null != vdnsRec[i][
-                            'virtual_DNS_record_data'
-                        ]) {
-                        vdnsRecData.push(vdnsRec[i]);
-                    }
-                }
-                data['virtual-DNS']['virtual_DNS_records'] = [];
-                data['virtual-DNS']['virtual_DNS_records'] =
-                    vdnsRecData;
-                callback(err, data);
-            });
-        });
-}
-
-exports.listVirtualDNSs = listVirtualDNSs;
 exports.createVirtualDNS = createVirtualDNS;
 exports.updateVirtualDNS = updateVirtualDNS;
 exports.deleteVirtualDNS = deleteVirtualDNS;
-exports.getVirtualDNS = getVirtualDNS;
 exports.readVirtualDNSs = readVirtualDNSs;
-exports.updateVDNSRecordAdd = updateVDNSRecordAdd;
-exports.updateVDNSRecordUpdate = updateVDNSRecordUpdate;
-exports.updateVDNSRecordDelete = updateVDNSRecordDelete;
 exports.updateVDNSIpams = updateVDNSIpams;
 exports.getVirtualDNSSandeshRecords = getVirtualDNSSandeshRecords;
-exports.readVirtualDNSRecords = readVirtualDNSRecords;
 exports.listVirtualDNSsFromAllDomains = listVirtualDNSsFromAllDomains;
 exports.deleteVirtualDNSCallback = deleteVirtualDNSCallback;

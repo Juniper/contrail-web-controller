@@ -12,64 +12,21 @@
     </require>
 
     <!-- API / Feature definition for Virtual DNS configuration -->
-    <!-- 1. Get Virtual DNS Details          - /api/tenants/config/virtual-DNSs/:id,
-                                                 getVirtualDNSs
-         2. Create Virtual DNS               - /api/tenants/config/virtual-DNSs,
-                                                 createVirtualDNS
-         3. Delete Virtual DNS               - /api/tenants/config/virtual-DNS/:id,
-                                                 deleteVirtualDNS
-         4. Get Virtual DNS                  - /api/tenants/config/virtual-DNS/:id,
-                                                 getVirtualDNS
-         5. Add Virtual DNS Record           - /api/tenants/config/virtual-DNS/:id/virtual-DNS-records,
-                                                 updateVDNSRecordAdd
-         6. Delete Virtual DNS Record        - /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid,
-                                                 updateVDNSRecordDelete
-         7. Update ipams for Virtual DNS     - /api/tenants/config/virtual-DNS/:id/network-ipams
-                                                 updateVDNSIpams
-         8. Update Virtual DNS Record        -
-                    /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid
-                        updateVDNSRecordUpdate
-         9. Update Virtual DNS
-                    /api/tenants/config/virtual-DNS/:id
-                        updateVirtualDNS
-         10. List Virtual DNS Details          - /api/tenants/config/list-virtual-DNSs/:id,
+    <!-- 1. Get Virtual DNS List             - /api/tenants/config/list-virtual-DNSs/:id,
                                                  listVirtualDNSs
+         2. Add Virtual DNS Record           - /api/tenants/config/virtual-DNS/:id/virtual-DNS-records,
+                                                 updateVDNSRecordAdd
+         3. Update Virtual DNS Record        - /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid,
+                                                 updateVDNSRecordDelete
+         4. Delete Virtual DNS Record        - /api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid
+                                                 updateVDNSRecordUpdate
     -->
-    <item>
-        <url>/api/tenants/config/virtual-DNSs/:id</url>
-        <method>get</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.getVirtualDNSs</callback>
-    </item>
+
     <item>
         <url>/api/tenants/config/list-virtual-DNSs/:id</url>
         <method>get</method>
         <feature>virtualdnsrecordsconfig</feature>
         <callback>virtualdnsrecordsconfigapi.listVirtualDNSs</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/virtual-DNSs</url>
-        <method>get</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.listVirtualDNSsFromAllDomains</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/virtual-DNSs</url>
-        <method>post</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.createVirtualDNS</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/virtual-DNS/:id</url>
-        <method>delete</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.deleteVirtualDNS</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/virtual-DNS/:id</url>
-        <method>get</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.getVirtualDNS</callback>
     </item>
     <item>
         <url>/api/tenants/config/virtual-DNS/:id/virtual-DNS-records</url>
@@ -84,28 +41,10 @@
         <callback>virtualdnsrecordsconfigapi.updateVDNSRecordDelete</callback>
     </item>
     <item>
-        <url>/api/tenants/config/virtual-DNS/:id/network-ipams</url>
-        <method>put</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.updateVDNSIpams</callback>
-    </item>
-    <item>
         <url>/api/tenants/config/virtual-DNS/:id/virtual-DNS-record/:recordid</url>
         <method>put</method>
         <feature>virtualdnsrecordsconfig</feature>
         <callback>virtualdnsrecordsconfigapi.updateVDNSRecordUpdate</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/virtual-DNS/:id</url>
-        <method>put</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.updateVirtualDNS</callback>
-    </item>
-    <item>
-        <url>/api/tenants/config/sandesh/virtual-DNS/:dnsfqn</url>
-        <method>get</method>
-        <feature>virtualdnsrecordsconfig</feature>
-        <callback>virtualdnsrecordsconfigapi.getVirtualDNSSandeshRecords</callback>
     </item>
 </urlLists>
 

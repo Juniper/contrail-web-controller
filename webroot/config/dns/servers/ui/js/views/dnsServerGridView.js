@@ -46,9 +46,6 @@ define([
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(
                     rowIndex);
-            var ipams = getNetworkIpamStrings(
-                dataItem['network_ipam_back_refs']);
-            dataItem['network_ipam_back_refs'] = ipams;
             dnsServerModel = new DnsServerModel(dataItem);
             DnsServerEditView.model = dnsServerModel;
             DnsServerEditView.renderEditDnsServer({
@@ -342,27 +339,28 @@ define([
     function getHeaderActionConfig(gridElId) {
         var headerActionConfig = [{
             "type": "link",
-            "title": ctwl.TITLE_DEL_DNS,
+            "title": ctwl.TITLE_DEL_DNS_SERVER,
             "iconClass": 'icon-trash',
             "linkElementId": 'btnActionDelDNS',
             "onClick": function() {
 
                 var checkedRows = $(gridElId).data(
                     'contrailGrid').getCheckedRows();
-
-                dnsServerModel = new DnsServerModel();
-                DnsServerEditView.model = dnsServerModel;
-                DnsServerEditView.renderDeleteDnsServer({
-                    "title": ctwl.TITLE_DEL_DNS_SERVER,
-                    checkedRows: checkedRows,
-                    callback: function() {
-                        var dataView =
-                            $(gridElId).data(
-                                "contrailGrid")
-                            ._dataView;
-                        dataView.refreshData();
-                    }
-                });
+                if(checkedRows && checkedRows.length > 0) {
+                    dnsServerModel = new DnsServerModel();
+                    DnsServerEditView.model = dnsServerModel;
+                    DnsServerEditView.renderDeleteDnsServer({
+                        "title": ctwl.TITLE_DEL_DNS_SERVER,
+                        checkedRows: checkedRows,
+                        callback: function() {
+                            var dataView =
+                                $(gridElId).data(
+                                    "contrailGrid")
+                                ._dataView;
+                            dataView.refreshData();
+                        }
+                    });
+                }
             }
         }, {
             "type": "link",
