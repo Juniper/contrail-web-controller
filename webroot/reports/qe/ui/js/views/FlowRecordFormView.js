@@ -10,53 +10,85 @@ define([
 ], function (_, QueryFormView, Knockback, FlowRecordFormModel) {
 
     var FlowRecordQueryView = QueryFormView.extend({
-        render: function (options) {
+        render: function () {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                formData = contrail.checkIfExist(viewConfig.formData) ? formatFormData(viewConfig.formData) : {},
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
-                flowRecordQueryModel = new FlowRecordFormModel(formData),
+                queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
+                flowRecordQueryModel = new FlowRecordFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
+                flowRecordId = cowl.QE_FLOW_RECORD_ID;
 
             self.model = flowRecordQueryModel;
             self.$el.append(queryPageTmpl({queryPrefix: cowc.FR_QUERY_PREFIX }));
 
-            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(cowl.QE_FLOW_RECORD_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_FLOW_RECORD_ID));
+            if (queryType === cowc.QUERY_TYPE_MODIFY) {
+                self.model.from_time(parseInt(queryFormAttributes.from_time));
+                self.model.to_time(parseInt(queryFormAttributes.to_time));
+            }
+
+            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, modelMap, function () {
+                self.model.showErrorAttr(flowRecordId, false);
+                Knockback.applyBindings(self.model, document.getElementById(flowRecordId));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     if (self.model.model().isValid(true, 'runQueryValidation')) {
                         self.renderQueryResult();
                     }
                 });
+
+                qewu.adjustHeight4FormTextarea(self.$el);
+
+                if (queryType === cowc.QUERY_TYPE_RERUN) {
+                    self.renderQueryResult();
+                }
             });
 
             if (widgetConfig !== null) {
-                self.renderView4Config($(self.$el).find(queryFormId), self.model, widgetConfig, null, null, null);
+                self.renderView4Config($(queryFormId), self.model, widgetConfig, null, null, null);
             }
         },
 
         renderQueryResult: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
+                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                queryFormModel = self.model,
                 queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.FR_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
-                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                responseViewConfig = {
-                    view: "FlowRecordResultView",
-                    viewPathPrefix: "reports/qe/ui/js/views/",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: {}
-                };
+                queryResultTabId = cowl.QE_FLOW_RECORD_TAB_ID;
 
             if (widgetConfig !== null) {
                 $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
-            self.model.is_request_in_progress(true);
-            self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
+            queryFormModel.is_request_in_progress(true);
+            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+                var timeRange = parseInt(queryFormModel.time_range()),
+                    queryResultPostData;
+
+                if (timeRange !== -1) {
+                    queryFormModel.to_time(serverCurrentTime);
+                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
+                }
+
+                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+
+                self.renderView4Config($(queryResultId), self.model,
+                    getQueryResultTabViewConfig(self, queryResultPostData, queryResultTabId), null, null, modelMap,
+                    function() {
+                        var queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
+
+                        queryResultListModel.onAllRequestsComplete.subscribe(function () {
+                            queryFormModel.is_request_in_progress(false);
+                        });
+                    });
+            });
         },
 
         getViewConfig: function () {
@@ -202,17 +234,51 @@ define([
         }
     });
 
-    function formatFormData(formData) {
-        var queryJSON = formData.queryJSON,
-            formModelData = {
-                time_tange: -1,
-                from_time: queryJSON.start_time,
-                to_time: queryJSON.end_time,
-                time_granularity: formData.tg,
-                time_granularity_unit: formData.tgUnit
-            };
+    function getQueryResultTabViewConfig(self, queryResultPostData, queryResultTabId) {
+        return {
+            elementId: queryResultTabId,
+            view: "TabsView",
+            viewConfig: {
+                theme: cowc.TAB_THEME_WIDGET_CLASSIC,
+                tabs: [getQueryResultGridViewConfig(self, queryResultPostData)]
+            }
+        };
+    }
 
-        return formData
+    function getQueryResultGridViewConfig(self, queryResultPostData) {
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
+
+        return {
+            elementId: queryResultGridId,
+            title: cowl.TITLE_RESULTS,
+            iconClass: 'icon-table',
+            view: 'QueryResultGridView',
+            viewPathPrefix: "reports/qe/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            tabConfig: {
+                //TODO
+            },
+            viewConfig: {
+                queryResultPostData: queryResultPostData,
+                gridOptions: {
+                    titleText: cowl.TITLE_FLOW_RECORD,
+                    queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
+                    queryQueueTitle: cowl.TITLE_FLOW,
+                    gridColumns: [{
+                        id: 'fr-details', field: "", name: "", resizable: false, sortable: false, width: 30, minWidth: 30, searchable: false, exportConfig: {allow: false},
+                        allowColumnPickable: false,
+                        formatter: function (r, c, v, cd, dc) {
+                            return '<i class="icon-external-link-sign" title="Analyze Session"></i>';
+                        },
+                        cssClass: 'cell-hyperlink-blue',
+                        events: {
+                            onClick: qewgc.getOnClickFlowRecord(self, queryResultPostData.formModelAttrs)
+                        }
+                    }]
+
+                }
+            }
+        }
     }
 
     return FlowRecordQueryView;

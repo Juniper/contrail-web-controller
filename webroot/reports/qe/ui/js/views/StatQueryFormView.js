@@ -12,44 +12,153 @@ define([
     var StatQueryFormView = QueryFormView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
+                viewConfig = self.attributes.viewConfig,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
-                statQueryFormModel = new StatQueryFormModel(),
+                queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
+                statQueryFormModel = new StatQueryFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
+                statQueryId = cowl.QE_STAT_QUERY_ID;
 
             self.model = statQueryFormModel;
             self.$el.append(queryPageTmpl({queryPrefix: cowc.STAT_QUERY_PREFIX }));
 
-            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(cowl.QE_STAT_QUERY_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_STAT_QUERY_ID));
+            if (queryType === cowc.QUERY_TYPE_MODIFY) {
+                self.model.from_time(parseInt(queryFormAttributes.from_time));
+                self.model.to_time(parseInt(queryFormAttributes.to_time));
+            }
+
+            self.renderView4Config($(queryFormId), self.model, self.getViewConfig(), null, null, modelMap, function () {
+                self.model.showErrorAttr(statQueryId, false);
+                Knockback.applyBindings(self.model, document.getElementById(statQueryId));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     if (self.model.model().isValid(true, 'runQueryValidation')) {
                         self.renderQueryResult();
                     }
                 });
+
+                qewu.adjustHeight4FormTextarea(self.$el);
+
+                if (queryType === cowc.QUERY_TYPE_RERUN) {
+                    self.renderQueryResult();
+                }
             });
 
             if (widgetConfig !== null) {
-                self.renderView4Config($(self.$el).find(queryFormId), self.model, widgetConfig, null, null, null);
+                self.renderView4Config($(queryFormId), self.model, widgetConfig, null, null, null);
             }
         },
 
         renderQueryResult: function() {
             var self = this,
+                viewConfig = self.attributes.viewConfig,
+                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                queryFormModel = self.model,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
-                responseViewConfig = {
-                    view: "StatQueryResultView",
-                    viewPathPrefix: "reports/qe/ui/js/views/",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: {}
-                },
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryResultTabId = cowl.QE_STAT_QUERY_TAB_ID;
 
-            $(queryFormId).parents('.widget-box').data('widget-action').collapse();
-            self.model.is_request_in_progress(true);
-            self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
+            if (widgetConfig !== null) {
+                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+            }
+
+            queryFormModel.is_request_in_progress(true);
+            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+                var timeRange = parseInt(queryFormModel.time_range()),
+                    queryResultPostData;
+
+                if (timeRange !== -1) {
+                    queryFormModel.to_time(serverCurrentTime);
+                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
+                }
+
+                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+
+                self.renderView4Config($(queryResultId), self.model,
+                    getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
+                    function() {
+                        var queryResultTabView = self.childViewMap[queryResultTabId],
+                            queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
+
+                        if (!(queryResultListModel.isRequestInProgress()) && queryResultListModel.getItems().length > 0) {
+                            self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                            queryFormModel.is_request_in_progress(false);
+                        } else {
+                            queryResultListModel.onAllRequestsComplete.subscribe(function () {
+                                if (queryResultListModel.getItems().length > 0) {
+                                    self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                                }
+                                queryFormModel.is_request_in_progress(false);
+                            });
+                        }
+                    });
+            });
+        },
+
+        renderQueryResult: function() {
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                queryFormModel = self.model,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_FORM_SUFFIX,
+                queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.STAT_QUERY_PREFIX + cowc.QE_RESULTS_SUFFIX,
+                queryResultTabId = cowl.QE_STAT_QUERY_TAB_ID;
+
+            if (widgetConfig !== null) {
+                $(queryFormId).parents('.widget-box').data('widget-action').collapse();
+            }
+
+            queryFormModel.is_request_in_progress(true);
+            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+                var timeRange = parseInt(queryFormModel.time_range()),
+                    queryResultPostData;
+
+                if (timeRange !== -1) {
+                    queryFormModel.to_time(serverCurrentTime);
+                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
+                }
+
+                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+
+                self.renderView4Config($(queryResultId), self.model,
+                    getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
+                    function() {
+                        var queryResultTabView = self.childViewMap[queryResultTabId],
+                            queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
+
+                        if (!(queryResultListModel.isRequestInProgress()) && queryResultListModel.getItems().length > 0) {
+                            self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                            queryFormModel.is_request_in_progress(false);
+                        } else {
+                            queryResultListModel.onAllRequestsComplete.subscribe(function () {
+                                if (queryResultListModel.getItems().length > 0) {
+                                    self.renderQueryResultChartTab(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData)
+                                }
+                                queryFormModel.is_request_in_progress(false);
+                            });
+                        }
+                    });
+            });
+        },
+
+        renderQueryResultChartTab: function(queryResultTabView, queryResultTabId, queryFormModel, queryResultPostData) {
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                queryFormAttributes = contrail.checkIfExist(viewConfig.queryFormAttributes) ? viewConfig.queryFormAttributes : {},
+                formQueryIdSuffix = (!$.isEmptyObject(queryFormAttributes)) ? '-' + queryFormAttributes.queryId : '',
+                statChartId = cowl.QE_STAT_QUERY_CHART_ID + formQueryIdSuffix,
+                selectArray = queryFormModel.select().replace(/ /g, "").split(",");
+
+            if (selectArray.indexOf("T=") !== -1 && $('#' + statChartId).length === 0) {
+                queryResultTabView
+                    .renderNewTab(queryResultTabId, getQueryResultChartViewConfig(queryResultPostData));
+            }
         },
 
         getViewConfig: function () {
@@ -227,6 +336,74 @@ define([
             };
         }
     });
+
+    function getQueryResultTabViewConfig(queryResultPostData, queryResultTabId) {
+        return {
+            elementId: queryResultTabId,
+            view: "TabsView",
+            viewConfig: {
+                theme: cowc.TAB_THEME_WIDGET_CLASSIC,
+                tabs: [getQueryResultGridViewConfig(queryResultPostData)]
+            }
+        };
+    }
+
+    function getQueryResultGridViewConfig(queryResultPostData) {
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
+
+        return {
+            elementId: queryResultGridId,
+            title: cowl.TITLE_RESULTS,
+            iconClass: 'icon-table',
+            view: 'QueryResultGridView',
+            viewPathPrefix: "reports/qe/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            tabConfig: {
+                //TODO
+            },
+            viewConfig: {
+                queryResultPostData: queryResultPostData,
+                gridOptions: {
+                    titleText: cowl.TITLE_STATS,
+                    queryQueueUrl: cowc.URL_QUERY_STAT_QUEUE,
+                    queryQueueTitle: cowl.TITLE_STATS
+
+                }
+            }
+        }
+    }
+
+    function getQueryResultChartViewConfig(queryResultPostData) {
+        var queryResultChartId = cowl.QE_STAT_QUERY_CHART_ID,
+            queryResultChartGridId = cowl.QE_STAT_QUERY_CHART_GRID_ID,
+            statChartTabViewConfig = [];
+
+        statChartTabViewConfig.push({
+            elementId: queryResultChartId,
+            title: cowl.TITLE_CHART,
+            iconClass: 'icon-bar-chart',
+            view: "QueryResultLineChartView",
+            viewPathPrefix: "reports/qe/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            tabConfig: {
+                activate: function (event, ui) {
+                    $('#' + queryResultChartId).find('svg').trigger('refresh');
+                    if ($('#' + queryResultChartGridId).data('contrailGrid')) {
+                        $('#' + queryResultChartGridId).data('contrailGrid').refreshView();
+                    }
+                },
+                renderOnActivate: true
+            },
+            viewConfig: {
+                queryId: queryResultPostData.queryId,
+                queryFormAttributes: queryResultPostData.formModelAttrs,
+                queryResultChartId: queryResultChartId,
+                queryResultChartGridId: queryResultChartGridId
+            }
+        });
+
+        return statChartTabViewConfig;
+    }
 
     return StatQueryFormView;
 });

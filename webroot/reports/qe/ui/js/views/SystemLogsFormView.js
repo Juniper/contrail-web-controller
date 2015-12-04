@@ -11,50 +11,84 @@ define([
 
     var SystemLogsFormView = QueryFormView.extend({
         render: function () {
-            var self = this, viewConfig = self.attributes.viewConfig,
+            var self = this,
+                viewConfig = self.attributes.viewConfig,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                hashParams = layoutHandler.getURLHashParams(),
                 queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_QUERY_PAGE),
-                systemLogs = new SystemLogsFormModel(),
+                queryType = contrail.checkIfExist(hashParams.queryType) ? hashParams.queryType : null,
+                queryFormAttributes = contrail.checkIfExist(hashParams.queryFormAttributes) ? hashParams.queryFormAttributes : {},
+                systemLogsQueryFormModel = new SystemLogsFormModel(queryFormAttributes),
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX;
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
+                systemLogsId = cowl.QE_SYSTEM_LOGS_ID;
 
-            self.model = systemLogs;
+            self.model = systemLogsQueryFormModel;
             self.$el.append(queryPageTmpl({queryPrefix: cowc.SYSTEM_LOGS_PREFIX }));
 
-            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, null, function () {
-                self.model.showErrorAttr(cowl.QE_SYSTEM_LOGS_ID, false);
-                Knockback.applyBindings(self.model, document.getElementById(cowl.QE_SYSTEM_LOGS_ID));
+            if (queryType === cowc.QUERY_TYPE_MODIFY) {
+                self.model.from_time(parseInt(queryFormAttributes.from_time));
+                self.model.to_time(parseInt(queryFormAttributes.to_time));
+            }
+
+            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, modelMap, function () {
+                self.model.showErrorAttr(systemLogsId, false);
+                Knockback.applyBindings(self.model, document.getElementById(systemLogsId));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
                     if (self.model.model().isValid(true, 'runQueryValidation')) {
                         self.renderQueryResult();
                     }
                 });
+
+                qewu.adjustHeight4FormTextarea(self.$el);
+
+                if (queryType === cowc.QUERY_TYPE_RERUN) {
+                    self.renderQueryResult();
+                }
             });
 
             if (widgetConfig !== null) {
-                self.renderView4Config($(self.$el).find(queryFormId), self.model, widgetConfig, null, null, null);
+                self.renderView4Config($(queryFormId), self.model, widgetConfig, null, null, null);
             }
         },
 
         renderQueryResult: function() {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
-                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
                 widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ? viewConfig.widgetConfig : null,
+                modelMap = contrail.handleIfNull(self.modelMap, {}),
+                queryFormModel = self.model,
+                queryFormId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_FORM_SUFFIX,
                 queryResultId = cowc.QE_HASH_ELEMENT_PREFIX + cowc.SYSTEM_LOGS_PREFIX + cowc.QE_RESULTS_SUFFIX,
-                responseViewConfig = {
-                    view: "SystemLogsResultView",
-                    viewPathPrefix: "reports/qe/ui/js/views/",
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: {}
-                };
+                queryResultTabId = cowl.QE_SYSTEM_LOGS_TAB_ID;
 
             if (widgetConfig !== null) {
                 $(queryFormId).parents('.widget-box').data('widget-action').collapse();
             }
 
-            self.model.is_request_in_progress(true);
-            self.renderView4Config($(self.$el).find(queryResultId), this.model, responseViewConfig);
+            queryFormModel.is_request_in_progress(true);
+            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+                var timeRange = parseInt(queryFormModel.time_range()),
+                    queryResultPostData;
+
+                if (timeRange !== -1) {
+                    queryFormModel.to_time(serverCurrentTime);
+                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
+                }
+
+                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+
+                self.renderView4Config($(queryResultId), self.model,
+                    getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
+                    function() {
+                        var queryResultListModel = modelMap[cowc.UMID_QUERY_RESULT_LIST_MODEL];
+
+                        queryResultListModel.onAllRequestsComplete.subscribe(function () {
+                            queryFormModel.is_request_in_progress(false);
+                        });
+                    });
+            });
         },
 
         getViewConfig: function () {
@@ -167,6 +201,39 @@ define([
             };
         }
     });
+
+    function getQueryResultTabViewConfig(queryResultPostData, queryResultTabId) {
+        return {
+            elementId: queryResultTabId,
+            view: "TabsView",
+            viewConfig: {
+                theme: cowc.TAB_THEME_WIDGET_CLASSIC,
+                tabs: [getQueryResultGridViewConfig(queryResultPostData)]
+            }
+        };
+    }
+
+    function getQueryResultGridViewConfig(queryResultPostData) {
+        return {
+            elementId: cowl.QE_QUERY_RESULT_GRID_ID,
+            title: cowl.TITLE_RESULTS,
+            iconClass: 'icon-table',
+            view: 'QueryResultGridView',
+            viewPathPrefix: "reports/qe/ui/js/views/",
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            tabConfig: {
+                //TODO
+            },
+            viewConfig: {
+                queryResultPostData: queryResultPostData,
+                gridOptions: {
+                    titleText: cowl.TITLE_SYSTEM_LOGS,
+                    queryQueueUrl: cowc.URL_QUERY_LOG_QUEUE,
+                    queryQueueTitle: cowl.TITLE_LOG
+                }
+            }
+        }
+    }
 
     return SystemLogsFormView;
 });

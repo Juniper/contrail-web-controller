@@ -826,7 +826,7 @@ and need to add the iconClass tag wherever we need to show some icons
                         </item>
                         <item>
                             <hash>query_flow_queue</hash>
-                            <label>Flow Queue</label>
+                            <label>Query Queue</label>
                             <loader>
                                 <class>qeLoader</class>
                                 <function>renderFlowQueue</function>
@@ -858,6 +858,15 @@ and need to add the iconClass tag wherever we need to show some icons
                             </loader>
                             <searchStrings>Query Object Logs</searchStrings>
                         </item>
+                        <item>
+                            <hash>query_log_queue</hash>
+                            <label>Query Queue</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderLogQueue</function>
+                            </loader>
+                            <searchStrings>Log Query Queue</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
@@ -873,6 +882,15 @@ and need to add the iconClass tag wherever we need to show some icons
                                 <function>renderStatQuery</function>
                             </loader>
                             <searchStrings>Query Statistics</searchStrings>
+                        </item>
+                        <item>
+                            <hash>query_stat_queue</hash>
+                            <label>Query Queue</label>
+                            <loader>
+                                <class>qeLoader</class>
+                                <function>renderStatQueue</function>
+                            </loader>
+                            <searchStrings>Stat Query Queue</searchStrings>
                         </item>
                     </items>
                 </item>

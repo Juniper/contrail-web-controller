@@ -20,6 +20,12 @@ define([
             return this;
         },
 
+        isTableNameAvailable: function() {
+            var tableName = this.table_name();
+
+            return !(tableName === null || tableName === '');
+        },
+
         validations: {
             runQueryValidation: {
                 'table_name': {
