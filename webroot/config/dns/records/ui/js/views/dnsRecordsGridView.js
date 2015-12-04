@@ -250,27 +250,28 @@ define([
     function getHeaderActionConfig(gridElId) {
         var headerActionConfig = [{
             "type": "link",
-            "title": ctwl.TITLE_DEL_DNS,
+            "title": ctwl.TITLE_DEL_DNS_RECORD,
             "iconClass": 'icon-trash',
             "linkElementId": 'btnActionDelDNS',
             "onClick": function() {
 
                 var checkedRows = $(gridElId).data(
                     'contrailGrid').getCheckedRows();
-
-                dnsRecordsModel = new DnsRecordsModel();
-                DnsRecordsEditView.model = dnsRecordsModel;
-                DnsRecordsEditView.renderDeleteDnsRecords({
-                    "title": ctwl.TITLE_DEL_DNS_RECORD,
-                    checkedRows: checkedRows,
-                    callback: function() {
-                        var dataView =
-                            $(gridElId).data(
-                                "contrailGrid")
-                            ._dataView;
-                        dataView.refreshData();
-                    }
-                });
+                if(checkedRows && checkedRows.length > 0) {
+                    dnsRecordsModel = new DnsRecordsModel();
+                    DnsRecordsEditView.model = dnsRecordsModel;
+                    DnsRecordsEditView.renderDeleteDnsRecords({
+                        "title": ctwl.TITLE_DEL_DNS_RECORD,
+                        checkedRows: checkedRows,
+                        callback: function() {
+                            var dataView =
+                                $(gridElId).data(
+                                    "contrailGrid")
+                                ._dataView;
+                            dataView.refreshData();
+                        }
+                    });
+                }
             }
         }, {
             "type": "link",

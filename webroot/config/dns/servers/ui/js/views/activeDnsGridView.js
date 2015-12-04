@@ -115,49 +115,49 @@ define([
                                 title: 'Details',
                                 templateGenerator: 'BlockListTemplateGenerator',
                                 templateGeneratorConfig: [{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'name',
                                     templateGenerator: 'TextGenerator',
                                     label: 'Name',
                                     templateGeneratorConfig: {
                                         formatter: 'NameFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'rec_name',
                                     label: 'Record Name',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
                                         formatter: 'RecNameFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'rec_type',
                                     label: 'Record Type',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
                                         formatter: 'RecTypeFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'rec_data',
                                     label: 'Record Data',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
                                         formatter: 'RecDataFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'rec_ttl',
                                     label: 'Time To Live',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
                                         formatter: 'TTLFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'source',
                                     label: 'Source',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
                                         formatter: 'SourceFormatter'
                                     }
                                 },{
-                                    key: 'VirtualDnsRecordsResponse',
+                                    key: 'installed',
                                     label: 'Installed',
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig: {
