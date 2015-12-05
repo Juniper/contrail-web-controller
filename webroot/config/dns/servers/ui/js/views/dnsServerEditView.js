@@ -428,13 +428,13 @@ define([
                     }]
                 },{
                     columns: [{
-                        elementId: 'network_ipam_back_refs',
+                        elementId: 'user_created_network_ipams',
                         view: 'FormMultiselectView',
                         viewConfig: {
                             label: 'Associate IPAMs',
-                            path: 'network_ipam_back_refs',
+                            path: 'user_created_network_ipams',
                             class: 'span12',
-                            dataBindValue: 'network_ipam_back_refs',
+                            dataBindValue: 'user_created_network_ipams',
                             elementConfig: {
                                 dataTextField: "text",
                                 dataValueField: "id",

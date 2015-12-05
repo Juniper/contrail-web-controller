@@ -8,45 +8,35 @@
           * @nameFormatter
           */
          nameFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;name',
-                 '-');
+             return getValueByJsonPath(dc, 'name', '-');
          },
 
          /*
           * @recNameFormatter
           */
         recNameFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;rec_name',
-                 '-');
+             return getValueByJsonPath(dc, 'rec_name', '-');
          },
 
          /*
           * @recTypeFormatter
           */
          recTypeFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;rec_type',
-                 '-');
+             return getValueByJsonPath(dc, 'rec_type', '-');
          },
 
          /*
           * @recDataFormatter
           */
         recDataFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;rec_data',
-                 '-');
+             return getValueByJsonPath(dc, 'rec_data', '-');
          },
 
          /*
           * @ttlFormatter
           */
          ttlFormatter : function(r, c, v, cd, dc) {
-             var ttlSeconds = getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;rec_ttl',
-                 '-');
+             var ttlSeconds = getValueByJsonPath(dc, 'rec_ttl', '-');
              if(ttlSeconds !== '-') {
                  ttlSeconds = ttlSeconds + ' (seconds)';
              }
@@ -57,18 +47,14 @@
           * @sourceFormatter
           */
          sourceFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;source',
-                 '-');
+             return getValueByJsonPath(dc, 'source', '-');
          },
 
          /*
           * @installedFormatter
           */
          installedFormatter : function(r, c, v, cd, dc) {
-             return getValueByJsonPath(dc,
-                 'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData;installed',
-                 '-');
+             return getValueByJsonPath(dc, 'installed', '-');
          }
      };
  });

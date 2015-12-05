@@ -24,7 +24,13 @@ define(
                                 type: "GET"
                             },
                             dataParser: function(result) {
-                                return result;
+                                var activeDNSRecData = [];
+                                if(result instanceof Array && result.length === 1){
+                                    activeDNSRecData = getValueByJsonPath(result[0],
+                                    'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData',
+                                    []);
+                                }
+                                return activeDNSRecData;
                             }
                         }
                     };
