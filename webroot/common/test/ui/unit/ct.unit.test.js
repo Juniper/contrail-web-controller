@@ -28,7 +28,13 @@ define([
     };
 
     function testInitFn(defObj) {
-        defObj.resolve();
+        // Init the feature app.
+        var initFeatureDefObj = $.Deferred();
+        cotu.initFeatureApp(FEATURE_PCK_WEB_CONTROLLER, initFeatureDefObj);
+
+        initFeatureDefObj.done(function() {
+            defObj.resolve();
+        });
         return;
     };
 
