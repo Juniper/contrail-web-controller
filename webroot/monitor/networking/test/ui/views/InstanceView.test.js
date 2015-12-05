@@ -49,7 +49,7 @@ define([
             body: JSON.stringify(TestMockdata.projectsMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
-            url: /\/api\/tenants\/projects\/default\-domain.*$/,
+            url: /\/api\/tenants\/projects\/default-domain.*$/,
             body: JSON.stringify(TestMockdata.projectsMockData)
         }));
         responses.push(cotr.createFakeServerResponse( {
