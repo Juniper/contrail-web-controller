@@ -712,6 +712,13 @@ module.exports = function (grunt) {
             'To run specific feature (for eg: nm) tests, run:\n grunt run:nm\n    OR \n grunt nm\n\n');
     });
 
+    grunt.registerTask('install-hook', 'install hook for test infra', function() {
+        var fs = require('fs');
+        grunt.file.copy('../../../.pre-commit', '../../../.git/hooks/pre-commit');
+        fs.chmodSync('../../../.git/hooks/pre-commit', '755');
+        grunt.log.writeln('now on git commit will execute unit tests before committing..');
+    });
+
     grunt.registerTask('run', 'Web Controller Test Cases', function (feature) {
         if (feature == null) {
             grunt.log.writeln('>>>>>>>> No feature specified. will run all the feature tests. <<<<<<<');
