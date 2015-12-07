@@ -47,7 +47,7 @@ define([
         reset: function (data, event) {
             this.mac('');
             this.network('');
-            this.type('');
+            this.type('any');
             this.name('');
             this.ip_address('');
         },

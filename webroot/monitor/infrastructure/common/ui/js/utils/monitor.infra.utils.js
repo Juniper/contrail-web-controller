@@ -1439,6 +1439,7 @@ define([
             }
             var newAjaxConfig = "";
             var cfg = ifNull(cfg,{});
+            var parseFn = cfg['parseFn'];
             var paginationInfo = ifNull(cfg['paginationInfo'],{});
             //Populate last_page based on entries and first_page
             paginationInfo['last_page'] = paginationInfo['first_page'];
@@ -1482,8 +1483,17 @@ define([
                 };
             if(gridInst != null) {
                 // gridInst.showGridMessage('loading');
-                gridInst.setRemoteAjaxConfig(newAjaxConfig);
-                reloadGrid(gridInst);
+                // gridInst.setRemoteAjaxConfig(newAjaxConfig);
+                // reloadGrid(gridInst);
+                // Issue an ajax call to get the prev/next set of records and set it on dataView
+                $.ajax(newAjaxConfig).done(function(response) {
+                    var retData = response;
+                    if(typeof(parseFn) == 'function') {
+                        retData = parseFn(response);
+                    }
+                    if(gridInst._dataView != null)
+                        gridInst._dataView.setData(retData);
+                });
             }
         }
 
@@ -1537,7 +1547,8 @@ define([
                     dirType: 'last',
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
             gridSel.find('i.icon-forward').parent().click(function() {
@@ -1550,7 +1561,8 @@ define([
                     dirType: 'next',
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
             gridSel.find('i.icon-step-backward').parent().click(function() {
@@ -1563,7 +1575,8 @@ define([
                     dirType: 'first',
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
             gridSel.find('i.icon-backward').parent().click(function() {
@@ -1576,7 +1589,8 @@ define([
                     dirType: 'prev',
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
             gridSel.parent().find('.btn-display').click(function() {
@@ -1584,15 +1598,18 @@ define([
                 onPrevNextClick(cfg['obj'], {
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
             gridSel.parent().find('.btn-reset').click(function() {
-                cfg['resetFn']();
+                if(typeof(cfg['resetFn']) == 'function')
+                    cfg['resetFn']();
                 onPrevNextClick(cfg['obj'],{
                     gridSel: gridSel,
                     paginationInfo: paginationInfo,
-                    getUrlFn: cfg['getUrlFn']
+                    getUrlFn: cfg['getUrlFn'],
+                    parseFn: cfg['parseFn']
                 });
             });
         }
