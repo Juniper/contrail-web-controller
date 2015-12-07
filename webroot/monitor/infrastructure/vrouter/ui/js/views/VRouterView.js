@@ -28,7 +28,7 @@ define([
 
     function getVRouterDetails() {
         return {
-            elementId: cowu.formatElementId([ctwl.CONTROLNODE_DETAILS_PAGE_ID]),
+            elementId: cowu.formatElementId([ctwl.VROUTER_DETAILS_PAGE_ID]),
             view: "VRouterDetailsView",
             viewPathPrefix: ctwl.VROUTER_VIEWPATH_PREFIX,
             app: cowc.APP_CONTRAIL_CONTROLLER,

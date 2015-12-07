@@ -461,6 +461,7 @@ define([
         this.VROUTER_TAB_SEARCH_PREFIX = 'Search';
         this.VROUTER_TAB_SECTION_ID = 'vrouter_tab_section';
         this.VROUTER_TAB_VIEW_ID = 'vrouter_tab_view';
+        this.VROUTER_DETAILS_PAGE_ID = 'vrouter_details';
         this.VROUTER_DETAILS_SECTION_ID = 'vrouter_details_section';
         this.VROUTER_DETAILS_TABS_ID = 'vrouter_details_tab';
         this.VROUTER_DETAIL_ID = 'vrouter_detail_id;'
@@ -484,6 +485,7 @@ define([
         this.VROUTER_NETWORKS_RESULTS = 'vrouter_networks-results';
         this.VROUTER_NETWORKS_PREFIX = 'vrouter_networks';
         this.VROUTER_NETWORKS_GRID_ID = this.VROUTER_NETWORKS_PREFIX + '-results';
+        this.VROUTER_NETWORKS_TAB_IDX = 2;
 
         // this.VROUTER_INTERFACES_GRID_SECTION_ID = 'vrouter_interfaces_grid_section_id';
         this.VROUTER_INTERFACES_GRID_VIEW_ID = 'vrouter_interfaces_id';
@@ -492,6 +494,7 @@ define([
         this.VROUTER_INTERFACES_RESULTS = 'vrouter_interfaces-results';
         this.VROUTER_INTERFACES_PREFIX = 'vrouter_interfaces';
         this.VROUTER_INTERFACES_GRID_ID = this.VROUTER_INTERFACES_PREFIX + '-results';
+        this.VROUTER_INTERFACES_TAB_IDX = 1;
 
         this.VROUTER_ROUTES_PREFIX = 'vrouter_routes';
 
@@ -501,6 +504,7 @@ define([
         this.VROUTER_ROUTES_RESULTS = 'vrouter_routes-results';
         this.VROUTER_ROUTES_PREFIX = 'vrouter_routes';
         this.VROUTER_ROUTES_GRID_ID = this.VROUTER_ROUTES_PREFIX + '-results';
+        this.VROUTER_ROUTES_TAB_IDX = 5;
 
         // this.VROUTER_ACL_GRID_SECTION_ID = 'vrouter_acl_grid_section_id';
         this.VROUTER_ACL_GRID_VIEW_ID = 'vrouter_acl_id';
@@ -509,6 +513,7 @@ define([
         this.VROUTER_ACL_RESULTS = 'vrouter_acl-results';
         this.VROUTER_ACL_PREFIX = 'vrouter_acl';
         this.VROUTER_ACL_GRID_ID = this.VROUTER_ACL_PREFIX + '-results';
+        this.VROUTER_ACL_TAB_IDX = 3;
 
         // this.VROUTER_FLOWS_GRID_SECTION_ID = 'vrouter_flows_grid_section_id';
         this.VROUTER_FLOWS_GRID_VIEW_ID = 'vrouter_flows_id';
@@ -517,6 +522,7 @@ define([
         this.VROUTER_FLOWS_RESULTS = 'vrouter_flows-results';
         this.VROUTER_FLOWS_PREFIX = 'vrouter_flows';
         this.VROUTER_FLOWS_GRID_ID = this.VROUTER_FLOWS_PREFIX + '-results';
+        this.VROUTER_FLOWS_TAB_IDX = 4;
 
         this.VROUTER_INSTANCE_GRID_ID = 'vrouter_instances_grid';
 

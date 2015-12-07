@@ -93,7 +93,7 @@ define([
                         ajaxConfig : remoteConfig,
                         dataParser :  function(response) {
                             var retData = monitorInfraParsers.parseVRouterFlowsData(response);
-                            return retData['data'];
+                            return retData;
                         }
                     },
                     cacheConfig : {
@@ -112,21 +112,27 @@ define([
                 aclIterKeyStack = [];
                 if (acluuid != 'All') {
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                                    '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                                    '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
                                     + '&aclUUID=' + acluuid + '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 } else {
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) + 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) +
                                 '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 }
-                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+                // flowGrid.setRemoteAjaxConfig(newAjaxConfig);
                 // reloadGrid(flowGrid);
+                $.ajax(newAjaxConfig).done(function(response) {
+                    var retData = monitorInfraParsers.parseVRouterFlowsData(response,acluuid);
+                    if(flowGrid._dataView != null)
+                        flowGrid._dataView.setData(retData);
+                        flowGrid.refreshView();
+                });
             }
 
             function onNextClick() {
@@ -135,35 +141,41 @@ define([
                 var newAjaxConfig = "";
                 isAllPrevFirstTimeClicked = true;
                 isAclPrevFirstTimeClicked = true;
-                if(acluuid == 'All' && flowKeyStack.length > 0 && 
+                if(acluuid == 'All' && flowKeyStack.length > 0 &&
                     flowKeyStack[flowKeyStack.length - 1] != null){
                     newAjaxConfig = {
-                            url: monitorInfraUrls['VROUTER_FLOWS'] + 
-                                    '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
-                                    + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1] + 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                                    '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
+                                    + '&flowKey=' + flowKeyStack[flowKeyStack.length - 1] +
                                     '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 }
-                else if (acluuid != 'All' && aclIterKeyStack.length > 0 && 
+                else if (acluuid != 'All' && aclIterKeyStack.length > 0 &&
                     aclIterKeyStack[aclIterKeyStack.length -1] != null){
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
-                                + '&iterKey=' + aclIterKeyStack[aclIterKeyStack.length -1] + 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
+                                + '&iterKey=' + aclIterKeyStack[aclIterKeyStack.length -1] +
                                 '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 } else if (acluuid == "All"){
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) + 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) +
                             '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 }
-                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-                reloadGrid(flowGrid);
+                // flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+                // reloadGrid(flowGrid);
+                $.ajax(newAjaxConfig).done(function(response) {
+                    var retData = monitorInfraParsers.parseVRouterFlowsData(response,acluuid);
+                    if(flowGrid._dataView != null)
+                        flowGrid._dataView.setData(retData);
+                        flowGrid.refreshView();
+                });
             }
 
             function onPrevClick() {
@@ -171,8 +183,8 @@ define([
                 var acluuid = self.model.acl_uuid();
                 var newAjaxConfig = "";
                 if(isAllPrevFirstTimeClicked) {
-                    //we need to do this because when we click the prev for the 
-                    //first time the stack would contain the next uuid as well. 
+                    //we need to do this because when we click the prev for the
+                    //first time the stack would contain the next uuid as well.
                     //We need to pop out the uuids 3 times to get the prev uuid.
                     //flowKeyStack.pop();
                     isAllPrevFirstTimeClicked = false;
@@ -185,46 +197,53 @@ define([
                 aclIterKeyStack.pop();
                 if(acluuid == 'All' && flowKeyStack.length > 0) {
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
-                                + '&flowKey=' + flowKeyStack.pop() 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                                '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
+                                + '&flowKey=' + flowKeyStack.pop()
                                 + '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 } else if (acluuid == 'All' && flowKeyStack.length < 1){
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
                             + '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 } else if(acluuid != 'All' && aclIterKeyStack.length > 0) {
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
-                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig) 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
+                            '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
                             + '&iterKey=' + aclIterKeyStack.pop()
                             + '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 } else if(acluuid != 'All' && aclIterKeyStack.length < 1) {
                     newAjaxConfig = {
-                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] + 
+                            url: monitorInfraConstants.monitorInfraUrls['VROUTER_FLOWS'] +
                                 '?ip=' + monitorInfraUtils.getIPOrHostName(viewConfig)
                                 + '&aclUUID=' + acluuid
                                 + '&introspectPort=' + viewConfig['introspectPort'],
                             type:'Get'
                         };
                 }
-                flowGrid.setRemoteAjaxConfig(newAjaxConfig);
-                reloadGrid(flowGrid);
+                // flowGrid.setRemoteAjaxConfig(newAjaxConfig);
+                // reloadGrid(flowGrid);
+                $.ajax(newAjaxConfig).done(function(response) {
+                    var retData = monitorInfraParsers.parseVRouterFlowsData(response);
+                    if(flowGrid._dataView != null)
+                        flowGrid._dataView.setData(retData,acluuid);
+                        flowGrid.refreshView();
+                });
             }
 
             self.renderView4Config($(self.$el).find(queryResultId),
                     model, responseViewConfig,null,null,null,function() {
-                        var gridSel = $('#' + ctwl.VROUTER_FLOWS_GRID_ID); 
+                        var gridSel = $('#' + ctwl.VROUTER_FLOWS_GRID_ID);
                         self.model.__kb.view_model.model().on('change:acl_uuid',
                             function(model,text) {
-                                onSelectAcl(model.attributes.acl_uuid);
+                                // onSelectAcl(model.attributes.acl_uuid);
+                                onSelectAcl(model.get('acl_uuid'));
                             });
                         gridSel.find('i.icon-forward').parent().click(function() {
                             onNextClick();
@@ -256,7 +275,7 @@ define([
                                             defaultValueId: 0,
                                             dataSource: {
                                                 type: 'remote',
-                                                url: monitorInfraConstants.monitorInfraUrls['VROUTER_ACL'] 
+                                                url: monitorInfraConstants.monitorInfraUrls['VROUTER_ACL']
                                                     + '?' + $.param({
                                                         ip: monitorInfraUtils.getIPOrHostName(viewConfig),
                                                         introspectPort: viewConfig['introspectPort']

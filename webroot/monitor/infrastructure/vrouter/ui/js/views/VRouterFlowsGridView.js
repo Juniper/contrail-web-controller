@@ -93,8 +93,7 @@ define([
                                 cssClass:'cell-hyperlink-blue',
                                 events: {
                                     onClick: function(e,dc){
-                                        var tabIdx = $.inArray("networks", computeNodeTabs);
-                                        selectTab(computeNodeTabStrip,tabIdx);
+                                        $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_NETWORKS_TAB_IDX});
                                     }
                                 },
                                 minWidth:185
@@ -115,8 +114,7 @@ define([
                                 cssClass:'cell-hyperlink-blue',
                                 events: {
                                     onClick: function(e,dc){
-                                        var tabIdx = $.inArray("networks", computeNodeTabs);
-                                        selectTab(computeNodeTabStrip,tabIdx);
+                                        $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_NETWORKS_TAB_IDX});
                                     }
                                 },
                                 minWidth:185

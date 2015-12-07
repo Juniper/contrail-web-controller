@@ -1167,7 +1167,7 @@ define(
                     };
                 }
 
-                this.parseVRouterFlowsData = function(response,deferredObj) {
+                this.parseVRouterFlowsData = function(response,aclUUID) {
                     var origResponse = response;
                     var isFromACLFlows = false;
                     var ret = [];
@@ -1192,26 +1192,27 @@ define(
                             response = [response];
                         }
                         if(isFromACLFlows) {
-                            var aclUUID = $('#aclDropDown').data('contrailDropdown').value();
                             $.each(response,function(idx,obj) {
                                 var rawJson = obj;
 
-                                ret.push({acl_uuid:(idx != 0)? '' : aclUUID,
-                                    searchUUID:aclUUID,
-                                    src_vn:ifNullOrEmptyObject(obj['source_vn'],noDataStr),
-                                    dst_vn:ifNullOrEmptyObject(obj['dest_vn'],noDataStr),
-                                    sip:ifNullOrEmptyObject(obj['src'],noDataStr),
-                                    src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
-                                    dst_port:ifNullOrEmptyObject(obj['dst_port'],noDataStr),
-                                    setup_time_utc:ifNullOrEmptyObject(obj['setup_time_utc'],noDataStr),
-                                    protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
-                                    dip:ifNullOrEmptyObject(obj['dst'],noDataStr),
-                                    stats_bytes:ifNullOrEmptyObject(obj['bytes'],noDataStr),
-                                    stats_packets:ifNullOrEmptyObject(obj['packets'],noDataStr),
-                                    direction: ifNullOrEmptyObject(obj['direction'],noDataStr),
-                                    peer_vrouter:ifNullOrEmptyObject(obj['peer_vrouter'],noDataStr),
-                                    deny:ifNullOrEmptyObject(obj['implicit_deny'],noDataStr),
-                                    raw_json:rawJson});
+                                ret.push({
+                                    acl_uuid: (idx != 0) ? '' : aclUUID,
+                                    searchUUID: aclUUID,
+                                    src_vn: ifNullOrEmptyObject(obj['source_vn'], noDataStr),
+                                    dst_vn: ifNullOrEmptyObject(obj['dest_vn'], noDataStr),
+                                    sip: ifNullOrEmptyObject(obj['src'], noDataStr),
+                                    src_port: ifNullOrEmptyObject(obj['src_port'], noDataStr),
+                                    dst_port: ifNullOrEmptyObject(obj['dst_port'], noDataStr),
+                                    setup_time_utc: ifNullOrEmptyObject(obj['setup_time_utc'], noDataStr),
+                                    protocol: ifNullOrEmptyObject(obj['protocol'], noDataStr),
+                                    dip: ifNullOrEmptyObject(obj['dst'], noDataStr),
+                                    stats_bytes: ifNullOrEmptyObject(obj['bytes'], noDataStr),
+                                    stats_packets: ifNullOrEmptyObject(obj['packets'], noDataStr),
+                                    direction: ifNullOrEmptyObject(obj['direction'], noDataStr),
+                                    peer_vrouter: ifNullOrEmptyObject(obj['peer_vrouter'], noDataStr),
+                                    deny: ifNullOrEmptyObject(obj['implicit_deny'], noDataStr),
+                                    raw_json: rawJson
+                                });
                             });
                         } else {
                             $.each(response,function(idx,obj) {
@@ -1253,11 +1254,7 @@ define(
                             aclIterKeyStack.push(iterationKey);
                     }
                     //$('#flowCnt').text(response.flowData.length);
-                    if(deferredObj != null)
-                        deferredObj.resolve();
-                    return  {
-                        data: ret
-                    };
+                    return  ret;
                 }
 
                 self.mergeACLAndSGData = function(sgData,aclListModel) {

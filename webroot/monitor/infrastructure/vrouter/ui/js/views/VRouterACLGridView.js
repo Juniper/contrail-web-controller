@@ -52,7 +52,7 @@ define([
                                    var tabIdx = $.inArray("flows", computeNodeTabs);
                                    var data = {tab:"flows",filters:[{aclUUID:dc['uuid']}]};
                                    $('#' + computeNodeTabStrip).data('tabFilter',data);
-                                   selectTab(computeNodeTabStrip,tabIdx);
+                                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_FLOWS_TAB_IDX});
                                }
                             }
                        },
@@ -80,7 +80,7 @@ define([
                            events: {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                   selectTab(computeNodeTabStrip,tabIdx);
+                                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_NETWORKS_TAB_IDX});
                                }
                             }
                        },
@@ -100,7 +100,7 @@ define([
                            events: {
                                onClick: function(e,dc){
                                    var tabIdx = $.inArray("networks", computeNodeTabs);
-                                   selectTab(computeNodeTabStrip,tabIdx);
+                                   $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_NETWORKS_TAB_IDX});
                                }
                             },
                            minWidth:200

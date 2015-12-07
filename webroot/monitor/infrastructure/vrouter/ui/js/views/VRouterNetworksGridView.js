@@ -12,12 +12,14 @@ define([
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
 
+            self.tabView = self.rootView.viewMap['vrouter_tab_view'];
             self.renderView4Config(self.$el, self.model, self.getViewConfig(self.attributes));
         },
 
         getViewConfig: function (attributes) {
             var viewConfig = attributes.viewConfig,
                 hostname = viewConfig['hostname'],
+                self = this,
                 pagerOptions = viewConfig['pagerOptions'];
             var columns = [{
                 field: "name",
@@ -30,8 +32,7 @@ define([
                 cssClass: 'cell-hyperlink-blue',
                 events: {
                     onClick: function(e, dc) {
-                        var tabIdx = $.inArray("acl", computeNodeTabs);
-                        selectTab(computeNodeTabStrip, tabIdx);
+                        $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_ACL_TAB_IDX});
                     }
                 }
             }, {
@@ -49,7 +50,7 @@ define([
                             }]
                         };
                         $('#' + ctwl.VROUTER_TAB_VIEW_ID).data('tabFilter', data);
-                        selectTab(ctwl.VROUTER_TAB_VIEW_ID, tabIdx);
+                        $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:ctwl.VROUTER_ROUTES_TAB_IDX});
                     }
                 }
             }];
