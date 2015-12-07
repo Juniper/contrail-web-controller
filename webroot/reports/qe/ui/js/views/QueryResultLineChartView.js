@@ -38,7 +38,8 @@ define([
             chartAxesOptions[selectFieldValue] = {
                 axisLabelDistance: 5,
                 yAxisLabel: selectFieldValue,
-                forceY: [0, 60],
+                yAxisDataField: selectFieldValue,
+                forceY: [0, 100],
                 yFormatter: cowf.getYAxisFormatterFunction4Chart(yFormatterKey)
             };
         });
