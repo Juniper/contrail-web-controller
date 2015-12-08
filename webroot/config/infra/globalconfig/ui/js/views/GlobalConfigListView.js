@@ -117,13 +117,32 @@ define([
                     JSON.parse(JSON.stringify(protocolList));
                 var protoCnt = tmpFlowProtoList.length;
                 for (var i = 0; i < protoCnt; i++) {
-                    if ('TCP' == tmpFlowProtoList[i]['name']) {
-                        continue;
+                    var protocol = tmpFlowProtoList[i].name.toUpperCase();
+                    var protocolValue = protocol.toLowerCase();
+                    if(protocol === 'TCP') {
+                        flowProtoList.push({
+                            index : 0,
+                            text : 6 + ' (' + protocol + ')',
+                            value : protocolValue
+                        });
+                    } else if(protocol === 'UDP') {
+                        flowProtoList.push({
+                            index : 1,
+                            text : 17 + ' (' + protocol + ')',
+                            value : protocolValue
+                        });
+                    } else if(protocol === 'ICMP') {
+                        flowProtoList.push({
+                            index : 2,
+                            text : 1 + ' (' + protocol + ')',
+                            value : protocolValue
+                        });
                     }
-                    flowProtoList.push({'text': tmpFlowProtoList[i]['name'],
-                                        'value':
-                                        tmpFlowProtoList[i]['name'].toLowerCase()});
                 }
+                //sort protocols by TCP,UDP and ICMP order
+                flowProtoList.sort(function(a, b){
+                    return (a.index - b.index);
+                });
                 window.globalConfigProtocolList = flowProtoList;
             }
         }
