@@ -9,7 +9,7 @@ define([
     var FlowAgingTimeoutModel = ContrailModel.extend({
 
         defaultConfig: {
-            protocol: 'icmp',
+            protocol: null,
             port: 0,
             timeout_in_seconds: 180 /* 3 minutes */
         },
@@ -27,14 +27,24 @@ define([
         },
 
         validations: {
-            flowAgingTuplesValidation: {
-                'port': {
-                    required: false,
-                    pattern: 'number'
+            flowAgingTimeoutValidation: {
+                'protocol' : function(value, attr, finalObj) {
+                    if(value === null || value.trim() === '' ||
+                        $.inArray(value, ['6 (TCP)','17 (UDP)','1 (ICMP)', 'tcp', 'udp', 'icmp']) === -1 &&
+                        isNaN(value) || Number(value) < 0 || Number(value) > 255) {
+                        return "Select a protocol or enter a code between 0 - 255";
+                    }
                 },
-                'timeout_in_seconds': {
-                    required: false,
-                    pattern: 'number'
+                'port': function(value, attr, finalObj) {
+                     if(value && (isNaN(value) ||
+                         Number(value) < 0 || Number(value) > 65535)) {
+                         return "Enter a valid port between 0 - 65535";
+                     }
+                },
+                'timeout_in_seconds': function(value, attr, finalObj) {
+                    if(value && isNaN(value)) {
+                        return "Timeout should be a number";
+                    }
                 }
             }
         }

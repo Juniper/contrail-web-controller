@@ -82,6 +82,7 @@ define([
                                               port: flowAgeTuples[i]['port'],
                                               timeout_in_seconds:
                                                 flowAgeTuples[i]['timeout_in_seconds']});
+                this.flowAgingTimeoutAttrs(flowAgeModel, this);
                 flowAgeModels.push(flowAgeModel);
             }
             flowAgeCollectionModel = new Backbone.Collection(flowAgeModels);
@@ -128,9 +129,35 @@ define([
         addFlowAgingTuple: function() {
             var flowAgeCollection = this.model().get('flowAgingTimeout');
             var newFlowAgeEntry =
-                new FlowAgingTimeoutModel({'protocol': 'icmp', port: "",
-                                          timeout_in_seconds: 180});
+                new FlowAgingTimeoutModel({protocol: "", port: "",
+                                          timeout_in_seconds: ""});
+            this.flowAgingTimeoutAttrs(newFlowAgeEntry, this);
             flowAgeCollection.add([newFlowAgeEntry]);
+        },
+        flowAgingTimeoutAttrs: function(flowAgingTimeoutModel, self) {
+            flowAgingTimeoutModel.disablePort = ko.computed(function(){
+               var protocol = self.getProtocolText(this.protocol());
+               var disablePort = false;
+               if(protocol === 'icmp' || protocol === '1') {
+                   this.port('0');
+                   disablePort = true;
+               } else if(this.disablePort instanceof Function &&
+                   this.disablePort()) {
+                   this.port('');
+                   disablePort = false
+               }
+               return disablePort;
+            }, flowAgingTimeoutModel);
+        },
+        getProtocolText: function(protocol) {
+            var protocolText = '';
+            if(protocol.indexOf('(') !== -1) {
+                protocolText =
+                    protocol.split(' ')[1].replace(/[()]/g, '').toLowerCase();
+            } else {
+                protocolText = protocol;
+           }
+           return protocolText;
         },
         getEncapPriOrdList: function(attr) {
             var encapPriOrdArr = [];
@@ -153,7 +180,7 @@ define([
                     }
                     timeout = Number(timeout);
                 }
-                flowTupleArr.push({protocol: flowTupleCollection[i].protocol(),
+                flowTupleArr.push({protocol: this.getProtocolText(flowTupleCollection[i].protocol()),
                                    port: Number(flowTupleCollection[i].port()),
                                    timeout_in_seconds: timeout});
             }
@@ -211,7 +238,25 @@ define([
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
 
-            if (this.model().isValid(true, "globalConfigValidations")) {
+            var validations = [
+                {
+                    key: null,
+                    type: cowc.OBJECT_TYPE_MODEL,
+                    getValidation: 'globalConfigValidations'
+                },
+                {
+                    key: 'ipFabricSubnets',
+                    type: cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation: 'ipFabricSubnetsValidation'
+                },
+                {
+                    key: 'flowAgingTimeout',
+                    type: cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation: 'flowAgingTimeoutValidation'
+                }
+            ];
+
+            if(this.isDeepValid(validations)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newGlobalConfig =
                     $.extend({}, true, this.model().attributes);

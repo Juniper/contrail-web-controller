@@ -29,24 +29,10 @@ define([
         validations: {
             ipFabricSubnetsValidation: {
                 'ip_fabric_subnets': function(val, attr, obj) {
-                    if (null != val) {
-                        val = val.trim();
+                    if(!val || val.trim() == '' || val.split('/').length != 2 ||
+                        !isValidIP(val.split('/')[0])) {
+                        return "Subnet should be in xxx.xxx.xxx.xxx/xx format";
                     }
-                    if ((null == val) || ("" == val)) {
-                        return "Enter Subner Value";
-                    }
-                    ipArr = val.split('/');
-                    if (2 != ipArr.length) {
-                        return "Enter a valid Subnet in xxx.xxx.xxx.xxx/xx " +
-                            "format";
-                    }
-                    if (!isValidIP(ipArr[0])) {
-                        return "Enter a valid Subnet in xxx.xxx.xxx.xxx/xx " +
-                            "format";
-                    }
-                },
-                'ipFabricSubnets': function(val, attr, obj) {
-                    console.log("Getting val 1as:", val);
                 }
             }
         }
