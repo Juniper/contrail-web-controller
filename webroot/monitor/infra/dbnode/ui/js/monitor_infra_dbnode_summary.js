@@ -96,7 +96,13 @@ monitorInfraDatabaseSummaryClass = (function() {
                             advFormatter: function(dc) {
                                 return getNodeStatusContentForSummayPages(dc,'text');
                             }
-                        }
+                        },
+                        sortable:{
+                            sortBy: function (d) {
+                                return getNodeStatusContentForSummayPages(d,'text');
+                            }
+                        },
+                        sorter:comparatorStatus
                     },
                     {
                         field:"formattedAvailableSpace",

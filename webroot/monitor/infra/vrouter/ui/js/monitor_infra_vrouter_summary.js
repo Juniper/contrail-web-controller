@@ -307,13 +307,19 @@ monitorInfraComputeSummaryClass = (function() {
                         },
                         minWidth:150,
                         exportConfig: {
-            				allow: true,
-            				advFormatter: function(dc) {
-            					return getNodeStatusContentForSummayPages(dc,'text');
-            				}
-            			},                    
-            		},
-            		{
+                            allow: true,
+                            advFormatter: function(dc) {
+                                return getNodeStatusContentForSummayPages(dc,'text');
+                                }
+                        },
+                        sortable:{
+                            sortBy: function (d) {
+                                return getNodeStatusContentForSummayPages(d,'text');
+                            }
+                        },
+                        sorter:comparatorStatus
+                    },
+                    {
                         field:"vRouterType",
                         name:"Type",
                         formatter: function(r,c,v,cd,dc) {
