@@ -430,6 +430,7 @@ function initActions() {
                         }
                     }
                 } else if(srcGrpName === "Policies") {
+                    srcVN = srcVN.split("~`~")[0];
                     srcVN = getFQNofPolicy(selectedDomain, selectedProject, srcVN);
                     if(srcVN.indexOf(':') !== -1) {
                         rule["src_addresses"][0]["network_policy"] = srcVN;          
@@ -468,6 +469,7 @@ function initActions() {
                         }
                     }
                 } else if(destGrpName === "Policies") {
+                    destVN = destVN.split("~`~")[0];
                     destVN = getFQNofPolicy(selectedDomain, selectedProject, destVN);   
                     if(destVN.indexOf(":") !== -1) {                   
                         rule["dst_addresses"][0]["network_policy"] = destVN;
@@ -1106,7 +1108,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         var domain = fqn[0];
         var project = fqn[1];
         if(domain === selectedDomain && project === selectedProject) {
-            allPolicies.push({text : policy["fq_name"][2], value : policy["fq_name"][2], parent : "Policies"});
+            allPolicies.push({text : policy["fq_name"][2], value : policy["fq_name"][2]+"~`~Policy", parent : "Policies"});
         }
     }
     //add other project policies at the end    
@@ -1117,7 +1119,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
         if(project !== selectedProject) {         
             var fqNameTxt = policy["fq_name"][2] +' (' + domain + ':' + project +')';
             var fqNameValue = domain + ":" + project + ":" + policy["fq_name"][2];
-            allPolicies.push({text : fqNameTxt, value : fqNameValue, parent : 'Policies'});           
+            allPolicies.push({text : fqNameTxt, value : fqNameValue+"~`~Policy", parent : 'Policies'});           
         }    
     }
   
@@ -1265,7 +1267,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
                 } else if(null !== rule["src_addresses"][i]["network_policy"] &&
                     typeof rule["src_addresses"][i]["network_policy"] !== "undefined") {
                     srcGrpType = "Policies";
-                    srcNetwork[i] = rule["src_addresses"][i]["network_policy"];
+                    srcNetwork[i] = rule["src_addresses"][i]["network_policy"] + "~`~Policy";
                     srcNetwork[i] = parseFQNSrcDest(selectedDomain, selectedProject, srcNetwork[i]);
                 }                    
             }
@@ -1291,7 +1293,7 @@ function createRuleEntry(rule, len, vns, policies, subnets, sts) {
                 } else if(null !== rule["dst_addresses"][i]["network_policy"] &&
                     typeof rule["dst_addresses"][i]["network_policy"] !== "undefined") {
                     destGrpType = "Policies";
-                    destNetwork[i] = rule["dst_addresses"][i]["network_policy"];
+                    destNetwork[i] = rule["dst_addresses"][i]["network_policy"] + "~`~Policy";
                     destNetwork[i] = parseFQNSrcDest(selectedDomain, selectedProject, destNetwork[i]);
                 }
             }
