@@ -54,6 +54,8 @@ define([
                                         document.getElementById(modalId));
                 kbValidation.bind(self, {collection:
                                   self.model.model().attributes.ipFabricSubnets});
+                kbValidation.bind(self, {collection:
+                                  self.model.model().attributes.flowAgingTimeout});
             });
         }
     });
@@ -266,18 +268,21 @@ define([
                                     columns: [{
                                         elementId: 'protocol',
                                         name: 'Protocol',
-                                        view: 'FormDropdownView',
+                                        view: 'FormComboboxView',
                                         viewConfig: {
                                             templateId:
-                                                cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                            width: 200,
+                                                cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                            width: 180,
                                             path: 'protocol',
                                             dataBindValue: 'protocol()',
                                             elementConfig: {
+                                                placeholder: 'Protocol Code',
                                                 dataTextField: 'text',
                                                 dataValueField: 'value',
-                                                data:
-                                                    window.globalConfigProtocolList
+                                                dataSource:{
+                                                    type : 'local',
+                                                    data : window.globalConfigProtocolList
+                                                }
                                             }
                                         }
                                     },
@@ -287,16 +292,17 @@ define([
                                         view: 'FormInputView',
                                         class: "",
                                         viewConfig: {
+                                            disabled : 'disablePort()',
                                             templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                            width: 200,
+                                            width: 150,
                                             path: 'port',
                                             dataBindValue: 'port()',
-                                            placeholder: '0 (All Ports)'
+                                            placeholder: 'All Ports'
                                         }
                                     },
                                     {
                                         elementId: 'timeout_in_seconds',
-                                        name: 'Timeout (Secs)',
+                                        name: 'Timeout (seconds)',
                                         view: 'FormInputView',
                                         class: "",
                                         viewConfig: {
