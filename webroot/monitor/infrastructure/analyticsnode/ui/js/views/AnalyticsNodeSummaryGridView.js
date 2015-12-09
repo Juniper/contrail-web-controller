@@ -109,7 +109,13 @@ define([ 'underscore', 'contrail-view' ],function(_, ContrailView) {
                                return monitorInfraUtils.getNodeStatusContentForSummayPages(dc,
                                    'text');
                            }
-                       }
+                       },
+                       sortable:{
+                           sortBy: function (d) {
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
+                           }
+                       },
+                       sorter:cowu.comparatorStatus
                    },
                    {
                        field:"cpu",
