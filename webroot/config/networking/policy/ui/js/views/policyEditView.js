@@ -396,7 +396,7 @@ define([
                                     path: 'name',
                                     label:'Policy Name',
                                     dataBindValue: 'name',
-                                    class: "span6"}
+                                    class: "span4"}
                     }]
                 },{
                     columns: [{
@@ -609,6 +609,7 @@ define([
                                      view: "FormMultiselectView",
                                      width: 100,
                                      viewConfig: {
+                                         label: "Service Instance(s)",
                                          colSpan: "11",
                                          class: "span10",
                                          placeHolder:"Select a service to apply...",
