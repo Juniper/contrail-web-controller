@@ -8,7 +8,7 @@ define([
         render: function() {
             var self = this, viewConfig = self.attributes.viewConfig,
             queryPageTmpl = contrail.getTemplate4Id(ctwc.TMPL_FORM_RESULT),
-            searchFlowFormModel = new SearchFlowFormModel({limit:5000}),
+            searchFlowFormModel = new SearchFlowFormModel(),
             widgetConfig = contrail.checkIfExist(viewConfig.widgetConfig) ?
                 viewConfig.widgetConfig : null,
             queryFormId = "#" + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-form";
@@ -19,7 +19,13 @@ define([
 
             self.renderView4Config($(self.$el).find(queryFormId), this.model,
                 self.getViewConfig(), null, null, null,
-                    function () {
+                    function (searchFlowFormView) {
+                        var graph = monitorInfraUtils.getUnderlayGraphInstance();
+                        var graphModel = graph.model;
+                        searchFlowFormView.listenTo(graphModel.selectedElement,
+                            'change', function (selectedElement) {
+                            updateWhereClause(selectedElement, searchFlowFormView);
+                        });
                         self.model.showErrorAttr(ctwc.UNDERLAY_SEARCHFLOW_TAB_ID, false);
                         Knockback.applyBindings(self.model,
                             document.getElementById(ctwc.UNDERLAY_SEARCHFLOW_TAB_ID));
@@ -153,7 +159,43 @@ define([
             };
         }
     });
-
+    function updateWhereClause (selectedElement, searchFlowFormView) {
+        var nodeType = selectedElement.attributes.nodeType;
+        var nodeDetails = selectedElement.attributes.nodeDetail;
+        var ip = [],vnList = [],intfLen = 0, whereClauseStr = '', vmName = '';
+        if (nodeType == ctwc.VROUTER) {
+            whereClauseStr = '(vrouter = '+nodeDetails.name+')';
+            searchFlowFormView.model.where(whereClauseStr);
+        } else if (nodeType == ctwc.VIRTUALMACHINE) {
+            var intfList = getValueByJsonPath(nodeDetails,
+                    'more_attributes;interface_list',[]);
+                intfLen = intfList.length;
+                vmName =
+                    nodeDetails['more_attributes']['vm_name'];
+                for(var j = 0; j < intfLen; j++) {
+                    var intfObj = intfList[j];
+                    ip.push(ifNull(intfObj['ip_address'],'-'));
+                    vnList.push(
+                        ifNull(intfObj['virtual_network'],'-'));
+                    for(var k = 0;
+                        k < ifNull(intfObj['floating_ips'],[]).length > 0;
+                        k++) {
+                        var intfObjFip =
+                            intfObj['floating_ips'][k];
+                        ip.push(ifNull(
+                              intfObjFip['ip_address'],'-'));
+                        vnList.push(ifNull(
+                            intfObjFip['virtual_network'],'-'));
+                    }
+                }
+                for(var i = 0; i < ip.length; i++) {
+                    whereClauseStr += '( sourcevn = '+vnList[i]+' AND sourceip = '+ip[i]+' )';
+                    if((i+1) < ip.length)
+                        whereClauseStr += ' OR ';
+                }
+                searchFlowFormView.model.where(whereClauseStr);
+        }
+    }
     function getFromTimeElementConfig(fromTimeId, toTimeId) {
         return {
             onShow: function(cdt) {

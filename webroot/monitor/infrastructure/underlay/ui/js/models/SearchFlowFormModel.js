@@ -16,6 +16,8 @@ define([
                                     limit: 5000,
                                     time_range: 600,
                                     table_type: cowc.QE_FLOW_TABLE_TYPE,
+                                    filters: '',
+                                    filter_json: '',
                                     select: "other_vrouter_ip, vrouter, vrouter_ip," +
                                             "sourcevn, sourceip, sport, destvn," +
                                             "destip, dport, protocol, agg-bytes," +
@@ -23,8 +25,54 @@ define([
                                     query_prefix: cowc.FR_QUERY_PREFIX});
             modelData = $.extend(true, {}, defaultConfig, modelData);
             QueryFormModel.prototype.constructor.call(this, modelData);
-
+            this.setTableFieldValues();
             return this;
+        },
+        setTableFieldValues: function () {
+            var searchFlowModel = this.model();
+            var valueOptionList = {
+                    vrouter: [],
+                    sourcevn: [],
+                    destvn: [],
+                    protocol: []
+                };
+            searchFlowModel.attributes.where_data_object['value_option_list'] =
+                valueOptionList;
+            var protocolData = [];
+            $.each(protocolList, function(idx, obj) {
+                protocolData.push(obj['name']);
+            });
+            valueOptionList['protocol'] = protocolData;
+            $.ajax({
+                url: '/api/admin/networks',
+                dataType: 'json'
+            }).done(function (response){
+                    var vnList =
+                        getValueByJsonPath(response, 'virtual-networks', []),
+                        results = [];
+                    for (var i = 0; i < vnList.length; i++) {
+                        var vnObj = vnList[i];
+                        if (vnObj['fq_name'] != null) {
+                            var fqn = vnObj['fq_name'].join(':');
+                            results.push(fqn);
+                        }
+                    }
+                    valueOptionList['sourcevn'] = results;
+                    valueOptionList['destvn'] = results;
+            });
+
+            $.ajax({
+                url: '/api/admin/monitor/infrastructure/vrouters/cached-summary',
+                dataType: 'json'
+            }).done(function (response) {
+                var vRouterList = getValueByJsonPath(response,'data',[]),
+                    results = [];
+                for (var i = 0; i < vRouterList.length; i++) {
+                    var vRouterName = vRouterList[i]['name'];
+                    results.push(vRouterName);
+                }
+                valueOptionList['vrouter'] = results;
+            });
         },
 
         getTimeGranularityUnits: function() {

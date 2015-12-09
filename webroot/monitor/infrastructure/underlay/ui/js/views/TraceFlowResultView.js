@@ -74,7 +74,6 @@ define([
                 ajaxData['engQueryStr'] = JSON.stringify(ajaxData);
                 traceFlowRemoteConfig = {
                     url: '/api/admin/reports/query',
-                    //url:'/FlowRecordReponse1.json',
                     data: ajaxData,
                     dataParser: monitorInfraParsers.parseUnderlayFlowRecords,
                 };
@@ -351,7 +350,7 @@ define([
                     var vrfList = getValueByJsonPath(networkDetails,
                         'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                     if(vrfList[0] != null)
-                        nwFqName += ":"+vrfList[0];
+                        nwFqName = vrfList[0];
                 } else
                     // if there is no vrf name in the response then
                     // just constructing it in general format
