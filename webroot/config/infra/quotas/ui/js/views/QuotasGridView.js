@@ -77,12 +77,14 @@ define([
         {
             id: 'name',
             field: 'name',
+            maxWidth: 300,
             name: 'Resource',
             cssClass :'cell-text-blue'
         },
         {
             id: 'limit',
             field: 'limit',
+            maxWidth: 200,
             name: 'Quota Limit',
             formatter: function(row, col, val, d, rowData) {
                 var disStr = '';
@@ -101,6 +103,7 @@ define([
         {
             id: 'used',
             field: 'used',
+            maxWidth:100,
             name: 'Used',
         }
     ];
