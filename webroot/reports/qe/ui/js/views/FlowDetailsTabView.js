@@ -5,8 +5,9 @@
 define([
     'underscore',
     'contrail-view',
-    'knockback'
-], function (_, ContrailView, Knockback) {
+    'knockback',
+    'reports/qe/ui/js/models/FlowSeriesFormModel'
+], function (_, ContrailView, Knockback, FlowSeriesFormModel) {
 
     var FormRecordDetailsTabView = ContrailView.extend({
         render: function (renderConfig) {
@@ -16,6 +17,7 @@ define([
                 modalId = queryPrefix + cowl.QE_RECORD_DETAILS_MODAL_SUFFIX,
                 className = viewConfig['className'],
                 queryFormAttributes = viewConfig['queryFormAttributes'],
+                queryFormModel = new FlowSeriesFormModel(queryFormAttributes),
                 selectedFlowRecord = viewConfig['selectedFlowRecord'];
 
             cowu.createModal({
@@ -28,10 +30,22 @@ define([
                 }
             });
 
-            self.renderView4Config($("#" + modalId + "-body"), null, self.getFlowDetailsTabViewConfig(queryFormAttributes, selectedFlowRecord));
+            qewu.fetchServerCurrentTime(function(serverCurrentTime) {
+                var timeRange = parseInt(queryFormModel.time_range()),
+                    queryResultPostData;
+
+                if (timeRange !== -1) {
+                    queryFormModel.to_time(serverCurrentTime);
+                    queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
+                }
+
+                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
+
+                self.renderView4Config($("#" + modalId + "-body"), null, self.getFlowDetailsTabViewConfig(queryResultPostData, selectedFlowRecord));
+            });
         },
 
-        getFlowDetailsTabViewConfig: function (queryFormAttributes, selectedFlowRecord) {
+        getFlowDetailsTabViewConfig: function (queryResultPostData, selectedFlowRecord) {
             var flowClassPrefix = selectedFlowRecord['flow_class_id'],
                 flowDetailsTabPrefix = cowl.QE_FLOW_DETAILS_TAB_ID + "-" + flowClassPrefix,
                 flowDetailsGridPrefix = cowl.QE_FLOW_DETAILS_GRID_ID + "-" + flowClassPrefix;
@@ -45,9 +59,7 @@ define([
                             {
                                 elementId: flowDetailsTabPrefix + cowl.QE_INGRESS_SUFFIX_ID,
                                 title: cowl.TITLE_INGRESS,
-                                view: "FlowDetailsView",
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                view: "QueryResultGridView",
                                 tabConfig: {
                                     activate: function (event, ui) {
                                         if ($("#" + flowDetailsTabPrefix + cowl.QE_INGRESS_SUFFIX_ID).data('contrailGrid')) {
@@ -56,17 +68,19 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    formData: getQueryFormData(queryFormAttributes, selectedFlowRecord, "ingress", false),
-                                    flowDetailsGridId: flowDetailsGridPrefix + cowl.QE_INGRESS_SUFFIX_ID,
-                                    flowDetailsTabId: flowDetailsTabPrefix + cowl.QE_INGRESS_SUFFIX_ID
+                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "ingress", false),
+                                    queryResultGridId: flowDetailsTabPrefix + cowl.QE_INGRESS_SUFFIX_ID,
+                                    gridOptions: {
+                                        titleText: cowl.TITLE_FLOW_SERIES,
+                                        queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
+                                        queryQueueTitle: cowl.TITLE_FLOW
+                                    }
                                 }
                             },
                             {
                                 elementId: flowDetailsTabPrefix + cowl.QE_EGRESS_SUFFIX_ID,
                                 title: cowl.TITLE_EGRESS,
-                                view: "FlowDetailsView",
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                view: "QueryResultGridView",
                                 tabConfig: {
                                     activate: function (event, ui) {
                                         if ($("#" + flowDetailsTabPrefix + cowl.QE_EGRESS_SUFFIX_ID).data('contrailGrid')) {
@@ -75,17 +89,19 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    formData: getQueryFormData(queryFormAttributes, selectedFlowRecord, "egress", false),
-                                    flowDetailsGridId: flowDetailsGridPrefix + cowl.QE_EGRESS_SUFFIX_ID,
-                                    flowDetailsTabId: flowDetailsTabPrefix + cowl.QE_EGRESS_SUFFIX_ID
+                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "egress", false),
+                                    queryResultGridId: flowDetailsTabPrefix + cowl.QE_EGRESS_SUFFIX_ID,
+                                    gridOptions: {
+                                        titleText: cowl.TITLE_FLOW_SERIES,
+                                        queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
+                                        queryQueueTitle: cowl.TITLE_FLOW
+                                    }
                                 }
                             },
                             {
                                 elementId: flowDetailsTabPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID,
                                 title: cowl.TITLE_REVERSE_INGRESS,
-                                view: "FlowDetailsView",
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                view: "QueryResultGridView",
                                 tabConfig: {
                                     activate: function (event, ui) {
                                         if ($("#" + flowDetailsTabPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID).data('contrailGrid')) {
@@ -94,17 +110,19 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    formData: getQueryFormData(queryFormAttributes, selectedFlowRecord, "ingress", true),
-                                    flowDetailsGridId: flowDetailsGridPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID,
-                                    flowDetailsTabId: flowDetailsTabPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID
+                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "ingress", true),
+                                    queryResultGridId: flowDetailsTabPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID,
+                                    gridOptions: {
+                                        titleText: cowl.TITLE_FLOW_SERIES,
+                                        queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
+                                        queryQueueTitle: cowl.TITLE_FLOW
+                                    }
                                 }
                             },
                             {
                                 elementId: flowDetailsTabPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID,
                                 title: cowl.TITLE_REVERSE_EGRESS,
-                                view: "FlowDetailsView",
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                view: "QueryResultGridView",
                                 tabConfig: {
                                     activate: function (event, ui) {
                                         if ($("#" + flowDetailsTabPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID).data('contrailGrid')) {
@@ -113,9 +131,13 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    formData: getQueryFormData(queryFormAttributes, selectedFlowRecord, "egress", true),
-                                    flowDetailsGridId: flowDetailsGridPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID,
-                                    flowDetailsTabId: flowDetailsTabPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID
+                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "egress", true),
+                                    queryResultGridId: flowDetailsTabPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID,
+                                    gridOptions: {
+                                        titleText: cowl.TITLE_FLOW_SERIES,
+                                        queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
+                                        queryQueueTitle: cowl.TITLE_FLOW
+                                    }
                                 }
                             }
                         ]
@@ -126,8 +148,10 @@ define([
         }
     });
 
-    function getQueryFormData(queryFormAttributes, selectedFlowRecord, direction, isReversed) {
-        var newQueryFormAttributes = $.extend(true, {}, queryFormAttributes, {table_name: cowc.FLOW_SERIES_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: cowc.FS_QUERY_PREFIX}),
+    function getQueryFormData(queryResultPostData, selectedFlowRecord, direction, isReversed) {
+        var newQueryResultPostData = $.extend(true, {}, queryResultPostData),
+            queryFormAttributes = queryResultPostData.formModelAttrs,
+            newQueryFormAttributes = $.extend(true, {}, queryFormAttributes, {table_name: cowc.FLOW_SERIES_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: cowc.FS_QUERY_PREFIX}),
             appendWhereClause = "", newWhereClause = "",
             oldWhereClause = queryFormAttributes["where"],
             oldWhereArray;
@@ -194,7 +218,9 @@ define([
             newQueryFormAttributes["where"] = "(" + appendWhereClause + ")";
         }
 
-        return newQueryFormAttributes;
+        newQueryResultPostData.formModelAttrs = newQueryFormAttributes;
+
+        return newQueryResultPostData;
     }
 
 

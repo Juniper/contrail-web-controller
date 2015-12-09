@@ -120,6 +120,7 @@ define([
         this.TMPL_QUERY_SELECT = "query-select-popup-template";
         this.TMPL_QUERY_PAGE = "query-page-template";
         this.TMPL_QUERY_QUEUE_PAGE = "query-queue-page-template";
+        this.TMPL_QUERY_TEXT = "query-text-template";
         this.TMPL_FORM_RESULT = 'form-result-page-template';
 
         this.DEFAULT_DOMAIN = "default-domain";

@@ -356,8 +356,6 @@ define([
             title: cowl.TITLE_RESULTS,
             iconClass: 'icon-table',
             view: 'QueryResultGridView',
-            viewPathPrefix: "reports/qe/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
                 //TODO
             },

@@ -4,10 +4,10 @@
 
 define([
     'underscore',
-    'query-result-view',
+    'contrail-view',
     'contrail-list-model'
-], function (_, QueryResultView, ContrailListModel) {
-    var QueryQueueView = QueryResultView.extend({
+], function (_, ContrailView, ContrailListModel) {
+    var QueryQueueView = ContrailView.extend({
         render: function () {
             var self = this,
                 viewConfig = self.attributes.viewConfig,
@@ -387,8 +387,6 @@ define([
                             {
                                 elementId: queryResultGridId,
                                 view: 'QueryResultGridView',
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
                                 viewConfig: {
                                     queryResultPostData: { queryId: queryId },
                                     queryFormAttributes: queryFormAttributes,

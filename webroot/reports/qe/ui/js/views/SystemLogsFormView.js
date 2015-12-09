@@ -78,7 +78,7 @@ define([
                 }
 
                 queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
-
+                queryResultPostData.chunkSize = cowc.QE_RESULT_CHUNK_SIZE_10K;
                 self.renderView4Config($(queryResultId), self.model,
                     getQueryResultTabViewConfig(queryResultPostData, queryResultTabId), null, null, modelMap,
                     function() {
@@ -219,8 +219,6 @@ define([
             title: cowl.TITLE_RESULTS,
             iconClass: 'icon-table',
             view: 'QueryResultGridView',
-            viewPathPrefix: "reports/qe/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
                 //TODO
             },

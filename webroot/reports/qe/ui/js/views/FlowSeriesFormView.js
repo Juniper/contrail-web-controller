@@ -277,8 +277,6 @@ define([
             title: cowl.TITLE_RESULTS,
             iconClass: 'icon-table',
             view: 'QueryResultGridView',
-            viewPathPrefix: "reports/qe/ui/js/views/",
-            app: cowc.APP_CONTRAIL_CONTROLLER,
             tabConfig: {
                 //TODO
             },
@@ -288,7 +286,6 @@ define([
                     titleText: cowl.TITLE_FLOW_SERIES,
                     queryQueueUrl: cowc.URL_QUERY_FLOW_QUEUE,
                     queryQueueTitle: cowl.TITLE_FLOW
-
                 }
             }
         }
