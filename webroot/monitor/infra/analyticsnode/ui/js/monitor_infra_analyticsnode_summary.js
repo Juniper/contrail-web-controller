@@ -106,6 +106,12 @@ monitorInfraAnalyticsSummaryClass = (function() {
                         searchFn:function(d) {
                             return getNodeStatusContentForSummayPages(d,'text');
                         },
+                        sortable:{
+                            sortBy: function (d) {
+                                return getNodeStatusContentForSummayPages(d,'text');
+                            }
+                        },
+                        sorter:comparatorStatus,
                         minWidth:110,
                         exportConfig: {
             				allow: true,
