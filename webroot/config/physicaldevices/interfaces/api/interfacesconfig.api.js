@@ -1062,6 +1062,14 @@ function buildLIData (liData, vmiResp, tmpLiVmiObjs, vmiObjs, instIpsResp, subne
     return liData;
 }
 
+function listPhysicalInterfaces (req, res, appData)
+{
+    var url = '/physical-interfaces';
+    configApiServer.apiGet(url, appData, function(error, data) {
+        commonUtils.handleJSONResponse(error, res, data);
+    });
+}
+
  /* List all public function here */
 exports.createPhysicalInterfaces = createPhysicalInterfaces;
 exports.updatePhysicalInterfaces = updatePhysicalInterfaces;
@@ -1074,3 +1082,5 @@ exports.deleteLISubnet = deleteLISubnet;
 exports.readLIDetails = readLIDetails;
 exports.deleteAllInterfaces = deleteAllInterfaces;
 exports.getInterfaceDetails = getInterfaceDetails;
+exports.listPhysicalInterfaces = listPhysicalInterfaces;
+

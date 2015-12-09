@@ -185,6 +185,41 @@ define([
         };
 
         /*
+         * @svcVirtTypeFormatter
+         */
+        this.svcVirtTypeFormatter = function(d, c, v, cd, dc) {
+            var svcVirtType =
+                getValueByJsonPath(dc,
+                                   'service_template_properties;service_virtualization_type',
+                                   null);
+            if (null == svcVirtType) {
+                return '-';
+            }
+            switch(svcVirtType) {
+            case 'virtual-machine':
+                return 'Virtual Machine';
+            case 'physical-device':
+                return 'Physical Device';
+            case 'network-namespace':
+                return 'Network Namespace';
+            case 'vrouter-instance':
+                return 'vRouter Instance';
+            default:
+                return svcVirtType;
+            }
+        }
+
+        /*
+         * @svcApplSetFormatter
+         */
+        this.svcApplSetFormatter = function(d, c, v, cd, dc) {
+            var svcApplSet = dc['service_appliance_set'];
+            if (null != svcApplSet) {
+                return svcApplSet.split(':')[1];
+            }
+        }
+
+        /*
          * @imageDropDownFormatter
          */
         this.imageDropDownFormatter = function(response) {
@@ -197,6 +232,25 @@ define([
             });
 
             return imageList;
+        };
+
+        /*
+         * @serviceApplianceSetDropDownFormatter
+         */
+        this.svcApplSetDropDownFormatter = function(response) {
+            var sasResponse = getValueByJsonPath(response,
+                    'data', []);
+            var sasList = [];
+
+            $.each(sasResponse, function (i, obj) {
+                if ((null != obj) && (null != obj['service-appliance-set']) &&
+                    (null != obj['service-appliance-set'].fq_name)) {
+                    sasList.push({id: obj['service-appliance-set'].fq_name.join(':'),
+                                  text: obj['service-appliance-set'].name});
+                }
+            });
+
+            return sasList;
         };
 
         /*

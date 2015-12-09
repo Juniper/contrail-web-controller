@@ -88,5 +88,11 @@
         <feature>physicalinterfacesconfig</feature>
         <callback>physicalinterfacesconfigapi.getInterfaceDetails</callback>
     </item>
+    <item>
+        <url>/api/tenants/config/list-physical-interfaces</url>
+        <method>get</method>
+        <feature>physicalinterfacesconfig</feature>
+        <callback>physicalinterfacesconfigapi.listPhysicalInterfaces</callback>
+    </item>
 </urlLists>
 

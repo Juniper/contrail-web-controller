@@ -151,6 +151,23 @@ define([
         return gridElementConfig;
     };
 
+    function addModelAttr (model) {
+        model.isSvcVirtTypeNonPhysicalDevice = ko.computed((function() {
+            if ('physical-device' !=
+                this.user_created_service_virtualization_type()) {
+                return true;
+            }
+            return false;
+        }), model);
+        model.isSvcVirtTypePhysicalDevice = ko.computed((function() {
+            if ('physical-device' ==
+                this.user_created_service_virtualization_type()) {
+                return true;
+            }
+            return false;
+        }), model);
+    }
+
     function getHeaderActionConfig() {
         var headerActionConfig = [
             {
@@ -180,6 +197,7 @@ define([
                 "onClick": function () {
                     svcTemplateCfgEditView.model = new SvcTemplateCfgModel();
 
+                    addModelAttr(svcTemplateCfgEditView.model);
                     svcTemplateCfgEditView.renderAddSvcTemplateCfg({
                               "title": ctwl.CFG_SVC_TEMPLATE_TITLE_CREATE,
                               callback: function () {
@@ -295,7 +313,24 @@ define([
                                                 {
                                                     key: 'service_template_properties.service_virtualization_type',
                                                     label: 'Virtualization Type',
-                                                    templateGenerator: 'TextGenerator'
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'svcVirtTypeFormatter'
+                                                    }
+                                                },
+                                                {
+                                                    key:
+                                                        'service_appliance_set',
+                                                    label: 'Service Appliance' +
+                                                        ' Set',
+                                                    templateGenerator:
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter:
+                                                            'svcApplSetFormatter'
+                                                    }
                                                 },
                                                 {
                                                     key: 'service_template_properties.instance_data',
@@ -345,6 +380,16 @@ define([
     this.svcInstancesFormatter = function (v, dc) {
         return formatSvcTemplateCfg.svcInstancesFormatter(null, null,
                                                                  null, null, dc);
+    }
+
+    this.svcVirtTypeFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.svcVirtTypeFormatter(null, null,
+                                                         null, null, dc);
+    }
+
+    this.svcApplSetFormatter = function (v, dc) {
+        return formatSvcTemplateCfg.svcApplSetFormatter(null, null,
+                                                        null, null, dc);
     }
 
     this.serviceZoneFormatter = function (v, dc) {

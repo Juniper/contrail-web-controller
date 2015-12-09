@@ -405,6 +405,38 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Project Quotas</searchStrings>
                         </item>
+                        <item>
+                            <label>Service Appliance Sets</label>
+                            <hash>config_infra_sapset</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/serviceapplianceset/ui</rootDir>
+                                    <js>svcApplianceSet.main.js</js>
+                                    <class>svcApplianceSetPageLoader</class>
+                                    <function>renderSvcApplianceSet</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Service Appliance Set</searchStrings>
+                        </item>
+                        <item>
+                            <label>Service Appliances</label>
+                            <hash>config_infra_sap</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/infra/serviceappliance/ui</rootDir>
+                                    <js>svcAppliance.main.js</js>
+                                    <class>svcAppliancePageLoader</class>
+                                    <function>renderSvcAppliance</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Service Appliance</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>

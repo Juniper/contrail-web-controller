@@ -223,6 +223,55 @@ define([
                 }
             };
         };
+        self.getGlobalSysConfigBCDropdownViewConfig =
+            function (hashParams, customDropdownOptions) {
+            var urlValue =
+                (contrail.checkIfKeyExistInObject(true,
+                                                  hashParams,
+                                                  'focusedElement.fqName') ?
+                 hashParams.focusedElement.fqName : null),
+                defaultDropdownoptions = {
+                    urlValue: (urlValue !== null) ? urlValue.split(':').splice(0,1).join(':') : null,
+                    cookieKey: 'globalSystemConfig'
+                },
+                dropdownOptions =
+                    $.extend(true, {}, defaultDropdownoptions,
+                             customDropdownOptions);
+
+            return {
+                elementId: ctwl.GLOBALSYS_BREADCRUMB_DROPDOWN,
+                view: "BreadcrumbDropdownView",
+                viewConfig: {
+                    modelConfig: ctwu.getGlobalSysConfigListModelConfig(),
+                    dropdownOptions: dropdownOptions
+                }
+            };
+        };
+
+        self.getSASetBCDropdownViewConfig = function (hashParams,
+                                                      customDropDownOptions) {
+            var urlValue =
+                (contrail.checkIfKeyExistInObject(true, hashParams,
+                                                  'focusedElement.fqName') ?
+                 hashParams.focusedElement.fqName : null),
+                defaultDropdownoptions = {
+                    urlValue: (urlValue !== null) ?
+                                  urlValue.split(':').splice(0,1).join(':') :
+                                  null,
+                    cookieKey: 'serviceApplSet'
+                },
+                dropdownOptions =
+                    $.extend(true, {}, defaultDropdownoptions,
+                             customDropDownOptions);
+            return {
+                elementId: ctwl.SASET_BREADCRUMB_DROPDOWN,
+                view: "BreadcrumbDropdownView",
+                viewConfig: {
+                    modelConfig: ctwu.getSASetListModelConfig(),
+                    dropdownOptions: dropdownOptions
+                }
+            }
+        }
 
         self.getProjectBreadcrumbDropdownViewConfig = function(hashParams, customProjectDropdownOptions) {
             var urlValue = (contrail.checkIfKeyExistInObject(true, hashParams, 'focusedElement.fqName') ? hashParams.focusedElement.fqName : null);

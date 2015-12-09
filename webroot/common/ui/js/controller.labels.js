@@ -185,6 +185,9 @@ define([
         this.MONITOR_FLOWS_PAGE_ID = "monitor-flows-page";
 
         this.DOMAINS_BREADCRUMB_DROPDOWN = "domains-breadcrumb-dropdown";
+        this.SASET_BREADCRUMB_DROPDOWN = "service-appliance-set-breadcrumb-dropdown";
+        this.GLOBALSYS_BREADCRUMB_DROPDOWN =
+            "global-system-config-breadcrumb-dropdown";
 
         this.PROJECTS_ID = "projects";
         this.PROJECT_GRAPH_ID = "project-graph";
@@ -923,7 +926,30 @@ define([
         this.CDB_TITLE_UUID_TABLE = "UUID Name Table";
         //Config DB Labels - End
 
+        /* Service Appliance */
+        this.TITLE_SVC_APPLIANCE = 'Service Appliance';
+        this.CONFIG_SVC_APPLIANCE_PAGE_ID = 'config-svc-appliance-page';
+        this.CONFIG_SVC_APPLIANCE_SECTION_ID = 'config-svc-appliance-section';
+        this.CONFIG_SVC_APPLIANCE_ID = 'config-svc-appliance';
+        this.SVC_APPLIANCE_GRID_ID = 'svc-appliance-grid';
+        this.SVC_APPLIANCE_PREFIX_ID = 'svcAppliance';
+        this.TITLE_EDIT_SVC_APPLIANCE = 'Edit Service Appliance';
+        this.TITLE_DEL_SVC_APPLIANCE = 'Delete Service Appliance';
+        this.TITLE_CREATE_SVC_APPLIANCE = 'Create Service Appliance';
+        this.SVC_APPLIANCE_DETAILS = 'Service Appliance Details';
 
+        /* Service Appliance Set */
+        this.TITLE_SVC_APPLIANCE_SET = 'Service Appliance Set';
+        this.CONFIG_SVC_APPLIANCE_SET_PAGE_ID = 'config-svc-appliance-set-page';
+        this.CONFIG_SVC_APPLIANCE_SET_SECTION_ID = 'config-svc-appliance-set-section';
+        this.CONFIG_SVC_APPLIANCE_SET_ID = 'config-svc-appliance-set';
+        this.SVC_APPLIANCE_SET_GRID_ID = 'svc-appliance-set-grid';
+        this.SVC_APPLIANCE_SET_PREFIX_ID = 'svcApplianceSet';
+        this.TITLE_EDIT_SVC_APPLIANCE_SET = 'Edit Service Appliance Set';
+        this.TITLE_DEL_SVC_APPLIANCE_SET = 'Delete Service Appliance Set';
+        this.TITLE_CREATE_SVC_APPLIANCE_SET = 'Create Service Appliance Set';
+        this.SVC_APPLIANCE_SET_DETAILS = 'Service Appliance Set Details';
+ 
     };
     return CTLabels;
 });
