@@ -169,8 +169,7 @@ define([
             if(!self.infEditView.offChangeEvnt && e.added != null) {
                 if(self.infEditView.model.
                     logical_interface_type() === ctwl.LOGICAL_INF_L2_TYPE) {
-                    self.infEditView.model.servers(
-                       new Backbone.Collection([]));
+                    self.infEditView.model.model().attributes.servers.reset();
                     if(e.added.value != 'none') {
                         var id = e.added.value;
                         self.infEditView.

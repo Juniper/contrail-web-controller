@@ -783,10 +783,17 @@ function deleteAllInterfaces (req, res, appData)
                 }
                 deleteInterfacesByUUIDList(entries, req, appData,
                                            function(err, data) {
+                    if(err) {
+                        commonUtils.handleJSONResponse(err, res, data);
+                        return;
+                    }
                     if (dataObjPhyDelArr.length > 0) {
                         deleteInterfacesByUUIDList(dataObjPhyDelArr, req,
                                                    appData,
                                                    function(err, data) {
+                            if(err) {
+                                commonUtils.handleJSONResponse(err, res, data);
+                            }
                             updatePhysicalRouterWithoutInterfaces(pRouterID,
                                                                   appData,
                                                                   function(err,

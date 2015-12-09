@@ -187,7 +187,19 @@ define([
             serverCollection.remove(server);
         },
         configInterface: function (callbackObj, ajaxOpt, editView) {
-            if (this.model().isValid(true, "configureValidation")) {
+            var validations = [
+                {
+                    key: null,
+                    type: cowc.OBJECT_TYPE_MODEL,
+                    getValidation: 'configureValidation'
+                },
+                {
+                    key: 'servers',
+                    type: cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation: 'serverValidation'
+                }
+            ];
+            if(this.isDeepValid(validations)) {
                 self = this;
                 self.vmiDetails = [];
                 self.editView = editView;
@@ -404,10 +416,10 @@ define([
                         callbackObj.success();
                     }
                 }
-            }).fail(function(){
+            }).fail(function(error){
                  //failure
                  var r = arguments;
-                 callbackObj.success();
+                 callbackObj.error(error);
                  if(self.vmiDetails.length > 0) {
                      self.deleteVirtulMachineInterfaces(
                          self.prepareDeletePortListForFailedLI());
@@ -866,6 +878,25 @@ define([
                     if(finalObj.type !== ctwl.PHYSICAL_INF) {
                         if(value === null) {
                             return  "Select a Parent Type";
+                        }
+                    }
+                },
+                servers : function(value, attr, finalObj){
+                    var serverArray =  finalObj.servers.toJSON();
+                    var macAddresses = [];
+                    var isRepeated = false;
+                    if(serverArray) {
+                        _.each(serverArray, function(item){
+                            var macAddress = item.user_created_mac_address();
+                            macAddresses.push(
+                                macAddress.indexOf('(') ?
+                                macAddress.split(' ')[0] : macAddress);
+                        });
+                        var sortedMacAddress= macAddresses.sort();
+                        for(var i = 0; i < sortedMacAddress.length; i++){
+                            if(sortedMacAddress[i] === sortedMacAddress[i + 1]){
+                                return "MAC Addresses are repeated";
+                            }
                         }
                     }
                 }

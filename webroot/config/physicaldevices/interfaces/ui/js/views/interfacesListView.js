@@ -87,7 +87,7 @@ define([
                         lInterface['logical_interface_type'] =
                             ifNull(lInterface['logical_interface_type'],
                             ctwl.LOGICAL_INF_L2_TYPE);
-                        gridDS.push(result[i]['logical-interface']);
+                        gridDS.push(lInterface);
                     }
                 }
             }
