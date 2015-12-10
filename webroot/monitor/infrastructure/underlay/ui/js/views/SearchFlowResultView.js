@@ -4,11 +4,10 @@
 
 define([
     'underscore',
-    'query-result-view',
-    'knockback'
-], function (_, QueryResultView, Knockback) {
+    'contrail-view'
+], function (_, ContrailView) {
 
-    var SearchFlowResultView = QueryResultView.extend({
+    var SearchFlowResultView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 serverCurrentTime = chUtils.getCurrentTime4MemCPUCharts();

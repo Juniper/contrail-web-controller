@@ -691,15 +691,19 @@ function getQueryJSON4Table(queryReqObj) {
         select = formModelAttrs['select'], where = formModelAttrs['where'], filters = formModelAttrs['filters'],
         autoSort = queryReqObj['autoSort'], direction = formModelAttrs['direction'];
 
-    autoSort = (autoSort != null && autoSort == "true") ? true : false;
+    autoSort = (autoSort != null && (autoSort == "true" || autoSort)) ? true : false;
 
     if (tableType == 'LOG') {
         queryJSON = _.extend({}, queryJSON, {
-            "select_fields": ["MessageTS", "Type", "Level"],
-            "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]],
-            "sort_fields": ['MessageTS'],
-            "sort": 2
+            "select_fields": ["Type", "Level"],
+            "filter": [[{"name": "Type", "value": "1", "op": 1}], [{"name": "Type", "value": "10", "op": 1}]]
         });
+        autoSort = (select.indexOf('MessageTS') == -1) ? false : autoSort;
+
+        if (autoSort) {
+            queryJSON['sort_fields'] = ['MessageTS'];
+            queryJSON['sort'] = 2;
+        }
 
         if(formModelAttrs['log_level'] != null && formModelAttrs['log_level'] != "") {
             for(var i = 0; i < queryJSON.filter.length; i++) {

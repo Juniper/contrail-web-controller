@@ -9,7 +9,7 @@ define([
 ], function (_, Knockout, QueryFormModel) {
     var SystemLogsFormModel = QueryFormModel.extend({
 
-        defaultSelectFields: ["MessageTS", "Type"],
+        defaultSelectFields: ["Type"],
 
         disableSelectFields: ['SequenceNum', 'Context', 'Keyword'],
 
@@ -20,7 +20,7 @@ define([
                                                            log_level: "5", limit: cowc.QE_DEFAULT_LIMIT_50K, select: cowc.DEFAULT_SL_SELECT_FIELDS});
 
             modelData = $.extend(true, {}, defaultConfig, modelData);
-            QueryFormModel.prototype.constructor.call(this, modelData, $.extend(true, queryReqConfig, {chunkSize: cowc.QE_RESULT_CHUNK_SIZE_1K}));
+            QueryFormModel.prototype.constructor.call(this, modelData, $.extend(true, queryReqConfig, {chunkSize: cowc.QE_RESULT_CHUNK_SIZE_10K}));
 
             return this;
         },
