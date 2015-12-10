@@ -94,6 +94,12 @@ define(
                        searchFn:function(d) {
                            return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
                        },
+                       sortable:{
+                           sortBy: function (d) {
+                               return monitorInfraUtils.getNodeStatusContentForSummayPages(d,'text');
+                           }
+                       },
+                       sorter:cowu.comparatorStatus,
                        minWidth:150
                    },
                    {
