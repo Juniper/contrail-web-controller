@@ -156,6 +156,14 @@ define([
             /* Underlay Labels */
             traceflow_radiobtn_name: '',
             traceFlowDropdown: '',
+
+            /* Query */
+            table_name: 'Table',
+            from_time_utc: 'From Time',
+            to_time_utc: 'To Time',
+            opsQueryId: 'Analytics QueryId',
+            queryId: 'QueryId',
+            timeTaken: 'Time Taken'
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";
