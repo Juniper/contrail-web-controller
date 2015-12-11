@@ -44,6 +44,8 @@ global.NODE_CHASSIS_TYPE_TOR = 'tor';
 global.NODE_CHASSIS_TYPE_SPINE = 'spine';
 global.NODE_CHASSIS_TYPE_CORE = 'coreswitch';
 global.NODE_CHASSIS_TYPE_NONE = '-';
+global.NODE_CHASSIS_TYPE_UNKNOWN = 'unknown';
+global.NODE_CHASSIS_TYPE_NOT_RESOLVED = 'not-resolved';
 
 /* 5 Minutes */
 global.INSTANCE_SPAWNING_TIMEOUT = 5 * 60 * 1000;

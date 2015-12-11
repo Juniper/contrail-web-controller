@@ -272,7 +272,7 @@ function getUnderlayTopology (req, res, appData)
 {
 
     var url = '/analytics/uves/prouter';
-    var key = global.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
+    var key = ctrlGlobal.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
     var topologyChanged = true;
     var forceRefresh = req.param('forceRefresh');
     process.mainModule.exports.redisClient.get(key,
@@ -338,13 +338,13 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
     }
     if (i == prouterCnt) {
         /* We did not find the data */
-        return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+        return ctrlGlobal.NODE_CHASSIS_TYPE_UNKNOWN;
     }
     try {
         var links = prouterData[i]['value']['PRouterLinkEntry']['link_table'];
     } catch(e) {
         /* We did not get any link info */
-        return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+        return ctrlGlobal.NODE_CHASSIS_TYPE_UNKNOWN;
     }
     var linksCnt = 0;
     if (null != links) {
@@ -377,17 +377,79 @@ function getNodeChassisType (nodeName, nodeType, prouterLinkData)
             }
         }
     }
-    return ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+    return ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED;
 }
 
 function buildNodeChassisType (nodes, prouterLinkData)
 {
+    var prObjs = {};
     var nodeCnt = nodes.length;
+    var resolveNeeded = false;
     for (var i = 0; i < nodeCnt; i++) {
         var nodeChassType = getNodeChassisType(nodes[i]['name'],
                                                nodes[i]['node_type'],
                                                prouterLinkData);
         nodes[i]['chassis_type'] = nodeChassType; 
+        if (ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED == nodeChassType) {
+            resolveNeeded = true;
+        }
+    }
+
+    if (false == resolveNeeded) {
+        return nodes;
+    }
+
+    var prData = null;
+    var prCnt = 0;
+    try {
+        prData = prouterLinkData['value'];
+        prCnt = prData.length;
+    } catch(e) {
+        prCnt = 0;
+        return nodes;
+    }
+    for (var i = 0; i < prCnt; i++) {
+        var prName = prData[i]['name'];
+        var linkTable =
+            commonUtils.getValueByJsonPath(prData[i],
+                                           'value;PRouterLinkEntry;link_table',
+                                           null);
+        prObjs[prName] = linkTable;
+    }
+    var nodeTypeObjs = {};
+    for (var i = 0; i < nodeCnt; i++) {
+        nodeTypeObjs[nodes[i]['name']] = nodes[i]['chassis_type'];
+    }
+    for (var i = 0; i < nodeCnt; i++) {
+        if (ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED !=
+            nodes[i]['chassis_type']) {
+            continue;
+        }
+        var links = prObjs[nodes[i]['name']];
+        if (null == links) {
+            nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_UNKNOWN;
+            continue;
+        }
+        var linksCnt = links.length;
+        for (var j = 0; j < linksCnt; j++) {
+            var remSysName = links[j]['remote_system_name'];
+            if (nodeTypeObjs[remSysName] ==
+                ctrlGlobal.NODE_CHASSIS_TYPE_SPINE) {
+                nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_CORE;
+                break;
+            }
+            if (nodeTypeObjs[remSysName] ==
+                ctrlGlobal.NODE_CHASSIS_TYPE_TOR) {
+                nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_SPINE;
+            }
+        }
+    }
+    /* Now check if anyone we have not done resolution */
+    for (var i = 0; i < nodeCnt; i++) {
+        if (ctrlGlobal.NODE_CHASSIS_TYPE_NOT_RESOLVED ==
+            nodes[i]['chassis_type']) {
+            nodes[i]['chassis_type'] = ctrlGlobal.NODE_CHASSIS_TYPE_UNKNOWN;
+        }
     }
     return nodes;
 }
@@ -1038,20 +1100,24 @@ function doCheckIfInternalIPAndComputePath (req, srcNode, destNode, callback)
         if ((true == byDest) && (null != destNode) &&
             (null != destVM) && (null != destVr) &&
             (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == destNode['node_type'])) {
-            topologyData['nodes'].push(destVM);
-            topologyData['nodes'].push(destVr);
-            topologyData['links'].push([destVM, destVr]);
-            topologyData['links'].push([destVr, destVM]);
+            topologyData['nodes'].push({'name': destVM, 'node_type':
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            topologyData['nodes'].push({'name': destVr, 'node_type':
+                                       ctrlGlobal.NODE_TYPE_VROUTER});
+            topologyData['links'].push({'endpoints': [destVM, destVr]});
+            topologyData['links'].push({'endpoints': [destVr, destVM]});
             callback(null, topologyData);
             return;
         }
         if ((true == bySrc) && (null != srcNode) &&
             (null != srcVM) && (null != srcVr) &&
             (ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE == srcNode['node_type'])) {
-            topologyData['nodes'].push(srcVM);
-            topologyData['nodes'].push(srcVr);
-            topologyData['links'].push([srcVM, srcVr]);
-            topologyData['links'].push([srcVr, srcVM]);
+            topologyData['nodes'].push({'name': srcVM, 'node_type':
+                                       ctrlGlobal.NODE_TYPE_VIRTUAL_MACHINE});
+            topologyData['nodes'].push({'name': srcVr, 'node_type':
+                                       ctrlGlobal.NODE_TYPE_VROUTER});
+            topologyData['links'].push({'endpoints': [srcVM, srcVr]});
+            topologyData['links'].push({'endpoints': [srcVr, srcVM]});
             callback(null, topologyData);
             return;
         }
@@ -1994,7 +2060,6 @@ function getvnStatsPerVrouter (req, res, appData)
 {
     var reqUrl = '/analytics/uves/vrouter';
     var urlKey = ctrlGlobal.STR_GET_VN_STATS_PER_VROUTER;
-    console.log("Getting req.query as:", req.query);
     cacheApi.queueDataFromCacheOrSendRequest(req, res, global.STR_JOB_TYPE_CACHE,
                                              urlKey, reqUrl,
                                              0, 1, 0, -1, true, req.query);
