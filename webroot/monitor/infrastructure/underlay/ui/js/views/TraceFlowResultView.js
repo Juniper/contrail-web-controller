@@ -11,7 +11,46 @@ define([
     var TraceFlowResultView = ContrailView.extend({
         render: function () {
             var self = this, viewConfig = self.attributes.viewConfig;
-            self.renderView4Config(self.$el, null, self.getViewConfig());
+            self.renderView4Config(self.$el, null, self.getViewConfig(), null,
+                null, null, function (traceFlowResultView) {
+                flowKeyStack = [];
+                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.icon-forward')
+                    .parent().click(function () {
+                        var vRouterDetails = getSelectedVrouterDetails(self.model);
+                        var url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
+                                 + '?ip=' + vRouterDetails['ip']
+                                 + '&introspectPort='
+                                 + vRouterDetails['introspectPort'];
+                        if(flowKeyStack.length > 0 &&
+                            flowKeyStack[flowKeyStack.length - 1] != null) {
+                            url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
+                                  + '?ip=' + vRouterDetails['ip']
+                                  + '&flowKey='
+                                  + flowKeyStack[flowKeyStack.length - 1]
+                                  + '&introspectPort='
+                                  + vRouterDetails['introspectPort'];
+                        }
+                        fetchvRouterFlowRecords(url, traceFlowResultView);
+                });
+                $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).find('i.icon-backward')
+                    .parent().click(function () {
+                     var vRouterDetails = getSelectedVrouterDetails(self.model);
+                     var url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
+                               + '?ip=' + vRouterDetails['ip']
+                               + '&introspectPort='
+                               + vRouterDetails['introspectPort'];
+                     // Need to remove last two keys in the array to get the
+                     // previous set of records
+                        flowKeyStack.pop();
+                     if (flowKeyStack.length > 0) {
+                         url = monitorInfraConstants.monitorInfraUrls.VROUTER_FLOWS
+                               + '?ip=' + vRouterDetails['ip']
+                               + '&flowKey=' + flowKeyStack.pop()
+                               + '&introspectPort=' + vRouterDetails['introspectPort'];
+                     }
+                     fetchvRouterFlowRecords(url, traceFlowResultView);
+                });
+            });
         },
         getViewConfig: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
@@ -19,16 +58,9 @@ define([
             var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
             var underlayGraphModel = graphView.model, traceFlowRemoteConfig = {};
             if(self.model.traceflow_radiobtn_name() == 'vRouter') {
-                var vRouterMap = underlayGraphModel.vRouterMap;
-                var vRouterData =
-                    ifNull(vRouterMap[self.model.vrouter_dropdown_name()], {});
-                var ip = getValueByJsonPath(vRouterData,
-                    'more_attributes;VrouterAgent;self_ip_list;0',
-                    getValueByJsonPath(vRouterData,
-                    'more_attributes;ConfigData;virtual-router;virtual_router_ip_address'));
-                var introspectPort = getValueByJsonPath(vRouterData,
-                    'more_attributes;VrouterAgent;sandesh_http_port',
-                    ctwl.DEFAULT_INTROSPECTPORT);
+                var vRouterDetails = getSelectedVrouterDetails(self.model);
+                var ip = vRouterDetails['ip'];
+                var introspectPort = vRouterDetails['introspectPort'];
                 traceFlowRemoteConfig = {
                     url: '/api/admin/monitor/infrastructure/vrouter/flows?ip='+
                         ip+'&introspectPort='+introspectPort,
@@ -93,15 +125,36 @@ define([
         }
     });
 
+    function fetchvRouterFlowRecords(url) {
+        var resultGrid = $("#"+ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
+        $.ajax({
+           url: url,
+        }).done(function (response) {
+            var response = monitorInfraParsers.parseVRouterFlowsData(response);
+            resultGrid._dataView.setData(response['data']);
+        }).fail(function () {
+            resultGrid.showMessage('error');
+        });
+    }
+
     function getTraceFlowGridConfig(traceFlowRemoteConfig,
             traceFlowGridColumns,
             formModel) {
         var gridId = ctwc.TRACEFLOW_RESULTS_GRID_ID;
+        var customControls = [], footer = true;
+        if (formModel.traceflow_radiobtn_name() == 'vRouter') {
+            customControls = [
+                '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
+                '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
+            ];
+            footer = false;
+        }
         var gridElementConfig = {
             header: {
                 title: {
                     text: ctwl.UNDERLAY_TRACEFLOW_TITLE,
                 },
+                customControls: customControls,
                 defaultControls: {
                     collapseable: true,
                     exportable: true,
@@ -159,27 +212,29 @@ define([
             columnHeader: {
                 columns: traceFlowGridColumns
             },
-            footer: {
-                pager: {
-                    options: {
-                        pageSize: 10
-                    }
-                }
-            }
+            footer: footer
         };
         return gridElementConfig;
     };
 
-    function getSelectedvRouterIP (vRouterName, graphModel) {
-        var ip = "";
-        if (graphModel != null && graphModel.vRouterMap[vRouterName] != null) {
-            var vRouterDetails = graphModel.vRouterMap[vRouterName];
-            ip = getValueByJsonPath(vRouterDetails,
-                    'more_attributes;VrouterAgent;self_ip_list;0','-');
-        }
-        return ip;
+    function getSelectedVrouterDetails (traceFlowFormModel) {
+        var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+        var graphModel = graphView.model;
+        var vRouterMap = graphModel.vRouterMap;
+        var vRouterData =
+            ifNull(vRouterMap[traceFlowFormModel.vrouter_dropdown_name()], {});
+        var ip = getValueByJsonPath(vRouterData,
+            'more_attributes;VrouterAgent;self_ip_list;0',
+            getValueByJsonPath(vRouterData,
+            'more_attributes;ConfigData;virtual-router;virtual_router_ip_address'));
+        var introspectPort = getValueByJsonPath(vRouterData,
+            'more_attributes;VrouterAgent;sandesh_http_port',
+            ctwl.DEFAULT_INTROSPECTPORT);
+        return {
+            ip: ip,
+            introspectPort: introspectPort
+        };
     }
-
     function doTraceFlow (rowId, formModel) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
@@ -188,7 +243,7 @@ define([
         var contextVrouterIp;
         if(formModel != null && formModel.showvRouter())
             contextVrouterIp =
-                getSelectedvRouterIP(formModel.vrouter_dropdown_name(), graphModel);
+                getSelectedVrouterDetails(formModel)['ip'];
         var dataItem = ifNull(flowGrid._grid.getDataItem(rowId),{});
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
@@ -263,7 +318,7 @@ define([
                         getValueByJsonPath(networkDetails,
                         'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
                     if(vrfList[0] != null)
-                        nwFqName += ":"+vrfList[0];
+                        nwFqName = vrfList[0];
                 } else
                     // if there is no vrf name in the response then
                     // just constructing it in general format
@@ -283,7 +338,7 @@ define([
         var contextVrouterIp = '';
         if(formModel != null && formModel.showvRouter())
             contextVrouterIp =
-                getSelectedvRouterIP(formModel.vrouter_dropdown_name(), graphModel);
+                getSelectedVrouterDetails(formModel)['ip'];
         /*
          * For egress flows the source vm ip may not spawned in the same vrouter,
          * so need to pick the peer_vrouter
