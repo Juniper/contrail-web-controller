@@ -688,20 +688,6 @@ define([
                                 }
                             ]
                         },
-                        /*{
-                            columns: [
-                                {
-                                    elementId: 'isJunosPortEnabled',
-                                    view: "FormCheckboxView",
-                                    viewConfig: {
-                                        label : "Junos Service Ports",
-                                        path: "isJunosPortEnabled",
-                                        dataBindValue: "isJunosPortEnabled",
-                                        class: "span12"
-                                    }
-                                }
-                            ]
-                        },*/
                         self.svcPortsSection()
                     ]
                 }

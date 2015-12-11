@@ -62,9 +62,8 @@ define([
             /*
                 Populating ServicePortModel from junosServicePorts
              */
-            var ports =
-                modelConfig['physical_router_junos_service_ports']['service_port'];
-            var ports = (ports != null) ? ports : [],
+            var ports = getValueByJsonPath(modelConfig,
+                'physical_router_junos_service_ports;service_port', []),
                 portModels = [], portModel,
                 portCollectionModel;
             if(ports.length > 0) {
@@ -76,24 +75,50 @@ define([
             }
             portCollectionModel = new Backbone.Collection(portModels);
             modelConfig['servicePorts'] = portCollectionModel;
-            if(modelConfig['junosServicePorts'] != null) {
-                delete modelConfig['junosServicePorts'];
-            }
             //populate user created attrs
             var snmpCredentials =
                 modelConfig['physical_router_snmp_credentials'];
-            snmpCredentials['v2_community'] = 'public';
-            modelConfig['user_created_version'] = '2';
-            modelConfig['user_created_security_level'] = 'none';
-            if(snmpCredentials['version'] != null ||
-               snmpCredentials['v3_security_level'] != null) {
-                modelConfig['snmpMntd'] = true;
-                modelConfig['user_created_security_level'] =
-                    snmpCredentials['v3_security_level'];
+            if(snmpCredentials) {
+                snmpCredentials['v2_community'] = 'public';
+                modelConfig['user_created_version'] = '2';
+                modelConfig['user_created_security_level'] = 'none';
+                if(snmpCredentials['version'] != null ||
+                   snmpCredentials['v3_security_level'] != null) {
+                    modelConfig['snmpMntd'] = true;
+                    modelConfig['user_created_security_level'] =
+                        snmpCredentials['v3_security_level'];
+                }
+                if(snmpCredentials['version'] != null ) {
+                    modelConfig['user_created_version'] =
+                        snmpCredentials['version'].toString();
+                }
+            } else {//it is required to work bindings
+                modelConfig['physical_router_snmp_credentials'] = {
+                    'v2_community' : null,
+                    'v3_privacy_protocol' : null,
+                    'retries' : null,
+                    'v3_authentication_password' : null,
+                    'v3_engine_time' : null,
+                    'v3_engine_id' : null,
+                    'local_port': null,
+                    'v3_security_name': null,
+                    'v3_context': null,
+                    'v3_security_level': null,
+                    'v3_authentication_protocol': null,
+                    'v3_security_engine_id': null,
+                    'v3_context_engine_id': null,
+                    'version': null,
+                    'timeout': null,
+                    'v3_privacy_password': null,
+                    'v3_engine_boots': null
+                };
             }
-            if(snmpCredentials['version'] != null ) {
-                modelConfig['user_created_version'] =
-                    snmpCredentials['version'].toString();
+
+            if(!modelConfig['physical_router_user_credentials']) {
+                modelConfig['physical_router_user_credentials'] = {
+                    "username" : null,
+                    "password" : null
+                 };
             }
             modelConfig['user_created_bgp_router'] = 'None';
             if(modelConfig['bgp_router_refs'] != null &&
@@ -156,7 +181,19 @@ define([
             portCollection.remove(port);
         },
         configPhysicalRouter: function (callbackObj, ajaxOpt, type, editView) {
-            if (this.model().isValid(true, "configureValidation")) {
+            var validations = [
+                {
+                    key : null,
+                    type : cowc.OBJECT_TYPE_MODEL,
+                    getValidation : 'configureValidation'
+                },
+                {
+                    key : 'servicePorts',
+                    type : cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation : 'servicePortValidation'
+                }
+            ];
+            if(this.isDeepValid(validations)) {
                 var ajaxConfig = {},
                     returnFlag = false;
                 var attr = this.model().attributes,
@@ -198,18 +235,23 @@ define([
                 }
                 if(type === ctwl.NET_CONF_TYPE ||
                     type === ctwl.PHYSICAL_ROUTER_TYPE){
-                    postObject["physical-router"]
-                        ['physical_router_user_credentials'] = {};
                     var netConfUserName =
-                        attr['physical_router_user_credentials']["username"];
-                    netConfUserName =
-                        netConfUserName != null ? netConfUserName.trim() : '';
-                    postObject["physical-router"]
-                        ['physical_router_user_credentials']["username"] =
-                        netConfUserName;
-                    postObject["physical-router"]
-                        ['physical_router_user_credentials']["password"] =
-                        attr['physical_router_user_credentials']["password"];
+                        attr["physical_router_user_credentials"]["username"];
+                    var netConfPassword =
+                        attr["physical_router_user_credentials"]["password"];
+                    if(netConfUserName || netConfPassword) {
+                        postObject["physical-router"]
+                            ['physical_router_user_credentials'] = {};
+                        postObject["physical-router"]
+                            ['physical_router_user_credentials']["username"] =
+                            netConfUserName;
+                        postObject["physical-router"]
+                            ['physical_router_user_credentials']["password"] =
+                            netConfPassword;
+                    } else {
+                        postObject["physical-router"]
+                            ["physical_router_user_credentials"] = null;
+                    }
                     var servicePorts = this.getPortNameList(attr);
                     if(servicePorts.length > 0) {
                         postObject["physical-router"]
@@ -217,6 +259,9 @@ define([
                         postObject["physical-router"]
                             ["physical_router_junos_service_ports"]["service_port"]
                             = servicePorts;
+                    } else {
+                        postObject["physical-router"]
+                            ["physical_router_junos_service_ports"] =  null;
                     }
                 }
                 if(type === ctwl.PHYSICAL_ROUTER_TYPE) {
@@ -233,8 +278,7 @@ define([
                     postObject["physical-router"]
                         ["physical_router_vnc_managed"] =
                         attr["physical_router_vnc_managed"];
-                    if(attr.user_created_virtual_network != null &&
-                        attr.user_created_virtual_network != ''){
+                    if(attr.user_created_virtual_network){
                         var arr = attr.user_created_virtual_network.split(',');
                         var vnRefs = [];
                         for(var i = 0; i < arr.length; i++) {
@@ -243,6 +287,8 @@ define([
                         }
                         postObject["physical-router"]["virtual_network_refs"] =
                             vnRefs;
+                    } else {
+                        postObject["physical-router"]["virtual_network_refs"] = [];
                     }
                     // This PROUTER type add. Create based on the info inputted.
                     if(attr.virtualRouterType != null &&
@@ -284,7 +330,7 @@ define([
                         attr['physical_router_snmp_credentials']['local_port'];
                     snmpLocalPort =
                         snmpLocalPort != null && snmpLocalPort.toString().trim() != '' ?
-                        parseInt(snmpLocalPort.toString().trim()) : '';
+                        parseInt(snmpLocalPort.toString().trim()) : 161;
                     var snmpRetries = attr['physical_router_snmp_credentials']['retries'];
                     snmpRetries = (snmpRetries != null && snmpRetries.toString().trim() != '')?
                         parseInt(snmpRetries.toString().trim()) : '';
@@ -410,7 +456,7 @@ define([
                     }
                 } else {
                     postObject["physical-router"]
-                        ['physical_router_snmp_credentials'] = {};
+                        ['physical_router_snmp_credentials'] = null;
                 }
                 ajaxConfig.async = true;
                 ajaxConfig.type = ajaxOpt.type;
@@ -466,6 +512,11 @@ define([
                 }
             });
         },
+        getVirtualRouterDetails : function(vRouterName) {
+            var vRouterMap =
+                getValueByJsonPath(window.physicalRouter, "globalVRoutersMap", {});
+            return (vRouterMap[vRouterName.trim()])? vRouterMap[vRouterName.trim()] : '';
+        },
         /*Populates the post obj with the required fields for creating
         the embedded type vrouter*/
         populateEmbeddedVirtualRouterObjectToPostObj :
@@ -474,7 +525,7 @@ define([
             var virtualRouters = [];
             var virtualRouterRefs = [];
             postObject["physical-router"]["virtual-routers"] = [];
-            var currVr = editView.getVirtualRouterDetails(name);
+            var currVr = this.getVirtualRouterDetails(name);
             if(currVr != null && (currVr.type == 'embedded' ||
                 currVr.type == 'hypervisor')){
                 if(currVr.ip != mgmtIpAddress ||
@@ -698,9 +749,44 @@ define([
                          !$.isNumeric(value.toString().trim())) {
                          return "Engine Time should be a number";
                      }
+                },
+                'virtualRouterType' : function(value, attr, finalObj){
+                     if(value === 'Embedded') {
+                         var name = finalObj['name'];
+                         var vRouterMap =
+                             getValueByJsonPath(window.physicalRouter, 'globalVRoutersMap', []);
+                         var currentVirtualRouter =
+                             vRouterMap[name.trim()] ? vRouterMap[name.trim()] : '';
+                         if(currentVirtualRouter &&
+                             $.inArray(currentVirtualRouter.type, ['embedded', 'hypervisor']) === -1) {
+                             return "Virtual router " + name + " ("
+                                 + currentVirtualRouter.type + ") already exists";
+                         }
+                     }
+                },
+                "diffrent_names_for_tors_and_tsns" : function(value, attr, finalObj) {
+                     //check for duplicates
+                     var virtualRouterList = [];
+                     var tor1 = finalObj.user_created_torAgent1;
+                     var tor2 = finalObj.user_created_torAgent2;
+                     var tsn1 = finalObj.user_created_tsn1;
+                     var tsn2 = finalObj.user_created_tsn2
+                     if(tor1) {
+                         virtualRouterList.push(tor1);
+                     }
+                     if(tor2) {
+                         virtualRouterList.push(tor2);
+                     }
+                     if(tsn1) {
+                         virtualRouterList.push(tsn1);
+                     }
+                     if(tsn2) {
+                         virtualRouterList.push(tsn2);
+                     }
+                     if(checkIfDuplicates(virtualRouterList)) {
+                         return "Enter diffrent names for TORs and TSNs";
+                     }
                 }
-                /*TODO: Need to add virtualRouterType of type embedded and
-                different names for ToRs and TSNs validations*/
             }
         }
     });
