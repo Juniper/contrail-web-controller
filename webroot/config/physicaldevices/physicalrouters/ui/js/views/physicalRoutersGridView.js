@@ -374,18 +374,20 @@ define([
                     var checkedRows =
                         $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
                         data("contrailGrid").getCheckedRows();
-                    physicalRouterEditView.model = pRouterModel;
-                    physicalRouterEditView.renderDeletePhysicalRouters(
-                        {"title": ctwl.TITLE_PHYSICAL_ROUTER_MULTI_DELETE,
-                            checkedRows: checkedRows,
-                            callback: function () {
-                                var dataView =
-                                    $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
-                                    data("contrailGrid")._dataView;
-                                dataView.refreshData();
+                    if(checkedRows && checkedRows.length > 0) {
+                        physicalRouterEditView.model = pRouterModel;
+                        physicalRouterEditView.renderDeletePhysicalRouters(
+                            {"title": ctwl.TITLE_PHYSICAL_ROUTER_MULTI_DELETE,
+                                checkedRows: checkedRows,
+                                callback: function () {
+                                    var dataView =
+                                        $('#' + ctwl.PHYSICAL_ROUTERS_GRID_ID).
+                                        data("contrailGrid")._dataView;
+                                    dataView.refreshData();
+                                }
                             }
-                        }
-                    );
+                        );
+                    }
                 }
             },
             {
