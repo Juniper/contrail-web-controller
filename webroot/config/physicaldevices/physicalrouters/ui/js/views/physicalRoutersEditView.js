@@ -423,7 +423,8 @@ define([
         virtualRouterDetailsParser : function(result) {
             self.torAgentVrouterDS = [];
             self.tsnVrouterDS = [];
-            globalVRoutersMap = {};
+            window.physicalRouter = {};
+            window.physicalRouter.globalVRoutersMap = {};
             if(result && result['virtual-routers'] &&
                 result['virtual-routers'].length > 0) {
                 result = result['virtual-routers'];
@@ -442,7 +443,7 @@ define([
                         virtualRouter['virtual_router_ip_address'] : '';
                   /*build a map with vrouter name and type to be used
                       in createEditWindow*/
-                    globalVRoutersMap[virtualRouter['name']] =
+                    window.physicalRouter.globalVRoutersMap[virtualRouter['name']] =
                         {type:vRouterType,ip:vRouterIP};
                     if(vRouterType == 'tor-agent'){
                         /*Tor agent can be assigned to
@@ -465,10 +466,6 @@ define([
                     }
                 }
             }
-        },
-        getVirtualRouterDetails : function(vRouterName) {
-            return (globalVRoutersMap[vRouterName.trim()])?
-                globalVRoutersMap[vRouterName.trim()] : '';
         },
         fetchBGPRouters : function(prefixId, modalId, self, typeObj) {
             contrail.ajaxHandler(
@@ -520,33 +517,6 @@ define([
                 }
             );
         },
-        /*populateVirtualRouterDetails : function(self) {
-            var vrType = 'None';
-            var virtualRouters = self.model.virtual_router_refs();
-            if(virtualRouters != null && virtualRouters.length > 0){
-                var selectedVRouters = virtualRouters;
-                var torAgentCount = 1, tsnCount = 1;
-                $.each(selectedVRouters,function(i,vrouter){
-                    var vrname = vrouter.name.trim();
-                    var vrDetails = self.getVirtualRouterDetails(vrname);
-                    var vrouterType = vrouter['virtual_router_type'];
-                    if(vrouterType == 'embedded'){
-                        vrType = 'Embedded';
-                        self.model['user_created_torAgent' + torAgentCount]('');
-                        self.model['user_created_tsn' + tsnCount]('');
-                    } else if(vrouterType == 'tor-agent'){
-                        vrType = 'TOR Agent';
-                        self.model['user_created_torAgent' + torAgentCount](vrname);
-                        torAgentCount++;
-                    } else if(vrouterType == 'tor-service-node'){
-                        vrType = 'TOR Agent';
-                        self.model['user_created_tsn' + tsnCount](vrname);
-                        tsnCount++;
-                    }
-                });
-            }
-            self.model.virtualRouterType(vrType);
-        },*/
         getOVSDBManagedTorViewConfig : function(disableId) {
             return {
                 elementId: ctwl.PHYSICAL_ROUTER_PREFIX_ID,
@@ -611,20 +581,6 @@ define([
                                  }
                             ]
                         },
-                        /*{
-                            columns: [
-                                {
-                                    elementId: 'isJunosPortEnabled',
-                                    view: "FormCheckboxView",
-                                    viewConfig: {
-                                        label : "Junos Service Ports",
-                                        path: "isJunosPortEnabled",
-                                        dataBindValue: "isJunosPortEnabled",
-                                        class: "span12"
-                                    }
-                                }
-                            ]
-                        },*/
                         pRouterConfigTemplates.svcPortsSection(),
                         pRouterConfigTemplates.snmpMntdChkboxView(),
                         pRouterConfigTemplates.snmpMntdView()
