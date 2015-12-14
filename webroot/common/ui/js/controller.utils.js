@@ -164,6 +164,72 @@ define([
             }
         };
 
+        this.getGlobalSysConfigListModelConfig = function() {
+            return {
+                remote: {
+                    ajaxConfig: {
+                        url: '/api/tenants/config/list-global-system-config'
+                    },
+                    dataParser: function(response) {
+                        return  $.map(response['global-system-configs'], function (n, i) {
+                            return {
+                                fq_name: n.fq_name.join(':'),
+                                name: n.fq_name[0],
+                                value: n.uuid
+                            };
+                        });
+                    },
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate =
+                            contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig =
+                                $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE,
+                                         {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                },
+                cacheConfig : {
+                    ucid: ctwc.UCID_BC_ALL_GLOBAL_SYS_CONFIGS,
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.DOMAIN_CACHE_UPDATE_INTERVAL
+                }
+            }
+        };
+
+        this.getSASetListModelConfig = function() {
+            return {
+                remote: {
+                    ajaxConfig: {
+                        url: '/api/tenants/config/service-appliance-sets'
+                    },
+                    dataParser: function(response) {
+                        return  $.map(response, function (n, i) {
+                            return {
+                                fq_name: n.fq_name.join(':'),
+                                name: n.fq_name[1],
+                                value: n.uuid
+                            };
+                        });
+                    },
+                    failureCallback: function(xhr, ContrailListModel) {
+                        var dataErrorTemplate =
+                            contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                            dataErrorConfig =
+                                $.extend(true, {}, cowc.DEFAULT_CONFIG_ERROR_PAGE,
+                                         {errorMessage: xhr.responseText});
+
+                        $(contentContainer).html(dataErrorTemplate(dataErrorConfig));
+                    }
+                },
+                cacheConfig : {
+                    ucid: ctwc.UCID_BC_ALL_SA_SETS,
+                    loadOnTimeout: false,
+                    cacheTimeout: cowc.DOMAIN_CACHE_UPDATE_INTERVAL
+                }
+            }
+        };
+
         this.getAllDomains = function() {
             var listModelConfig = {
                 remote: {

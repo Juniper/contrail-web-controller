@@ -17,7 +17,7 @@ define([
             'service_template_properties': {
                 'instance_data': null,
                 'availability_zone_enable': false,
-                'service_virtualization_type': null,
+                'service_virtualization_type': 'virtual-machine',
                 'image_name': null,
                 'service_mode': 'transparent',
                 'service_type': 'firewall',
@@ -27,6 +27,8 @@ define([
                 'ordered_interfaces': true,
                 'interface_type': []
             },
+            'user_created_service_virtualization_type': 'virtual-machine',
+            'service_appliance_set': null,
             'interfaces' : []
         },
 
@@ -137,14 +139,36 @@ define([
                     required: true,
                     msg: 'Enter Name'
                 },
-                'service_template_properties.image_name': {
-                    required: true,
-                    msg: 'Select an Image'
+                'service_template_properties.image_name': function(val, attr,
+                                                                   data) {
+                    if ('virtual-machine' !=
+                        data['user_created_service_virtualization_type']) {
+                        return;
+                    }
+                    if (null == val) {
+                        return 'Select an Image';
+                    }
                 },
-                'service_template_properties.flavor': {
-                    required: true,
-                    msg: 'Select a Flavor'
+                'service_template_properties.flavor': function(val, attr,
+                                                               data) {
+                    if ('virtual-machine' !=
+                        data['user_created_service_virtualization_type']) {
+                        return;
+                    }
+                    if (null == val) {
+                        return 'Select a Flavor';
+                    }
                 },
+                'service_appliance_set':
+                    function(val, attr, data) {
+                    if ('physical-machine' !=
+                        data['user_created_service_virtualization_type']) {
+                        return;
+                    }
+                    if (null == val) {
+                        return "Select Service Appliance Set"
+                    }
+                }
             }
         },
 
@@ -172,6 +196,26 @@ define([
                 newSvcTemplateCfgData['service_template_properties']['interface_type'] =
                     self.getSvcTemplateInterfaceList(newSvcTemplateCfgData);;
 
+                var svcVirtType =
+                    getValueByJsonPath(newSvcTemplateCfgData,
+                                       'user_created_service_virtualization_type',
+                                       'virtual-machine');
+                newSvcTemplateCfgData['service_template_properties']
+                                     ['service_virtualization_type'] =
+                    svcVirtType;
+                if (("physical-device" == svcVirtType) &&
+                    (null != newSvcTemplateCfgData['service_appliance_set'])) {
+                    newSvcTemplateCfgData["service_appliance_set_refs"] = [];
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0] = {};
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0]["to"] = [];
+                    newSvcTemplateCfgData["service_appliance_set_refs"][0]["to"] =
+                        newSvcTemplateCfgData['service_appliance_set'].split(":");
+                    delete newSvcTemplateCfgData.service_template_properties.availability_zone_enable;
+                    delete newSvcTemplateCfgData.service_template_properties.flavor;
+                    delete newSvcTemplateCfgData.service_template_properties.image_name;
+                    newSvcTemplateCfgData.service_template_properties.service_mode='transparent';
+                    newSvcTemplateCfgData.service_template_properties.service_type='firewall';
+                }
                 ctwu.deleteCGridData(newSvcTemplateCfgData);
                 delete newSvcTemplateCfgData.id_perms;
                 delete newSvcTemplateCfgData.interfaces;
@@ -179,7 +223,10 @@ define([
                 delete newSvcTemplateCfgData.href;
                 delete newSvcTemplateCfgData.parent_href;
                 delete newSvcTemplateCfgData.parent_uuid;
-
+                delete
+                    newSvcTemplateCfgData.user_created_service_virtualization_type;
+                delete
+                    newSvcTemplateCfgData.service_appliance_set;
 
                 postData['service-template'] = newSvcTemplateCfgData;
 

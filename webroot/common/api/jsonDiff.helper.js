@@ -70,6 +70,19 @@ var configJsonModifyObj = {
                       'flow_export_rate', 'flow_aging_timeout_list'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'service-appliance': {
+        'isConfig': true,
+        'optFields': ['service_appliance_ip_address',
+            'service_appliance_user_credentials',
+            'service_appliance_properties', 'physical_interface_refs'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'service-appliance-set': {
+        'isConfig': true,
+        'optFields': ['service_appliance_ha_mode', 'service_appliance_driver',
+            'service_appliance_set_properties'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'physical-topology': {
         'preProcessCB': {
             'applyOnOldJSON': modifyPhyTopoData,

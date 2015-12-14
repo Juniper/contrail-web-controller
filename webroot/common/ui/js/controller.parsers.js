@@ -265,6 +265,15 @@ define([
                response['service_templates'].length > 0) {
                var length = response['service_templates'].length
                for (var i = 0; i < length; i++) {
+                   var svcApplSetRefs =
+                       getValueByJsonPath(response['service_templates'][i],
+                                          'service-template;service_appliance_set_refs',
+                                          []);
+                   if (svcApplSetRefs.length > 0) {
+                       response['service_templates'][i]['service-template']
+                           ['service_appliance_set'] =
+                           svcApplSetRefs[0]['to'].join(':');
+                   }
                    retArr.push(response['service_templates'][i]['service-template']);
                }
            }
