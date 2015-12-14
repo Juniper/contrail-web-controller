@@ -38,7 +38,8 @@ define([
                     this.renderView4Config(self.$el, traceFlowModel,
                         self.getTraceFlowTabViewConfig(),null, null, null,
                             function () {
-                                $("#" + ctwc.UNDERLAY_TRACEFLOW_TAB_ID + "-tab").append("<div id='"+ctwc.TRACEFLOW_RESULTS_GRID_ID+"'></div>");
+                                $("#" + ctwc.UNDERLAY_TRACEFLOW_TAB_ID + "-tab")
+                                    .append("<div id='"+ctwc.TRACEFLOW_RESULTS_GRID_ID+"'></div>");
                                 self.renderTraceFlowResult();
                                 $('input[type=radio][name=traceflow_radiobtn_name]')
                                     .on('change',function () {
