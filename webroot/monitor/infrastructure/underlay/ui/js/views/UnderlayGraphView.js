@@ -424,6 +424,9 @@ define([
                                  underlayGraphModel.selectedElement.set({
                                      'nodeType': ctwc.PROUTER,
                                      'nodeDetail': nodeDetails});
+                                 underlayGraphModel.selectedElement.set({
+                                     'nodeType': '',
+                                     'nodeDetail': {}},{silent:true});
                                  var children = underlayGraphModel.getChildren(
                                          nodeDetails['name'], "virtual-router");
                                  var adjList = _.clone(
@@ -468,6 +471,9 @@ define([
                              graphView.model.selectedElement.set({
                                  'nodeType': ctwc.VROUTER,
                                  'nodeDetail': nodeDetails});
+                             graphView.model.selectedElement.set({
+                                 'nodeType': '',
+                                 'nodeDetail': {}},{silent:true});
                              var model_id = $(dblClickedElement).attr('id');
                              var children = underlayGraphModel.getChildren(
                                  nodeDetails['name'],
@@ -674,6 +680,9 @@ define([
                             graphView.model.selectedElement.set({
                                 'nodeType': ctwc.PROUTER,
                                 'nodeDetail': nodeDetails});
+                            graphView.model.selectedElement.set({
+                                'nodeType': '',
+                                'nodeDetail': {}},{silent:true});
                         }
                     });
 
@@ -740,6 +749,9 @@ define([
                             graphView.model.selectedElement.set({
                                 'nodeType': ctwc.VROUTER,
                                 'nodeDetail': nodeDetails});
+                            graphView.model.selectedElement.set({
+                                'nodeType': '',
+                                'nodeDetail': {}},{silent:true});
                         }
                     });
                     return actions;
@@ -823,6 +835,9 @@ define([
                             graphView.model.selectedElement.set({
                                 'nodeType': ctwc.VIRTUALMACHINE,
                                 'nodeDetail': nodeDetails});
+                            graphView.model.selectedElement.set({
+                                'nodeType': '',
+                                'nodeDetail': {}},{silent:true});
                         }
                     });
 
