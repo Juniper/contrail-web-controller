@@ -3,33 +3,37 @@
  */
 
 define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbone) {
-   UnderlayGraphModel = ContrailGraphModel.extend({
-       nodes : [],
-       links : [],
-       tors : [],
-       spines : [],
-       cores : [],
-       vRouters : [],
-       vRouterMap : {},
-       vmMap : {},
-       VMs : [],
-       VNs : [],
-       tree : [],
-       adjacencyList : [],
-       underlayAdjacencyList : [],
-       connectedElements : [],
-       selectedElement : new Backbone.Model({
-           nodeType: '',
-           nodeDetail: {}
-       }),
-       flowPath: new Backbone.Model({
-           nodes: [],
-           links: []
-       }),
-       underlayPathIds: [],
-       underlayPathReqObj: {},
-       uveMissingNodes: [],
-       configMissingNodes: [],
+   var UnderlayGraphModel = ContrailGraphModel.extend({
+
+       initialize: function (graphModelConfig) {
+           this.nodes = [],
+           this.links = [],
+           this.tors = [],
+           this.spines = [],
+           this.cores = [],
+           this.vRouters = [],
+           this.vRouterMap = {},
+           this.vmMap = {},
+           this.VMs = [],
+           this.VNs = [],
+           this.tree = [],
+           this.adjacencyList = [],
+           this.underlayAdjacencyList = [],
+           this.connectedElements = [],
+           this.underlayPathIds = [],
+           this.underlayPathReqObj = {},
+           this.uveMissingNodes = [],
+           this.configMissingNodes = [],
+           this.selectedElement = new Backbone.Model({
+               nodeType: '',
+               nodeDetail: {}
+           });
+           this.flowPath = new Backbone.Model({
+                nodes: [],
+                links: []
+           });
+           ContrailGraphModel.prototype.initialize.apply(this, [graphModelConfig]);
+       },
        getElementsForUnderlayGraph : function (response) {
            //update chasis-type in nodes
            var nodes = ifNull(response['nodes'], []);
@@ -309,7 +313,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                            var linkEl = self.getCell(elMap.link[linkName]);
                            if(false == el && null != linkEl) {
                                linkElements.push(linkEl);
-                           } else 
+                           } else
                                continue;
                        }
                    } else {
