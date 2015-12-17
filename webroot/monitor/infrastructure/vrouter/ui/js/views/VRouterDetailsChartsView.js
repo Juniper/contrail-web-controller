@@ -10,10 +10,13 @@ define([
     'monitor/infrastructure/vrouter/ui/js/views/VRouterDetailsAgentLineChartView',
     'monitor/infrastructure/vrouter/ui/js/models/VRouterDetailsAgentChartListModel',
     'monitor/infrastructure/vrouter/ui/js/views/VRouterDetailsSystemLineChartView',
-    'monitor/infrastructure/vrouter/ui/js/models/VRouterDetailsSystemChartListModel'
+    'monitor/infrastructure/vrouter/ui/js/models/VRouterDetailsSystemChartListModel',
+    'monitor/infrastructure/vrouter/ui/js/views/VRouterDetailsBandwidthLineChartView',
+    'monitor/infrastructure/vrouter/ui/js/models/VRouterDetailsBandwidthChartListModel'
 ], function(_,ContrailView,Backbone,NodeDetailsInfoboxesView,
         VRouterDetailsAgentLineChartView,VRouterDetailsAgentChartListModel,
-        VRouterDetailsSystemLineChartView,VRouterDetailsSystemChartListModel) {
+        VRouterDetailsSystemLineChartView,VRouterDetailsSystemChartListModel,
+        VRouterDetailsBandwidthLineChartView,VRouterDetailsBandwidthChartListModel) {
 
     //Ensure VRouterDetailsChartsView is instantiated only once and re-used always
     //Such that tabs can be added dynamically like from other feature packages
@@ -37,8 +40,9 @@ define([
     function getInfoboxesConfig(config) {
         var vRouterDetailsAgentChartListModel = new VRouterDetailsAgentChartListModel(config);
         var vRouterDetailsSystemChartListModel = new VRouterDetailsSystemChartListModel(config);
+        var vRouterDetailsBandwidthChartListModel = new VRouterDetailsBandwidthChartListModel(config);
         return [{
-            title: 'vRouter Agent',
+            title: 'Virtual Router Agent',
             prefix:'vrouterAgent',
             sparklineTitle1:'CPU Share (%)',
             sparklineTitle2:'Memory',
@@ -56,6 +60,16 @@ define([
             sparkline2Dimension:'cpu_info.used_sys_mem',
             view: VRouterDetailsSystemLineChartView,
             model: vRouterDetailsSystemChartListModel
+        },
+        {
+            title: 'Physical Bandwidth',
+            prefix:'vrouterBandwidth',
+            sparklineTitle1:'Bandwidth In',
+            sparklineTitle2:'Bandwidth Out',
+            sparkline1Dimension: 'phy_if_band.in_bandwidth_usage',
+            sparkline2Dimension:'phy_if_band.out_bandwidth_usage',
+            view: VRouterDetailsBandwidthLineChartView,
+            model: vRouterDetailsBandwidthChartListModel
         }];
     };
 

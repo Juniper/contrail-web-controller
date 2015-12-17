@@ -1723,6 +1723,9 @@ define([
                         postData['select'] = 'Source, T, cpu_info.cpu_share, cpu_info.mem_res';
                     } else if (moduleType == 'vRouterSystem') {
                         postData['select'] = 'Source, T, cpu_info.one_min_cpuload, cpu_info.used_sys_mem';
+                    } else if (moduleType == 'vRouterBandwidth') {
+                        postData['table'] = 'StatTable.VrouterStatsAgent.phy_if_band';
+                        postData['select'] = 'Source, T, phy_if_band.in_bandwidth_usage, phy_if_band.out_bandwidth_usage';
                     }
                     postData['where'] = '(Source = '+ node +')';
                 } else {

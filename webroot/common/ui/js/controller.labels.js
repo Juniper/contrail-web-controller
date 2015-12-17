@@ -294,8 +294,9 @@ define([
 
         /** Titles used in node details chart widget **/
         this.TITLE_CONTROLNODE_CPU_MEM_UTILIZATION = 'Control Node CPU/Memory Utilization';
-        this.TITLE_VROUTER_AGENT_CPU_MEM_UTILIZATION = 'vRouter Agent CPU/Memory Utilization';
-        this.TITLE_VROUTER_SYSTEM_CPU_MEM_UTILIZATION = 'vRouter System CPU/Memory Utilization';
+        this.TITLE_VROUTER_AGENT_CPU_MEM_UTILIZATION = 'Virtual Router Agent CPU/Memory Utilization';
+        this.TITLE_VROUTER_SYSTEM_CPU_MEM_UTILIZATION = 'Virtual Router System CPU/Memory Utilization';
+        this.TITLE_VROUTER_BANDWIDTH_UTILIZATION = 'Virtual Router Physical Bandwidth Utilization';
         this.TITLE_ANALYTICS_COLLECTOR_CPU_MEM_UTILIZATION = 'Collector CPU/Memory Utilization';
         this.TITLE_ANALYTICS_QE_CPU_MEM_UTILIZATION = 'Query Engine CPU/Memory Utilization';
         this.TITLE_ANALYTICS_ANALYTICS_CPU_MEM_UTILIZATION = 'OpServer CPU/Memory Utilization';
@@ -473,10 +474,16 @@ define([
             'vrouter_details_system_chart_section';
         this.VROUTER_DETAILS_SYSTEM_LINE_CHART_ID =
             'vrouter_details_system_line_chart';
+        this.VROUTER_DETAILS_BANDWIDTH_CHART_SECTION_ID =
+            'vrouter_details_bandwidth_chart_section';
+        this.VROUTER_DETAILS_BANDWIDTH_LINE_CHART_ID =
+            'vrouter_details_bandwidth_line_chart';
         this.VROUTER_DETAILS_AGENT_CHART_WIDGET =
             'vrouter_details_agent_chart_widget';
         this.VROUTER_DETAILS_SYSTEM_CHART_WIDGET =
             'vrouter_details_system_chart_widget';
+        this.VROUTER_DETAILS_BANDWIDTH_CHART_WIDGET =
+            'vrouter_details_bandwidth_chart_widget';
 
         // this.VROUTER_NETWORKS_GRID_SECTION_ID = 'vrouter_networks_grid_section_id';
         this.VROUTER_NETWORKS_GRID_VIEW_ID = 'vrouter_networks_id';
