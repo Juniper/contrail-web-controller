@@ -196,7 +196,7 @@ define([
                 instanceUUID);
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].modelMap = modelMap;
         underlayTabView.childViewMap[ctwc.UNDERLAY_TAB_ID].renderNewTab(
-            ctwc.UNDERLAY_TAB_ID, instanceTabConfig
+            ctwc.UNDERLAY_TAB_ID, instanceTabConfig, null, modelMap, null
         );
         $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
