@@ -276,7 +276,6 @@ define([
              dataItem['direction'] == 'ingress') {
             if(formModel != null && formModel.showvRouter()) {
                 postData['nodeIP'] = contextVrouterIp;
-                postData['resolveVrfId'] = contextVrouterIp;
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -285,17 +284,18 @@ define([
             if(dataItem['raw_json'] != null &&
                 dataItem['raw_json']['vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
+                postData['resolveVrfId'] = postData['nodeIP'];
             }
             nwFqName = dataItem['sourcevn'] != null ?
                 dataItem['sourcevn'] : dataItem['src_vn'];
         } else if(dataItem['direction_ing'] == 0 ||
-        dataItem['direction'] == 'egress') {
+             dataItem['direction'] == 'egress') {
+             postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ?
+                    dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             if(dataItem['raw_json'] != null && dataItem['raw_json']['vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['vrf']);
-                postData['resolveVrfId'] = contextVrouterIp;
+                postData['resolveVrfId'] = postData['nodeIP'];
             }
-            postData['nodeIP'] = dataItem['other_vrouter_ip'] != null ?
-                dataItem['other_vrouter_ip'] : dataItem['peer_vrouter'];
             nwFqName = dataItem['sourcevn'] != null ?
                 dataItem['sourcevn'] : dataItem['src_vn'];
         }
@@ -352,9 +352,9 @@ define([
                 dataItem['dport'] : dataItem['dst_port'],
             destPort: dataItem['sport'] != null ?
                 dataItem['sport'] : dataItem['src_port'],
-            srcVN: dataItem['src_vn'] != null ?
+            destVN: dataItem['src_vn'] != null ?
                 dataItem['src_vn'] : dataItem['sourcevn'],
-            destVN: dataItem['dst_vn'] != null ?
+            srcVN: dataItem['dst_vn'] != null ?
                  dataItem['dst_vn'] : dataItem['destvn'],
             protocol: dataItem['protocol'],
             maxAttempts: 3,
@@ -363,7 +363,6 @@ define([
         if(dataItem['direction_ing'] == 0 || dataItem['direction'] == 'egress') {
             if(formModel != null && formModel.showvRouter()) {
                 postData['nodeIP'] = contextVrouterIp;
-                postData['resolveVrfId'] = contextVrouterIp;
             } else if(formModel != null && formModel.showInstance()) {
                 if (dataItem['vrouter_ip'] != null) {
                     postData['nodeIP'] = dataItem['vrouter_ip'];
@@ -375,6 +374,7 @@ define([
                 dataItem['raw_json']['dest_vrf'] != null) {
                 postData['vrfId'] =
                     parseInt(dataItem['raw_json']['dest_vrf']);
+                postData['resolveVrfId'] = postData['nodeIP'];
             }
         } else if(dataItem['direction_ing'] == 1 ||
               dataItem['direction'] == 'ingress') {
@@ -385,7 +385,7 @@ define([
             if(dataItem['raw_json'] != null &&
                  dataItem['raw_json']['dest_vrf'] != null) {
                 postData['vrfId'] = parseInt(dataItem['raw_json']['dest_vrf']);
-                postData['resolveVrfId'] = contextVrouterIp;
+                postData['resolveVrfId'] = postData['nodeIP'];
             }
         }
         if(graphModel.checkIPInVrouterList(postData['nodeIP'])) {
