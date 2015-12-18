@@ -36,7 +36,7 @@ define([
                                     parseFn: function (response) {
                                         var dimensions = ['cpu_info.cpu_share', 'cpu_info.mem_res'];
                                         var options = {dimensions:dimensions}
-                                        return ctwp.parseCPUMemLineChartDataForNodeDetails(response,options);
+                                        return ctwp.parseLineChartDataForNodeDetails(response,options);
                                     },
                                     chartOptions: {
                                         forceY1: [0, 1]

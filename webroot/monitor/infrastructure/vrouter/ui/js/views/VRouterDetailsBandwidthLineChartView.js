@@ -33,8 +33,9 @@ define([
                                     parseFn: function (response) {
                                         var dimensions = ['phy_if_band.in_bandwidth_usage',
                                                           'phy_if_band.out_bandwidth_usage'];
-                                        var options = {dimensions:dimensions}
-                                        return ctwp.parseCPUMemLineChartDataForNodeDetails(response,options);
+                                        var axisLabels = ['Bandwidth In','Bandwidth Out'];
+                                        var options = {dimensions:dimensions,axisLabels:axisLabels};
+                                        return ctwp.parseLineChartDataForNodeDetails(response,options);
                                     },
                                     chartOptions: {
                                         y1AxisLabel:'Bandwidth In',

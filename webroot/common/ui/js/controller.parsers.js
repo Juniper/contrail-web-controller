@@ -66,7 +66,7 @@ define([
             });
             return retArr;
         };
-        
+
         this.instanceInterfaceDataParser = function(response) {
             var rawInterfaces, interface, interfaceMap = {}, uveVMInterfaceAgent;
             if(response != null && response.value != null) {
@@ -181,15 +181,22 @@ define([
             return chartData;
         };
 
-        this.parseCPUMemLineChartDataForNodeDetails = function(responseArray,options) {
-            var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: cowc.D3_COLOR_CATEGORY5[1]},
-                memoryUsage = {key: "Memory Usage", values: [], color: cowc.D3_COLOR_CATEGORY5[3]},
-                chartData = [memoryUsage, cpuUtilization];
+        this.parseLineChartDataForNodeDetails = function(responseArray,options) {
+            var axis1 = {key: (options.axisLabels != null)? options.axisLabels[0]: "CPU Utilization (%)",
+                                    values: [],
+                                    bar: true,
+                                    color: cowc.D3_COLOR_CATEGORY5[1]
+                                };
+            var axis2 = {key: (options.axisLabels != null)? options.axisLabels[1]: "Memory Usage",
+                                    values: [],
+                                    color: cowc.D3_COLOR_CATEGORY5[3]
+                                };
+            var chartData = [axis2, axis1];
 
             for (var i = 0; i < responseArray.length; i++) {
                 var ts = Math.floor(responseArray[i]['T'] / 1000);
-                cpuUtilization.values.push({x: ts, y: responseArray[i][options.dimensions[0]]});
-                memoryUsage.values.push({x: ts, y: responseArray[i][options.dimensions[1]]});
+                axis1.values.push({x: ts, y: responseArray[i][options.dimensions[0]]});
+                axis2.values.push({x: ts, y: responseArray[i][options.dimensions[1]]});
             }
             return chartData;
         };

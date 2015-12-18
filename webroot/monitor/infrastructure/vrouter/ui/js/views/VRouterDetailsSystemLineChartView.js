@@ -34,7 +34,7 @@ define([
                                         var dimensions = ['cpu_info.one_min_cpuload',
                                                           'cpu_info.used_sys_mem'];
                                         var options = {dimensions:dimensions}
-                                        return ctwp.parseCPUMemLineChartDataForNodeDetails(response,options);
+                                        return ctwp.parseLineChartDataForNodeDetails(response,options);
                                     },
                                     chartOptions: {
 //                                        forceY1: [0, 1]

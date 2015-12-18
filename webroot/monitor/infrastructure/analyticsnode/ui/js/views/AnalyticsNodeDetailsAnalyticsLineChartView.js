@@ -38,7 +38,7 @@ define([
                                                           'cpu_info.mem_res'];
                                         var options = {dimensions:dimensions}
                                         return ctwp.
-                                            parseCPUMemLineChartDataForNodeDetails(
+                                            parseLineChartDataForNodeDetails(
                                                         response,options);
                                     },
                                     chartOptions: {
