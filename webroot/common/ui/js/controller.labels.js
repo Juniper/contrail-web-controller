@@ -970,6 +970,19 @@ define([
         this.TITLE_DEL_SVC_APPLIANCE_SET = 'Delete Service Appliance Set';
         this.TITLE_CREATE_SVC_APPLIANCE_SET = 'Create Service Appliance Set';
         this.SVC_APPLIANCE_SET_DETAILS = 'Service Appliance Set Details';
+
+        /* Security Group */
+        this.CONFIG_RT_TABLE_PAGE_ID = 'config-rttable—page';
+        this.CONFIG_RT_TABLE_LIST_VIEW_ID = 'config-rttable-list';
+        this.CONFIG_RT_TABLE_SECTION_ID = 'rtTable';
+        this.CONFIG_RT_TABLE_ID = 'config-rt-table';
+        this.TITLE_RT_TABLE = 'Route Tables';
+        this.RT_TABLE_GRID_ID = 'rt-table-grid';
+        this.RT_TABLE_PREFIX_ID = 'rt_table';
+        this.TITLE_CREATE_RT_TABLE = 'Create Route Table';
+        this.TITLE_DEL_RT_TABLE = 'Delete Route Table';
+        this.TITLE_EDIT_RT_TABLE = 'Edit Route Table';
+        this.RT_TABLE_DETAILS = 'Route Table Details';
  
     };
     return CTLabels;

@@ -150,4 +150,7 @@
     <item>
         <feature>svcApplianceSet</feature>
     </item>
+    <item>
+        <feature>rtTableConfig</feature>
+    </item>
 </featureLists>

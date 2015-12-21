@@ -628,6 +628,22 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Floating IPs, Floating IP, FIP</searchStrings>
                         </item>
+                        <item>
+                            <label>Routing Table</label>
+                            <hash>config_networking_routes</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/routetable/ui</rootDir>
+                                    <js>rtTable.main.js</js>
+                                    <class>rtTablePageLoader</class>
+                                    <function>renderRtTable</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Route Table</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
