@@ -182,8 +182,8 @@ function getConfigDetailsAsync (dataObj, callback)
     if (null != dataObj['fields']) {
         url += '&fields=' + dataObj['fields'];
     }
-    if (null != dataObj['parent_uuid']) {
-        url += '&parent_uuid=' + dataObj['parent_uuid'];
+    if (null != dataObj['parent_id']) {
+        url += '&parent_id=' + dataObj['parent_id'];
     }
     configApiServer.apiGet(url, appData, function(err, data) {
         callback(err, data);
@@ -204,8 +204,8 @@ function getConfigDetails (req, res, appData)
         if ((null != fields) && (fields.length > 0)) {
             dataObjArr[i]['fields'] = fields.join(',');
         }
-        if (null != postData[i]['parent_uuid']) {
-            dataObjArr[i]['parent_uuid'] = postData[i]['parent_uuid'];
+        if (null != postData[i]['parent_id']) {
+            dataObjArr[i]['parent_id'] = postData[i]['parent_id'];
         }
     }
     async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
