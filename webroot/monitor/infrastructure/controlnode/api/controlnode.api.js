@@ -611,7 +611,7 @@ function getControlNodeRoutingInstanceList (req, res, appData)
         commonUtils.getRestAPIServer(ip, global.SANDESH_CONTROL_NODE_PORT);
     commonUtils.createReqObj(dataObjArr, url);
     async.map(dataObjArr,
-              commonUtils.getServerRespByRestApi(bgpRtrRestAPI, true),
+              commonUtils.getServerRespByRestApi(bgpRtrRestAPI, false),
             function(err, results) {
         if ((null == err) && (null != results) && (null != results[0])) {
             var data = results[0];
