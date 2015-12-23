@@ -3023,18 +3023,20 @@ function validateFatFlow(element){
                 showInfoWindow("Select a protocol for Fat Flow Records", "Input required");
                 return false;
             }
-            var fatFlow_prefix = $("#"+element +"_"+ elementid +"_txtPort").val();
-            if (typeof fatFlow_prefix === "undefined" || fatFlow_prefix.trim() === "") {
-                showInfoWindow("Enter valid port between 0 – 65535 for Fat Flow Record", "Input required");
-                return false;
-            }
-            if (!isNumber(fatFlow_prefix)) {
-                showInfoWindow("Fat Flow Protocol's Port has to be a number", "Input required");
-                return false;
-            }
-            if (Number(fatFlow_prefix) < 0 || Number(fatFlow_prefix) > 65535) {
-                showInfoWindow("Enter valid port between 0 – 65535 for Fat Flow Record", "Input required");
-                return false;
+            if(fatflowProtocol != "icmp") {
+                var fatFlow_prefix = $("#"+element +"_"+ elementid +"_txtPort").val();
+                if (typeof fatFlow_prefix === "undefined" || fatFlow_prefix.trim() === "") {
+                    showInfoWindow("Enter valid port between 1 – 65535 for Fat Flow Record", "Input required");
+                    return false;
+                }
+                if (!isNumber(fatFlow_prefix)) {
+                    showInfoWindow("Fat Flow Protocol's Port has to be a number", "Input required");
+                    return false;
+                }
+                if (Number(fatFlow_prefix) < 1 || Number(fatFlow_prefix) > 65535) {
+                    showInfoWindow("Enter valid port between 1 – 65535 for Fat Flow Record", "Input required");
+                    return false;
+                }
             }
         }
     }
