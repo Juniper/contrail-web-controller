@@ -29,13 +29,16 @@ var logicalRtr =
 var vdns = require('../../dns/servers/api/virtualdnsserversconfig.api');
 var policyConfig =
     require('../../networking/policy/api/policyconfig.api');
+var routingPolicyConfig =
+    require('../../networking/routingpolicy/api/routingpolicyconfig.api');
 var errorData = [];
 var configCBDelete = 
 {
     'virtual-machine-interface': portsConfig.deletePortsCB,
     'logical-router': logicalRtr.deleteLogicalRouterAsync,
     'virtual-DNS': vdns.deleteVirtualDNSCallback,
-    'network-policy': policyConfig.deletePolicyAsync
+    'network-policy': policyConfig.deletePolicyAsync,
+    'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync
 }
 
 var getConfigPageRespCB = {
