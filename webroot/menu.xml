@@ -628,6 +628,22 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Floating IPs, Floating IP, FIP</searchStrings>
                         </item>
+                        <item>
+                            <label>Routing Policy</label>
+                            <hash>config_net_rpolicies</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/routingpolicy/ui</rootDir>
+                                    <js>routingPolicy.main.js</js>
+                                    <class>routingPolicyPageLoader</class>
+                                    <function>renderRoutingPolicy</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Routing Policy</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
