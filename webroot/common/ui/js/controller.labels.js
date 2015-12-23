@@ -901,11 +901,24 @@ define([
         this.TITLE_POLICY_EDIT = "Edit Policy ";
         this.TITLE_POLICY_DETETE = "Delete";
         this.TITLE_REMOVE = "Remove";
+        this.TITLE_REMOVE_GRID = "Remove Routing Policy";
         this.POLICY_PREFIX_ID = "policy";
         this.TITLE_EDIT_POLICY = "Edit Policy";
         this.TITLE_POLICY = 'Policy';
         this.TXT_POLICY = 'policy';
         this.POLICY_NAME = 'Policy Name';
+
+        /* Routing Policy */
+        this.CONFIG_ROUTING_POLICY_PAGE_ID = 'config-routing—policypage';
+        this.CONFIG_ROUTING_POLICY_LIST_VIEW_ID = 'config-sec—grplist';
+        this.ROUTING_POLICY_GRID_ID = 'routing—policy-grid';
+        this.CONFIG_ROUTING_POLICY_TITLE = "Routing Policies";
+        this.CONFIG_ROUTING_POLICY_FORMAT_ID = "config-routing-policies-format-id";
+        this.TITLE_ROUTING_POLICY_EDIT = "Edit Routing Policy ";
+        this.TITLE_ROUTING_POLICY_DETAILS = "Routing Policy Detail";
+        this.TITLE_ROUTING_ADD_POLICY = "Create Routing Policy";
+        this.ROUTING_POLICY_PREFIX_ID = "routingPolicy";
+        this.TXT_ROUTING_POLICY = 'routing policy';
 
         this.CONFIG_DNS_SERVER_PAGE_ID = 'config-dns-server-page';
         this.CONFIG_DNS_SERVER_LIST_VIEW_ID = 'config-dns-server-list';

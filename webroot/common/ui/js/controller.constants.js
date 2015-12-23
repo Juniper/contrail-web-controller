@@ -93,6 +93,9 @@ define([
         this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
         this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
 
+        this.URL_ROUTING_POLICY_PATH_PREFIX = 'config/networking/routingpolicy/ui/js/views/';
+        this.URL_ROUTING_POLICY_IN_CHUNKS = '/api/tenants/config/routingpolicy/{0}';
+        
         this.URL_PORT_POST = '/api/tenants/config/ports';
         this.URL_PORT_PUT = '/api/tenants/config/ports/{0}';
         this.URL_PORT_VIEW_PATH_PREFIX = 'config/networking/port/ui/js/views/';

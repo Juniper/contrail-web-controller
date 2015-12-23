@@ -28,6 +28,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
     vnConfig = require('../../../vn/api/vnconfig.api'),
     fipConfig = require('../../../networking/fip/api/fipconfig.api'),
     polConfig = require('../../../networking/policy/api/policyconfig.api'),
+    routPolConfig = require('../../../networking/routingpolicy/api/routingpolicyconfig.api'),
     sgConfig = require('../../../networking/securitygroup/api/securitygroupconfig.api'),
     logicalRouterConfig =
     require('../../../networking/logicalrouter/api/logicalrouterconfig.api'),
@@ -1616,6 +1617,8 @@ function getMatchStrByType (type)
         return 'virtual_DNSs';
     case 'service-template':
         return 'service_templates';
+    case 'routing-policy':
+        return 'routing_policys';
     case 'virtual-DNS-record':
 	return 'virtual-DNS-record';
     default:
@@ -1650,6 +1653,7 @@ function createReqArrByType (dataObjArr, type, obj)
     case 'virtual-network':
     case 'floating-ip':
     case 'network-policy':
+    case 'routing-policy':
     case 'security-group':
     case 'logical-router':
     case 'virtual-machine-interface':
@@ -1668,6 +1672,7 @@ var configCBList =
 {
     'virtual-network': vnConfig.getPagedVirtualNetworks,
     'network-policy': polConfig.readPolicys,
+    'routing-policy': routPolConfig.readRoutingPolicys,
     'security-group': sgConfig.readSecurityGroup,
     'logical-router': logicalRouterConfig.readLogicalRouter,
     'virtual-machine-interface': portsConfig.readPorts,
@@ -1792,7 +1797,7 @@ function getApiServerDataByPage (req, res, appData)
         default:
             configListData = configList[matchStr];
             break;
-        }
+        } 
         if (null == configListData) {
             commonUtils.handleJSONResponse(err, res, resultJSON);
             return;
