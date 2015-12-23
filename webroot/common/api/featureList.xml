@@ -64,6 +64,11 @@
         <write-access>member</write-access>
     </item>
     <item>
+        <feature>routingpolicyconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
+    <item>
         <feature>fipconfig</feature>
         <read-access>member</read-access>
         <write-access>member</write-access>
