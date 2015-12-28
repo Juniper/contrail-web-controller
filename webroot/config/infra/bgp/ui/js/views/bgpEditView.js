@@ -20,31 +20,54 @@ define([
             var editLayout = editTemplate({prefixId: prefixId});
             self = this;
 
-            cowu.createModal({'modalId': modalId, 'className': 'modal-480',
+            cowu.createModal({'modalId': modalId, 'className': 'modal-980',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.configBGPRouter({
-                    init: function () {
-                        cowu.enableModalLoading(modalId);
-                    },
-                    success: function () {
-                        options['callback']();
-                        $("#" + modalId).modal('hide');
-                    },
-                    error: function (error) {
-                        //Needs to be fixed, id doesnt work
-                        cowu.disableModalLoading(modalId, function () {
-                            self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
-                                                     error.responseText);
-                        });
-                    }
-                }, options.mode === ctwl.CREATE_ACTION ? 'POST' : 'PUT');
+                if((!self.model.isAutoMeshEnabled() ||
+                    self.model.user_created_router_type !== ctwl.CONTROL_NODE_TYPE) &&
+                    self.model.getPeers(self.model.model().attributes).length === 0) {
+                    var confTemplate = contrail.getTemplate4Id("controller-bgp-peer-conf-form-template");
+                    var confTempLayout = confTemplate();
+                    cowu.createModal({"modalId": modalId + "_conf", "className": "modal-280",
+                        "title": "Information",
+                        "btnName": "Continue",
+                        "body": confTempLayout,
+                        "onSave": function() {
+                           $("#" + modalId + "_conf").modal("hide");
+                           self.configEditBGPRouter(options)
+                        },
+                        "onCancel": function(){$("#" + modalId + "_conf").modal("hide")}
+                    });
+                    $("#" + modalId + "_conf").css("z-index",1052);
+                    $(".modal-backdrop:last-child").css("z-index",1051);
+                } else{
+                    self.configEditBGPRouter(options);
+                }
+
             }, 'onCancel': function () {
                 Knockback.release(self.model, document.getElementById(modalId));
                 kbValidation.unbind(self);
                 $("#" + modalId).modal('hide');
             }});
             self.getASN(options);
+        },
+        configEditBGPRouter : function(options) {
+            self.model.configBGPRouter({
+                init: function () {
+                    cowu.enableModalLoading(modalId);
+                },
+                success: function () {
+                    options['callback']();
+                    $("#" + modalId).modal('hide');
+                },
+                error: function (error) {
+                    //Needs to be fixed, id doesnt work
+                    cowu.disableModalLoading(modalId, function () {
+                        self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
+                                                 error.responseText);
+                    });
+                }
+            }, options.mode === ctwl.CREATE_ACTION ? 'POST' : 'PUT');
         },
         getASN : function(options){
             var ajaxConfig = {
@@ -78,14 +101,21 @@ define([
             self.renderView4Config($("#" + modalId).find("#" + prefixId + "-form"),
                 self.model,
                 self.getBGPViewConfig(disableFlag),
-                "configureValidations", null, null,
+                "configureValidation", null, null,
                 function () {
                     self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID,
                                              false);
                     Knockback.applyBindings(self.model,
                         document.getElementById(modalId));
-                    kbValidation.bind(self,
-                        {collection: self.model.model().attributes.peers});
+                    var peers = self.model.model().attributes.peers;
+                    if(peers instanceof Backbone.Collection) {
+                        kbValidation.bind(self, {collection: peers});
+                        var peerModels = peers.toJSON();
+                        for(var i = 0; i < peerModels.length; i++) {
+                            kbValidation.bind(self,
+                                {collection: peerModels[i].model().attributes.family_attrs});
+                        }
+                    }
                 }
             );
         },
@@ -139,13 +169,53 @@ define([
                         {
                             columns : [
                                 {
+                                    elementId: "user_created_router_type",
+                                    view: "FormDropdownView",
+                                    viewConfig: {
+                                        label: "Router Type",
+                                        path: "user_created_router_type",
+                                        dataBindValue: "user_created_router_type",
+                                        class:"span6",
+                                        elementConfig: {
+                                            dataTextField: "text",
+                                            dataValueField: "value",
+                                            data: [
+                                                {
+                                                    value: "control-node",
+                                                    text: "Control Node"
+                                                },
+                                                {
+                                                    value: "external-control-node",
+                                                    text: "External Control Node"
+                                                },
+                                                {
+                                                    value: "router",
+                                                    text: "BGP Router"
+                                                }/*,
+                                                {
+                                                    value: "bgpaas-server",
+                                                    text: "BGP as a service Server"
+                                                },
+                                                {
+                                                    value: "bgpaas-client",
+                                                    text: "BGP as a service Client"
+                                                }*/
+                                            ]
+                                        }
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns : [
+                                {
                                     elementId: 'name',
                                     view: 'FormInputView',
                                     viewConfig: {
                                         disabled: disableId,
                                         path: 'name',
                                         dataBindValue: 'name',
-                                        label : 'Hostname',
+                                        label : 'Host Name',
                                         class: 'span6'
                                     }
                                 },
@@ -158,32 +228,6 @@ define([
                                         dataBindValue: 'user_created_vendor',
                                         label : 'Vendor ID',
                                         class: "span6"
-                                    }
-                                }
-                            ]
-                        },
-                        {
-                            columns : [
-                                {
-                                    elementId: 'router_type',
-                                    view: 'FormRadioButtonView',
-                                    viewConfig: {
-                                        label : 'Router Type',
-                                        path: 'user_created_role',
-                                        dataBindValue:'user_created_role',
-                                        class: 'span12',
-                                        elementConfig: {
-                                            dataObj : [
-                                                {
-                                                  label : 'Control Node',
-                                                  value : 'control_node'
-                                                },
-                                                {
-                                                  label : 'BGP Router',
-                                                  value : 'bgp_router'
-                                                }
-                                            ]
-                                        }
                                     }
                                 }
                             ]
@@ -232,6 +276,20 @@ define([
                                     }
                                 },
                                 {
+                                    elementId: "local_autonomous_system",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                       path: "bgp_router_parameters.local_autonomous_system",
+                                       dataBindValue: "bgp_router_parameters().local_autonomous_system",
+                                       label: "Local Autonomous System",
+                                       class: "span6"
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
                                     elementId: 'user_created_address_family',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
@@ -241,7 +299,7 @@ define([
                                             'user_created_address_family',
                                         dataBindOptionList: 'addressFamilyData',
                                         label : 'Address Families',
-                                        class: 'span6',
+                                        class: 'span12',
                                         elementConfig: {
                                              dataTextField: "text",
                                              dataValueField: "value",
