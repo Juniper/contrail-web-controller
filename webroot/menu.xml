@@ -347,6 +347,7 @@ and need to add the iconClass tag wherever we need to show some icons
                                 </resource>
                                 <resource>
                                     <rootDir>/config/infra/bgp/ui</rootDir>
+                                    <template>bgp.tmpl</template>
                                     <js>bgp.main.js</js>
                                     <class>configBGPPageLoader</class>
                                     <function>renderBGP</function>

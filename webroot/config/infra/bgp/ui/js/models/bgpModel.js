@@ -16,12 +16,16 @@ define([
             'parent_type' : 'routing-instance',
             'parent_name' : '__default__',
             'bgp_router_parameters' : {
+                'router_type' : null,
                 'vendor' : null,
                 'port' : 179,
+                'source_port' : null,
                 'address' : null,
                 'identifier' : null,
                 'hold_time' : 90,
+                'admin_down' : "false",
                 'autonomous_system' : null,
+                'local_autonomous_system' : null,
                 'address_families' : {
                     'family' : []
                 },
@@ -29,7 +33,7 @@ define([
             },
             'bgp_router_refs' : [],
             'physical_router_back_refs' : [],
-            'user_created_role' : 'bgp_router',
+            'user_created_router_type' : null,
             'user_created_autonomous_system' : null,
             'user_created_address_family' :
                 'inet-vpn,inet6-vpn,route-target,e-vpn',
@@ -46,6 +50,12 @@ define([
             self = this;
             // populate bgp router parameters
             var bgpParams = modelConfig['bgp_router_parameters'];
+            if(bgpParams["router_type"]) {
+                modelConfig["user_created_router_type"] =
+                    bgpParams["router_type"];
+            } else {
+                modelConfig["user_created_router_type"] = "router";
+            }
             if(bgpParams['vendor'] != null) {
                 modelConfig['user_created_vendor'] = bgpParams['vendor'];
             }
@@ -59,6 +69,8 @@ define([
                 modelConfig['user_created_autonomous_system'] =
                     bgpParams['autonomous_system'];
             }
+            bgpParams['admin_down'] =
+                bgpParams['admin_down'] ? bgpParams['admin_down'].toString() : "false";
             if(bgpParams['auth_data'] != null) {
                 var authData = bgpParams['auth_data'];
                 modelConfig['user_created_auth_key_type'] =
@@ -96,13 +108,24 @@ define([
                     var isSelected = false;
                     var currentPeer = availablePeers[i];
                     var authData = null;
+                    var adminDown = "false", passive = false;
+                    var holdTime = 0, loopCount = 0;
+                    var familyAttrs = [];
                     if(selectedPeers.length > 0) {
                         for(var j = 0; j < selectedPeers.length; j++) {
                             var selectedPeer = selectedPeers[j];
                             if(currentPeer.name === selectedPeer.to[4]) {
                                 isSelected = true;
-                                authData = getValueByJsonPath(selectedPeer,
-                                'attr;session;0;attributes;0;auth_data', null);
+                                var attr = getValueByJsonPath(selectedPeer,
+                                    "attr;session;0;attributes;0", null);
+                                if(attr) {
+                                    authData = getValueByJsonPath(attr, "auth_data", null);
+                                    adminDown = getValueByJsonPath(attr, "admin_down", "false").toString();
+                                    passive = getValueByJsonPath(attr, "passive", false);
+                                    holdTime = getValueByJsonPath(attr, "hold_time", 0);
+                                    loopCount = getValueByJsonPath(attr, "loop_count", 0);
+                                    familyAttrs = getValueByJsonPath(attr, "family_attributes", []);
+                                }
                                 break;
                             }
                         }
@@ -112,9 +135,23 @@ define([
                         peerName : currentPeer.name,
                         disabled : true,
                         auth_data : authData,
+                        admin_down : adminDown,
+                        passive : passive,
+                        hold_time : holdTime,
+                        loop_count : loopCount,
                         peerASN :
-                            currentPeer.bgp_router_parameters.autonomous_system
+                            currentPeer.bgp_router_parameters.autonomous_system,
+                        family_attributes: familyAttrs,
+                        user_created_auth_key_type : null,
+                        user_created_auth_key: null
                     });
+                    peerModel.disableUnSelItem = ko.computed(function(){
+                        var disableFlag = !this.isPeerSelected();
+                        if(disableFlag) {
+                            this.user_created_auth_key_type("none");
+                        }
+                        return disableFlag;
+                    },peerModel);
                     peerModel.__kb.view_model.model().on('change:user_created_auth_key_type',
                         function(model, newValue){
                              var currPeer = self.getCurrentPeer(
@@ -171,7 +208,12 @@ define([
                     }
                     peerArray.push({
                         peerName : peer.peerName(),
-                        authData : authData
+                        adminDown : peer.admin_down() === "true" ? true : false,
+                        passive : peer.passive(),
+                        holdTime : peer.hold_time() ? Number(peer.hold_time()) : 0,
+                        loopCount : peer.loop_count() ? Number(peer.loop_count()) : 0,
+                        authData : authData,
+                        familyAttrs : peer.getFamilyAttrs(peer.family_attrs())
                     });
                 }
             }
@@ -183,24 +225,48 @@ define([
             var postData = { 'content' : {}};
             var peers = [];
             var self  = this;
-            if (self.model().isValid(true, "configureValidations")) {
+            var validations = [
+                {
+                    key : null,
+                    type : cowc.OBJECT_TYPE_MODEL,
+                    getValidation : "configureValidation"
+                },
+                {
+                    key : "peers",
+                    type : cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation : "peerValidation"
+                },
+                {
+                    key : ["peers", "family_attrs"],
+                    type : cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
+                    getValidation : "familyAttrValidation"
+                }
+            ];
+
+            if (this.isDeepValid(validations)) {
                 var attr = this.model().attributes;
                 var newBGPRouterCfgData = $.extend(true, {}, attr);
 
                 if(!newBGPRouterCfgData.isAutoMeshEnabled ||
-                    newBGPRouterCfgData.user_created_role !==
+                    newBGPRouterCfgData.user_created_router_type !==
                     ctwl.CONTROL_NODE_TYPE) {
-                    var selectdata = self.getPeers(newBGPRouterCfgData);
-                    for (var i = 0; i < selectdata.length; i++) {
+                    var selectedData = self.getPeers(newBGPRouterCfgData);
+                    for (var i = 0; i < selectedData.length; i++) {
                         for (var j = 0; j < self.bgpData.length; j++) {
-                            if (self.bgpData[j].name == selectdata[i].peerName) {
+                            if (self.bgpData[j].name == selectedData[i].peerName) {
+                                var peerAttr = selectedData[i];
                                 var attr = {};
                                 attr.session = [];
                                 attr.session.push({
                                     uuid: null,
                                     attributes: [
                                         {
-                                            auth_data : selectdata[i].authData
+                                            admin_down : peerAttr.adminDown,
+                                            passive : peerAttr.passive,
+                                            hold_time : peerAttr.holdTime,
+                                            loop_count : peerAttr.loopCount,
+                                            auth_data : selectedData[i].authData,
+                                            family_attributes : selectedData[i].familyAttrs
                                         }
                                     ]
                                 })
@@ -210,7 +276,7 @@ define([
                                         "href":self.bgpData[j].href,
                                         "_id_params":self.bgpData[j]._id_params,
                                         "to":["default-domain", "default-project" ,
-                                            "ip-fabric", "__default__", selectdata[i].peerName],
+                                            "ip-fabric", "__default__", selectedData[i].peerName],
                                         "attr" : attr
                                     }
                                 );
@@ -225,18 +291,31 @@ define([
                     newProuter :
                         newBGPRouterCfgData.user_created_physical_router
                 };
+                var localASN =
+                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system;
+                if(localASN) {
+                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system =
+                        Number(localASN);
+                } else {
+                    newBGPRouterCfgData.bgp_router_parameters.local_autonomous_system =
+                        null;
+                }
                 var holdTime =
                     newBGPRouterCfgData.bgp_router_parameters.hold_time;
-                if(holdTime != null && holdTime.toString().trim() != '') {
-                    newBGPRouterCfgData.bgp_router_parameters.hold_time =
-                        parseInt(holdTime.toString().trim());
-                }
+                newBGPRouterCfgData.bgp_router_parameters.hold_time =
+                        holdTime ? Number(holdTime) : 90;
 
                 var port = newBGPRouterCfgData.bgp_router_parameters.port;
-                if(port != null && port.toString().trim() != '') {
-                    newBGPRouterCfgData.bgp_router_parameters.port =
-                        parseInt(port.toString().trim());
-                }
+                newBGPRouterCfgData.bgp_router_parameters.port =
+                        port ? Number(port) : 179;
+                var sourcePort =
+                    newBGPRouterCfgData.bgp_router_parameters.source_port;
+                newBGPRouterCfgData.bgp_router_parameters.source_port =
+                    sourcePort ? Number(sourcePort) : 0;
+                var state =
+                    newBGPRouterCfgData.bgp_router_parameters.admin_down;
+                newBGPRouterCfgData.bgp_router_parameters.admin_down =
+                    state === "true" ? true : false;
 
                 //handling auth data
                 if(newBGPRouterCfgData.user_created_auth_key_type != 'none') {
@@ -257,7 +336,7 @@ define([
                 delete newBGPRouterCfgData.id_perms;
                 delete newBGPRouterCfgData.bgp_router_refs;
                 delete newBGPRouterCfgData.physical_router_back_refs;
-                delete newBGPRouterCfgData.user_created_role;
+                delete newBGPRouterCfgData.user_created_router_type;
                 delete newBGPRouterCfgData.user_created_address;
                 delete newBGPRouterCfgData.user_created_identifier;
                 delete newBGPRouterCfgData.user_created_autonomous_system;
@@ -274,6 +353,8 @@ define([
                 postBGPData['bgp-router'] = newBGPRouterCfgData;
                 if(peers.length > 0) {
                     postBGPData['bgp-router']['bgp_router_refs'] = peers
+                } else {
+                    postBGPData['bgp-router']['bgp_router_refs'] = null
                 }
                 postData['content']['bgp-router'] = postBGPData['bgp-router'];
 
@@ -336,15 +417,23 @@ define([
             });
         },
         validations: {
-            configureValidations: {
+            configureValidation: {
                 'name': {
                     required: true,
-                    msg: 'Hostname is required'
+                    msg: 'Enter Host Name'
                 },
                 'user_created_autonomous_system' : function(value, attr, finalObj){
-                     var asn = parseInt(value);
-                     if (asn < 1 || asn > 65534 || isNaN(asn)) {
+                     var asn = Number(value);
+                     if (isNaN(asn) || asn < 1 || asn > 65534) {
                          return "Enter valid BGP ASN number between 1-65534";
+                     }
+                },
+                'bgp_router_parameters.local_autonomous_system' : function(value, attr, finalObj){
+                     if(value) {
+                         var asn = Number(value);
+                         if (isNaN(asn) || asn < 1 || asn > 65534) {
+                             return "Enter valid Local ASN number between 1-65534";
+                         }
                      }
                 },
                 'user_created_identifier' : function(value, attr, finalObj){
@@ -364,21 +453,31 @@ define([
                     }
                 },
                 'bgp_router_parameters.port' :  function(value, attr, finalObj){
-                     var port = parseInt(value);
-                    if (port <= 0 || port > 9999 || isNaN(port)) {
-                        return "Enter valid BGP port number between 1-9999";
+                    if(value) {
+                        var port = Number(value);
+                        if (isNaN(port) || port < 1 || port > 9999) {
+                            return "Enter valid BGP port between 1-9999";
+                        }
+                    }
+                },
+                'bgp_router_parameters.source_port' : function(value, attr, finalObj){
+                    if(value) {
+                        var port = Number(value);
+                        if (isNaN(port) || port < 1 || port > 9999) {
+                            return "Enter valid source port between 1-9999";
+                        }
                     }
                 },
                 'bgp_router_parameters.hold_time' :  function(value, attr, finalObj){
-                    if(value != "") {
-                        var holdTime = parseInt(value);
-                        if (holdTime < 1 || holdTime > 65535 || isNaN(holdTime)) {
+                    if(value) {
+                        var holdTime = Number(value);
+                        if (isNaN(holdTime) || holdTime < 1 || holdTime > 65535) {
                             return "Enter valid  hold time between 1-65535" ;
                         }
                     }
                 },
                 'user_created_vendor' : function(value, attr, finalObj){
-                    if (finalObj.user_created_role !== ctwl.CONTROL_NODE_TYPE){
+                    if (finalObj.user_created_router_type !== ctwl.CONTROL_NODE_TYPE){
                         if(value === null || value.trim() === '') {
                             return "Enter valid vendor name or SKU such as 'Juniper' or 'MX-40'";
                         } else if(value.trim().toLowerCase() === "contrail"){
