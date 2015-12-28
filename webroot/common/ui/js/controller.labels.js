@@ -837,7 +837,7 @@ define([
         this.TITLE_BGP_PROPERTIES = 'BGP Properties';
         this.TITLE_ADD_BGP = 'Create BGP Router';
         this.TITLE_EDIT_BGP = 'Edit BGP Router';
-        this.CONTROL_NODE_TYPE = 'control_node';
+        this.CONTROL_NODE_TYPE = 'control-node';
         this.TITLE_BGP_DELETE = 'Delete BGP Router';
         this.TITLE_BGP_MULTI_DELETE = 'Delete BGP Router(s)';
 

@@ -88,10 +88,10 @@ define([
                     formatter : bgpFormatters.ipAdressFormatter
                 },
                 {
-                    field:"user_created_role",
-                    name:"Type",
+                    field:"bgp_router_parameters.router_type",
+                    name:"Router Type",
                     sortable: true,
-                    formatter : bgpFormatters.roleFormatter
+                    formatter : bgpFormatters.routerTypeFormatter
                 },
                 {
                     field:"bgp_router_parameters.vendor",
@@ -101,7 +101,7 @@ define([
                 },
                 {
                     field:"name",
-                    name:"Hostname",
+                    name:"Host Name",
                     sortable: true
                 }]
             }
@@ -140,7 +140,7 @@ define([
                         mode : ctwl.EDIT_ACTION
                     }
                 );
-            }, ctwl.TITLE_EDIT_BGP),
+            }, "Edit"),
           ctwgc.getDeleteAction(function (rowIndex) {
               var dataItem =
                   $('#' + ctwl.BGP_GRID_ID).data("contrailGrid").
@@ -176,18 +176,20 @@ define([
 	                    var checkedRows =
 	                        $('#' + ctwl.BGP_GRID_ID).data("contrailGrid").
 	                        getCheckedRows();
-	                    bgpEditView.model = bgpModel;
-	                    bgpEditView.renderDeleteBGPRouters(
-	                        {"title": ctwl.TITLE_BGP_MULTI_DELETE,
-	                            checkedRows: checkedRows,
-	                            callback: function () {
-	                                var dataView =
-	                                    $('#' + ctwl.BGP_GRID_ID).
-	                                    data("contrailGrid")._dataView;
-	                                dataView.refreshData();
+                        if(checkedRows && checkedRows.length > 0) {
+	                        bgpEditView.model = bgpModel;
+	                        bgpEditView.renderDeleteBGPRouters(
+	                            {"title": ctwl.TITLE_BGP_MULTI_DELETE,
+	                                checkedRows: checkedRows,
+	                                callback: function () {
+	                                    var dataView =
+	                                        $('#' + ctwl.BGP_GRID_ID).
+	                                        data("contrailGrid")._dataView;
+	                                    dataView.refreshData();
+	                                }
 	                            }
-	                        }
-	                    );
+	                        );
+                        }
 	                }
 	
 	            },
@@ -224,8 +226,9 @@ define([
     };
 
     function subscribeModelChangeEvents(bgpModel) {
-        bgpModel.__kb.view_model.model().on('change:user_created_role',
+        bgpModel.__kb.view_model.model().on('change:user_created_router_type',
             function(model, newValue){
+                bgpModel.bgp_router_parameters().router_type = newValue;
                 if(newValue === ctwl.CONTROL_NODE_TYPE) {
                     bgpModel.user_created_vendor('contrail');
                     bgpModel.user_created_physical_router('none');
@@ -286,9 +289,9 @@ define([
         );
         bgpModel.__kb.view_model.model().on('change:user_created_autonomous_system',
             function(model, newValue){
-                if(newValue != null && newValue.toString().trim() != '') {
+                if(newValue) {
                     bgpModel.bgp_router_parameters().autonomous_system =
-                        parseInt(newValue.toString().trim());
+                        Number(newValue);
                 }
             }
         );
@@ -304,14 +307,14 @@ define([
             }
         );
         bgpModel.disableAttr = ko.computed((function(){
-            return (this.user_created_role() === ctwl.CONTROL_NODE_TYPE);
+            return (this.user_created_router_type() === ctwl.CONTROL_NODE_TYPE);
         }), bgpModel);
         bgpModel.showPeersSelection = ko.computed((function(){
             return (!this.isAutoMeshEnabled() ||
-                this.user_created_role() !== ctwl.CONTROL_NODE_TYPE);
+                this.user_created_router_type() !== ctwl.CONTROL_NODE_TYPE);
         }), bgpModel);
         bgpModel.showPhysicalRouter = ko.computed((function(){
-            return (this.user_created_role() !== ctwl.CONTROL_NODE_TYPE);
+            return (this.user_created_router_type() !== ctwl.CONTROL_NODE_TYPE);
         }), bgpModel);
         bgpModel.disableAuthKey = ko.computed((function(){
             var disable;
@@ -352,9 +355,13 @@ define([
                                             templateGeneratorConfig : [
                                                 {
                                                     key : 'display_name',
-                                                    label : 'Display Name',
+                                                    label : 'Name',
                                                     templateGenerator :
-                                                        'TextGenerator'
+                                                        'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter :
+                                                            "DisplayNameFormatter"
+                                                    }
                                                 },
                                                 {
                                                     key : 'uuid',
@@ -363,13 +370,13 @@ define([
                                                         'TextGenerator'
                                                 },
                                                 {
-                                                    key : 'bgp_router_parameters.vendor',
-                                                    label : 'Type',
+                                                    key : 'bgp_router_parameters.router_type',
+                                                    label : 'Router Type',
                                                     templateGenerator :
                                                         'TextGenerator',
                                                     templateGeneratorConfig : {
                                                        formatter :
-                                                           "TypeFormatter"
+                                                           "RouterTypeFormatter"
                                                     }
                                                 },
                                                 {
@@ -407,6 +414,13 @@ define([
                                                 },
                                                 {
                                                     key :
+                                                    'bgp_router_parameters.local_autonomous_system',
+                                                    label : 'Local ASN',
+                                                    templateGenerator :
+                                                        'TextGenerator'
+                                                },
+                                                {
+                                                    key :
                                                     'bgp_router_parameters.address_families.family',
                                                     label : 'Address family',
                                                     templateGenerator :
@@ -419,6 +433,12 @@ define([
                                                         'TextGenerator'
                                                 },
                                                 {
+                                                    key : "bgp_router_parameters.source_port",
+                                                    label : "Source Port",
+                                                    templateGenerator :
+                                                       "TextGenerator"
+                                                },
+                                                {
                                                     key : 'bgp_router_parameters.hold_time',
                                                     label : 'Hold Time',
                                                     templateGenerator :
@@ -429,9 +449,18 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    key : "bgp_router_parameters.admin_down",
+                                                    label : "State",
+                                                    templateGenerator :
+                                                        "TextGenerator",
+                                                    templateGeneratorConfig  :{
+                                                        formatter : "StateFormatter"
+                                                    }
+                                                },
+                                                {
                                                     key :
                                                     'bgp_router_parameters',
-                                                    label : 'Authentication Type',
+                                                    label : 'Authentication Mode',
                                                     templateGenerator :
                                                         'TextGenerator',
                                                     templateGeneratorConfig : {
@@ -473,6 +502,9 @@ define([
         };
     };
 
+    this.DisplayNameFormatter = function(v, dc) {
+        return bgpFormatters.displayNameFormatter("", "", v, "", dc);
+    };
     this.PeersFormatter = function(v, dc) {
         return bgpFormatters.peersFormatter("", "", v, "", dc);
     }
@@ -482,13 +514,15 @@ define([
     this.AuthKeyFormatter = function(v, dc) {
         return bgpFormatters.authKeyFormatter("", "", v, "", dc);
     }
-    this.TypeFormatter = function(v, dc) {
-        return bgpFormatters.roleFormatter("", "", v, "", dc);
+    this.RouterTypeFormatter = function(v, dc) {
+        return bgpFormatters.routerTypeFormatter("", "", v, "", dc);
     }
     this.HoldTimeFormatter = function(v, dc) {
         return bgpFormatters.holdTimeFormatter("", "", v, "", dc);
     }
-
+    this.StateFormatter = function(v, dc) {
+        return bgpFormatters.stateFormatter("", "", v, "", dc);
+    }
     return bgpGridView;
 });
 
