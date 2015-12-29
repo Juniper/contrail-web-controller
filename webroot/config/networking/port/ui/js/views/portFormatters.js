@@ -360,7 +360,7 @@ define([
         };
         this.vnDDFormatter = function(response, edit, portModel) {
             if(!edit && response.length > 0) {
-                portModel.model.virtualNetworkToName(response[0].value);
+                portModel.model.virtualNetworkName(response[0].value);
             }
             return response;
         }
@@ -386,6 +386,7 @@ define([
                     sgList.push({value: sgResponseVal, text: text});
                 }
             }
+            portModel.sgDefaultValue = defaultSelectedVal
             if(!edit) {
                 //portModel.model.is_sec_grp = true;//KO stops working if we put this
                 //portModel.model.is_sec_grp_disabled = false;

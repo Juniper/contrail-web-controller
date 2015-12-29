@@ -302,10 +302,10 @@ define([
     function showHideModelAttrs(portModel) {
         portModel.is_sec_grp_disabled = ko.computed((function() {
             if(this.is_sec_grp() == true) {
-                //this.securityGroupValue = ["default"];
+                this.securityGroupValue(portEditView.sgDefaultValue);
                 return false;
             } else {
-                //this.securityGroupValue = [];
+                this.securityGroupValue([]);
                 return true;
             }
         }), portModel);
