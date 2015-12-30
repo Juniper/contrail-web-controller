@@ -55,8 +55,8 @@ define([
         getViewConfig: function () {
             var self = this, viewConfig = self.attributes.viewConfig,
                 traceFlowGridColumns = [];
-            var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-            var underlayGraphModel = graphView.model, traceFlowRemoteConfig = {};
+            var underlayGraphModel = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel'),
+                traceFlowRemoteConfig = {};
             if(self.model.traceflow_radiobtn_name() == 'vRouter') {
                 var vRouterDetails = getSelectedVrouterDetails(self.model);
                 var ip = vRouterDetails['ip'];
@@ -218,8 +218,7 @@ define([
     };
 
     function getSelectedVrouterDetails (traceFlowFormModel) {
-        var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-        var graphModel = graphView.model;
+        var graphModel = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
         var vRouterMap = graphModel.vRouterMap;
         var vRouterData =
             ifNull(vRouterMap[traceFlowFormModel.vrouter_dropdown_name()], {});
@@ -238,8 +237,7 @@ define([
     function doTraceFlow (rowId, formModel) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
-        var graphView = monitorInfraUtils.getUnderlayGraphInstance();
-        var graphModel = graphView.model;
+        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
         var contextVrouterIp;
         if(formModel != null && formModel.showvRouter())
             contextVrouterIp =
@@ -332,8 +330,7 @@ define([
     function doReverseTraceFlow (rowId, formModel) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
-        var graphView = monitorInfraUtils.getUnderlayGraphInstance();
-        var graphModel = graphView.model;
+        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
         var dataItem = ifNull(flowGrid._grid.getDataItem(rowId),{});
         var contextVrouterIp = '';
         if(formModel != null && formModel.showvRouter())
@@ -464,8 +461,7 @@ define([
                     }
                 }
             }
-            var graphView = monitorInfraUtils.getUnderlayGraphInstance();
-            var graphModel = graphView != null ? graphView.model : null;
+            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
             if (graphModel != null) {
                 graphModel.underlayPathReqObj = postData;
                 graphModel.flowPath.set('links',ifNull(response['links'], []));

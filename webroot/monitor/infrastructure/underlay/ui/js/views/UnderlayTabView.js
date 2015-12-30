@@ -17,8 +17,8 @@ define([
                  getUnderlayTabConfig(viewConfig), null, null, null,
                  function (underlayTabView) {
                     if(!callBackExecuted) {
-                        var graphView = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-                        underlayTabView.listenTo(graphView.model.selectedElement, 'change', function (selectedElement) {
+                        var graphModel = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
+                        underlayTabView.listenTo(graphModel.selectedElement, 'change', function (selectedElement) {
                            var nodeType = selectedElement['attributes']['nodeType'];
                            var nodeDetails = selectedElement['attributes']['nodeDetail'];
                            if(nodeType == ctwc.PROUTER) {

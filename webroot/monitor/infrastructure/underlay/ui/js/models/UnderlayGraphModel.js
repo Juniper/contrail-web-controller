@@ -2,9 +2,8 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbone) {
-   var UnderlayGraphModel = ContrailGraphModel.extend({
-
+define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
+    UnderlayGraphModel = ContrailVisModel.extend({
        initialize: function (graphModelConfig) {
            this.nodes = [],
            this.links = [],
@@ -24,6 +23,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            this.underlayPathReqObj = {},
            this.uveMissingNodes = [],
            this.configMissingNodes = [],
+           this.firstLevelNode = "",
            this.selectedElement = new Backbone.Model({
                nodeType: '',
                nodeDetail: {}
@@ -32,9 +32,9 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                 nodes: [],
                 links: []
            });
-           ContrailGraphModel.prototype.initialize.apply(this, [graphModelConfig]);
+           ContrailVisModel.prototype.initialize.apply(this, [graphModelConfig]);
        },
-       getElementsForUnderlayGraph : function (response) {
+       initializeUnderlayModel : function (response) {
            //update chasis-type in nodes
            var nodes = ifNull(response['nodes'], []);
            var configMissingNodes = getValueByJsonPath(response,
@@ -47,7 +47,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                var nodeObj = {
                    name:configMissingNodes[i],
                    node_type: "physical-router",
-                   chassis_type: "coreswitch",
+                   chassis_type: "unknown",
                    more_attributes: {},
                    errorMsg:'Configuration Unavailable'
                };
@@ -57,7 +57,7 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                var nodeObj = {
                    name:uveMissingNodes[i],
                    node_type: "physical-router",
-                   chassis_type: "coreswitch",
+                   chassis_type: "unknown",
                    more_attributes: {},
                    errorMsg:'System Information Unavailable'
                };
@@ -131,17 +131,21 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            }
            if(cores.length > 0) {
                firstLevelNodes = cores;
+               this.firstLevelNode = "coreswitch";
            } else {
                var spines = this.spines;
                if(spines.length > 0) {
                    firstLevelNodes = spines;
+                   this.firstLevelNode = "spine";
                } else {
                    var tors = this.tors;
                    if(tors.length > 0) {
                        firstLevelNodes = tors;
+                       this.firstLevelNode = "tor";
                    }
                }
            }
+           this.firstLevelNodes = firstLevelNodes;
            this.parseTree(firstLevelNodes, tree, tmpTree);
            if(JSON.stringify(tmpTree) !== "{}") {
                $.each(tmpTree, function (elementKey, elementValue) {
@@ -152,261 +156,12 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
            var adjacencyList = this.prepareData('tor');
            this.adjacencyList = adjacencyList;
            this.underlayAdjacencyList = adjacencyList;
-           var els = this.createElementsFromAdjacencyList();
+
            //this.addElementsToGraph(els, null);
-           return {
-               elements: els,
-               nodes: this.nodes,
-               links: this.links,
-           };
        },
 
-       createElementsFromAdjacencyList: function () {
-           var elements = [];
-           var linkElements = [];
-           var self = this;
-           var adjacencyList = this.adjacencyList;
-           var conElements = this.connectedElements;
-           var nodes = this.nodes;
-           var links = this.links;
-           var elMap = this.elementMap;
-           _.each(adjacencyList, function(edges, parentElementLabel) {
-               if(null !== elMap["node"][parentElementLabel] &&
-                   typeof elMap["node"][parentElementLabel] !== "undefined") {
-                   var el = self.getCell(elMap["node"][parentElementLabel]);
-                   if(null !== el && typeof el !== "undefined") {
-                       elements.push(el);
-                       return;
-                   } else {
-                       el = jsonPath(conElements, '$[?(@.id=="' +
-                          elMap["node"][parentElementLabel] + '")]');
-                       if(typeof el === "object" && el.length === 1) {
-                           elements.push(el[0]);
-                           return;
-                       }
-                   }
-               }
-               var parentNode = jsonPath(nodes, '$[?(@.name=="' +
-                   parentElementLabel + '")]');
-               if(false !== parentNode && parentNode.length === 1) {
-                   parentNode = parentNode[0];
-                   var parentName = parentNode.name;
-                   var parentNodeType = parentNode.node_type;
-                   elements.push(self.createNode(parentNode));
-                   var currentEl = elements[elements.length-1];
-                   conElements.push(currentEl);
-                   var currentElId = currentEl.id;
-                   elMap.node[parentName] = currentElId;
-               }
-           });
-
-           _.each(adjacencyList, function(edges, parentElementLabel) {
-               var parentNode = jsonPath(nodes, '$[?(@.name=="' +
-                   parentElementLabel + '")]');
-               if(false !== parentNode && parentNode.length === 1) {
-                   parentNode = parentNode[0];
-                   var parentNodeType = parentNode.node_type;
-                   var parentId = elMap.node[parentNode.name];
-                   _.each(edges, function(childElementLabel) {
-                       if(null !== elMap["link"][parentElementLabel +
-                           "<->" + childElementLabel] &&
-                           typeof elMap["link"][parentElementLabel +
-                           "<->" + childElementLabel] !== "undefined") {
-                           var linkEl = self.getCell(elMap["link"][parentElementLabel +
-                               "<->" + childElementLabel]);
-                           if(null !== linkEl && typeof linkEl !== "undefined") {
-                               linkElements.push(linkEl);
-                               return;
-                           } else {
-                               linkEl = jsonPath(conElements, '$[?(@.id=="' +
-                                   elMap["link"][parentElementLabel +
-                                   '<->' + childElementLabel] + '")]');
-                               if(typeof linkEl === "object" &&
-                                    linkEl.length === 1) {
-                                   linkElements.push(linkEl[0]);
-                                   return;
-                               }
-                           }
-                       }
-                       var childNode = jsonPath(nodes, '$[?(@.name=="' +
-                           childElementLabel + '")]');
-                       if(false !== childNode && childNode.length === 1) {
-                           childNode = childNode[0];
-                           var childNodeType = childNode.node_type;
-                           var childId = elMap.node[childNode["name"]];
-                           var link_type = parentNodeType.split("-")[0][0] +
-                               parentNodeType.split("-")[1][0] + '-' +
-                               childNodeType.split("-")[0][0] +
-                               childNodeType.split("-")[1][0];
-                           for(var i=0; i<links.length; i++) {
-                               var link = links[i];
-                               if(link.endpoints[0] === link.endpoints[1])
-                                   continue;
-                               if((link.endpoints[0] === childElementLabel &&
-                                       link.endpoints[1] === parentElementLabel) ||
-                                   (link.endpoints[1] === childElementLabel &&
-                                        link.endpoints[0] === parentElementLabel)) {
-                                   var linkName = childElementLabel +
-                                       "<->" + parentElementLabel;
-                                   var altLinkName = parentElementLabel +
-                                       "<->" + childElementLabel;
-                                   if((null == elMap["link"][linkName] &&
-                                       typeof elMap["link"][linkName] == "undefined") &&
-                                       null == elMap["link"][altLinkName] &&
-                                       typeof elMap["link"][altLinkName] == "undefined") {
-                                       linkElements.push(self.createLink(
-                                           link, link_type, parentId, childId));
-                                       var currentLink =
-                                           linkElements[linkElements.length-1];
-                                       var currentLinkId = currentLink.id;
-                                       conElements.push(currentLink);
-                                       elMap.link[linkName] = currentLinkId;
-                                       elMap.link[altLinkName] = currentLinkId;
-                                       break;
-                                   }
-                               }
-                           }
-                       }
-                   });
-               }
-           });
-           for(var i=0; i<links.length; i++) {
-               var link = links[i];
-               var endpoints = link.endpoints;
-               var endpoint0 = endpoints[0];
-               var endpoint1 = endpoints[1];
-               var linkName = endpoint0 + "<->" + endpoint1;
-               var altLinkName = endpoint1 + "<->" + endpoint0;
-               var endpoint0Node = jsonPath(nodes, '$[?(@.name=="' + endpoint0 + '")]');
-               if(false !== endpoint0Node && endpoint0Node.length === 1) {
-                   endpoint0Node = endpoint0Node[0];
-               } else {
-                   continue;
-               }
-               var endpoint1Node = jsonPath(nodes, '$[?(@.name=="' + endpoint1 + '")]');
-               if(false !== endpoint1Node && endpoint1Node.length === 1) {
-                   endpoint1Node = endpoint1Node[0];
-               } else {
-                   continue;
-               }
-               var endpoint0NodeType = endpoint0Node.node_type;
-               var endpoint1NodeType = endpoint1Node.node_type;
-               var link_type = endpoint0NodeType.split("-")[0][0] +
-                   endpoint0NodeType.split("-")[1][0] + '-' +
-                   endpoint1NodeType.split("-")[0][0] +
-                   endpoint1NodeType.split("-")[1][0];
-               if(null != elMap["node"] && typeof elMap["node"] !== "undefined") {
-                   if(null != elMap["node"][endpoint0] && typeof elMap["node"][endpoint0] !== "undefined" &&
-                   null != elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined") {
-                       if(null == elMap["link"][linkName] && typeof elMap["link"][linkName] === "undefined" &&
-                           null == elMap["link"][altLinkName] && typeof elMap["link"][altLinkName] === "undefined") {
-                           linkElements.push(
-                               self.createLink(link, link_type, elMap["node"][endpoint0], elMap["node"][endpoint1]));
-                           var currentLink =
-                               linkElements[linkElements.length - 1];
-                           var currentLinkId = currentLink.id;
-                           conElements.push(currentLink);
-                           elMap.link[linkName] = currentLinkId;
-                           elMap.link[altLinkName] = currentLinkId;
-                       } else {
-                           var el = jsonPath(linkElements, '$[?(@.id=="' + linkName + '")]');
-                           var linkEl = self.getCell(elMap.link[linkName]);
-                           if(false == el && null != linkEl) {
-                               linkElements.push(linkEl);
-                           } else
-                               continue;
-                       }
-                   } else {
-                       continue;
-                   }
-               } else {
-                   continue;
-               }
-           }
-           this.connectedElements = conElements;
-           // Links must be added after all the elements. This is because when the links
-           // are added to the graph, link source/target
-           // elements must be in the graph already.
-           return elements.concat(linkElements.unique());
-       },
        getErrorNodes: function () {
            return this.uveMissingNodes.concat(this.configMissingNodes);
-       },
-
-       createLink: function (link, link_type, srcId, tgtId) {
-           var options;
-           var linkElement;
-           link.link_type = link_type;
-           options = {
-               direction   : "bi",
-               linkType    : link.link_type,
-               linkDetails : link
-           };
-           link['connectionStroke'] = '#637939';
-
-           options['sourceId'] = srcId;
-           options['targetId'] = tgtId;
-           linkElement = new ContrailElement('link', options);
-           return linkElement;
-       },
-
-       createNode: function (node) {
-           var nodeName = node['name'],
-           type = node.node_type,
-           chassis_type = node.chassis_type,
-           width = 40,
-           height = 40,
-           imageLink, element, options, imageName;
-           var refX, refY;
-           var labelNodeName = contrail.truncateText(nodeName,20);
-           switch(chassis_type) {
-               case "coreswitch":
-                   chassis_type = 'router';
-                   break;
-               case "spine":
-                   chassis_type = 'router';
-                   break;
-               case "tor":
-                   chassis_type = 'switch';
-                   break;
-               case "virtual-machine":
-                   if(node.hasOwnProperty('more_attributes') &&
-                       node.more_attributes.hasOwnProperty('vm_name') &&
-                       node.more_attributes.vm_name.trim() !== "" &&
-                       node.more_attributes.vm_name.trim() !== "-") {
-                       labelNodeName = contrail.truncateText(
-                           node.more_attributes.vm_name.trim(),10);
-                   } else {
-                       labelNodeName = contrail.truncateText(nodeName,10);
-                   }
-                   refY = .9;
-                   break;
-           }
-           imageName = getImageName(node);
-           imageLink = '/img/icons/' + imageName;
-           options = {
-               attrs: {
-                   image: {
-                       'xlink:href': imageLink,
-                       width: width,
-                       height: height
-                   },
-                   text: {
-                       text: labelNodeName,
-                       "ref-y": refY
-                   }
-               },
-               size: {
-                   width: width,
-                   height: height
-               },
-               nodeDetails: node,
-               font: {
-                   iconClass: 'icon-contrail-' + chassis_type
-               }
-           };
-           element = new ContrailElement(type, options);
-           return element;
        },
 
        prepareData : function (stopAt) {
@@ -472,6 +227,8 @@ define(['contrail-graph-model', 'backbone'],function(ContrailGraphModel, Backbon
                    return "virtual-router";
                case "virtual-router":
                    return "virtual-machine";
+               case "unknown":
+                   return "";
            }
        },
        getChildren : function (parent, child_type) {

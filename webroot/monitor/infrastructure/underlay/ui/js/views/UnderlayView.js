@@ -33,41 +33,24 @@ define([
 
     function getUnderlayGraphViewConfig() {
         return {
-            elementId: cowu.formatElementId([ctwl.MONITOR_PROJECT_ID]),
-            view: "SectionView",
+            elementId: ctwl.UNDERLAY_TOPOLOGY_ID,
+            view: "UnderlayGraphView",
+            viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
+            app: cowc.APP_CONTRAIL_CONTROLLER,
             viewConfig: {
-                rows: [{
-                      columns: [{
-                          elementId: ctwl.UNDERLAY_TOPOLOGY_ID,
-                          view: "UnderlayGraphView",
-                          viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
-                          app: cowc.APP_CONTRAIL_CONTROLLER,
-                          viewConfig: {
 
-                          }
-                      }]
-                }]
             }
         };
     };
 
     function getUnderlayTabViewConfig () {
         return {
-            elementId:
-                cowu.formatElementId([ctwc.UNDERLAY_TABS_VIEW_ID, 'section']),
-            view: "SectionView",
-            viewConfig: {
-                rows: [{
-                        columns: [{
-                            elementId: ctwc.UNDERLAY_TABS_VIEW_ID,
-                            view: 'UnderlayTabView',
-                            viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
-                            app: cowc.APP_CONTRAIL_CONTROLLER,
-                            viewConfig : {
+            elementId: ctwc.UNDERLAY_TABS_VIEW_ID,
+            view: 'UnderlayTabView',
+            viewPathPrefix: ctwl.UNDERLAY_VIEWPATH_PREFIX,
+            app: cowc.APP_CONTRAIL_CONTROLLER,
+            viewConfig : {
 
-                            }
-                      }]
-                }]
             }
         };
     }
