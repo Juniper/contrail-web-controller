@@ -10,9 +10,10 @@ define([
     'config/networking/port/ui/js/models/fixedIPModel',
     'config/networking/port/ui/js/models/allowAddressPairModel',
     'config/networking/port/ui/js/models/dhcpOptionModel',
+    'config/networking/port/ui/js/models/fatFlowModel',
     'config/networking/port/ui/js/models/staticRouteModel'
 ], function (_, ContrailModel, PortFormatters, FixedIPModel,
-             AllowAddressPairModel, DHCPOptionModel, StaticRouteModel) {
+             AllowAddressPairModel, DHCPOptionModel, FatFlowModel, StaticRouteModel) {
     var portFormatters = new PortFormatters();
     var self;
     var subnetDataSource = [];
@@ -51,6 +52,10 @@ define([
             'interface_route_table_refs':[],
             'virtual_machine_interface_dhcp_option_list':{'dhcp_option':[]},
             'dhcpOptionCollection':[],
+            'virtual_machine_interface_fat_flow_protocols': {
+                'fat_flow_protocol':[]
+            },
+            'fatFlowCollection': [],
             'virtual_machine_interface_properties':{'sub_interface_vlan_tag':''},
             'fixedIPCollection': [],
             'display_name': '',
@@ -219,7 +224,7 @@ define([
                     for(var i = 0; i < staticRouteLen; i++) {
                         var staticRoute_obj = staticRouteList[i];
                         var staticRouteOptionModel =
-                                          new DHCPOptionModel(staticRoute_obj);
+                                          new StaticRouteModel(staticRoute_obj);
                         staticRoute.push(staticRouteOptionModel);
 
                     }
@@ -228,6 +233,24 @@ define([
             var staticRouteCollectionModel =
                                      new Backbone.Collection(staticRoute);
             modelConfig['staticRouteCollection'] = staticRouteCollectionModel;
+
+            //Modal config default Fat Flow option formatting
+            var fatFlows = [];
+            var fatFlowList =
+              modelConfig["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"];
+            if(fatFlowList != null && fatFlowList.length > 0) {
+                var fatFlowLen = fatFlowList.length;
+                for(var i = 0; i < fatFlowLen; i++) {
+                    var fatFlow_obj = fatFlowList[i];
+                    var fatFlowModel = new FatFlowModel(fatFlow_obj);
+                    fatFlows.push(fatFlowModel);
+                }
+            }
+            var fatFlowCollectionModel = new Backbone.Collection(fatFlows);
+            modelConfig["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"]
+                                                = fatFlowCollectionModel;
+            modelConfig['fatFlowCollection'] = fatFlowCollectionModel;
+
 
             //Modal config default Device Owner formatting
             var deviceOwnerValue = "none";
@@ -411,6 +434,31 @@ define([
             dhcpCollection.remove(delDHCP);
         },
 
+        //Fat Flow Add
+        addFatFlow: function() {
+            var fatFlowList = this.model().attributes['fatFlowCollection'],
+                fatFlowModel = new FatFlowModel();
+            this.enableDisablePort(fatFlowModel);
+            fatFlowList.add([fatFlowModel]);
+        },
+        //Fat Flow Delete
+        deleteFatFlow: function(data, fatFlow) {
+            var fatFlowCollection = data.model().collection,
+                delFatFlow = fatFlow.model();
+            fatFlowCollection.remove(delFatFlow);
+        },
+        enableDisablePort: function(fatFlowModel) {
+            fatFlowModel.disablePort = ko.computed((function() {
+                if(this.protocol() == "icmp") {
+                    this.port("0");
+                    return true;
+                } else {
+                    this.port("");
+                    return false;
+                }
+            }), fatFlowModel);
+        },
+        
         // Static Route Add
         addStaticRoute: function() {
             var staticRouteList = this.model().attributes['staticRouteCollection'],
@@ -523,6 +571,19 @@ define([
                     newPortData['virtual_machine_interface_mac_addresses']['mac_address'][0]
                                  = newPortData['macAddress'];
                     delete(newPortData['macAddress']);
+                }
+        //Fat Flow
+                var fatFlowCollection =
+                      newPortData["fatFlowCollection"].toJSON();
+                newPortData.virtual_machine_interface_fat_flow_protocols = {};
+                if (fatFlowCollection && fatFlowCollection.length > 0) {
+                    var fatFlowLocal = [];
+                    for(i = 0 ; i< fatFlowCollection.length ; i++){
+                        fatFlowLocal[i] = {};
+                        fatFlowLocal[i]["protocol"] = fatFlowCollection[i].protocol();
+                        fatFlowLocal[i]["port"] = Number(fatFlowCollection[i].port());
+                    }
+                    newPortData.virtual_machine_interface_fat_flow_protocols.fat_flow_protocol = fatFlowLocal;
                 }
         //DHCP
                 var allDHCPValues = newPortData["dhcpOptionCollection"].toJSON();
@@ -783,6 +844,7 @@ define([
                 delete(newPortData.securityGroupValue);
                 delete(newPortData.floatingIpValue);
                 delete(newPortData.allowedAddressPairCollection);
+                delete(newPortData.fatFlowCollection);
                 delete(newPortData.staticRouteCollection);
                 delete(newPortData.deviceOwnerValue);
                 delete(newPortData.logicalRouterValue);

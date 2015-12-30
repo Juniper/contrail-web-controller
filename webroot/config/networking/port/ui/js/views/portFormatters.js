@@ -222,6 +222,29 @@ define([
             }
             return staticRout;
         };
+        //Grid column expand label: Fat Flow//
+        this.FatFlowFormatter = function(d, c, v, cd, dc) {
+            var fatFlow = "";
+            var fatFlowData = getValueByJsonPath(dc,
+                          "virtual_machine_interface_fat_flow_protocols;fat_flow_protocol",
+                          []);
+            if(fatFlowData.length > 0) {
+                var fatFlow_length = fatFlowData.length;
+                fatFlow = "<table><tr><td>Protocol</td><td>Port</td></tr>"
+                for(var i = 0; i < fatFlow_length;i++) {
+                    var fatFlowVal = fatFlowData[i];
+                    fatFlow += "<tr><td>";
+                    fatFlow += fatFlowVal["protocol"];
+                    fatFlow += "</td><td>";
+                    fatFlow += fatFlowVal["port"];
+                    fatFlow += "</td></tr>";
+                }
+                fatFlow += "</table>";
+            } else {
+                fatFlow = "-";
+            }
+            return fatFlow;
+        };
         //Grid column expand label: Allowed address pairs//
         this.AAPFormatter = function(d, c, v, cd, dc) {
             var AAP = "";

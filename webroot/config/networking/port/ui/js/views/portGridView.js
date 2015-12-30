@@ -413,6 +413,14 @@ define([
                                         formatter: "AAPFormatter"
                                     }
                                 }, {
+                                    key: 'virtual_machine_interface_fat_flow_protocols',
+                                    name:"virtual_machine_interface_fat_flow_protocols",
+                                    label:"FatFlow",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "FatFlowFormatter"
+                                    }
+                                }, {
                                     key: 'id_perms',
                                     name:"id_perms",
                                     label:"Device",
@@ -488,6 +496,9 @@ define([
     };
     this.AAPFormatter = function(v, dc) {
         return portFormatters.AAPFormatter("", "", v, "", dc);
+    };
+    this.FatFlowFormatter = function(v, dc) {
+        return portFormatters.FatFlowFormatter("", "", v, "", dc);
     };
     this.fixedIPFormaterExpand = function(v, dc) {
         return portFormatters.fixedIPFormaterExpand("", "", v, "", dc);
