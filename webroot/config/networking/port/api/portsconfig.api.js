@@ -1535,7 +1535,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                                         var domainProject = [];
                                         domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][0]);
                                         domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][1]);
-                                        callback(error, rtData, DataObjectArr);
+                                        callback(error, result, DataObjectArr);
                                         return;
                                     } else if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
                                         //Attach the new compute Nova
@@ -1602,7 +1602,7 @@ function deviceOwnerChange(error, result, DataObjectArr, DataObjectLenDetail, po
                 var domainProject = [];
                 domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][0]);
                 domainProject.push(portPutData["virtual-machine-interface"]["logical_router_back_refs"][0]["to"][1]);
-                callback(error, results, DataObjectArr);
+                callback(error, result, DataObjectArr);
                 return;
             } else if((portPutData["virtual-machine-interface"]["virtual_machine_interface_device_owner"]).substring(0,7) == "compute") {
                 //Attach the new compute Nova

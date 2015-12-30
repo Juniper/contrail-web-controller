@@ -43,11 +43,13 @@ define([
                             return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
                         }
                         if(finalObj.subnet_uuid != "") {
-                            if(!isIPBoundToRange(fixedIP, finalObj.subnet_uuid)){
+                            var obj =
+                                JSON.parse(finalObj.subnet_uuid);
+                            if(!isIPBoundToRange(obj.ipam_subnet, fixedIP)){
                                 return "Enter a fixed IP within the selected subnet range";
                             }
-                            if(isStartAddress(fixedIP, finalObj.subnet_uuid) == true || 
-                               isEndAddress(fixedIP, finalObj.subnet_uuid) == true) {
+                            if(isStartAddress(obj.ipam_subnet, fixedIP) == true || 
+                               isEndAddress(obj.ipam_subnet, fixedIP) == true) {
                                 return "Fixed IP cannot be same as broadcast/start address";
                             }
                         }

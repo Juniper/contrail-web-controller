@@ -303,10 +303,10 @@ define([
                         if(vlantag == null){
                             return "VLAN.";
                         }
-                        if(!isNumber(vlantag.trim())){
+                        if(!isNumber(String(vlantag).trim())){
                             return "VLAN has to be a number.";
                         }
-                        var vlanVal = Number(vlantag.trim());
+                        var vlanVal = Number(String(vlantag).trim());
                         if(vlanVal < 1 || vlanVal > 4094 ){
                             return "VLAN has to be between 1 to 4094";
                         }
@@ -353,9 +353,16 @@ define([
             if(self.subnetDataSource.length > 0) {
                 var fixedIPList = this.model().attributes['fixedIPCollection'];
                 if(fixedIPList.length < self.subnetDataSource.length) {
-                    var fixedIPModel = new FixedIPModel();
-                    fixedIPModel.subnetDataSource = self.subnetDataSource;
-                    fixedIPModel.subnet_uuid = self.subnetDataSource[0].value;
+                    var fixedIPModel = new FixedIPModel(
+                        {
+                            subnetDataSource: self.subnetDataSource,
+                            subnet_uuid: self.subnetDataSource[0].value,
+                            fixedIp: ""
+                        }
+                    );
+                    /*var fixedIPModel = new FixedIPModel();
+                    fixedIPModel.subnetDataSource= self.subnetDataSource;
+                    fixedIPModel.subnet_uuid= self.subnetDataSource[0].value;*/
                     fixedIPList.add([fixedIPModel]);
                 }
                 var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
@@ -468,9 +475,10 @@ define([
                     delete(newPortData.virtual_network_refs[0].attr)
                 }
         //Security Group
-                if(newPortData.is_sec_grp == true) {
-                    var msSGselectedData =
-                        newPortData.securityGroupValue.split(",");
+                var sgData = getValueByJsonPath(newPortData,
+                           "securityGroupValue","");
+                if(newPortData.is_sec_grp == true && sgData != "") {
+                    var msSGselectedData = sgData.split(",");
                     if (msSGselectedData && msSGselectedData.length > 0) {
                         newPortData.security_group_refs = []
                         for (var i = 0; i < msSGselectedData.length; i++) {
@@ -488,6 +496,7 @@ define([
         //Allow Address Pair
                 var aapCollection =
                       newPortData["allowedAddressPairCollection"].toJSON();
+                newPortData.virtual_machine_interface_allowed_address_pairs = {};
                 if (aapCollection && aapCollection.length > 0) {
                     var aapLocal = [];
                     for(i = 0 ; i< aapCollection.length ; i++){
@@ -517,6 +526,7 @@ define([
                 }
         //DHCP
                 var allDHCPValues = newPortData["dhcpOptionCollection"].toJSON();
+                newPortData.virtual_machine_interface_dhcp_option_list = {};
                 if (allDHCPValues && allDHCPValues.length > 0) {
                     var unGroupedDHCPOptionsList = [];
                     var dhcpLen = allDHCPValues.length;
@@ -569,6 +579,7 @@ define([
         // Static Route
                 var StaticRouteCollection =
                       newPortData["staticRouteCollection"].toJSON();
+                newPortData.interface_route_table_refs = [];
                 if (StaticRouteCollection && StaticRouteCollection.length > 0) {
                     var StaticRouteCollectionVal = [];
                     for(i = 0 ; i< StaticRouteCollection.length ; i++) {
@@ -592,39 +603,59 @@ define([
         /* Fixed IP*/
         var allFixedIPCollectionValue =
                       newPortData["fixedIPCollection"].toJSON();
+        newPortData.instance_ip_back_refs = [];
         if (allFixedIPCollectionValue && allFixedIPCollectionValue.length > 0) {
             newPortData.instance_ip_back_refs = [];
             var allFixedIPLen = allFixedIPCollectionValue.length;
             var fixedIPArr = [];
             for(i = 0 ; i< allFixedIPLen ; i++){
-                fixedIPArr[i] = {};
+                var subnet_uuid = "";
                 var instanceIp = {};
-                instanceIp.fixedIp = allFixedIPCollectionValue[i].fixedIp();
-                instanceIp.domain = selectedVN[0];
-                instanceIp.project = selectedVN[1];
+                var family = "v4";
+                if(allFixedIPCollectionValue[i].disableFIP() == true) {
+                    //edit case
+                    var oldData = newPortData.rawData.instance_ip_back_refs;
+                    var oldDataLen = oldData.length;
+                    for(var j=0; j <= oldDataLen;j++) {
+                        var fixedIP = allFixedIPCollectionValue[i].fixedIp();
+                        if(fixedIP == oldData[j].fixedip.ip) {
+                            subnet_uuid = oldData[j]["fixedip"]["subnet_uuid"];
+                            instanceIp.fixedIp = allFixedIPCollectionValue[i].fixedIp();
+                            instanceIp.domain = selectedVN[0];
+                            instanceIp.project = selectedVN[1];
+                            if(isIPv4(fixedIP)){
+                                family = "v4";
+                            } else if(isIPv6(fixedIP)){
+                                family = "v6";
+                            }
+                            break;
+                        }
+                    }
+                } else {
+                //Add case
+                    var obj =
+                        JSON.parse(allFixedIPCollectionValue[i].subnet_uuid());
+                    subnet_uuid = obj.subnet_uuid;
+                    instanceIp.fixedIp = allFixedIPCollectionValue[i].fixedIp();
+                    instanceIp.domain = selectedVN[0];
+                    instanceIp.project = selectedVN[1];
+                    var subnetIP = obj.default_gateway;
+                    if(isIPv4(subnetIP)){
+                        family = "v4";
+                    } else if(isIPv6(subnetIP)){
+                        family = "v6";
+                    }
+                }
+
 
                 fixedIPArr[i] = {};
                 fixedIPArr[i]["instance_ip_address"] = [];
                 fixedIPArr[i]["instance_ip_address"][0] = {};
                 fixedIPArr[i]["instance_ip_address"][0] = instanceIp;
-                var subnet_uuid = "";
-                try {
-                    var obj =
-                        JSON.parse(allFixedIPCollectionValue[i].subnet_uuid);
-                    subnet_uuid = obj.subnet_uuid;
-                } catch (exception) {
-                    subnet_uuid = allFixedIPCollectionValue[i].subnet_uuid;
-                }
                 fixedIPArr[i]["subnet_uuid"] = subnet_uuid;
-
-                var subnetIP = instanceIp.fixedIp;
-                if(isIPv4(subnetIP)){
-                    fixedIPArr[i]["instance_ip_family"] = "v4";
-                } else if(isIPv6(subnetIP)){
-                    fixedIPArr[i]["instance_ip_family"] = "v6";
-                }
-
-                if(mode == "edit"){
+                fixedIPArr[i]["instance_ip_family"] = family;
+                
+                if(allFixedIPCollectionValue[i].disableFIP() == true) {
                     fixedIPArr[i]["uuid"] =
                                  allFixedIPCollectionValue[i]["uuid"]();
                 }
@@ -671,9 +702,9 @@ define([
 
         // Floating IP
                 var allfloatingIP = newPortData.floatingIpValue.split(",")
+                newPortData["floating_ip_back_refs"] = [];
                 if (newPortData.floatingIpValue != "" &&
                     allfloatingIP && allfloatingIP.length > 0) {
-                    newPortData["floating_ip_back_refs"] = [];
                     var allfloatingIPVal = [];
                     var floatingip = [];
                     var to = [];

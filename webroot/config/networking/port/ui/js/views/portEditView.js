@@ -224,7 +224,7 @@ define([
         },
         onVNSelectionChanged : function(e, edit) {
             if(!edit) {
-                self.model.fixedIPCollection(new Backbone.Collection([]));
+                self.model.model().attributes.fixedIPCollection.reset();
                 var subnetDS = portFormatter.fixedIpSubnetDDFormatter(
                                          self.model.getVNData(),
                                          e.val);
@@ -379,7 +379,7 @@ define([
                         viewConfig: {
                             visible : "subnetGroupVisible()",
                             label:"Fixed IPs",
-                            path: "fixedIPCollection",
+                            path: "subnetDataSource",
                             validation: 'fixedIPValidations',
                             collection: "fixedIPCollection",
                             columns: [{
