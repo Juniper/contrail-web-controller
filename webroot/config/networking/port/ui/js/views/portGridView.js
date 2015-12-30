@@ -405,6 +405,14 @@ define([
                                         formatter: "staticRoutFormatter"
                                     }
                                 }, {
+                                    key: 'virtual_machine_interface_fat_flow_protocols',
+                                    name:"virtual_machine_interface_fat_flow_protocols",
+                                    label:"FatFlow",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "FatFlowFormatter"
+                                    }
+                                }, {
                                     key: 'virtual_machine_interface_allowed_address_pairs',
                                     name:"virtual_machine_interface_allowed_address_pairs",
                                     label:"Allowed address pairs",
@@ -488,6 +496,9 @@ define([
     };
     this.AAPFormatter = function(v, dc) {
         return portFormatters.AAPFormatter("", "", v, "", dc);
+    };
+    this.FatFlowFormatter = function(v, dc) {
+        return portFormatters.FatFlowFormatter("", "", v, "", dc);
     };
     this.fixedIPFormaterExpand = function(v, dc) {
         return portFormatters.fixedIPFormaterExpand("", "", v, "", dc);

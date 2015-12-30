@@ -112,6 +112,10 @@ define([
                                 );
                             kbValidation.bind(self,
                                 {collection:
+                                  self.model.model().attributes.fatFlowCollection}
+                                );
+                            kbValidation.bind(self,
+                                {collection:
                                   self.model.model().attributes.staticRouteCollection}
                                 );
 
@@ -562,6 +566,64 @@ define([
                             gridActions: [{
                                 onClick: "function() { addStaticRoute(); }",
                                  buttonTitle: "Add Static Route"
+                            }]
+                        }
+                        }]
+                    },{
+                        columns: [{
+                        elementId: 'fatFlowCollection',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            label:"Fat Flow",
+                            path: "fatFlowCollection",
+                            validation: 'fatFlowValidations',
+                            collection: "fatFlowCollection",
+                            columns: [{
+                                elementId: 'protocol',
+                                name: "Protocol",
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    path: 'protocol',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                    dataBindValue: 'protocol()',
+                                    placeholder: 'Protocol',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Protocol',
+                                    elementConfig:{
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        data : [
+                                            {'text':'TCP','value':'tcp'},
+                                            {'text':'UDP','value':'udp'},
+                                            {'text':'SCTP','value':'sctp'},
+                                            {'text':'ICMP','value':'icmp'}
+                                        ]
+                                    }
+                                }
+                            }, {
+                                elementId: 'port',
+                                name: "Value",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'port',
+                                    placeholder: 'Port',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'port()',
+                                    disabled: "disablePort()",
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Value'
+                                }
+                            }],
+                            rowActions: [{
+                                onClick:
+                                "function() { $root.deleteFatFlow($data, this); }",
+                                iconClass: 'icon-minus'
+                            }],
+                            gridActions: [{
+                                onClick: "function() { addFatFlow(); }",
+                                buttonTitle: "Add Fat Flow"
                             }]
                         }
                         }]
