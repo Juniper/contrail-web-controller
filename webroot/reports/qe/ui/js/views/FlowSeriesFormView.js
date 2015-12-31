@@ -31,12 +31,12 @@ define([
                 self.model.to_time(parseInt(queryFormAttributes.to_time));
             }
 
-            self.renderView4Config($(queryFormId), self.model, self.getViewConfig(), null, null, modelMap, function () {
+            self.renderView4Config($(queryFormId), self.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
                 self.model.showErrorAttr(flowSeriesId, false);
                 Knockback.applyBindings(self.model, document.getElementById(flowSeriesId));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
-                    if (self.model.model().isValid(true, 'runQueryValidation')) {
+                    if (self.model.model().isValid(true, cowc.KEY_RUN_QUERY_VALIDATION)) {
                         self.renderQueryResult();
                     }
                 });
@@ -219,7 +219,8 @@ define([
                             columns: [
                                 {
                                     elementId: 'filters', view: "FormTextAreaView",
-                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "span9", editPopupConfig: {
+                                    viewConfig: {
+                                        path: 'filters', dataBindValue: 'filters', class: "span9", label: cowl.TITLE_QE_FILTER, editPopupConfig: {
                                         renderEditFn: function() {
                                             self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
                                         }

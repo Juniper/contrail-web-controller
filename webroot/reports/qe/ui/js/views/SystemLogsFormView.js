@@ -31,12 +31,12 @@ define([
                 self.model.to_time(parseInt(queryFormAttributes.to_time));
             }
 
-            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), null, null, modelMap, function () {
+            self.renderView4Config($(self.$el).find(queryFormId), this.model, self.getViewConfig(), cowc.KEY_RUN_QUERY_VALIDATION, null, modelMap, function () {
                 self.model.showErrorAttr(systemLogsId, false);
                 Knockback.applyBindings(self.model, document.getElementById(systemLogsId));
                 kbValidation.bind(self);
                 $("#run_query").on('click', function() {
-                    if (self.model.model().isValid(true, 'runQueryValidation')) {
+                    if (self.model.model().isValid(true, cowc.KEY_RUN_QUERY_VALIDATION)) {
                         self.renderQueryResult();
                     }
                 });
@@ -131,8 +131,11 @@ define([
                                 {
                                     elementId: 'log_level', view: "FormDropdownView",
                                     viewConfig: { path: 'log_level', dataBindValue: 'log_level', class: "span3", elementConfig: {dataTextField: "name", dataValueField: "value", data: cowc.QE_LOG_LEVELS}}
+                                },
+                                {
+                                    elementId: 'keywords', view: "FormInputView",
+                                    viewConfig: { path: 'keywords', dataBindValue: 'keywords', class: "span3", placeholder: "Enter comma separated keywords" }
                                 }
-
                             ]
                         },
                         {
@@ -164,7 +167,7 @@ define([
                             columns: [
                                 {
                                     elementId: 'filters', view: "FormTextAreaView",
-                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "span9", editPopupConfig: {
+                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "span9", label: cowl.TITLE_QE_FILTER, editPopupConfig: {
                                         renderEditFn: function() {
                                             self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
                                         }
