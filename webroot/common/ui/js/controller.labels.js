@@ -163,7 +163,9 @@ define([
             to_time_utc: 'To Time',
             opsQueryId: 'Analytics QueryId',
             queryId: 'QueryId',
-            timeTaken: 'Time Taken'
+            startTime: 'Time Issued',
+            timeTaken: 'Time Taken',
+            filters: 'Filter'
         };
 
         this.TOP_CONTENT_CONTAINER = "top-content-container";

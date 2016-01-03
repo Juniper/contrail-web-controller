@@ -742,6 +742,11 @@ function getQueryJSON4Table(queryReqObj) {
     setMicroTimeRange(queryJSON, fromTimeUTC, toTimeUTC);
     parseSelect(queryJSON, formModelAttrs);
     parseWhere(queryJSON, where);
+
+    if (tableName == 'MessageTable' && formModelAttrs['keywords'] != null && formModelAttrs['keywords'] != "") {
+        parseSLWhere(queryJSON, where, formModelAttrs['keywords'])
+    }
+
     if(filters != null && filters != "") {
         parseFilters(queryJSON, filters);
     }
@@ -782,6 +787,56 @@ function parseSelect(query, formModelAttrs) {
     if (classTEqualToIndex > -1 && queryPrefix == 'stat') {
         query['select_fields'] = query['select_fields'].concat('CLASS(T=)');
     }
+};
+
+function parseSLWhere (query, where, keywords) {
+    var keywordsArray = keywords.split(',');
+    if (keywords != null && keywords.trim() != '') {
+        for (var i = 0; i < keywordsArray.length; i++){
+            keywordsArray[i] = keywordsArray[i].trim();
+        }
+    }
+    if (where != null && where.trim() != '') {
+        var whereORArray = where.split(' OR '),
+            whereORLength = whereORArray.length, i,
+            newWhereOR, newWhereORArray = [];
+        var keywordsStr = getKeywordsStrFromArray(keywordsArray), where = [];
+        for (i = 0; i < whereORLength; i += 1) {
+            whereORArray[i] = whereORArray[i].trim();
+            newWhereOR = whereORArray[i].substr(0, whereORArray[i].length - 1);
+            where[i] = newWhereOR.concat(" AND " + keywordsStr + " )");
+            where[i] = parseWhereANDClause(where[i]);
+        }
+        query['where'] = where;
+    } else{
+        if (keywords != null && keywords.trim() != '') {
+            var where = [];
+            query['where'] = parseKeywordsObj(keywordsArray);
+        }
+    }
+}
+
+function getKeywordsStrFromArray (keywords) {
+    var tempStr = "";
+    for (var i = 1; i < keywords.length; i++) {
+        tempStr = tempStr.concat("AND Keyword = " + keywords[i] + " ");
+    }
+    var final = ("Keyword = " + keywords[0] + " ").concat(tempStr);
+    return final;
+}
+
+function parseKeywordsObj(keywordsArray)
+{
+    var keywordObj = [], keywordArray = [], finalkeywordArray = [];
+    for(var i=0; i<keywordsArray.length; i++){
+        keywordObj[i] = {"name":"", value:"", op:""};
+        keywordObj[i].name = "Keyword";
+        keywordObj[i].value = keywordsArray[i];
+        keywordObj[i].op = 1;
+        keywordArray.push(keywordObj[i]);
+    }
+    finalkeywordArray.push(keywordArray);
+    return finalkeywordArray;
 };
 
 function parseWhere(query, where) {

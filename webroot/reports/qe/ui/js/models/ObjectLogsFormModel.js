@@ -24,19 +24,6 @@ define([
             var tableName = this.table_name();
 
             return !(tableName === null || tableName === '');
-        },
-
-        validations: {
-            runQueryValidation: {
-                'table_name': {
-                    required: true,
-                    msg: ctwm.getRequiredMessage('table name')
-                },
-                'select': {
-                    required: true,
-                    msg: ctwm.getRequiredMessage('select')
-                }
-            },
         }
     });
 
