@@ -20,18 +20,26 @@ define([
             self.$el.find('div.row-fluid').append($('<div/>',{
                 class:'charts vrouter-cf'
             }));
+            self.vRouterListModel = getValueByJsonPath(self,'attributes;viewConfig;vRouterListModel',null,false);
+            self.cfDataSource = getValueByJsonPath(self,'attributes;viewConfig;cfDataSource',null,false);
+            self.cfDataSource.addCallBack('refreshCrossFilters',function(data) {
+                if(data['cfg']['source'] != 'crossFilter') {
+                    if(self.barChartViews.length == 0) {
+                        self.renderCrossFilters();
+                    } else {
+                        self.refresh();
+                    }
+                }
+            });
         },
         renderCrossFilters : function() {
             var self = this;
+            self.barChartViews = [];
             var crossFilterCfg = getValueByJsonPath(self,'attributes;viewConfig;config',[]);
             //Clean-up the charts section if it's already rendered before
             self.$el.find('.charts').empty();
             var vRoutersData = self.model.getFilteredItems();
-            var vRouterCF = crossfilter(vRoutersData);
             var dimensions = {},xScales = {};
-            var filterDimension = vRouterCF.dimension(function(d) {
-                return d[crossFilterCfg[0]['field']];
-            });
             //To retain the same y-axis max across all crossfilter charts
             var maxY = 0;
 
@@ -45,22 +53,13 @@ define([
                 var bucketized = false;
                 if(maxXValue > 24) {
                     bucketized = true;
-                    barRange = maxXValue/24;
+                    barRange = Math.ceil(maxXValue/24);
                 }
                 xScales[currCfg['field']] = null;
-                if(bucketized == true)
-                    xScales[currCfg['field']] = d3.scale.quantize().domain([0,maxXValue]).range(
-                        d3.scale.ordinal().domain(d3.range(24)).rangePoints([0,maxXValue]).range());
-                dimensions[currCfg['field']] = vRouterCF.dimension(function(d) {
-
-                        if(bucketized == false) {
-                            return d[currCfg['field']];
-                        } else {
-                            //Group into buckets:
-                            //  * Ensure that all bars in the same bucket return the same value
-                            return xScales[currCfg['field']](d[currCfg['field']]);
-                        }
-                    });
+                dimensions[currCfg['field']] = self.cfDataSource.addDimension(currCfg['field']);
+                //Crossfilter DS is not yet intialized
+                if(dimensions[currCfg['field']] == null)
+                    return;
                 var maxValue = d3.max(dimensions[currCfg['field']].group().all(),
                     function(d) {
                         return d['value'];
@@ -82,26 +81,11 @@ define([
                     el: self.$el.find('.charts .chart:last'),
                     viewConfig: {
                         dimension : dimension,
+                        field : currCfg['field'],
                         xScale : xScales[currCfg['field']],
-                        onBrushEnd: function() {
-                            //Create a new dimension and get the filtered records
-                            //And add a filter on self.model with selected hostnames
-                            var selRecords = filterDimension.top(Infinity);
-                            var selIds = $.map(selRecords,function(obj,idx) {
-                                return obj.name;
-                            });
-                            self.model.updateFromCrossFilter = true;
-                            self.model.setFilterArgs({
-                                selIds:selIds
-                            });
-                            self.model.setFilter(function(item,args) {
-                                if($.inArray(item['name'],args['selIds']) > -1)
-                                    return true;
-                                return false;
-                            });
-                            $.each(self.barChartViews,function(idx,obj) {
-                                obj.update();
-                            });
+                        onBrushEnd: function(extent,field) {
+                            self.cfDataSource.fireCallBacks({source:'crossFilter'});
+                            self.refresh();
                         },
                         maxY : maxY
                     }
@@ -110,21 +94,20 @@ define([
                 self.barChartViews.push(barChartView);
             }
         },
+        refresh: function() {
+            var self = this;
+            //Update dimension on barChartView
+            $.each(ifNull(self.barChartViews,[]),function(idx,obj) {
+                obj.update();
+            });
+        },
         render: function() {
             var self = this;
             //Need to initialize crossfilter with model
             //If model is already populated
-            if(self.model.loadedFromCache) {
-                self.renderCrossFilters();
-            }
-            //We shouldn't renderCrossFilters when data update triggered from them
-            self.model.onDataUpdate.subscribe(function() {
-                if(self.model.updateFromCrossFilter == true) {
-                    self.model.updateFromCrossFilter = false;
-                } else {
-                    self.renderCrossFilters();
-                }
-            });
+            // if(self.model.loadedFromCache) {
+            //     self.renderCrossFilters();
+            // }
         }
     });
     return VRouterCrossFiltersView;

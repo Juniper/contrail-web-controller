@@ -1386,6 +1386,67 @@ define([
                 });
             }
         }
+        //Default tooltip render function for buckets
+        self.getNodeTooltipContentsForBucket = function(currObj,formatType) {
+            var nodes = currObj['children'];
+            //var avgCpu = d3.mean(nodes,function(d){return d.x});
+            //var avgMem = d3.mean(nodes,function(d){return d.y});
+            var tooltipContents = [
+                {label:'', value: 'No. of Nodes: ' + nodes.length},
+                {label:'Avg. CPU', value:$.isNumeric(currObj['x']) ? currObj['x'].toFixed(2)  + '%' : currObj['x']},
+                {label:'Avg. Memory', value:$.isNumeric(currObj['y']) ? formatBytes(currObj['y'] * 1024* 1024) : currObj['y']}
+            ];
+            if(formatType == 'simple') {
+                return tooltipContents;
+            } else {
+                return {
+                    content: {
+                        info: tooltipContents.slice(1),
+                        actions: [
+                            {
+                                type: 'link',
+                                text: 'View',
+                                iconClass: 'icon-external-link',
+                                // callback: onScatterChartClick
+                            }
+                        ]
+                    },
+                    title: {
+                        name: tooltipContents[0]['value'],
+                        type: 'virtual router'
+                    }
+                }
+            }
+        }
+        //Default tooltip contents to show for infra nodes
+        self.getNodeTooltipContents = function(currObj,formatType) {
+            var tooltipContents = [
+                {label:'Host Name', value: currObj['name']},
+                {label:'Version', value:currObj['version']},
+                {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
+                {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
+            ];
+            if(formatType == 'simple') {
+                return tooltipContents;
+            } else {
+                return {
+                    content: {
+                        info: tooltipContents.slice(1),
+                        actions: [
+                            {
+                                type: 'link',
+                                text: 'View',
+                                iconClass: 'icon-external-link',
+                                // callback: onScatterChartClick
+                            }
+                        ]
+                    },title : {
+                        name: tooltipContents[0]['value'],
+                        type: currObj['display_type']
+                    }
+                }
+            }
+        }
 
         self.getControlIpAddresses = function (data,pageType) {
             var ips;
@@ -1635,15 +1696,15 @@ define([
         },
         self.vRouterTooltipFn = function(currObj,formatType) {
             if(currObj['children'] != null && currObj['children'].length == 1)
-                return getNodeTooltipContents(currObj['children'][0],formatType);
+                return self.getNodeTooltipContents(currObj['children'][0],formatType);
             else
-                return getNodeTooltipContents(currObj,formatType);
+                return self.getNodeTooltipContents(currObj,formatType);
         },
         self.vRouterBucketTooltipFn = function(currObj,formatType) {
-            return getNodeTooltipContentsForBucket(currObj,formatType);
+            return self.getNodeTooltipContentsForBucket(currObj,formatType);
         },
         self.controlNodetooltipFn = function(currObj,formatType) {
-            return getNodeTooltipContents(currObj,formatType);
+            return self.getNodeTooltipContents(currObj,formatType);
         },
         self.analyticNodeTooltipFn = function(currObj,formatType) {
             var tooltipContents = [];
