@@ -10,43 +10,30 @@ define(
                 render: function() {
                     var self = this,
                         viewConfig = this.attributes.viewConfig;
-
+                    prevNextCache = [];
                     var currentHashParams = layoutHandler.getURLHashParams();
+                    var currentDNSServer = currentHashParams.focusedElement.dnsServer;
                     var listModelConfig = {
                         remote: {
                             ajaxConfig: {
-                                // url:
-                                // ctwc.get(ctwc.URL_GET_GLOBAL_VROUTER_CONFIG),
-                                url: '/api/tenants/config/sandesh/virtual-DNS/' +
-                                    getCookie('domain') +
-                                    ":" + currentHashParams.focusedElement
-                                    .dnsServer,
+                                url: ctwc.ACTIVE_DNS_DATA + getCookie('domain') +
+                                    ":" + currentDNSServer,
                                 type: "GET"
                             },
-                            dataParser: function(result) {
-                                var activeDNSRecData = [];
-                                if(result instanceof Array && result.length === 1){
-                                    activeDNSRecData = getValueByJsonPath(result[0],
-                                    'VirtualDnsRecordsResponse;records;list;VirtualDnsRecordTraceData',
-                                    []);
-                                }
-                                return activeDNSRecData;
-                            }
+                            dataParser: ctwp.parseActiveDNSRecordsData
                         }
                     };
 
                     var contrailListModel = new ContrailListModel(
                         listModelConfig);
-                    pushBreadcrumb([currentHashParams.focusedElement
-                        .dnsServer
-                    ]);
+                    pushBreadcrumb([currentDNSServer]);
                     this.renderView4Config(this.$el,
                         contrailListModel,
-                        getActiveDnsViewConfig());
+                        getActiveDnsViewConfig(currentDNSServer));
                 }
             });
 
-        var getActiveDnsViewConfig = function() {
+        var getActiveDnsViewConfig = function(currentDNSServer) {
             return {
                 elementId: 'ActiveDnsPageListSection',
                 view: "SectionView",
@@ -58,7 +45,7 @@ define(
                             view: "activeDnsGridView",
                             viewPathPrefix: "config/dns/servers/ui/js/views/",
                             app: cowc.APP_CONTRAIL_CONTROLLER,
-                            viewConfig: {}
+                            viewConfig: {currentDNSServer : currentDNSServer}
                         }]
                     }]
                 }

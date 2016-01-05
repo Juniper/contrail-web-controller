@@ -614,6 +614,8 @@ define([
             {'value' : 'physical-router', "text" : 'Physical Router'},
             {'value' : 'physical-interface', "text" : 'Physical Interface'}
         ];
+        //Dns constants
+        this.ACTIVE_DNS_DATA = "/api/tenants/config/sandesh/virtual-DNS/";
     };
 
     //str will be [0-9]+(m|h|s|d)

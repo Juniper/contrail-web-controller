@@ -6,18 +6,69 @@ define([
     'contrail-view',
     'config/dns/servers/ui/js/activeDNSFormatter'],function(_, ContrailView, activeDNSFormatter) {
     var gridElId = "#ActiveDnsGrid";
-
     var ActiveDnsGridView = ContrailView.extend({
         el: $(contentContainer),
         render: function() {
             var self = this,
-                viewConfig = this.attributes.viewConfig,
-                pagerOptions = viewConfig['pagerOptions'];
-            this.renderView4Config(self.$el, self.model,
-                getActiveDnsGridViewConfig(pagerOptions)
+                viewConfig = self.attributes.viewConfig,
+                pagerOptions = viewConfig['pagerOptions'],
+                currentDNSServer = viewConfig["currentDNSServer"];
+            self.renderView4Config(self.$el, self.model,
+                getActiveDnsGridViewConfig(pagerOptions), null, null, null,
+                function() {
+                    $(gridElId).find("i.icon-forward").parent().click(function(){
+                        onNextClick(currentDNSServer);
+                    });
+                    $(gridElId).find("i.icon-backward").parent().click(function(){
+                        onPrevClick(currentDNSServer);
+                    });
+                }
             );
+            function onNextClick(currentDNSServer) {
+                if(prevNextCache.length > 0) {
+                    fetchActiveDNSData(prevNextCache[prevNextCache.length - 1]);
+                } else {
+                    fetchFirstPageData(currentDNSServer);
+                }
+            };
+            function onPrevClick(currentDNSServer) {
+                if(prevNextCache.length > 1) {
+                    //navigate to first page
+                    if(prevNextCache.length === 2) {
+                        prevNextCache.pop();
+                        prevNextCache.pop();
+                        fetchFirstPageData(currentDNSServer);
+                    } else {
+                        prevNextCache.pop();
+                        prevNextCache.pop();
+                        fetchActiveDNSData(prevNextCache[prevNextCache.length -1]);
+                    }
+                } else {
+                    prevNextCache.pop();
+                    fetchFirstPageData(currentDNSServer);
+                }
+            };
+            function fetchFirstPageData(currentDNSServer) {
+                fetchActiveDNSData(getCookie("domain") + ":" + currentDNSServer);
+            };
+            function fetchActiveDNSData(key) {
+                   if(!key) {
+                       return;
+                   }
+                   $.ajax({url : ctwc.ACTIVE_DNS_DATA + key, type : "GET"})
+                   .done(function(result){
+                       var parsedData = ctwp.parseActiveDNSRecordsData(result);
+                       var activeDNSGrid = $(gridElId).data("contrailGrid");
+                       if(activeDNSGrid._dataView != null) {
+                           activeDNSGrid._dataView.setData([]);
+                           activeDNSGrid._dataView.setData(parsedData);
+                           activeDNSGrid.refreshView();
+                       }
+                   });
+            };
         }
     });
+
 
     var getActiveDnsGridViewConfig = function(pagerOptions) {
         return {
