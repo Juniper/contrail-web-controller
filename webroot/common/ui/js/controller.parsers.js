@@ -420,6 +420,24 @@ define([
             return retArr;
         };
 
+        this.parseActiveDNSRecordsData = function(result) {
+            var activeDNSRecData = [];
+            if(result instanceof Array && result.length === 1){
+                var virtualDNSResponse = getValueByJsonPath(result,
+                    "0;VirtualDnsRecordsResponse", {});
+                var recData = getValueByJsonPath(virtualDNSResponse,
+                    "records;list;VirtualDnsRecordTraceData", []);
+                if(recData instanceof Array) {
+                    activeDNSRecData = recData;
+                } else {
+                    activeDNSRecData.push(recData);
+                }
+                var key = getValueByJsonPath(virtualDNSResponse,
+                    "getnext_record_set", null);
+                prevNextCache.push(key);
+            }
+            return activeDNSRecData;
+        };
     };
 
     return CTParsers;
