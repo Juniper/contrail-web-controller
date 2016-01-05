@@ -13,11 +13,36 @@ define([
                 var trafficStatsConfig = monitorInfraUtils.
                     getTrafficStatisticsTabViewConfig(linkAttributes);
                 var trafficStatsViewConfig = trafficStatsConfig.viewConfig;
+                $("#"+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID).append($('<div/>',{
+                    id: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+'-tempdiv',
+                }));
+                var tempViewConfig = {
+                    view: 'WidgetView',
+                    elementId: ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+'-wdiget',
+                    viewConfig: {
+                        header: {
+                            title: 'Traffic Statistics',
+                            iconClass: 'icon-spinner icon-spin'
+                        },
+                        controls: {
+                            top: {
+                                default: {
+                                    collapseable: true
+                                }
+                            }
+                        }
+                    }
+                };
+                // Displaying widget with loading icon till the ajax call for 
+                // stats finish.
+                self.renderView4Config($("#"+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+'-tempdiv'),
+                    null, tempViewConfig, null, null);
                 if(trafficStatsViewConfig.modelConfig != null) {
                     var contrailListModel = new ContrailListModel(
                             trafficStatsConfig.viewConfig.modelConfig);
                         contrailListModel.onAllRequestsComplete.subscribe(
                         function() {
+                            //Removing the widget which was added before.
                             self.$el.html('');
                             if(trafficStatsViewConfig.link == ctwc.PROUTER) {
                                 // Prouter prouter link

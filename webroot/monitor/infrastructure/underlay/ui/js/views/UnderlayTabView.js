@@ -137,7 +137,14 @@ define([
             [monitorInfraUtils.getUnderlayPRouterInterfaceTabViewConfig({
                     hostName:data.hostName,
                     data: interfaceDetails
-                })]
+                })], null, null, function () {
+                            // onAllViewsRenderComplete callback is executed when
+                            // all the tabs are rendered hence interface click
+                            // handler is bind in the interface tabs callback
+                            $("#details .intfCnt").click(function () {
+                                $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:3});
+                            })
+                        }
         );
         $("#"+ctwc.UNDERLAY_TAB_ID).tabs({active:2});
     }
