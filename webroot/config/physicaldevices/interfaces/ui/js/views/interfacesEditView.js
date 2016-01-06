@@ -25,6 +25,7 @@ define([
             self.vnDataSrc = [];
             self.mode = options.mode;
             self.checkedRow = options.checkedRow;
+            self.vmiDataSourceMap = {};
             infConfigTemplates.infEditView = self;
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
@@ -334,8 +335,12 @@ define([
                         if(self.mode === ctwl.EDIT_ACTION &&
                             self.model.user_created_virtual_network() != null &&
                             self.model.user_created_virtual_network() != 'none') {
-                                self.fetchVirtualNetworkInternals(
-                                    self.model.user_created_virtual_network());
+                                self.fetchVMIDetails(
+                                    self.model.user_created_virtual_network(),
+                                    function(){
+                                        self.renderInfCreateEditPopup();
+                                    }
+                                );
                         } else {
                             self.vmiDataSrc = [];
                             self.renderInfCreateEditPopup();
@@ -347,21 +352,6 @@ define([
 
                 },
                 function(error) {
-                }
-            );
-        },
-        fetchVirtualNetworkInternals : function(id) {
-            var ajaxConfig = {
-                url : ctwc.get(ctwc.URL_GET_VN_INTERNALS_INF, id),
-                type : 'GET',
-                timeout : self.ajaxTimeout
-            };
-            contrail.ajaxHandler(ajaxConfig, null,
-                function(result){
-                    self.processVMIResponse(result);
-                    self.renderInfCreateEditPopup();
-                },
-                function(error){
                 }
             );
         },
@@ -398,6 +388,7 @@ define([
                                     text : txtVMI,
                                     value : JSON.stringify(vmi.fq_name),
                                     ip : fixedIp,
+                                    uuid : vmi.uuid,
                                     data:JSON.stringify(vmi)
                                 }
                             );
@@ -406,20 +397,31 @@ define([
                 }
             }
         },
-        fetchVMIDetails : function(id) {
-            var ajaxConfig = {
-                url : ctwc.get(ctwc.URL_GET_VN_INTERNALS_INF, id),
-                type : 'GET',
-                timeout : self.ajaxTimeout
-            };
-            contrail.ajaxHandler(ajaxConfig, null,
-                function(result){
-                    self.processVMIResponse(result);
-                },
-                function(error){
-
+        fetchVMIDetails : function(id, callback) {
+            if($.inArray(id, _.keys(self.vmiDataSourceMap)) !== -1) {
+                self.processVMIResponse(self.vmiDataSourceMap[id]);
+                if(callback) {
+                    callback();
                 }
-            );
+            } else {
+                var ajaxConfig = {
+                    url : ctwc.get(ctwc.URL_GET_VN_INTERNALS_INF, id),
+                    type : 'GET',
+                    timeout : self.ajaxTimeout
+                };
+                contrail.ajaxHandler(ajaxConfig, null,
+                    function(result){
+                        self.vmiDataSourceMap[id] = result;
+                        self.processVMIResponse(result);
+                        if(callback){
+                            callback();
+                        }
+                    },
+                    function(error){
+
+                    }
+                );
+            }
         },
         getMacAddress : function(obj) {
             var mac = '';
