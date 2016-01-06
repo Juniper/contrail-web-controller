@@ -1724,9 +1724,8 @@ define(
                     }
                 };
                 this.parseUnderlayFlowRecords = function (response) {
-                    var graphView =
-                        $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-                    response['vRouters'] = graphView.model.vRouters;
+                    var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                    response['vRouters'] = graphModel.vRouters;
                     var vRouters = ifNull(response['vRouters'],[]);
                     $.each(ifNull(response['data'],[]),function (idx,obj) {
                         var formattedVrouter,formattedOtherVrouter,

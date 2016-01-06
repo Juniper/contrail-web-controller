@@ -1924,13 +1924,13 @@ define([
                 viewConfig: {
                     data: viewConfig.data,
                     templateConfig: monitorInfraUtils.
-                        getUnderlayDetailsTabTemplateConfig(),
+                        getUnderlayDetailsTabTemplateConfig(viewConfig.data),
                     app: cowc.APP_CONTRAIL_CONTROLLER,
                 },
             }
         };
 
-        self.getUnderlayDetailsTabTemplateConfig = function() {
+        self.getUnderlayDetailsTabTemplateConfig = function(data) {
             return {
                 advancedViewOptions: false,
                 templateGenerator: 'RowSectionTemplateGenerator',
@@ -1944,12 +1944,15 @@ define([
                                         class: 'span6',
                                         rows: [
                                             {
-                                                title: ctwl.UNDERLAY_PROUTER_DETAILS,
+                                                title: contrail.format('{0} ( {1} )',
+                                                   ctwl.UNDERLAY_PROUTER_DETAILS,
+                                                   data.hostName),
                                                 templateGenerator:
                                                     'BlockListTemplateGenerator',
                                                 templateGeneratorConfig: [
                                                     {
                                                         key: 'hostName',
+                                                        label: 'Hostname',
                                                         templateGenerator:
                                                             'TextGenerator'
                                                     },{
@@ -1967,6 +1970,7 @@ define([
                                                         }
                                                     },{
                                                         key: 'managementIP',
+                                                        label: 'Management IP',
                                                         templateGenerator:
                                                             'TextGenerator',
                                                     }
@@ -1985,10 +1989,8 @@ define([
         self.getTrafficStatisticsTabViewConfig = function (data) {
             var ajaxConfig = {};
             var endpoints = ifNull(data['endpoints'],[]);
-            var sourceType = getValueByJsonPath(data,
-                'sourceElement;attributes;nodeDetails;node_type','-');
-            var targetType = getValueByJsonPath(data,
-                'targetElement;attributes;nodeDetails;node_type','-');
+            var sourceType = getValueByJsonPath(data,'sourceElement;node_type','-');
+            var targetType = getValueByJsonPath(data,'targetElement;node_type','-');
             var view = 'LineWithFocusChartView', modelMap = null;
             var viewConfig = {}, viewPathPrefix;
             if(sourceType == ctwc.PROUTER && targetType == ctwc.PROUTER) {
@@ -2012,8 +2014,7 @@ define([
                 };
             } else if(sourceType == ctwc.PROUTER && targetType == ctwc.VROUTER) {
                 var vrouter = (sourceType == ctwc.VROUTER) ?
-                    data['sourceElement']['attributes']['nodeDetails']['name']:
-                    data['targetElement']['attributes']['nodeDetails']['name'];
+                    data['sourceElement']['name']: data['targetElement']['name'];
                 var params = {
                     minsSince: 60,
                     sampleCnt: 120,
@@ -2052,10 +2053,9 @@ define([
                     }
             } else if(sourceType == ctwc.VIRTUALMACHINE ||
                     targetType == ctwc.VIRTUALMACHINE) {
-                var instanceUUID = getValueByJsonPath(data,
-                    'targetElement;attributes;nodeDetails;name','-');
+                var instanceUUID = getValueByJsonPath(data, 'targetElement;name','-');
                 var vmName = getValueByJsonPath(data,
-                    'targetElement;attributes;nodeDetails;more_attributes;vm_name','-');
+                    'targetElement;more_attributes;vm_name','-');
                 var modelKey = ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID);
                 view = 'InstanceTrafficStatsView';
                 viewPathPrefix = 'monitor/networking/ui/js/views/';
@@ -2155,8 +2155,8 @@ define([
         },
 
         self.getTraceFlowVrouterGridColumns = function () {
-            var graphView = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
-            computeNodes = graphView.model.vRouters;
+            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+            computeNodes = graphModel.vRouters;
             return [
                 {
                     field:'peer_vrouter',
@@ -2419,8 +2419,8 @@ define([
                 }
             ];
         };
-        self.getUnderlayGraphInstance = function () {
-            return $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphView');
+        self.getUnderlayGraphModel = function () {
+            return $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
         };
 
         self.showFlowPath = function (connectionWrapIds, offsetWidth, graphView) {
@@ -2680,7 +2680,7 @@ define([
         };
 
         self.showUnderlayPaths = function (data) {
-            var graphModel = monitorInfraUtils.getUnderlayGraphInstance().model;
+            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
             var currentUrlHashObj = layoutHandler.getURLHashObj(),
                 currentPage = currentUrlHashObj.p,
                 currentParams = currentUrlHashObj.q;

@@ -20,8 +20,7 @@ define([
             self.renderView4Config($(self.$el).find(queryFormId), this.model,
                 self.getViewConfig(), null, null, null,
                     function (searchFlowFormView) {
-                        var graph = monitorInfraUtils.getUnderlayGraphInstance();
-                        var graphModel = graph.model;
+                        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
                         searchFlowFormView.listenTo(graphModel.selectedElement,
                             'change', function (selectedElement) {
                             updateWhereClause(selectedElement, searchFlowFormView);

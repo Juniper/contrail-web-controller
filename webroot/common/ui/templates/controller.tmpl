@@ -24,16 +24,11 @@
 
 
 <script type="text/x-handlebars-template" id="underlay-graph-template">
-    <div class="row-fluid visualization-container">
-        <div class="graph-canvas" style="overflow: hidden; height: 520px; width: 1230px;">
-            <div style="overflow: hidden; position: relative; display: inline-block;">
-                <div id="underlay-graph" class="topology-visualization" style="position: relative; overflow: hidden; height:520px; display: inline-block; width:1190px;">
-                    <div id="graph-loading" class="graph-loading">
-                        <p class="loading-message">Loading..<p>
-                    </div>
-                </div>
-            </div>
-            <div id="graph-control-panel" style= "display:inline;"></div>
+    <div class="row-fluid visualization-container" style="position: relative;">
+        <div id="graph-loading" class="graph-loading">
+                <p class="loading-message">Loading..<p>
+        </div>
+        <div id="underlay-graph" style="height:350px; display: block; width:1190px;">
         </div>
     </div>
 </script>
