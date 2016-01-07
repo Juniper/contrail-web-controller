@@ -346,7 +346,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'span12',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_BGP_DETAILS,
