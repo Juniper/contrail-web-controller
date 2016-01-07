@@ -107,7 +107,9 @@ define([
                 traceFlowRemoteConfig = {
                     url: '/api/admin/reports/query',
                     data: ajaxData,
-                    dataParser: monitorInfraParsers.parseUnderlayFlowRecords,
+                    dataParser: function (response) {
+                        monitorInfraParsers.parseUnderlayFlowRecords(response, vRouters);
+                    }
                 };
                 traceFlowGridColumns =
                     monitorInfraUtils.getTraceFlowVMGridColumns();
@@ -149,6 +151,11 @@ define([
             ];
             footer = false;
         }
+        function resetLoadingIcon () {
+            $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID
+                + " div.grid-canvas div.slick-cell i.icon-spinner")
+                .toggleClass('icon-cog icon-spinner icon-spin');
+        }
         var gridElementConfig = {
             header: {
                 title: {
@@ -173,27 +180,49 @@ define([
                         title:'TraceFlow',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowId,targetElement){
+                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                            graphModel.lastInteracted = new Date().getTime();
+                            resetLoadingIcon();
+                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
                                     }
                                 );
-                                $(targetElement).parent().parent()
-                                    .addClass('selected-slick-row');
-                            doTraceFlow(rowId, formModel);
+                            $(targetElement).parent().parent()
+                                  .addClass('selected-slick-row');
+                            var deferredObj = $.Deferred();
+                            doTraceFlow(rowId, formModel, deferredObj);
+                            deferredObj.always(function (resetLoading) {
+                                if (resetLoading) {
+                                    $(targetElement)
+                                        .toggleClass('icon-cog icon-spinner icon-spin');
+                                }
+                            });
                         }
                     },{
                         title:'Reverse TraceFlow',
                         iconClass: 'icon-contrail-reverse-flow',
                         onClick: function(rowId,targetElement){
+                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                            graphModel.lastInteracted = new Date().getTime();
+                            resetLoadingIcon();
+                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             $("#"+gridId + " div.selected-slick-row").each(
                                     function(idx,obj){
                                         $(obj).removeClass('selected-slick-row');
                                     }
                                 );
-                                $(targetElement).parent().parent()
-                                    .addClass('selected-slick-row');
-                            doReverseTraceFlow(rowId, formModel);
+                            $(targetElement).parent().parent()
+                                .addClass('selected-slick-row');
+                            var deferredObj = $.Deferred();
+                            doReverseTraceFlow(rowId, formModel, deferredObj);
+                            deferredObj.always(function (resetLoading) {
+                                if (resetLoading) {
+                                    $(targetElement)
+                                        .toggleClass('icon-cog icon-spinner icon-spin');
+                                }
+                            });
                         }
                     }],
                 },
@@ -234,7 +263,7 @@ define([
             introspectPort: introspectPort
         };
     }
-    function doTraceFlow (rowId, formModel) {
+    function doTraceFlow (rowId, formModel, deferredObj) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
         var graphModel = monitorInfraUtils.getUnderlayGraphModel();
@@ -303,7 +332,7 @@ define([
             return;
         }
         if (postData['vrfId'] != null) {
-            doTraceFlowRequest(postData);
+            doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
             $.ajax({
                 url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='
@@ -322,12 +351,12 @@ define([
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
                 postData['vrfName'] = nwFqName;
-                doTraceFlowRequest(postData);
+                doTraceFlowRequest(postData, graphModel, deferredObj);
             });
         }
     }
 
-    function doReverseTraceFlow (rowId, formModel) {
+    function doReverseTraceFlow (rowId, formModel, deferredObj) {
         var flowGrid =
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID).data('contrailGrid');
         var graphModel = monitorInfraUtils.getUnderlayGraphModel();
@@ -390,7 +419,7 @@ define([
             return;
         }
         if(postData['vrfId'] != null) {
-            doTraceFlowRequest(postData);
+            doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
             $.ajax({
                 url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='
@@ -408,22 +437,30 @@ define([
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
                 postData['vrfName'] = nwFqName;
-                doTraceFlowRequest(postData);
+                doTraceFlowRequest(postData, graphModel, deferredObj);
             });
         }
     }
 
-    function doTraceFlowRequest (postData) {
+    function doTraceFlowRequest (postData, graphModel, deferredObj) {
+        postData['startAt'] = new Date().getTime();
         $.ajax({
             url:'/api/tenant/networking/trace-flow',
             type:'POST',
             timeout:5000,
+            cache: true,
             data:{
                 data: postData
             }
         }).done(function(response) {
-            /*if(postData['startAt'] != null && underlayLastInteracted > postData['startAt'])
-                return;*/
+            if(postData['startAt'] != null &&
+                graphModel.lastInteracted > postData['startAt']) {
+                if (deferredObj != null) {
+                    deferredObj.resolve(false);
+                }
+                return;
+            }
+                
             if (typeof response == 'string') {
                 showInfoWindow(response,'Error');
                 return;
@@ -461,7 +498,6 @@ define([
                     }
                 }
             }
-            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
             if (graphModel != null) {
                 graphModel.underlayPathReqObj = postData;
                 graphModel.flowPath.set('links',ifNull(response['links'], []));
@@ -470,12 +506,21 @@ define([
             if(typeof response != 'string')
                 $('html,body').animate({scrollTop:0}, 500);
         }).fail(function(error,status) {
-            /*if(postData['startAt'] != null && underlayLastInteracted > postData['startAt'])
-                return;*/
+            if(postData['startAt'] != null &&
+                graphModel.lastInteracted > postData['startAt']) {
+                if (deferredObj != null) {
+                    deferreObj.resolve(false);
+                }
+                return;
+            }
             if(status == 'timeout') {
                 showInfoWindow('Timeout in fetching details','Error');
             } else if (status != 'success') {
                 showInfoWindow('Error in fetching details','Error');
+            }
+        }).always(function () {
+            if(deferredObj != null) {
+                deferredObj.resolve(true);
             }
         });
     }

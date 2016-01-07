@@ -1814,10 +1814,8 @@ define(
                             return x;
                     }
                 };
-                this.parseUnderlayFlowRecords = function (response) {
-                    var graphModel = monitorInfraUtils.getUnderlayGraphModel();
-                    response['vRouters'] = graphModel.vRouters;
-                    var vRouters = ifNull(response['vRouters'],[]);
+                this.parseUnderlayFlowRecords = function (response, vRouters) {
+                    vRouters = ifNull(vRouters,[]);
                     $.each(ifNull(response['data'],[]),function (idx,obj) {
                         var formattedVrouter,formattedOtherVrouter,
                             formattedSrcVN,formattedDestVN;

@@ -200,6 +200,7 @@ define([
         this.TMPL_CDB_ITEM_DELETE = "cdb-delete-item-template";
 
         // Underlay constants
+        this.UNDERLAY_TOPOLOGY_CACHE = "underlayTopology";
         this.UNDERLAY_TABS_VIEW_ID = 'underlayTabsView';
         this.UNDERLAY_TAB_ID = 'underlayTabs';
         this.TRACEFLOW_RADIOBUTTON_ID = 'traceFlowRadioBtns';
