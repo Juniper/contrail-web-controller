@@ -221,7 +221,7 @@ define([
                     }
                 } else if(direction == "Egress"){
                     sgConfig[i]["src_addresses"][0]["security_group"] = "local";
-                    if (group == "securit_group") {
+                    if (group == "security_group") {
                         if (groupValue.split(":").length == 3) {
                             sgConfig[i]["dst_addresses"][0]["security_group"] =
                                 groupValue;
