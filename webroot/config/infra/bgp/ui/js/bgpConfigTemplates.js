@@ -259,12 +259,12 @@ define(['underscore'], function(_){
                                                 elementId: "passive",
                                                 name: "Passive",
                                                 view: "FormCheckboxView",
-                                                width: 80,
+                                                width: 50,
                                                 viewConfig: {
                                                     disabled: "disableUnSelItem()",
                                                     path: "passive",
                                                     dataBindValue: "passive()",
-                                                    width: 80,
+                                                    width: 50,
                                                     templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW
                                                 }
                                             },
@@ -323,11 +323,11 @@ define(['underscore'], function(_){
                                                 elementId: 'user_created_auth_key',
                                                 name: 'Auth Key',
                                                 view: 'FormInputView',
-                                                width: 150,
+
                                                 viewConfig: {
                                                     disabled :
                                                         'disableAuthKey()',
-                                                    width: 150,
+
                                                     type: "password",
                                                     path:
                                                     'user_created_auth_key',
@@ -347,17 +347,17 @@ define(['underscore'], function(_){
                                                         path: "family_attrs",
                                                         collection: "family_attrs()",
                                                         validation: "familyAttrValidation",
-                                                        colSpan: "7",
+                                                        colSpan: "8",
                                                         columns: [{
                                                             elementId: "address_family",
                                                             name: "",
                                                             view: "FormDropdownView",
-                                                            width: 200,
+                                                            width:348,
                                                             viewConfig: {
-                                                                width: 200,
                                                                 path: "address_family",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                                 dataBindValue: "address_family()",
+                                                                width:348,
                                                                 elementConfig: {
                                                                     placeholder: "Select Address Family",
                                                                     dataValueField: "value",
@@ -394,7 +394,7 @@ define(['underscore'], function(_){
                                                             elementId: "loop_count",
                                                             name: "",
                                                             view: "FormInputView",
-                                                            width: 120,
+                                                            width: 130,
                                                             viewConfig: {
                                                                 placeholder: "Loop Count",
                                                                 width: 120,
@@ -406,7 +406,7 @@ define(['underscore'], function(_){
                                                             elementId: "prefix_limit",
                                                             name: "",
                                                             view: "FormInputView",
-                                                            width: 120,
+                                                            width: 130,
                                                             viewConfig: {
                                                                 placeholder: "Prefix Limit",
                                                                 width: 120,

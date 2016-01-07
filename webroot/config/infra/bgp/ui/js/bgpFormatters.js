@@ -72,13 +72,13 @@ define(['underscore'], function(_){
             var bgpRefs = getValueByJsonPath(dc,"bgp_router_refs", []);
             if(bgpRefs.length > 0){
                 peerString =
-                    "<table style='width:1000px !important;'><tr><th style='width:200px;'>Peer</th>\
-                    <th style='width:200px;'>State</th>\
-                    <th style='width:200px;'>Passive</th>\
-                    <th style='width:250px;'>Hold Time (seconds)</th>\
-                    <th style='width:200px;'>Loop Count</th>\
+                    "<table style='width:1000px !important;'><thead><tr><th style='width:200px;'>Peer</th>\
+                    <th style='width:120px;'>State</th>\
+                    <th style='width:120px;'>Passive</th>\
+                    <th style='width:280px;'>Hold Time (seconds)</th>\
+                    <th style='width:170px;'>Loop Count</th>\
                     <th style='width:200px;'>Auth Mode</th>\
-                    <th style='width:800px;'>Family Attributes</th></tr>";
+                    <th style='width:900px;'>Family Attributes</th></tr></thead>";
                 bgpRefs.forEach(function(bgp){
                     var attr = getValueByJsonPath(bgp,
                         "attr;session;0;attributes;0", {});
@@ -103,9 +103,10 @@ define(['underscore'], function(_){
                     if(familyAttrs.length > 0) {
                         for(var i = 0 ; i < familyAttrs.length; i++) {
                             var familyAttr = familyAttrs[i];
-                            peerString += "Address Family : " + getValueByJsonPath(familyAttr, "address_family", "-");
-                            peerString += ", Loop Count : " + getValueByJsonPath(familyAttr, "loop_count", "-");
-                            peerString += ", Prefix Limit : " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
+                            peerString += "<span class='sec_label'>Address Family :</span> " +  getValueByJsonPath(familyAttr, "address_family", "-");
+                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Loop Count :</span> " + getValueByJsonPath(familyAttr, "loop_count", "-");
+                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Prefix Limit :</span> " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
+
                             if(i === familyAttrs.length - 1) {
                                 peerString +="</br></br>";
                             } else {
