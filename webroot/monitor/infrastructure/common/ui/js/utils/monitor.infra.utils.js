@@ -2117,7 +2117,7 @@ define([
                     rmtIntfName =
                         getValueByJsonPath(rmtData,'summary;if_name','-');
 
-                chartTitle = contrail.format('Traffic statistics of link {0} ({1}) -- {2} ({3})',
+                chartTitle = contrail.format('Traffic Statistics of link {0} ({1}) -- {2} ({3})',
                                 lclNodeName,lclInfName,rmtNodeName,rmtIntfName);
                 var inPacketsLocal = {
                     key: contrail.format('{0} ({1})',lclNodeName,lclInfName),
