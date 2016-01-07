@@ -142,14 +142,12 @@ define([
             if(model != null) {
                 var ipObj = text.trim().split(' ');
                 if(ipObj.length === 2) {
-                   model.user_created_instance_ip_address(ipObj[1].replace(')','').replace('(',''));
-                   model.isVMICreate(false);
-                   model.disable(true);
+                   var mac = ipObj[0];
+                   var ip = ipObj[1].replace(/[()]/g,'');
+                   self.setVMIModelObject(model, text, ip);
                 } else {
                     if(this.isServerExist(self.infEditView.vmiDataSrc, text)) {
-                        model.user_created_instance_ip_address(' ');
-                        model.isVMICreate(false);
-                        model.disable(true);
+                        self.setVMIModelObject(model, ipObj[0], ' ');
                     } else {
                         model.user_created_instance_ip_address('');
                         model.isVMICreate(true);
@@ -157,6 +155,14 @@ define([
                     }
                 }
             }
+        },
+        setVMIModelObject : function(model, mac, ip) {
+            var currentVMI = self.getSelectedVMIItem(mac, ip);
+            var uuid = currentVMI ? currentVMI.uuid : "";
+            model["virtual-machine-interface"]().uuid = uuid;
+            model.user_created_instance_ip_address(ip);
+            model.isVMICreate(false);
+            model.disable(true);
         },
         isServerExist : function(ds, text){
             var isExist = false;
@@ -435,11 +441,18 @@ define([
             }
             return mac;
         },
-        getSelectedVMIItem : function(val) {
-            var data = self.editView.vmiDataSrc;
+        getSelectedVMIItem : function(mac, ip) {
+            var data = self.infEditView.vmiDataSrc;
+            ip = ip ? ip.trim() : "";
             for(var i = 0; i < data.length; i++) {
-                if(val === data[i].text) {
-                    return data[i];
+                if(ip){
+                    if(mac === data[i].text && ip === data[i].ip) {
+                        return data[i];
+                    }
+                } else {
+                    if(mac === data[i].text) {
+                        return data[i];
+                    }
                 }
             }
             return '';
@@ -502,7 +515,8 @@ define([
                 if (serverTuples && serverTuples.length > 0) {
                     for(i = 0 ; i< serverTuples.length ; i++){
                         var vmiData =
-                            self.getSelectedVMIItem(serverTuples[i].mac);
+                            self.getSelectedVMIItem(serverTuples[i].mac,
+                                serverTuples[i].ip);
                         var vmiFQName = null;
                         if(typeof vmiData === 'object') {
                             selectedServerDetails.push(
