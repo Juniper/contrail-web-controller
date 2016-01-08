@@ -7,4 +7,4 @@ node_modules
 **/feature.list.js
 **/rolemap.api.js
 webroot/common/api/package.js
-
+webroot/build/controller.build.config.js
