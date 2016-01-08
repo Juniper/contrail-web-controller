@@ -153,4 +153,7 @@
     <item>
         <feature>rtTableConfig</feature>
     </item>
+    <item>
+        <feature>bgpasaserviceconfig</feature>
+    </item>    
 </featureLists>

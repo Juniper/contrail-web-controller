@@ -1000,6 +1000,13 @@ define([
         this.TITLE_EDIT_RT_TABLE = 'Edit Route Table';
         this.RT_TABLE_DETAILS = 'Route Table Details';
  
+        /* BGP as a Service */
+        this.TITLE_BGP_AS_A_SERVICE = 'BGP as a Service';
+        this.TITLE_EDIT_BGP_AS_A_SERVICE = 'Edit BGP as a Service';
+        this.TITLE_BGP_AS_A_SERVICE_DELETE = 'Delete BGP as a Service';
+        this.TITLE_BGP_AS_A_SERVICE_MULTI_DELETE = 'Delete BGP as a Service(s)';
+        this.TITLE_ADD_BGP_AS_A_SERVICE = 'Create BGP as a Service';
+
     };
     return CTLabels;
 });

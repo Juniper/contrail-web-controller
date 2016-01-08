@@ -617,6 +617,24 @@ define([
             {'value' : 'physical-router', "text" : 'Physical Router'},
             {'value' : 'physical-interface', "text" : 'Physical Interface'}
         ];
+
+        /* BGP as a Service */
+        this.CONFIG_BGP_AS_A_SERVICE_LIST_ID = "config-bgp-as-a-service-list";
+        this.BGP_AS_A_SERVICE_GRID_ID = "bgp-as-a-service-grid";
+        this.URL_GET_BGP_AS_A_SERVICE_DATA = "/api/tenants/config/get-bgp-as-a-services/";
+        this.CONFIG_BGP_AS_A_SERVICE_SECTION_ID = "config-bgp-as-a-service-section";
+        this.CONFIG_BGP_AS_A_SERVICE_ID = "config-bgp-as-a-service";
+        this.CONFIG_BGP_AS_A_SERVICE_LIST_VIEW_ID = "config-bgp-as-a-service-list-view";
+        this.BGP_AS_A_SERVICE_PREFIX_ID = "bgp_as_a_service";
+        this.URL_CREATE_BGP_AS_A_SERVICE = "/api/tenants/config/create-bgp-as-a-service";
+        this.URL_UPDATE_BGP_AS_A_SERVICE = "/api/tenants/config/update-bgp-as-a-service/";
+        this.BGP_AS_A_SERVICE_ADDRESS_FAMILIES = [
+            {
+                text: "inet",
+                value: "inet",
+                locked: true
+            }
+        ];
     };
 
     //str will be [0-9]+(m|h|s|d)
