@@ -155,4 +155,9 @@
     <item>
         <feature>svcApplianceSet</feature>
     </item>
+    <item>
+        <feature>bgpasaserviceconfig</feature>
+        <read-access>member</read-access>
+        <write-access>member</write-access>
+    </item>
 </featureLists>

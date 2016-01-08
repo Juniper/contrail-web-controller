@@ -575,6 +575,42 @@ module.exports = function (grunt) {
                 },
                 feature: 'config'
             }
+        },
+        bgpAsAServiceGridView : {
+            options: {
+                files: [
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/bgpasaservice/ui/js/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/bgpasaservice/ui/js/**/*.js',
+                        included : false
+                    },
+                    {
+                        pattern : 'contrail-web-controller/webroot/config/services/bgpasaservice/test/ui/views/*.js',
+                        included : false
+                    }
+                ],
+                preprocessors: {
+                    'contrail-web-controller/webroot/config/services/bgpasaservice/ui/js/**/*.js': []
+                },
+                junitReporter: {
+                    outputDir:__dirname + '/reports/tests/config/views/',
+                    outputFile: 'bgp-as-a-service-grid-view-test-results.xml',
+                    suite: 'bgpAsAServiceGridView',
+                    useBrowserName: false
+                },
+                htmlReporter: {
+                    outputFile:__dirname + '/reports/tests/config/views/bgp-as-a-service-grid-view-test-results.html'
+                },
+                coverageReporter: {
+                    type: 'html',
+                    dir: __dirname + '/reports/coverage/config/views/bgpAsAServiceGridView/',
+                    subdir : browserSubdirFn
+                },
+                feature: 'config'
+            }
         }
     };
 
@@ -803,6 +839,10 @@ module.exports = function (grunt) {
             case 'dnsrecords' :
                 grunt.task.run('karma:dnsRecordsGridView');
                 testDir = 'dnsRecordsGridView'
+                break;
+            case 'bgpasaservice' :
+                grunt.task.run('karma:bgpAsAServiceGridView');
+                testDir = 'bgpAsAServiceGridView'
                 break;
             default :
                 grunt.task.run('karma:runAllConfigTests');

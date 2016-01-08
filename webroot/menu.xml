@@ -692,6 +692,22 @@ and need to add the iconClass tag wherever we need to show some icons
                             </resources>
                             <searchStrings>Configure Service Instances</searchStrings>
                         </item>
+                        <item>
+                            <label>BGP as a Service</label>
+                            <hash>config_sc_bgpasaservice</hash>
+                            <resources>
+                                <resource>
+                                    <rootDir>/common/ui</rootDir>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/services/bgpasaservice/ui</rootDir>
+                                    <js>bgpAsAService.main.js</js>
+                                    <class>configBGPAsAServicePageLoader</class>
+                                    <function>renderBGPAsAService</function>
+                                </resource>
+                            </resources>
+                            <searchStrings>Configure BGP as a Service</searchStrings>
+                        </item>
                     </items>
                 </item>
                 <item>
