@@ -6,52 +6,6 @@ define([
     'underscore'
 ], function (_) {
     var CTGridConfig = function () {
-        this.alarmsColumns = [
-            {
-                field: 'severity',
-                name: '',
-                minWidth: 30,
-                searchFn: function (d) {
-                    return d['severity'];
-                },
-                searchable: true,
-                formatter : function (r, c, v, cd, dc) {
-                    var formattedDiv;
-                    if(dc['ack']) {
-                        if(dc['severity'] === 4) {
-                            formattedDiv = '<div data-color="orange" class="circle orange" style="opacity:1"></div>';
-                        } else if (dc['severity'] === 3) {
-                            formattedDiv = '<div data-color="red" class="circle red" style="opacity:1"></div>';
-                        }
-                    } else {
-                        if(dc['severity'] === 3) {
-                            formattedDiv = '<div data-color="red" class="circle red filled" style="opacity:1"></div>';
-                        } else if (dc['severity'] === 4) {
-                            formattedDiv = '<div data-color="orange" class="circle orange filled" style="opacity:1"></div>';
-                        }
-                    }
-                    return formattedDiv;
-                }
-            },
-            {
-                field: 'timestamp',
-                name: 'Time',
-                minWidth: 50
-            },
-            {
-                field: 'alarm_msg',
-                name: 'Alarm',
-                minWidth: 250,
-//                formatter : function (r, c, v, cd, dc) {
-//                    return dc.description[0].rule;
-//                }
-            },
-            {
-                field: 'display_name',
-                name: 'Source',
-                minWidth: 100
-            }
-        ];
 
         this.bgpRouterColumns = [
                 {

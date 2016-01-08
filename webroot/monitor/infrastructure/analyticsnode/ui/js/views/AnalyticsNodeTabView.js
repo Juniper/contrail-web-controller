@@ -120,7 +120,7 @@ define([
                    title: 'Alarms',
                    view: "AlarmGridView",
                    viewPathPrefix:
-                       "monitor/alarms/ui/js/views/",
+                       "js/views/",
                    app: cowc.APP_CONTRAIL_CONTROLLER,
                    viewConfig: $.extend(viewConfig,
                            {nodeType:monitorInfraConstants.ANALYTICS_NODE}),

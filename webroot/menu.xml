@@ -269,13 +269,8 @@ and need to add the iconClass tag wherever we need to show some icons
                     <iconClass>icon-bell-alt</iconClass>
                     <resources>
                         <resource>
-                            <rootDir>/common/ui</rootDir>
-                            <class>mnAlarmsPageLoader</class>
-                        </resource>
-                        <resource>
-                            <rootDir>/monitor/alarms/ui</rootDir>
+                            <rootDir>.</rootDir>
                             <js>alarms.main.js</js>
-                            <template>alarms.tmpl</template>
                             <class>mnAlarmsPageLoader</class>
                         </resource>
                     </resources>
@@ -285,7 +280,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <label>Dashboard</label>
                             <resources>
                                 <resource>
-                                    <rootDir>/monitor/alarms/ui</rootDir>
+                                    <rootDir>.</rootDir>
                                     <class>mnAlarmsPageLoader</class>
                                     <function>renderAlarms</function>
                                 </resource>
