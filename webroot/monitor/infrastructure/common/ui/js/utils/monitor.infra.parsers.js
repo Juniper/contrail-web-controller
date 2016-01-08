@@ -164,14 +164,12 @@ define(
                                                                 nodeType:'control-node'
 //                                                                processPath:processPath
                                                             });
-                            obj['color'] = coreAlarmUtils.getControlNodeColor(d, obj);
                         } else {
                             obj['alerts'] =
                                 obj['nodeAlerts'].concat(obj['processAlerts'])
                                                     .sort(dashboardUtils.sortInfraAlerts);
-                            obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
                         }
-
+                        obj['color'] = monitorInfraUtils.getControlNodeColor(d,obj);
                         obj['isGeneratorRetrieved'] = false;
 
 
@@ -353,15 +351,12 @@ define(
                                                                 alarms:alarms,
                                                                 nodeType:'vrouter',
                                                             });
-                          //Decide color based on parameters
-                            obj['color'] = coreAlarmUtils.getvRouterColor(d, obj);
                         } else {
                             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts']).sort(
                                     dashboardUtils.sortInfraAlerts);
                           //Decide color based on parameters
-                            obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
                         }
-
+                        obj['color'] = monitorInfraUtils.getvRouterColor(d, obj);
                         obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
@@ -476,12 +471,11 @@ define(
                                                                 alarms:alarms,
                                                                 nodeType:'analytics-node'
                                                             });
-                            obj['color'] = coreAlarmUtils.getAnalyticsNodeColor(d, obj);
                         } else {
                             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                                             .sort(dashboardUtils.sortInfraAlerts);
-                            obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
                         }
+                        obj['color'] = monitorInfraUtils.getAnalyticsNodeColor(d, obj);
                         obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
@@ -582,13 +576,12 @@ define(
                                                                 alarms:alarms,
                                                                 nodeType:'config-node'
                                                             });
-                            obj['color'] = coreAlarmUtils.getConfigNodeColor(d,obj);
                         } else {
                             obj['alerts'] =
                                 obj['nodeAlerts'].concat(obj['processAlerts'])
                                     .sort(dashboardUtils.sortInfraAlerts);
-                            obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
                         }
+                        obj['color'] = monitorInfraUtils.getConfigNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
@@ -691,16 +684,13 @@ define(
                                                             {
                                                                 data:obj,
                                                                 alarms:alarms,
-                                                                nodeType:'vrouter',
+                                                                nodeType:'database-node',
                                                             });
-                          //Decide color based on parameters
-                            obj['color'] = coreAlarmUtils.getDatabaseNodeColor(d, obj);
                         } else {
                             obj['alerts'] = obj['nodeAlerts'].concat(obj['processAlerts'])
                                         .sort(dashboardUtils.sortInfraAlerts);
-                            obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
                         }
-
+                        obj['color'] = monitorInfraUtils.getDatabaseNodeColor(d,obj);
                         obj['cores'] = self.getCores(d);
                         obj['rawData'] = d;
                         retArr.push(obj);
