@@ -32,7 +32,7 @@ define([
                         },
                         dataParser: function(response) {
                             if(viewConfig == null || viewConfig.nodeType == null) {
-                                return ctwp.alarmDataParser(response);
+                                return coreAlarmUtils.alarmDataParser(response);
                             }
                             return parseAlarmInfo(response,viewConfig) //ctwp.alarmDataParser
                         }
@@ -428,7 +428,7 @@ define([
                                                     templateGenerator: 'TextGenerator'
                                                 },
                                                 {
-                                                    key: 'rawJson.rules',
+                                                    key: 'rawJson.any_of',
                                                     label:'',
                                                     templateGenerator: 'json'
                                                 },
