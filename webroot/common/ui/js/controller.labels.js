@@ -994,6 +994,13 @@ define([
         this.TITLE_CREATE_SVC_APPLIANCE_SET = 'Create Service Appliance Set';
         this.SVC_APPLIANCE_SET_DETAILS = 'Service Appliance Set Details';
 
+        /* BGP as a Service */
+        this.TITLE_BGP_AS_A_SERVICE = 'BGP as a Service';
+        this.TITLE_EDIT_BGP_AS_A_SERVICE = 'Edit BGP as a Service';
+        this.TITLE_BGP_AS_A_SERVICE_DELETE = 'Delete BGP as a Service';
+        this.TITLE_BGP_AS_A_SERVICE_MULTI_DELETE = 'Delete BGP as a Service(s)';
+        this.TITLE_ADD_BGP_AS_A_SERVICE = 'Create BGP as a Service';
+
     };
     return CTLabels;
 });
