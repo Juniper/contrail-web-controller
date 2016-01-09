@@ -39,13 +39,11 @@ define([
                     queryFormModel.from_time(serverCurrentTime - (timeRange * 1000));
                 }
 
-                queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime);
-
-                self.renderView4Config($("#" + modalId + "-body"), null, self.getFlowDetailsTabViewConfig(queryResultPostData, selectedFlowRecord));
+                self.renderView4Config($("#" + modalId + "-body"), null, self.getFlowDetailsTabViewConfig(serverCurrentTime, queryFormModel, selectedFlowRecord));
             });
         },
 
-        getFlowDetailsTabViewConfig: function (queryResultPostData, selectedFlowRecord) {
+        getFlowDetailsTabViewConfig: function (serverCurrentTime, queryFormModel, selectedFlowRecord) {
             var flowClassPrefix = selectedFlowRecord['flow_class_id'],
                 flowDetailsTabPrefix = cowl.QE_FLOW_DETAILS_TAB_ID + "-" + flowClassPrefix,
                 flowDetailsGridPrefix = cowl.QE_FLOW_DETAILS_GRID_ID + "-" + flowClassPrefix;
@@ -68,7 +66,7 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "ingress", false),
+                                    queryResultPostData: getQueryFormData(serverCurrentTime, queryFormModel, selectedFlowRecord, "ingress", false),
                                     queryResultGridId: flowDetailsTabPrefix + cowl.QE_INGRESS_SUFFIX_ID,
                                     gridOptions: {
                                         titleText: cowl.TITLE_FLOW_SERIES,
@@ -89,7 +87,7 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "egress", false),
+                                    queryResultPostData: getQueryFormData(serverCurrentTime, queryFormModel, selectedFlowRecord, "egress", false),
                                     queryResultGridId: flowDetailsTabPrefix + cowl.QE_EGRESS_SUFFIX_ID,
                                     gridOptions: {
                                         titleText: cowl.TITLE_FLOW_SERIES,
@@ -110,7 +108,7 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "ingress", true),
+                                    queryResultPostData: getQueryFormData(serverCurrentTime, queryFormModel, selectedFlowRecord, "ingress", true),
                                     queryResultGridId: flowDetailsTabPrefix + cowl.QE_REVERSE_INGRESS_SUFFIX_ID,
                                     gridOptions: {
                                         titleText: cowl.TITLE_FLOW_SERIES,
@@ -131,7 +129,7 @@ define([
                                     }
                                 },
                                 viewConfig: {
-                                    queryResultPostData: getQueryFormData(queryResultPostData, selectedFlowRecord, "egress", true),
+                                    queryResultPostData: getQueryFormData(serverCurrentTime, queryFormModel, selectedFlowRecord, "egress", true),
                                     queryResultGridId: flowDetailsTabPrefix + cowl.QE_REVERSE_EGRESS_SUFFIX_ID,
                                     gridOptions: {
                                         titleText: cowl.TITLE_FLOW_SERIES,
@@ -148,8 +146,9 @@ define([
         }
     });
 
-    function getQueryFormData(queryResultPostData, selectedFlowRecord, direction, isReversed) {
-        var newQueryResultPostData = $.extend(true, {}, queryResultPostData),
+    function getQueryFormData(serverCurrentTime, queryFormModel, selectedFlowRecord, direction, isReversed) {
+        var queryResultPostData = queryFormModel.getQueryRequestPostData(serverCurrentTime),
+            newQueryResultPostData = $.extend(true, {}, queryResultPostData),
             queryFormAttributes = queryResultPostData.formModelAttrs,
             newQueryFormAttributes = $.extend(true, {}, queryFormAttributes, {table_name: cowc.FLOW_SERIES_TABLE, table_type: cowc.QE_FLOW_TABLE_TYPE, query_prefix: cowc.FS_QUERY_PREFIX}),
             appendWhereClause = "", newWhereClause = "",

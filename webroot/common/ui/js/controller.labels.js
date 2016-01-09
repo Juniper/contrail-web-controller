@@ -159,6 +159,7 @@ define([
 
             /* Query */
             table_name: 'Table',
+            time_range: 'Time Range',
             from_time_utc: 'From Time',
             to_time_utc: 'To Time',
             opsQueryId: 'Analytics QueryId',

@@ -192,20 +192,19 @@ define([
                         rows: [
                             {
                                 templateGenerator: 'BlockListTemplateGenerator',
-                                title: cowl.TITLE_QUERY,
+                                title: cowl.TITLE_QUERY_PARAMETERS,
                                 advancedViewOptions: false,
                                 templateGeneratorConfig: [
                                     {
-                                        key: 'opsQueryId',
-                                        templateGenerator: 'TextGenerator'
-                                    },
-                                    {
-                                        key: 'queryReqObj.queryId',
-                                        templateGenerator: 'TextGenerator'
-                                    },
-                                    {
                                         key: 'queryReqObj.formModelAttrs.table_name',
                                         templateGenerator: 'TextGenerator'
+                                    },
+                                    {
+                                        key: 'queryReqObj.formModelAttrs.time_range',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'query-time-range'
+                                        }
                                     },
                                     {
                                         key: 'queryReqObj.formModelAttrs.from_time_utc',
@@ -222,6 +221,10 @@ define([
                                         }
                                     },
                                     {
+                                        key: 'queryReqObj.formModelAttrs.keywords',
+                                        templateGenerator: 'TextGenerator'
+                                    },
+                                    {
                                         key: 'queryReqObj.formModelAttrs.select',
                                         templateGenerator: 'TextGenerator'
                                     },
@@ -232,6 +235,13 @@ define([
                                     {
                                         key: 'queryReqObj.formModelAttrs.where',
                                         templateGenerator: 'TextGenerator'
+                                    },
+                                    {
+                                        key: 'queryReqObj.formModelAttrs.direction',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'query-direction'
+                                        }
                                     }
                                 ]
                             }
@@ -242,9 +252,17 @@ define([
                         rows: [
                             {
                                 templateGenerator: 'BlockListTemplateGenerator',
-                                title: cowl.TITLE_QUERY_STATUS,
+                                title: cowl.TITLE_QUERY_STATISTICS,
                                 advancedViewOptions: false,
                                 templateGeneratorConfig: [
+                                    {
+                                        key: 'opsQueryId',
+                                        templateGenerator: 'TextGenerator'
+                                    },
+                                    {
+                                        key: 'queryReqObj.queryId',
+                                        templateGenerator: 'TextGenerator'
+                                    },
                                     {
                                         key: 'startTime',
                                         templateGenerator: 'TextGenerator',

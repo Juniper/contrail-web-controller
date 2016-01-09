@@ -279,7 +279,11 @@ define([
             iconClass: 'icon-table',
             view: 'QueryResultGridView',
             tabConfig: {
-                //TODO
+                activate: function (event, ui) {
+                    if ($('#' + queryResultGridId).data('contrailGrid')) {
+                        $('#' + queryResultGridId).data('contrailGrid').refreshView();
+                    }
+                }
             },
             viewConfig: {
                 queryResultPostData: queryResultPostData,
