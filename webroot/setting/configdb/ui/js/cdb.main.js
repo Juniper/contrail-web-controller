@@ -8,7 +8,7 @@ function ConfigDatabaseLoader () {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            pathCDBView = ctBaseDir + '/setting/configdb/ui/js/views/ConfigDatabaseView.js',
+            pathCDBView = ctWebDir + '/setting/configdb/ui/js/views/ConfigDatabaseView.js',
             renderFn = paramObject['function'],
             loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 

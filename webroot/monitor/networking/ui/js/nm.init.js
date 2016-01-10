@@ -4,13 +4,13 @@
 
 define([
     'underscore',
-    'monitor/networking/ui/js/nm.utils',
-    'monitor/networking/ui/js/nm.grid.config',
-    'monitor/networking/ui/js/nm.graph.config',
-    'monitor/networking/ui/js/nm.parsers',
-    'monitor/networking/ui/js/nm.view.config',
+    'controller-basedir/monitor/networking/ui/js/nm.utils',
+    'controller-basedir/monitor/networking/ui/js/nm.grid.config',
+    'controller-basedir/monitor/networking/ui/js/nm.graph.config',
+    'controller-basedir/monitor/networking/ui/js/nm.parsers',
+    'controller-basedir/monitor/networking/ui/js/nm.view.config',
     'text!monitor/networking/ui/templates/networking.tmpl',
-    'monitor/networking/ui/js/networking.main'
+    'controller-basedir/monitor/networking/ui/js/networking.main'
 ], function (_, NMUtils, NMGridConfig, NMGraphConfig, NMParsers, NMViewConfig, NMTemplates) {
     nmwu = new NMUtils;
     nmwgc = new NMGridConfig();

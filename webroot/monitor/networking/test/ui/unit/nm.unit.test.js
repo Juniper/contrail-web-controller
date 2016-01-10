@@ -17,7 +17,7 @@ define([
             tests: [
                 /*{
                     moduleName: 'nm.parsers',
-                    modulePathPrefix: 'monitor/networking/ui/js/',
+                    modulePathPrefix: 'controller-basedir/monitor/networking/ui/js/',
                     suites: [
                         {
                             class: NMParsersUnitTestSuite,
@@ -28,7 +28,7 @@ define([
                 },*/
                 {
                     moduleName: 'nm.utils',
-                    modulePathPrefix: 'monitor/networking/ui/js/',
+                    modulePathPrefix: 'controller-basedir/monitor/networking/ui/js/',
                     suites: [
                         {
                             class: NMUtilsUnitTestSuite,

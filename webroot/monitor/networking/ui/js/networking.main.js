@@ -8,7 +8,7 @@ function MonitorNetworkingLoader() {
     this.load = function (paramObject) {
         var self = this, currMenuObj = globalObj.currMenuObj,
             hashParams = paramObject['hashParams'],
-            pathMNView = ctBaseDir + '/monitor/networking/ui/js/views/MonitorNetworkingView.js',
+            pathMNView = ctWebDir + '/monitor/networking/ui/js/views/MonitorNetworkingView.js',
             renderFn = paramObject['function'],
             loadingStartedDefObj = paramObject['loadingStartedDefObj'];
 
