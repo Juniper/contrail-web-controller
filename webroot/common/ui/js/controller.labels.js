@@ -333,10 +333,10 @@ define([
         this.TITLE_GRAPH_ELEMENT_PHYSICAL_ROUTER = 'Physical Router';
         this.TITLE_GRAPH_ELEMENT_VIRTUAL_ROUTER = 'Virtual Router';
         this.UNDERLAY_VIEWPATH_PREFIX = 'monitor/infrastructure/underlay/ui/js/views/';
-        this.UNDERLAY_TRACEFLOW_TITLE = 'Trace Flows';
+        this.UNDERLAY_TRACEFLOW_TITLE = 'Flows';
         this.UNDERLAY_PROUTER_INTERFACES_TITLE = 'Interfaces';
         this.UNDERLAY_PROUTER_DETAILS = 'Physical Router Details';
-        this.UNDERLAY_SEARCHFLOW_TITLE = 'Search Flows';
+        this.UNDERLAY_SEARCHFLOW_TITLE = 'Map Flows';
         this.UNDERLAY_TRAFFIC_STATISTICS = 'Traffic Statistics';
         this.UNDERLAY_SEARCHFLOW_WIDGET_TITLE = 'Query Flow Records';
 
