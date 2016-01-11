@@ -398,12 +398,13 @@ define([
                 var nodes = graphModel.flowPath.get('nodes');
                 var links = graphModel.flowPath.get('links');
                 if(nodes.length <=0 || links.length <= 0){
-                    showInfoWindow("Cannot Map the path for selected flow", "Info");
+                    showInfoWindow("Cannot find the underlay path for selected flow", "Info");
+                    return false;
+                } else {
                     self.resetTopology({
-                        resetBelowTabs: false,
+                        resetBelowTabs: true,
                         model: graphModel
                     });
-                    return false;
                 }
                 var elementMap = graphModel['elementMap'];
                 var adjList = graphModel.prepareData("virtual-router");
@@ -1217,9 +1218,15 @@ define([
                         });
                     },
                     content: function(nodeDetails) {
-                        var actions = [], instances = graphModel.VMs;
+                        var actions = [], instances = graphModel.VMs,
+                            ip = monitorInfraConstants.noDataStr;
                         var vms = 0,
                             name = getValueByJsonPath(nodeDetails, 'name', '-');
+                        var ipArr = getValueByJsonPath(nodeDetails,
+                             'more_attributes;VrouterAgent;self_ip_list', []);
+                        if (ipArr.length > 0) {
+                            ip = ipArr.join(',');
+                        }
                         for (var i = 0; i < instances.length; i++) {
                             if (instances[i]['more_attributes']['vrouter'] ===
                                 name) {
@@ -1235,6 +1242,9 @@ define([
                         var tooltipContent = [{
                             label: 'Name',
                             value: name
+                        },{
+                            label: 'IP',
+                            value: ip
                         }, {
                             label: "Number of VMs",
                             value: vms
@@ -1271,7 +1281,7 @@ define([
                 VirtualMachine: {
                     title: function(nodeDetails) {
                         var virtualMachineName = getValueByJsonPath(nodeDetails,
-                                'name', '-');
+                                'more_attributes;vm_name', '-');
                         return tooltipTitleTmpl({
                             name: virtualMachineName,
                             type: ctwl.TITLE_GRAPH_ELEMENT_VIRTUAL_MACHINE
@@ -1323,6 +1333,10 @@ define([
                             label: label,
                             value: instanceName
                         }];
+                        tooltipLblValues.push({
+                            label: 'UUID',
+                            value: instanceUUID
+                        });
                         if (vmIp !== "") {
                             tooltipLblValues.push({
                                 label: "IP",
@@ -1427,7 +1441,8 @@ define([
             this.addElementsToGraph(childElementsArray, underlayGraphModel);
             this.markErrorNodes();
             if (options['resetBelowTabs'] == true) {
-                monitorInfraUtils.removeUnderlayTabs();
+                monitorInfraUtils.removeUnderlayTabs(
+                    this.rootView.viewMap[ctwc.UNDERLAY_TABS_VIEW_ID]);
             }
         },
 
