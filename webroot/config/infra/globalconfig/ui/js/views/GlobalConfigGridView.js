@@ -157,6 +157,19 @@ define([
                     }
                     return dispStr;
                 }
+                if ('ecmp_hashing_include_fields' == rowData['key']) {
+                    dispStr = '';
+                    var fields = [];
+                    for (var key in val) {
+                        if (true == val[key]) {
+                            fields.push(key);
+                        }
+                    }
+                    if (fields.length > 0) {
+                        return fields.join(', ');
+                    }
+                    return dispStr;
+                }
                 return val;
             }
         }

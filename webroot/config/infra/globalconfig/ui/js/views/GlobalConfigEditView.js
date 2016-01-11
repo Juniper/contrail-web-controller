@@ -155,6 +155,41 @@ define([
                                 }
                             }
                         ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'ecmpHashingIncFields',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: 'Fields Included In ECMP Hashing',
+                                    path: 'ecmp_hashing_include_fields',
+                                    class: 'span12',
+                                    dataBindValue:
+                                            'ecmp_hashing_include_fields',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                            data: [
+                                                {text: 'source-mac',
+                                                 id: 'source-mac'},
+                                                {text: 'destination-mac',
+                                                 id: 'destination-mac'},
+                                                {text: 'source-ip',
+                                                 id: 'source-ip'},
+                                                {text: 'destination-ip',
+                                                 id: 'destination-ip'},
+                                                {text: 'ip-protocol',
+                                                 id: 'ip-protocol'},
+                                                {text: 'source-port',
+                                                 id: 'source-port'},
+                                                {text: 'destination-port',
+                                                 id: 'destination-port'}
+                                            ]
+                                    }
+                                }
+                            }
+                        ]
                     }
                 ]
             }
