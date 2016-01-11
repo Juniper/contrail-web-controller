@@ -854,35 +854,35 @@ function parseWhere(query, where) {
 
 function parseFilters(query, filters) {
     var filtersArray = splitString2Array(filters, "&"),
-        filter, filterBy, limitBy;
+        filter, filterBy, limitBy, sortFields, sortOrder;
 
     for (var i = 0; i < filtersArray.length; i++) {
         filter = filtersArray[i];
 
         if(filter.indexOf('filter:') != -1) {
-            filterBy = splitString2Array(filter, ":")[1];
+            filterBy = splitString2Array(filter, "filter:")[1];
 
             if(filterBy.length > 0) {
                 parseFilterBy(query, filterBy);
             }
 
         } else if (filter.indexOf('limit:') != -1) {
-            limitBy = splitString2Array(filter, ":")[1];
+            limitBy = splitString2Array(filter, "limit:")[1];
 
             if(limitBy.length > 0) {
                 parseLimitBy(query, limitBy);
             }
         } else if (filter.indexOf('sort_fields:') != -1){
-            sort_fields = splitString2Array(filter, ":")[1];
+            sortFields = splitString2Array(filter, "sort_fields:")[1];
 
-            if(sort_fields.length > 0) {
-                parseSortFields(query, sort_fields);
+            if(sortFields.length > 0) {
+                parseSortFields(query, sortFields);
             }
         } else if (filter.indexOf('sort:') != -1){
-            sort_order = splitString2Array(filter, ":")[1];
+            sortOrder = splitString2Array(filter, "sort:")[1];
 
-            if(sort_order.length > 0) {
-                parseSortOrder(query, sort_order);
+            if(sortOrder.length > 0) {
+                parseSortOrder(query, sortOrder);
             }
         }
     }

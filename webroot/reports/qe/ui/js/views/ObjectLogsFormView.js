@@ -243,13 +243,19 @@ define([
     }
 
     function getQueryResultGridViewConfig(queryResultPostData) {
+        var queryResultGridId = cowl.QE_QUERY_RESULT_GRID_ID;
+
         return {
-            elementId: cowl.QE_QUERY_RESULT_GRID_ID,
+            elementId: queryResultGridId,
             title: cowl.TITLE_RESULTS,
             iconClass: 'icon-table',
             view: 'QueryResultGridView',
             tabConfig: {
-                //TODO
+                activate: function (event, ui) {
+                    if ($('#' + queryResultGridId).data('contrailGrid')) {
+                        $('#' + queryResultGridId).data('contrailGrid').refreshView();
+                    }
+                }
             },
             viewConfig: {
                 queryResultPostData: queryResultPostData,
