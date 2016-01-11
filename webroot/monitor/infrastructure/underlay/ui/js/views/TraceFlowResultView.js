@@ -159,7 +159,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.UNDERLAY_TRACEFLOW_TITLE,
+                    text: 'Flows',
                 },
                 customControls: customControls,
                 defaultControls: {
@@ -500,8 +500,14 @@ define([
             }
             if (graphModel != null) {
                 graphModel.underlayPathReqObj = postData;
-                graphModel.flowPath.set('links',ifNull(response['links'], []));
-                graphModel.flowPath.set('nodes',ifNull(response['nodes'], []));
+                graphModel.flowPath.set({
+                    'nodes': ifNull(response['nodes'], []),
+                    'links': ifNull(response['links'], [])
+                });
+                if (ifNull(response['nodes'], []).length == 0 ||
+                    ifNull(response['links'], []).length == 0) {
+                        graphModel.flowPath.trigger('change:nodes');
+                }
             }
             if(typeof response != 'string')
                 $('html,body').animate({scrollTop:0}, 500);
