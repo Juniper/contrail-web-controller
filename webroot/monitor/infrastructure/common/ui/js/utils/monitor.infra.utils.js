@@ -2683,8 +2683,7 @@ define([
 
         };
 
-        self.showUnderlayPaths = function (data) {
-            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+        self.showUnderlayPaths = function (data, graphModel, deferredObj) {
             var currentUrlHashObj = layoutHandler.getURLHashObj(),
                 currentPage = currentUrlHashObj.p,
                 currentParams = currentUrlHashObj.q;
@@ -2696,6 +2695,7 @@ define([
                 params.sport = data.sport;
                 params.dport = data.dport;
                 params.protocol = data.protocol;
+                params.startAt = data.startAt;
                 if(data.direction_ing === 0) {
                     params.direction = 'egress';
                     params.nodeIP = data.other_vrouter_ip;
@@ -2723,15 +2723,32 @@ define([
                             type    : "POST",
                             data    : {data: params},
                         }).done (function (response) {
+                            if(params['startAt'] != null &&
+                                graphModel.lastInteracted > params['startAt']) {
+                                if (deferredObj != null) {
+                                    deferredObj.resolve(false);
+                                }
+                                return;
+                            }
                             graphModel.underlayPathReqObj = params;
                             graphModel.flowPath.set('links', response['links']);
                             graphModel.flowPath.set('nodes', response['nodes']);
                             $('html,body').animate({scrollTop:0}, 500);
                         }).fail (function () {
+                            if(params['startAt'] != null &&
+                                    graphModel.lastInteracted > params['startAt']) {
+                                    if (deferredObj != null) {
+                                        deferredObj.resolve(false);
+                                    }
+                                    return;
+                            }
                             showInfoWindow('Error in fetching details','Error');
                         }).always (function (ajaxObj, state, error) {
                             if(state == 'timeout') {
                                 showInfoWindow('Timeout in fetching details','Error');
+                            }
+                            if(deferredObj != null) {
+                                deferredObj.resolve(true);
                             }
                         });
                         break;

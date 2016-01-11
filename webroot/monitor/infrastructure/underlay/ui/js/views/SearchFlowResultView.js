@@ -90,6 +90,12 @@ define([
                         title: 'Show Underlay Path(s)',
                         iconClass: 'icon-contrail-trace-flow',
                         onClick: function(rowIndex,targetElement){
+                            var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                            graphModel.lastInteracted = new Date().getTime();
+                            $("#" +ctwc.UNDERLAY_SEARCHFLOW_TAB_ID
+                                + "-results  div.grid-canvas div.slick-cell i.icon-spinner")
+                                .toggleClass('icon-cog icon-spinner icon-spin');
+                            $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
                             var gridId = '#' + ctwc.UNDERLAY_SEARCHFLOW_TAB_ID + "-results";
                             var dataItem = $(gridId).data('contrailGrid')
                                 ._grid.getDataItem(rowIndex);
@@ -105,7 +111,13 @@ define([
                             );
                             $(targetElement).parent().parent()
                                 .addClass('selected-slick-row');
-                            monitorInfraUtils.showUnderlayPaths(dataItem);
+                            var deferredObj = $.Deferred();
+                            monitorInfraUtils.showUnderlayPaths(dataItem, graphModel, deferredObj);
+                            deferredObj.always(function (resetLoading) {
+                                if(resetLoading) {
+                                    $(targetElement).toggleClass('icon-cog icon-spinner icon-spin');
+                                }
+                            });
                         }
                     }]
                 },
@@ -115,9 +127,8 @@ define([
                         dataParser: function(response) {
                             var graphModel = monitorInfraUtils
                                 .getUnderlayGraphModel();
-                            response['vRouters'] = graphModel.vRouters;
                             return monitorInfraParsers
-                                .parseUnderlayFlowRecords(response);
+                                .parseUnderlayFlowRecords(response, graphModel.vRouters);
                         }
                     }
                 }

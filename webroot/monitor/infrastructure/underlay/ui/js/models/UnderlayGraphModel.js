@@ -2,8 +2,9 @@
  * Copyright (c) 2015 Juniper Networks, Inc. All rights reserved.
  */
 
-define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
-    UnderlayGraphModel = ContrailVisModel.extend({
+define(['backbone', 'contrail-view-model'],
+    function(Backbone, ContrailViewModel) {
+    UnderlayGraphModel = ContrailViewModel.extend({
        initialize: function (graphModelConfig) {
            this.nodes = [],
            this.links = [],
@@ -16,6 +17,10 @@ define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
            this.VMs = [],
            this.VNs = [],
            this.tree = [],
+           this.elementMap = {
+              node: {},
+              link: {}
+           },
            this.adjacencyList = [],
            this.underlayAdjacencyList = [],
            this.connectedElements = [],
@@ -24,6 +29,7 @@ define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
            this.uveMissingNodes = [],
            this.configMissingNodes = [],
            this.firstLevelNode = "",
+           this.lastInteracted = '',
            this.selectedElement = new Backbone.Model({
                nodeType: '',
                nodeDetail: {}
@@ -32,10 +38,11 @@ define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
                 nodes: [],
                 links: []
            });
-           ContrailVisModel.prototype.initialize.apply(this, [graphModelConfig]);
+           ContrailViewModel.prototype.initialize.apply(this, [graphModelConfig]);
        },
        initializeUnderlayModel : function (response) {
            //update chasis-type in nodes
+           response = ifNull(response, {});
            var nodes = ifNull(response['nodes'], []);
            var configMissingNodes = getValueByJsonPath(response,
                'errors;configNotFound',[]);
@@ -156,8 +163,6 @@ define(['contrail-vis-model', 'backbone'],function(ContrailVisModel, Backbone) {
            var adjacencyList = this.prepareData('tor');
            this.adjacencyList = adjacencyList;
            this.underlayAdjacencyList = adjacencyList;
-
-           //this.addElementsToGraph(els, null);
        },
 
        getErrorNodes: function () {

@@ -82,17 +82,13 @@ define([
             var self = this,
                 graphTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_UNDERLAY_GRAPH_VIEW),
-                selectorId = '#' + ctwl.UNDERLAY_GRAPH_ID,
+                selectorId = '#' + ctwl.UNDERLAY_GRAPH_ID;
                 graphModel =
                 new UnderlayGraphModel(this.getUnderlayGraphModelConfig());
             this.model = graphModel;
-            this.listenTo(graphModel, "change", function(updatedGraphModel) {
-                if (contrail.checkIfExist(updatedGraphModel.elementsDataObj)) {
-                    self.addElementsToGraph(updatedGraphModel.elementsDataObj.elements,
-                        updatedGraphModel);
-                }
+            this.model.listenTo(graphModel, "change", function (updatedGraphModel) {
+                self.populateModelAndAddToGraph(updatedGraphModel.attributes);
             });
-            graphModel.fetchData();
 
             self.$el.html(graphTemplate());
 
@@ -286,7 +282,7 @@ define([
                     timeout = null;
                 }
                 if (params.nodes.length == 1) {
-                    self.removeLinkArrows();
+                    self.removeUnderlayPathIds();
                     var dblClickedElement = (_network.findNode(params.nodes[0]))[0];
                     var nodeDetails = dblClickedElement.options.nodeDetails;
                     var elementType = dblClickedElement.options.type;
@@ -391,7 +387,6 @@ define([
                             self.markErrorNodes();
                             graphModel['adjacencyList'] = oldAdjList;
                             self.removeUnderlayPathIds();
-                            graphModel['underlayPathIds'] = [];
                             break;
                     }
                 }
@@ -399,7 +394,7 @@ define([
 
             // Drawing the underlay path and trace flow for a given flow
             graphModel.flowPath.on('change:nodes', function () {
-                self.removeLinkArrows();
+                self.removeUnderlayPathIds();
                 var nodes = graphModel.flowPath.get('nodes');
                 var links = graphModel.flowPath.get('links');
                 if(nodes.length <=0 || links.length <= 0){
@@ -410,10 +405,6 @@ define([
                     });
                     return false;
                 }
-                highlightedElements = {
-                    nodes: [],
-                    links: []
-                };
                 var elementMap = graphModel['elementMap'];
                 var adjList = graphModel.prepareData("virtual-router");
                 var nodeNames = [];
@@ -551,8 +542,6 @@ define([
                     var newLink = self.createLink(links[i], link_type, parentId, childId, true, arrowPosition);
                     var currentLinkId = newLink.id;
                     self.edgesDataSet.add(newLink);
-                    elementMap.link[linkName] = currentLinkId;
-                    elementMap.link[altLinkName] = currentLinkId;
                     connectionWrapIds.push(currentLinkId);
                 }
                 if(connectionWrapIds.length > 0) {
@@ -561,6 +550,7 @@ define([
                 // When the underlay path is same for earlier flow and
                 // current flow change events are not triggering so we need to
                 // reset the nodes and links to empty array once the path is plotted.
+                graphModel["elementMap"] = elementMap;
                 graphModel['adjacencyList'] = graphModel['underlayAdjacencyList'];
                 graphModel.flowPath.set('nodes',[], {silent: true});
                 graphModel.flowPath.set('links',[], {silent: true});
@@ -915,43 +905,44 @@ define([
                     continue;
                 }
             }
-
+            underlayGraphModel.elementMap = elMap;
             underlayGraphModel.connectedElements = conElements;
             // Links must be added after all the elements. This is because when the links
             // are added to the graph, link source/target
             // elements must be in the graph already.
             return elements.concat(linkElements);
         },
+        populateModelAndAddToGraph: function(response) {
+            $('#' + ctwl.GRAPH_LOADING_ID).hide();
+            this.model.initializeUnderlayModel(response);
+            var elements = this.createElementsFromAdjacencyList(this.model);
+            if (elements.length > 0) {
+                this.addElementsToGraph(elements, this.model);
+                this.markErrorNodes();
+            } else {
+                var notFoundTemplate =
+                    contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
+                    notFoundConfig =
+                    $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
+                        iconClass: false,
+                        defaultErrorMessage: false,
+                        defaultNavLinks: false,
+                        title: ctwm.NO_PHYSICALDEVICES
+                    });
+                $("#"+ctwl.UNDERLAY_GRAPH_ID).html(notFoundTemplate(notFoundConfig));
+            }
+        },
         getUnderlayGraphModelConfig: function() {
             var _this = this;
             return {
-                generateElementsFn: function(response) {
-                    this.initializeUnderlayModel(response);
-                    var els = _this.createElementsFromAdjacencyList(this);
-                    return {
-                        elements: els,
-                        nodes: this.nodes,
-                        links: this.links
-                    }
-                },
                 remote: {
                     ajaxConfig: {
                         url: ctwl.URL_UNDERLAY_TOPOLOGY,
                         type: 'GET'
-                    },
-                    successCallback: function(response, underlayGraphModel) {
-                        $('#' + ctwl.GRAPH_LOADING_ID).hide();
-                        if (contrail.checkIfExist(underlayGraphModel.elementsDataObj)) {
-                            var elements = underlayGraphModel.elementsDataObj.elements;
-                            if (elements.length > 0) {
-                                _this.addElementsToGraph(underlayGraphModel.elementsDataObj.elements,
-                                underlayGraphModel);
-                                _this.markErrorNodes();
-                            } else {
-                                underlayGraphModel.empty = true;
-                            }
-                        }
-                        return false;
+                    }, 
+                    failureCallback: function(response, model) {
+                        model['tree'] = {};
+                        _this.populateModelAndAddToGraph(null);
                     }
                 },
                 vlRemoteConfig: {
@@ -961,18 +952,16 @@ define([
                                 url: ctwl.URL_UNDERLAY_TOPOLOGY_REFRESH
                             };
                         },
-                        successCallback: function(response, underlayGraphModel) {
+                        successCallback: function(response, model) {
                             _this.network.redraw();
                             if (response.topologyChanged) {
-                                underlayGraphModel['tree'] = {};
-                                var eleDataObj = underlayGraphModel.generateElements(
-                                    $.extend(true, {}, response),
-                                    underlayGraphModel.elementMap,
-                                    underlayGraphModel.rankDir);
-                                _this.addElementsToGraph(
-                                    eleDataObj['elements'], underlayGraphModel);
-                                _this.markErrorNodes();
+                                model['tree'] = {};
+                                _this.populateModelAndAddToGraph(response);
                             }
+                        },
+                        failureCallback: function(response, model) {
+                            model['tree'] = {};
+                            _this.populateModelAndAddToGraph(null);
                         }
                     }]
                 },
@@ -1042,20 +1031,20 @@ define([
             }
         },
 
-        removeLinkArrows: function() {
+        removeUnderlayPathIds: function() {
             var network = this.network;
             var _this = this;
             var graphModel = this.model;
+            var elementMap = this.model.elementMap;
             var pathIds = graphModel['underlayPathIds']
             var edgesDataSet = this.edgesDataSet;
             var edgeIds = edgesDataSet.getIds();
             var edges = [];
             for (var i = 0; i < pathIds.length; i++) {
                 var edge = edgesDataSet.get(pathIds[i]);
-                edge.arrows = {};
-                edges.push(edge);
+                edgesDataSet.remove(edge);
             }
-            edgesDataSet.update(edges);
+            graphModel['underlayPathIds'] = [];
         },
         addDimlightToConnectedElements: function() {
             var network = this.network;
@@ -1141,199 +1130,6 @@ define([
             var clickedElement = this.edgesDataSet.get(link_model_id);
             clickedElement.color = this.style.defaultSelected.color;
             this.edgesDataSet.update(clickedElement);
-        },
-
-        getClickEventConfig: function(underlayGraphModel) {
-            var timeout;
-            var _this = this;
-            return {
-                'blank:pointerdblclick': function(evt) {
-                    return false;
-                    evt.stopImmediatePropagation();
-                    /*_this.resetTopology({resetBelowTabs: false,
-                                   model: underlayGraphModel});*/
-                },
-                'cell:pointerdblclick': function(cellView, evt, x, y) {
-                    var graphView =
-                        monitorInfraUtils.getUnderlayGraphInstance();
-                    evt.stopImmediatePropagation();
-                    if (timeout) {
-                        clearTimeout(timeout);
-                        timeout = null;
-                    }
-                    var dblClickedElement = cellView.model,
-                        elementType = dblClickedElement['attributes']['type'],
-                        nodeDetails =
-                        dblClickedElement['attributes']['nodeDetails'];
-                    switch (elementType) {
-                        case 'contrail.PhysicalRouter':
-                            var chassis_type = nodeDetails['chassis_type'];
-                            if (chassis_type === "tor") {
-                                underlayGraphModel.selectedElement.set({
-                                     'nodeType': ctwc.PROUTER,
-                                     'nodeDetail': nodeDetails});
-                                var children = underlayGraphModel.getChildren(
-                                    nodeDetails['name'], "virtual-router");
-                                var adjList = _.clone(
-                                    underlayGraphModel['underlayAdjacencyList']);
-                                if (children.length > 0) {
-                                    var childrenName = [];
-                                    for (var i = 0; i < children.length; i++) {
-                                        childrenName.push(children[i]["name"]);
-                                        adjList[children[i]["name"]] = [];
-                                    }
-                                    adjList[nodeDetails['name']] = childrenName;
-                                    underlayGraphModel['adjacencyList'] = adjList;
-                                    var childElementsArray = underlayGraphModel
-                                        .createElementsFromAdjacencyList();
-                                    _this.addElementsToGraph(childElementsArray);
-                                    _this.markErrorNodes();
-                                    _this.addDimlightToConnectedElements();
-                                    var thisNode = [nodeDetails];
-                                    _this.addHighlightToNodesAndLinks(
-                                        thisNode.concat(children),
-                                        childElementsArray,
-                                        underlayGraphModel);
-                                }
-                            }
-                            // Need to call the initClickevents again because
-                            // to bind events to newly added elements like vRouters
-                            cowu.bindPopoverInTopology(
-                                _this.getUnderlayTooltipConfig(),
-                                graphView);
-                            $(".popover").popover().hide();
-                            break;
-
-                        case 'contrail.VirtualRouter':
-                             /*
-                              * setting the selected element triggers
-                              * handler in underlaytabview which renders the
-                              * tabs of vrouter(click handler)
-                              */
-                             graphView.model.selectedElement.set({
-                                 'nodeType': ctwc.VROUTER,
-                                 'nodeDetail': nodeDetails});
-                            var model_id = $(dblClickedElement).attr('id');
-                            var children = underlayGraphModel.getChildren(
-                                nodeDetails['name'],
-                                "virtual-machine");
-                            var oldAdjList =
-                                _.clone(underlayGraphModel['adjacencyList']);
-                            var newAdjList =
-                                _.clone(underlayGraphModel['adjacencyList']);
-                            if (children.length > 0) {
-                                var childrenName = [];
-                                for (var i = 0; i < children.length; i++) {
-                                    childrenName.push(children[i]["name"]);
-                                    newAdjList[children[i]["name"]] = [];
-                                }
-                                newAdjList[nodeDetails['name']] = childrenName;
-                            } else {
-                                newAdjList = oldAdjList;
-                            }
-                            underlayGraphModel['adjacencyList'] = newAdjList;
-                            var childElementsArray = underlayGraphModel
-                                .createElementsFromAdjacencyList();
-                            _this.addElementsToGraph(childElementsArray, underlayGraphModel);
-                            _this.markErrorNodes();
-                            _this.addDimlightToConnectedElements();
-                            var thisNode = [nodeDetails];
-                            _this.addHighlightToNodesAndLinks(
-                                thisNode.concat(children),
-                                childElementsArray,
-                                underlayGraphModel);
-                            underlayGraphModel['adjacencyList'] = oldAdjList;
-                            cowu.bindPopoverInTopology(
-                                _this.getUnderlayTooltipConfig(),
-                                graphView);
-                            $(".popover").popover().hide();
-                            break;
-                    }
-                },
-
-                'cell:pointerclick': function(cellView, evt, x, y) {
-                    evt.stopImmediatePropagation();
-                    _this.clearHighlightedConnectedElements();
-                    _this.addDimlightToConnectedElements();
-                    var clickedElement = cellView.model;
-                    var elementType = clickedElement['attributes']['type'];
-                    var nodeDetails = {};
-                    if(elementType != ctwc.UNDERLAY_LINK) {
-                        nodeDetails = clickedElement['attributes']['nodeDetails'];
-                        _this.addHighlightToNodesAndLinks([nodeDetails], null,
-                            underlayGraphModel);
-                    }
-                    var graph =
-                        monitorInfraUtils.getUnderlayGraphInstance();
-                    var data = {};
-                    switch (elementType) {
-                        case 'PhysicalRouter':
-                            if (nodeDetails['more_attributes']['ifTable'] == '-')
-                                nodeDetails['more_attributes']['ifTable'] = [];
-                                graph.model.selectedElement.set({
-                                    'nodeType': ctwc.PROUTER,
-                                    'nodeDetail': nodeDetails});
-                                graph.model.selectedElement.set({
-                                    'nodeType': '',
-                                    'nodeDetail': {}},{silent:true});
-                            break;
-                        case 'VirtualRouter':
-                                graph.model.selectedElement.set({
-                                    'nodeType': ctwc.VROUTER,
-                                    'nodeDetail': nodeDetails});
-                                graph.model.selectedElement.set({
-                                    'nodeType': '',
-                                    'nodeDetail': {}},{silent:true});
-                            break;
-                        case 'VirtualMachine':
-                                graph.model.selectedElement.set({
-                                    'nodeType': ctwc.VIRTUALMACHINE,
-                                    'nodeDetail': nodeDetails});
-                                graph.model.selectedElement.set({
-                                    'nodeType': '',
-                                    'nodeDetail': {}},{silent:true});
-                            break;
-                        case 'link':
-                            var targetElement =
-                                graph.model.getCell(
-                                    clickedElement['attributes']['target']['id']);
-                            var sourceElement =
-                                graph.model.getCell(
-                                    clickedElement['attributes']['source']['id']);
-                            var endpoints = [sourceElement['attributes']['nodeDetails']['name'],
-                                targetElement['attributes']['nodeDetails']['name']];
-                            addHighlightToNodesAndLinks(
-                                [targetElement['attributes']['nodeDetails'],
-                                sourceElement['attributes']['nodeDetails']],
-                                null,
-                                underlayGraphModel);
-                            var linkDetail = {};
-                            linkDetail['endpoints'] = endpoints;
-                            linkDetail['sourceElement'] = sourceElement;
-                            linkDetail['targetElement'] = targetElement;
-                            graph.model.selectedElement.set({
-                                'nodeType': ctwc.UNDERLAY_LINK,
-                                'nodeDetail': linkDetail});
-                            graph.model.selectedElement.set({
-                                'nodeType': '',
-                                'nodeDetail': {}},{silent:true});
-                            break;
-                    }
-                },
-
-                'cell:pointerdown': function(cellView, evt, x, y) {
-                    evt.stopImmediatePropagation();
-                    _this.removeUnderlayPathIds();
-                },
-                'cell:pointerup': function(cellView, evt, x, y) {
-                    evt.stopImmediatePropagation();
-                    var ids = underlayGraphModel['underlayPathIds'];
-                    var graphView =
-                        monitorInfraUtils.getUnderlayGraphInstance();
-                    monitorInfraUtils.showFlowPath(ids,
-                        null, graphView.model);
-                }
-            };
         },
 
         getUnderlayTooltipConfig: function() {
@@ -1623,7 +1419,6 @@ define([
         resetTopology: function(options) {
             var underlayGraphModel = options['model'];
             this.removeUnderlayPathIds();
-            underlayGraphModel['underlayPathIds'] = [];
             this.clearHighlightedConnectedElements();
             var adjList = _.clone(underlayGraphModel['underlayAdjacencyList']);
             underlayGraphModel['adjacencyList'] = adjList;
@@ -1633,14 +1428,6 @@ define([
             this.markErrorNodes();
             if (options['resetBelowTabs'] == true) {
                 monitorInfraUtils.removeUnderlayTabs();
-            }
-        },
-
-        removeUnderlayPathIds: function() {
-            var graphModel = $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-            var linkIds = graphModel['underlayPathIds'];
-            if(linkIds.length > 0) {
-                self.edgesDataSet.remove(linkIds[i]);
             }
         },
 
@@ -1684,21 +1471,8 @@ define([
                 el: $(selectorId),
                 model: underlayGraphModel,
                 tooltipConfig: this.getUnderlayTooltipConfig(),
-                //clickEvents: this.getClickEventConfig(underlayGraphModel),
-                emptyCallback: function(contrailGraphModel) {
-                    var notFoundTemplate =
-                        contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
-                        notFoundConfig =
-                        $.extend(true, {}, cowc.DEFAULT_CONFIG_NOT_FOUND_PAGE, {
-                            iconClass: false,
-                            defaultErrorMessage: false,
-                            defaultNavLinks: false,
-                            title: ctwm.NO_PHYSICALDEVICES
-                        });
-                    $(selectorId).html(notFoundTemplate(notFoundConfig));
-                },
-                failureCallback: function(contrailGraphModel) {
-                    var xhr = contrailGraphModel.errorList[0],
+                failureCallback: function() {
+                    var xhr = underlayGraphModel.errorList[0],
                         notFoundTemplate =
                         contrail.getTemplate4Id(cowc.TMPL_NOT_FOUND_MESSAGE),
                         notFoundConfig =
