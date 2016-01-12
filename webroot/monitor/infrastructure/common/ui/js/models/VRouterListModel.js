@@ -4,14 +4,7 @@
 
 define(['contrail-list-model'], function(ContrailListModel) {
     var VRouterListModel = function() {
-        var listModelConfig = {
-            remote : {
-                ajaxConfig : {
-                    url : ctwl.VROUTER_SUMMARY_URL
-                },
-                dataParser : monitorInfraParsers.parsevRoutersDashboardData,
-            },
-            vlRemoteConfig: {
+        var vlRemoteConfig = {
                 vlRemoteList: [{
                     getAjaxConfig: function(responseJSON) {
                         return monitorInfraUtils.getGeneratorsAjaxConfigForInfraNodes(
@@ -33,7 +26,30 @@ define(['contrail-list-model'], function(ContrailListModel) {
                     }
                 }
                 ]
+            };
+        var listModelConfig = {
+            remote : {
+                ajaxConfig : {
+                    url : ctwl.VROUTER_SUMMARY_URL 
+                },
+                onAllRequestsCompleteCB: function(contrailListModel) {
+                    var fetchContrailListModel = new ContrailListModel({
+                        remote : {
+                            ajaxConfig : {
+                                url : ctwl.VROUTER_SUMMARY_URL + '?forceRefresh'
+                            },
+                            onAllRequestsCompleteCB: function(fetchContrailListModel) {
+                                var data = fetchContrailListModel.getItems();
+                                contrailListModel.setData(data);
+                            },
+                            dataParser : monitorInfraParsers.parsevRoutersDashboardData,
+                        },
+                        vlRemoteConfig: vlRemoteConfig
+                    });
+                },
+                dataParser : monitorInfraParsers.parsevRoutersDashboardData,
             },
+            vlRemoteConfig: vlRemoteConfig,
             cacheConfig : {
                 ucid : ctwl.CACHE_VROUTER
             }
