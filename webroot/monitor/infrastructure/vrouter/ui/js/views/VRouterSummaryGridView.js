@@ -182,7 +182,10 @@ define(
                     header : {
                         title : {
                             text : ctwl.VROUTER_SUMMARY_TITLE
-                        }
+                        },
+                        defaultControls: {
+                           refreshable: false,
+                        },
                     },
                     columnHeader : {
                         columns : columns
