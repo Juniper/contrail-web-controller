@@ -197,6 +197,9 @@ define([
                             ]
                         },
                         {
+                            viewConfig: {
+                                visible: 'show_advanced_options()'
+                            },
                             columns: [
                                 {
                                     elementId: 'where', view: "FormTextAreaView",
@@ -216,6 +219,9 @@ define([
                             ]
                         },
                         {
+                            viewConfig: {
+                                visible: 'show_advanced_options()'
+                            },
                             columns: [
                                 {
                                     elementId: 'filters', view: "FormTextAreaView",
@@ -231,9 +237,21 @@ define([
                         {
                             columns: [
                                 {
+                                    elementId: 'advanced_options', view: "FormTextView",
+                                    viewConfig: {
+                                        text: 'getAdvancedOptionsText()',
+                                        class: "advanced-options-link",
+                                        click: 'toggleAdvancedFields'
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            columns: [
+                                {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
-                                        class: 'display-inline-block margin-0-10-0-0',
+                                        class: 'display-inline-block margin-5-10-0-0',
                                         disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
@@ -244,7 +262,7 @@ define([
                                     elementId: 'reset_query', view: "FormButtonView", label: "Reset",
                                     viewConfig: {
                                         label: "Reset",
-                                        class: 'display-inline-block margin-0-10-0-0',
+                                        class: 'display-inline-block margin-5-10-0-0',
                                         elementConfig: {
                                             onClick: "reset"
                                         }

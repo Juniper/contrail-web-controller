@@ -232,7 +232,7 @@ define([
         this.parseCPUMemLineChartData = function(responseArray) {
             var cpuUtilization = {key: "CPU Utilization (%)", values: [], bar: true, color: cowc.D3_COLOR_CATEGORY5[1]},
                 memoryUsage = {key: "Memory Usage", values: [], color: cowc.D3_COLOR_CATEGORY5[3]},
-                chartData = [memoryUsage, cpuUtilization];
+                chartData = [cpuUtilization, memoryUsage];
 
             for (var i = 0; i < responseArray.length; i++) {
                 var ts = Math.floor(responseArray[i]['T'] / 1000);

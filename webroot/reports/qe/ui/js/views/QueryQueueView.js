@@ -331,6 +331,7 @@ define([
                 onClick: function(rowIndex){
                     var queryQueueItem = queryQueueListModel.getItem(rowIndex);
                     queryQueueItem.queryReqObj.formModelAttrs.time_range = -1;
+                    queryQueueItem.queryReqObj.formModelAttrs.show_advanced_options = true;
                     loadQueryFormPage(queryFormModelData, cowc.QUERY_TYPE_MODIFY)
                 }
             });

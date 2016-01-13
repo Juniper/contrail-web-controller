@@ -155,7 +155,7 @@ define([
                             modelConfig: getInstanceCPUMemModelConfig(networkFQN, instanceUUID),
                             parseFn: ctwp.parseCPUMemLineChartData,
                             chartOptions: {
-                                forceY1: [0, 1]
+                                forceY1: [0, 0.5]
                             }
                         }
                     }

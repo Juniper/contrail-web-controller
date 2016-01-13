@@ -134,7 +134,7 @@ define([
                                 },
                                 {
                                     elementId: 'keywords', view: "FormInputView",
-                                    viewConfig: { path: 'keywords', dataBindValue: 'keywords', class: "span3", placeholder: "Enter comma separated keywords" }
+                                    viewConfig: { path: 'keywords', dataBindValue: 'keywords', class: "span3", placeholder: "Comma separated keywords" }
                                 }
                             ]
                         },
@@ -142,36 +142,63 @@ define([
                             columns: [
                                 {
                                     elementId: 'select', view: "FormTextAreaView",
-                                    viewConfig: {path: 'select', dataBindValue: 'select', class: "span9", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            var tableName = self.model.table_name();
-                                            self.renderSelect({className: qewu.getModalClass4Table(tableName)});
+                                    viewConfig: {
+                                        path: 'select', dataBindValue: 'select', class: "span9",
+                                        editPopupConfig: {
+                                            renderEditFn: function() {
+                                                var tableName = self.model.table_name();
+                                                self.renderSelect({className: qewu.getModalClass4Table(tableName)});
+                                            }
                                         }
-                                    }}
+                                    }
                                 }
                             ]
                         },
                         {
+                            viewConfig: {
+                                visible: 'show_advanced_options()'
+                            },
                             columns: [
                                 {
                                     elementId: 'where', view: "FormTextAreaView",
-                                    viewConfig: {path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*", editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
+                                    viewConfig: {
+                                        path: 'where', dataBindValue: 'where', class: "span9", placeHolder: "*",
+                                        editPopupConfig: {
+                                            renderEditFn: function () {
+                                                self.renderWhere({className: cowc.QE_MODAL_CLASS_700});
+                                            }
                                         }
-                                    }}
+                                    }
+                                }
+                            ]
+                        },
+                        {
+                            viewConfig: {
+                                visible: 'show_advanced_options()'
+                            },
+                            columns: [
+                                {
+                                    elementId: 'filters', view: "FormTextAreaView",
+                                    viewConfig: {
+                                        path: 'filters', dataBindValue: 'filters', class: "span9", label: cowl.TITLE_QE_FILTER,
+                                        editPopupConfig: {
+                                            renderEditFn: function() {
+                                                self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
+                                            }
+                                        }
+                                    }
                                 }
                             ]
                         },
                         {
                             columns: [
                                 {
-                                    elementId: 'filters', view: "FormTextAreaView",
-                                    viewConfig: {path: 'filters', dataBindValue: 'filters', class: "span9", label: cowl.TITLE_QE_FILTER, editPopupConfig: {
-                                        renderEditFn: function() {
-                                            self.renderFilters({className: cowc.QE_MODAL_CLASS_700});
-                                        }
-                                    }}
+                                    elementId: 'advanced_options', view: "FormTextView",
+                                    viewConfig: {
+                                        text: 'getAdvancedOptionsText()',
+                                        class: "advanced-options-link",
+                                        click: 'toggleAdvancedFields'
+                                    }
                                 }
                             ]
                         },
@@ -180,7 +207,7 @@ define([
                                 {
                                     elementId: 'run_query', view: "FormButtonView", label: "Run Query",
                                     viewConfig: {
-                                        class: 'display-inline-block margin-0-10-0-0',
+                                        class: 'display-inline-block margin-5-10-0-0',
                                         disabled: 'is_request_in_progress()',
                                         elementConfig: {
                                             btnClass: 'btn-primary'
@@ -191,7 +218,7 @@ define([
                                     elementId: 'reset_query', view: "FormButtonView", label: "Reset",
                                     viewConfig: {
                                         label: "Reset",
-                                        class: 'display-inline-block margin-0-10-0-0',
+                                        class: 'display-inline-block margin-5-10-0-0',
                                         elementConfig: {
                                             onClick: "reset"
                                         }
