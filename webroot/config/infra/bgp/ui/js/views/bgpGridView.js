@@ -126,6 +126,7 @@ define([
                         ' ('+ dataItem['name'] +')';
 
                 bgpEditView.model = bgpModel;
+                bgpModel.editView = bgpEditView;
                 subscribeModelChangeEvents(bgpModel);
                 bgpModel.bgpData = $('#' + ctwl.BGP_GRID_ID).
 	                data("contrailGrid")._dataView.getItems();
@@ -205,6 +206,7 @@ define([
 	                    var bgpModel = new BGPModel();
                         subscribeModelChangeEvents(bgpModel);
 	                    bgpEditView.model = bgpModel;
+                        bgpModel.editView = bgpEditView;
                         bgpModel.bgpData = $('#' + ctwl.BGP_GRID_ID).
 	                        data("contrailGrid")._dataView.getItems();
 	                    bgpEditView.renderAddEditBGP(
@@ -229,21 +231,22 @@ define([
         bgpModel.__kb.view_model.model().on('change:user_created_router_type',
             function(model, newValue){
                 bgpModel.bgp_router_parameters().router_type = newValue;
+                bgpModel.model().attributes['peers'].reset();
                 if(newValue === ctwl.CONTROL_NODE_TYPE) {
                     bgpModel.user_created_vendor('contrail');
                     bgpModel.user_created_physical_router('none');
                     bgpModel.addressFamilyData(ctwc.CN_ADDRESS_FAMILY_DATA);
                     bgpModel.user_created_address_family(
                         'route-target,inet-vpn,inet6-vpn,e-vpn,erm-vpn');
-                    var peers = bgpModel.model().attributes['peers'].toJSON();
-                    peers.forEach(function(peer){
+                    /*var peers = bgpModel.model().attributes['peers'].toJSON();
+                    (peers.forEach(function(peer){
                         var bgpRouterASN =
                             bgpModel.user_created_autonomous_system();
                         if(peer.peerASN().toString() ===
                             bgpRouterASN.toString()) {
                             peer.isPeerSelected(true);
                         }
-                    });
+                    });*/
                     //set global asn as asn for control node type
                     if(window.bgp != null & window.bgp.globalASN != null) {
                         bgpModel.user_created_autonomous_system(
@@ -260,10 +263,10 @@ define([
                     bgpModel.addressFamilyData(ctwc.BGP_ADDRESS_FAMILY_DATA);
                     bgpModel.user_created_address_family(
                         'inet-vpn,inet6-vpn,route-target,e-vpn');
-                    var peers = bgpModel.model().attributes['peers'].toJSON();
+                    /*var peers = bgpModel.model().attributes['peers'].toJSON();
                     peers.forEach(function(peer){
                         peer.isPeerSelected(false);
-                    });
+                    });*/
                 }
             }
         );
@@ -303,6 +306,11 @@ define([
         bgpModel.__kb.view_model.model().on('change:user_created_vendor',
             function(model, newValue){
                 bgpModel.bgp_router_parameters().vendor = newValue;
+            }
+        );
+        bgpModel.__kb.view_model.model().on('change:user_created_admin_state',
+            function(model, newValue){
+                bgpModel.bgp_router_parameters().admin_down = !newValue;
             }
         );
         bgpModel.__kb.view_model.model().on('change:user_created_address_family',
@@ -351,7 +359,7 @@ define([
                         templateGeneratorConfig: {
                             columns: [
                                 {
-                                    class: 'span6',
+                                    class: 'span12',
                                     rows: [
                                         {
                                             title: ctwl.TITLE_BGP_DETAILS,
@@ -448,7 +456,7 @@ define([
                                                 },
                                                 {
                                                     key : "bgp_router_parameters.admin_down",
-                                                    label : "State",
+                                                    label : "Admin State",
                                                     templateGenerator :
                                                         "TextGenerator",
                                                     templateGeneratorConfig  :{
