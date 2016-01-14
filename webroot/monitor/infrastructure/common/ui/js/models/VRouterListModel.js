@@ -30,13 +30,13 @@ define(['contrail-list-model'], function(ContrailListModel) {
         var listModelConfig = {
             remote : {
                 ajaxConfig : {
-                    url : ctwl.VROUTER_SUMMARY_URL
+                    url : monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY
                 },
                 onAllRequestsCompleteCB: function(contrailListModel) {
                     var fetchContrailListModel = new ContrailListModel({
                         remote : {
                             ajaxConfig : {
-                                url : ctwl.VROUTER_SUMMARY_URL + '?forceRefresh'
+                                url : monitorInfraConstants.monitorInfraUrls.VROUTER_CACHED_SUMMARY + '?forceRefresh'
                             },
                             onAllRequestsCompleteCB: function(fetchedContrailListModel) {
                                 var data = fetchedContrailListModel.getItems();
