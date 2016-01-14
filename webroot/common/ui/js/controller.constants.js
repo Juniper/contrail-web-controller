@@ -491,9 +491,6 @@ define([
             href: '/#p=config_net_vn'
         };
 
-        //Alarm constants
-        this.URL_ALARM_DETAILS_IN_CHUNKS =
-            '/api/tenant/monitoring/alarms?count={0}&startAt={1}';
 
         //BGP
         this.URL_GET_BGP = '/api/tenants/config/bgp/get-bgp-routers';

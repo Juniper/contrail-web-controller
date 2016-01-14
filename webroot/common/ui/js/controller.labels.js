@@ -340,17 +340,6 @@ define([
         this.UNDERLAY_TRAFFIC_STATISTICS = 'Traffic Statistics';
         this.UNDERLAY_SEARCHFLOW_WIDGET_TITLE = 'Query Flow Records';
 
-        //Alarms labels
-        this.ALARMS_BREADCRUMB_DROPDOWN = "alarms-breadcrumb-dropdown";
-        this.MONITOR_ALARMS_PAGE_ID = "monitor-alarms-page";
-        this.ALARMS_GRID_ID = "monitor-alarms-grid";
-        this.TITLE_ALARMS = "Alarms Dashboard";
-        this.TITLE_ALARMS_SUMMARY = "Alarms";
-        this.MONITOR_ALARM_LIST_ID = "monitor-alarm-list";
-        this.MONITOR_ALARM_LIST_VIEW_ID = "monitor-alarm-list-view";
-        this.TITLE_ACKNOWLEDGE = 'Acknowledge';
-        this.TITLE_ALARM_HISTORY = 'Alarm History';
-        this.TITLE_ALARM_DETAILS = 'Alarm Details';
 
         //Monitor Infra common
         this.MONITOR_INFRA_VIEW_PATH = 'monitor/infrastructure/common/ui/js/views/';

@@ -486,7 +486,12 @@ define([
 
         self.getConfigNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor = self.getNodeColor(obj);
+            var nodeColor;
+            if(cowu.getAlarmsFromAnalytics) {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            } else {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            }
             if(nodeColor != false)
                 return nodeColor;
             return ctwc.COLOR_SEVERITY_MAP['blue'];
@@ -494,7 +499,12 @@ define([
 
         self.getControlNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor = self.getNodeColor(obj);
+            var nodeColor;
+            if(cowu.getAlarmsFromAnalytics) {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            } else {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            }
             if(nodeColor != false)
                 return nodeColor;
             //If connected to atleast one XMPP Peer
@@ -506,7 +516,12 @@ define([
 
         self.getDatabaseNodeColor = function (d,obj) {
             obj= ifNull(obj,{});
-            var nodeColor = self.getNodeColor(obj);
+            var nodeColor;
+            if(cowu.getAlarmsFromAnalytics) {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            } else {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            }
             if(nodeColor != false)
                 return nodeColor;
             return ctwc.COLOR_SEVERITY_MAP['blue'];
@@ -514,14 +529,24 @@ define([
 
         self.getAnalyticsNodeColor = function (d, obj) {
             obj= ifNull(obj,{});
-            var nodeColor = self.getNodeColor(obj);
+            var nodeColor;
+            if(cowu.getAlarmsFromAnalytics) {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            } else {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            }
             if(nodeColor != false)
                 return nodeColor;
             return ctwc.COLOR_SEVERITY_MAP['blue'];
         };
 
         self.getvRouterColor = function(d,obj) {
-            var nodeColor = self.getNodeColor(obj);
+            var nodeColor;
+            if(cowu.getAlarmsFromAnalytics) {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            } else {
+                nodeColor = coreAlarmUtils.getNodeColor(obj);
+            }
             if(nodeColor != false)
                 return nodeColor;
             obj = ifNull(obj,{});
