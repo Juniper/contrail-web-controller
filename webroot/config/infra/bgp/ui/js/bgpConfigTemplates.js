@@ -64,27 +64,13 @@ define(['underscore'], function(_){
                                         }
                                     },
                                     {
-                                        elementId: "admin_down",
-                                        view: "FormDropdownView",
+                                        elementId: "user_created_admin_state",
+                                        view: "FormCheckboxView",
                                         viewConfig: {
-                                            path: "bgp_router_parameters.admin_down",
-                                            dataBindValue: "bgp_router_parameters().admin_down",
-                                            label: "State",
-                                            class: "span6",
-                                            elementConfig: {
-                                                dataTextField: "text",
-                                                dataValueField: "value",
-                                                data: [
-                                                    {
-                                                        text: "Up",
-                                                        value: "false"
-                                                    },
-                                                    {
-                                                        text: "Down",
-                                                        value: "true"
-                                                    }
-                                                ]
-                                            }
+                                            path: "user_created_admin_state",
+                                            dataBindValue: "user_created_admin_state",
+                                            label: "Admin State",
+                                            class: "span6"
                                         }
                                     }
                                 ]
@@ -186,85 +172,77 @@ define(['underscore'], function(_){
                     {
                         visible : 'showPeersSelection',
                         elementId : 'peer_selection_section',
-                        title : 'Select Peer(s)',
+                        title : 'Associate Peer(s)',
                         view : 'SectionView',
                         viewConfig : {
                             rows : [{
                                 columns :[{
                                     elementId : 'peer_selection',
                                     view: 'FormCollectionView',
+                                    class: 'pull-right',
                                     viewConfig: {
                                         path : 'peers',
                                         collection: 'peers',
                                         validation: 'peerValidation',
-                                        templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
-                                        rows: [{
-                                        columns: [
+                                        templateId: cowc.TMPL_COLLECTION_GRIDACTION_HEADING_VIEW,
+                                        gridActions: [
                                             {
-                                                elementId: 'isPeerSelected',
-                                                view: 'FormCheckboxView',
-                                                name : '',
-                                                width: 40,
-                                                viewConfig: {
-                                                    path: "isPeerSelected",
-                                                    dataBindValue:
-                                                        "isPeerSelected()",
-                                                    width: 40,
-                                                    templateId:
-                                                        cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW
-                                                }
-                                            },
+                                                onClick: "function() { addPeer(); }",
+                                                buttonTitle: ""
+                                            }
+                                        ],
+                                        rows: [{
+                                        rowActions: [
+                                            {
+                                                onClick: "function() {\
+                                                $root.deletePeer($data, this); }",
+                                                iconClass: 'icon-minus'
+                                            }
+                                        ],
+                                        columns: [
                                             {
                                                 elementId: 'peerName',
                                                 name: 'Peer',
-                                                view: "FormInputView",
+                                                view: "FormDropdownView",
                                                 width: 150,
                                                 viewConfig: {
-                                                    disabled : 'disabled()',
+                                                    disabled: "disabled()",
                                                     path: "peerName",
                                                     dataBindValue: "peerName()",
                                                     width: 150,
+                                                    dataBindOptionList : "peerDataSource()",
                                                     templateId:
-                                                        cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
+                                                        cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                    elementConfig: {
+                                                        placeholder: "Select Peer",
+                                                        dataTextField: "name",
+                                                        dataValueField: "uuid"
+                                                    }
                                                 }
                                             },
                                             {
-                                                elementId: "admin_down",
+                                                elementId: "admin_state",
                                                 name: "State",
-                                                view: "FormDropdownView",
+                                                view: "FormCheckboxView",
                                                 width: 70,
+                                                class: "bgp-peer-text-center",
                                                 viewConfig: {
-                                                    disabled: "disableUnSelItem()",
-                                                    path: "admin_down",
-                                                    dataBindValue: "admin_down()",
+                                                    path: "admin_state",
+                                                    dataBindValue: "admin_state()",
                                                     width: 70,
-                                                    templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                                    elementConfig: {
-                                                        dataValueField: "value",
-                                                        dataTextField: "text",
-                                                        data: [
-                                                            {
-                                                               value: "false",
-                                                               text: "Up"
-                                                            },
-                                                            {
-                                                                value: "true",
-                                                                text: "Down"
-                                                            }
-                                                        ]
-                                                    }
+                                                    templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW
                                                 }
                                             },
                                             {
                                                 elementId: "passive",
                                                 name: "Passive",
                                                 view: "FormCheckboxView",
-                                                width: 80,
+                                                width: 70,
+                                                class: "bgp-peer-text-center",
                                                 viewConfig: {
-                                                    disabled: "disableUnSelItem()",
                                                     path: "passive",
                                                     dataBindValue: "passive()",
-                                                    width: 80,
+                                                    width: 70,
                                                     templateId: cowc.TMPL_EDITABLE_GRID_CHECKBOX_VIEW
                                                 }
                                             },
@@ -272,13 +250,12 @@ define(['underscore'], function(_){
                                                 elementId: "hold_time",
                                                 name: "Hold Time",
                                                 view: "FormInputView",
-                                                width: 70,
+                                                width: 120,
                                                 viewConfig: {
-                                                    disabled: "disableUnSelItem()",
                                                     path: "hold_time",
                                                     placeholder: "0",
                                                     dataBindValue: "hold_time()",
-                                                    width: 70,
+                                                    width: 120,
                                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                 }
                                             },
@@ -286,24 +263,22 @@ define(['underscore'], function(_){
                                                 elementId: "loop_count",
                                                 name: "Loop Count",
                                                 view: "FormInputView",
-                                                width: 80,
+                                                width: 120,
                                                 viewConfig: {
-                                                    disabled: "disableUnSelItem()",
                                                     path: "loop_count",
                                                     placeholder: "0",
                                                     dataBindValue: "loop_count()",
-                                                    width: 80,
+                                                    width: 120,
                                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
                                                 }
                                             },
                                             {
                                                 elementId: 'user_created_auth_key_type',
-                                                name: 'Auth Mode',
+                                                name: 'Auth',
                                                 view: "FormDropdownView",
                                                 class: "",
                                                 width: 120,
                                                 viewConfig: {
-                                                    disabled: "disableUnSelItem()",
                                                     path:
                                                         "user_created_auth_key_type",
                                                     dataBindValue:
@@ -323,11 +298,11 @@ define(['underscore'], function(_){
                                                 elementId: 'user_created_auth_key',
                                                 name: 'Auth Key',
                                                 view: 'FormInputView',
-                                                width: 150,
+                                                width: 120,
                                                 viewConfig: {
                                                     disabled :
                                                         'disableAuthKey()',
-                                                    width: 150,
+                                                    width: 120,
                                                     type: "password",
                                                     path:
                                                     'user_created_auth_key',
@@ -343,73 +318,49 @@ define(['underscore'], function(_){
                                                     elementId: "family_attrs",
                                                     view: "FormEditableGridView",
                                                     viewConfig: {
-                                                        visible: "!disableUnSelItem()()",
                                                         path: "family_attrs",
                                                         collection: "family_attrs()",
                                                         validation: "familyAttrValidation",
-                                                        colSpan: "7",
+                                                        templateId: cowc.TMP_EDITABLE_GRID_ACTION_VIEW,
+                                                        colSpan: "9",
                                                         columns: [{
                                                             elementId: "address_family",
-                                                            name: "",
+                                                            name: "Address Family",
                                                             view: "FormDropdownView",
-                                                            width: 200,
+                                                            width: 245,
                                                             viewConfig: {
-                                                                width: 200,
+                                                                disabled: "disableFamilyAttr()",
+                                                                width: 245,
                                                                 path: "address_family",
+                                                                dataBindOptionList : "familyAttrDataSource()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                                                 dataBindValue: "address_family()",
                                                                 elementConfig: {
                                                                     placeholder: "Select Address Family",
                                                                     dataValueField: "value",
                                                                     dataTextField: "text",
-                                                                    data : [
-                                                                        {
-                                                                            text: "inet",
-                                                                            value: "inet"
-                                                                        },
-                                                                        {
-                                                                            text: "inet-vpn",
-                                                                            value: "inet-vpn"
-                                                                        },
-                                                                        {
-                                                                            text: "e-vpn",
-                                                                            value: "e-vpn"
-                                                                        },
-                                                                        {
-                                                                            text: "erm-vpn",
-                                                                            value: "erm-vpn"
-                                                                        },
-                                                                        {
-                                                                            text: "route-target",
-                                                                            value: "route-target"
-                                                                        },
-                                                                        {
-                                                                            text: "inet6-vpn",
-                                                                            value: "inet6-vpn"
-                                                                        }
-                                                                    ]
                                                                 }
                                                             }
                                                         },{
                                                             elementId: "loop_count",
-                                                            name: "",
+                                                            name: "Loop Count",
                                                             view: "FormInputView",
-                                                            width: 120,
+                                                            width: 128,
                                                             viewConfig: {
-                                                                placeholder: "Loop Count",
-                                                                width: 120,
+                                                                placeholder: "Enter Loop Count",
+                                                                width: 128,
                                                                 path: "loop_count",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                                 dataBindValue: "loop_count()",
                                                             }
                                                         },{
                                                             elementId: "prefix_limit",
-                                                            name: "",
+                                                            name: "Prefix Limit",
                                                             view: "FormInputView",
-                                                            width: 120,
+                                                            width: 128,
                                                             viewConfig: {
-                                                                placeholder: "Prefix Limit",
-                                                                width: 120,
+                                                                placeholder: "Enter Prefix Limit",
+                                                                width: 128,
                                                                 path: "prefix_limit",
                                                                 dataBindValue: "prefix_limit()",
                                                                 templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW
@@ -427,13 +378,13 @@ define(['underscore'], function(_){
                                                             {
                                                                 onClick: "function() {\
                                                                 (addFamilyAttrs())($root, $index, $data, $rawData); }",
-                                                                buttonTitle: "Add Family Attributes"
+                                                                buttonTitle: ""
                                                             }
                                                         ]
                                                     }
 
-                                                }
-                                            ]
+                                            }]
+
                                         }]
                                      }
                                 }]

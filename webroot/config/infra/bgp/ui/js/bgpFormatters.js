@@ -72,24 +72,26 @@ define(['underscore'], function(_){
             var bgpRefs = getValueByJsonPath(dc,"bgp_router_refs", []);
             if(bgpRefs.length > 0){
                 peerString =
-                    "<table style='width:1000px !important;'><tr><th style='width:200px;'>Peer</th>\
-                    <th style='width:200px;'>State</th>\
-                    <th style='width:200px;'>Passive</th>\
-                    <th style='width:250px;'>Hold Time (seconds)</th>\
-                    <th style='width:200px;'>Loop Count</th>\
+                    "<table style='width:1000px !important;'><thead><tr><th style='width:200px;'>Peer Name</th>\
+                    <th style='width:150px;'>Admin State</th>\
+                    <th style='width:120px;'>Passive</th>\
+                    <th style='width:280px;'>Hold Time (seconds)</th>\
+                    <th style='width:170px;'>Loop Count</th>\
                     <th style='width:200px;'>Auth Mode</th>\
-                    <th style='width:800px;'>Family Attributes</th></tr>";
+                    <th style='width:900px;'>Family Attributes</th></tr></thead>";
                 bgpRefs.forEach(function(bgp){
                     var attr = getValueByJsonPath(bgp,
                         "attr;session;0;attributes;0", {});
-                    var state;
+                    var adminState;
                     peerString += "<tr style='vertical-align:top'><td>";
                     peerString += bgp.to[4] + "</td><td>";
-                    state = getValueByJsonPath(attr, "admin_down", "-");
-                    if(state != "-") {
-                        state = state.toString() === "true" ? "Down" : "Up";
+                    var adminDown = getValueByJsonPath(attr, "admin_down", "-");
+                    if(adminDown != "-") {
+                        adminState = adminDown ? "False" : "True";
+                    } else {
+                        adminState = "-";
                     }
-                    peerString += state + "</td><td>";
+                    peerString += adminState + "</td><td>";
                     var passive = getValueByJsonPath(attr, "passive", "-");
                     if(passive != "-") {
                         passive = passive ? "True" : "False";
@@ -103,9 +105,9 @@ define(['underscore'], function(_){
                     if(familyAttrs.length > 0) {
                         for(var i = 0 ; i < familyAttrs.length; i++) {
                             var familyAttr = familyAttrs[i];
-                            peerString += "Address Family : " + getValueByJsonPath(familyAttr, "address_family", "-");
-                            peerString += ", Loop Count : " + getValueByJsonPath(familyAttr, "loop_count", "-");
-                            peerString += ", Prefix Limit : " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
+                            peerString += "<span class='sec_label'>Address Family :</span> " +  getValueByJsonPath(familyAttr, "address_family", "-");
+                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Loop Count :</span> " + getValueByJsonPath(familyAttr, "loop_count", "-");
+                            peerString += ",&nbsp;&nbsp;<span class='sec_label'>Prefix Limit :</span> " + getValueByJsonPath(familyAttr, "prefix_limit;maximum", "-");
                             if(i === familyAttrs.length - 1) {
                                 peerString +="</br></br>";
                             } else {
@@ -185,12 +187,13 @@ define(['underscore'], function(_){
          * @stateFormatter
          */
          self.stateFormatter = function(r, c, v, cd, dc) {
-             var state = getValueByJsonPath(dc,
+             var adminState;
+             var adminDown = getValueByJsonPath(dc,
                  "bgp_router_parameters;admin_down", "-");
-             if(state != "-") {
-                 state = state.toString() === "true" ? "Down" : "Up";
+             if(adminDown != "-") {
+                 adminState = adminDown ? "False" : "True";
              }
-             return state;
+             return adminState;
          }
     };
     return bgpFormatters;

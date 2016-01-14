@@ -10,18 +10,18 @@ define([
     var bgpPeersModel = ContrailModel.extend({
         defaultConfig: {
             'peerName' : null,
-            'isPeerSelected' : false,
             'disabled' : false,
             'auth_data' : null,
             'user_created_auth_key_type' : null,
             'user_created_auth_key' : null,
             'disableAuthKey' : false,
             'peerASN' : null,
-            'admin_down' : false,
+            'admin_state' : true,
             'passive' : false,
-            'hold_time' : 0,
-            'loop_count' : 0,
-            'family_attributes': []
+            'hold_time' : null,
+            'loop_count' : null,
+            'family_attributes': [],
+            'peerDataSource': [],
         },
         formatModelConfig: function(modelConfig){
             //populate auth data
@@ -50,7 +50,9 @@ define([
                     var familyAttr =  new BGPFamilyAttrsModel({
                                            address_family: familyAttrs[i].address_family,
                                            loop_count: familyAttrs[i].loop_count,
-                                           prefix_limit: getValueByJsonPath(familyAttrs[i], "prefix_limit;maximum", null)
+                                           prefix_limit: getValueByJsonPath(familyAttrs[i], "prefix_limit;maximum", null),
+                                           familyAttrDataSource : ctwc.FAMILY_ATTR_ADDRESS_FAMILY_DATA,
+                                           disableFamilyAttr : true
                                        });
                     familyAttrArray.push(familyAttr);
                 }
@@ -61,8 +63,34 @@ define([
         addFamilyAttrs: function(root, index) {
             var familyAttrs = root.model().attributes.peers.toJSON()[index()].
                 model().attributes.family_attrs;
-            var newFamilyAttr = new BGPFamilyAttrsModel({address_family: null,
-                loop_count: null, prefix_limit: null});
+            var familyAttrsArry =  familyAttrs.toJSON();
+            var filteredFamilyAttrs = [], selFamilyAttrNames = [];
+            var newFamilyAttr;
+            var avlFamilyAttrs = ctwc.FAMILY_ATTR_ADDRESS_FAMILY_DATA;
+            if(familyAttrsArry.length) {
+                _.each(familyAttrsArry, function(familyAttr){
+                    selFamilyAttrNames.push(familyAttr.address_family());
+                });
+                _.each(avlFamilyAttrs, function(familyAttr){
+                    if($.inArray(familyAttr.value, selFamilyAttrNames) === -1) {
+                        filteredFamilyAttrs.push(familyAttr);
+                    }
+                });
+                if(!filteredFamilyAttrs.length) {
+                    return;
+                }
+            } else {
+                filteredFamilyAttrs = avlFamilyAttrs;
+            }
+            newFamilyAttr = new BGPFamilyAttrsModel(
+                {
+                    address_family: null,
+                    loop_count: null,
+                    prefix_limit: null,
+                    familyAttrDataSource: filteredFamilyAttrs,
+                    disableFamilyAttr : false
+                }
+            );
             familyAttrs.add([newFamilyAttr]);
         },
         deleteFamilyAttrs: function(data, kbInterface) {
@@ -106,14 +134,14 @@ define([
                     if(value) {
                         var holdTime = Number(value);
                         if (isNaN(holdTime) || holdTime < 1 || holdTime > 65535) {
-                            return "Enter valid  hold time between 1-65535" ;
+                            return "Enter valid  hold time between 1 - 65535" ;
                         }
                     }
                 },
                  "loop_count" : function(value, attr, finalObj) {
                      if(value) {
                          if(isNaN(value) || Number(value) < 0 || Number(value) > 16) {
-                             return "Loop count should be in 0-16 range"
+                             return "Enter Loop count between  0 - 16 "
                          }
                      }
                  }
