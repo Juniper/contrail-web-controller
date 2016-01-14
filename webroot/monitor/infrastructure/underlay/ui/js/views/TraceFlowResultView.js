@@ -108,7 +108,8 @@ define([
                     url: '/api/admin/reports/query',
                     data: ajaxData,
                     dataParser: function (response) {
-                        monitorInfraParsers.parseUnderlayFlowRecords(response, vRouters);
+                        return monitorInfraParsers.parseUnderlayFlowRecords(
+                            response, vRouters);
                     }
                 };
                 traceFlowGridColumns =
@@ -159,7 +160,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: ctwl.UNDERLAY_TRACEFLOW_TITLE,
+                    text: 'Flows',
                 },
                 customControls: customControls,
                 defaultControls: {
@@ -328,6 +329,9 @@ define([
         }
         if(postData['nodeIP'] == null ||
                 graphModel.checkIPInVrouterList(postData['nodeIP'])) {
+            if(deferredObj != null) {
+                deferredObj.resolve(true);
+            }
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
@@ -415,6 +419,9 @@ define([
             }
         }
         if(graphModel.checkIPInVrouterList(postData['nodeIP'])) {
+            if(deferredObj != null) {
+                deferredObj.resolve(true);
+            }
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
@@ -500,8 +507,14 @@ define([
             }
             if (graphModel != null) {
                 graphModel.underlayPathReqObj = postData;
-                graphModel.flowPath.set('links',ifNull(response['links'], []));
-                graphModel.flowPath.set('nodes',ifNull(response['nodes'], []));
+                graphModel.flowPath.set({
+                    'nodes': ifNull(response['nodes'], []),
+                    'links': ifNull(response['links'], [])
+                });
+                if (ifNull(response['nodes'], []).length == 0 ||
+                    ifNull(response['links'], []).length == 0) {
+                        graphModel.flowPath.trigger('change:nodes');
+                }
             }
             if(typeof response != 'string')
                 $('html,body').animate({scrollTop:0}, 500);

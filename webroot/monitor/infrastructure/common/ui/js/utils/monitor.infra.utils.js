@@ -2730,6 +2730,9 @@ define([
                 }
                 if(currentPage == 'mon_infra_underlay' &&
                     !graphModel.checkIPInVrouterList(params)) {
+                    if(deferredObj != null) {
+                        deferredObj.resolve(true);
+                    }
                     showInfoWindow(
                         "Cannot Map the path for the selected flow", "Info");
                     return;
@@ -2756,16 +2759,22 @@ define([
                                 return;
                             }
                             graphModel.underlayPathReqObj = params;
-                            graphModel.flowPath.set('links', response['links']);
-                            graphModel.flowPath.set('nodes', response['nodes']);
+                            graphModel.flowPath.set({
+                                'nodes': ifNull(response['nodes'], []),
+                                'links': ifNull(response['links'], [])
+                            });
+                            if (ifNull(response['nodes'], []).length == 0 ||
+                                ifNull(response['links'], []).length == 0) {
+                                graphModel.flowPath.trigger('change:nodes');
+                            }
                             $('html,body').animate({scrollTop:0}, 500);
                         }).fail (function () {
                             if(params['startAt'] != null &&
-                                    graphModel.lastInteracted > params['startAt']) {
-                                    if (deferredObj != null) {
-                                        deferredObj.resolve(false);
-                                    }
-                                    return;
+                                graphModel.lastInteracted > params['startAt']) {
+                                if (deferredObj != null) {
+                                    deferredObj.resolve(false);
+                                }
+                                return;
                             }
                             showInfoWindow('Error in fetching details','Error');
                         }).always (function (ajaxObj, state, error) {
