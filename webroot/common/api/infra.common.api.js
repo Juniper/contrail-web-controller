@@ -296,7 +296,7 @@ function getvRouterSummaryConfigUVEData (configData, vrConf, nodeList, addGen,
         'VrouterAgent:control_ip', 'VrouterAgent:build_info',
         'VrouterStatsAgent:cpu_share', 'NodeStatus',
         'VrouterAgent:sandesh_http_port',
-        'VrouterAgent:control_ip'];
+        'VrouterAgent:control_ip', 'UVEAlarms'];
     var postData = {};
     if (null != nodeList) {
         var nodeCnt = nodeList.length;
