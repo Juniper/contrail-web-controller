@@ -51,11 +51,12 @@ define([
                                     chartOptions: {
                                         xLabel: 'Interfaces',
                                         yLabel: 'Networks',
-                                        forceX: [0, 5],
+                                        forceX: [0, 10],
                                         forceY: [0, 10],
                                         dataParser: function (response) {
                                             return response;
                                         },
+                                        xLabelFormat: d3.format(".01f"),
                                         tooltipConfigCB: getProjectTooltipConfig,
                                         clickCB: onScatterChartClick,
                                         sizeFieldName: 'throughput',
@@ -88,9 +89,7 @@ define([
     };
 
     var getProjectTooltipConfig = function(data) {
-        var projectFQNObj = data.name.split(':'),
-            info = [],
-            actions = [];
+        var projectFQNObj = data.name.split(':');
 
         return {
             title: {

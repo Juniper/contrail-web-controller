@@ -13,44 +13,50 @@ define([
             var self = this,
                 viewConfig = this.attributes.viewConfig,
                 modelMap = this.modelMap,
+                projectFQN = viewConfig['projectFQN'],
                 networkFQN = viewConfig['networkFQN'],
                 instanceUUID = viewConfig['instanceUUID'],
-                interfacesAjaxConfig, viewModel, interfaceNames;
+                elementId = viewConfig['elementId'],
+                interfacesAjaxConfig, viewModel, ucid;
 
-            var ucid = ctwc.get(ctwc.UCID_INSTANCE_INTERFACE_LIST, networkFQN, instanceUUID);
-
-            if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {
+            if (contrail.checkIfExist(projectFQN)) {
+                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, networkFQN);
+                interfacesAjaxConfig = getInterfacesAjaxConfig(null, projectFQN);
+                self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
+            } else if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {
+                ucid = ctwc.get(ctwc.UCID_INSTANCE_INTERFACE_LIST, networkFQN, instanceUUID);
                 //TODO: Create a model from data coming from ModelMap
                 viewModel = modelMap[viewConfig['modelKey']];
                 if (!(viewModel.isRequestInProgress())) {
                     interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
-                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
+                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 }
 
                 viewModel.onAllRequestsComplete.subscribe(function () {
                     interfacesAjaxConfig = getInterfacesAjaxConfig(viewModel.attributes);
-                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid));
+                    self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
                 });
             }
         }
     });
 
-    function getInterfacesAjaxConfig(responseJSON) {
+    function getInterfacesAjaxConfig(responseJSON, projectFQN) {
         var ajaxConfig,
-            interfaceList = responseJSON['value']['UveVirtualMachineAgent']['interface_list'];
+            interfaceList = contrail.checkIfExist(responseJSON) ? responseJSON['value']['UveVirtualMachineAgent']['interface_list'] : [];
 
         ajaxConfig = {
             url: ctwc.URL_VM_INTERFACES,
             type: 'POST',
             data: JSON.stringify({
-                kfilt: interfaceList.join(',')
+                kfilt: interfaceList.join(','),
+                projectFQN: projectFQN
             })
         };
 
         return ajaxConfig;
     };
 
-    function getInterfaceGridViewConfig(interfacesAjaxConfig, ucid) {
+    function getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId) {
         return {
             elementId: cowu.formatElementId([ctwl.MONITOR_INTERFACE_LIST_VIEW_ID]),
             view: "SectionView",
@@ -59,7 +65,7 @@ define([
                     {
                         columns: [
                             {
-                                elementId: ctwl.INSTANCE_INTERFACE_GRID_ID,
+                                elementId: elementId,
                                 title: ctwl.TITLE_INTERFACES,
                                 view: "GridView",
                                 viewConfig: {

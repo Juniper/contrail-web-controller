@@ -43,9 +43,9 @@ define([
                     if(!contrail.checkIfExist(dc['vmName'])) {
                         return '-';
                     } else if(!contrail.checkIfExist(dc['vnFQN']) || ctwu.isServiceVN(dc['vnFQN'])){
-                        return '<div class="cell-no-link">' + cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc}) + '</div>';
+                        return cowf.formatElementName({name: 'instance', value: dc['vmName'], cssClass: 'cell-no-link'});
                     } else {
-                        return cellTemplateLinks({cellText: 'vmName', tooltip: true, name: 'instance', rowData: dc});
+                        return cowf.formatElementName({name: 'instance', value: dc['vmName'], cssClass: 'cell-hyperlink-blue'});
                     }
                 },
                 minWidth: 230,
@@ -53,7 +53,6 @@ define([
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
                 },
-                cssClass: 'cell-hyperlink-blue',
                 exportConfig: {
                     allow: true,
                     stdFormatter: false
@@ -77,13 +76,12 @@ define([
                 field: 'vRouter',
                 name: 'Virtual Router',
                 formatter: function (r, c, v, cd, dc) {
-                    return cellTemplateLinks({cellText: 'vRouter', tooltip: true, name: 'vRouter', rowData: dc});
+                    return cowf.formatElementName({name: 'vRouter', value: dc['vRouter'], cssClass: 'cell-hyperlink-blue'});
                 },
                 minWidth: 100,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
                 },
-                cssClass: 'cell-hyperlink-blue',
                 exportConfig: {
                     allow: true,
                     stdFormatter: false
@@ -143,13 +141,13 @@ define([
              {
                  field: 'ip',
                  name: 'IP Address',
-                 minWidth: 150,
+                 minWidth: 100,
                  searchable: true
              },
              {
                  field: 'vm_name',
                  name: 'Instance Name',
-                 minWidth: 200,
+                 minWidth: 250,
                  searchable: true
              },
              {

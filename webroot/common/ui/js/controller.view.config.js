@@ -94,7 +94,8 @@ define([
                         viewConfig: {
                             modelKey: ctwc.get(ctwc.UMID_INSTANCE_UVE, instanceUUID),
                             instanceUUID: instanceUUID,
-                            networkFQN: networkFQN
+                            networkFQN: networkFQN,
+                            elementId: ctwl.INSTANCE_INTERFACE_GRID_ID
                         }
                     },
                     {

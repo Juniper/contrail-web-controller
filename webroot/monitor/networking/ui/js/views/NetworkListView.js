@@ -27,7 +27,7 @@ define([
         return {
             remote: {
                 ajaxConfig: {
-                    url: projectFQN != null ? ctwc.get(ctwc.URL_PROJECT_NETWORKS_IN_CHUNKS, 25, projectFQN, $.now()) : ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 25, $.now()),
+                    url: projectFQN != null ? ctwc.get(ctwc.URL_PROJECT_NETWORKS_IN_CHUNKS, 10, 100, projectFQN, $.now()) : ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 10, 100, $.now()),
                     type: "POST",
                     data: JSON.stringify({
                         data: [{
@@ -64,8 +64,9 @@ define([
                                     chartOptions: {
                                         xLabel: 'Interfaces',
                                         yLabel: 'Connected Networks',
-                                        forceX: [0, 5],
+                                        forceX: [0, 10],
                                         forceY: [0, 10],
+                                        xLabelFormat: d3.format(".01f"),
                                         dataParser: function (response) {
                                             return response;
                                         },

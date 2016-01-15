@@ -531,49 +531,50 @@ define([
                     return element + " (" + parent.join(":") + ")";
                 }
             }
-        }
-
+        };
 
         this.onClickNetworkMonitorGrid = function (e, selRowDataItem) {
-            var name = $(e.target).attr('name'),
-            fqName, uuid, vmName;
+            if (!$(e.target).hasClass('cell-no-link')) {
+                var name = $(e.target).attr('name'),
+                    fqName, uuid, vmName;
 
-            if ($.inArray(name, ['project']) > -1) {
-                fqName = selRowDataItem['name'];
-                ctwu.setProjectURLHashParams(null, fqName, true)
+                if ($.inArray(name, ['project']) > -1) {
+                    fqName = selRowDataItem['name'];
+                    ctwu.setProjectURLHashParams(null, fqName, true)
 
-            } else if ($.inArray(name, ['network']) > -1) {
-                fqName = selRowDataItem['name'];
-                ctwu.setNetworkURLHashParams(null, fqName, true)
+                } else if ($.inArray(name, ['network']) > -1) {
+                    fqName = selRowDataItem['name'];
+                    ctwu.setNetworkURLHashParams(null, fqName, true)
 
-            } else if ($.inArray(name, ['instance']) > -1) {
-                fqName = selRowDataItem['vnFQN'];
-                uuid = selRowDataItem['name'];
-                vmName = selRowDataItem['vmName'];
-                if(contrail.checkIfExist(fqName) && !ctwu.isServiceVN(fqName)) {
-                    ctwu.setInstanceURLHashParams(null, fqName, uuid, vmName, true);
-                }
-            } else if ($.inArray(name, ['vRouter']) > -1) {
-                var urlObj = layoutHandler.getURLHashObj();
-                if(urlObj['p'] == 'mon_infra_vrouter' &&
-                    urlObj['q']['view'] == 'details') {
-                    $("#"+ctwl.VROUTER_DETAILS_TABS_ID).tabs({active:0});
-                } else {
-                    var hashObj = {
-                        type: 'vrouter',
-                        view: 'details',
-                        focusedElement: {
-                            node: selRowDataItem['vRouter'],
-                            tab: 'details'
-                        }
-                    };
-                    layoutHandler.setURLHashParams(hashObj,
-                        {
-                            p: "mon_infra_vrouter",
-                            merge: false,
-                            triggerHashChange: true
-                        }
-                    );
+                } else if ($.inArray(name, ['instance']) > -1) {
+                    fqName = selRowDataItem['vnFQN'];
+                    uuid = selRowDataItem['name'];
+                    vmName = selRowDataItem['vmName'];
+                    if (contrail.checkIfExist(fqName) && !ctwu.isServiceVN(fqName)) {
+                        ctwu.setInstanceURLHashParams(null, fqName, uuid, vmName, true);
+                    }
+                } else if ($.inArray(name, ['vRouter']) > -1) {
+                    var urlObj = layoutHandler.getURLHashObj();
+                    if (urlObj['p'] == 'mon_infra_vrouter' &&
+                        urlObj['q']['view'] == 'details') {
+                        $("#" + ctwl.VROUTER_DETAILS_TABS_ID).tabs({active: 0});
+                    } else {
+                        var hashObj = {
+                            type: 'vrouter',
+                            view: 'details',
+                            focusedElement: {
+                                node: selRowDataItem['vRouter'],
+                                tab: 'details'
+                            }
+                        };
+                        layoutHandler.setURLHashParams(hashObj,
+                            {
+                                p: "mon_infra_vrouter",
+                                merge: false,
+                                triggerHashChange: true
+                            }
+                        );
+                    }
                 }
             }
         };

@@ -11,7 +11,7 @@ define([
                 field: 'name',
                 name: 'Network',
                 formatter: function (r, c, v, cd, dc) {
-                    return cellTemplateLinks({cellText: 'name', name: 'network', rowData: dc});
+                    return cowf.formatElementName({name: 'network', value: dc['name'], cssClass: 'cell-hyperlink-blue'});
                 },
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
@@ -21,7 +21,6 @@ define([
                     return d['name'];
                 },
                 searchable: true,
-                cssClass: 'cell-hyperlink-blue',
                 exportConfig: {
                     allow: true,
                     stdFormatter: false
@@ -55,70 +54,18 @@ define([
             }
         ];
 
-        this.instanceInterfaceColumns = [
-            {
-                field: 'ip',
-                name: 'IP Address',
-                minWidth: 150,
-                searchable: true
-            },
-            {
-                field: 'vm_name',
-                name: 'Instance Name',
-                minWidth: 200,
-                searchable: true
-            },
-            {
-                field: 'floatingIP',
-                name: 'Floating IPs In/Out',
-                formatter: function (r, c, v, cd, dc) {
-                    return cowf.formatValueArray4Grid(dc['floatingIP']);
-                },
-                minWidth: 200
-            },
-            {
-                field: '',
-                name: 'Traffic In/Out (Last 1 Hr)',
-                minWidth: 150,
-                formatter: function (r, c, v, cd, dc) {
-                    return contrail.format("{0} / {1}", cowu.addUnits2Bytes(dc['inBytes60'], true), cowu.addUnits2Bytes(dc['outBytes60'], true));
-                }
-            },
-            {
-                field: '',
-                name: 'Throughput In/Out',
-                minWidth: 150,
-                formatter: function (r, c, v, cd, dc) {
-                    return contrail.format("{0} / {1}", formatThroughput(dc['in_bw_usage'], true), formatThroughput(dc['out_bw_usage'], true));
-                }
-            },
-            {
-                name: 'Status',
-                minWidth: 100,
-                searchable: true,
-                formatter: function (r, c, v, cd, dc) {
-                    if (dc.active) {
-                        return ('<div class="status-badge-rounded status-active"></div>&nbsp;Active');
-                    } else {
-                        return ('<div class="status-badge-rounded status-inactive"></div>&nbsp;Inactive');
-                    }
-                }
-            }
-        ];
-
         this.projectsColumns = [
             {
                 field: 'name',
                 name: 'Project',
                 formatter: function (r, c, v, cd, dc) {
-                    return cellTemplateLinks({cellText: 'name', tooltip: true, name: 'project', rowData: dc});
+                    return cowf.formatElementName({name: 'project', value: dc['name'], cssClass: 'cell-hyperlink-blue'});
                 },
                 minWidth: 300,
                 searchable: true,
                 events: {
                     onClick: ctwu.onClickNetworkMonitorGrid
                 },
-                cssClass: 'cell-hyperlink-blue',
                 exportConfig: {
                     allow: true,
                     stdFormatter: false
@@ -327,7 +274,7 @@ define([
             return {
                 remote: {
                     ajaxConfig: {
-                        url: ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 25, $.now()),
+                        url: ctwc.get(ctwc.URL_NETWORKS_DETAILS_IN_CHUNKS, 25, 100, $.now()),
                         type: 'POST',
                         data: JSON.stringify({
                             data: [{

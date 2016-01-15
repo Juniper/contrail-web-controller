@@ -197,8 +197,7 @@ define([
 
         this.DOMAINS_BREADCRUMB_DROPDOWN = "domains-breadcrumb-dropdown";
         this.SASET_BREADCRUMB_DROPDOWN = "service-appliance-set-breadcrumb-dropdown";
-        this.GLOBALSYS_BREADCRUMB_DROPDOWN =
-            "global-system-config-breadcrumb-dropdown";
+        this.GLOBALSYS_BREADCRUMB_DROPDOWN = "global-system-config-breadcrumb-dropdown";
 
         this.PROJECTS_ID = "projects";
         this.PROJECT_GRAPH_ID = "project-graph";
@@ -210,6 +209,8 @@ define([
         this.PROJECT_NETWORKS_ID = "project-networks";
         this.PROJECT_NETWORK_GRID_ID = "project-network-grid";
         this.PROJECT_INSTANCES_ID = "project-instances";
+        this.PROJECT_INTERFACES_ID = "project-interfaces";
+        this.PROJECT_INTERFACE_GRID_ID = "project-interface-grid";
         this.PROJECTS_SCATTER_CHART_ID = "projects-scatter-chart";
         this.PROJECT_FLOW_GRID_ID = "project-flow-grid";
         this.PROJECT_FILTER_PROTOCOL_MULTISELECT_ID = "project-filter-protocol-multiselect-id";

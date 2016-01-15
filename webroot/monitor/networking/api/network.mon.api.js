@@ -816,24 +816,37 @@ function getVirtualMachinesSummary(req, res, appData) {
 function getVirtualInterfacesSummary(req, res, appData) {
     var reqPostData = req.body,
         kfilt = reqPostData['kfilt'], cfilt = reqPostData['cfilt'],
+        projectFQN = reqPostData['projectFQN'],
         url = '/analytics/uves/virtual-machine-interface',
         opServerPostData = {};
 
-    if (kfilt != null && kfilt != '') {
-        opServerPostData['kfilt'] = kfilt.split(",");
-    }
+    if (projectFQN != null && typeof projectFQN !== "undefined") {
+        url += "/" + projectFQN + ":*";
 
-    if (cfilt != null && cfilt != '') {
-        opServerPostData['cfilt'] = cfilt.split(",");
-    }
-
-    opServer.api.post(url, opServerPostData, function (err, data) {
-        if (err || (null == data)) {
-            commonUtils.handleJSONResponse(err, res, null);
-        } else {
-            commonUtils.handleJSONResponse(null, res, data);
+        opServer.api.get(url, function (err, data) {
+            if (err || (null == data)) {
+                commonUtils.handleJSONResponse(err, res, null);
+            } else {
+                commonUtils.handleJSONResponse(null, res, data);
+            }
+        });
+    } else {
+        if (kfilt != null && kfilt != '') {
+            opServerPostData['kfilt'] = kfilt.split(",");
         }
-    });
+
+        if (cfilt != null && cfilt != '') {
+            opServerPostData['cfilt'] = cfilt.split(",");
+        }
+
+        opServer.api.post(url, opServerPostData, function (err, data) {
+            if (err || (null == data)) {
+                commonUtils.handleJSONResponse(err, res, null);
+            } else {
+                commonUtils.handleJSONResponse(null, res, data);
+            }
+        });
+    }
 }
 
 function isServiceVN(vnName) {

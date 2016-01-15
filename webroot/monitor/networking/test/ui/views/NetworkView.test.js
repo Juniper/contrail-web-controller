@@ -89,7 +89,7 @@ define([
 
         responses.push(cotr.createFakeServerResponse({
             method:"POST",
-            url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machines/details?fqnUUID=ad8a9efc-9b7e-4425-9735-03bda0d2726e&count=10&type=vn'),
+            url: cttu.getRegExForUrl('/api/tenant/networking/virtual-machines/details?fqnUUID=ad8a9efc-9b7e-4425-9735-03bda0d2726e&count=10&nextCount=100&type=vn'),
             body: JSON.stringify(TestMockdata.virtualMachineDetailsByUUIDMockData)
         }));
 

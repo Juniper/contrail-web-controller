@@ -582,7 +582,7 @@ define([
             attrs: {
                 rect: size,
                 text: {
-                    text: contrail.truncateText(nodeDetails['name'].split(":")[2], 50),
+                    text: contrail.truncateText(nodeDetails['name'].split(":")[2], 20),
                     'ref-x': .5,
                     'ref-y': -20
                 }

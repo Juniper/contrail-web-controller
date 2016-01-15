@@ -165,7 +165,7 @@ define([
                                     values: [],
                                     color: cowc.D3_COLOR_CATEGORY5[3]
                                 };
-            var chartData = [axis2, axis1];
+            var chartData = [axis1, axis2];
 
             for (var i = 0; i < responseArray.length; i++) {
                 var ts = Math.floor(responseArray[i]['T'] / 1000);
