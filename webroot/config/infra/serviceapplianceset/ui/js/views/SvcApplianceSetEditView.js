@@ -218,7 +218,7 @@ define([
                                 elementId: 'interface_type',
                                 name: 'Type',
                                 view: 'FormDropdownView',
-                                class: "",
+                                class: "", width: 150,
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
@@ -236,11 +236,11 @@ define([
                                 elementId: 'interface_name',
                                 name: 'Interface',
                                 view: 'FormDropdownView',
-                                class: "",
+                                class: "", width: 150,
                                 viewConfig: {
                                     templateId:
                                         cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
-                                    width: 300,
+                                    width: 150,
                                     path: 'interface_name',
                                     dataBindValue: 'interface_name()',
                                     elementConfig: {

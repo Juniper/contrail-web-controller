@@ -6,15 +6,19 @@ define([
     'underscore',
     'contrail-model',
     'config/infra/serviceappliance/ui/js/models/SvcAppliPropModel',
-    'config/infra/serviceappliance/ui/js/models/SvcAppliInterfaceModel'
-], function (_, ContrailModel, SvcAppliPropModel, SvcAppliInterfaceModel) {
+    'config/infra/serviceappliance/ui/js/models/SvcAppliInterfaceModel',
+    'config/common/ui/js/svcTmpl.utils'
+], function (_, ContrailModel, SvcAppliPropModel, SvcAppliInterfaceModel,
+             SvcTmplUtils) {
+    var svcTmplUtils = new SvcTmplUtils();
     var SvcApplianceModel = ContrailModel.extend({
         defaultConfig: {
             display_name: null,
             service_appliance_user_credentials: {
-                username: "",
-                password: ""
+                username: null,
+                password: null
             },
+            service_template: "",
             service_appliance_ip_address: "",
         },
         validations: {
@@ -27,10 +31,10 @@ define([
                     pattern: cowc.PATTERN_IP_ADDRESS
                 },
                 'service_appliance_user_credentials.username': {
-                    required: true
+                    required: false
                 },
                 'service_appliance_user_credentials.password': {
-                    required: true
+                    required: false
                 }
             }
         },
@@ -45,56 +49,29 @@ define([
             pairColl.add([newPair]);
         },
         addInterface: function() {
-            var intfTypes = ['management', 'left', 'right'];
+            if (null == window.svcApplSetSvcTmplMap) {
+                return;
+            }
+            var svcTmpl =
+                window.svcApplSetSvcTmplMap[contrail.getCookie('serviceApplSet')];
+            if (null == svcTmpl) {
+                return;
+            }
+            var intfTypes = svcTmplUtils.getSvcTmplIntfTypes(svcTmpl);
             var intfColl = this.model().get('interfaces');
             var len = intfColl.length;
+            if (len >= intfTypes.length) {
+                return;
+            }
             var intfTypesList = [];
             var otherIntfIdxList = [];
             for (var i = 0; i < len; i++) {
                 var modIntf = intfColl.at(i).get('interface_type')();
                 intfTypesList.push(modIntf);
-                var otherIntfArr = modIntf.split('other');
-                if ((2 == otherIntfArr.length) && (otherIntfArr[1].length > 0)) {
-                    var idx = parseInt(otherIntfArr[1]);
-                    otherIntfIdxList.push(idx);
-                }
             }
-            otherIntfIdxList.sort(function(a, b) {
-                if (a > b) {
-                    return 1;
-                } else if (a < b) {
-                    return -1;
-                } else {
-                    return 0;
-                }
-            });
             var newIntfTypes = _.difference(intfTypes, intfTypesList);
-            var newIntfType = "";
             if (newIntfTypes.length > 0) {
                 newIntfType = newIntfTypes[0];
-            } else {
-                var arrLen = otherIntfIdxList.length;
-                if (!arrLen) {
-                    newIntfType = 'other0';
-                } else {
-                    if (arrLen == otherIntfIdxList[arrLen - 1] + 1) {
-                        /* All the array entries are there starting from 0 */
-                        newIntfType = 'other' + arrLen.toString();
-                    } else {
-                        /* Get the first missing index */
-                        for (var i = 0; i < arrLen; i++) {
-                            if (i != otherIntfIdxList[i]) {
-                                newIntfType = 'other' + i.toString();
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            var intfText = newIntfType;
-            if (newIntfType.length > 0) {
-                intfText = newIntfType.replace(newIntfType[0],
-                                                  newIntfType[0].toUpperCase());
             }
             var tmpIntfObjs = {};
             var len = window.svcApplData.intfTypes.length;
@@ -102,8 +79,8 @@ define([
                 tmpIntfObjs[window.svcApplData.intfTypes[i]['text']] =
                     window.svcApplData.intfTypes[i]['text'];
             }
-            if (null == tmpIntfObjs[intfText]) {
-                window.svcApplData.intfTypes.push({text: intfText,
+            if (null == tmpIntfObjs[newIntfType]) {
+                window.svcApplData.intfTypes.push({text: newIntfType,
                                                    id: newIntfType});
             }
             var newIntfName = "";
@@ -124,6 +101,12 @@ define([
             var pairCollection = attr.svcApplProperties.toJSON();
             var len = pairCollection.length;
             for (var i = 0; i < len; i++) {
+                var key = pairCollection[i]['key']();
+                var value = pairCollection[i]['value']();
+                if (((null == key) || (!key.length)) &&
+                    ((null == value) || (!value.lnegth))) {
+                    continue;
+                }
                 pairArr.push({key: pairCollection[i]['key'](),
                               value: pairCollection[i]['value']()});
             }
@@ -149,6 +132,8 @@ define([
             return intfArr;
         },
         formatModelConfig: function(modelConfig) {
+            modelConfig['service_appliance_set'] =
+                contrail.getCookie('serviceApplSet');
             /* Properties */
             var svcApplPropModel;
             var svcApplPropModels = [];
@@ -177,10 +162,6 @@ define([
                 modelConfig['display_name'] =
                     modelConfig['fq_name'][2];
             }
-            var svcVirtType =
-                getValueByJsonPath('service_template_properties;service_virtualization_type',
-                                   null);
-            modelConfig['user_created_virtualization_type'] = svcVirtType;
 
             /* Interfaces */
             var svcApplIntfModel;
@@ -211,11 +192,8 @@ define([
                             intfs[i]['uuid']
                     });
                 if (null == tmpLoadedIntfTypeObjs[intfType]) {
-                    var newIntfText =
-                        intfType.replace(intfType[0],
-                                         intfType[0].toUpperCase());
                     window.svcApplData.intfTypes.push({id: intfType, text:
-                                                      newIntfText});
+                                                      intfType});
                 }
                 svcApplIntfModels.push(svcApplIntfModel);
             }
@@ -224,6 +202,13 @@ define([
             modelConfig['interfaces'] = svcApplIntfCollectionModel;
             if (null != modelConfig['physical_router_refs']) {
                 delete modelConfig['physical_router_refs'];
+            }
+            var svcApplSet = contrail.getCookie('serviceApplSet');
+            if ((null != window.svcApplSetSvcTmplMap) &&
+                (null != window.svcApplSetSvcTmplMap[svcApplSet])) {
+                var tmpl = window.svcApplSetSvcTmplMap[svcApplSet];
+                modelConfig['service_template'] =
+                    svcTmplUtils.svcTemplateFormatter(tmpl);
             }
             return modelConfig;
         },
@@ -255,9 +240,21 @@ define([
                     contrail.getCookie('serviceApplSet'),
                     newSvcAppl['display_name']];
                 newSvcAppl['parent_type'] = 'service-appliance-set';
+                var userName =
+                    getValueByJsonPath(newSvcAppl,
+                                       'service_appliance_user_credentials;username',
+                                       null);
+                var password =
+                    getValueByJsonPath(newSvcAppl,
+                                       'service_appliance_user_credentials;password',
+                                       null);
+                if ((null == userName) && (null == password)) {
+                    newSvcAppl['service_appliance_user_credentials'] = null;
+                }
 
                 delete newSvcAppl.svcApplProperties;
                 delete newSvcAppl.interfaces;
+                delete newSvcAppl.service_template;
                 ctwu.deleteCGridData(newSvcAppl);
 
                 putData['service-appliance'] = newSvcAppl;

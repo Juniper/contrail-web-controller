@@ -6,10 +6,13 @@ define([
     'underscore',
     'contrail-view',
     'config/infra/serviceappliance/ui/js/models/SvcApplianceModel',
-    'config/infra/serviceappliance/ui/js/views/SvcApplianceEditView'
-], function (_, ContrailView, SvcApplianceModel, SvcApplianceEditView) {
+    'config/infra/serviceappliance/ui/js/views/SvcApplianceEditView',
+    'config/common/ui/js/svcTmpl.utils'
+], function (_, ContrailView, SvcApplianceModel, SvcApplianceEditView,
+             SvcTmplUtils) {
     var svcApplianceEditView = new SvcApplianceEditView(),
-    gridElId = "#" + ctwl.SVC_APPLIANCE_GRID_ID;
+        svcTmplUtils = new SvcTmplUtils(),
+        gridElId = "#" + ctwl.SVC_APPLIANCE_GRID_ID;
 
     var SvcApplianceGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -170,6 +173,10 @@ define([
         return "-";
     }
 
+    this.svcTemplateFormatter = function(val, obj) {
+        return svcTmplUtils.svcTemplateFormatter(obj['service_template']);
+    }
+
     function getServicaApplDetailsTmplConfig () {
         return {
             templateGenerator: 'RowSectionTemplateGenerator',
@@ -178,7 +185,7 @@ define([
                     templateGenerator: 'ColumnSectionTemplateGenerator',
                     templateGeneratorConfig: {
                         columns: [{
-                            class: 'span6',
+                            class: 'span8',
                             rows: [{
                                 title: ctwl.SVC_APPLIANCE_DETAILS,
                                 templateGenerator: 'BlockListTemplateGenerator',
@@ -205,6 +212,15 @@ define([
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'svcApplSetNameFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'service_template',
+                                        label: 'Service Template',
+                                        templateGenerator: 'TextGenerator',
+                                        valueClass: 'span8',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcTemplateFormatter'
                                         }
                                     },
                                     {

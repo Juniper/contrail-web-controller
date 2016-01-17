@@ -220,14 +220,16 @@ define([
                             columns: [{
                                 elementId: 'interface_type',
                                 name: 'Type',
-                                view: 'FormComboboxView',
+                                view: 'FormInputView',
                                 class: "",
                                 viewConfig: {
                                     templateId:
-                                        cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                        cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    disabled: true,
                                     width: 150,
                                     path: 'interface_type',
                                     dataBindValue: 'interface_type()',
+                                    /*
                                     elementConfig: {
                                         dataTextField: 'text',
                                         dataValueField: 'id',
@@ -236,6 +238,7 @@ define([
                                             data: window.svcApplData.intfTypes
                                         }
                                     }
+                                    */
                                 }
                             },
                             {
@@ -302,6 +305,36 @@ define([
                                     class: 'span6',
                                     dataBindValue:
                                             'service_appliance_ip_address'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'service_appliance_set',
+                                view: 'FormInputView',
+                                viewConfig: {
+                                    label: 'Service Appliance Set',
+                                    disabled: true,
+                                    path: 'service_appliance_set',
+                                    class: 'span12',
+                                    dataBindValue: 'service_appliance_set'
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'service_template',
+                                view: 'FormInputView',
+                                viewConfig: {
+                                    label: 'Service Template',
+                                    disabled: true,
+                                    path: 'service_template',
+                                    class: 'span12',
+                                    dataBindValue: 'service_template'
                                 }
                             }
                         ]
