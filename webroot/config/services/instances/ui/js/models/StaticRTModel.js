@@ -25,6 +25,13 @@ define([
         },
         validations: {
             staticRoutesValidation: {
+                'prefix': function(value, attr, fieldObj) {
+                    if ((null == value) || (!value.trim().length) ||
+                        (-1 == value.indexOf('/')) ||
+                        (!isValidIP(value))) {
+                        return 'Enter Prefix in form xxx.xxx.xxx.xxx/xx';
+                    }
+                }
             }
         },
         deleteStaticRt: function(data, rt) {

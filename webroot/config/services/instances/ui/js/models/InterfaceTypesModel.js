@@ -4,17 +4,14 @@
 
 define([
     'underscore',
-    'contrail-model'
+    'contrail-model',
 ], function (_, ContrailModel) {
-    var svcTemplateInterfaceModel = ContrailModel.extend({
+    var InterfacesModel = ContrailModel.extend({
 
         defaultConfig: {
-            'static_route_enable': false,
-            'shared_ip': false,
-            'service_interface_type': 'other',
-            'interfaceTypesData': []
+            interfaceType: null,
+            interface: null,
         },
-
 
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),
@@ -24,20 +21,26 @@ define([
 
             isValid = model.isValid(attributePath, validation);
 
-            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
-                    (isValid == true) ? false : isValid;
+            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] = (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
         },
-
-
+        deletePortTupleInterface: function() {
+            var coll = this.model().collection;
+            var item = this.model();
+            coll.remove(item);
+        },
         validations: {
-            svcTemplateInterfaceConfigValidations: {
-                'service_interface_type': {
-                    required: true,
-                    msg: 'Select Service Interface Type '
+            portTupleInterfacesValidation: {
+                'interface': {
+                    required: true
+                },
+                interfaceType: {
+                    required: true
                 }
             }
         }
     });
-    return svcTemplateInterfaceModel;
+
+    return InterfacesModel;
 });
+

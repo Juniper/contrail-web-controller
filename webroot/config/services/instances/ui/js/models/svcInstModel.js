@@ -7,8 +7,15 @@ define([
     'contrail-model',
     'knockout',
     'config/services/instances/ui/js/models/InterfacesModel',
-    'config/services/instances/ui/js/svcInst.utils'
-], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils) {
+    'config/services/instances/ui/js/svcInst.utils',
+    'config/services/instances/ui/js/models/PortTupleModel',
+    'config/services/instances/ui/js/models/SvcHealthChkModel',
+    'config/services/instances/ui/js/models/IntfRtTableModel',
+    'config/services/instances/ui/js/models/RtPolicyModel',
+    'config/services/instances/ui/js/models/RtAggregateModel',
+], function (_, ContrailModel, Knockout, InterfacesModel, SvcInstUtils,
+             PortTupleModel, SvcHealthChkModel, IntfRtTableModel, RtPolicyModel,
+             RtAggregateModel) {
     var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
     var svcInstUtils = new SvcInstUtils();
     var SvcInstModel = ContrailModel.extend({
@@ -38,6 +45,26 @@ define([
         },
         validations: {
             svcInstValidations: {
+                'no_of_instances': function(val, attr, data) {
+                    var svcTmpl = data.service_template;
+                    var svcTmpls = $(gridElId).data('svcInstTmplts');
+                    var svcTmplFqn = getCookie('domain') + ":" +
+                        svcTmpl.split(' - [')[0];
+                    var svcTmplObj = svcTmpls[svcTmplFqn];
+
+                    var svcScaling =
+                        getValueByJsonPath(svcTmplObj,'service_template_properties;service_scaling',
+                                           false);
+                    var tmplVer =
+                        getValueByJsonPath(svcTmplObj,'service_template_properties;version',
+                                           1);
+                    if ((2 == tmplVer) || (false == svcScaling)) {
+                        return;
+                    }
+                    if ((null == val) || (isNaN(val))) {
+                        return 'Instance count should be integer';
+                    }
+                },
                 'display_name': function(val, attr, data) {
                     if ((null == data) || (null == data['display_name'])) {
                         return "Service Instance Name is required";
@@ -66,6 +93,13 @@ define([
                         getValueByJsonPath(tmpl,
                                            'service_template_properties;image_name',
                                            null);
+                    var tmplVersion =
+                        getValueByJsonPath(tmpl,
+                                           'service_template_properties;version',
+                                           1);
+                    if (2 == tmplVersion) {
+                        return;
+                    }
                     if (null == imgName) {
                         return 'Image name not found for this template';
                     }
@@ -88,6 +122,118 @@ define([
                     }
                 }
             }
+        },
+        changePortTupleName: function() {
+            var portTuples = this.model().get('portTuples');
+            var svcInstName = this.model().get('display_name');
+            if ((null == svcInstName) || (!svcInstName.trim().length)) {
+                return;
+            }
+            var cnt = portTuples.length;
+            for (var i = 0; i < cnt; i++) {
+                var portTupleName = portTuples.models[i].get('portTupleName')();
+                var splitArr = portTupleName.split('-port-tuple');
+                if (2 == splitArr.length) {
+                    splitArr[0] = svcInstName;
+                    splitArr[2] = splitArr[1];
+                    splitArr[1] = '-port-tuple';
+                } else if (splitArr.length > 2) {
+                    tmpPortTupleArr = [];
+                    tmpPortTupleArr[0] = svcInstName;
+                    tmpPortTupleArr[1] = '-port-tuple';
+                    tmpPortTupleArr[2] = splitArr[splitArr.length - 1];
+                    splitArr = tmpPortTupleArr;
+                }
+                portTuples.models[i].attributes.portTupleName(splitArr.join(''));
+            }
+        },
+        getBackRefsByType: function(modelConfig, type) {
+            var svcInstProps = [];
+            var backRefs = null;
+            var modelType;
+            var modelKey;
+            var backRefsLen = 0;
+            if ('interface_route_table' == type) {
+                backRefs = modelConfig['interface_route_table_back_refs'];
+                modelType = IntfRtTableModel;
+                modelKey = 'intfRtTables';
+            }
+            if ('routing_policy' == type) {
+                backRefs = modelConfig['routing_policy_back_refs'];
+                modelType = RtPolicyModel;
+                modelKey = 'rtPolicys';
+            }
+            if ('service_health_check' == type) {
+                backRefs = modelConfig['service_health_check_back_refs'];
+                modelType = SvcHealthChkModel;
+                modelKey = 'svcHealtchChecks';
+            }
+            if ('route_aggregate' == type) {
+                backRefs = modelConfig['route_aggregate_back_refs'];
+                modelType = RtAggregateModel;
+                modelKey = 'rtAggregates';
+            }
+            if (null != backRefs) {
+                backRefsLen = backRefs.length;
+            }
+            var properties = [];
+            var intfTypes = [];
+            if ((null != modelConfig) &&
+                (null != modelConfig['service_template'])) {
+                var tmpl = modelConfig['service_template'];
+                var intfTypeStrStart = tmpl.indexOf('(');
+                var intfTypeStrEnd = tmpl.indexOf(')');
+                intfTypes =
+                    tmpl.substr(intfTypeStrStart + 1,
+                                intfTypeStrEnd - intfTypeStrStart - 1);
+                intfTypes = intfTypes.split(', ');
+            }
+
+            var intfTypesList = [];
+            var intfCnt = intfTypes.length;
+            for (var i = 0; i < intfCnt; i++) {
+                intfTypesList.push({text: intfTypes[i], id: intfTypes[i]});
+            }
+            var intfTypeToBackRefsMap = {};
+            var dataObjArr = [];
+            if ((null != backRefs) && (backRefsLen > 0)) {
+                for (var i = 0; i < backRefsLen; i++) {
+                    var intfType =
+                        getValueByJsonPath(backRefs[i],
+                                           'attr;interface_type', null);
+                    if (null == intfType) {
+                        continue;
+                    }
+                    if (null == intfTypeToBackRefsMap[intfType]) {
+                        intfTypeToBackRefsMap[intfType] = [];
+                    }
+
+                    var value = backRefs[i]['to'].join(':') +
+                        '~~' + backRefs[i]['uuid'];
+                    intfTypeToBackRefsMap[intfType].push(value);
+                    if ('service_health_check' == type) {
+                        var entryObj = {};
+                        entryObj[type] = value;
+                        entryObj['interface_type'] = intfType;
+                        entryObj['interfaceTypesData'] = intfTypesList;
+                        var newEntry = new modelType(entryObj);
+                        properties.push(newEntry);
+                    }
+                }
+            }
+            if ('service_health_check' != type) {
+                for (var key in intfTypeToBackRefsMap) {
+                    var entryObj = {};
+                    entryObj[type] = intfTypeToBackRefsMap[key].join(',');
+                    entryObj['interface_type'] = key;
+                    entryObj['interfaceTypesData'] = intfTypesList;
+                    var newEntry = new modelType(entryObj);
+                    properties.push(newEntry);
+                }
+            }
+            var collection = new Backbone.Collection(properties);
+            modelConfig[modelKey] = collection;
+            return modelConfig;
         },
         formatModelConfig: function(modelConfig) {
             if (!window.svcTmplsFormatted.length) {
@@ -135,12 +281,17 @@ define([
                 getValueByJsonPath(modelConfig,
                                    'service_instance_properties;interface_list',
                                    []);
+            var svcTmpls = $(gridElId).data('svcInstTmplts');
+            var tmpl = modelConfig['service_template'];
+            var svcTmplFqn = getCookie('domain') + ":" +
+                tmpl.split(' - [')[0];
+
+            var tmplVer =
+                getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                   'service_template_properties;version',
+                                   1);
             if (!intfList.length) {
                 var intfsCnt = intfTypes.length;
-                var svcTmpls = $(gridElId).data('svcInstTmplts');
-                var tmpl = modelConfig['service_template'];
-                var svcTmplFqn = getCookie('domain') + ":" +
-                    tmpl.split(' - [')[0];
                 var interfaeTypes = [];
                 if ((null != svcTmpls) && (null != svcTmpls[svcTmplFqn])) {
                     interfaeTypes =
@@ -182,16 +333,44 @@ define([
             interfacesCollectionModel = new Backbone.Collection(interfacesModels);
             modelConfig['interfaces'] = interfacesCollectionModel;
             modelConfig.host_list = [{'text': 'ANY', 'id': 'ANY'}];
+
+            var portTupleList = modelConfig['port_tuples'];
+            var portTupleModels = [];
+            var portTuplesCnt = 0;
+            if (null != portTupleList) {
+                portTuplesCnt = portTupleList.length;
+            }
+            for (var i = 0; i < portTuplesCnt; i++) {
+                var portTupleModel =
+                    new PortTupleModel({portTupleName:
+                                            portTupleList[i]['to'][3],
+                                        portTupleData:
+                                            portTupleList[i],
+                                        intfTypes: intfTypes
+                                       });
+                portTupleModels.push(portTupleModel);
+            }
+            var portTuplesCollection = new Backbone.Collection(portTupleModels);
+            modelConfig['portTuples'] = portTuplesCollection;
+            this.getBackRefsByType(modelConfig, 'interface_route_table');
+            this.getBackRefsByType(modelConfig, 'service_health_check');
+            this.getBackRefsByType(modelConfig, 'routing_policy');
+            this.getBackRefsByType(modelConfig, 'route_aggregate');
+
             return modelConfig;
         },
-        formatModelConfigColl: function(intfTypes) {
-            var interfaces = this.model().attributes['interfaces'];
-            var len = interfaces.length;
+        deleteModelCollectionData: function(model, type) {
+            var collection = model.attributes[type];
+            var len = collection.length;
             for (var i = 0; i < len; i++) {
-                interfaces.remove(interfaces.models[i]);
+                collection.remove(collection.models[i]);
                 len--;
                 i--;
             }
+        },
+        formatModelConfigColl: function(intfTypes, isDisabled) {
+            this.deleteModelCollectionData(this.model(), 'interfaces');
+            var interfaces = this.model().attributes['interfaces'];
             var cnt = intfTypes.length;
             var svcTmpl = this.model().get('service_template');
             var svcTmpls = $(gridElId).data('svcInstTmplts');
@@ -199,16 +378,28 @@ define([
                 svcTmpl.split(' - [')[0];
             var svcTmplObj = {'service-template': svcTmpls[svcTmplFqn]};
 
+            var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                             'service_template_properties;version',
+                                             1);
+            if (false == isDisabled) {
+                /* Create Case */
+                this.deleteModelCollectionData(this.model(), 'portTuples');
+                this.deleteModelCollectionData(this.model(), 'svcHealtchChecks');
+                this.deleteModelCollectionData(this.model(), 'intfRtTables');
+                this.deleteModelCollectionData(this.model(), 'rtPolicys');
+                this.deleteModelCollectionData(this.model(), 'rtAggregates');
+                if (2 == tmplVer) {
+                    return;
+                }
+            }
             for (var i = 0; i < cnt; i++) {
                 var intfType =
                     intfTypes[i].replace(intfTypes[i][0],
                                          intfTypes[i][0].toUpperCase());
-                var vn = "";
+                var vn = null
                 if ((null != window.vnList) && (window.vnList.length > 0)) {
                     vn = svcInstUtils.getVNByTmplType(intfTypes[i], svcTmplObj);
-                    if (null == vn) {
-                        vn = "";
-                    } else {
+                    if (null != vn) {
                         vn = vn['id'];
                     }
                 }
@@ -221,9 +412,144 @@ define([
                                         'virtualNetwork': vn,
                                         'interfaceIndex': i,
                                         interfaceData: intfList[i]});
+                kbValidation.bind(this.editView,
+                                  {collection:
+                                  newInterface.model().attributes.staticRoutes});
                 interfaces.add([newInterface]);
             }
             return;
+        },
+        addPortTuple: function(data1, data2) {
+            var svcInstName = this.model().get('display_name');
+            if ((null == svcInstName) || (!svcInstName.trim().length)) {
+                var model = this.model();
+                var attr = cowu.getAttributeFromPath('display_name');
+                var errors = model.get(cowc.KEY_MODEL_ERRORS);
+                var attrErrorObj = {}
+                attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
+                    'Service Instance Name is required';
+                errors.set(attrErrorObj);
+                return;
+            }
+            /* Why this function gets called, even when the port_tuple stuff
+               in invisible
+             */
+            var svcTmpl = this.model().get('service_template');
+            var svcTmpls = $(gridElId).data('svcInstTmplts');
+            var svcTmplFqn = getCookie('domain') + ":" +
+                svcTmpl.split(' - [')[0];
+            var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
+                                             'service_template_properties;version',
+                                             1);
+            if (1 == tmplVer) {
+                return;
+            }
+            var portTupleCollection = this.model().get('portTuples');
+            var collLen = portTupleCollection.length;
+            var models = portTupleCollection['models'];
+            var portTupleIds = [];
+            var tmpPortTupleId = 0;
+            for (var i = 0; i < collLen; i++) {
+                var attr = models[i].attributes;
+                var ptName = attr.portTupleName();
+                var splitArr = ptName.split(svcInstName + '-port-tuple');
+                if (2 == splitArr.length) {
+                    tmpPortTupleId = Number(splitArr[1].split('-')[0]);
+                    portTupleIds.push(tmpPortTupleId);
+                }
+            }
+            if (portTupleIds.length > 0) {
+                portTupleIds.sort();
+                var portTupleIdsCnt = portTupleIds.length;
+                if (portTupleIds[portTupleIdsCnt - 1] == (portTupleIdsCnt - 1)) {
+                    tmpPortTupleId = portTupleIdsCnt;
+                } else {
+                    for (var i = 0; i < portTupleIdsCnt; i++) {
+                        if (i != portTupleIds[i]) {
+                            tmpPortTupleId = i;
+                            break;
+                        }
+                    }
+                    if (i == portTupleIdsCnt) {
+                        /* We must not come here */
+                        tmpPortTupleId = portTupleIdsCnt;
+                    }
+                }
+            }
+            var newUUID = UUIDjs.create();
+            var portTupleName = svcInstName + '-port-tuple' +
+                tmpPortTupleId.toString() + '-' + newUUID['hex'];
+            var newPortTupleEntry =
+                new PortTupleModel({portTupleName: portTupleName,
+                                   portTupleData: {},
+                                   intfTypes: this.getIntfTypes(true)});
+            kbValidation.bind(this.editView,
+                               {collection:
+                               newPortTupleEntry.model().attributes.portTupleInterfaces});
+            portTupleCollection.add([newPortTupleEntry]);
+        },
+        getIntfTypes: function(isRaw) {
+            var tmpl =
+                $('#service_template_dropdown').data('contrailDropdown').value();
+            var intfTypeStrStart = tmpl.indexOf('(');
+            var intfTypeStrEnd = tmpl.indexOf(')');
+            var itfTypes =
+                tmpl.substr(intfTypeStrStart + 1,
+                            intfTypeStrEnd -
+                            intfTypeStrStart - 1);
+            var intfTypes = itfTypes.split(', ');
+            if (isRaw) {
+                return intfTypes;
+            }
+            var cnt = intfTypes.length;
+            var types = [];
+            for (var i = 0; i < cnt; i++) {
+                types.push({text: intfTypes[i], id: intfTypes[i]});
+            }
+            return types;
+        },
+        addPropSvcHealthChk: function() {
+            var svcHealtchChecks = this.model().get('svcHealtchChecks');
+            var svcHealthChkEntry = null;
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new SvcHealthChkModel({service_health_check: null,
+                                       interface_type: null,
+                                       interfaceTypesData: types});
+            svcHealtchChecks.add([newEntry]);
+        },
+        addPropIntfRtTable: function() {
+            var intfRtTables = this.model().get('intfRtTables');
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new IntfRtTableModel({interface_route_table: null,
+                                      interface_type: null,
+                                      interfaceTypesData: types});
+            intfRtTables.add([newEntry]);
+        },
+        addPropRtPolicy: function() {
+            var rtPolicys = this.model().get('rtPolicys');
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new RtPolicyModel({routing_policy: null,
+                                   interface_type: null,
+                                   interfaceTypesData: types});
+            rtPolicys.add([newEntry]);
+        },
+        addPropRtAggregate: function() {
+            var rtAggregates = this.model().get('rtAggregates');
+            var rtAgg = "";
+            var types = this.getIntfTypes(false);
+            var newEntry =
+                new RtAggregateModel({route_aggregate: null,
+                                      interface_type: null,
+                                      interfaceTypesData: types});
+            rtAggregates.add([newEntry]);
+        },
+        deleteSvcInstProperty: function(data, property) {
+            var collection = data.model().collection;
+            var entry = property.model();
+            collection.remove(entry);
         },
         getHostListByZone: function() {
             var self = this;
@@ -295,16 +621,179 @@ define([
             siProp['interface_list'] = intfList;
             return siProp;
         },
-        configureSvcInst: function (isEdit, callbackObj) {
+        getPortTuples: function(svcInstName) {
+            var nameList = [];
+            var coll = this.model().get('portTuples');
+            var len = coll.length;
+            var models = coll['models'];
+            for (var i = 0; i < len; i++) {
+                var attr = models[i]['attributes'];
+                nameList[i] = {};
+                var name = attr['portTupleName']();
+                var portTupleData = attr['portTupleData']();
+                nameList[i]['to'] = [contrail.getCookie('domain'),
+                    contrail.getCookie('project'), svcInstName, name];
+                if (null != portTupleData) {
+                    nameList[i]['uuid'] = portTupleData['uuid'];
+                }
+                var intfs = attr['portTupleInterfaces']();
+                var intfsCnt = intfs.length;
+                for (var j = 0; j < intfsCnt; j++) {
+                    if (0 == j) {
+                        nameList[i]['vmis'] = [];
+                    }
+                    var intfAttr = intfs[j].model().attributes;
+                    var vmi = intfAttr['interface']();
+                    var vmiArr = vmi.split('~~');
+                    var intfObj = {'fq_name': vmiArr[0].split(':'),
+                        'interfaceType': intfAttr['interfaceType'](),
+                        'uuid': vmiArr[1]};
+                    nameList[i]['vmis'].push(intfObj);
+                }
+            }
+            return nameList;
+        },
+        getSvcInstProperties: function() {
+            var propObjs = {};
+            var list =
+                this.getSvcInstPropertiesByType('interface_route_table_back_refs');
+            if ((null != list) && (list.length > 0)) {
+                propObjs['interface_route_table_back_refs'] =
+                    list;
+            }
+            list =
+                this.getSvcInstPropertiesByType('service_health_check_back_refs');
+            if ((null != list) && (list.length > 0)) {
+                propObjs['service_health_check_back_refs'] = list;
+            }
+            list =
+                this.getSvcInstPropertiesByType('route_aggregate_back_refs');
+            if ((null != list) && (list.length > 0)) {
+                propObjs['route_aggregate_back_refs'] = list;
+            }
+            list =
+                this.getSvcInstPropertiesByType('routing_policy_back_refs');
+            if ((null != list) && (list.length > 0)) {
+                propObjs['routing_policy_back_refs'] = list;
+            }
+            return propObjs;
+        },
+        getSvcInstPropertiesByType: function(backRefKey) {
+            var collKey;
+            var type;
+            var propList = [];
+            if ('interface_route_table_back_refs' == backRefKey) {
+                type = 'interface_route_table';
+                collKey = 'intfRtTables';
+            }
+            if ('service_health_check_back_refs' == backRefKey) {
+                type = 'service_health_check';
+                collKey = 'svcHealtchChecks';
+            }
+            if ('route_aggregate_back_refs' == backRefKey) {
+                type = 'route_aggregate';
+                collKey = 'rtAggregates';
+            }
+            if ('routing_policy_back_refs' == backRefKey) {
+                type = 'routing_policy';
+                collKey = 'rtPolicys';
+            }
+            var collection = this.model().get(collKey);
+            var len = collection.length;
+            var models = collection['models'];
+            for (var i = 0; i < len; i++) {
+                var attr = models[i]['attributes'];
+                var intfType = attr['interface_type']();
+                var propValue = attr[type]();
+                if (null == propValue) {
+                    propValue = "";
+                }
+                var values = propValue.split(',');
+                var valCnt = values.length;
+                for (var j = 0; j < valCnt; j++) {
+                    if ((null != values[j]) && ("" != values[j])) {
+                        var data = values[j].split('~~');
+                        if ((null != data[0]) && (null != data[1]) &&
+                            ("" != data[0]) && ("" != data[1])) {
+                            propList.push({
+                                'to': data[0].split(':'), 'uuid': data[1],
+                                'attr': {
+                                    'interface_type': intfType
+                                }
+                            });
+                        }
+                    }
+                }
+            }
+            return propList;
+        },
+        deepValidationList: function () {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'svcInstValidations',
+            },
+            {
+                key: 'portTuples',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'portTuplesValidation',
+            },
+            {
+                key: 'svcHealtchChecks',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'svcHealtchChecksValidation',
+            },
+            {
+                key: 'intfRtTables',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'intfRtTablesValidation',
+            },
+            {
+                key: 'rtPolicys',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'rtPolicysValidation',
+            },
+            {
+                key: 'rtAggregates',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'rtAggregatesValidation',
+            },
+            {
+                key: 'interfaces',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'interfacesValidation',
+            },
+            {
+                key: ['portTuples', 'portTupleInterfaces'],
+                type: cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
+                getValidation: 'portTupleInterfacesValidation'
+            },
+            {
+                key: ['interfaces', 'staticRoutes'],
+                type: cowc.OBJECT_TYPE_COLLECTION_OF_COLLECTION,
+                getValidation: 'staticRoutesValidation'
+            }];
+            return validationList;
+        },
+        configureSvcInst: function (isEdit, dataItem, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
 
-            if (this.model().isValid(true, "svcInstValidations")) {
+            var validationList = this.deepValidationList();
+            if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newSvcInst =
                     $.extend({}, true, this.model().attributes);
                 var siProp = this.getSIProperties();
+                var portTuples = this.getPortTuples(newSvcInst['display_name']);
+                if (portTuples.length > 0) {
+                    newSvcInst['port_tuples'] = portTuples;
+                }
                 newSvcInst['service_instance_properties'] = siProp;
+                var svcProp = this.getSvcInstProperties();
+                for (key in svcProp) {
+                    newSvcInst[key] = svcProp[key];
+                }
                 var tmpl =
                     newSvcInst['service_template'].split(' - [')[0];
                 newSvcInst['service_template_refs'] = [];
@@ -314,6 +803,13 @@ define([
                 newSvcInst['parent_type'] = 'project';
                 newSvcInst['parent_uuid'] =
                     window.projectDomainData.value;
+                var svcTmpls = $(gridElId).data('svcInstTmplts');
+                var svcTmplFqn =
+                    newSvcInst['service_template_refs'][0]['to'].join(':');
+                if (null != svcTmpls[svcTmplFqn]) {
+                    newSvcInst['svcTmplDetails'] = [];
+                    newSvcInst['svcTmplDetails'][0] = svcTmpls[svcTmplFqn];
+                }
                 newSvcInst['fq_name'] =
                     [getCookie('domain'), getCookie('project'),
                     newSvcInst['display_name']];
@@ -338,10 +834,15 @@ define([
                 delete newSvcInst['service_template'];
                 delete newSvcInst['status'];
                 delete newSvcInst['statusDetails'];
-                delete newSvcInst['svcTmplDetails'];
                 delete newSvcInst['no_of_instances'];
                 delete newSvcInst['availability_zone'];
                 delete newSvcInst['host'];
+                delete newSvcInst['portTuples'];
+                delete newSvcInst['intfRtTables'];
+                delete newSvcInst['svcHealtchChecks'];
+                delete newSvcInst['rtPolicys'];
+                delete newSvcInst['rtAggregates'];
+
                 if (null == newSvcInst['uuid']) {
                     delete newSvcInst['uuid'];
                 }
@@ -385,12 +886,34 @@ define([
             var uuidList = [];
             var cnt = checkedRows.length;
 
+            var userData = {};
+            var deleteObjsList = [];
             for (var i = 0; i < cnt; i++) {
-                uuidList.push(checkedRows[i]['uuid']);
+                userData['port_tuples'] =
+                    getValueByJsonPath(checkedRows[i], 'port_tuples', []);
+                userData['template_version'] = 1;
+                if ('svcTmplDetails' in checkedRows[i]) {
+                    if (null != checkedRows[i]['svcTmplDetails'][0]) {
+                        userData['template_version'] =
+                            getValueByJsonPath(checkedRows[i]['svcTmplDetails'][0],
+                                               'service_template_properties;version',
+                                               1);
+                    }
+                }
+                userData['interface_route_table_back_refs'] =
+                    checkedRows[i]['interface_route_table_back_refs'];
+                userData['service_health_check_back_refs'] =
+                    checkedRows[i]['service_health_check_back_refs'];
+                userData['routing_policy_back_refs'] =
+                    checkedRows[i]['routing_policy_back_refs'];
+                userData['route_aggregate_back_refs'] =
+                    checkedRows[i]['route_aggregate_back_refs'];
+                deleteObjsList.push(JSON.parse(JSON.stringify({'type': 'service-instance',
+                                    'deleteIDs': [checkedRows[i]['uuid']],
+                                    'userData': userData})));
             }
             ajaxConfig.type = "POST";
-            ajaxConfig.data = JSON.stringify([{'type': 'service-instance',
-                                             'deleteIDs': uuidList}]);
+            ajaxConfig.data = JSON.stringify(deleteObjsList);
             ajaxConfig.url = '/api/tenants/config/delete';
             contrail.ajaxHandler(ajaxConfig, function () {
                 if (contrail.checkIfFunction(callbackObj.init)) {

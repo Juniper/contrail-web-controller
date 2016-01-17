@@ -31,6 +31,9 @@ var policyConfig =
     require('../../networking/policy/api/policyconfig.api');
 var routingPolicyConfig =
     require('../../networking/routingpolicy/api/routingpolicyconfig.api');
+var svcInst =
+    require('../../services/instances/api/serviceinstanceconfig.api');
+
 var errorData = [];
 var configCBDelete = 
 {
@@ -39,7 +42,8 @@ var configCBDelete =
     'virtual-DNS': vdns.deleteVirtualDNSCallback,
     'network-policy': policyConfig.deletePolicyAsync,
     'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
-    'virtual-network': vnConfig.deleteVirtualNetworkAsync
+    'virtual-network': vnConfig.deleteVirtualNetworkAsync,
+    'service-instance': svcInst.deleteServiceInstanceCB
 }
 
 var getConfigPageRespCB = {
@@ -83,6 +87,7 @@ function deleteMultiObjectCB (postBody, request, appData, callback)
         var type = postBody[i].type;
         var deleteUUIDs = postBody[i].deleteIDs;
         var deleteUUIDsLength = deleteUUIDs.length;
+        var userData = postBody[i].userData;
         dataObj[i] = [];
         for (var j = 0; j < deleteUUIDsLength ; j++) {
             dataObj[i][j] = {};
@@ -90,6 +95,7 @@ function deleteMultiObjectCB (postBody, request, appData, callback)
             dataObj[i][j]['type'] = postBody[i].type;
             dataObj[i][j]['request'] = request;
             dataObj[i][j]['appData'] = appData;
+            dataObj[i][j]['userData'] = userData;
         }
     }
     if (dataObj.length <= 0) {
@@ -180,12 +186,50 @@ function getConfigDeleteCallbackByType (type)
 function getConfigDetailsAsync (dataObj, callback)
 {
     var appData = dataObj['appData'];
-    var url = '/' + dataObj['type'] +'' + '?detail=true';
+    var url = '/' + dataObj['type'];
+    var startDone = false;
+    if (true == dataObj['detail']) {
+        url += '?detail=true';
+        startDone = true;
+    }
     if (null != dataObj['fields']) {
-        url += '&fields=' + dataObj['fields'];
+        if (true == startDone) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'fields=' + dataObj['fields'];
+        startDone = true;
     }
     if (null != dataObj['parent_id']) {
-        url += '&parent_id=' + dataObj['parent_id'];
+        if (true == startDone) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'parent_id=' + dataObj['parent_id'];
+        startDone = true;
+    } else {
+        if ((null != dataObj['parent_fq_name_str']) &&
+            (null != dataObj['parent_type'])) {
+            if (true == startDone) {
+                url += '&';
+            } else {
+                url += '?';
+            }
+            url += 'parent_fq_name_str=' + dataObj['parent_fq_name_str'] +
+                '&parent_type=' + dataObj['parent_type'];
+            startDone = true;
+        }
+    }
+    if (null != dataObj['back_ref_id']) {
+        if (true == startDone) {
+            url += '&';
+        } else {
+            url += '?';
+        }
+        url += 'back_ref_id=' + dataObj['back_ref_id'];
+        startDone = true;
     }
     configApiServer.apiGet(url, appData, function(err, data) {
         callback(err, data);
@@ -194,13 +238,22 @@ function getConfigDetailsAsync (dataObj, callback)
 
 function getConfigDetails (req, res, appData)
 {
-    var dataObjArr = [];
     var postData = req.body;
+    var detail = true;
+    getConfigAsync(postData, detail, appData, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, data);
+    });
+}
+
+function getConfigAsync (postData, detail, appData, callback)
+{
+    var dataObjArr = [];
     postData = postData['data'];
     var reqCnt = postData.length;
     for (var i = 0; i < reqCnt; i++) {
         var fields = postData[i]['fields'];
         dataObjArr[i] = {};
+        dataObjArr[i]['detail'] = detail;
         dataObjArr[i]['type'] = postData[i]['type'];
         dataObjArr[i]['appData'] = appData;
         if ((null != fields) && (fields.length > 0)) {
@@ -209,9 +262,28 @@ function getConfigDetails (req, res, appData)
         if (null != postData[i]['parent_id']) {
             dataObjArr[i]['parent_id'] = postData[i]['parent_id'];
         }
+        if ((null != postData[i]['parent_fq_name_str']) &&
+            (null != postData[i]['parent_type'])) {
+            dataObjArr[i]['parent_fq_name_str'] =
+                postData[i]['parent_fq_name_str'];
+            dataObjArr[i]['parent_type'] = postData[i]['parent_type'];
+        }
+        var backRefIds = postData[i]['back_ref_id'];
+        if ((null != backRefIds) && (backRefIds.length > 0)) {
+            dataObjArr[i]['back_ref_id'] = backRefIds.join(',');
+        }
     }
     async.map(dataObjArr, getConfigDetailsAsync, function(err, results) {
-        commonUtils.handleJSONResponse(err, res, results);
+        callback(err, results);
+    });
+}
+
+function getConfigList (req, res, appData)
+{
+    var postData = req.body;
+    var detail = false;
+    getConfigAsync(postData, detail, appData, function(err, data) {
+        commonUtils.handleJSONResponse(err, res, data);
     });
 }
 
@@ -472,6 +544,7 @@ function getUUIDByFQN (fqnAppObj, callback) {
 exports.getConfigUUIDList = getConfigUUIDList;
 exports.deleteMultiObject = deleteMultiObject;
 exports.getConfigDetails = getConfigDetails;
+exports.getConfigList = getConfigList;
 exports.deleteMultiObjectCB = deleteMultiObjectCB;
 exports.deleteConfigObj = deleteConfigObj;
 exports.deleteConfigObjCB = deleteConfigObjCB;

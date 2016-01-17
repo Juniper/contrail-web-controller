@@ -649,6 +649,67 @@ function siFetchPolicyCb(response, appData, filteredResults, dynamicPolicyNames)
     }
 };
 
+function formSvcInstRefsPostData (dataObjArr, refsData, svcInstRefs,
+                                 type, op, appData)
+{
+    var parentType = 'project';
+    var refsCnt = refsData.length;
+    for (var i = 0; i < refsCnt; i++) {
+        var putData = {
+            'type': type,
+            'uuid': refsData[i]['uuid'],
+            'ref-type': 'service-instance',
+            'ref-uuid': svcInstRefs['uuid'],
+            'ref-fq-name': svcInstRefs['to'],
+            'operation': op,
+            'attr': refsData[i]['attr']
+        };
+        var reqUrl = '/ref-update';
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_POST,
+                                 commonUtils.cloneObj(putData), null,
+                                 null, appData);
+    }
+}
+
+function formSvcInstRefsGetData (dataObjArr, postData, type, appData)
+{
+    var refs = [];
+    if ('service-health-check' == type) {
+        refs =
+        postData['service-instance']['service_health_check_back_refs'];
+    }
+    if ('interface-route-table' == type) {
+        refs =
+        postData['service-instance']['interface_route_table_back_refs'];
+    }
+    if ('routing-policy' == type) {
+        refs =
+        postData['service-instance']['routing_policy_back_refs'];
+    }
+    if ('route-aggregate' == type) {
+        refs =
+        postData['service-instance']['route_aggregate_back_refs'];
+    }
+    var tmpArr = [];
+    if ((null != refs) && (refs.length > 0)) {
+        len = refs.length;
+        for (var i = 0; i < len; i++) {
+            tmpArr.push(refs[i]['uuid']);
+        }
+    }
+    tmpArr = _.uniq(tmpArr);
+    if (!tmpArr.length) {
+        return -1;
+    }
+    var reqUrl = '/' + type + 's?detail=true&fields=service_instance_refs' +
+        '&obj_uuids=' + tmpArr.join(',');
+    commonUtils.createReqObj(dataObjArr, reqUrl,
+                             global.HTTP_REQUEST_GET, null, null, null,
+                             appData);
+    return dataObjArr.length - 1;
+}
+
 /**
  * @createServiceInstance
  * public function
@@ -673,10 +734,702 @@ function createServiceInstance(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    configApiServer.apiPost(siCreateURL, siPostData, appData,
-        function (error, data) {
-            setSIRead(error, data, response, appData);
+    /* Check if port_tuples is there (template v2), if yes, then create
+     * port_tuple first and then create the service instance
+     */
+    var svcTmpl = siPostData['service-instance']['svcTmplDetails'];
+    var version = 1;
+    if ((null != svcTmpl) && (null != svcTmpl[0]) &&
+        (null != svcTmpl[0]['service_template_properties']) &&
+        (null != svcTmpl[0]['service_template_properties']['version'])) {
+        version = svcTmpl[0]['service_template_properties']['version'];
+    }
+    delete siPostData['service-instance']['svcTmplDetails'];
+    if (1 == version) {
+        configApiServer.apiPost(siCreateURL, siPostData, appData,
+            function (error, data) {
+                setSIRead(error, data, response, appData);
         });
+        return;
+    }
+    var dataObjArr = [];
+    var vmisDataObjArr = [];
+    var portTuples = [];
+    if (null != siPostData['service-instance']['port_tuples']) {
+        portTuples =
+            commonUtils.cloneObj(siPostData['service-instance']['port_tuples']);
+    }
+    var origPostData = commonUtils.cloneObj(siPostData);
+    var portTuplesCnt = portTuples.length;
+    var reqUrl = '/port-tuples';
+    var vmiObjUUIDs = [];
+    var vmiToPortTupleMap = {};
+    for (var i = 0; i < portTuplesCnt; i++) {
+        var postData = {'port-tuple': {
+            'fq_name': portTuples[i]['to'],
+            'parent_type': 'service-instance',
+            'display_name': portTuples[i]['to'][portTuples[i]['to'].length - 1]
+        }};
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_POST, postData, null,
+                                 null, appData);
+        var vmis = portTuples[i]['vmis'];
+        var vmisCnt = vmis.length;
+        for (var j = 0; j < vmisCnt; j++) {
+            vmiObjUUIDs.push(vmis[j]['uuid']);
+            vmiToPortTupleMap[vmis[j]['uuid']] =
+                {'to': portTuples[i]['to'], 'attr': null,
+                 'intfType': vmis[j]['interfaceType']};
+        }
+    }
+    var uniqVmiObjUUIDs = _.uniq(vmiObjUUIDs);
+    if (uniqVmiObjUUIDs.length != vmiObjUUIDs.length) {
+        var error = new appErrors.RESTServerError('Same port associated with' +
+                                                  ' same/multple port tuples');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    if ((portTuplesCnt > 0) && (!uniqVmiObjUUIDs.length)) {
+        var error = new appErrors.RESTServerError('No Virtual Machine ' +
+                                                  'Interface selected for ' +
+                                                  'port tuples');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+
+    if (uniqVmiObjUUIDs.length > 0) {
+        reqUrl = '/virtual-machine-interfaces?detail=true' +
+            '&fields=virtual_machine_interface_properties,port_tuple_refs' +
+            '&obj_uuids=' + uniqVmiObjUUIDs.join(',');
+        commonUtils.createReqObj(dataObjArr, reqUrl,
+                                 global.HTTP_REQUEST_GET, null, null, null,
+                                 appData);
+    }
+
+    var intfRtTableGetIndex =
+        formSvcInstRefsGetData(dataObjArr, origPostData, 'interface-route-table',
+                               appData);
+    var svcHealthChkGetIndex =
+        formSvcInstRefsGetData(dataObjArr, origPostData, 'service-health-check',
+                               appData);
+    var rtPolGetIndex =
+        formSvcInstRefsGetData(dataObjArr, origPostData, 'routing-policy',
+                               appData);
+    var rtAggGetIndex =
+        formSvcInstRefsGetData(dataObjArr, origPostData, 'route-aggregate',
+                               appData);
+    delete siPostData['service-instance']['port_tuples'];
+    delete siPostData['service-instance']['interface_route_table_back_refs'];
+    delete siPostData['service-instance']['service_health_check_back_refs'];
+    delete siPostData['service-instance']['routing_policy_back_refs'];
+    delete siPostData['service-instance']['route_aggregate_back_refs'];
+    configApiServer.apiPost(siCreateURL, siPostData, appData,
+                            function(error, siPostResp) {
+        if (null != error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         true),
+                  function(error, results) {
+            if (null != error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            var portTupleObjs = {};
+            for (var i = 0; i < portTuplesCnt; i++) {
+                var fqn = results[i]['port-tuple']['fq_name'].join(':');
+                portTupleObjs[fqn] = results[i]['port-tuple']['uuid'];
+            }
+            for (key in vmiToPortTupleMap) {
+                var portTupleFqn = vmiToPortTupleMap[key]['to'];
+                if (null != portTupleObjs[portTupleFqn]) {
+                    vmiToPortTupleMap[key]['uuid'] =
+                        portTupleObjs[portTupleFqn];
+                }
+            }
+            var vmiDetails = [];
+            if (uniqVmiObjUUIDs.length > 0) {
+                vmiDetails =
+                    results[portTuplesCnt]['virtual-machine-interfaces'];
+            }
+            var vmiCnt = vmiDetails.length;
+            dataObjArr = [];
+            for (var i = 0; i < vmiCnt; i++) {
+                if (null ==
+                    vmiDetails[i]['virtual-machine-interface']
+                        ['port_tuple_refs']) {
+                    vmiDetails[i]['virtual-machine-interface']
+                        ['port_tuple_refs'] = [];
+                }
+                var vmiUUID =
+                    vmiDetails[i]['virtual-machine-interface']['uuid'];
+                var portTupleRef = vmiToPortTupleMap[vmiUUID];
+                if (null == portTupleRef) {
+                    continue;
+                }
+                vmiDetails[i]['virtual-machine-interface']
+                    ['port_tuple_refs'].push(portTupleRef);
+                var vmiProp =
+                    vmiDetails[i]['virtual-machine-interface']
+                        ['virtual_machine_interface_properties'];
+                if (null == vmiProp) {
+                    vmiProp = {};
+                }
+                vmiProp['service_interface_type'] =
+                    vmiToPortTupleMap[vmiUUID]['intfType'];
+                delete portTupleRef['intfType'];
+                var vmiPutData = {
+                    'virtual-machine-interface': {
+                        'display_name':
+                            vmiDetails[i]['virtual-machine-interface']['display_name'],
+                        'uuid': vmiUUID,
+                        'fq_name':
+                            vmiDetails[i]['virtual-machine-interface']['fq_name'],
+                        'parent_type': 'project',
+                        'port_tuple_refs':
+                            vmiDetails[i]['virtual-machine-interface']['port_tuple_refs'],
+                        'virtual_machine_interface_properties': vmiProp
+                    }
+                };
+                var reqUrl = '/virtual-machine-interface/' +
+                    vmiDetails[i]['virtual-machine-interface']['uuid'];
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_PUT, vmiPutData,
+                                         null, null, appData);
+            }
+            async.map(dataObjArr,
+                      commonUtils.getServerResponseByRestApi(configApiServer,
+                                                             false),
+                      function(error, data) {
+                if (null != error) {
+                    commonUtils.handleJSONResponse(error, response, null);
+                    return;
+                }
+                /* Now update the service instance */
+                for (var i = 0; i < portTuplesCnt; i++) {
+                    delete portTuples[i]['vmis'];
+                    if (null != portTupleObjs[portTuples[i]['to']]) {
+                        portTuples[i]['uuid'] =
+                            portTupleObjs[portTuples[i]['to']];
+                    }
+                };
+                var svcInstPutData = {
+                    'service-instance': {
+                        'fq_name': siPostData['service-instance']['fq_name'],
+                        'parent_type': 'project',
+                        'uuid': siPostResp['service-instance']['uuid'],
+                        'port_tuples': portTuples
+                    }
+                };
+                var siPutURL = '/service-instance/' +
+                    siPostResp['service-instance']['uuid'];
+                configApiServer.apiPut(siPutURL, svcInstPutData, appData,
+                                       function(error, data) {
+                    /* Now update all the refs */
+                    dataObjArr = [];
+                    var svcInstRefs = {
+                        'to': siPostResp['service-instance']['fq_name'],
+                        'uuid': siPostResp['service-instance']['uuid']
+                    };
+                    if (-1 != intfRtTableGetIndex) {
+                        formSvcInstRefsPostData(dataObjArr,
+                                           origPostData['service-instance']
+                                            ['interface_route_table_back_refs'],
+                                            svcInstRefs,
+                                            'interface-route-table',
+                                            'ADD',
+                                            appData);
+                    }
+                    if (-1 != rtAggGetIndex) {
+                        formSvcInstRefsPostData(dataObjArr,
+                                           origPostData['service-instance']
+                                            ['route_aggregate_back_refs'],
+                                            svcInstRefs,
+                                            'route-aggregate',
+                                            'ADD',
+                                            appData);
+                    }
+                    if (-1 != rtPolGetIndex) {
+                        formSvcInstRefsPostData(dataObjArr,
+                                           origPostData['service-instance']
+                                            ['routing_policy_back_refs'],
+                                            svcInstRefs,
+                                            'routing-policy',
+                                            'ADD',
+                                            appData);
+                    }
+                    if (-1 != svcHealthChkGetIndex) {
+                        formSvcInstRefsPostData(dataObjArr,
+                                           origPostData['service-instance']
+                                            ['service_health_check_back_refs'],
+                                            svcInstRefs,
+                                            'service-health-check',
+                                            'ADD',
+                                            appData);
+                    }
+                    if (!dataObjArr.length) {
+                        commonUtils.handleJSONResponse(error, response, data);
+                        return;
+                    }
+                    async.map(dataObjArr,
+                              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                                     false),
+                              function(error, data) {
+                        commonUtils.handleJSONResponse(error, response, data);
+                    });
+                });
+            })
+        });
+    });
+}
+
+function formSvcInstPortTupleRefsPostData (dataObjArr, vmiObj, portTupleObj,
+                                           vmiDetails, operation, appData)
+{
+    var reqUrl = null;
+    var reqType = global.HTTP_REQUEST_POST;
+    var vmi = vmiDetails[vmiObj['uuid']];
+
+    var data = null;
+    if ('ADD' == operation) {
+        if ((null == vmi) || (null == vmi['virtual-machine-interface'])) {
+            return;
+        }
+        if (null == vmi['virtual-machine-interface']['port_tuple_refs']) {
+            vmi['virtual-machine-interface']['port_tuple_refs'] = [];
+        }
+        vmi['virtual-machine-interface']['port_tuple_refs'].push(
+            {'to': portTupleObj['to'], 'uuid': portTupleObj['uuid'],
+             'attr': null});
+        if (null == vmi['virtual-machine-interface']
+                ['virtual_machine_interface_properties']) {
+            vmi['virtual-machine-interface']
+                ['virtual_machine_interface_properties'] = {};
+        }
+        vmi['virtual-machine-interface']
+            ['virtual_machine_interface_properties']['service_interface_type'] =
+            vmiObj['interfaceType'];
+        reqUrl = '/virtual-machine-interface/' +
+            vmi['virtual-machine-interface']['uuid'];
+        reqType = global.HTTP_REQUEST_PUT;
+        data = vmi;
+    } else {
+        /*
+        var portTupleRefs = vmi['virtual-machine-interface']['port_tuple_refs'];
+        var portTupleRefsCnt = portTupleRefs.length;
+        for (var i = 0; i < portTupleRefsCnt; i++) {
+            if (portTupleRefs[i]['uuid'] == portTupleObj['uuid']) {
+                portTupleRefs.splice(i, 1);
+                break;
+            }
+        }
+        vmi['virtual-machine-interface']['port_tuple_refs'] = portTupleRefs;
+        */
+        var data = {
+            'type': 'virtual-machine-interface',
+            'uuid': vmiObj['uuid'],
+            'ref-type': 'port-tuple',
+            'ref-uuid': portTupleObj['uuid'],
+            'ref-fq-name': portTupleObj['to'],
+            'operation': operation,
+            'attr': null
+        };
+        reqUrl = '/ref-update';
+    }
+    commonUtils.createReqObj(dataObjArr, reqUrl, reqType, data, null, null,
+                             appData);
+}
+
+function updatePortTuples (configSIData, siPostData, vmiDetails, appData,
+                           callback)
+{
+    var dataObjArr = [];
+    var portTuples = [];
+    var portTuplesCnt = 0;
+
+    if (null != siPostData['service-instance']['port_tuples']) {
+        portTuples =
+            commonUtils.cloneObj(siPostData['service-instance']['port_tuples']);
+        portTuplesCnt = portTuples.length;
+    }
+
+    var cfgPortTuples = [];
+    var tmpPortTuplesArr = [];
+    if (null != configSIData['service-instance']['port_tuples']) {
+        cfgPortTuples =
+            commonUtils.cloneObj(configSIData['service-instance']['port_tuples']);
+        tmpPortTuplesArr =
+            commonUtils.cloneObj(configSIData['service-instance']['port_tuples']);
+    }
+    var cfgPortTuplesCnt = cfgPortTuples.length;
+    for (var i = 0; i < cfgPortTuplesCnt; i++) {
+        delete tmpPortTuplesArr[i]['href'];
+    }
+    var uiOldPortTuples = [];
+    var uiOldPortTuplesCnt = 0;
+    if (null != siPostData['service-instance']['old_port_tuples']) {
+        uiOldPortTuples =
+            commonUtils.cloneObj(siPostData['service-instance']['old_port_tuples']);
+        uiOldPortTuplesCnt = uiOldPortTuples.length;
+    }
+    var uiPortTuples = commonUtils.cloneObj(portTuples);
+    var uiPortTuplesCnt = uiPortTuples.length;
+    var tmpUIPortTupleObjs = {};
+    for (i = 0; i < uiPortTuplesCnt; i++) {
+        var fqn = uiPortTuples[i]['to'].join(':');
+        if (null != uiPortTuples[i]['vmis']) {
+            tmpUIPortTupleObjs[fqn] =
+                commonUtils.cloneObj(uiPortTuples[i]['vmis']);
+            delete uiPortTuples[i]['vmis'];
+        }
+    }
+    for (i = 0; i < uiOldPortTuplesCnt; i++) {
+        var fqn = uiOldPortTuples[i]['to'].join(':');
+        if (null == tmpUIPortTupleObjs[fqn]) {
+            tmpUIPortTupleObjs[fqn] =
+                commonUtils.cloneObj(uiOldPortTuples[i]['vmis']);
+        }
+    }
+
+    var changedPortTuples =
+        jsonDiff.getConfigArrayDelta('port-tuple', tmpPortTuplesArr,
+                                     uiPortTuples);
+    if (null != changedPortTuples) {
+            var newPortTuples = changedPortTuples['addedList'];
+            var newPortTuplesCnt = newPortTuples.length;
+            for (var i = 0; i < newPortTuplesCnt; i++) {
+                var postData = {'port-tuple': {
+                    'fq_name': newPortTuples[i]['to'],
+                    'parent_type': 'service-instance',
+                    'display_name': newPortTuples[i]['to'][portTuples[i]['to'].length - 1]
+                }};
+                reqUrl = '/port-tuples';
+                commonUtils.createReqObj(dataObjArr, reqUrl,
+                                         global.HTTP_REQUEST_POST, postData,
+                                         null, null, appData);
+            }
+            if (dataObjArr.length > 0) {
+                async.map(dataObjArr,
+                          commonUtils.getServerResponseByRestApi(configApiServer,
+                                                                 false),
+                          function(error, portTuplesAddConfig) {
+                    if (null != error) {
+                        callback(error, changedPortTuples, portTuplesAddConfig);
+                        return;
+                    }
+                    updatePortTupleRefsInVMI(changedPortTuples['deletedList'],
+                                             tmpUIPortTupleObjs, vmiDetails,
+                                             'DELETE', appData,
+                                             function(error, data) {
+                        updatePortTupleRefsInVMI(newPortTuples,
+                                                 tmpUIPortTupleObjs,
+                                                 vmiDetails, 'ADD', appData,
+                                                 function(error, data) {
+                            /* All add/deleted port-tuple updation is done, now
+                             * check if any non-change port-tuple has change in
+                             * VMI refereneces
+                             */
+                            updateVMIsInPortTuples(configSIData, siPostData,
+                                                   vmiDetails, appData,
+                                                   function(error, data) {
+                                callback(error, changedPortTuples,
+                                     portTuplesAddConfig);
+                            });
+                        });
+                    });
+                });
+            } else {
+                updatePortTupleRefsInVMI(changedPortTuples['deletedList'],
+                                         tmpUIPortTupleObjs, vmiDetails, 'DELETE', appData,
+                                         function(error, data) {
+                    updateVMIsInPortTuples(configSIData, siPostData,
+                                           vmiDetails, appData,
+                                           function(error, data) {
+                        callback(error, changedPortTuples,
+                                 null);
+                    });
+                });
+            }
+    } else {
+        updateVMIsInPortTuples(configSIData, siPostData,
+                               vmiDetails, appData, function(error, data) {
+            callback(null, null, null);
+        });
+    }
+}
+
+function updateVMIsInPortTuples (configSIData, siPostData, vmiDetails, appData,
+                                 callback)
+{
+    var uiPortTuples = [];
+    var cfgPortTuples = [];
+    if (null != configSIData['service-instance']['port_tuples']) {
+        cfgPortTuples =
+            commonUtils.cloneObj(configSIData['service-instance']['port_tuples']);
+        uiPortTuples =
+            commonUtils.cloneObj(siPostData['service-instance']['port_tuples']);
+    }
+    var cfgPortTuplesCnt = 0;
+    if (null != cfgPortTuples) {
+        cfgPortTuplesLen = cfgPortTuples.length;
+    }
+    var uiPortTuplesLen = 0;
+    if (null != uiPortTuples) {
+        uiPortTuplesLen = uiPortTuples.length;
+    }
+    var cfgPortTulesUUIDList = [];
+    var tmpPortTupleObjs = {};
+    for (var i = 0; i < cfgPortTuplesLen; i++) {
+        cfgPortTulesUUIDList.push(cfgPortTuples[i]['uuid']);
+        tmpPortTupleObjs[cfgPortTuples[i]['uuid']] = i;
+    }
+    if (cfgPortTulesUUIDList.length > 1) {
+        cfgPortTulesUUIDList = _.uniq(cfgPortTulesUUIDList);
+    }
+    if (!cfgPortTulesUUIDList.length) {
+        /* We should not come here, already taken care this case earlier */
+        callback(null, null);
+        return;
+    }
+    var vmiUrl =
+        '/virtual-machine-interfaces?detail=true&&fields=port_tuple_refs&back_ref_id=' +
+        cfgPortTulesUUIDList.join(',');
+    configApiServer.apiGet(vmiUrl, appData, function(error, configData) {
+        if ((null != error) || (null == configData) ||
+            (null == configData['virtual-machine-interfaces'])) {
+            callback(error, configData);
+            return;
+        }
+        var vmis = configData['virtual-machine-interfaces'];
+        var vmisCnt = vmis.length;
+        var portTupleObjs = {};
+        for (var i = 0; i < vmisCnt; i++) {
+            var vmi = vmis[i]['virtual-machine-interface'];
+            var intfType =
+                commonUtils.getValueByJsonPath(vmi,
+                                               'virtual_machine_interface_properties;'
+                                               + 'service_interface_type',
+                                               null);
+            var portTupleRefs =
+                commonUtils.getValueByJsonPath(vmi,
+                                               'port_tuple_refs', []);
+            var portTupleRefsCnt = portTupleRefs.length;
+            for (var j = 0; j < portTupleRefsCnt; j++) {
+                var portTupleUUID = portTupleRefs[j]['uuid'];
+                if (null != tmpPortTupleObjs[portTupleUUID]) {
+                    if (null == portTupleObjs[portTupleUUID]) {
+                        portTupleObjs[portTupleUUID] = [];
+                    }
+                    portTupleObjs[portTupleUUID].push({'fq_name':
+                                                        vmi['fq_name'],
+                                                      interfaceType: intfType,
+                                                      uuid: vmi['uuid']});
+                    break;
+                }
+            }
+        }
+        var dataObjArr = [];
+        for (var i = 0; i < uiPortTuplesLen; i++) {
+            var uiUUID = uiPortTuples[i]['uuid'];
+            if (null != portTupleObjs[uiUUID]) {
+                var vmisDelta =
+                    jsonDiff.getConfigArrayDelta('port-tuple-vmi',
+                                                 portTupleObjs[uiUUID],
+                                                 uiPortTuples[i]['vmis']);
+                if (null != vmisDelta) {
+                    if ((null != vmisDelta['deletedList']) &&
+                        (vmisDelta['deletedList'].length > 0)) {
+                        var len = vmisDelta['deletedList'].length;
+                        for (var k = 0; k < len; k++) {
+                            formSvcInstPortTupleRefsPostData(dataObjArr,
+                                                  vmisDelta['deletedList'][k],
+                                                  uiPortTuples[i], vmiDetails,
+                                                  'DELETE', appData);
+                        }
+                    }
+                    if ((null != vmisDelta['addedList']) &&
+                        (vmisDelta['addedList'].length > 0)) {
+                        var len = vmisDelta['addedList'].length;
+                        for (var k = 0; k < len; k++) {
+                            formSvcInstPortTupleRefsPostData(dataObjArr,
+                                                  vmisDelta['addedList'][k],
+                                                  uiPortTuples[i], vmiDetails,
+                                                  'ADD', appData);
+                        }
+                    }
+                }
+            }
+        }
+        async.mapSeries(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         false),
+                  function(error, data) {
+            callback(error, data);
+        });
+    });
+}
+
+function updatePortTupleRefsInVMI (portTuples, tmpUIPortTupleObjs, vmiDetails,
+                                   operation, appData, callback)
+{
+    var dataObjArr = [];
+    if ((null == portTuples) || (!portTuples.length)) {
+        callback(null, null);
+        return;
+    }
+    var cnt = portTuples.length;
+    for (var i = 0; i < cnt; i++) {
+        var fqn = portTuples[i]['to'].join(':');
+        var vmis = tmpUIPortTupleObjs[fqn];
+        if (null == vmis) {
+            continue;
+        }
+        var vmisCnt = vmis.length;
+        for (var j = 0; j < vmisCnt; j++) {
+            formSvcInstPortTupleRefsPostData(dataObjArr, vmis[j],
+                                             portTuples[i], vmiDetails,
+                                             operation, appData);
+        }
+    }
+    async.mapSeries(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                     false),
+              function(error, data) {
+        if ('ADD' == operation) {
+            callback(error, data);
+            return;
+        }
+        dataObjArr = [];
+        for (var i = 0; i < cnt; i++) {
+            var reqUrl = '/port-tuple/' + portTuples[i]['uuid'];
+            commonUtils.createReqObj(dataObjArr, reqUrl,
+                                     global.HTTP_REQUEST_DEL,
+                                     null, null, null, appData);
+        }
+        if (!dataObjArr.length) {
+            callback(error, data);
+            return;
+        }
+        async.map(dataObjArr,
+                  commonUtils.getServerResponseByRestApi(configApiServer,
+                                                         false),
+                  function(error, data) {
+            callback(error, data);
+        });
+    });
+}
+
+function updateSIRefs (configSIData, siPostData, appData, callback)
+{
+    var cfgRtTabBackRefs =
+        configSIData['service-instance']['interface_route_table_back_refs'];
+    var uiRtTabBackRefs =
+        siPostData['service-instance']['interface_route_table_back_refs'];
+    var cfgRtAggBackRefs =
+        configSIData['service-instance']['route_aggregate_back_refs'];
+    var uiRtAggBackRefs =
+        siPostData['service-instance']['route_aggregate_back_refs'];
+    var cfgRtPolBackRefs =
+        configSIData['service-instance']['routing_policy_back_refs'];
+    var uiRtPolBackRefs =
+        siPostData['service-instance']['routing_policy_back_refs'];
+    var cfgSvcHealthChkBackRefs =
+        configSIData['service-instance']['service_health_check_back_refs'];
+    var uiSvcHealthChkBackRefs =
+        siPostData['service-instance']['service_health_check_back_refs'];
+    var rtTabArrDiff =
+        jsonDiff.getConfigArrayDelta('interface-route-table',
+                                     cfgRtTabBackRefs, uiRtTabBackRefs);
+    var rtAggArrDiff =
+        jsonDiff.getConfigArrayDelta('route-aggregate',
+                                     cfgRtAggBackRefs, uiRtAggBackRefs);
+    var rtPolArrDiff =
+        jsonDiff.getConfigArrayDelta('routing-policy',
+                                     cfgRtPolBackRefs, uiRtPolBackRefs);
+    var svcHealthChkArrDiff =
+        jsonDiff.getConfigArrayDelta('service-health-check',
+                                     cfgSvcHealthChkBackRefs,
+                                     uiSvcHealthChkBackRefs);
+    var svcInstRefs = {
+        'to': siPostData['service-instance']['fq_name'],
+        'uuid': siPostData['service-instance']['uuid']
+    };
+    var dataObjArr = [];
+    if (null != rtTabArrDiff) {
+        if ((null != rtTabArrDiff['deletedList']) &&
+            (rtTabArrDiff['deletedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtTabArrDiff['deletedList'],
+                                    svcInstRefs, 'interface-route-table',
+                                    'DELETE', appData);
+        }
+        if ((null != rtTabArrDiff['addedList']) &&
+            (rtTabArrDiff['addedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtTabArrDiff['addedList'],
+                                    svcInstRefs, 'interface-route-table',
+                                    'ADD', appData);
+        }
+    }
+    if (null != rtAggArrDiff) {
+        if ((null != rtAggArrDiff['deletedList']) &&
+            (rtAggArrDiff['deletedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtAggArrDiff['deletedList'],
+                                    svcInstRefs, 'route-aggregate',
+                                    'DELETE', appData);
+        }
+        if ((null != rtAggArrDiff['addedList']) &&
+            (rtAggArrDiff['addedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtAggArrDiff['addedList'],
+                                    svcInstRefs, 'route-aggregate',
+                                    'ADD', appData);
+        }
+    }
+    if (null != rtPolArrDiff) {
+        if ((null != rtPolArrDiff['deletedList']) &&
+            (rtPolArrDiff['deletedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtPolArrDiff['deletedList'],
+                                    svcInstRefs, 'routing-policy',
+                                    'DELETE', appData);
+        }
+        if ((null != rtPolArrDiff['addedList']) &&
+            (rtPolArrDiff['addedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    rtPolArrDiff['addedList'],
+                                    svcInstRefs, 'routing-policy',
+                                    'ADD', appData);
+        }
+    }
+    if (null != svcHealthChkArrDiff) {
+        if ((null != svcHealthChkArrDiff['deletedList']) &&
+            (svcHealthChkArrDiff['deletedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    svcHealthChkArrDiff['deletedList'],
+                                    svcInstRefs, 'service-health-check',
+                                    'DELETE', appData);
+        }
+        if ((null != svcHealthChkArrDiff['addedList']) &&
+            (svcHealthChkArrDiff['addedList'].length > 0)) {
+            formSvcInstRefsPostData(dataObjArr,
+                                    svcHealthChkArrDiff['addedList'],
+                                    svcInstRefs, 'service-health-check',
+                                    'ADD', appData);
+        }
+    }
+    if (!dataObjArr.length) {
+        callback(null, null);
+        return;
+    }
+    async.mapSeries(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer, false),
+              function(error, data) {
+        callback(error, data);
+    });
 }
 
 /**
@@ -713,11 +1466,157 @@ function updateServiceInstance(request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
-    jsonDiff.getJSONDiffByConfigUrl(siPutURL, appData, siPostData,
-                                    function(err, delta) {
-        configApiServer.apiPut(siPutURL, delta, appData,
-                               function (error, data) {
-            setSIRead(error, data, response, appData);
+    var svcTmpl = siPostData['service-instance']['svcTmplDetails'];
+    var version = 1;
+    if ((null != svcTmpl) && (null != svcTmpl[0]) &&
+        (null != svcTmpl[0]['service_template_properties']) &&
+        (null != svcTmpl[0]['service_template_properties']['version'])) {
+        version = svcTmpl[0]['service_template_properties']['version'];
+    }
+    delete siPostData['service-instance']['svcTmplDetails'];
+
+    if (1 == version) {
+        jsonDiff.getJSONDiffByConfigUrl(siPutURL, appData, siPostData,
+                                        function(err, delta) {
+            configApiServer.apiPut(siPutURL, delta, appData,
+                                   function (error, data) {
+                setSIRead(error, data, response, appData);
+            });
+        });
+        return;
+    }
+
+    var portTuples = [];
+    var portTuplesCnt = 0;
+    if (null != siPostData['service-instance']['port_tuples']) {
+        portTuples =
+            commonUtils.cloneObj(siPostData['service-instance']['port_tuples']);
+        portTuplesCnt = portTuples.length;
+    }
+    var vmiList = [];
+    for (var i = 0; i < portTuplesCnt; i++) {
+        var vmis = portTuples[i]['vmis'];
+        var vmisCnt = 0;
+        if (null != vmis) {
+            vmisCnt = vmis.length;
+        }
+        for (var j = 0; j < vmisCnt; j++) {
+            vmiList.push(vmis[j]['uuid']);
+        }
+    }
+    var tmpVmiList = _.uniq(vmiList);
+    if (tmpVmiList.length != vmiList.length) {
+        var error = new appErrors.RESTServerError('Same port associated with' +
+                                                  ' same/multple port tuples');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    if ((portTuplesCnt > 0) && (!tmpVmiList.length)) {
+        var error = new appErrors.RESTServerError('No Virtual Machine ' +
+                                                  'Interface selected for ' +
+                                                  'port tuples');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+
+    vmiList = _.uniq(vmiList);
+    var dataObjArr = [];
+    if (vmiList.length > 0) {
+        var vmiUrl = '/virtual-machine-interfaces?detail=true&obj_uuids=' +
+            vmiList.join(',');
+        commonUtils.createReqObj(dataObjArr, vmiUrl, global.HTTP_REQUEST_GET,
+                                 null, null, null, appData);
+    }
+    var siUrl = '/service-instance/' + siPostData['service-instance']['uuid'];
+    commonUtils.createReqObj(dataObjArr, siUrl, global.HTTP_REQUEST_GET,
+                             null, null, null, appData);
+
+    async.map(dataObjArr,
+              commonUtils.getServerResponseByRestApi(configApiServer,
+                                                     true),
+              function(error, configSiVmiData) {
+        if (null != error) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        var vmiDetails = [];
+        var configSIData;
+        if (vmiList.length > 0) {
+            vmiDetails =
+                commonUtils.getValueByJsonPath(configSiVmiData[0],
+                                               'virtual-machine-interfaces',
+                                               []);
+            configSIData = configSiVmiData[1];
+        } else {
+            configSIData = configSiVmiData[0];
+        }
+
+        var vmiObjs = {};
+        var vmiDetailsCnt = 0;
+        if (null != vmiDetails) {
+            vmiDetailsCnt = vmiDetails.length;
+        }
+        for (var i = 0; i < vmiDetailsCnt; i++) {
+            var vmiUUID = vmiDetails[i]['virtual-machine-interface']['uuid'];
+            vmiObjs[vmiUUID] = vmiDetails[i];
+        }
+        /* Update port tuples */
+        updatePortTuples(configSIData, siPostData, vmiObjs, appData,
+                         function(error, changedPortTuples,
+                                  portTuplesAddConfig) {
+            if (null != error) {
+                commonUtils.handleJSONResponse(error, response, null);
+                return;
+            }
+            /* Now update SI */
+            var tmpPortTupleObjs = {};
+            for (var i = 0; i < portTuplesCnt; i++) {
+                var fqn = portTuples[i]['to'].join(':');
+                tmpPortTupleObjs[fqn] = i;
+            }
+            var siPutData = { 'service-instance': {
+                'uuid': siPostData['service-instance']['uuid'],
+                'fq_name': siPostData['service-instance']['fq_name'],
+                'display_name': siPostData['service-instance']['display_name']
+            }};
+            if ((null != changedPortTuples) &&
+                (null != changedPortTuples['deletedList']) &&
+                (changedPortTuples['deletedList'].length > 0)) {
+                var len = changedPortTuples['deletedList'].length;
+                for (var i = 0; i < len; i++) {
+                    fqn = changedPortTuples['deletedList'][i]['to'].join(':');
+                    if (null != tmpPortTupleObjs[fqn]) {
+                        portTuples.splice(tmpPortTupleObjs[fqn], 1);
+                    }
+                }
+            }
+            if ((null != portTuplesAddConfig) &&
+                (portTuplesAddConfig.length > 0)) {
+                var newLen = portTuplesAddConfig.length;
+                for (var i = 0; i < newLen; i++) {
+                    portTuples.push({'to':
+                                        portTuplesAddConfig[i]['port-tuple']['fq_name'],
+                                    'uuid':
+                                        portTuplesAddConfig[i]['port-tuple']['uuid']});
+                }
+            }
+            delete siPostData['service-instance']['old_port_tuples'];
+            siPostData['service-instance']['port_tuples'] = portTuples;
+            jsonDiff.getConfigDiffAndMakeCall(siUrl, appData, siPostData,
+                                            function(error, data) {
+                if (null != error) {
+                    commonUtils.handleJSONResponse(error, response, data);
+                    return;
+                }
+                updateSIRefs(configSIData, siPostData, appData,
+                             function(error, data) {
+                    if (null != error) {
+                        commonUtils.handleJSONResponse(error, response, null);
+                        return;
+                    }
+                    commonUtils.handleJSONResponse(null, response, data);
+                });
+            });
         });
     });
 }
@@ -773,6 +1672,198 @@ function deleteServiceInstance(request, response, appData)
                 deleteServiceInstanceCb(error, data, response);
             });
     }
+}
+
+function formDataObjRefDelete (dataObjArr, deleteObj, type)
+{
+    var userData = deleteObj.userData;
+    var refUpdURL = '/ref-update';
+    var backRefs = null;
+    var backRefsLen = 0;
+    var appData = deleteObj.appData;
+
+    if ('interface-route-table' == type) {
+        backRefs = userData['interface_route_table_back_refs'];
+    }
+    if ('service-health-check' == type) {
+        backRefs = userData['service_health_check_back_refs'];
+    }
+    if ('routing-policy' == type) {
+        backRefs = userData['routing_policy_back_refs'];
+    }
+    if ('route-aggregate' == type) {
+        backRefs = userData['route_aggregate_back_refs'];
+    }
+    if (null != backRefs) {
+        backRefsLen = backRefs.length;
+    }
+
+    if (backRefsLen > 0) {
+        for (i = 0; i < backRefsLen; i++) {
+            var postData = {
+                "type": type,
+                "uuid": backRefs[i]['uuid'],
+                "ref-type": "service-instance",
+                "ref-uuid": deleteObj.uuid,
+                "ref-fq-name": userData.fq_name,
+                "operation": "DELETE",
+                "attr": null
+            };
+            commonUtils.createReqObj(dataObjArr, refUpdURL,
+                                     global.HTTP_REQUEST_POST, postData,
+                                     null, null, appData);
+        }
+    }
+}
+
+function deleteAllSIRefsAndSI (deleteObj, deleteRefs, callback)
+{
+    var appData = deleteObj.appData;
+    var userData = deleteObj.userData;
+    var dataObjArr = [];
+
+    var siDelUrl = '/service-instance/' + deleteObj.uuid;
+    if (false == deleteRefs) {
+        configApiServer.apiDelete(siDelUrl, appData, function(error, data) {
+            callback(error, data);
+            return;
+        });
+        return;
+    }
+    formDataObjRefDelete(dataObjArr, deleteObj, 'interface-route-table');
+    formDataObjRefDelete(dataObjArr, deleteObj, 'service-health-check');
+    formDataObjRefDelete(dataObjArr, deleteObj, 'routing-policy');
+    formDataObjRefDelete(dataObjArr, deleteObj, 'route-aggregate');
+    async.map(dataObjArr,
+              commonUtils.getAPIServerResponse(configApiServer.apiPost,
+                                               false),
+              function(error, data) {
+        if (null != error) {
+            callback(error, data);
+            return;
+        }
+        configApiServer.apiDelete(siDelUrl, appData, function(error, data) {
+            callback(error, data);
+            return;
+        });
+    });
+}
+
+function deleteServiceInstanceCB (deleteObj, callback)
+{
+    var appData = deleteObj.appData;
+    var uuid = deleteObj.uuid;
+    var req = deleteObj.request;
+    var userData = deleteObj.userData;
+    var siURL = '/service-instance/' + uuid;
+    if (1 == userData.template_version) {
+        configApiServer.apiDelete(siURL, appData,
+                                  function (error, data) {
+            callback(null, {'error': error, 'data': data});
+            return;
+        });
+        return;
+    }
+    /* Template Version 2 */
+    /* 1. Get the VMI details attached to the port tuples of this service
+     *    instance, and then remove the references of port tuples
+     * 2. Remove the port tuples
+     * 3. Remove all the references of this SI from health-check-service,
+     *    interface-route-table, routing-policy and route-aggregates
+     * 4. Remove this SI
+     */
+    var dataObjArr = [];
+    var portTuples = userData['port_tuples'];
+    var portTuplesCnt = 0;
+    if (null != portTuples) {
+        portTuplesCnt = portTuples.length;
+    }
+    if (!portTuplesCnt) {
+        var deleteRefs = true;
+        deleteAllSIRefsAndSI(deleteObj, true, function(error, data) {
+            callback(null, {'error': error, 'data': data});
+            return;
+        });
+        return;
+    }
+    var uuidList = [];
+    for (var i = 0; i < portTuplesCnt; i++) {
+        uuidList.push(portTuples[i]['uuid']);
+    }
+    var reqURL =
+        '/port-tuples?detail=true&fields=virtual_machine_interface_back_refs' +
+        '&obj_uuids=' + uuidList.join(',');
+    /* Get the port-tuple details */
+    configApiServer.apiGet(reqURL, appData, function(error, data) {
+        if (null != error) {
+            callback(null, {'error': error, 'data': data});
+            return;
+        }
+        var pTuples = data['port-tuples'];
+        var cnt = pTuples.length;
+        var tmpVMIToPTuplesMap = {};
+        var vmiUUIDList = [];
+        dataObjArr = [];
+        var refUpdURL = '/ref-update';
+        for (var i = 0; i < cnt; i++) {
+            var vmis =
+                commonUtils.getValueByJsonPath(pTuples[i],
+                                               'port-tuple;virtual_machine_interface_back_refs',
+                                               []);
+            var vmisCnt = vmis.length;
+            for (var j = 0; j < vmisCnt; j++) {
+                var postData = {
+                    "type": 'virtual-machine-interface',
+                    "uuid": vmis[j]['uuid'],
+                    "ref-type": "port-tuple",
+                    "ref-uuid": pTuples[i]['port-tuple']['uuid'],
+                    "ref-fq-name": pTuples[i]['port-tuple']['to'],
+                    "operation": "DELETE",
+                    "attr": null
+                };
+                commonUtils.createReqObj(dataObjArr, refUpdURL,
+                                         global.HTTP_REQUEST_POST, postData,
+                                         null, null, appData);
+            }
+        }
+        formDataObjRefDelete(dataObjArr, deleteObj, 'interface-route-table');
+        formDataObjRefDelete(dataObjArr, deleteObj, 'service-health-check');
+        formDataObjRefDelete(dataObjArr, deleteObj, 'routing-policy');
+        formDataObjRefDelete(dataObjArr, deleteObj, 'route-aggregate');
+
+        if (!dataObjArr.length) {
+            var deleteRefs = false;
+            deleteAllSIRefsAndSI(deleteObj, deleteRefs, function(error, data) {
+                callback(null, {'error': error, data: data})
+                return;
+            });
+            return;
+        }
+        async.map(dataObjArr,
+                  commonUtils.getAPIServerResponse(configApiServer.apiPost,
+                                                   false),
+                  function(err, results) {
+            /* Now delete all the port-tuples */
+            dataObjArr = [];
+            for (i = 0; i < portTuplesCnt; i++) {
+                var ptDelUrl = '/port-tuple/' + portTuples[i]['uuid'];
+                commonUtils.createReqObj(dataObjArr, ptDelUrl,
+                                         global.HTTP_REQUEST_DEL, null, null,
+                                         null, appData);
+            }
+            async.map(dataObjArr,
+                      commonUtils.getAPIServerResponse(configApiServer.apiDelete,
+                                                       false),
+                      function(error, results) {
+                /* Finally delete the service instance now */
+                configApiServer.apiDelete(siURL, appData,
+                                          function(error, data) {
+                    callback(null, {'error': error, 'data': data});
+                    return;
+                });
+            });
+        });
+    });
 }
 
 /**
@@ -1309,6 +2400,10 @@ function getHostList(request, response, appdata)
 {
     computeApi.getOSHostList(request, function(err, data) {
         var filteredOSHostList = [];
+        if ((null != err) || (null == data)) {
+            commonUtils.handleJSONResponse(null, response, filteredOSHostList);
+            return;
+        }
         var allOSHostList = data["hosts"];
         for (i = 0; i < data["hosts"].length; i++) {
             if(data["hosts"][i].service == "compute"){
@@ -1330,6 +2425,10 @@ function getHostList(request, response, appdata)
 function getAvailabilityZone(request, response, appdata)
 {
     computeApi.getAvailabilityZoneList(request, function(err, data) {
+        if ((null != err) || (null == data)) {
+            commonUtils.handleJSONResponse(null, response, []);
+            return;
+        }
         commonUtils.handleJSONResponse(err, response, data);
     });
 }
@@ -1349,4 +2448,4 @@ exports.getServiceInstances = getServiceInstances;
 exports.getHostList = getHostList;
 exports.getAvailabilityZone = getAvailabilityZone;
 exports.getServiceInstanceStatusByProject = getServiceInstanceStatusByProject;
-
+exports.deleteServiceInstanceCB = deleteServiceInstanceCB;

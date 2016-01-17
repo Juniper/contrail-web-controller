@@ -21,10 +21,12 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
+                self.editView = SvcInstEditView;
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.configureSvcInst(options['isEdit'], {
+                self.model.configureSvcInst(options['isEdit'],
+                                            options['dataItem'], {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -55,7 +57,36 @@ define([
                                          false);
                 Knockback.applyBindings(self.model,
                                     document.getElementById(modalId));
-                kbValidation.bind(self);
+                var portTuples = self.model.model().attributes.portTuples;
+                kbValidation.bind(self, {collection: portTuples});
+                var portTupleModels = portTuples.toJSON();
+                var portTuplesCnt = portTuples.length;
+                for (var i = 0; i < portTuplesCnt; i++) {
+                    kbValidation.bind(self,
+                          {collection:
+                          portTupleModels[i].model().attributes.portTupleInterfaces});
+                }
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.svcHealtchChecks});
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.intfRtTables});
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.rtPolicys});
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.rtAggregates});
+                var interfaces = self.model.model().attributes.interfaces;
+                kbValidation.bind(self, {collection: interfaces});
+                var intfCnt = interfaces.length;
+                var interfaceModels = interfaces.toJSON();
+                for (var i = 0; i < intfCnt; i++) {
+                    kbValidation.bind(self,
+                                      {collection:
+                                      interfaceModels[i].model().attributes.staticRoutes});
+                }
             });
         },
         renderDeleteSvcInst: function(options) {
@@ -113,6 +144,47 @@ define([
         return svcTmpList;
     }
 
+    function getFlowSeriesViewConfig(config) {
+        var hashParams = config['hashParams'];
+
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: cowl.QE_FLOW_SERIES_ID,
+                                view: "FlowSeriesFormView",
+                                viewPathPrefix: "reports/qe/ui/js/views/",
+                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                viewConfig: {
+                                    widgetConfig: {
+                                        elementId: cowl.QE_FLOW_SERIES_ID + '-widget',
+                                        view: "WidgetView",
+                                        viewConfig: {
+                                            header: {
+                                                title: cowl.TITLE_QUERY,
+                                                iconClass: "icon-search"
+                                            },
+                                            controls: {
+                                                top: {
+                                                    default: {
+                                                        collapseable: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
     function getEditSvcInstViewConfig (self, isDisabled) {
         var prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID;
         var svcInstViewConfig = {
@@ -129,17 +201,51 @@ define([
                             label: 'Name',
                             disabled: isDisabled,
                             path: 'display_name',
-                            class: 'span12',
-                            dataBindValue: 'display_name'
+                            class: 'span6',
+                            dataBindValue: 'display_name',
+                            onBlur: function() {
+                                self.model.changePortTupleName()
+                            }
                         }
-                    }],
+                    },
+                    {
+                        elementId: 'service_template',
+                        view: 'FormDropdownView',
+                        viewConfig: {
+                            disabled: isDisabled,
+                            label: 'Service Template',
+                            path: 'service_template',
+                            class: 'span6',
+                            dataBindValue: 'service_template',
+                            elementConfig: {
+                                change: function(data) {
+                                    var tmpl = data['val'];
+                                    var intfTypeStrStart = tmpl.indexOf('(');
+                                    var intfTypeStrEnd = tmpl.indexOf(')');
+                                    var itfTypes =
+                                        tmpl.substr(intfTypeStrStart + 1,
+                                                    intfTypeStrEnd -
+                                                    intfTypeStrStart - 1);
+                                    window.intfTypes = itfTypes.split(', ');
+                                    self.model.formatModelConfigColl(window.intfTypes, isDisabled);
+                                    var cnt = window.intfTypes.length;
+                                },
+                                placeholder: 'Select template',
+                                dataTextField: "text",
+                                dataValueField: "id",
+                                data: window.svcTmplsFormatted
+                            }
+                        }
+                    }]
                 },
+                /*
                 {
                     columns: [{
                         elementId: 'service_template',
                         view: 'FormDropdownView',
                         viewConfig: {
                             disabled: isDisabled,
+                            label: 'Service Template',
                             path: 'service_template',
                             class: 'span12',
                             dataBindValue: 'service_template',
@@ -154,25 +260,18 @@ define([
                                                     intfTypeStrStart - 1);
                                     window.intfTypes = itfTypes.split(', ');
                                     self.model.formatModelConfigColl(window.intfTypes);
+                                    var cnt = window.intfTypes.length;
+                                    //self.model.setInterfaceTypesData();
                                 },
                                 placeholder: 'Select template',
                                 dataTextField: "text",
                                 dataValueField: "id",
                                 data: window.svcTmplsFormatted
-                                    /*
-                                dataSource: {
-                                    type: 'remote',
-                                    url:
-                                        '/api/tenants/config/service-instance-templates/'
-                                        +
-                                        window.projectDomainData['parentSelectedValueData']['value'],
-                                    parse: svcTmpListFormatter
-                                }
-                                */
                             }
                         }
                     }]
                 },
+                */
                 {
                     columns: [{
                         elementId: 'no_of_instances',
@@ -190,7 +289,7 @@ define([
                         view: 'FormDropdownView',
                         viewConfig: {
                             disabled: 'isHAModeDropDownDisabled',
-                            visible: 'showInstCnt',
+                            visible: 'showHAMode',
                             class: 'span6',
                             path: 'service_instance_properties.ha_mode',
                             label: 'HA Mode',
@@ -273,6 +372,16 @@ define([
                 {
                     columns: [
                         svcInstUtils.getInterfaceCollectionView(isDisabled)
+                    ]
+                },
+                {
+                    columns: [
+                        svcInstUtils.getPortTuplesView(self, isDisabled)
+                    ]
+                },
+                {
+                    columns: [
+                        svcInstUtils.getPortTuplePropView(isDisabled)
                     ]
                 }]
             }
