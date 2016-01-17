@@ -111,23 +111,137 @@ define([
         return gridElementConfig;
     };
 
+    function editSvcInstPopUp (dataItem) {
+        var svcInstModel = new SvcInstModel(dataItem);
+        addModelAttr(svcInstModel);
+        svcInstEditView.model = svcInstModel;
+        svcInstEditView.renderConfigureSvcInst({
+                              "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
+                              ' (' + dataItem['display_name'] +
+                                 ')',
+                              dataItem: dataItem,
+                              "isEdit": true,
+                              callback: function () {
+            var dataView =
+                $(gridElId).data("contrailGrid")._dataView;
+            dataView.refreshData();
+        }});
+    }
     var rowActionConfig = [
         ctwgc.getEditConfig('Edit', function(rowIndex) {
             var dataItem =
                 $(gridElId).data('contrailGrid')._dataView.getItem(rowIndex);
-            var svcInstModel = new SvcInstModel(dataItem);
-            addModelAttr(svcInstModel);
-            svcInstEditView.model = svcInstModel;
-            svcInstEditView.renderConfigureSvcInst({
-                                  "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
-                                  ' (' + dataItem['display_name'] +
-                                     ')',
-                                  "isEdit": true,
-                                  callback: function () {
-                var dataView =
-                    $(gridElId).data("contrailGrid")._dataView;
-                dataView.refreshData();
-            }});
+            var svcTmplDetails = dataItem['svcTmplDetails'];
+            if ((null == svcTmplDetails) || (null == svcTmplDetails[0])) {
+                editSvcInstPopUp(dataItem);
+                return;
+            }
+            var svcTmplVer =
+                getValueByJsonPath(svcTmplDetails[0],
+                                   'service_template_properties;version',
+                                   1);
+            if (1 == svcTmplVer) {
+                editSvcInstPopUp(dataItem);
+                return;
+            }
+            var portTuples = dataItem['port_tuples'];
+            if (null == portTuples) {
+                editSvcInstPopUp(dataItem);
+                return;
+            }
+            var portTuplesCnt = portTuples.length;
+            var portTupleUUIDList = [];
+            for (var i = 0; i < portTuplesCnt; i++) {
+                portTupleUUIDList.push(portTuples[i]['uuid']);
+            }
+            var postData = {
+                'data': [{
+                    'type': 'virtual-machine-interfaces',
+                    'fields': ['port_tuple_refs'],
+                    'back_ref_id': portTupleUUIDList
+                }]
+            };
+            var ajaxConfig = {
+                url: ctwc.get('/api/tenants/config/get-config-details'),
+                type: "POST",
+                timeout: 60000,
+                data: JSON.stringify(postData)
+            }
+            contrail.ajaxHandler(ajaxConfig, null, function(result) {
+                if ((null == result) || (null == result[0])) {
+                    editSvcInstPopUp(dataItem);
+                    return;
+                }
+                var portTuples = dataItem['port_tuples'];
+                var newPortTuples = [];
+                var portTuplesCnt = portTuples.length;
+                var portTupleMap = {};
+                for (var i = 0; i < portTuplesCnt; i++) {
+                    portTupleMap[portTuples[i]['uuid']] = i;
+                }
+                var vmis = result[0]['virtual-machine-interfaces'];
+                var vmisCnt = vmis.length;
+                var tmpIdxToIndexMap = {};
+                for (var i = 0; i < vmisCnt; i++) {
+                    var vmi = vmis[i]['virtual-machine-interface'];
+                    var portTupleRefs =
+                        getValueByJsonPath(vmis[i],
+                                           'virtual-machine-interface;port_tuple_refs',
+                                           []);
+                    if (!portTupleRefs.length) {
+                        /* This is really strage */
+                        console.log('Port Tuple Refs null, wrong here');
+                        continue;
+                    }
+                    var refsCnt = portTupleRefs.length;
+                    for (var j = 0; j < refsCnt; j++) {
+                        var portTupleUUID = portTupleRefs[j]['uuid'];
+                        var idx = portTupleMap[portTupleUUID];
+                        if (null != idx) {
+                            if (null == newPortTuples[idx]) {
+                                newPortTuples[idx] = {};
+                                newPortTuples[idx] =
+                                    dataItem['port_tuples'][idx];
+                                newPortTuples[idx]['virtual-machine-interfaces']
+                                    = [];
+                            }
+                            newPortTuples[idx]
+                                ['virtual-machine-interfaces'].push(vmi);
+                        }
+                    }
+                }
+                /* If there is no VMI, then newPortTuples will have that idx as
+                 * null, so delete those entries
+                 */
+                var newPortTuplesCnt = newPortTuples.length;
+                for (i = 0; i < newPortTuplesCnt; i++) {
+                    if (null == newPortTuples[i]) {
+                        newPortTuples.splice(i, 1);
+                        i--;
+                        newPortTuplesCnt--;
+                    }
+                }
+                /* Now check if any port_tuple does not have any VMI associated
+                 */
+                if (newPortTuples.length == dataItem['port_tuples'].length) {
+                    dataItem['port_tuples'] = newPortTuples;
+                    editSvcInstPopUp(dataItem);
+                    return;
+                }
+                var newPortTuplesLen = newPortTuples.length;
+                for (var i = 0; i < newPortTuplesLen; i++) {
+                    if (null != portTupleMap[newPortTuples[i]['uuid']]) {
+                        delete portTupleMap[newPortTuples[i]['uuid']];
+                    }
+                }
+                for (key in portTupleMap) {
+                    var idx = portTupleMap[key];
+                    newPortTuples.push(dataItem['port_tuples'][idx]);
+                }
+                dataItem['port_tuples'] = newPortTuples;
+                editSvcInstPopUp(dataItem);
+                return;
+            });
         }),
         ctwgc.getDeleteConfig('Delete', function(rowIndex) {
             var svcInstModel = new SvcInstModel();
@@ -225,6 +339,51 @@ define([
                                         }
                                     },
                                     {
+                                        key: 'port_tuples',
+                                        keyClass: 'span2',
+                                        label: 'Port Tuples',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'portTuplesFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'interface_route_table_back_refs',
+                                        keyClass: 'span2',
+                                        label: 'Interface Route Tables',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'intfRtTablesFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'service_health_check_back_refs',
+                                        keyClass: 'span2',
+                                        label: 'Service Health Checks',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcHealtchChksFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'routing_policy_back_refs',
+                                        keyClass: 'span2',
+                                        label: 'Routing Policys',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'routingPolicyFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'route_aggregate_back_refs',
+                                        keyClass: 'span2',
+                                        label: 'Route Aggregates',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'rtAggFormatter'
+                                        }
+                                    },
+                                    {
                                         key: 'svcTmplDetails',
                                         keyClass: 'span2',
                                         label: 'Flavor',
@@ -270,10 +429,14 @@ define([
              rowData['svcTmplDetails'][0]) &&
             ('service_mode' in
              rowData['svcTmplDetails'][0]['service_template_properties'])) {
+            var version =
+                getValueByJsonPath(rowData['svcTmplDetails'][0],
+                                   'service_template_properties;version',
+                                   1);
             return rowData['svcTmplDetails'][0]['display_name'] + " (" +
                 rowData['svcTmplDetails'][0]
                 ['service_template_properties']['service_mode'] +
-                " )";
+                ", version " + version.toString() + ")";
         } else {
             if ((null != val) && (val.length > 0)) {
                 if (('to' in val[0]) && (val[0]['to'].length)) {
@@ -328,6 +491,23 @@ define([
 
     function networksFormatter (row, col, val, d, rowData, isExpand) {
         var dispStr = "";
+        if (null != rowData['svcTmplDetails']) {
+            var tmplVer =
+                getValueByJsonPath(rowData['svcTmplDetails'][0],
+                                   'service_template_properties;version',
+                                   1);
+            if (true == isExpand) {
+                return "-";
+            }
+            if (2 == tmplVer) {
+                return portTuplesFormatter(row, col, rowData['port_tuples'], d,
+                                       rowData, isExpand);
+            }
+        } else if ((null != rowData['port_tuples']) &&
+                   (rowData['port_tuples'].length > 0)) {
+            return portTuplesFormatter(row, col, rowData['port_tuples'], d,
+                                       rowData, isExpand);
+        }
         if (null != rowData['service_instance_properties']) {
             var svcInstProp = rowData['service_instance_properties'];
             if (null != svcInstProp['management_virtual_network']) {
@@ -404,6 +584,46 @@ define([
         } else {
             return "-";
         }
+    }
+
+    function portTuplesFormatter (row, col, val, d, rowData, isExpand) {
+        var dispStr = "";
+        if (null != val) {
+            var len = val.length;
+            if (false == isExpand) {
+                len = (len > 2) ? 2 : len;
+            }
+            for (var i = 0; i < len; i++) {
+                dispStr += val[i]['to'][3];
+                dispStr += '<br>';
+            }
+            if ((false == isExpand) && (len < val.length)) {
+                dispStr += '(' + (val.length - len).toString() + ' more)';
+            }
+            return dispStr;
+        }
+        return "-";
+    }
+
+    function svcInstBackRefsFormatter (row, col, val, d, rowData) {
+        var dispStr = "";
+        if (null == val) {
+            return "-";
+        }
+        var len = val.length;
+        for (var i = 0; i < len; i++) {
+            if (i > 0) {
+                dispStr += ",";
+            }
+            dispStr += val[i]['to'][2];
+            dispStr += ' (' + '<span class="gridLabel">Interface Type: </span>';
+            var intfType =
+                getValueByJsonPath(val[i], 'attr;interface_type', "");
+            dispStr += intfType;
+            dispStr += ")";
+            dispStr += "<br>";
+        }
+        return dispStr;
     }
 
     function availabilityZoneFormatter (row, col, val, d, rowData) {
@@ -593,6 +813,26 @@ define([
         return flavorsFormatter(null, null, val, null, rowData);
     }
 
+    this.portTuplesFormatter = function(val, rowData) {
+        return portTuplesFormatter(null, null, val, null, rowData);
+    }
+
+    this.intfRtTablesFormatter = function(val, rowData) {
+        return svcInstBackRefsFormatter(null, null, val, null, rowData);
+    }
+
+    this.svcHealtchChksFormatter = function(val, rowData) {
+        return svcInstBackRefsFormatter(null, null, val, null, rowData);
+    }
+
+    this.routingPolicyFormatter = function(val, rowData) {
+        return svcInstBackRefsFormatter(null, null, val, null, rowData);
+    }
+
+    this.rtAggFormatter = function(val, rowData) {
+        return svcInstBackRefsFormatter(null, null, val, null, rowData);
+    }
+
     this.availabilityZoneFormatter = function (val, rowData) {
         return availabilityZoneFormatter(null, null, val, null, rowData);
     }
@@ -659,7 +899,7 @@ define([
             }
         },
         {
-            name: 'Networks',
+            name: 'Networks/Port Tuples',
             formatter: function(row, col, val, d, rowData) {
                 return networksFormatter(row, col, val, d, rowData, false);
             }
@@ -692,19 +932,56 @@ define([
     function addModelAttr (model)
     {
         model.isHAModeDropDownDisabled = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var tmplVersion =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVersion) {
+                return false;
+            }
             var instCnt = this.no_of_instances();
             if (instCnt > 1) {
                 return false;
             }
             return true;
         }), model);
-        model.showInstCnt = ko.computed((function() {
+        model.showHAMode = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
             var svcScaling =
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;service_scaling',
                                    false);
+            var tmplVersion =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVersion) {
+                return true;
+            }
             return svcScaling;
+        }), model);
+        model.showInstCnt = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var svcScaling =
+            getValueByJsonPath(svcTmpl,
+                               'service_template_properties;service_scaling',
+                               false);
+            var tmplVersion =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVersion) {
+                return false;
+            }
+            return svcScaling;
+        }), model);
+        model.showPortTuplesView = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var tmplVer =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (2 == tmplVer) {
+                return true;
+            }
+            return false;
         }), model);
         model.showAvailibilityZone = ko.computed((function() {
             var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
@@ -712,8 +989,33 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service_template_properties;availability_zone_enable',
                                    false);
-            return availZoneEnable;
+            var tmplVer =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if ((1 == tmplVer) && (true == availZoneEnable)) {
+                return true;
+            }
+            return false;
         }), model);
+        model.showInterfaceCollectionView = ko.computed((function() {
+            var svcTmpl = getSvcTmplDetailsByUIStr(this.service_template());
+            var tmplVer =
+                getValueByJsonPath(svcTmpl,
+                                   'service_template_properties;version', 1);
+            if (1 == tmplVer) {
+                return true;
+            }
+            return false;
+        }), model);
+    }
+
+
+    function subscribeModelChangeEvents (model) {
+        model.__kb.view_model.model().on('change:service_template',
+                                         function(model, newValue) {
+            console.log("gettong newValue as:", newValue);
+            model.interfaeTypesData = [];
+        });
     }
 
     function getHeaderActionConfig() {

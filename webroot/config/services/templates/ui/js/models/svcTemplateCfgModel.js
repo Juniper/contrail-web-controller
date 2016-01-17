@@ -22,12 +22,14 @@ define([
                 'service_mode': 'transparent',
                 'service_type': 'firewall',
                 'flavor': null,
+                'version': 1,
                 'service_scaling': false,
                 'vrouter_instance_type': null,
                 'ordered_interfaces': true,
                 'interface_type': []
             },
             'user_created_service_virtualization_type': 'virtual-machine',
+            'user_created_version': 1,
             'service_appliance_set': null,
             'interfaces' : []
         },
@@ -50,6 +52,9 @@ define([
 
             var ifCollectionModel = new Backbone.Collection(ifModels);
 
+            modelConfig['service_template_properties']['version'] =
+                getValueByJsonPath(modelConfig,
+                                   'service_template_properties;version', 1);
             modelConfig['interfaces'] = ifCollectionModel;
 
             return modelConfig;
@@ -58,6 +63,7 @@ define([
         addSvcTemplateInterface: function() {
             var interfaces =
                 this.model().attributes['interfaces'];
+            /*
             //create in following order Mgmt, Left, Right, Others
             var ifType = 'management', hasLeft = false,
                 hasMgmt = false, hasRight = false;
@@ -101,12 +107,77 @@ define([
                     ifType = 'other'
                 }
             }
+            */
 
+            var intfTypes = ['management', 'left', 'right'];
+            var intfColl = this.model().get('interfaces');
+            var len = intfColl.length;
+            var intfTypesList = [];
+            var tmpIntfList = intfTypes;
+            var otherIntfIdxList = [];
+            for (var i = 0; i < len; i++) {
+                var modIntf = intfColl.at(i).get('service_interface_type')();
+                intfTypesList.push(modIntf);
+                var otherIntfArr = modIntf.split('other');
+                if ((2 == otherIntfArr.length) && (otherIntfArr[1].length > 0)) {
+                    tmpIntfList.push(modIntf);
+                    var idx = parseInt(otherIntfArr[1]);
+                    otherIntfIdxList.push(idx);
+                }
+            }
+            otherIntfIdxList.sort(function(a, b) {
+                if (a > b) {
+                    return 1;
+                } else if (a < b) {
+                    return -1;
+                } else {
+                    return 0;
+                }
+            });
+            var newIntfTypes = _.difference(intfTypes, intfTypesList);
+            var newIntfType = "";
+            if (newIntfTypes.length > 0) {
+                newIntfType = newIntfTypes[0];
+            } else {
+                var arrLen = otherIntfIdxList.length;
+                if (!arrLen) {
+                    newIntfType = 'other0';
+                } else {
+                    if (arrLen == otherIntfIdxList[arrLen - 1] + 1) {
+                        /* All the array entries are there starting from 0 */
+                        newIntfType = 'other' + arrLen.toString();
+                    } else {
+                        /* Get the first missing index */
+                        for (var i = 0; i < arrLen; i++) {
+                            if (i != otherIntfIdxList[i]) {
+                                newIntfType = 'other' + i.toString();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            if (-1 == tmpIntfList.indexOf(newIntfType)) {
+                tmpIntfList.push(newIntfType);
+            }
+            var intfText = newIntfType;
+            /*
+            if (newIntfType.length > 0) {
+                intfText = newIntfType.replace(newIntfType[0],
+                                                  newIntfType[0].toUpperCase());
+            }
+            */
+            var intfTypes = [];
+            var cnt = tmpIntfList.length;
+            for (var i = 0; i < cnt; i++) {
+                intfTypes.push({text: tmpIntfList[i], id: tmpIntfList[i]});
+            }
             var newInterface
                 = new SvcTemplateInterfaceModel(
                         {'static_route_enable': false,
                          'shared_ip': false,
-                         'service_interface_type': ifType
+                         'service_interface_type': intfText,
+                         interfaceTypesData: intfTypes
                         });
 
             interfaces.add([newInterface]);
@@ -196,6 +267,11 @@ define([
                 newSvcTemplateCfgData['service_template_properties']['interface_type'] =
                     self.getSvcTemplateInterfaceList(newSvcTemplateCfgData);;
 
+                var version =
+                    getValueByJsonPath(newSvcTemplateCfgData,
+                                       'user_created_version', 1);
+                newSvcTemplateCfgData['service_template_properties']['version'] =
+                    Number(version);
                 var svcVirtType =
                     getValueByJsonPath(newSvcTemplateCfgData,
                                        'user_created_service_virtualization_type',
@@ -227,6 +303,7 @@ define([
                     newSvcTemplateCfgData.user_created_service_virtualization_type;
                 delete
                     newSvcTemplateCfgData.service_appliance_set;
+                delete newSvcTemplateCfgData.user_created_version;
 
                 postData['service-template'] = newSvcTemplateCfgData;
 

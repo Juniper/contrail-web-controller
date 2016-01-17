@@ -97,7 +97,8 @@ define([
                 columns: [
                     {
                          field:  'display_name',
-                         name:   'Template'
+                         name:   'Template',
+                         formatter: formatSvcTemplateCfg.displayNameFormatter
                     },
               /*
                     {
@@ -159,12 +160,26 @@ define([
             }
             return false;
         }), model);
+        model.showIfNotTmplV2 = ko.computed((function() {
+            if (2 == this.user_created_version()) {
+                return false;
+            }
+            return true;
+        }), model);
         model.isSvcVirtTypePhysicalDevice = ko.computed((function() {
             if ('physical-device' ==
                 this.user_created_service_virtualization_type()) {
                 return true;
             }
             return false;
+        }), model);
+        model.showImageList = ko.computed((function() {
+            var tmplVersion = this.user_created_version();
+            if (2 == tmplVersion) {
+                return false;
+            }
+            var virtType = this.user_created_service_virtualization_type();
+            return ('physical-device' != virtType);
         }), model);
     }
 
@@ -258,6 +273,12 @@ define([
                                                 {
                                                     key: 'uuid',
                                                     templateGenerator: 'TextGenerator'
+                                                },
+                                                {
+                                                    key:
+                                                        'service_template_properties.version',
+                                                    templateGenerator:
+                                                        'TextGenerator'
                                                 },
                                                 {
                                                     key: 'service_template_properties.service_mode',
