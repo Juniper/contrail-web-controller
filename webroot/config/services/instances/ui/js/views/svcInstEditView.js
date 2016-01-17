@@ -24,7 +24,8 @@ define([
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
-                self.model.configureSvcInst(options['isEdit'], {
+                self.model.configureSvcInst(options['isEdit'],
+                                            options['dataItem'], {
                     init: function () {
                         cowu.enableModalLoading(modalId);
                     },
@@ -113,6 +114,47 @@ define([
         return svcTmpList;
     }
 
+    function getFlowSeriesViewConfig(config) {
+        var hashParams = config['hashParams'];
+
+        return {
+            view: "SectionView",
+            viewConfig: {
+                rows: [
+                    {
+                        columns: [
+                            {
+                                elementId: cowl.QE_FLOW_SERIES_ID,
+                                view: "FlowSeriesFormView",
+                                viewPathPrefix: "reports/qe/ui/js/views/",
+                                app: cowc.APP_CONTRAIL_CONTROLLER,
+                                viewConfig: {
+                                    widgetConfig: {
+                                        elementId: cowl.QE_FLOW_SERIES_ID + '-widget',
+                                        view: "WidgetView",
+                                        viewConfig: {
+                                            header: {
+                                                title: cowl.TITLE_QUERY,
+                                                iconClass: "icon-search"
+                                            },
+                                            controls: {
+                                                top: {
+                                                    default: {
+                                                        collapseable: true
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    };
+
     function getEditSvcInstViewConfig (self, isDisabled) {
         var prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID;
         var svcInstViewConfig = {
@@ -154,21 +196,13 @@ define([
                                                     intfTypeStrStart - 1);
                                     window.intfTypes = itfTypes.split(', ');
                                     self.model.formatModelConfigColl(window.intfTypes);
+                                    var cnt = window.intfTypes.length;
+                                    //self.model.setInterfaceTypesData();
                                 },
                                 placeholder: 'Select template',
                                 dataTextField: "text",
                                 dataValueField: "id",
                                 data: window.svcTmplsFormatted
-                                    /*
-                                dataSource: {
-                                    type: 'remote',
-                                    url:
-                                        '/api/tenants/config/service-instance-templates/'
-                                        +
-                                        window.projectDomainData['parentSelectedValueData']['value'],
-                                    parse: svcTmpListFormatter
-                                }
-                                */
                             }
                         }
                     }]
@@ -190,7 +224,7 @@ define([
                         view: 'FormDropdownView',
                         viewConfig: {
                             disabled: 'isHAModeDropDownDisabled',
-                            visible: 'showInstCnt',
+                            visible: 'showHAMode',
                             class: 'span6',
                             path: 'service_instance_properties.ha_mode',
                             label: 'HA Mode',
@@ -273,6 +307,16 @@ define([
                 {
                     columns: [
                         svcInstUtils.getInterfaceCollectionView(isDisabled)
+                    ]
+                },
+                {
+                    columns: [
+                        svcInstUtils.getPortTuplesView(isDisabled)
+                    ]
+                },
+                {
+                    columns: [
+                        svcInstUtils.getPortTuplePropView(isDisabled)
                     ]
                 }]
             }
