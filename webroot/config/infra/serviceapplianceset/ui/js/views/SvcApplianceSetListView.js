@@ -49,8 +49,63 @@ define([
 
     var intfTypes = ['Management', 'Left', 'Right'];
 
-    var vlRemoteServiceApplConfig = [{
-        getAjaxConfig: function(esponseJSON) {
+    var vlRemoteServiceApplConfig = [
+    {
+        getAjaxConfig: function(responseJSON) {
+            var cnt = responseJSON.length;
+            var uuidList = [];
+            for (var i = 0; i < cnt; i++) {
+                uuidList.push(responseJSON[i]['uuid']);
+            }
+            var lazyAjaxConfig = {
+                url: '/api/tenants/config/get-config-details',
+                type: 'POST',
+                data: JSON.stringify({data: [{
+                    type: 'service-templates',
+                    fields: ['service_appliance_set_refs',
+                        'service_template_properties'],
+                    back_ref_id: uuidList
+                }]})
+            };
+            return lazyAjaxConfig;
+        },
+        successCallback: function(response, contrailListModel) {
+            if (null == window.svcApplSetSvcTmplMap) {
+                window.svcApplSetSvcTmplMap = {};
+            }
+            var svcTmpls =
+                getValueByJsonPath(response[0],
+                                   'service-templates', []);
+            var cnt = svcTmpls.length;
+            for (var i = 0; i < cnt; i++) {
+                var svcApplSetRefs =
+                    getValueByJsonPath(svcTmpls[i],
+                                       'service-template;service_appliance_set_refs',
+                                       []);
+                var tmplDetailObjs = {};
+                if (svcApplSetRefs.length > 0) {
+                    var svcApplSetUUID = svcApplSetRefs[0]['uuid'];
+                    var svcAllsSetFqn = svcApplSetRefs[0]['to'][1];
+                    tmplDetailObjs[svcApplSetUUID] =
+                        svcTmpls[i]['service-template'];
+                    window.svcApplSetSvcTmplMap[svcAllsSetFqn] =
+                        svcTmpls[i]['service-template'];
+                }
+            }
+            var dataItems = contrailListModel.getItems();
+            var dataCnt = dataItems.length;
+            for (var i = 0; i < dataCnt; i++) {
+                svcApplSet = dataItems[i]['uuid'];
+                if (null != tmplDetailObjs[svcApplSet]) {
+                    dataItems[i]['service_template'] =
+                        tmplDetailObjs[svcApplSet];
+                }
+            }
+            contrailListModel.updateData(dataItems);
+        }
+    },
+    {
+        getAjaxConfig: function(responseJSON) {
             var lazyAjaxConfig = {
                 url: '/api/tenants/config/list-physical-interfaces',
                 type: 'GET'

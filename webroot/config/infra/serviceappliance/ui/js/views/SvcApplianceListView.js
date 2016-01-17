@@ -10,11 +10,12 @@ define([
 ], function (_, ContrailView, ContrailListModel, SvcApplianceModel) {
     var configSvcAppliance = null;
     var gridElId = '#' + ctwl.QUOTAS_GRID_ID;
+    var saSetID = null;
     var SvcApplianceListView = ContrailView.extend({
         el: $(contentContainer),
         render: function () {
             var self = this, viewConfig = this.attributes.viewConfig;
-            var saSetID = viewConfig.saSetValueData.value;
+            saSetID = viewConfig.saSetValueData.value;
             var listModelConfig = {
                 remote: {
                     ajaxConfig: {
@@ -49,10 +50,64 @@ define([
         }
     });
 
-    var intfTypes = ['Management', 'Left', 'Right'];
+    var intfTypes = ['management', 'left', 'right'];
 
-    var vlRemoteServiceApplConfig = [{
-        getAjaxConfig: function(esponseJSON) {
+    var vlRemoteServiceApplConfig = [
+        {
+            getAjaxConfig: function(responseJSON) {
+                var lazyAjaxConfig = {
+                    url: '/api/tenants/config/get-config-details',
+                    type: 'POST',
+                    data: JSON.stringify({data: [{
+                        type: 'service-templates',
+                        fields: ['service_appliance_set_refs',
+                            'service_template_properties'],
+                        back_ref_id: [saSetID]
+                    }]})
+                };
+                return lazyAjaxConfig;
+            },
+            successCallback: function(response, contrailListModel) {
+                var svcTmpls =
+                    getValueByJsonPath(response[0],
+                                       'service-templates',
+                                       []);
+                var cnt = svcTmpls.length;
+                for (var i = 0; i < cnt; i++) {
+                    var svcApplSetRefs =
+                        getValueByJsonPath(svcTmpls[i],
+                                           'service-template;service_appliance_set_refs',
+                                           []);
+                    var tmplDetailObjs = {};
+                    if (svcApplSetRefs.length > 0) {
+                        var svcApplSetUUID = svcApplSetRefs[0]['uuid'];
+                        tmplDetailObjs[svcApplSetUUID] =
+                            svcTmpls[i]['service-template'];
+                    }
+                }
+                var dataItems = contrailListModel.getItems();
+                var dataCnt = dataItems.length;
+                var svcApplSet = null;
+                for (var i = 0; i < dataCnt; i++) {
+                    svcApplSet = dataItems[i]['parent_uuid'];
+                    if (null != tmplDetailObjs[svcApplSet]) {
+                        dataItems[i]['service_template'] =
+                            tmplDetailObjs[svcApplSet];
+                    }
+                }
+                contrailListModel.updateData(dataItems);
+                if (null == window.svcApplSetSvcTmplMap) {
+                    window.svcApplSetSvcTmplMap = {};
+                }
+                if ((svcTmpls.length > 0) && (null != svcTmpls[0]) &&
+                    (null != svcTmpls[0]['service-template'])) {
+                    window.svcApplSetSvcTmplMap[contrail.getCookie('serviceApplSet')]
+                        = svcTmpls[0]['service-template'];
+                }
+            }
+        },
+        {
+        getAjaxConfig: function(responseJSON) {
             var lazyAjaxConfig = {
                 url: '/api/tenants/config/list-physical-interfaces',
                 type: 'GET'

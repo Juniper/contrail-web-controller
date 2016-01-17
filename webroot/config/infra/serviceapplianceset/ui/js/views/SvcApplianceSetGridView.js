@@ -6,10 +6,13 @@ define([
     'underscore',
     'contrail-view',
     'config/infra/serviceapplianceset/ui/js/models/SvcApplianceSetModel',
-    'config/infra/serviceapplianceset/ui/js/views/SvcApplianceSetEditView'
-], function (_, ContrailView, SvcApplianceSetModel, SvcApplianceSetEditView) {
+    'config/infra/serviceapplianceset/ui/js/views/SvcApplianceSetEditView',
+    'config/common/ui/js/svcTmpl.utils',
+], function (_, ContrailView, SvcApplianceSetModel, SvcApplianceSetEditView,
+             SvcTmplUtils) {
     var svcApplianceSetEditView = new SvcApplianceSetEditView(),
-    gridElId = "#" + ctwl.SVC_APPLIANCE_SET_GRID_ID;
+        svcTmplUtils = new SvcTmplUtils(),
+        gridElId = "#" + ctwl.SVC_APPLIANCE_SET_GRID_ID;
 
     var SvcApplianceSetGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -135,6 +138,10 @@ define([
         return dispStr;
     }
 
+    this.svcTemplateFormatter = function(val, obj) {
+        return svcTmplUtils.svcTemplateFormatter(obj['service_template']);
+    }
+
     this.svcApplSetPropFormatter = function(val, obj) {
         var dispStr = "";
         var keyValPair =
@@ -199,6 +206,14 @@ define([
                                         templateGeneratorConfig: {
                                             formatter:
                                                 'svcApplListFormatter'
+                                        }
+                                    },
+                                    {
+                                        key: 'service_template',
+                                        label: 'Service Template',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcTemplateFormatter'
                                         }
                                     },
                                     {
