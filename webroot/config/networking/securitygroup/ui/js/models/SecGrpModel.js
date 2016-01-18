@@ -183,9 +183,9 @@ define([
                     fqnArr = newSecGrpData['fq_name'];
                 } else {
                     fqnArr = projFqn;
+                    newSecGrpData['fq_name'] =
+                        fqnArr.concat([newSecGrpData['display_name']]);
                 }
-                newSecGrpData['fq_name'] =
-                    fqnArr.concat([newSecGrpData['display_name']]);
                 var configRules =
                     sgUtils.buildUIToConfigSGList(fqnArr[0],
                                                   fqnArr[1], ruleList);

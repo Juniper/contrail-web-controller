@@ -84,6 +84,16 @@ var configJsonModifyObj = {
             'service_appliance_set_properties'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'route-table': {
+        'isConfig': true,
+        'optFields': ['routes'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
+    'interface-route-table': {
+        'isConfig': true,
+        'optFields': ['interface_route_table_routes'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'physical-topology': {
         'preProcessCB': {
             'applyOnOldJSON': modifyPhyTopoData,
