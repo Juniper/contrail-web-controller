@@ -114,11 +114,6 @@ define([
                                 {collection:
                                   self.model.model().attributes.fatFlowCollection}
                                 );
-                            kbValidation.bind(self,
-                                {collection:
-                                  self.model.model().attributes.staticRouteCollection}
-                                );
-
                         }
                    );
                    return;
@@ -243,6 +238,11 @@ define([
         },
     getConfigureViewConfig : function(isDisable, allNetworksDS) {
         var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
+        var staticRoutArr = {};
+        staticRoutArr.data = [];
+        staticRoutArr.data[0] = {'type':'interface-route-tables',
+                            'fields':'',
+                            'parent_id':selectedProjectVal};
         return {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_PORT]),
             view: "SectionView",
@@ -537,37 +537,33 @@ define([
                         }
                         }]
                     }, {
-                       columns: [{
-                        elementId: 'staticRouteCollection',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            label:"Static Routes",
-                            path: "staticRouteCollection",
-                            validation: 'staticRouteValidations',
-                            collection: "staticRouteCollection",
-                            columns: [{
-                                elementId: 'prefix',
-                                name: "Prefix",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: 'prefix',
-                                    placeholder: 'Prefix',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    dataBindValue: 'prefix()',
-                                    width:275,
-                                    label: 'Prefix'
+                        columns: [{
+                            elementId: 'staticRoute',
+                            view: 'FormMultiselectView',
+                            name: 'Static Routes',
+                            viewConfig: {
+                                label:'Static Routes',
+                                path: 'staticRoute',
+                                dataBindValue: 'staticRoute',
+                                elementConfig:{
+                                    allowClear: true,
+                                    placeholder: 'Select Static Routes',
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    dataSource : {
+                                        type: 'remote',
+                                        requestType: 'post',
+                                        postData: staticRoutArr,
+                                        url:'/api/tenants/config/get-config-list',
+                                        parse: function(result) {
+                                            return portFormatter.srDDFormatter(
+                                                                 result,
+                                                                 isDisable,
+                                                                 self);
+                                        }
+                                    }
                                 }
-                            }],
-                            rowActions: [{
-                                onClick:
-                                "function() { $root.deleteStaticRoute($data, this); }",
-                                 iconClass: 'icon-minus'
-                            }],
-                            gridActions: [{
-                                onClick: "function() { addStaticRoute(); }",
-                                 buttonTitle: "Add Static Route"
-                            }]
-                        }
+                            }
                         }]
                     },{
                         columns: [{
@@ -624,6 +620,67 @@ define([
                             gridActions: [{
                                 onClick: "function() { addFatFlow(); }",
                                 buttonTitle: "Add Fat Flow"
+                            }]
+                        }
+                        }]
+                    },{
+                        columns: [{
+                        elementId: 'bindingCollection',
+                        view: 'FormEditableGridView',
+                        viewConfig: {
+                            label:"Binding",
+                            path: "bindingCollection",
+                            validation: 'bindingValidations',
+                            collection: "bindingCollection",
+                            columns: [{
+                                elementId: 'key',
+                                name: "Key",
+                                view: "FormComboboxView",
+                                viewConfig: {
+                                    path: 'key',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                    dataBindValue: 'key()',
+                                    placeholder: 'Key',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Key',
+                                    elementConfig:{
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        defaultValueId : 0,
+                                        dataSource: {
+                                            type: 'local',
+                                            data: [
+                                                //{'text':'VNIC Type SR IOV(default)',
+                                                {'text':'VNIC Type (default)',
+                                                 'value':'vnic_type'}
+                                            ]
+                                        }
+                                    }
+                                }
+                            }, {
+                                elementId: 'value',
+                                name: "Value",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'value',
+                                    placeholder: 'Value',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'value()',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Value',
+                                    disabled: "disableBindValue()"
+                                }
+                            }],
+                            rowActions: [{
+                                onClick:
+                                "function() { $root.deleteBinding($data, this); }",
+                                iconClass: 'icon-minus'
+                            }],
+                            gridActions: [{
+                                onClick: "function() { addBinding(); }",
+                                buttonTitle: "Add Binding"
                             }]
                         }
                         }]

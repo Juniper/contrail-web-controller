@@ -413,6 +413,14 @@ define([
                                         formatter: "FatFlowFormatter"
                                     }
                                 }, {
+                                    key: 'virtual_machine_interface_bindings',
+                                    name:"virtual_machine_interface_bindings",
+                                    label:"Bindings",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "BindingFormatter"
+                                    }
+                                }, {
                                     key: 'virtual_machine_interface_allowed_address_pairs',
                                     name:"virtual_machine_interface_allowed_address_pairs",
                                     label:"Allowed address pairs",
@@ -499,6 +507,9 @@ define([
     };
     this.FatFlowFormatter = function(v, dc) {
         return portFormatters.FatFlowFormatter("", "", v, "", dc);
+    };
+    this.BindingFormatter = function(v, dc) {
+        return portFormatters.BindingFormatter("", "", v, "", dc);
     };
     this.fixedIPFormaterExpand = function(v, dc) {
         return portFormatters.fixedIPFormaterExpand("", "", v, "", dc);

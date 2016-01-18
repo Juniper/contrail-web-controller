@@ -35,6 +35,7 @@ define([
             fixedIPValidations: {
                 'fixedIp': function(value, attr, finalObj) {
                     if(value != null) {
+                        if(value.trim() != "") {
                         if(value.trim() != "" && !isValidIP(value)) {
                             return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
                         }
@@ -42,7 +43,7 @@ define([
                         if(fixedIP.split("/").length > 1) {
                             return "Enter a valid IP In the format xxx.xxx.xxx.xxx";
                         }
-                        if(finalObj.subnet_uuid != "") {
+                        if(fixedIP != "" && finalObj.subnet_uuid != "") {
                             var obj =
                                 JSON.parse(finalObj.subnet_uuid);
                             if(!isIPBoundToRange(obj.ipam_subnet, fixedIP)){
@@ -52,6 +53,7 @@ define([
                                isEndAddress(obj.ipam_subnet, fixedIP) == true) {
                                 return "Fixed IP cannot be same as broadcast/start address";
                             }
+                        }
                         }
                     }
                 }

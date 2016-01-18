@@ -11,9 +11,10 @@ define([
     'config/networking/port/ui/js/models/allowAddressPairModel',
     'config/networking/port/ui/js/models/dhcpOptionModel',
     'config/networking/port/ui/js/models/fatFlowModel',
-    'config/networking/port/ui/js/models/staticRouteModel'
+    'config/networking/port/ui/js/models/bindingModel'
 ], function (_, ContrailModel, PortFormatters, FixedIPModel,
-             AllowAddressPairModel, DHCPOptionModel, FatFlowModel, StaticRouteModel) {
+             AllowAddressPairModel, DHCPOptionModel, FatFlowModel,
+             BindingModel) {
     var portFormatters = new PortFormatters();
     var self;
     var subnetDataSource = [];
@@ -36,7 +37,7 @@ define([
                         'allowed_address_pair':[]
                     },
             'allowedAddressPairCollection':[],
-            'staticRouteCollection':[],
+            'staticRoute':[],
             'virtual_machine_interface_device_owner':'',
             'deviceOwnerValue' : '',
             'logical_router_back_refs':[],
@@ -55,12 +56,17 @@ define([
             'virtual_machine_interface_fat_flow_protocols': {
                 'fat_flow_protocol':[]
             },
+            'virtual_machine_interface_bindings': {
+                'key_value_pair':[]
+            },
             'fatFlowCollection': [],
+            'bindingCollection': [],
             'virtual_machine_interface_properties':{'sub_interface_vlan_tag':''},
             'fixedIPCollection': [],
             'display_name': '',
             'virtual_machine_interface_refs': [],
             'disablePort':false,
+            'disableBindValue':false,
             'is_sub_interface':false,
             'subInterfaceVMIValue':'',
             'templateGeneratorData': 'rawData',
@@ -214,27 +220,18 @@ define([
 
             //Modal config default Static Route formatting
             var staticRoute = [];
-            var staticRoutVal =
-                getValueByJsonPath(modelConfig["interface_route_table_refs"][0],
-                                  'sharedip;route', null);
-            if(staticRoutVal != null) {
-                var staticRouteList =
-                  modelConfig["interface_route_table_refs"][0]["sharedip"]["route"];
-                if(staticRouteList != null && staticRouteList.length > 0) {
-                    var staticRouteLen = staticRouteList.length;
-                    for(var i = 0; i < staticRouteLen; i++) {
-                        var staticRoute_obj = staticRouteList[i];
-                        var staticRouteOptionModel =
-                                          new StaticRouteModel(staticRoute_obj);
-                        staticRoute.push(staticRouteOptionModel);
-
-                    }
+            var srLen = modelConfig['interface_route_table_refs'].length;
+            var SR = "";
+            var SRVal = "";
+            modelConfig['staticRoute'] = [];
+            for(var i=0;i<sgLen;i++) {
+                SR = getValueByJsonPath(modelConfig['interface_route_table_refs'][i],
+                                         'to', '');
+                if(SR != '') {
+                    SRVal = SR.join(":");
+                    modelConfig['staticRoute'].push(SRVal);
                 }
             }
-            var staticRouteCollectionModel =
-                                     new Backbone.Collection(staticRoute);
-            modelConfig['staticRouteCollection'] = staticRouteCollectionModel;
-
             //Modal config default Fat Flow option formatting
             var fatFlows = [];
             var fatFlowList =
@@ -252,6 +249,24 @@ define([
             modelConfig["virtual_machine_interface_fat_flow_protocols"]["fat_flow_protocol"]
                                                 = fatFlowCollectionModel;
             modelConfig['fatFlowCollection'] = fatFlowCollectionModel;
+
+            //Modal config default Binding formatting
+            var binding = [];
+            var bindingList =
+              modelConfig["virtual_machine_interface_bindings"]["key_value_pair"];
+            if(bindingList != null && bindingList.length > 0) {
+                var bindingLen = bindingList.length;
+                for(var i = 0; i < bindingLen; i++) {
+                    var binding_obj = bindingList[i];
+                    var bindingModel = new BindingModel(binding_obj);
+                    this.enableDisableBindingValue(bindingModel);
+                    binding.push(bindingModel);
+                }
+            }
+            var bindingCollectionModel = new Backbone.Collection(binding);
+            modelConfig["virtual_machine_interface_bindings"]["key_value_pair"]
+                                                = bindingCollectionModel;
+            modelConfig['bindingCollection'] = bindingCollectionModel;
 
 
             //Modal config default Device Owner formatting
@@ -449,6 +464,7 @@ define([
                 delFatFlow = fatFlow.model();
             fatFlowCollection.remove(delFatFlow);
         },
+        //fat flow port disable
         enableDisablePort: function(fatFlowModel) {
             fatFlowModel.disablePort = ko.computed((function() {
                 if(this.protocol() == "icmp") {
@@ -462,19 +478,32 @@ define([
                 }
             }), fatFlowModel);
         },
-        
-        // Static Route Add
-        addStaticRoute: function() {
-            var staticRouteList = this.model().attributes['staticRouteCollection'],
-                staticRouteModel = new StaticRouteModel();
-            staticRouteList.add([staticRouteModel]);
+
+        //Binding Add
+        addBinding: function() {
+            var bindingList = this.model().attributes['bindingCollection'],
+                bindingModel = new BindingModel();
+                this.enableDisableBindingValue(bindingModel);
+            bindingList.add([bindingModel]);
         },
-        //Static Route Delete
-        deleteStaticRoute: function(data, staticRoute) {
-            var staticRouteCollection = data.model().collection,
-                delStaticRoute = staticRoute.model();
-            staticRouteCollection.remove(delStaticRoute);
+        //Binding Delete
+        deleteBinding: function(data, binding) {
+            var bindingCollection = data.model().collection,
+                delBinding = binding.model();
+            bindingCollection.remove(delBinding);
         },
+        //Binding value disable
+        enableDisableBindingValue: function(bindingModel) {
+            bindingModel.disableBindValue = ko.computed((function() {
+                if(this.key() == "VNIC Type (default)") {
+                    this.value("default");
+                    return true;
+                } else {
+                    return false;
+                }
+            }), bindingModel);
+        },
+
         groupBy: function(array, f) {
             var groups = {};
             array.forEach( function(o) {
@@ -589,6 +618,23 @@ define([
                     }
                     newPortData.virtual_machine_interface_fat_flow_protocols.fat_flow_protocol = fatFlowLocal;
                 }
+        //Binding
+                var bindingCollection =
+                      newPortData["bindingCollection"].toJSON();
+                if (bindingCollection && bindingCollection.length > 0) {
+                    newPortData.virtual_machine_interface_bindings = {};
+                    var bindingLocal = [];
+                    for(i = 0 ; i< bindingCollection.length ; i++){
+                        bindingLocal[i] = {};
+                        if(bindingCollection[i].key() == "VNIC Type (default)") {
+                            bindingLocal[i]["key"] = "vnic_type";
+                        } else {
+                            bindingLocal[i]["key"] = bindingCollection[i].key();
+                        }
+                        bindingLocal[i]["value"] = bindingCollection[i].value();
+                    }
+                    newPortData.virtual_machine_interface_bindings.key_value_pair = bindingLocal;
+                }
         //DHCP
                 var allDHCPValues = newPortData["dhcpOptionCollection"].toJSON();
                 newPortData.virtual_machine_interface_dhcp_option_list = {};
@@ -641,29 +687,25 @@ define([
                 } else {
                     delete(newPortData.virtual_machine_interface_dhcp_option_list.dhcp_option);
                 }
-        // Static Route
-                var StaticRouteCollection =
-                      newPortData["staticRouteCollection"].toJSON();
                 newPortData.interface_route_table_refs = [];
-                if (StaticRouteCollection && StaticRouteCollection.length > 0) {
-                    var StaticRouteCollectionVal = [];
-                    for(i = 0 ; i< StaticRouteCollection.length ; i++) {
-                        StaticRouteCollectionVal[i] = {};
-                        StaticRouteCollectionVal[i]["prefix"] =
-                              StaticRouteCollection[i].prefix();
-                        StaticRouteCollectionVal[i]["next_hop"] =
-                              StaticRouteCollection[i].next_hop();
-                        StaticRouteCollectionVal[i]["next_hop_type"] =
-                              StaticRouteCollection[i].next_hop_type();
+        // Static Route
+                var staticRoute = getValueByJsonPath(newPortData,
+                           "staticRoute","");
+                if(staticRoute != "") {
+                    var msSRselectedData = staticRoute.split(",");
+                    if (msSRselectedData && msSRselectedData.length > 0) {
+                        newPortData.interface_route_table_refs = []
+                        for (var i = 0; i < msSRselectedData.length; i++) {
+                            if(msSRselectedData[i] != "") {
+                                var srDta = (msSRselectedData[i]).split(":");
+                                var srval = {};
+                                srval.to = srDta;
+                                newPortData.interface_route_table_refs.push(srval);
+                            }
+                        }
                     }
-                    temp_val = getValueByJsonPath(newPortData,
-                               "interface_route_table_refs;0;sharedip","");
-                    if(temp_val == "") {
-                        newPortData.interface_route_table_refs[0] = {};
-                        newPortData.interface_route_table_refs[0].sharedip = {};
-                    }
-                    newPortData.interface_route_table_refs[0].sharedip.route =
-                                                       StaticRouteCollectionVal;
+                } else {
+                    newPortData.interface_route_table_refs = [];
                 }
         /* Fixed IP*/
         var allFixedIPCollectionValue =
@@ -711,7 +753,6 @@ define([
                         family = "v6";
                     }
                 }
-
 
                 fixedIPArr[i] = {};
                 fixedIPArr[i]["instance_ip_address"] = [];
@@ -849,7 +890,8 @@ define([
                 delete(newPortData.floatingIpValue);
                 delete(newPortData.allowedAddressPairCollection);
                 delete(newPortData.fatFlowCollection);
-                delete(newPortData.staticRouteCollection);
+                delete(newPortData.bindingCollection);
+                delete(newPortData.staticRoute);
                 delete(newPortData.deviceOwnerValue);
                 delete(newPortData.logicalRouterValue);
                 delete(newPortData.virtualMachineValue);

@@ -205,17 +205,17 @@ define([
             var staticRoutValues = getValueByJsonPath(dc,
                                    "interface_route_table_refs",
                                    []);
-            if(staticRoutValues.length > 0 &&
-               "sharedip" in staticRoutValues[0] &&
-               "route" in staticRoutValues[0]["sharedip"] &&
-               staticRoutValues[0]["sharedip"]["route"].length > 0) {
-                var staticRout_length =
-                    staticRoutValues[0]["sharedip"]["route"].length;
+            if(staticRoutValues.length > 0) {
+                var staticRout_length = staticRoutValues.length;
                 for(var i = 0; i < staticRout_length;i++) {
-                    var staticRoutVal =
-                        staticRoutValues[0]["sharedip"]["route"][i];
-                    if(staticRout != "") staticRout += ", ";
-                    staticRout += staticRoutVal["prefix"];
+                    var staticRoutVal = 
+                        getValueByJsonPath(staticRoutValues[i], "to;2", "");
+                    if(staticRout != "" && staticRoutVal != "") {
+                        staticRout += ",<br>";
+                    }
+                    if(staticRoutVal != "") {
+                        staticRout += staticRoutVal;
+                    }
                 }
             } else {
                 staticRout = "-";
@@ -244,6 +244,34 @@ define([
                 fatFlow = "-";
             }
             return fatFlow;
+        };
+        //Grid column expand label: Binding//
+        this.BindingFormatter = function(d, c, v, cd, dc) {
+            var binding = "";
+            var bindingData = getValueByJsonPath(dc,
+                          "virtual_machine_interface_bindings;key_value_pair",
+                          []);
+            if(bindingData.length > 0) {
+                var binding_length = bindingData.length;
+                binding = "<table><tr><td>Key</td><td>Value</td></tr>"
+                for(var i = 0; i < binding_length;i++) {
+                    var bindingVal = bindingData[i];
+                    binding += "<tr><td>";
+                    if(bindingVal["key"] == "vnic_type" &&
+                       bindingVal['value'] == "direct") {
+                        binding += "SR-IOV (vnic_type:direct)";
+                    } else {
+                        binding += bindingVal["key"];
+                    }
+                    binding += "</td><td>";
+                    binding += bindingVal["value"];
+                    binding += "</td></tr>";
+                }
+                binding += "</table>";
+            } else {
+                binding = "-";
+            }
+            return binding;
         };
         //Grid column expand label: Allowed address pairs//
         this.AAPFormatter = function(d, c, v, cd, dc) {
@@ -416,6 +444,26 @@ define([
                 portModel.model.securityGroupValue(defaultSelectedVal);
             }
             return sgList;
+        };
+        /*
+            Create / Edit StaticRout drop down data formatter
+        */
+        this.srDDFormatter = function(response, edit, portModel) {
+            var rtList = [];
+            var rt = response[0]["interface-route-tables"];
+            var responseLen = rt.length;
+            var rtResponseVal = "";
+            for(var i = 0; i < responseLen; i++) {
+                var rtResponse = getValueByJsonPath(rt[i], 'fq_name', '');
+                if(rtResponse != '') {
+                    rtResponseVal = rtResponse.join(":");
+                    var objArr = rtResponse;
+                    var text = "";
+                    text = ctwu.formatCurrentFQName(rtResponse)
+                    rtList.push({value: rtResponseVal, text: text});
+                }
+            }
+            return rtList;
         };
         /*
             Create / Edit Floating IP drop down data formatter
