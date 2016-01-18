@@ -19,6 +19,15 @@ define([
             'autonomous_system': 64513,
             'forwarding_mode': "Default",
             'ibgp_auto_mesh': true,
+            'ecmp_hashing_include_fields': {
+                'source_mac': true,
+                'destination_mac': true,
+                'source_ip': true,
+                'destination_ip': true,
+                'ip_protocol': true,
+                'source_port': true,
+                'destination_port': true
+            }
         },
         validations: {
             globalConfigValidations: {
@@ -94,6 +103,18 @@ define([
                 (null == modelConfig['forwarding_mode'])) {
                 modelConfig['forwarding_mode'] = 'Default';
             }
+            var ecmpHashIncFields = [];
+            if ('ecmp_hashing_include_fields' in modelConfig) {
+                var ecmpHashIncFieldsObj =
+                    modelConfig['ecmp_hashing_include_fields'];
+                for (var key in ecmpHashIncFieldsObj) {
+                    if (true == ecmpHashIncFieldsObj[key]) {
+                        ecmpHashIncFields.push(key);
+                    }
+                }
+            }
+            modelConfig['ecmp_hashing_include_fields'] =
+                ecmpHashIncFields.join(',');
             return modelConfig;
         },
         getEncapPriorities: function() {
@@ -234,6 +255,12 @@ define([
             var encapOrd = kbAddr.model();
             encapOrdCollection.remove(encapOrd);
         },
+        getNonDefaultECMPHashingFields: function() {
+            return { 'source_mac': false, 'destination_mac': false,
+                'source_ip': false, 'destination_ip': false,
+                'ip_protocol': false, 'source_port': false,
+                'destination_port': false};
+        },
         configureGlobalConfig: function (configData, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
             var putData = {};
@@ -315,6 +342,23 @@ define([
                     putData['global-system-config']['uuid'] =
                         configData['global-system-config']['uuid'];
                 }
+                var ecmpHashIncFields = this.getNonDefaultECMPHashingFields();
+                if (null != newGlobalConfig['ecmp_hashing_include_fields']) {
+                    var tmpEcmpHashIncFields =
+                        newGlobalConfig['ecmp_hashing_include_fields'].split(',');
+                    var cnt = tmpEcmpHashIncFields.length;
+                    for (var i = 0; i < cnt; i++) {
+                        if (tmpEcmpHashIncFields[i].length > 0) {
+                            ecmpHashIncFields[tmpEcmpHashIncFields[i]] = true;
+                        }
+                    }
+                } else {
+                    for (key in ecmpHashIncFields) {
+                        ecmpHashIncFields[key] = true;
+                    }
+                }
+                putData['global-vrouter-config']['ecmp_hashing_include_fields']
+                    = ecmpHashIncFields;
                 ajaxConfig.async = false;
                 ajaxConfig.type = "PUT";
                 ajaxConfig.data = JSON.stringify(putData);

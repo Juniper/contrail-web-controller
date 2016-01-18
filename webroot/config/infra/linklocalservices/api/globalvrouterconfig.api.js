@@ -81,7 +81,7 @@ function createFirstGlobalvRouterConfig(data, appData, callback) {
     gvrPostData["global-vrouter-config"]["fq_name"] = [];
     gvrPostData["global-vrouter-config"]["fq_name"][0] = "default-global-system-config";
     gvrPostData["global-vrouter-config"]["fq_name"][1] = "default-global-vrouter-config"
-    	
+
     configApiServer.apiPost(gvrPostURL, gvrPostData, appData, function(err, data) {
     	if (err) {
     		callback(err, null);
@@ -274,6 +274,9 @@ function updateForwardingOptionsCB (gvrObj, callback)
                     gvrPutData["global-vrouter-config"]["forwarding_mode"];
                 gvrConfigData["global-vrouter-config"]["flow_export_rate"] =
                     gvrPutData["global-vrouter-config"]["flow_export_rate"];
+                gvrConfigData["global-vrouter-config"]
+                    ["ecmp_hashing_include_fields"] =
+                    gvrPutData["global-vrouter-config"]["ecmp_hashing_include_fields"];
 
                 if ('flow_aging_timeout_list' in
                     gvrPutData["global-vrouter-config"]) {

@@ -66,7 +66,7 @@ define([
                     response['global-system-config'] = {};
                 }
                 var globalVRConfigMapLen = globalVRConfigMap.length;
-                for (var i = 5; i < globalVRConfigMapLen; i++) {
+                for (var i = 6; i < globalVRConfigMapLen; i++) {
                     var key = globalVRConfigMap[i]['key'];
                     var value = response['global-system-config'][key];
                     var encap =
@@ -157,6 +157,8 @@ define([
          'name': 'Encapsulation Priority Order',},
         {'key': 'flow_export_rate', 'name': 'Flow Export Rate'},
         {'key': 'flow_aging_timeout_list', 'name': 'Flow Aging Timeout'},
+        {'key': 'ecmp_hashing_include_fields',
+            'name': 'ECMP Hashing'},
         {'key': 'autonomous_system', 'name': 'Global ASN'},
         {'key': 'ibgp_auto_mesh', 'name': 'iBGP Auto Mesh'},
         {'key': 'ip_fabric_subnets', 'name': 'IP Fabric Subnets'}
@@ -172,7 +174,7 @@ define([
             response = {};
             response['global-vrouter-config'] = {};
         }
-        for (var i = 0; i < 5; i++) {
+        for (var i = 0; i < 6; i++) {
             dataItems[i] = {};
             var key = globalVRConfigMap[i]['key'];
             dataItems[i]['name'] = globalVRConfigMap[i]['name'];
@@ -195,9 +197,20 @@ define([
                 if ('forwarding_mode' == key) {
                     dataItems[i]['value'] = 'Default';
                 }
+                if ('ecmp_hashing_include_fields' == key) {
+                    dataItems[i]['value'] = {
+                        'source_mac': true,
+                        'destination_mac': true,
+                        'source_ip': true,
+                        'destination_ip': true,
+                        'ip_protocol': true,
+                        'source_port': true,
+                        'destination_port': true
+                    };
+                }
             } else {
                 dataItems[i]['value'] = response['global-vrouter-config'][key];
-                if (key == 'encapsulation_priorities') {
+                if ('encapsulation_priorities' == key) {
                     var configEncap =
                         getValueByJsonPath(dataItems[i]['value'],
                                            'encapsulation',

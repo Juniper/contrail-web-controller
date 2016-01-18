@@ -155,6 +155,41 @@ define([
                                 }
                             }
                         ]
+                    },
+                    {
+                        columns: [
+                            {
+                                elementId: 'ecmpHashingIncFields',
+                                view: 'FormMultiselectView',
+                                viewConfig: {
+                                    label: 'ECMP Hashing',
+                                    path: 'ecmp_hashing_include_fields',
+                                    class: 'span12',
+                                    dataBindValue:
+                                            'ecmp_hashing_include_fields',
+                                    elementConfig: {
+                                        dataTextField: "text",
+                                        dataValueField: "id",
+                                            data: [
+                                                {text: 'source-mac',
+                                                 id: 'source_mac'},
+                                                {text: 'destination-mac',
+                                                 id: 'destination_mac'},
+                                                {text: 'source-ip',
+                                                 id: 'source_ip'},
+                                                {text: 'destination-ip',
+                                                 id: 'destination_ip'},
+                                                {text: 'ip-protocol',
+                                                 id: 'ip_protocol'},
+                                                {text: 'source-port',
+                                                 id: 'source_port'},
+                                                {text: 'destination-port',
+                                                 id: 'destination_port'}
+                                            ]
+                                    }
+                                }
+                            }
+                        ]
                     }
                 ]
             }
@@ -265,6 +300,7 @@ define([
                                     path: 'flowAgingTimeout',
                                     collection: 'flowAgingTimeout',
                                     validation: 'flowAgingTimeoutValidation',
+                                    label: 'Flow Aging',
                                     class: '',
                                     columns: [{
                                         elementId: 'protocol',
@@ -324,6 +360,7 @@ define([
                                         onClick: "function() {\
                                             $root.addFlowAgingTuple();\
                                         }",
+                                        buttonTitle: 'Flow Aging'
                                     }]
                                 }
                             }
