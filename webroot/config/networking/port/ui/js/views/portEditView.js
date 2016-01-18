@@ -86,13 +86,13 @@ define([
                         'portValidations', null, null, function(){
                             if(options['mode'] == "edit") {
                                 //remove the add Fixed IP Button
-                                var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
-                                if(addbtn != undefined) {
-                                    if(self.model.fixedIPCollection().length >=
-                                       self.model.subnetDataSource.length) {
-                                        $(addbtn).addClass("hide");
-                                    }
-                                }
+                                //var addbtn = $("#fixedIPCollection").find(".editable-grid-add-link")[0];
+                                //if(addbtn != undefined) {
+                                //    if(self.model.fixedIPCollection().length >=
+                                //       self.model.subnetDataSource.length) {
+                                //        $(addbtn).addClass("hide");
+                                //    }
+                                //}
                             }
                             self.model.showErrorAttr(prefixId +
                                             cowc.FORM_SUFFIX_ID, false);
@@ -116,9 +116,8 @@ define([
                                 );
                             kbValidation.bind(self,
                                 {collection:
-                                  self.model.model().attributes.staticRouteCollection}
+                                  self.model.model().attributes.portBindingCollection}
                                 );
-
                         }
                    );
                    return;
@@ -243,6 +242,9 @@ define([
         },
     getConfigureViewConfig : function(isDisable, allNetworksDS) {
         var selectedProjectVal = ctwu.getGlobalVariable('project').uuid;
+        var staticRoutArr = {};
+        staticRoutArr.data = [];
+        staticRoutArr.data[0] = {'type':'interface-route-tables', 'fields':''};
         return {
             elementId: cowu.formatElementId([prefixId, ctwl.TITLE_EDIT_PORT]),
             view: "SectionView",
@@ -537,37 +539,33 @@ define([
                         }
                         }]
                     }, {
-                       columns: [{
-                        elementId: 'staticRouteCollection',
-                        view: 'FormEditableGridView',
-                        viewConfig: {
-                            label:"Static Routes",
-                            path: "staticRouteCollection",
-                            validation: 'staticRouteValidations',
-                            collection: "staticRouteCollection",
-                            columns: [{
-                                elementId: 'prefix',
-                                name: "Prefix",
-                                view: "FormInputView",
-                                viewConfig: {
-                                    path: 'prefix',
-                                    placeholder: 'Prefix',
-                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                    dataBindValue: 'prefix()',
-                                    width:275,
-                                    label: 'Prefix'
+                        columns: [{
+                            elementId: 'staticRoute',
+                            view: 'FormMultiselectView',
+                            name: 'Static Routes',
+                            viewConfig: {
+                                label:'Static Routes',
+                                path: 'staticRoute',
+                                dataBindValue: 'staticRoute',
+                                elementConfig:{
+                                    allowClear: true,
+                                    placeholder: 'Select Static Routes',
+                                    dataTextField: "text",
+                                    dataValueField: "value",
+                                    dataSource : {
+                                        type: 'remote',
+                                        requestType: 'post',
+                                        postData: JSON.stringify(staticRoutArr),
+                                        url:'/api/tenants/config/get-config-list',
+                                        parse: function(result) {
+                                            return portFormatter.srDDFormatter(
+                                                                 result,
+                                                                 isDisable,
+                                                                 self);
+                                        }
+                                    }
                                 }
-                            }],
-                            rowActions: [{
-                                onClick:
-                                "function() { $root.deleteStaticRoute($data, this); }",
-                                 iconClass: 'icon-minus'
-                            }],
-                            gridActions: [{
-                                onClick: "function() { addStaticRoute(); }",
-                                 buttonTitle: "Add Static Route"
-                            }]
-                        }
+                            }
                         }]
                     },{
                         columns: [{
@@ -603,11 +601,11 @@ define([
                                 }
                             }, {
                                 elementId: 'port',
-                                name: "Value",
+                                name: "Port",
                                 view: "FormInputView",
                                 viewConfig: {
                                     path: 'port',
-                                    placeholder: 'Port',
+                                    placeholder: '1 to 65535',
                                     templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                     dataBindValue: 'port()',
                                     disabled: "disablePort()",
@@ -627,78 +625,74 @@ define([
                             }]
                         }
                         }]
-                    }, {
+                    },{
                         columns: [{
-                        elementId: 'deviceOwnerValue',
-                        name: "Device Owner",
-                        view: "FormDropdownView",
+                        elementId: 'portBindingCollection',
+                        view: 'FormEditableGridView',
                         viewConfig: {
-                            path: 'deviceOwnerValue',
-                            dataBindValue: 'deviceOwnerValue',
-                            class: "span6",
-                            label: "Device Owner",
-                            elementConfig:{
-                                allowClear: true,
-                                dataTextField: "text",
-                                dataValueField: "value",
-                                data : [
-                                    {"text":"None","value":"none"},
-                                    {"text":"Compute","value":"compute"},
-                                    {"text":"Router","value":"router"}
-                                ]
-                            }
-                        }
-                        },{
-                        elementId: 'virtualMachineValue',
-                        view: "FormComboboxView",
-                        viewConfig: {
-                            path: 'virtualMachineValue',
-                            label: "Compute UUID",
-                            dataBindValue: 'virtualMachineValue',
-                            class: "span6",
-                            visible: "deviceComputeShow()",
-                            elementConfig:{
-                                dataTextField: "text",
-                                dataValueField: "value",
-                                defaultValueId : 0,
-                                dataSource : {
-                                    type: 'remote',
-                                    url:'/api/tenants/config/listVirtualMachines',
-                                    parse: function(result) {
-                                        return portFormatter.computeUUIDFormatter(
-                                                             result,
-                                                             isDisable,
-                                                             self);
+                            label:"Port Binding",
+                            path: "portBindingCollection",
+                            validation: 'portBindingValidations',
+                            collection: "portBindingCollection",
+                            columns: [{
+                                elementId: 'key',
+                                name: "Key",
+                                view: "FormComboboxView",
+                                viewConfig: {
+                                    path: 'key',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
+                                    dataBindValue: 'key()',
+                                    placeholder: 'Key',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Key',
+                                    disabled: "disablePortBindKey()",
+                                    elementConfig:{
+                                        dataTextField: "text",
+                                        dataValueField: "value",
+                                        defaultValueId : 0,
+                                        dataSource: {
+                                            type: 'local',
+                                            data: [
+                                                {'text':
+                                                    'SR-IOV (vnic_type:direct)',
+                                                 'value':
+                                                     'SR-IOV (vnic_type:direct)'
+                                                }
+                                            ]
+                                        }
                                     }
                                 }
-                            }
-                        }
-                        },{
-                        elementId: 'logicalRouterValue',
-                        view: "FormDropdownView",
-                        viewConfig: {
-                            path: 'logicalRouterValue',
-                            label: "Router",
-                            dataBindValue: 'logicalRouterValue',
-                            class: "span6",
-                            visible: "deviceRouterShow()",
-                            elementConfig:{
-                                dataTextField: "text",
-                                dataValueField: "value",
-                                //defaultValueId : 0,
-                                dataSource : {
-                                   type: 'remote',
-                                   url:"/api/tenants/config/list-logical-routers?projUUID="+selectedProjectVal,
-                                    parse: function(result) {
-                                        return portFormatter.routerFormater(
-                                                             result,
-                                                             isDisable,
-                                                             self);
-                                    }
+                            }, {
+                                elementId: 'value',
+                                name: "Value",
+                                view: "FormInputView",
+                                viewConfig: {
+                                    path: 'value',
+                                    placeholder: 'Value',
+                                    templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    dataBindValue: 'value()',
+                                    class: "span6",
+                                    width:275,
+                                    label: 'Value',
+                                    disabled: "disablePortBindValue()"
                                 }
-                            }}
+                            }],
+                            rowActions: [{
+                                onClick:
+                                "function() { $root.deletePortBinding($data, this); }",
+                                iconClass: 'icon-minus',
+                                visible : "hideDeleteButtonPortBinding"
+                            }],
+                            gridActions: [{
+                                onClick: "function() { addPortBinding(); }",
+                                buttonTitle: "Add Port Binding"
+                            }]
+                        }
                         }]
-                    }, {
+                    },
+                        this.deviceOwner(isDisable, selectedProjectVal)
+                    , {
                         columns: [{
                             elementId: 'is_sub_interface',
                             name: "Sub Interface",
@@ -742,7 +736,8 @@ define([
                                    //defaultValueId : 0,
                                    dataSource : {
                                       type: 'remote',
-                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="+selectedProjectVal,
+                                      url:"/api/tenants/config/get-virtual-machines-ips?uuid="
+                                          +selectedProjectVal,
                                     parse: function(result) {
                                         return portFormatter.subInterfaceFormatter(
                                                              result,
@@ -759,6 +754,86 @@ define([
                 }]
             }]
         }
+        }
+    },
+    deviceOwner : function(isDisable, selectedProjectVal) {
+        if(!isVCenter()) {
+            return({
+                columns: [{
+                elementId: 'deviceOwnerValue',
+                name: "Device Owner",
+                view: "FormDropdownView",
+                    viewConfig: {
+                        visible: true,
+                        path: 'deviceOwnerValue',
+                        dataBindValue: 'deviceOwnerValue',
+                        class: "span6",
+                        label: "Device Owner",
+                        elementConfig:{
+                            allowClear: true,
+                            dataTextField: "text",
+                            dataValueField: "value",
+                            data : [
+                                {"text":"None","value":"none"},
+                                {"text":"Compute","value":"compute"},
+                                {"text":"Router","value":"router"}
+                            ]
+                        }
+                    }
+                },{
+                elementId: 'virtualMachineValue',
+                view: "FormComboboxView",
+                viewConfig: {
+                    path: 'virtualMachineValue',
+                    label: "Compute UUID",
+                    dataBindValue: 'virtualMachineValue',
+                    class: "span6",
+                    visible: "deviceComputeShow()",
+                    elementConfig:{
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        defaultValueId : 0,
+                        dataSource : {
+                            type: 'remote',
+                            url:'/api/tenants/config/listVirtualMachines',
+                            parse: function(result) {
+                                return portFormatter.computeUUIDFormatter(
+                                                     result,
+                                                     isDisable,
+                                                     self);
+                            }
+                        }
+                    }
+                }
+                },{
+                elementId: 'logicalRouterValue',
+                view: "FormDropdownView",
+                viewConfig: {
+                    path: 'logicalRouterValue',
+                    label: "Router",
+                    dataBindValue: 'logicalRouterValue',
+                    class: "span6",
+                    visible: "deviceRouterShow()",
+                    elementConfig:{
+                        dataTextField: "text",
+                        dataValueField: "value",
+                        //defaultValueId : 0,
+                        dataSource : {
+                           type: 'remote',
+                           url:"/api/tenants/config/list-logical-routers?projUUID="
+                               +selectedProjectVal,
+                            parse: function(result) {
+                                return portFormatter.routerFormater(
+                                                     result,
+                                                     isDisable,
+                                                     self);
+                            }
+                        }
+                    }}
+                }]
+            });
+        } else {
+            return ({columns: []});
         }
     }
     });
