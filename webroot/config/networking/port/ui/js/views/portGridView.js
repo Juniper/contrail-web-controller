@@ -274,6 +274,7 @@ define([
                 "type": "dropdown",
                 "title": ctwl.TITLE_DELETE_CONFIG,
                 "iconClass": "icon-trash",
+                "linkElementId": "btnDeletePort",
                 "actions": dropdownActions
             },
             {
@@ -396,9 +397,12 @@ define([
                                     templateGeneratorConfig:{
                                         formatter: "DHCPFormatter"
                                     }
-                                }, {
-                                    key: 'virtual_machine_interface_dhcp_option_list',
-                                    name:"virtual_machine_interface_dhcp_option_list",
+                                }, 
+                                    self.deviceOwner(),
+                                    self.deviceOwnerUUID()
+                                ,{
+                                    key: 'interface_route_table_refs',
+                                    name:"interface_route_table_refs",
                                     label:"Static Routes",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
@@ -413,6 +417,14 @@ define([
                                         formatter: "FatFlowFormatter"
                                     }
                                 }, {
+                                    key: 'virtual_machine_interface_bindings',
+                                    name:"virtual_machine_interface_bindings",
+                                    label:"Bindings",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "PortBindingFormatter"
+                                    }
+                                }, {
                                     key: 'virtual_machine_interface_allowed_address_pairs',
                                     name:"virtual_machine_interface_allowed_address_pairs",
                                     label:"Allowed address pairs",
@@ -420,41 +432,25 @@ define([
                                     templateGeneratorConfig:{
                                         formatter: "AAPFormatter"
                                     }
-                                }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
-                                    label:"Device",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "deviceOwnerFormatter"
-                                    }
-                                }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
-                                    label:"Device ID",
-                                    templateGenerator: 'TextGenerator',
-                                    templateGeneratorConfig:{
-                                        formatter: "deviceUUIDFormatter"
-                                    }
-                                }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
+                                },  {
+                                    key: 'virtual_machine_interface_refs',
+                                    name:"virtual_machine_interface_refs",
                                     label:"Sub Interfaces",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
                                         formatter: "childrensUUID"
                                     }
                                 }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
+                                    key: 'virtual_machine_interface_properties',
+                                    name:"virtual_machine_interface_properties",
                                     label:"Sub Interface VLAN",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
                                         formatter: "subInterfaceVXLANUUID"
                                     }
                                 }, {
-                                    key: 'id_perms',
-                                    name:"id_perms",
+                                    key: 'virtual_machine_interface_refs',
+                                    name:"virtual_machine_interface_refs",
                                     label:"Parent Port",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
@@ -469,7 +465,36 @@ define([
             }
         };
     };
-
+    this.deviceOwner = function () {
+        if(!isVCenter()) {
+            return({
+                    key: 'virtual_machine_interface_device_owner',
+                    name:"virtual_machine_interface_device_owner",
+                    label:"Device",
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig:{
+                        formatter: "deviceOwnerFormatter"
+                    }
+            });
+        } else {
+            return({});
+        }
+    }
+    this.deviceOwnerUUID = function() {
+        if(!isVCenter()) {
+            return({
+                    key: 'virtual_machine_interface_device_owner',
+                    name:"virtual_machine_interface_device_owner",
+                    label:"Device ID",
+                    templateGenerator: 'TextGenerator',
+                    templateGeneratorConfig:{
+                        formatter: "deviceUUIDFormatter"
+                    }
+            });
+        } else {
+            return({});
+        }
+    }
     this.networkFormater = function (v, dc) {
         return portFormatters.networkFormater("", "", v, "", dc);
     };
@@ -499,6 +524,9 @@ define([
     };
     this.FatFlowFormatter = function(v, dc) {
         return portFormatters.FatFlowFormatter("", "", v, "", dc);
+    };
+    this.PortBindingFormatter = function(v, dc) {
+        return portFormatters.PortBindingFormatter("", "", v, "", dc);
     };
     this.fixedIPFormaterExpand = function(v, dc) {
         return portFormatters.fixedIPFormaterExpand("", "", v, "", dc);

@@ -205,17 +205,31 @@ define([
             var staticRoutValues = getValueByJsonPath(dc,
                                    "interface_route_table_refs",
                                    []);
-            if(staticRoutValues.length > 0 &&
-               "sharedip" in staticRoutValues[0] &&
-               "route" in staticRoutValues[0]["sharedip"] &&
-               staticRoutValues[0]["sharedip"]["route"].length > 0) {
-                var staticRout_length =
-                    staticRoutValues[0]["sharedip"]["route"].length;
+            if(staticRoutValues.length > 0) {
+                var staticRout_length = staticRoutValues.length;
                 for(var i = 0; i < staticRout_length;i++) {
-                    var staticRoutVal =
-                        staticRoutValues[0]["sharedip"]["route"][i];
-                    if(staticRout != "") staticRout += ", ";
-                    staticRout += staticRoutVal["prefix"];
+                    var staticRoutTo =
+                        getValueByJsonPath(staticRoutValues[i], "to", []);
+                    var projArr = self.getProjectFqn().split(":");
+                    var selectedDomain = projArr[0];
+                    var selectedProject = projArr[1];
+                    var staticRoutVal = "";
+                    if(staticRoutTo.length >= 2) {
+                        if(staticRoutTo[0] == selectedDomain &&
+                           staticRoutTo[1] == selectedProject) {
+                            staticRoutVal = staticRoutTo[2];
+                        } else {
+                            staticRoutVal = staticRoutTo[2] +
+                                            "(" + selectedDomain +
+                                            ":" + selectedProject + ")";
+                        }
+                    }
+                    if(staticRout != "" && staticRoutVal != "") {
+                        staticRout += ",<br>";
+                    }
+                    if(staticRoutVal != "") {
+                        staticRout += staticRoutVal;
+                    }
                 }
             } else {
                 staticRout = "-";
@@ -244,6 +258,34 @@ define([
                 fatFlow = "-";
             }
             return fatFlow;
+        };
+        //Grid column expand label: Port Binding//
+        this.PortBindingFormatter = function(d, c, v, cd, dc) {
+            var portBinding = "";
+            var portBindingData = getValueByJsonPath(dc,
+                          "virtual_machine_interface_bindings;key_value_pair",
+                          []);
+            if(portBindingData.length > 0) {
+                var portBinding_length = portBindingData.length;
+                portBinding = "<table><tr><td>Key</td><td>Value</td></tr>"
+                for(var i = 0; i < portBinding_length;i++) {
+                    var portBindingVal = portBindingData[i];
+                    portBinding += "<tr><td>";
+                    if(portBindingVal["key"] == "vnic_type" &&
+                       portBindingVal['value'] == "direct") {
+                        portBinding += "SR-IOV (vnic_type:direct)";
+                    } else {
+                        portBinding += portBindingVal["key"];
+                    }
+                    portBinding += "</td><td>";
+                    portBinding += portBindingVal["value"];
+                    portBinding += "</td></tr>";
+                }
+                portBinding += "</table>";
+            } else {
+                portBinding = "-";
+            }
+            return portBinding;
         };
         //Grid column expand label: Allowed address pairs//
         this.AAPFormatter = function(d, c, v, cd, dc) {
@@ -300,7 +342,7 @@ define([
                  dc["virtual_machine_interface_properties"] ))){
                 var len = dc["virtual_machine_interface_refs"].length - 1;
                 for(var i = 0; i <= len; i++){
-                    if(childrensUUID != "") childrensUUID += "<br>&nbsp;&nbsp;";
+                    if(childrensUUID != "") childrensUUID += "<br>";
                     childrensUUID +=
                              dc["virtual_machine_interface_refs"][i]["uuid"];
                 }
@@ -335,7 +377,7 @@ define([
                 var len = dc["virtual_machine_interface_refs"].length-1;
                 for(var i=0;i<=len;i++){
                     if(parentUUIDFormatter != "") {
-                        parentUUIDFormatter+="<br>&nbsp;&nbsp;";
+                        parentUUIDFormatter+="<br>";
                     }
                     parentUUIDFormatter +=
                                 dc["virtual_machine_interface_refs"][i]["uuid"];
@@ -416,6 +458,26 @@ define([
                 portModel.model.securityGroupValue(defaultSelectedVal);
             }
             return sgList;
+        };
+        /*
+            Create / Edit StaticRout drop down data formatter
+        */
+        this.srDDFormatter = function(response, edit, portModel) {
+            var rtList = [];
+            var rt = response[0]["interface-route-tables"];
+            var responseLen = rt.length;
+            var rtResponseVal = "";
+            for(var i = 0; i < responseLen; i++) {
+                var rtResponse = getValueByJsonPath(rt[i], 'fq_name', '');
+                if(rtResponse != '') {
+                    rtResponseVal = rtResponse.join(":");
+                    var objArr = rtResponse;
+                    var text = "";
+                    text = ctwu.formatCurrentFQName(rtResponse)
+                    rtList.push({value: rtResponseVal, text: text});
+                }
+            }
+            return rtList;
         };
         /*
             Create / Edit Floating IP drop down data formatter
@@ -668,6 +730,13 @@ define([
                 }
             }
             return LogicalRouterData;
+        };
+        this.getProjectFqn = function(fqn) {
+            if (null == fqn) {
+                return getCookie('domain') + ':' +
+                    getCookie('project');
+            }
+            return fqn;
         };
     }
     return PortFormatters;
