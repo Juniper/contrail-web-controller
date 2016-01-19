@@ -39,7 +39,7 @@ if (!module.parent)
 
 //No of times to retry to check for VN on API Server
 var maxRetryCnt = 100;
-function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
+function ifNetworkExists(appData, fqName, name, callback, retryCnt) {
     if(retryCnt == null)
         retryCnt = 0;
     if(retryCnt == maxRetryCnt) {
@@ -47,23 +47,16 @@ function ifNetworkExists(appData,projUUID,name,callback,retryCnt) {
         return;
     }
     retryCnt++;
-    var networkListURL = '/project/' + projUUID + '?exclude_back_refs=True';
-    configApiServer.apiGet(networkListURL,appData,function(err,data) {
-        var networkUUIDs = [],reqUrl = '';
-        if(data['project'] != null && data['project']['virtual_networks'] != null) {
-            data = data['project']['virtual_networks'];
-            var nwURLsArr = [],nwNames = [];
-            for(var i=0;i<data.length;i++) {
-                var nwUUID = data[i]['uuid'];
-                var nwName = data[i]['to'][2];
-                if(nwName == name) {
-                        callback(nwUUID);
-                        return;
-                    }
-                }
-            }
+    configApiServer.apiPost('/fqname-to-id',
+                            {'fq_name': fqName, 'type': 'virtual-network'},
+                            appData,function(err , data) {
+        if (!err) {
+            callback(data.uuid)
+            return;
+        }
+
         setTimeout(function() {
-            ifNetworkExists(appData,projUUID,name,callback,retryCnt);
+            ifNetworkExists(appData, fqName, name, callback, retryCnt);
         },500);
     });
 }
@@ -130,7 +123,7 @@ function deleteVirtualNetwork (request, response, appData)
                     new appErrors.RESTServerError('Virtual machine back refs ' +
                                                   uuidList.join(',') + ' exist');
                 commonUtils.handleJSONResponse(error, response, null);
-                return;                                
+                return;                               
             }
         }
         if (null != instanceIPBackRefs) {
@@ -197,6 +190,48 @@ function deleteVirtualNetwork (request, response, appData)
     });
 }
 
+function deletevCenterPortGroup (vnPostData, appData, callback)
+{
+    vCenterApi.getIdByMobName(appData,
+                                'DistributedVirtualPortgroup',
+                                vnPostData['name']).done(function(portGroupId) {
+        vCenterApi.retrievePropertiesExForObj(appData,
+                                                'DistributedVirtualPortgroup',
+                                                portGroupId,'summary').done(function(portGroupSummary) {
+            //Delete portGroup and its IPPool from vCenter
+            vCenterApi.destroyTask(appData,
+                                    'DistributedVirtualPortgroup',
+                                    vnPostData['name']).done(function(data) {
+                if(data['Fault'] != null) {
+                    callback(createErrorObjFromFaultObj(data['Fault']), null);
+                    return;
+                }
+                var poolId = commonUtils.getValueByJsonPath(portGroupSummary,
+                                    'RetrievePropertiesExResponse;returnval;' +
+                                    'objects;propSet;val;0;_value;ipPoolId', null);
+                vCenterApi.destroyIpPool(appData, poolId).done(function(data) {
+                    if(data['Fault'] != null) {
+                        callback(createErrorObjFromFaultObj(data['Fault']), null);
+                        return;
+                    } else {
+                        //Wait for network to be deleted from API server
+                        waitForNetworkDelete(appData,
+                                             vnPostData['uuid'], function(result) {
+                            if(result == false) {
+                                callback(createErrorObjFromFaultObj(data['Fault']), null);
+                                //vnName not passed in error
+                                return;
+                            } else {
+                                callback(null, data);
+                            }
+                        });
+                    }
+                });
+            });
+        });
+    });
+}
+
 function createErrorObjFromFaultObj(faultObj) {
     return {custom:true,responseCode:500,message:faultObj['faultstring']}
 }
@@ -207,8 +242,8 @@ function createVirtualNetwork(req,res,appData) {
     //Ensure only one subnet is specified
     var subnets;
     var pVlanId;
-    pVlanId = vnPostData['pVlanId'];
-    delete vnPostData['pVlanId'];
+    pVlanId = vnPostData['virtual-network']['pVlanId'];
+    delete vnPostData['virtual-network']['pVlanId'];
     if(vnPostData['virtual-network']['network_ipam_refs'] != null)
         subnets = vnPostData['virtual-network']['network_ipam_refs'][0]['attr']['ipam_subnets']
     else {
@@ -219,7 +254,7 @@ function createVirtualNetwork(req,res,appData) {
         commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'Only one subnet need to be specified'},res,null)
         return;
     }
-    var allocationPools = subnets[0]['allocation_pools'];
+    var allocationPools = commonUtils.getValueByJsonPath(subnets[0], 'allocation_pools', []);
     var ranges = [];
     var allocationPoolsLen = allocationPools.length;
     for(var i=0;i<allocationPoolsLen;i++) {
@@ -227,35 +262,41 @@ function createVirtualNetwork(req,res,appData) {
     }
     var userData = {
             name    : vnPostData['virtual-network']['display_name'],
-            pVlanId : pVlanId,
-            static_ip : vnPostData['virtual-network']['static_ip'],
+            pVlanId : Number(pVlanId),
+            static_ip : vnPostData['virtual-network']['external_ipam'],
             subnet  : {
                 gateway  : subnets[0]['default_gateway'],
                 address  : subnets[0]['subnet']['ip_prefix'],
                 netmask  : commonUtils.prefixToNetMask(subnets[0]['subnet']['ip_prefix_len']),
             }
         };
-    if(ranges.length > 0)
+    if (ranges.length > 0)
         userData['subnet']['range'] = ranges.join(',');
+
     vCenterApi.createNetwork(userData,appData,function(err,data) {
         if(data['Fault'] != null) {
             commonUtils.handleJSONResponse({custom:true,responseCode:500,message:data['Fault']['faultstring']},res,null);
             return;
         }
         //Check if network synced on Api Server
-        ifNetworkExists(appData,vnPostData['virtual-network']['parent_uuid'],userData['name'],function(vnUUID) {
+        ifNetworkExists(appData,
+                        vnPostData['virtual-network']['fq_name'],
+                        userData['name'], function(vnUUID) {
             //If VN is not synced up with API Server
             if(vnUUID == false) {
-                commonUtils.handleJSONResponse({custom:true,responseCode:500,message:'VN ' + userData['name'] + " doesn't exist on config server"},res,null);
+                commonUtils.handleJSONResponse({custom:true,responseCode:500,
+                            message:'VN ' + userData['name'] +
+                            " doesn't exist on config server"},res,null);
                 return;
             }
-            appData['vnUUID'] =vnUUID;
+            appData['vnUUID'] = vnUUID;
             //Update network synced on Api Server 
             vnConfigApi.updateVirtualNetwork(req,res,appData);
         });
     });
 }
 
-exports.createVirtualNetwork         = createVirtualNetwork;
-exports.deleteVirtualNetwork         = deleteVirtualNetwork;
+exports.createVirtualNetwork    = createVirtualNetwork;
+exports.deleteVirtualNetwork    = deleteVirtualNetwork;
+exports.deletevCenterPortGroup  = deletevCenterPortGroup;
 

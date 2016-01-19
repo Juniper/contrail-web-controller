@@ -1007,6 +1007,21 @@ define([
         this.TITLE_BGP_AS_A_SERVICE_MULTI_DELETE = 'Delete BGP as a Service(s)';
         this.TITLE_ADD_BGP_AS_A_SERVICE = 'Create BGP as a Service';
 
+        // VN Config labels
+        this.CFG_VN_PAGE_ID = 'config-vn-page';
+        this.CFG_VN_LIST_ID = 'config-vn-list';
+        this.CFG_VN_LIST_VIEW_ID = 'config-vn-list-view';
+        this.CFG_VN_GRID_ID = 'config-vn-grid';
+        this.CFG_VN_PREFIX_ID = 'network';
+        this.CFG_VN_TITLE = 'Networks';
+        this.CFG_VN_TITLE_SUMMARY = 'Network Summary';
+        this.CFG_VN_TITLE_DETAILS = 'Details';
+        this.CFG_VN_TITLE_EDIT = 'Edit Network';
+        this.CFG_VN_TITLE_CREATE = 'Create Network';
+        this.CFG_VN_TITLE_DELETE = 'Delete Network';
+        this.CFG_VN_TITLE_MULTI_DELETE = 'Delete Network(s)';
+        // End VN Config labels
+
     };
     return CTLabels;
 });

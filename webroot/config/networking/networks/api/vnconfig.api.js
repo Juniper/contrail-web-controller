@@ -30,6 +30,8 @@ var configApiServer = require(process.mainModule.exports["corePath"] +
 var jsonDiff    = require(process.mainModule.exports["corePath"] +
                           '/src/serverroot/common/jsondiff');
 
+var vCenterAPI  = require('./vnconfig.vcenter.api');
+                          
 /**
  * Bail out if called directly as "nodejs vnconfig.api.js"
  */
@@ -504,7 +506,7 @@ function createVirtualNetworkCb (error, vnConfig, vnPostData, response, appData)
  * private function
  * 1. Callback for CreateVirtualNetwork
  */
-function updatePhysicalRouters (mode,newPRoutersUUIDS,error,newVnData,
+function updatePhysicalRouters (mode, newPRoutersUUIDS,error,newVnData,
                                 vnConfigData,request,response,appData,callback) 
 {
     //Current physical routers
@@ -1042,7 +1044,7 @@ function createVirtualNetwork (request, response, appData)
     if ('route_target_list' in vnPostData['virtual-network'] &&
        'route_target' in vnPostData['virtual-network']['route_target_list']) {
         if (!(vnPostData['virtual-network']['route_target_list']
-                      ['route_target'][0].length)) {
+                      ['route_target'].length)) {
             delete vnPostData['virtual-network']['route_target_list'];
         }
     }
@@ -1088,11 +1090,8 @@ function deleteVirtualNetworkCb (error, vnDelResp, response)
  */
 function deleteVirtualNetwork (request, response, appData) 
 {
-    var vnDelURL         = '/virtual-network/';
-    var virtualNetworkId = null;
     var requestParams    = url.parse(request.url, true);
-    var uuidList         = [];
-    var dataObjArr       = [];
+    var virtualNetworkId = null;
 
     if (virtualNetworkId = request.param('id').toString()) {
         vnDelURL += virtualNetworkId;
@@ -1102,29 +1101,77 @@ function deleteVirtualNetwork (request, response, appData)
         commonUtils.handleJSONResponse(error, response, null);
         return;
     }
+
+    var dtaObj = {uuid: virtualNetworkId,
+                    appData: appData, request: request};
+    deleteVirtualNetworkAsync(dataObj, function (error, data) {
+        commonUtils.handleJSONResponse(data.error, response, data.data);
+        return;
+    });
+}
+
+
+/**
+ * @deleteVirtualNetworkAsync
+ * Callback for multi delete of VN's
+ */
+function deleteVirtualNetworkAsync (dataObj, callback)
+{
+    var vnDelURL            = '/virtual-network/';
+    var uuidList            = [];
+    var dataObjArr          = [];
+    var virtualNetworkId    = dataObj.uuid;//commonUtils.getValueByJsonPath(dataObj,'uuid', null);
+    var appData             = dataObj.appData;//commonUtils.getValueByJsonPath(dataObj,'appData', null);
+    var request             = dataObj.request;//commonUtils.getValueByJsonPath(dataObj,'request', null);
+
+    if (virtualNetworkId != null) {
+        vnDelURL += virtualNetworkId;
+    } else {
+        error = new appErrors.RESTServerError('Virtual Network Id ' +
+                                              'is required');
+        callback(null, {'error': error, 'data': null} );
+        return;
+    }
+
     configApiServer.apiGet(vnDelURL, appData, function(err, data) {
         if (err || (null == data)) {
-            var error = new appErrors.RESTServerError('Virtual Network Id' +
-                                                      virtualNetworkId + ' does not exist');
-            commonUtils.handleJSONResponse(error, response, null);
+            callback(null, {'error': err, 'data': null});
             return;
         }
 
         var vmiBackRefs = 
             data['virtual-network']['virtual_machine_interface_back_refs'];
+        var instanceIPBackRefs = data['virtual-network']['instance_ip_back_refs'];
         if (null != vmiBackRefs) {
+            var uuidList = [];
             var vmiCnt = vmiBackRefs.length;
             for (var i = 0; i < vmiCnt; i++) {
                 uuidList.push(vmiBackRefs[i]['uuid']);
             }   
             if (vmiCnt > 0) {
                 var error =
-                    new appErrors.RESTServerError('Virtual machine interface back refs ' +
+                    new appErrors.RESTServerError('Virtual machine back refs ' +
                                                   uuidList.join(',') + ' exist');
-                commonUtils.handleJSONResponse(error, response, null);
+                callback(null, {'error': error, 'data': null});
+                return;                               
+            }
+        }
+        if (null != instanceIPBackRefs) {
+            var uuidList = [];
+            var instanceIPBackRefCnt = instanceIPBackRefs.length;
+            for (var i = 0; i < instanceIPBackRefCnt; i++) {
+                uuidList.push(instanceIPBackRefs[i]['uuid']);
+            }   
+            if (instanceIPBackRefCnt > 0) {
+                var error =
+                    new appErrors.RESTServerError('Instance IP back refs ' +
+                                                  uuidList.join(',') + ' exist');
+                callback(null, {'error': error, 'data': null});
                 return;                                
             }
         }
+        var loggedInOrchMode = commonUtils.getValueByJsonPath(request,
+                                            'session;loggedInOrchestrationMode', null);
         /* Check if we have any floating-ip-pool */
         var fipPoolList = data['virtual-network']['floating_ip_pools'];
         if (null != fipPoolList) {
@@ -1136,16 +1183,38 @@ function deleteVirtualNetwork (request, response, appData)
                 dataObjArr[i]['appData'] = appData;
             }
             async.map(dataObjArr, fipPoolDelete, function(err, results) {
-                configApiServer.apiDelete(vnDelURL, appData,
-                                          function(error, data) {
-                    deleteVirtualNetworkCb(error, data, response);
-                });
+                if ('vcenter' == loggedInOrchMode) {
+                    vCenterAPI.deletevCenterPortGroup(data['virtual-network'],
+                                                        appData, function (error, data) {
+                                                            callback(null, {'error': error,
+                                                                            'data': data});
+                                                            return;
+                                                        });
+                } else {
+                    configApiServer.apiDelete(vnDelURL, appData,
+                                              function(error, data) {
+                                                callback(null, {'error': error,
+                                                                'data': data});
+                                                return;
+                    });
+                }
             });
         } else {
-            configApiServer.apiDelete(vnDelURL, appData,
-                                      function(error, data) {
-                deleteVirtualNetworkCb(error, data, response);
-            });
+           if ('vcenter' == loggedInOrchMode) {
+                vCenterAPI.deletevCenterPortGroup(data['virtual-network'],
+                                                    appData, function (error, data) {
+                                                        callback(null, {'error': error,
+                                                                        'data': data});
+                                                        return;
+                                                    });
+            } else {
+                configApiServer.apiDelete(vnDelURL, appData,
+                                          function(error, data) {
+                                            callback(null, {'error': error,
+                                                            'data': data});
+                                            return;
+                });
+            }
         }
     });
 }
@@ -1342,7 +1411,7 @@ function getFipUUID (fipFqn, fipPool)
     return null;
 }
 
-function getFipPoolToEntry (fipPoolRef, fipPool, projName, fipPostData)
+function getFipPoolToEntry (fipPoolRef, fipPool, projUUID, fipPostData)
 {
     try {
         var fipPoolCnt = fipPool.length;
@@ -1358,7 +1427,7 @@ function getFipPoolToEntry (fipPoolRef, fipPool, projName, fipPostData)
             continue;
         }
         for (var j = 0; j < projCnt; j++) {
-            if (projName == fip[i]['projects'][j]['to'].join(':')) {
+            if (projUUID == fip[i]['projects'][j]['uuid']) {
                 var fipName = fip[i]['to'].join(':');
                 var fipUUID = getFipUUID(fipName, fipPool);
                 if (fipUUID == null) {
@@ -1410,7 +1479,7 @@ function createFipPoolUpdateProjects (error, results,
         }
         fipPoolRef = results[i]['project']['floating_ip_pool_refs'];
         getFipPoolToEntry(fipPoolRef, fipPool,
-                          results[i]['project']['fq_name'].join(':'),
+                          results[i]['project']['uuid'],
                           fipPostData);
         var projDelta =
             jsonDiff.getConfigJSONDiff('virtual-network:project',
@@ -1453,8 +1522,7 @@ function createFipPoolProjectsGet (error, fipPool, fipPostData,
     }
     for (var i = 0; i < fipPoolRefCnt; i++) {
         try {
-            if (!(('projects' in fipPoolRef[i]) &&
-                  (fipPoolRef[i]['projects'][0]['to'][1].length))) {
+            if (!(('projects' in fipPoolRef[i]))) {
                 continue;
             }
         } catch(e) {
@@ -2482,6 +2550,51 @@ function getVNListOrDetails (req, res, appData)
     });
 }
 
+
+/**
+ * @getVNDetails
+ * public function
+ * 1. URL /api/tenants/config/virtual-networks-details
+ * 2. Gets list of shared virtual networks from config api server
+ * 3. Can pass parent_id (tenant_id) or filters as query params.
+ *
+ */
+function getVNDetails (req, res, appData)
+{
+    var tenantId      = null, filters = null;
+    var requestParams = url.parse(req.url,true);
+    var vnURL         = '/virtual-networks';
+    var resultJSON    = [];
+    var vnObjArr      = [];
+
+    if (requestParams.query && requestParams.query.tenant_id) {
+        tenantId = requestParams.query.tenant_id;
+        vnURL += '?parent_id=' + tenantId.toString();
+        vnURL += '&';
+    } else {
+        vnURL += '?';
+    }
+
+    vnURL += 'detail=true&fields=' +
+             'physical_router_back_refs,floating_ip_pools';
+
+    if (requestParams.query && requestParams.query.filters) {
+        filters = requestParams.query.filters;
+        vnURL += '&filters=' + filters.toString();
+    }
+
+    configApiServer.apiGet(vnURL, appData,
+        function(err, data) {
+            if ((null != err) || (null == data)) {
+                commonUtils.handleJSONResponse(err, res, data);
+                return;
+            }
+
+        
+        commonUtils.handleJSONResponse(null, res, data);
+    });
+}
+
 exports.listVirtualNetworks          = listVirtualNetworks;
 exports.getVirtualNetwork            = getVirtualNetwork;
 exports.readVirtualNetworks          = readVirtualNetworks;
@@ -2489,6 +2602,7 @@ exports.readVirtualNetworkAsync      = readVirtualNetworkAsync;
 exports.createVirtualNetwork         = createVirtualNetwork;
 exports.updateVirtualNetwork         = updateVirtualNetwork;
 exports.deleteVirtualNetwork         = deleteVirtualNetwork;
+exports.deleteVirtualNetworkAsync    = deleteVirtualNetworkAsync;
 exports.updateVNSubnetDelete         = updateVNSubnetDelete;
 exports.updateVNFipPoolAdd           = updateVNFipPoolAdd;
 exports.updateVNFipPoolDelete        = updateVNFipPoolDelete;
@@ -2504,4 +2618,4 @@ exports.fipPoolDelete                = fipPoolDelete;
 exports.getVirtualNetworkCb          = getVirtualNetworkCb;
 exports.getVNListOrDetails           = getVNListOrDetails;
 exports.getAllVirtualNetworks        = getAllVirtualNetworks;
-
+exports.getVNDetails                 = getVNDetails;

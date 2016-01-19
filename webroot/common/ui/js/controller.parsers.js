@@ -396,6 +396,30 @@ define([
             });
             return retArr;
         };
+
+        this.vnCfgDataParser = function(response, isShared) {
+            var retArr = [];
+            var domain  = contrail.getCookie(cowc.COOKIE_DOMAIN);
+            var project = contrail.getCookie(cowc.COOKIE_PROJECT);
+
+            if(response != null &&
+                'virtual-networks' in response &&
+                response['virtual-networks'].length > 0) {
+                var len = response['virtual-networks'].length
+                for (var i = 0; i < len; i++) {
+                    if (isShared && isShared == true) {
+                        var vn = response['virtual-networks'][i]['virtual-network']
+                        if (!(domain == vn['fq_name'][0] && project == vn['fq_name'][1])) { 
+                            retArr.push(response['virtual-networks'][i]['virtual-network']);
+                        }
+                    } else {
+                        retArr.push(response['virtual-networks'][i]['virtual-network']);
+                    }
+                }
+            }
+            return retArr;
+        };
+
     };
 
     return CTParsers;

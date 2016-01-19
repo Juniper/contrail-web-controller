@@ -635,6 +635,10 @@ define([
                 locked: true
             }
         ];
+
+        // Virtual Network Config Constants
+        this.URL_CFG_VN_DETAILS =
+                        '/api/tenants/config/virtual-network-details';
     };
 
     //str will be [0-9]+(m|h|s|d)

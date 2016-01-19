@@ -59,6 +59,9 @@
         14. List all shared virtual networks
             /api/tenants/config/shared-virtual-networks
                                                 getSharedVirtualNetworks  
+        15. List all virtual networks in a Project with no formatting
+            /api/tenants/config/virtual-network-details
+                                                getVNDetails  
     -->
     <item>
         <url>/api/tenants/config/virtual-networks</url>
@@ -180,6 +183,12 @@
         <method>post</method>
         <feature>vnconfig</feature>
         <callback>vnconfigapi.getVNListOrDetails</callback>
+        </item>
+        <item>
+        <url>/api/tenants/config/virtual-network-details</url>
+        <method>get</method>
+        <feature>vnconfig</feature>
+        <callback>vnconfigapi.getVNDetails</callback>
     </item>
 </urlLists>
 

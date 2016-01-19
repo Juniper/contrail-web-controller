@@ -25,7 +25,7 @@ var rest = require(process.mainModule.exports["corePath"] + '/src/serverroot/com
                               '/src/serverroot/common/configServer.api'),
     plugins = require(process.mainModule.exports["corePath"] + '/src/serverroot/orchestration/plugins/plugins.api'),
     nwMonUtils = require('../../../../common/api/nwMon.utils'),
-    vnConfig = require('../../../vn/api/vnconfig.api'),
+    vnConfig = require('../../../networking/networks/api/vnconfig.api'),
     fipConfig = require('../../../networking/fip/api/fipconfig.api'),
     polConfig = require('../../../networking/policy/api/policyconfig.api'),
     routPolConfig = require('../../../networking/routingpolicy/api/routingpolicyconfig.api'),
