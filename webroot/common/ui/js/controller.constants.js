@@ -617,6 +617,10 @@ define([
             {'value' : 'physical-router', "text" : 'Physical Router'},
             {'value' : 'physical-interface', "text" : 'Physical Interface'}
         ];
+
+        // Virtual Network Config Constants
+        this.URL_CFG_VN_DETAILS =
+                        '/api/tenants/config/virtual-network-details';
     };
 
     //str will be [0-9]+(m|h|s|d)

@@ -498,16 +498,20 @@ and need to add the iconClass tag wherever we need to show some icons
                     <items>
                         <item>
                             <label>Networks</label>
-                            <hash>config_net_vn</hash>
+                            <hash>config_networking_networks</hash>
                             <resources>
                                 <resource>
-                                    <rootDir>/config/vn/ui</rootDir>
-                                    <js>vn_config.js</js>
-                                    <view>vn_config.view</view>
-                                    <class>virtualnetworkConfigObj</class>
+                                    <rootDir>/common/ui</rootDir>
+                                    <js>controller.app.js</js>
+                                </resource>
+                                <resource>
+                                    <rootDir>/config/networking/networks/ui</rootDir>
+                                    <js>vnCfg.main.js</js>
+                                    <class>vnCfgLoader</class>
+                                    <function>renderVNCfg</function>
                                 </resource>
                             </resources>
-                            <searchStrings>Configure Networks</searchStrings>
+                            <searchStrings>Configure Network, Virtual Network, Virtual Networks, VN, Networks</searchStrings>
                         </item>
                         <item>
                             <label>Ports</label>
