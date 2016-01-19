@@ -42,24 +42,18 @@ define([
                 serverModels = [],
                 serverCollectionModel;
             var serverModel;
-            self.count = 0;
             if(servers.length > 0) {
                 for(var i = 0; i < servers.length; i++) {
                     var vmi = servers[i]['virtual-machine-interface'];
                     self.count = self.count + i;
                     serverModel = new ServersModel(
                         {
-                            index : self.count,
                             'virtual-machine-interface' : vmi,
                             isVMICreate : false,
                             disable : true,
                         }
                     );
-                    serverModel.__kb.view_model.model().on('change:user_created_mac_address',
-                        function(model, text){
-                             self.setServerIP(model, text);
-                        }
-                    );
+                    self.subscribeServerModelChangeEvents(serverModel);
                     serverModels.push(serverModel)
                     //populate user_created_subnet
                     if('subnet_back_refs' in vmi) {
@@ -85,6 +79,13 @@ define([
             serverCollectionModel = new Backbone.Collection(serverModels);
             modelConfig['servers'] = serverCollectionModel;
             return modelConfig;
+        },
+        subscribeServerModelChangeEvents: function (serverModel) {
+            serverModel.__kb.view_model.model().on('change:user_created_mac_address',
+                function(model, text){
+                     self.setServerIP(model, text);
+                }
+            );
         },
         setServerDataSource : function() {
             var servers = this.model().attributes['servers'].toJSON();
@@ -118,27 +119,20 @@ define([
         },
         addServer: function() {
             self = this;
-            self.count = self.count || 0;
-            self.count =  self.count + 1;
             var servers = this.model().attributes['servers'];
             var newServer = new ServersModel(
                 {
-                    index : self.count,
                     user_created_mac_address: "",
                     user_created_instance_ip_address : "",
                     isVMICreate : false,
                     dataSource : this.infEditView.vmiDataSrc
                 }
             );
-            newServer.__kb.view_model.model().on('change:user_created_mac_address',
-                function(model, text){
-                     self.setServerIP(model, text);
-                }
-            );
+            self.subscribeServerModelChangeEvents(newServer);
             servers.add([newServer]);
         },
         setServerIP : function(item, text) {
-            var model = self.getCurrentServer(item.attributes.index);
+            var model = self.getCurrentServer(item.cid);
             if(model != null) {
                 var ipObj = text.trim().split(' ');
                 if(ipObj.length === 2) {
@@ -180,7 +174,7 @@ define([
             var model;
             var servers = this.model().attributes['servers'].toJSON();
             for(var i = 0; i < servers.length; i++) {
-                if(servers[i].index() === id) {
+                if(servers[i].model().cid === id) {
                     model = servers[i];
                     break;
                 }
@@ -291,6 +285,12 @@ define([
                 {"mac_address": [input.mac]};
             }
             if(input.ip != undefined) {
+                var IpAddressFamily;
+                if(isIPv4(input.ip)) {
+                    IpAddressFamily = "v4";
+                } else if(isIPv6(input.ip)) {
+                    IpAddressFamily = "v6";
+                }
                 postObj["virtual-machine-interface"]["instance_ip_back_refs"]
                     = [
                         {
@@ -298,7 +298,8 @@ define([
                            {
                                "fixedIp": input.ip,
                                "domain": curDomain,
-                               "project": curProject
+                               "project": curProject,
+                               "instance_ip_family": IpAddressFamily
                            }
                         ]}
                       ];

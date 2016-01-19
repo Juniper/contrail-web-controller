@@ -9,7 +9,6 @@ define([
     var serversModel = ContrailModel.extend({
 
         defaultConfig: {
-            'index' : '',
             'virtual-machine-interface' : {
                 'uuid' : '',
                 'virtual_machine_interface_mac_addresses' : {
