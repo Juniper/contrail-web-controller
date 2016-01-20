@@ -88,17 +88,17 @@ define([
         this.URL_All_EXTERNAL_NETWORK = '/api/tenants/config/external-virtual-networks';
         this.URL_LOGICAL_ROUTER_POST = '/api/tenants/config/logicalrouter';
         this.URL_LOGICAL_ROUTER_PUT = '/api/tenants/config/logicalrouter/{0}';
-        this.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX = 'config/networking/logicalrouter/ui/js/views/';
+        this.URL_LOGICAL_ROUTER_VIEW_PATH_PREFIX = '/config/networking/logicalrouter/ui/js/views/';
 
-        this.URL_POLICIES_VIEW_PATH_PREFIX = 'config/networking/policy/ui/js/views/';
+        this.URL_POLICIES_VIEW_PATH_PREFIX = '/config/networking/policy/ui/js/views/';
         this.URL_POLICIES_IN_CHUNKS = '/api/admin/config/get-data?type=network-policy&count={0}&fqnUUID={1}';
 
-        this.URL_ROUTING_POLICY_PATH_PREFIX = 'config/networking/routingpolicy/ui/js/views/';
+        this.URL_ROUTING_POLICY_PATH_PREFIX = '/config/networking/routingpolicy/ui/js/views/';
         this.URL_ROUTING_POLICY_IN_CHUNKS = '/api/tenants/config/routingpolicy/{0}';
 
         this.URL_PORT_POST = '/api/tenants/config/ports';
         this.URL_PORT_PUT = '/api/tenants/config/ports/{0}';
-        this.URL_PORT_VIEW_PATH_PREFIX = 'config/networking/port/ui/js/views/';
+        this.URL_PORT_VIEW_PATH_PREFIX = '/config/networking/port/ui/js/views/';
         this.URL_GET_PORT_UUID = '/api/tenants/config/get-config-uuid-list?type=virtual-machine-interface&parentUUID={0}';
         this.URL_GET_PORT = '/api/tenants/config/get-virtual-machine-details-paged';
         this.get = function () {
@@ -562,9 +562,9 @@ define([
             '/api/tenants/config/virtual-routers-detail';
         this.URL_PHYSICAL_ROUTER_CREATE =
             '/api/tenants/config/physical-routers';
-        this.URL_BGP_ROUTER_DETAILS = 'api/admin/nodes/bgp';
+        this.URL_BGP_ROUTER_DETAILS = '/api/admin/nodes/bgp';
         this.URL_VIRTUAL_NETWORK_DETAILS =
-            'api/tenants/config/virtual-networks';
+            '/api/tenants/config/virtual-networks';
         this.SNMP_VERSION_DATA = [
             {'value' : '2', "label" : '2c'},
             {'value' : '3', "label" : '3'}

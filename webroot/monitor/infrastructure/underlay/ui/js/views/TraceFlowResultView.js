@@ -443,7 +443,7 @@ define([
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
             $.ajax({
-                url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='
+                url:'/api/tenant/networking/virtual-network/summary?fqNameRegExp='
                     +nwFqName,
             }).always(function(networkDetails){
                 if(networkDetails['value']!= null &&

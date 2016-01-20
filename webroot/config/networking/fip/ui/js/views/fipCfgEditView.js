@@ -203,7 +203,7 @@ define([
                                             type: 'remote',
                                             //Fix, find a way to get proj id
                                             //here. For now try using name
-                                            url: 'api/tenants/config/floating-ip-pools/' +
+                                            url: '/api/tenants/config/floating-ip-pools/' +
                                                 contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
                                                 contrail.getCookie(cowc.COOKIE_PROJECT),
                                             parse: formatFipCfg.fipPoolDropDownFormatter
@@ -297,7 +297,7 @@ define([
                                             //Fix, find a way to get project id
                                             //here. Right now we can only get
                                             //name.
-                                            url: 'api/tenants/config/get-virtual-machine-details?proj_fqn=' +
+                                            url: '/api/tenants/config/get-virtual-machine-details?proj_fqn=' +
                                                 contrail.getCookie(cowc.COOKIE_DOMAIN) + ':' +
                                                 contrail.getCookie(cowc.COOKIE_PROJECT),
                                             parse: formatFipCfg.fipPortDropDownFormatter
