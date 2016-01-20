@@ -36,6 +36,8 @@ define([
 
         this.IS_NODE_MANAGER_INSTALLED = true;
 
+        this.HOST_DPDK = 'HOST_DPDK';
+
         this.monitorInfraUrls = {
                 TENANT_API_URL              : "/api/tenant/get-data",
 
