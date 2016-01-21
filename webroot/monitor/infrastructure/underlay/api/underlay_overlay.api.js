@@ -1130,7 +1130,7 @@ function getUnderlayPathByTopoData (req, topoData, srcVM, destVM, appData,
 {
     var tempLinksObjArr = [];
     var url = '/analytics/uves/prouter';
-    var key = global.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
+    var key = ctrlGlobal.STR_GET_UNDERLAY_TOPOLOGY + '@' + url;
     redisUtils.checkAndGetRedisDataByKey(key, buildTopology, req, appData,
                                          function(err, topology) {
         for (var i = 0; i < topology['links'].length; i++) {
