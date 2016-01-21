@@ -10,24 +10,47 @@ define([
     var UnderlayGraphView = ContrailView.extend({
         network: null,
         model : null,
+        underlayPathIds: {
+            nodes: [],
+            links: []
+        },
+        duplicatePathsDrawn: false,
         tooltipConfigWidth: 0,
         tooltipConfigHeight: 0,
         cursorPosition: {},
         style: {
             default: {
-                color: "rgba(85,85,85,1)"
+                color: "rgba(85,85,85,.9)"
             },
             defaultDimlight: {
-                color: "rgba(85,85,85,0.3)"
+                color: "rgba(85,85,85,0.5)"
             },
             defaultSelected: {
                 color: "rgba(73,138,185,1)"
             },
             selectedDimlight: {
-                color: "rgba(73,138,185,0.3)"
+                color: "rgba(73,138,185,0.5)"
             },
             errorNode: {
                 color: "rgba(185,74,72,1)"
+            },
+            linkDefault: {
+                color: "rgba(57,57,57,.6)"
+            },
+            flowPathDefault: {
+                //color: "rgba(148,226,241,1)" //orange
+                //color: "rgba(154,215,210,1)" //blue
+                //color: "rgba(226,208,146,1)" //brown
+                //color: "rgba(186,162,74,1)" //dark brown
+                color: "rgba(0,150,136,.8)" //teal
+
+            },
+            flowPathDimlight: {
+                //color: "rgba(148,226,241,.6)" //orange
+                //color: "rgba(154,215,210,.6)" //blue
+                //color: "rgba(226,208,146,.6)" //brown
+                //color: "rgba(186,162,74,.5)" //dark brown
+                color: "rgba(0,150,136,.5)" //teal
             }
         },
         cidMap: {
@@ -50,28 +73,55 @@ define([
                 hoverConnectedEdges: false,
                 zoomView: false
             },
+            physics: {
+                stabilization: {
+                    iterations: 100
+                }
+            },
             layout: {
                 hierarchical: {
                     direction: 'UD',
-                    sortMethod: 'directed'
+                    sortMethod: 'directed',
+                    levelSeparation: 80,
                 },
                 improvedLayout: true
             },
-            /*edges: {
+            nodes: {
+                shape: 'icon',
+                icon: {
+                    face: 'contrailFonts',
+                    size: 40,
+                    color: "rgba(85,85,85,.9)"
+                },
+                font: {
+                    face : 'Arial, helvetica, sans-serif',
+                    size: 10,
+                    color: '#333',
+                    strokeColor: '#333',
+                    strokeWidth: 0.4
+                },
+                labelHighlightBold: true
+            },
+            edges: {
+                width: 2,
+                color: "rgba(57,57,57,.6)",
                 smooth: {
                     enabled: true,
                     type: "cubicBezier",
                     forceDirection: "horizontal",
                     roundness: .7 //not to be used with dynamic
                 }
-            }*/
-            edges: {
+            }
+            /*edges: {
                 smooth: {
                     enabled: true,
                     type: "dynamic",
                     forceDirection: "none"
                 }
-            }
+            }*/
+        },
+        enableFreeflow: function() {
+            self.network.setOptions({physics:{enabled: false}, layout: {hierarchical: {enabled:false}}});
         },
         resetTooltip: function() {
             $(".vis-network-tooltip").popover('destroy');
@@ -85,14 +135,24 @@ define([
                 selectorId = '#' + ctwl.UNDERLAY_GRAPH_ID;
                 graphModel =
                 new UnderlayGraphModel(this.getUnderlayGraphModelConfig());
+            self.$el.html(graphTemplate());
+            $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel', graphModel);
             this.model = graphModel;
             this.model.listenTo(graphModel, "change", function (updatedGraphModel) {
                 self.populateModelAndAddToGraph(updatedGraphModel.attributes);
             });
 
-            self.$el.html(graphTemplate());
-
-            $("#"+ctwl.UNDERLAY_GRAPH_ID).data('graphModel', graphModel);
+            $('body').on("click", '#flow-info span.reset', function () {
+                self.resetTopology({
+                    resetBelowTabs: true
+                });
+                monitorInfraUtils.removeUndelrayFlowInfoFromBreadCrumb();
+                //Removing the selected row styling in trace flow and map flow results.
+                $("#" + ctwc.TRACEFLOW_RESULTS_GRID_ID+
+                    " div.slick-row.selected-slick-row").removeClass('selected-slick-row');
+                $("#searchFlow-results div.slick-row.selected-slick-row").removeClass('selected-slick-row');
+                self.clearFlowPath();
+            });
             var graphWidth = $(selectorId).width();
             var graphHeight = $(selectorId).height();
             this.nodesDataSet = new vis.DataSet([]);
@@ -103,22 +163,52 @@ define([
                     edges: this.edgesDataSet
                 },
                 this.visOptions);
+            /*var rearrange = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:130px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Layout"><i class="icon-align-center" /></div>');
+            $(rearrange).on("click", function(){
+                _network.setOptions(self.visOptions);
+                $('.vis-button vis-zoomExtends').click();
+                self.enableFreeflow();
+            });
+            $('.vis-navigation').append(rearrange);
+            var resetTopo = $('<div style="display:inline-block; width:15px; height:15px; background-image:none; top:170px; right:10px; position:absolute; background-color:#f9f9f9; border:1px solid #efefef; color:#777; font-family:FontAwesome; font-size:15px; z-index:1; padding: 7px 7px; line-height:normal; background-position:2px 2px; cursor:pointer; background-repeat:no-repeat" title="Reset Topology"><i class="icon-check" /></div>');
+            $(resetTopo).on("click", function(){
+                    self.resetTopology({
+                        resetBelowTabs: false,
+                        model: graphModel
+                    });
+            });
+            $('.vis-navigation').append(resetTopo);*/
+
             var _network = this.network;
+            window.network = _network;
+            window.view = this;
             this.network.on("blurNode", function(node){
                 self.resetTooltip();
             });
 
+            this.network.on("dragStart", function(node){
+                self.duplicatePathsDrawn = false;
+                self.resetTooltip();
+                self.removeUnderlayPathIds();
+            });
             this.network.on("dragEnd", function(node){
                 self.resetTooltip();
+                self.duplicatePaths("dragEnd");
             });
-
+            this.network.on("stabilized", function(params){
+                self.duplicatePaths("stabilized");
+                self.enableFreeflow();
+            });
+            this.network.on("stabilizationIterationsDone", function(params){
+                self.enableFreeflow();
+            });
             $(document).bind('mousemove',function(e) {
                 self.cursorPosition = {
                     "left": e.pageX,
                     "top": e.pageY
                 };
             });
-            this.network.on("showPopup", function(elementId){
+            this.network.on("showPopup", function(elementId) {
                 var timer = null;
                 var tooltipConfig = null;
                 var hoveredElement = _network.canvas.body.nodes[elementId];
@@ -201,11 +291,15 @@ define([
             this.network.on("click", function(params) {
                 var parameters = params;
                 timeout = setTimeout(function() {
+                    if($("#resetTopologyModal").is(":visible")) {
+                        return;
+                    }
                     var params = parameters;
 
                     if (params.nodes.length == 1) {
                         var clickedElement = _network.canvas.body.nodes[params.nodes[0]];
-                        self.resetConnectedElements();
+                        //self.resetConnectedElements();
+                        self.addDimlightToConnectedElements();
                         var node = self.nodesDataSet.get(params.nodes[0]);
                         node.icon.color = self.style.defaultSelected.color;
                         self.nodesDataSet.update(node);
@@ -245,7 +339,8 @@ define([
                         var data = {};
                         var linkDetails = _network.body.data.edges._data[params.edges[0]].linkDetails;
                         var clickedElement = _network.canvas.body.edges[params.edges[0]];
-                        self.resetConnectedElements();
+                        //self.resetConnectedElements();
+                        self.addDimlightToConnectedElements();
                         var edge = self.edgesDataSet.get(params.edges[0]);
                         edge.color = self.style.defaultSelected.color;
                         self.edgesDataSet.update(edge);
@@ -281,114 +376,37 @@ define([
                     clearTimeout(timeout);
                     timeout = null;
                 }
+                $(".vis-network-tooltip").popover("hide");
                 if (params.nodes.length == 1) {
-                    self.removeUnderlayPathIds();
-                    var dblClickedElement = (_network.findNode(params.nodes[0]))[0];
-                    var nodeDetails = dblClickedElement.options.nodeDetails;
-                    var elementType = dblClickedElement.options.type;
-                    switch (elementType) {
-                        case 'PhysicalRouter':
-                            var chassis_type = nodeDetails['chassis_type'];
-                            if (chassis_type === "tor") {
-                                graphModel.selectedElement.set({
-                                'nodeType': ctwc.PROUTER,
-                                'nodeDetail': nodeDetails});
-                                var children = graphModel.getChildren(
-                                    nodeDetails['name'], "virtual-router");
-                                var adjList = _.clone(
-                                    graphModel['underlayAdjacencyList']);
-                                if (children.length > 0) {
-                                    var childrenName = [];
-                                    for (var i = 0; i < children.length; i++) {
-                                        childrenName.push(children[i]["name"]);
-                                        adjList[children[i]["name"]] = [];
-                                    }
-                                    adjList[nodeDetails['name']] = childrenName;
-                                    graphModel['adjacencyList'] = adjList;
-                                    var childElementsArray = self
-                                        .createElementsFromAdjacencyList(graphModel);
-                                    self.addElementsToGraph(childElementsArray,
-                                        graphModel);
-                                    self.markErrorNodes();
-                                    self.addDimlightToConnectedElements();
-                                    var thisNode = [nodeDetails];
-                                    self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
-                                    var graphData = {
-                                        nodes: this.nodesDataSet,
-                                        edges: this.edgesDataSet
-                                    };
-                                }
+                    if(getCookie('nodeDoubleClick') != "true" &&
+                        (self.underlayPathIds.nodes.length > 0 ||
+                        self.underlayPathIds.links.length > 0)) {
+                        var textTemplate =
+                        contrail.getTemplate4Id("monitor-infra-topology-reset-template");
+                        cowu.createModal({
+                            'modalId': 'resetTopologyModal',
+                            'className': 'modal-500',
+                            'title': 'Clear map/trace flow',
+                            'btnName': 'Confirm',
+                            'body': textTemplate(),
+                            'onSave': function () {
+                                self.underlayPathIds.nodes = [];
+                                self.underlayPathIds.links = [];
+                                self.expandNodes(params);
+                                $("#resetTopologyModal").modal('hide');
+                            },
+                            'onCancel': function () {
+                                $("#resetTopologyModal").modal('hide');
                             }
-                            break;
-                        case 'VirtualRouter':
-                            graphModel.selectedElement.set({
-                            'nodeType': ctwc.VROUTER,
-                            'nodeDetail': nodeDetails});
-                            var parentNode = null;
-                            if(graphModel.underlayPathIds.length > 0) {
-                                $.each(_network.getConnectedEdges(params.nodes[0]), function(idx, edge_id) {
-                                    var connectedNodes = _network.getConnectedNodes(edge_id);
-                                    var connectedNode0 = self.nodesDataSet.get(connectedNodes[0]);
-                                    var connectedNode1 = self.nodesDataSet.get(connectedNodes[1]);
-                                    if(connectedNode0 &&
-                                      connectedNode0.nodeDetails.node_type == "physical-router") {
-                                        parentNode = connectedNode0;
-                                    } else if (connectedNode1 &&
-                                      connectedNode1.nodeDetails.node_type == "physical-router") {
-                                        parentNode = connectedNode1;
-                                    }
-                                });
-                            }
-                            var siblings = []; //vrouter siblings
-                            if(parentNode !== null) {
-                                siblings = graphModel.getChildren(parentNode.nodeDetails['name'],
-                                "virtual-router");
-                            }
-                            var children = graphModel.getChildren(nodeDetails['name'],
-                                "virtual-machine");
-                            var newAdjList = {};
-                            var oldAdjList = {};
-                            if(graphModel['underlayPathIds'].length > 0) {
-                                newAdjList = _.clone(graphModel['underlayAdjacencyList']);
-                                oldAdjList = _.clone(graphModel['underlayAdjacencyList']);
-                            }
-                            else {
-                                newAdjList = _.clone(graphModel['adjacencyList']);
-                                oldAdjList = _.clone(graphModel['adjacencyList']);
-                            }
-                            if (siblings.length > 0) {
-                                var siblingName = [];
-                                for (var i = 0; i < siblings.length; i++) {
-                                    if(siblings[i]["name"] !== dblClickedElement.options.nodeDetails.name) {
-                                        siblingName.push(siblings[i]["name"]);
-                                        newAdjList[siblings[i]["name"]] = [];
-                                    }
-                                }
-                                newAdjList[parentNode.nodeDetails['name']] = siblingName;
-                                oldAdjList = _.clone(newAdjList);
-                                oldAdjList[parentNode.nodeDetails['name']] = [];
-                            }
-                            if (children.length > 0) {
-                                var childrenName = [];
-                                for (var i = 0; i < children.length; i++) {
-                                    childrenName.push(children[i]["name"]);
-                                    newAdjList[children[i]["name"]] = [];
-                                }
-                                newAdjList[nodeDetails['name']] = childrenName;
-                            } else {
-                                newAdjList = oldAdjList;
-                            }
-                            graphModel['adjacencyList'] = newAdjList;
-                            var childElementsArray = self.createElementsFromAdjacencyList(graphModel);
-                            self.addElementsToGraph(childElementsArray, graphModel);
-                            self.addDimlightToConnectedElements();
-                            var thisNode = [nodeDetails];
-                            self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
-                            self.markErrorNodes();
-                            graphModel['adjacencyList'] = oldAdjList;
-                            self.removeUnderlayPathIds();
-                            break;
+                        });
+                    } else {
+                        self.expandNodes(params)
                     }
+                } else if(params.nodes.length == 0 && params.edges.length == 0) {
+                    self.resetConnectedElements();
+                    monitorInfraUtils.removeUnderlayTabs(
+                        self.rootView.childViewMap[ctwc.UNDERLAY_TABS_VIEW_ID]
+                    );
                 }
             });
 
@@ -397,12 +415,13 @@ define([
                 var nodes = graphModel.flowPath.get('nodes');
                 var links = graphModel.flowPath.get('links');
                 if(nodes.length <=0 || links.length <= 0){
+                    graphModel.flowPath.set('nodes',graphModel.flowPath._previousAttributes.nodes, {silent: true});
+                    graphModel.flowPath.set('links',graphModel.flowPath._previousAttributes.links, {silent: true});
                     showInfoWindow("Cannot find the underlay path for selected flow", "Info");
                     return false;
                 } else {
                     self.resetTopology({
                         resetBelowTabs: true,
-                        model: graphModel
                     });
                 }
                 var elementMap = graphModel['elementMap'];
@@ -478,7 +497,6 @@ define([
                 self.addElementsToGraph(childElementsArray);
                 self.markErrorNodes();
                 $(".popover").popover().hide();
-                var connectionWrapIds = [];
                 if(links.length > 0)
                     self.addDimlightToConnectedElements();
                 for (var i = 0; i < links.length; i++) {
@@ -523,10 +541,54 @@ define([
                             elementMap.node[childName] = currentElId;
                         }
                     }
+                }
+                // When the underlay path is same for earlier flow and
+                // current flow change events are not triggering so we need to
+                // reset the nodes and links to empty array once the path is plotted.
+                graphModel["elementMap"] = elementMap;
+                graphModel['adjacencyList'] = graphModel['underlayAdjacencyList'];
+                //graphModel.flowPath.set('nodes',[], {silent: true});
+                //graphModel.flowPath.set('links',[], {silent: true});
+            });
+
+        },
+        duplicatePaths: function(eventName) {
+            var self = this;
+
+            if(self.model.flowPath.attributes.nodes.length > 0 &&
+                self.model.flowPath.attributes.links.length > 0 &&
+                self.duplicatePathsDrawn == false) {
+                self.duplicatePathsDrawn = true;
+                var dupNodes = {}, dupLinks = {};
+                var underlayPathIds = {
+                    nodes: [],
+                    links: []
+                };
+                var links = self.model.flowPath.attributes.links;
+                var elementMap = self.model.elementMap;
+                for (var i = 0; i < links.length; i++) {
+                    var endpoints = links[i].endpoints;
+                    var endpoint0 = endpoints[0];
+                    var endpoint1 = endpoints[1];
+                    var linkName = endpoint0 + "<->" + endpoint1;
+                    var altLinkName = endpoint1 + "<->" + endpoint0;
+                    var link = elementMap.link[linkName];
+                    var existingLink = self.edgesDataSet.get(link);
+
+                    var parentNode = null, childNode = null;
+                    if(existingLink.from == elementMap.node[endpoint0]) {
+                        parentNode = self.nodesDataSet.get(elementMap.node[endpoint0]);
+                        childNode = self.nodesDataSet.get(elementMap.node[endpoint1]);
+                    } else {
+                        parentNode = self.nodesDataSet.get(elementMap.node[endpoint1]);
+                        childNode = self.nodesDataSet.get(elementMap.node[endpoint0]);
+                    }
+                    if(parentNode == null || childNode == null)
+                        continue;
                     var parentId = parentNode.id;
+                    var childId = childNode.id;
                     var parentNodeType = parentNode.nodeDetails.node_type;
                     var childNodeType = childNode.nodeDetails.node_type;
-                    var childId = childNode.id;
                     var link_type = parentNodeType.split("-")[0][0] +
                         parentNodeType.split("-")[1][0] + '-' +
                         childNodeType.split("-")[0][0] +
@@ -539,26 +601,191 @@ define([
                         arrowPosition = "from";
                     }
 
-                    var newLink = self.createLink(links[i], link_type, parentId, childId, true, arrowPosition);
+                    var parentNodeElement = self.network.findNode(parentId);
+                    parentNodeElement = parentNodeElement[0];
+                    var childNodeElement = self.network.findNode(childId);
+                    childNodeElement = childNodeElement[0];
+                    var newParentNode = null, newChildNode = null;
+
+                    if(dupNodes.hasOwnProperty(parentNode.nodeDetails.name)) {
+                        newParentNode = dupNodes[parentNode.nodeDetails.name].data;
+                    } else {
+                        newParentNode = self.createNode(parentNode.nodeDetails);
+                        newParentNode.x = parentNodeElement.x-7;
+                        newParentNode.y = parentNodeElement.y-7;
+                        /*if(parentNodeElement.x > childNodeElement.x &&
+                            childNodeElement.y > parentNodeElement.y) {
+                            newParentNode.x = parentNodeElement.x - 5;
+                            newParentNode.y = parentNodeElement.y + 5;
+                        } else if(parentNodeElement.x < childNodeElement.x &&
+                            parentNodeElement.y < childNodeElement.y) {
+                            newParentNode.x = parentNodeElement.x + 5;
+                            newParentNode.y = parentNodeElement.y + 5;
+                        }*/
+                        newParentNode.hidden = true;
+                        dupNodes[parentNode.nodeDetails.name] = {};
+                        dupNodes[parentNode.nodeDetails.name]["id"]= newParentNode.id;
+                        dupNodes[parentNode.nodeDetails.name]["data"]= newParentNode;
+                        underlayPathIds.nodes.push(newParentNode.id);
+                        self.nodesDataSet.add(newParentNode);
+                    }
+
+                    if(dupNodes.hasOwnProperty(childNode.nodeDetails.name)) {
+                        newChildNode = dupNodes[childNode.nodeDetails.name].data;
+                    } else {
+                        newChildNode = self.createNode(childNode.nodeDetails);
+                        newChildNode.x = childNodeElement.x-7;
+                        newChildNode.y = childNodeElement.y-7;
+                        /*if(parentNodeElement.x > childNodeElement.x &&
+                            childNodeElement.y > parentNodeElement.y) {
+                            newChildNode.x = childNodeElement.x + 5;
+                            newChildNode.y = childNodeElement.y - 5;
+                        } else if(parentNodeElement.x < childNodeElement.x &&
+                            parentNodeElement.y < childNodeElement.y) {
+                            newChildNode.x = childNodeElement.x - 5;
+                            newChildNode.y = childNodeElement.y - 5;
+                        }*/
+                        newChildNode.hidden = true;
+                        dupNodes[childNode.nodeDetails.name] = {};
+                        dupNodes[childNode.nodeDetails.name]["id"]= newChildNode.id;
+                        dupNodes[childNode.nodeDetails.name]["data"]= newChildNode;
+                        underlayPathIds.nodes.push(newParentNode.id);
+                        self.nodesDataSet.add(newChildNode);
+                    }
+
+                    var newLink = self.createLink(links[i], link_type,
+                        newParentNode.id, newChildNode.id, arrowPosition, eventName);
                     var currentLinkId = newLink.id;
                     self.edgesDataSet.add(newLink);
-                    connectionWrapIds.push(currentLinkId);
+                    underlayPathIds.links.push(currentLinkId);
+                    dupLinks[parentNode.nodeDetails.name+ "<->" + childNode.nodeDetails.name] = currentLinkId;
+                    dupLinks[childNode.nodeDetails.name+ "<->" + parentNode.nodeDetails.name] = currentLinkId;
                 }
-                if(connectionWrapIds.length > 0) {
-                    graphModel['underlayPathIds'] = connectionWrapIds;
-                }
-                // When the underlay path is same for earlier flow and
-                // current flow change events are not triggering so we need to
-                // reset the nodes and links to empty array once the path is plotted.
-                graphModel["elementMap"] = elementMap;
-                graphModel['adjacencyList'] = graphModel['underlayAdjacencyList'];
-                graphModel.flowPath.set('nodes',[], {silent: true});
-                graphModel.flowPath.set('links',[], {silent: true});
-            });
-
+                self.underlayPathIds = underlayPathIds;
+            }
+        },
+        clearFlowPath: function() {
+            graphModel.flowPath.set('nodes',[], {silent: true});
+            graphModel.flowPath.set('links',[], {silent: true});
+        },
+        expandNodes: function (params) {
+            var self = this;
+            var _network = self.network;
+            var graphModel = self.model;
+            self.clearFlowPath();
+            self.removeUnderlayPathIds();
+            var dblClickedElement = (_network.findNode(params.nodes[0]))[0];
+            var nodeDetails = dblClickedElement.options.nodeDetails;
+            var elementType = dblClickedElement.options.type;
+            switch (elementType) {
+                case 'PhysicalRouter':
+                    var chassis_type = nodeDetails['chassis_type'];
+                    if (chassis_type === "tor") {
+                        graphModel.selectedElement.set({
+                        'nodeType': ctwc.PROUTER,
+                        'nodeDetail': nodeDetails});
+                        var children = graphModel.getChildren(
+                            nodeDetails['name'], "virtual-router");
+                        var adjList = _.clone(
+                            graphModel['underlayAdjacencyList']);
+                        if (children.length > 0) {
+                            var childrenName = [];
+                            for (var i = 0; i < children.length; i++) {
+                                childrenName.push(children[i]["name"]);
+                                adjList[children[i]["name"]] = [];
+                            }
+                            adjList[nodeDetails['name']] = childrenName;
+                            graphModel['adjacencyList'] = adjList;
+                            var childElementsArray = self
+                                .createElementsFromAdjacencyList(graphModel);
+                            self.addElementsToGraph(childElementsArray,
+                                graphModel);
+                            self.markErrorNodes();
+                            self.addDimlightToConnectedElements();
+                            var thisNode = [nodeDetails];
+                            self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
+                            var graphData = {
+                                nodes: this.nodesDataSet,
+                                edges: this.edgesDataSet
+                            };
+                        }
+                    }
+                    break;
+                case 'VirtualRouter':
+                    graphModel.selectedElement.set({
+                    'nodeType': ctwc.VROUTER,
+                    'nodeDetail': nodeDetails});
+                    var parentNode = null;
+                    if(self.underlayPathIds.nodes.length > 0 ||
+                        self.underlayPathIds.links.length > 0) {
+                        $.each(_network.getConnectedEdges(params.nodes[0]), function(idx, edge_id) {
+                            var connectedNodes = _network.getConnectedNodes(edge_id);
+                            var connectedNode0 = self.nodesDataSet.get(connectedNodes[0]);
+                            var connectedNode1 = self.nodesDataSet.get(connectedNodes[1]);
+                            if(connectedNode0 &&
+                              connectedNode0.nodeDetails.node_type == "physical-router") {
+                                parentNode = connectedNode0;
+                            } else if (connectedNode1 &&
+                              connectedNode1.nodeDetails.node_type == "physical-router") {
+                                parentNode = connectedNode1;
+                            }
+                        });
+                    }
+                    var siblings = []; //vrouter siblings
+                    if(parentNode != null) {
+                        siblings = graphModel.getChildren(parentNode.nodeDetails['name'],
+                        "virtual-router");
+                    }
+                    var children = graphModel.getChildren(nodeDetails['name'],
+                        "virtual-machine");
+                    var newAdjList = {};
+                    var oldAdjList = {};
+                    if(self.underlayPathIds.nodes.length > 0 ||
+                        self.underlayPathIds.links.length > 0) {
+                        newAdjList = _.clone(graphModel['underlayAdjacencyList']);
+                        oldAdjList = _.clone(graphModel['underlayAdjacencyList']);
+                    }
+                    else {
+                        newAdjList = _.clone(graphModel['adjacencyList']);
+                        oldAdjList = _.clone(graphModel['adjacencyList']);
+                    }
+                    if (siblings.length > 0) {
+                        var siblingName = [];
+                        for (var i = 0; i < siblings.length; i++) {
+                            if(siblings[i]["name"] !== dblClickedElement.options.nodeDetails.name) {
+                                siblingName.push(siblings[i]["name"]);
+                                newAdjList[siblings[i]["name"]] = [];
+                            }
+                        }
+                        newAdjList[parentNode.nodeDetails['name']] = siblingName;
+                        oldAdjList = _.clone(newAdjList);
+                        oldAdjList[parentNode.nodeDetails['name']] = [];
+                    }
+                    if (children.length > 0) {
+                        var childrenName = [];
+                        for (var i = 0; i < children.length; i++) {
+                            childrenName.push(children[i]["name"]);
+                            newAdjList[children[i]["name"]] = [];
+                        }
+                        newAdjList[nodeDetails['name']] = childrenName;
+                    } else {
+                        newAdjList = oldAdjList;
+                    }
+                    graphModel['adjacencyList'] = newAdjList;
+                    var childElementsArray = self.createElementsFromAdjacencyList(graphModel);
+                    self.addElementsToGraph(childElementsArray, graphModel);
+                    self.addDimlightToConnectedElements();
+                    var thisNode = [nodeDetails];
+                    self.addHighlightToNodesAndLinks(thisNode, childElementsArray, graphModel);
+                    self.markErrorNodes();
+                    graphModel['adjacencyList'] = oldAdjList;
+                    self.clearFlowPath();
+                    self.removeUnderlayPathIds();
+                    break;
+            }
         },
 
-        createLink: function(link, link_type, srcId, tgtId, shadowLink, arrowPosition, reverse) {
+        createLink: function(link, link_type, srcId, tgtId, arrowPosition, eventName) {
             var options;
             var linkElement;
             link.link_type = link_type;
@@ -567,41 +794,34 @@ define([
                 id: id,
                 from: srcId,
                 to: tgtId,
-                linkDetails: link,
-                color: this.style.default.color
+                linkDetails: link
             };
-            if(arrowPosition == "to") {
-                linkConfig.arrows = {
-                    to : {
-                        enabled : true,
-                        scaleFactor: 1
-                    }
-                };
-            } else if(arrowPosition == "from") {
-                linkConfig.arrows = {
-                    from : {
-                        enabled : true,
-                        scaleFactor: 1
-                    }
-                };
-            }
-            if(true == shadowLink) {
-                linkConfig.color = this.style.defaultSelected.color;
-                linkConfig.width = 2;
-                linkConfig.smooth = {
-                    type: "curvedCW",
-                    forceDirection: "vertical",
-                    roundness: .2
-
-                };
-                linkConfig.dashes = true;
-                /*linkConfig.shadow =
-                {
-                    enabled: true,
-                    size: 10,
-                    x: (reverse == true) ? -5 : 5,
-                    y: (reverse == true) ? -5 : 5
-                }*/
+            if(arrowPosition == "from" ||
+                arrowPosition == "to") {
+                if(self.network.getSelectedNodes().length > 0 ||
+                    self.network.getSelectedEdges().length > 0) {
+                    if(eventName == "dragEnd")
+                        linkConfig.color = this.style.flowPathDefault.color;
+                    else
+                        linkConfig.color = this.style.flowPathDimlight.color;
+                } else {
+                    linkConfig.color = this.style.flowPathDefault.color;
+                }
+                if(arrowPosition == "to") {
+                    linkConfig.arrows = {
+                        to : {
+                            enabled : true,
+                            scaleFactor: .6
+                        }
+                    };
+                } else if(arrowPosition == "from") {
+                    linkConfig.arrows = {
+                        from : {
+                            enabled : true,
+                            scaleFactor: .6
+                        }
+                    };
+                }
             }
             var tooltipConfig = this.getUnderlayTooltipConfig()['link'];
             var title = tooltipConfig.title(link);
@@ -636,21 +856,17 @@ define([
             var node_type = node.node_type;
             var chassis_type = node.chassis_type;
             var nodeConfig = {};
-            nodeConfig.shape = 'icon';
+            /*nodeConfig.shape = 'icon';
             nodeConfig.font = {};
             nodeConfig.font.face = 'Arial, helvetica, sans-serif';
             nodeConfig.font.size = 10;
             nodeConfig.font.color = '#333'; //text color
             nodeConfig.font.strokeColor = '#333'; //text color
-            nodeConfig.font.strokeWidth = 0.4; //text color
+            nodeConfig.font.strokeWidth = 0.4; //text color*/
             nodeConfig.icon = {};
-            nodeConfig.icon.face = 'contrailFonts';
+            /*nodeConfig.icon.face = 'contrailFonts';
             nodeConfig.icon.size = 40;
-            nodeConfig.icon.color = this.style.default.color; //icon color
-            nodeConfig.color = {};
-            nodeConfig.color.hover = {};
-            nodeConfig.color.hover.border = "red";
-            nodeConfig.color.hover.background = "red";
+            nodeConfig.icon.color = this.style.default.color; //icon color*/
             var labelNodeName = contrail.truncateText(nodeName, 20);
             switch (node_type) {
                 case 'physical-router':
@@ -708,7 +924,7 @@ define([
                     nodeConfig.icon.code = '\ue602';
                     break;
             }
-            nodeConfig.level = level;
+            //nodeConfig.level = level;
             var id = UUIDjs.create().hex;
             nodeConfig.id = id;
             nodeConfig.label = labelNodeName;
@@ -905,6 +1121,59 @@ define([
                     continue;
                 }
             }
+
+            /*for(var i=0; i<links.length; i++) {
+                var link = links[i];
+                var endpoints = link.endpoints;
+                var endpoint0 = endpoints[0];
+                var endpoint1 = endpoints[1];
+                var linkName = endpoint0 + "<->" + endpoint1;
+                var altLinkName = endpoint1 + "<->" + endpoint0;
+                var endpoint0Node = jsonPath(nodes, '$[?(@.name=="' + endpoint0 + '")]');
+                if(false !== endpoint0Node && endpoint0Node.length === 1) {
+                    endpoint0Node = endpoint0Node[0];
+                } else {
+                    continue;
+                }
+                var endpoint1Node = jsonPath(nodes, '$[?(@.name=="' + endpoint1 + '")]');
+                if(false !== endpoint1Node && endpoint1Node.length === 1) {
+                    endpoint1Node = endpoint1Node[0];
+                } else {
+                    continue;
+                }
+
+                var endpoint0NodeType = endpoint0Node.node_type;
+                var endpoint1NodeType = endpoint1Node.node_type;
+                if(endpoint0NodeType == "virtual-router" ||
+                    endpoint1NodeType == "virtual-router" ||
+                    endpoint0NodeType == "virtual-machine" ||
+                    endpoint1NodeType == "virtual-machine")
+                    continue;
+                var link_type = endpoint0NodeType.split("-")[0][0] +
+                    endpoint0NodeType.split("-")[1][0] + '-' +
+                    endpoint1NodeType.split("-")[0][0] +
+                    endpoint1NodeType.split("-")[1][0];
+                if(null == elMap["node"][endpoint0]) {
+                    var currentEl = self.createNode(endpoint0Node);
+                    elements.push(currentEl);
+                    var currentElId = currentEl.id;
+                    elMap.node[endpoint0] = currentElId;
+                }
+                if(null == elMap["node"][endpoint1]) {
+                    var currentEl = self.createNode(endpoint1Node);
+                    elements.push(currentEl);
+                    var currentElId = currentEl.id;
+                    elMap.node[endpoint1] = currentElId;
+                }
+                linkElements.push(
+                    self.createLink(link, link_type, elMap["node"][endpoint0], elMap["node"][endpoint1]));
+                var currentLink =
+                    linkElements[linkElements.length - 1];
+                var currentLinkId = currentLink.id;
+
+                elMap.link[linkName] = currentLinkId;
+                elMap.link[altLinkName] = currentLinkId;
+            }*/
             underlayGraphModel.elementMap = elMap;
             underlayGraphModel.connectedElements = conElements;
             // Links must be added after all the elements. This is because when the links
@@ -939,7 +1208,7 @@ define([
                     ajaxConfig: {
                         url: ctwl.URL_UNDERLAY_TOPOLOGY,
                         type: 'GET'
-                    }, 
+                    },
                     failureCallback: function(response, model) {
                         model['tree'] = {};
                         _this.populateModelAndAddToGraph(null);
@@ -960,6 +1229,7 @@ define([
                             }
                         },
                         failureCallback: function(response, model) {
+                            $(".vis-network-tooltip").popover('destroy');
                             model['tree'] = {};
                             _this.populateModelAndAddToGraph(null);
                         }
@@ -977,11 +1247,28 @@ define([
             var edgesDataSet = this.edgesDataSet;
             var nodeIds = nodesDataSet.getIds();
             var edgeIds = edgesDataSet.getIds();
+            var mapPositions = {};
+            var newElementIds = jsonPath(elements, "$..id");
+
             _.each(nodeIds, function(id, idx) {
-                nodesDataSet.remove(id);
+                if(newElementIds.indexOf(id) == -1) {
+                    nodesDataSet.remove(id);
+                } else {
+                    var node = network.findNode(id);
+                    if(node && node.length == 1) {
+                        node = node[0];
+                        mapPositions[id] = {};
+                        mapPositions[id] = {
+                            x: node.x,
+                            y: node.y
+                        }
+                    }
+                }
             });
             _.each(edgeIds, function(id, idx) {
-                edgesDataSet.remove(id);
+                if(newElementIds.indexOf(id) == -1) {
+                    edgesDataSet.remove(id);
+                }
             });
             for (var i = 0; i < elements.length; i++) {
                 if (elements[i].hasOwnProperty('from') &&
@@ -1007,6 +1294,55 @@ define([
                     }
                 }
             }
+            //if(mapPositions === {})
+                network.setOptions(this.visOptions);
+            var updatedNodes = [];
+            _.each(mapPositions, function(position, id) {
+                for (var i = 0; i < elements.length; i++) {
+                    if (elements[i].id == id) {
+                        elements[i].x = position.x;
+                        elements[i].y = position.y;
+                        nodesDataSet.update(elements[i]);
+                        updatedNodes.push(id);
+                        continue;
+                    }
+                }
+            });
+            var newElements = [];
+            var newParentElement = null;
+            if(updatedNodes.length > 0) {
+                for(var i=0; i<newElementIds.length; i++) {
+                    if($.inArray(newElementIds[i], updatedNodes) == -1) {
+                        if(edgesDataSet.get(newElementIds[i]) == null) {
+                            var newlyAddedElement = elements[i];
+                            if(elements[i].nodeDetails.parent != null &&
+                                elements[i].nodeDetails.parent.length > 0) {
+                                var parentEl =
+                                    nodesDataSet.get(this.model.elementMap.node[elements[i].nodeDetails.parent[0]]);
+                                if(parentEl) {
+                                    newParentElement = parentEl;
+                                    newElements.push(elements[i]);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(newParentElement !== null) {
+                var len = newElements.length * this.visOptions.layout.hierarchical.levelSeparation;
+                var startPos = newParentElement.x - (len/2);
+                if(!isNaN(startPos)) {
+                    for(var i=0; i<newElements.length; i++) {
+                        newElements[i].x = startPos + ((i+1)*50) + (i*30)
+                        newElements[i].y = newParentElement.y + this.visOptions.layout.hierarchical.levelSeparation;
+                        if(nodesDataSet.get(newElements[i].id) == null)
+                            nodesDataSet.add(newElements[i]);
+                        else
+                            nodesDataSet.update(newElements[i]);
+                    }
+                }
+
+            }
             network.setData({
                 nodes: nodesDataSet,
                 edges: edgesDataSet
@@ -1024,7 +1360,7 @@ define([
             var errorNodesLen = errorNodes.length;
             for (var i = 0; i < errorNodesLen; i++) {
                 if (elementMapNodes[errorNodes[i]] != null) {
-                    var node = this.nodesDataSet.get(node_model_id);
+                    var node = this.nodesDataSet.get(elementMapNodes[errorNodes[i]]);
                     node.icon.color = this.style.errorNode.color;
                     this.nodesDataSet.update(node);
                 }
@@ -1033,18 +1369,30 @@ define([
 
         removeUnderlayPathIds: function() {
             var network = this.network;
-            var _this = this;
             var graphModel = this.model;
             var elementMap = this.model.elementMap;
-            var pathIds = graphModel['underlayPathIds']
+            var pathIds = this.underlayPathIds;
             var edgesDataSet = this.edgesDataSet;
+            var nodesDataSet = this.nodesDataSet;
             var edgeIds = edgesDataSet.getIds();
             var edges = [];
-            for (var i = 0; i < pathIds.length; i++) {
-                var edge = edgesDataSet.get(pathIds[i]);
-                edgesDataSet.remove(edge);
+            if(pathIds && pathIds.hasOwnProperty('links')) {
+                for (var i = 0; i < pathIds.links.length; i++) {
+                    var edge = edgesDataSet.get(pathIds.links[i]);
+                    edgesDataSet.remove(edge);
+                }
             }
-            graphModel['underlayPathIds'] = [];
+            if(pathIds && pathIds.hasOwnProperty('nodes')) {
+                for (var i = 0; i < pathIds.nodes.length; i++) {
+                    var node = nodesDataSet.get(pathIds.nodes[i]);
+                    nodesDataSet.remove(node);
+                }
+            }
+            this.underlayPathIds = {
+                nodes: [],
+                links: []
+            };
+            this.duplicatePathsDrawn = false;
         },
         addDimlightToConnectedElements: function() {
             var network = this.network;
@@ -1054,16 +1402,41 @@ define([
             var nodeIds = nodesDataSet.getIds();
             var edgeIds = edgesDataSet.getIds();
             var nodes = [];
+            var mapPositions = {};
+            var flowPathEdges = this.underlayPathIds.links;
             for (var i = 0; i < nodeIds.length; i++) {
                 var node = nodesDataSet.get(nodeIds[i]);
+                var nodeEl = network.findNode(nodeIds[i]);
+                if(nodeEl && nodeEl.length == 1) {
+                    nodeEl = nodeEl[0];
+                    mapPositions[nodeIds[i]] = {};
+                    mapPositions[nodeIds[i]] = {
+                        x: nodeEl.x,
+                        y: nodeEl.y
+                    }
+                }
                 node.icon.color = _this.style.defaultDimlight.color;
                 nodes.push(node);
             }
+
+            _.each(mapPositions, function(position, id) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (nodes[i].id == id) {
+                        nodes[i].x = position.x;
+                        nodes[i].y = position.y;
+                        continue;
+                    }
+                }
+            });
             nodesDataSet.update(nodes);
             var edges = [];
             for (var i = 0; i < edgeIds.length; i++) {
                 var edge = edgesDataSet.get(edgeIds[i]);
-                edge.color = _this.style.defaultDimlight.color;
+                if($.inArray(edgeIds[i], flowPathEdges) == -1) {
+                    edge.color = _this.style.defaultDimlight.color;
+                } else {
+                    edge.color = _this.style.flowPathDimlight.color;
+                }
                 edges.push(edge);
             }
             edgesDataSet.update(edges);
@@ -1076,16 +1449,49 @@ define([
             var nodeIds = nodesDataSet.getIds();
             var edgeIds = edgesDataSet.getIds();
             var nodes = [];
+            var flowPathEdges = this.underlayPathIds.links;
+            var mapPositions = {};
             for (var i = 0; i < nodeIds.length; i++) {
                 var node = nodesDataSet.get(nodeIds[i]);
-                node.icon.color = _this.style.default.color;
+                var nodeEl = network.findNode(nodeIds[i]);
+                if(nodeEl && nodeEl.length == 1) {
+                    nodeEl = nodeEl[0];
+                    mapPositions[nodeIds[i]] = {};
+                    mapPositions[nodeIds[i]] = {
+                        x: nodeEl.x,
+                        y: nodeEl.y
+                    }
+                }
+                if(flowPathEdges.length > 0)
+                    node.icon.color = _this.style.defaultDimlight.color;
+                else
+                    node.icon.color = _this.style.default.color;
                 nodes.push(node);
             }
+
+            _.each(mapPositions, function(position, id) {
+                for (var i = 0; i < nodes.length; i++) {
+                    if (nodes[i].id == id) {
+                        nodes[i].x = position.x;
+                        nodes[i].y = position.y;
+                        continue;
+                    }
+                }
+            });
             nodesDataSet.update(nodes);
             var edges = [];
             for (var i = 0; i < edgeIds.length; i++) {
                 var edge = edgesDataSet.get(edgeIds[i]);
-                edge.color = _this.style.default.color;
+                if($.inArray(edgeIds[i], flowPathEdges) == -1) {
+                    edge.color = _this.style.defaultDimlight.color;
+                } else {
+                    if(_this.network.getSelectedNodes().length > 0 ||
+                        _this.network.getSelectedEdges().length > 0) {
+                        edge.color = this.style.flowPathDimlight.color;
+                    } else {
+                        edge.color = this.style.flowPathDefault.color;
+                    }
+                }
                 edges.push(edge);
             }
             edgesDataSet.update(edges);
@@ -1430,11 +1836,13 @@ define([
         },
 
         resetTopology: function(options) {
-            var underlayGraphModel = options['model'];
+            var self = this;
+            var underlayGraphModel = self.model;
             this.removeUnderlayPathIds();
-            this.clearHighlightedConnectedElements();
+            this.resetConnectedElements()
             var adjList = _.clone(underlayGraphModel['underlayAdjacencyList']);
             underlayGraphModel['adjacencyList'] = adjList;
+            self.network.setOptions(self.visOptions);
             var childElementsArray =
                 this.createElementsFromAdjacencyList(underlayGraphModel);
             this.addElementsToGraph(childElementsArray, underlayGraphModel);
@@ -1443,6 +1851,12 @@ define([
                 monitorInfraUtils.removeUnderlayTabs(
                     this.rootView.viewMap[ctwc.UNDERLAY_TABS_VIEW_ID]);
             }
+            underlayGraphModel.selectedElement.set({
+                'nodeType': '',
+                'nodeDetail': {}});
+
+            $('.vis-button vis-zoomExtends').click();
+            self.enableFreeflow();
         },
 
         clearHighlightedConnectedElements: function() {

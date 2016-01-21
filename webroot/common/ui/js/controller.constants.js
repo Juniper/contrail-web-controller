@@ -231,6 +231,7 @@ define([
         this.UNDERLAY_LINK = 'link';
         this.TRACEFLOW_MAXATTEMPTS = 3;
         this.TRACEFLOW_INTERVAL = 5;
+        this.UNDERLAY_FLOW_INFO_TEMPLATE = "flow-info-template";
 
         this.getProjectsURL = function (domainObj, dropdownOptions) {
             /* Default: get projects from keystone or API Server as specified in

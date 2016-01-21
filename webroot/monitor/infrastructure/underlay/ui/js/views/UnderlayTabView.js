@@ -17,24 +17,34 @@ define([
                  getUnderlayTabConfig(viewConfig), null, null, null,
                  function (underlayTabView) {
                     if(!callBackExecuted) {
-                        var graphModel = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
-                        underlayTabView.listenTo(graphModel.selectedElement, 'change', function (selectedElement) {
-                           var nodeType = selectedElement['attributes']['nodeType'];
-                           var nodeDetails = selectedElement['attributes']['nodeDetail'];
-                           if(nodeType == ctwc.PROUTER) {
-                               showPRouterTabs(nodeDetails, underlayTabView);
-                           } else if (nodeType == ctwc.VROUTER) {
-                               showVRouterTabs(nodeDetails, underlayTabView);
-                           } else if (nodeType == ctwc.VIRTUALMACHINE) {
-                               showVMTabs(nodeDetails, underlayTabView);
-                           } else if (nodeType == ctwc.UNDERLAY_LINK) {
-                               showLinkTrafficStatistics(nodeDetails, underlayTabView);
-                           }
-                        });
+                        self.listenToGraphModel(underlayTabView);
                         callBackExecuted = true;
                     }
                  }
             );
+        },
+        listenToGraphModel : function (underlayTabView) {
+            var _this = this;
+            if($('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel') != null) {
+                var graphModel = $('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel');
+                underlayTabView.listenTo(graphModel.selectedElement, 'change', function (selectedElement) {
+                   var nodeType = selectedElement['attributes']['nodeType'];
+                   var nodeDetails = selectedElement['attributes']['nodeDetail'];
+                   if(nodeType == ctwc.PROUTER) {
+                       showPRouterTabs(nodeDetails, underlayTabView);
+                   } else if (nodeType == ctwc.VROUTER) {
+                       showVRouterTabs(nodeDetails, underlayTabView);
+                   } else if (nodeType == ctwc.VIRTUALMACHINE) {
+                       showVMTabs(nodeDetails, underlayTabView);
+                   } else if (nodeType == ctwc.UNDERLAY_LINK) {
+                       showLinkTrafficStatistics(nodeDetails, underlayTabView);
+                   }
+                });
+            } else {
+                setTimeout(function(underlayTabView) {
+                    _this.listenToGraphModel(_this)
+                }, 1000);
+            }
         }
     });
 

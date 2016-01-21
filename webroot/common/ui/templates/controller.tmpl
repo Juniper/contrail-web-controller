@@ -32,6 +32,18 @@
         </div>
     </div>
 </script>
+
+<script type="text/x-handlebars-template" id="flow-info-template">
+    <div id = "flow-info">
+        <span class="">{{action}} </span>
+            from
+        <span class="">[IP:<span class="bold"> {{sourceip}}</span>, Port: <span class="bold">{{sport}}</span>]</span>
+            to
+        <span class="">[IP: <span class="bold">{{destip}}</span>, Port: <span class="bold">{{dport}}</span>]</span>
+        <span class="reset">reset</span>
+    </div>
+</script>
+
 <script type="text/x-handlebars-template" id="form-result-page-template">
     <div id="{{prefix}}-container">
         <div id='{{prefix}}-form-container'>

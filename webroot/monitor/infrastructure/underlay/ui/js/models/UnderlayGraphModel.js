@@ -24,7 +24,6 @@ define(['backbone', 'contrail-view-model'],
            this.adjacencyList = [],
            this.underlayAdjacencyList = [],
            this.connectedElements = [],
-           this.underlayPathIds = [],
            this.underlayPathReqObj = {},
            this.uveMissingNodes = [],
            this.configMissingNodes = [],
@@ -153,7 +152,7 @@ define(['backbone', 'contrail-view-model'],
                }
            }
            this.firstLevelNodes = firstLevelNodes;
-           this.parseTree(firstLevelNodes, tree, tmpTree);
+           this.parseTree(firstLevelNodes, tree, tmpTree, null);
            if(JSON.stringify(tmpTree) !== "{}") {
                $.each(tmpTree, function (elementKey, elementValue) {
                    tree[elementKey] = elementValue;
@@ -201,7 +200,7 @@ define(['backbone', 'contrail-view-model'],
                }
        },
 
-       parseTree : function (parents, tree, tmpTree) {
+       parseTree : function (parents, tree, tmpTree, parent) {
            if(null !== parents && false !== parents &&
                    typeof parents === "object" && parents.length > 0) {
                for(var i=0; i<parents.length; i++) {
@@ -212,12 +211,18 @@ define(['backbone', 'contrail-view-model'],
                    var children_chassis_type =
                        this.getChildChassisType(parent_chassis_type);
                    tree[parents[i].name] = parents[i];
+                   if(!tree[parents[i].name].hasOwnProperty("parent")) {
+                          tree[parents[i].name]["parent"] = [];
+                   }
+                   if($.inArray(parent, tree[parents[i].name]["parent"]) == -1)
+                      tree[parents[i].name]["parent"].push(parent);
                    var children =
                        this.getChildren(parents[i].name, children_chassis_type);
+
                    tree[parents[i].name]["children"] = {};
                    this.parseTree(children,
                            tree[parents[i].name]["children"],
-                           tmpTree);
+                           tmpTree, parents[i].name);
                }
            }
            return tree;
