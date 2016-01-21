@@ -79,12 +79,11 @@ define([
                    elementId:
                        ctwl.CONFIGNODE_ALARMS_GRID_VIEW_ID,
                    title: 'Alarms',
-                   view: "AlarmGridView",
+                   view: "ConfigNodeAlarmGridView",
                    viewPathPrefix:
-                       "js/views/",
+                       "monitor/infrastructure/confignode/ui/js/views/",
                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                   viewConfig: $.extend(viewConfig,
-                           {nodeType:monitorInfraConstants.CONFIG_NODE}),
+                   viewConfig: viewConfig,
                    tabConfig: {
                        activate: function(event, ui) {
                            if ($('#' + ctwl.ALARMS_GRID_ID).data('contrailGrid')) {
