@@ -104,7 +104,6 @@ define([
             id: 'linklocal_service_name',
             field: 'linklocal_service_name',
             name: 'Service Name',
-            cssClass :'cell-hyperlink-blue'
         },
         {
             id: 'linklocal_service_ip',

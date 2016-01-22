@@ -10,8 +10,8 @@ define([
     var SvcApplianceSetModel = ContrailModel.extend({
         defaultConfig: {
             display_name: "",
-            service_appliance_driver: "",
-            service_appliance_ha_mode: ""
+            service_appliance_driver: null,
+            service_appliance_ha_mode: null
         },
         validations: {
             svcApplianceSetConfigValidations: {
@@ -35,6 +35,12 @@ define([
             var pairCollection = attr.svcApplProperties.toJSON();
             var len = pairCollection.length;
             for (var i = 0; i < len; i++) {
+                var key = pairCollection[i]['key']();
+                var value = pairCollection[i]['value']();
+                if (((null == key) || (!key.length)) &&
+                    ((null == value) || (!value.length))) {
+                    continue;
+                }
                 pairArr.push({key: pairCollection[i]['key'](),
                               value: pairCollection[i]['value']()});
             }
