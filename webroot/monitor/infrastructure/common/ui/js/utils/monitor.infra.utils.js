@@ -1509,17 +1509,28 @@ define([
             return ipString;
         }
 
-        self.getDisplayNameForVRouterType = function (type){
+        self.getDisplayNameForVRouterType = function (d){
+            var retType = '';
+            var type = getValueByJsonPath(d,'vRouterType','hypervisor');
+            var platform = getValueByJsonPath(d,'vRouterPlatform','');
             switch (type){
-            case 'tor-agent':
-                return 'TOR Agent';
-            case 'tor-service-node':
-                return 'TOR Service Node';
-            case 'embedded':
-                return 'Embedded';
-            case 'hypervisor':
-                return 'Hypervisor';
+                case 'tor-agent':
+                    retType = 'TOR Agent';
+                    break;
+                case 'tor-service-node':
+                    retType = 'TOR Service Node';
+                    break;
+                case 'embedded':
+                    retType = 'Embedded';
+                    break;
+                case 'hypervisor':
+                    retType = 'Hypervisor';
+                    break;
             }
+            if(platform == monitorInfraConstants.HOST_DPDK) {
+                retType += ' (DPDK)'
+            }
+            return retType;
         }
 
         function onPrevNextClick(obj,cfg) {

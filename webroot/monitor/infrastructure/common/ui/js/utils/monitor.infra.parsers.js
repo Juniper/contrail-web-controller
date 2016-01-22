@@ -219,6 +219,9 @@ define(
                         obj['vRouterType'] = getValueByJsonPath(dValue,
                             'ConfigData;virtual-router;virtual_router_type',
                             'hypervisor');
+                        obj['vRouterPlatform'] = getValueByJsonPath(dValue,
+                                'VrouterAgent;platform',
+                                 '');
                         if(obj['vRouterType'] instanceof Array) {
                             obj['vRouterType'] = obj['vRouterType'][0];
                         }

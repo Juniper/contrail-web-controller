@@ -79,7 +79,7 @@ define([
 
                     obj['vrouterType'] = monitorInfraUtils.
                                             getDisplayNameForVRouterType(
-                                                obj['vRouterType']);
+                                                obj);
 
                     obj['analyticsNodeDetails'] =
                             getAnalyticsNodeDetails(vrouterData);

@@ -17,19 +17,6 @@ define(
                 }
             });
 
-            function getDisplayNameForVRouterType(type){
-                switch (type){
-                    case 'tor-agent':
-                        return 'TOR Agent';
-                    case 'tor-service-node':
-                        return 'TOR Service Node';
-                    case 'embedded':
-                        return 'Embedded';
-                    case 'hypervisor':
-                        return 'Hypervisor';
-                }
-            }
-
             function getVRouterNodeSummaryGridViewConfig(pagerOptions) {
                 return {
                     elementId : ctwl.VROUTER_SUMMARY_GRID_SECTION_ID,
@@ -124,10 +111,10 @@ define(
                         field:"vRouterType",
                         name:"Type",
                         formatter: function(r,c,v,cd,dc) {
-                            return getDisplayNameForVRouterType(v);
+                            return monitorInfraUtils.getDisplayNameForVRouterType(dc);
                         },
                         searchFn: function(d) {
-                            return getDisplayNameForVRouterType(d.vRouterType);
+                            return monitorInfraUtils.getDisplayNameForVRouterType(d);
                         },
                         minWidth:120
                     },
