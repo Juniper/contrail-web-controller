@@ -830,10 +830,8 @@ function getVirtualInterfacesSummary(req, res, appData) {
                 commonUtils.handleJSONResponse(null, res, data);
             }
         });
-    } else {
-        if (kfilt != null && kfilt != '') {
-            opServerPostData['kfilt'] = kfilt.split(",");
-        }
+    } else if (kfilt != null && kfilt != '') {
+        opServerPostData['kfilt'] = kfilt.split(",");
 
         if (cfilt != null && cfilt != '') {
             opServerPostData['cfilt'] = cfilt.split(",");
@@ -846,6 +844,8 @@ function getVirtualInterfacesSummary(req, res, appData) {
                 commonUtils.handleJSONResponse(null, res, data);
             }
         });
+    } else {
+        commonUtils.handleJSONResponse(null, res, []);
     }
 }
 

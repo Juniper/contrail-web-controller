@@ -16,18 +16,18 @@ define([
             return "Please resolve all " + fieldKey + " errors.";
         };
 
-        this.NO_PROJECT_FOUND = 'No Project Found.';
+        this.NO_PROJECT_FOUND = 'No project found.';
         this.SHOULD_BE_VALID = '{0} should have valid ';
 
-        this.NO_TRAFFIC_STATS_FOUND = 'No Traffic Stats Found.';
+        this.NO_TRAFFIC_STATS_FOUND = 'No traffic stats found.';
 
-        this.NO_DATA_FOUND = 'No Data found.';
+        this.NO_DATA_FOUND = 'No data found.';
         this.NO_NETWORK_FOUND = 'No virtual network present in this project.';
         this.NO_VM_FOUND = 'No virtual machine present in this network.';
-        this.NO_PHYSICALDEVICES = 'No Physical Devices found';
+        this.NO_PHYSICALDEVICES = 'No physical device found.';
 
-        this.CASSANDRA_ERROR = 'Cassandra client could not fetch data from server. Please check cassandra config parameters.';
-        this.NO_RECORDS_IN_DB = 'No records found in DB.';
+        this.CASSANDRA_ERROR = 'Error: Cassandra client could not fetch data from server. Please check cassandra config parameters.';
+        this.NO_RECORDS_IN_DB = 'No record found in DB.';
 
         this.get = function () {
             var args = arguments;

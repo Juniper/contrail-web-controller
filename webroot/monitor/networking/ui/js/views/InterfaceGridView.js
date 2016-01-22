@@ -20,7 +20,7 @@ define([
                 interfacesAjaxConfig, viewModel, ucid;
 
             if (contrail.checkIfExist(projectFQN)) {
-                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, networkFQN);
+                ucid = ctwc.get(ctwc.UCID_PROJECT_INTERFACE_LIST, projectFQN);
                 interfacesAjaxConfig = getInterfacesAjaxConfig(null, projectFQN);
                 self.renderView4Config(self.$el, this.model, getInterfaceGridViewConfig(interfacesAjaxConfig, ucid, elementId));
             } else if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {

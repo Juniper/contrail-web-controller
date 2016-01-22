@@ -29,6 +29,9 @@ function ConfigDatabaseLoader () {
             case 'renderUUIDTable':
                 this.cdbView.renderUUIDTableNamesList({hashParams: hashParams});
                 break;
+            case 'renderSharedTable':
+                this.cdbView.renderSharedTableNamesList({hashParams: hashParams});
+                break;
         }
     };
     this.updateViewByHash = function (currPageQueryStr, lastPageQueryStr, currMenuObj) {
