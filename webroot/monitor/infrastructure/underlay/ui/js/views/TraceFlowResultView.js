@@ -145,12 +145,24 @@ define([
             formModel) {
         var gridId = ctwc.TRACEFLOW_RESULTS_GRID_ID;
         var customControls = [], footer = true;
+        var gridTitle = '',
+            underlayGraphModel = monitorInfraUtils.getUnderlayGraphModel();
         if (formModel.traceflow_radiobtn_name() == 'vRouter') {
             customControls = [
                 '<a class="widget-toolbar-icon"><i class="icon-forward"></i></a>',
                 '<a class="widget-toolbar-icon"><i class="icon-backward"></i></a>',
             ];
             footer = false;
+            gridTitle = contrail.format("{0} ({1})",'Active flows of Virtual Router',
+                formModel.vrouter_dropdown_name());
+        } else {
+            var vmDetails =
+                underlayGraphModel.vmMap[formModel.instance_dropdown_name()];
+            var name =
+                getValueByJsonPath(vmDetails, 'more_attributes;vm_name', '-');
+            if(name == '-')
+                name = getValueByJsonPath(vmDetails, 'name', '-');
+            gridTitle = contrail.format('{0} ({1})','Last 10 minute flows of Virtual Machine', name);
         }
         function resetLoadingIcon () {
             $("#" +ctwc.TRACEFLOW_RESULTS_GRID_ID
@@ -160,7 +172,7 @@ define([
         var gridElementConfig = {
             header: {
                 title: {
-                    text: 'Flows',
+                    text: gridTitle,
                 },
                 customControls: customControls,
                 defaultControls: {
@@ -335,6 +347,7 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
+        postData['action'] = 'Trace Flow';
         if (postData['vrfId'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
@@ -425,6 +438,7 @@ define([
             showInfoWindow("Cannot Trace route for the selected flow", "Info");
             return;
         }
+        postData['action'] = 'Reverse Trace Flow';
         if(postData['vrfId'] != null) {
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
@@ -510,10 +524,18 @@ define([
                 graphModel.flowPath.set({
                     'nodes': ifNull(response['nodes'], []),
                     'links': ifNull(response['links'], [])
-                });
+                },{silent: true});
+                graphModel.flowPath.trigger('change:nodes');
                 if (ifNull(response['nodes'], []).length == 0 ||
                     ifNull(response['links'], []).length == 0) {
-                        graphModel.flowPath.trigger('change:nodes');
+                } else {
+                    monitorInfraUtils.addUnderlayFlowInfoToBreadCrumb({
+                        action: postData['action'],
+                        sourceip: postData['srcIP'],
+                        destip: postData['destIP'],
+                        sport: postData['srcPort'],
+                        dport: postData['destPort']
+                    });
                 }
             }
             if(typeof response != 'string')

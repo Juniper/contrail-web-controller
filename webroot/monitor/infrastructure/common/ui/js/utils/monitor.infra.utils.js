@@ -2762,10 +2762,18 @@ define([
                             graphModel.flowPath.set({
                                 'nodes': ifNull(response['nodes'], []),
                                 'links': ifNull(response['links'], [])
-                            });
+                            }, {silent:true});
+                            graphModel.flowPath.trigger('change:nodes');
                             if (ifNull(response['nodes'], []).length == 0 ||
                                 ifNull(response['links'], []).length == 0) {
-                                graphModel.flowPath.trigger('change:nodes');
+                            } else {
+                                monitorInfraUtils.addUnderlayFlowInfoToBreadCrumb({
+                                    action: 'Map Flow',
+                                    sourceip: params['srcIP'],
+                                    destip: params['destIP'],
+                                    sport: params['sport'],
+                                    dport: params['dport']
+                                });
                             }
                             $('html,body').animate({scrollTop:0}, 500);
                         }).fail (function () {
@@ -2792,6 +2800,20 @@ define([
                 }
         };
 
+        self.addUnderlayFlowInfoToBreadCrumb = function (data) {
+            // Removing the last flow info in the breadcrumb
+            self.removeUndelrayFlowInfoFromBreadCrumb();
+            // Adding the current flow info to the breadcrumb
+            pushBreadcrumb([
+                 contrail.getTemplate4Id(ctwc.UNDERLAY_FLOW_INFO_TEMPLATE)(data)
+            ]);
+        };
+        self.removeUndelrayFlowInfoFromBreadCrumb = function () {
+            if ($("#breadcrumb li").last().find('div#flow-info').length > 0) {
+                $("#breadcrumb li").last().remove();
+                $('#breadcrumb li').last().children('span').remove();
+            }
+        };
         self.getPostDataForGeneratorType = function (options){
             var type,moduleType="",kfilt="";
             var nodeType = options.nodeType;

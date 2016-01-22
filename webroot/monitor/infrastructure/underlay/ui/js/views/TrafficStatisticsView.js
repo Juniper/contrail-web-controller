@@ -33,11 +33,11 @@ define([
                         }
                     }
                 };
-                // Displaying widget with loading icon till the ajax call for 
-                // stats finish.
-                self.renderView4Config($("#"+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+'-tempdiv'),
-                    null, tempViewConfig, null, null);
                 if(trafficStatsViewConfig.modelConfig != null) {
+                    // Displaying widget with loading icon till the ajax call for
+                    // stats finish.
+                    self.renderView4Config($("#"+ctwc.UNDERLAY_TRAFFICSTATS_TAB_ID+'-tempdiv'),
+                        null, tempViewConfig, null, null);
                     var contrailListModel = new ContrailListModel(
                             trafficStatsConfig.viewConfig.modelConfig);
                         contrailListModel.onAllRequestsComplete.subscribe(
@@ -94,6 +94,7 @@ define([
                             }
                     });
                 } else {
+                    self.$el.html('');
                     // vrouter and vm link
                     self.renderView4Config(self.$el, null, trafficStatsConfig,
                          null, null, trafficStatsConfig.modelMap);

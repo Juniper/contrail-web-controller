@@ -20,11 +20,7 @@ define([
             self.renderView4Config($(self.$el).find(queryFormId), this.model,
                 self.getViewConfig(), null, null, null,
                     function (searchFlowFormView) {
-                        var graphModel = monitorInfraUtils.getUnderlayGraphModel();
-                        searchFlowFormView.listenTo(graphModel.selectedElement,
-                            'change', function (selectedElement) {
-                            updateWhereClause(selectedElement, searchFlowFormView);
-                        });
+                        self.listenToGraphModel(searchFlowFormView);
                         self.model.showErrorAttr(ctwc.UNDERLAY_SEARCHFLOW_TAB_ID, false);
                         Knockback.applyBindings(self.model,
                             document.getElementById(ctwc.UNDERLAY_SEARCHFLOW_TAB_ID));
@@ -37,6 +33,20 @@ define([
             if (widgetConfig !== null) {
                 self.renderView4Config($(self.$el).find(queryFormId),
                     self.model, widgetConfig, null, null, null);
+            }
+        },
+        listenToGraphModel : function (searchFlowFormView) {
+            var _this = this;
+            if($('#' + ctwl.UNDERLAY_GRAPH_ID).data('graphModel') != null) {
+                var graphModel = monitorInfraUtils.getUnderlayGraphModel();
+                searchFlowFormView.listenTo(graphModel.selectedElement,
+                    'change', function (selectedElement) {
+                    updateWhereClause(selectedElement, searchFlowFormView);
+                });
+            } else {
+                setTimeout(function(searchFlowFormView) {
+                    _this.listenToGraphModel(_this)
+                }, 1000);
             }
         },
         renderQueryResult: function() {
@@ -193,6 +203,9 @@ define([
                         whereClauseStr += ' OR ';
                 }
                 searchFlowFormView.model.where(whereClauseStr);
+        } else {
+            whereClauseStr = '';
+            searchFlowFormView.model.where(whereClauseStr);
         }
     }
     function getFromTimeElementConfig(fromTimeId, toTimeId) {
