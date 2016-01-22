@@ -22,7 +22,7 @@ var portsConfig = require('../../networking/port/api/portsconfig.api'),
                           '/src/serverroot/utils/common.utils'),
     configApiServer = require(process.mainModule.exports["corePath"] +
                               '/src/serverroot/common/configServer.api');
-var vnConfig = require('../../vn/api/vnconfig.api');
+var vnConfig = require('../../networking/networks/api/vnconfig.api');
 var nwIpam = require('../../networking/ipam/api/ipamconfig.api');
 var logicalRtr =
     require('../../networking/logicalrouter/api/logicalrouterconfig.api');
@@ -38,7 +38,8 @@ var configCBDelete =
     'logical-router': logicalRtr.deleteLogicalRouterAsync,
     'virtual-DNS': vdns.deleteVirtualDNSCallback,
     'network-policy': policyConfig.deletePolicyAsync,
-    'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync
+    'routing-policy': routingPolicyConfig.deleteRoutingPolicyAsync,
+    'virtual-network': vnConfig.deleteVirtualNetworkAsync
 }
 
 var getConfigPageRespCB = {
@@ -114,6 +115,7 @@ function deleteByType(dataObj, callback)
 {
     var delCB = getConfigDeleteCallbackByType(dataObj[0]["type"]);
     if (null == delCB || "" == delCB) {
+        console.log("Didnt find the handler");
         delCB = defaultConfigDeleteHandler;
     }
     async.mapLimit(dataObj, 100, delCB,
