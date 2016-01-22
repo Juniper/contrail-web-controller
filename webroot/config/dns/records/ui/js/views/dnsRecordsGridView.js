@@ -53,7 +53,7 @@ define([
             dnsRecordsModel = new DnsRecordsModel(dataItem);
             subscribeModelAttrChanges(dnsRecordsModel);
             DnsRecordsEditView.model = dnsRecordsModel;
-            DnsRecordsEditView.renderEditDnsRecords({
+            DnsRecordsEditView.renderAddEditDnsRecords({
                 "title": ctwl.TITLE_EDIT_DNS_RECORD +
                     ' (' + dataItem[
                         'virtual_DNS_record_data'][
@@ -65,7 +65,8 @@ define([
                         $(gridElId).data(
                             "contrailGrid")._dataView;
                     dataView.refreshData();
-                }
+                },
+                mode : ctwl.EDIT_ACTION
             });
         }),
         ctwgc.getDeleteConfig('Delete', function(rowIndex) {
@@ -217,8 +218,14 @@ define([
                     case 'A' :
                         model.record_name_label("Host Name");
                         model.record_name_placeholder("Host Name to be resolved");
-                        model.record_data_label("IP Address");
-                        model.record_data_placeholder("Enter an IP Address");
+                        model.record_data_label("IPv4 Address");
+                        model.record_data_placeholder("Enter an IPv4 Address");
+                        break;
+                    case 'AAAA' :
+                        model.record_name_label("Host Name");
+                        model.record_name_placeholder("Host Name to be resolved");
+                        model.record_data_label("IPv6 Address");
+                        model.record_data_placeholder("Enter an IPv6 Address");
                         break;
                     case 'CNAME' :
                         model.record_name_label("Host Name");
@@ -287,7 +294,7 @@ define([
                 var dnsRecordsModel = new DnsRecordsModel();
                 subscribeModelAttrChanges(dnsRecordsModel);
                 DnsRecordsEditView.model = dnsRecordsModel;
-                DnsRecordsEditView.renderAddDnsRecords({
+                DnsRecordsEditView.renderAddEditDnsRecords({
                     "title": ctwl.TITLE_CREATE_DNS_RECORD,
                     gridData: gridData,
                     configData: configData,
@@ -297,7 +304,8 @@ define([
                                 "contrailGrid")
                             ._dataView;
                         dataView.refreshData();
-                    }
+                    },
+                    mode : ctwl.CREATE_ACTION
                 });
             }
         }, ];

@@ -13,35 +13,28 @@ define(['underscore'], function(_) {
             rowData) {
             var recordType = getValueByJsonPath(rowData,
                 'virtual_DNS_record_data;record_type', "-");
-
+            var formattedRecType;
             switch (recordType) {
                 case ("A"):
-                    {
-                        recordType = recordType +
-                            " (IP Address Record)";
-                    }
+                    formattedRecType = recordType + " (IPv4 Address Record)";
+                    break;
+                case ("AAAA"):
+                    formattedRecType = recordType + " (IPv6 Address Record)";
                     break;
                 case ("CNAME"):
-                    {
-                        recordType = recordType +
-                            " (Alias Record)";
-                    }
+                    formattedRecType = recordType + " (Alias Record)";
                     break;
                 case ("PTR"):
-                    {
-                        recordType = recordType +
-                            " (Reverse DNS Record)";
-                    }
+                    formattedRecType = recordType + " (Reverse DNS Record)";
                     break;
                 case ("NS"):
-                    {
-                        recordType = recordType +
-                            " (Delegation Record)";
-                    }
+                    formattedRecType = recordType + " (Delegation Record)";
                     break;
+                default:
+                    formattedRecType = "-";
             }
 
-            return recordType;
+            return formattedRecType;
 
         };
         /*

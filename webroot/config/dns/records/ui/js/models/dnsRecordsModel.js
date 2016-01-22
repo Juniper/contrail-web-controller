@@ -20,8 +20,8 @@ define([
             "user_created_record_type": "A",
             "record_name_label" : "Host Name",
             'record_name_placeholder' : "Host Name to be resolved",
-            "record_data_label" : "IP Address",
-            "record_data_placeholder" : "Enter an IP Address"
+            "record_data_label" : "IPv4 Address",
+            "record_data_placeholder" : "Enter an IPv4 Address"
         },
         addEditDnsRecords: function(mode, callbackObj,
             ajaxMethod) {
@@ -122,7 +122,7 @@ define([
                 delete newdnsRecordsData.record_data_placeholder;
 
                 var url, type;
-                if (mode === "create") {
+                if (mode === ctwl.CREATE_ACTION) {
                     delete newdnsRecordsData['uuid'];
                     postData['virtual-DNS'] =
                         newdnsRecordsData;
@@ -138,7 +138,7 @@ define([
                         window.dnsSelectedValueData.value +
                         '/virtual-DNS-records';
 
-                } else if (mode === "edit") {
+                } else if (mode === ctwl.EDIT_ACTION) {
                     postData['virtual-DNS'] =
                         newdnsRecordsData;
                     ajaxConfig.async = false;
@@ -218,7 +218,8 @@ define([
             dnsRecordsValidations: {
                 'virtual_DNS_record_data.record_name':  function(value, attr, finalObj){
                      var recType = finalObj.user_created_record_type;
-                     if(recType === 'A' || recType === 'CNAME') {
+                     if(recType === 'A' || recType === 'AAAA' ||
+                         recType === 'CNAME') {
                          if(value == null || value.trim() == '') {
                              return 'Host Name is required';
                          }
@@ -240,8 +241,12 @@ define([
                          return "Enter " + art + recDataLabel ;
                      }
                      if(recType === 'A'){
-                         if(!validateIPAddress(value)){
-                             return 'Enter a valid IP address in xxx.xxx.xxx.xxx format';
+                         if(!isIPv4(value)){
+                             return 'Enter a valid IPv4 address';
+                         }
+                     } else if(recType === 'AAAA'){
+                         if(!isIPv6(value)){
+                             return 'Enter a valid IP6 address';
                          }
                      }
                      //validating special characters

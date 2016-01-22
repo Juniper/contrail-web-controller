@@ -11,7 +11,7 @@ define([
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
     var DnsRecordsEditView = ContrailView.extend({
-        renderAddDnsRecords: function(options) {
+        renderAddEditDnsRecords: function(options) {
             var editTemplate =
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({
@@ -22,6 +22,8 @@ define([
 
             var gridData = options['gridData'];
             var configData = options['configData'];
+            var mode = options['mode'];
+            var disabled = false;
             cowu.createModal({
                 'modalId': modalId,
                 'className': 'modal-680',
@@ -29,7 +31,7 @@ define([
                 'body': editLayout,
                 'onSave': function() {
                     self.model.addEditDnsRecords(
-                        'create', {
+                        mode, {
                             init: function() {
                                 cowu.enableModalLoading(
                                     modalId
@@ -74,92 +76,23 @@ define([
                         'hide');
                 }
             });
+            if(mode === ctwl.EDIT_ACTION) {
+                disabled = true;
+            }
             self.renderView4Config($("#" + modalId).find(
                     formId), this.model,
-                getAddDnsRecordsViewConfig(false),
+                getAddDnsRecordsViewConfig(disabled),
                 "dnsRecordsValidations", null, null,
                 function() {
                     self.model.showErrorAttr(prefixId +
                         cowc.FORM_SUFFIX_ID, false);
-                    Knockback.applyBindings(self.model,
-                        document.getElementById(
-                            modalId));
-                    kbValidation.bind(self);
-                });
-        },
-        renderEditDnsRecords: function(options) {
-            var editTemplate =
-                contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
-            var editLayout = editTemplate({
-                    prefixId: prefixId,
-                    modalId: modalId
-                }),
-                self = this;
-            cowu.createModal({
-                'modalId': modalId,
-                'className': 'modal-680',
-                'title': options['title'],
-                'body': editLayout,
-                'onSave': function() {
-                    self.model.addEditDnsRecords(
-                        'edit', {
-                            init: function() {
-                                cowu.enableModalLoading(
-                                    modalId
-                                );
-                            },
-                            success: function() {
-                                options
-                                    [
-                                        'callback'
-                                    ]();
-                                $("#" +
-                                    modalId
-                                ).modal(
-                                    'hide'
-                                );
-                            },
-                            error: function(
-                                error) {
-                                cowu.disableModalLoading(
-                                    modalId,
-                                    function() {
-                                        self
-                                            .model
-                                            .showErrorAttr(
-                                                prefixId +
-                                                cowc
-                                                .FORM_SUFFIX_ID,
-                                                error
-                                                .responseText
-                                            );
-                                    }
-                                );
-                            }
-                        });
-                    // TODO: Release binding on successful configure
-                },
-                'onCancel': function() {
-                    Knockback.release(self.model,
-                        document.getElementById(
-                            modalId));
-                    kbValidation.unbind(self);
-                    $("#" + modalId).modal(
-                        'hide');
-                }
-            });
-
-            self.renderView4Config($("#" + modalId).find(
-                    formId), this.model,
-                getAddDnsRecordsViewConfig(true),
-                "dnsConfigValidations", null, null,
-                function() {
-                    self.model.showErrorAttr(prefixId +
-                        cowc.FORM_SUFFIX_ID, false);
                     //populate user_created_record_type for edit case
-                    var recType = getValueByJsonPath(self.model.model().attributes,
-                        'virtual_DNS_record_data;record_type', 'A');
-                    self.model.user_created_record_type(recType);
+                    if(mode === ctwl.EDIT_ACTION) {
+                        var recType =
+                            getValueByJsonPath(self.model.model().attributes,
+                            'virtual_DNS_record_data;record_type', 'A');
+                        self.model.user_created_record_type(recType);
+                    }
                     Knockback.applyBindings(self.model,
                         document.getElementById(
                             modalId));
@@ -303,8 +236,11 @@ define([
                                     dataTextField: "text",
                                     dataValueField: "value",
                                     data: [{
-                                        'text': 'A (IP Address Record)',
+                                        'text': 'A (IPv4 Address Record)',
                                         'value': 'A'
+                                    },{
+                                        'text': 'AAAA (IPv6 Address Record)',
+                                        'value': 'AAAA'
                                     }, {
                                         'text': 'CNAME (Alias Record)',
                                         'value': 'CNAME'
