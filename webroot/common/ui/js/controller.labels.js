@@ -953,18 +953,25 @@ define([
         this.CDB_FQ_TABLE_NAMES_SECTION_ID = "cdb-fq-table-names-section";
         this.CDB_UUID_TABLE_NAMES_SECTION_ID = "cdb-uuid-table-names-section";
         this.CDB_UUID_KEY_TABLE_NAMES_SECTION_ID = "cdb-uuid-key-table-names-section";
+        this.CDB_SHARED_TABLE_NAMES_SECTION_ID = "cdb-shared-table-names-section";
+        this.CDB_SHARED_KEY_TABLE_NAMES_SECTION_ID = "cdb-shared-key-table-names-section";
 
         this.CDB_FQ_KEY_TABLE_NAMES_GRID_ID = "cdb-fq-key-table-names-grid";
         this.CDB_TITLE_FQ_KEY_TABLE_NAMES = "Key Values";
 
         this.CDB_UUID_TABLE_GRID_ID = "cdb-uuid-table-grid";
         this.CDB_TITLE_UUID_KEY_TABLE = "UUID Table Keys";
-
         this.CDB_UUID_KEY_TABLE_GRID_ID = "cdb-uuid-key-table-grid";
         this.CDB_TITLE_UUID_KEY_TABLE_NAMES = "UUID Key Values";
 
+        this.CDB_SHARED_TABLE_GRID_ID = "cdb-shared-table-grid";
+        this.CDB_TITLE_SHARED_KEY_TABLE = "Shared Table Keys";
+        this.CDB_SHARED_KEY_TABLE_GRID_ID = "cdb-shared-key-table-grid";
+        this.CDB_TITLE_SHARED_KEY_TABLE_NAMES = "Shared Key Values";
+
         this.CDB_TITLE_FQ_TABLE = "FQ Name Table";
         this.CDB_TITLE_UUID_TABLE = "UUID Name Table";
+        this.CDB_TITLE_SHARED_TABLE = "Shared Name Table";
         //Config DB Labels - End
 
         /* Service Appliance */

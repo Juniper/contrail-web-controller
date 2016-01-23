@@ -19,8 +19,8 @@ var helenus = require('helenus'),
         hosts: hosts,
         keyspace: 'config_db_uuid',
         timeout: 5000,
-        cqlVersion : '3.0.0'
-    });;
+        cqlVersion: '3.0.0'
+    });
 
 defaultConPool.on('error', function (err) {
     logutils.logger.error(err.stack);
@@ -32,7 +32,7 @@ cql3ConPool.on('error', function (err) {
 
 cdbqueryapi.listKeys4Table = function (req, res) {
     var table = req.param('table'),
-        responseJSON = {"table":table, "keys":[], "editEnabled":editEnabled};
+        responseJSON = {"table": table, "keys": [], "editEnabled": editEnabled};
     defaultConPool.connect(function (err, keyspace) {
         if (err) {
             logutils.logger.error(err.stack);
@@ -44,7 +44,7 @@ cdbqueryapi.listKeys4Table = function (req, res) {
                     commonUtils.handleJSONResponse(err, res, null);
                 } else {
                     results.forEach(function (row) {
-                        responseJSON.keys.push({"table":table, "key":(row.get('key').value).toString()});
+                        responseJSON.keys.push({"table": table, "key": (row.get('key').value).toString()});
                     });
                     commonUtils.handleJSONResponse(null, res, responseJSON);
                 }
@@ -63,7 +63,7 @@ cdbqueryapi.listValues4Key = function (req, res) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            cql3ConPool.cql("SELECT * FROM " + table + " WHERE key = ?", [convertString2Hex(key)], function (err, results) {
+            cql3ConPool.cql("SELECT * FROM " + table + " WHERE key = asciiAsBlob('" + key + "')", [], function (err, results) {
                 if (err) {
                     logutils.logger.error(err.stack);
                     commonUtils.handleJSONResponse(err, res, null);
@@ -110,14 +110,14 @@ cdbqueryapi.deleteValue4Key = function (req, res) {
 
 cdbqueryapi.deleteKeyFromTable = function (req, res) {
     var table = req.param('table'),
-        key = req.param('key'),
-        hexKey = new Buffer(key).toString('hex');
+        key = req.param('key');
+
     defaultConPool.connect(function (err, keyspace) {
         if (err) {
             logutils.logger.error(err.stack);
             commonUtils.handleJSONResponse(err, res, null);
         } else {
-            defaultConPool.cql("DELETE FROM " + table + " WHERE KEY = ?", [hexKey], function (err, results) {
+            defaultConPool.cql("DELETE FROM " + table + " WHERE KEY = asciiAsBlob('" + key + "')", [], function (err, results) {
                 if (err) {
                     logutils.logger.error(err.stack);
                     commonUtils.handleJSONResponse(err, res, null);
@@ -127,17 +127,6 @@ cdbqueryapi.deleteKeyFromTable = function (req, res) {
             });
         }
     });
-};
-
-function convertString2Hex(strName) {
-    var hexResult = "", hex, i;
-
-    for (i = 0; i < strName.length; ++i) {
-        hex = strName.charCodeAt(i).toString(16);
-        hexResult += (hex);
-    }
-
-    return hexResult;
 };
 
 function getCassandraHostList(serverIPs, port) {
