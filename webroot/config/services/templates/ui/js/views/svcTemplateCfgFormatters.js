@@ -20,6 +20,28 @@ define([
              return capitalize(serviceMode);
         };
 
+        /*
+         * displayNameFormatter
+         */
+        this.displayNameFormatter = function(d, c, v, cd, dc) {
+            var dispStr = getValueByJsonPath(dc, 'display_name',
+                                             null);
+            if (null == dispStr) {
+                dispStr =
+                    getValueByJsonPath(dc, 'fq_name', []);
+                if (dispStr.length > 0) {
+                    dispStr = dispStr[1];
+                }
+            }
+            if (null == dispStr) {
+                return "";
+            }
+            var version =
+                getValueByJsonPath(dc,
+                                   'service_template_properties;version', 1);
+            dispStr += ' - v' + version;
+            return dispStr;
+        };
 
         /*
          * @serviceTypeFormatter

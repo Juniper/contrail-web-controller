@@ -124,6 +124,27 @@ define([
                     {
                         columns: [
                             {
+                                elementId: 'Version',
+                                view: "FormDropdownView",
+                                viewConfig: {
+                                    path:
+                                        'user_created_version',
+                                    class: 'span12',
+                                    dataBindValue:
+                                        'user_created_version',
+                                    elementConfig : {
+                                        dataTextField : "text",
+                                        dataValueField : "id",
+                                        data: [{id: 1, text: 'v1'},
+                                               {id: 2, text: 'v2'}]
+                                    }
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        columns: [
+                            {
                                 elementId: 'virtualization_type',
                                 view: "FormDropdownView",
                                 viewConfig: {
@@ -185,7 +206,7 @@ define([
                                 elementId: 'image_name',
                                 view: "FormDropdownView",
                                 viewConfig: {
-                                    visible: 'isSvcVirtTypeNonPhysicalDevice',
+                                    visible: 'showImageList',
                                     label: 'Image Name',
                                     path : 'service_template_properties.image_name',
                                     class: 'span12',
@@ -249,19 +270,23 @@ define([
                                                         {
                                                           elementId: 'service_interface_type',
                                                           name: 'Interface (s)',
-                                                          view: "FormDropdownView",
+                                                          view:
+                                                              "FormComboboxView",
                                                           class: "",
                                                           viewConfig:
                                                             {
-                                                             templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                                             templateId:
+                                                                cowc.TMPL_EDITABLE_GRID_COMBOBOX_VIEW,
                                                              width: 250,
                                                              path: "service_interface_type",
                                                              dataBindValue: 'service_interface_type()',
-                                                             dataBindOptionList: "['management',\
-                                                                    'left',\
-                                                                    'right',\
-                                                                    'other']",
-                                                             elementConfig : {}
+                                                             dataBindOptionList:
+                                                                 "interfaceTypesData()",
+                                                             elementConfig : {
+                                                                dataTextField: 'text',
+                                                                dataValueField:
+                                                                    'id'
+                                                             }
                                                             }
                                                         },
                                                         {
@@ -319,6 +344,7 @@ define([
                         view: "AccordianView",
                         viewConfig: [
                             {
+                            visible: 'showIfNotTmplV2',
                             elementId: 'advanced',
                             title: 'Advanced Options',
                             view: "SectionView",

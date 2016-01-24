@@ -4,17 +4,15 @@
 
 define([
     'underscore',
-    'contrail-model'
-], function (_, ContrailModel) {
-    var svcTemplateInterfaceModel = ContrailModel.extend({
+    'contrail-model',
+], function (_, ContrailModel, StaticRTModel) {
+    var IntfRtTableModel = ContrailModel.extend({
 
         defaultConfig: {
-            'static_route_enable': false,
-            'shared_ip': false,
-            'service_interface_type': 'other',
-            'interfaceTypesData': []
+            interface_route_table: null,
+            interface_type: null,
+            interfaceTypesData: []
         },
-
 
         validateAttr: function (attributePath, validation, data) {
             var model = data.model().attributes.model(),
@@ -25,19 +23,21 @@ define([
             isValid = model.isValid(attributePath, validation);
 
             attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
-                    (isValid == true) ? false : isValid;
+                (isValid == true) ? false : isValid;
             errors.set(attrErrorObj);
         },
-
-
         validations: {
-            svcTemplateInterfaceConfigValidations: {
-                'service_interface_type': {
-                    required: true,
-                    msg: 'Select Service Interface Type '
+            intfRtTablesValidation: {
+                interface_type: {
+                    required: true
+                },
+                interface_route_table: {
+                    required: true
                 }
             }
         }
     });
-    return svcTemplateInterfaceModel;
+
+    return IntfRtTableModel;
 });
+

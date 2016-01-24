@@ -48,6 +48,7 @@ define([
                 getValueByJsonPath(svcTmpl,
                                    'service-template;service_template_properties',
                                    {});
+            var svcTempVersion = getValueByJsonPath(svcTempProp, 'version', 1);
             var intfType =
                 getValueByJsonPath(svcTempProp, 'interface_type', []);
             var intfCnt = intfType.length;
@@ -58,7 +59,7 @@ define([
             dispStr += "[" +
                 getValueByJsonPath(svcTempProp, 'service_mode', '-') + " (" +
                 svcIntfTypes.join(', ') + ")]";
-            return dispStr;
+            return dispStr + ' - v' + svcTempVersion;
         },
         this.getSvcTmplIntfTypes = function(svcTmpl) {
             var svcIntfTypes = [];
@@ -184,6 +185,7 @@ define([
                             '$root.showHideStaticRTs(interfaceIndex())',
                         path: 'staticRoutes',
                         collection: 'staticRoutes()',
+                        validation: 'staticRoutesValidation',
                         templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
                         collectionActions: {
                             add: {onClick: "addStaticRt()",
@@ -229,12 +231,450 @@ define([
                 }]
             }
         },
+        this.getPortTupleNameViewConfig = function(isDisabled) {
+            return {
+                rowActions: [
+                    {onClick: "deletePortTuple()",
+                     iconClass: 'icon-minus'}
+                ],
+                columns: [{
+                    elementId: 'portTupleName',
+                    view: 'FormInputView',
+                    class: "", width: "600",
+                    viewConfig: {
+                        label: 'Port Tuple Name',
+                        disabled: true,
+                        templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                        path: 'portTupleName',
+                        dataBindValue: 'portTupleName()'
+                    }
+                }]
+            }
+        },
+        this.getPortTupleViewConfig = function(isDisabled) {
+            return {
+                columns: [{
+                    elementId: 'port-tuples-vmi-collection',
+                    view: "FormCollectionView",
+                    viewConfig: {
+                        colSpan: '2',
+                        path: 'portTupleInterfaces',
+                        collection: 'portTupleInterfaces()',
+                        validation: 'portTupleInterfacesValidation',
+                        templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                        /*
+                        collectionActions: {
+                            add: {onClick: "addPortTupleInterface()",
+                                  iconClass: 'icon-plus',
+                                  buttonTitle: 'Add Interface'
+                            }
+                        },
+                        */
+                        rows: [{
+                            /*
+                            rowActions: [
+                                {onClick: "deletePortTupleInterface()",
+                                 iconClass: 'icon-minus'}
+                            ],
+                            */
+                            columns: [{
+                                elementId: 'interfaceType',
+                                view: 'FormInputView',
+                                class: "", width: 385,
+                                viewConfig: {
+                                    placeholder: 'Select Interface Type',
+                                    disabled: true,
+                                    templateId:
+                                        cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                    path: 'interfaceType',
+                                    dataBindValue: 'interfaceType()'
+                                }
+                            },
+                            {
+                                elementId: 'interface',
+                                view: 'FormDropdownView',
+                                class: "", width: 345,
+                                viewConfig: {
+                                    templateId:
+                                        cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                    path: 'interface',
+                                    dataBindValue: 'interface()',
+                                    elementConfig: {
+                                        placeholder: 'Select Virtual Machine' +
+                                                     ' Inetrface',
+                                        dataTextField: 'text',
+                                        dataValueField: 'value',
+                                        data: window.vmiList
+                                    }
+                                }
+                            }]
+                        }]
+                    }
+                }]
+            }
+        },
+        this.getPortTuplesView = function (self, isDisabled) {
+            return {
+                elementId: 'portTuplesCollection',
+                view: 'AccordianView',
+                viewConfig: [{
+                    elementId: 'portTuplesCollectionAccordian',
+                    visible: 'showPortTuplesView',
+                    title: 'Port Tuples',
+                    view: 'SectionView',
+                    viewConfig: {
+                        rows: [{
+                            columns: [{
+                                elementId: 'port-tuples-collection',
+                                view: 'FormCollectionView',
+                                viewConfig: {
+                                    path: 'portTuples',
+                                    collection: 'portTuples()',
+                                    validations: 'portTuplesValidation',
+                                    //accordionable: true,
+                                    templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
+                                    collectionActions: {
+                                        add: {onClick: "function() {addPortTuple(self, this);}",
+                                              iconClass: 'icon-plus',
+                                              buttonTitle: 'Add Port Tuple'
+                                        }
+                                    },
+                                    rows: [/*{
+                                        rowActions: [
+                                            {onClick: "deletePortTuple()",
+                                             iconClass: 'icon-minus'}
+                                        ]},*/
+                                        this.getPortTupleNameViewConfig(isDisabled),
+                                        this.getPortTupleViewConfig(isDisabled),
+                                    ]
+                                }
+                            }]
+                        }]
+                    }
+                }]
+            }
+        },
+        this.getPortTuplePropView = function(isDisabled) {
+            return {
+                elementId: 'svcInstProp',
+                view: 'AccordianView',
+                viewConfig: [{
+                    visible: 'showPortTuplesView',
+                    elementId: 'svcInstPropSection',
+                    title: 'Service Instance Properties',
+                    view: 'SectionView',
+                    viewConfig: {
+                        rows: [{
+                            columns: [{
+                                elementId: 'svcInstPropAccordian',
+                                view: 'AccordianView',
+                                viewConfig: [
+                                    this.getSvcHealthCheckAccordianView(isDisabled),
+                                    this.getIntfRtTableAccordianView(isDisabled),
+                                    this.getRtPolicyAccordianView(isDisabled),
+                                    this.getRtAggregateAccordianView(isDisabled)
+                                ]
+                            }]
+                        }]
+                    }
+                }]
+            }
+        },
+        this.getSvcHealthCheckAccordianView = function (isDisabled) {
+            return {
+                elementId: 'healthChkSection',
+                title: 'Service Health Check',
+                view: 'SectionView',
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'svcHealtchChecks',
+                            view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: 'svcHealtchChecks',
+                                collection: 'svcHealtchChecks',
+                                validation: 'svcHealtchChecksValidation',
+                                columns: [{
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 150,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                         'Type',
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'service_health_check',
+                                    name: 'Service Health Check',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 350,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'service_health_check',
+                                        dataBindValue: 'service_health_check()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Health' +
+                                                         ' Check Service',
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            data: window.healthCheckServiceList
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                    onClick: "function() {\
+                                        $root.deleteSvcInstProperty($data, this);\
+                                    }",
+                                    iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropSvcHealthChk();\
+                                    }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
+        this.getIntfRtTableAccordianView = function (isDisabled) {
+            return {
+                elementId: 'intfRtTableSection',
+                title: 'Route Table',
+                view: 'SectionView',
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'intfRtTables',
+                            view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: 'intfRtTables',
+                                collection: 'intfRtTables',
+                                validation: 'intfRtTablesValidation',
+                                columns: [{
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 150,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                         'Type',
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'interface_route_table',
+                                    name: 'Route Table',
+                                    view: 'FormMultiselectView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 350,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                        path: 'interface_route_table',
+                                        dataBindValue: 'interface_route_table()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select ' +
+                                                         ' Route Table',
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            data: window.interfaceRouteTableList
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                    onClick: "function() {\
+                                        $root.deleteSvcInstProperty($data, this);\
+                                    }",
+                                    iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropIntfRtTable();\
+                                    }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
+        this.getRtPolicyAccordianView = function (isDisabled) {
+            return {
+                elementId: 'rtPolicySection',
+                title: 'Routing Policy',
+                view: 'SectionView',
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'rtPolicys',
+                            view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: 'rtPolicys',
+                                collection: 'rtPolicys',
+                                validation: 'rtPolicysValidation',
+                                columns: [{
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 150,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                         'Type',
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'routing_policy',
+                                    name: 'Routing Policy',
+                                    view: 'FormMultiselectView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 350,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                        path: 'routing_policy',
+                                        dataBindValue: 'routing_policy()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Routing ' +
+                                                         'Policy',
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            data: window.routingPolicyList
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                    onClick: "function() {\
+                                        $root.deleteSvcInstProperty($data, this);\
+                                    }",
+                                    iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropRtPolicy();\
+                                    }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
+        this.getRtAggregateAccordianView = function (isDisabled) {
+            return {
+                elementId: 'rtAggregateSection',
+                title: 'Route Aggregate',
+                view: 'SectionView',
+                viewConfig: {
+                    rows: [{
+                        columns: [{
+                            elementId: 'rtAggregates',
+                            view: 'FormEditableGridView',
+                            viewConfig: {
+                                path: 'rtAggregates',
+                                collection: 'rtAggregates',
+                                validation: 'rtAggregatesValidation',
+                                columns: [{
+                                    elementId: 'interface_type',
+                                    name: 'Interface Type',
+                                    view: 'FormDropdownView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 150,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
+                                        path: 'interface_type',
+                                        dataBindValue: 'interface_type()',
+                                        dataBindOptionList:
+                                            'interfaceTypesData()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Interface ' +
+                                                         'Type',
+                                        }
+                                    }
+                                },
+                                {
+                                    elementId: 'route_aggregate',
+                                    name: 'Route Aggregate',
+                                    view: 'FormMultiselectView',
+                                    class: "",
+                                    viewConfig: {
+                                        width: 350,
+                                        templateId:
+                                            cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
+                                        path: 'route_aggregate',
+                                        dataBindValue: 'route_aggregate()',
+                                        elementConfig: {
+                                            minimumResultsForSearch: 1,
+                                            placeholder: 'Select Route' +
+                                                         ' Aggregate',
+                                            dataTextField: 'text',
+                                            dataValueField: 'value',
+                                            data: window.routeAggregateList
+                                        }
+                                    }
+                                }],
+                                rowActions: [{
+                                    onClick: "function() {\
+                                        $root.deleteSvcInstProperty($data, this);\
+                                    }",
+                                    iconClass: 'icon-minus'
+                                }],
+                                gridActions: [{
+                                    onClick: "function() {\
+                                        $root.addPropRtAggregate();\
+                                    }"
+                                }]
+                            }
+                        }]
+                    }]
+                }
+            }
+        },
         this.getInterfaceCollectionView = function (isDisabled) {
             return {
                 elementId: 'interfaceCollection',
                 view: 'AccordianView',
                 viewConfig: [{
                     elementId: 'interfaceCollectionAccordian',
+                    visible: 'showInterfaceCollectionView',
                     title: 'Interface Details',
                     view: 'SectionView',
                     viewConfig: {
@@ -246,7 +686,7 @@ define([
                                     path: 'interfaces',
                                     collection: 'interfaces()',
                                     validations: 'interfacesValidation',
-                                    accordionable: true,
+                                    //accordionable: true,
                                     templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
                                     rows: [
                                         this.getIntfVNCollectionView(isDisabled),

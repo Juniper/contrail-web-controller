@@ -11,7 +11,7 @@ define([
 
         defaultConfig: {
             interfaceType: "",
-            virtualNetwork: "",
+            virtualNetwork: null,
             interfaceIndex: -1,
             interfaceData: null
         },
@@ -55,14 +55,19 @@ define([
             var idx = this.model().attributes.interfaceIndex();
             var nextHop = 'Interface ' + (idx + 1).toString();
             var newStaticRT =
-                new StaticRTModel({'prefix': "", 'next_hop': nextHop});
+                new StaticRTModel({'prefix': null, 'next_hop': nextHop});
             var staticRTs = this.model().attributes.model().get('staticRoutes');
             staticRTs.add([newStaticRT]);
         },
         validations: {
             interfacesValidation: {
-                'virtualNetwork': {
-                    required: true
+                'virtualNetwork': function(val, attr, obj) {
+                    if (null == val) {
+                        /* Note "" is a valid value, that is for Auto
+                         * Configgured
+                         */
+                        return 'Virtual network is required';
+                    }
                 }
             }
         }

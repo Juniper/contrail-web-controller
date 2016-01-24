@@ -16,7 +16,7 @@ define([
     var chunkCnt = 10;
     var svcInstUtils = new SvcInstUtils();
     var svcInstTimerLevel = 0;
-    var svcInstTimerArray = [20000, 35000, 45000, 55000, 65000];
+    var svcInstTimerArray = [20000, 35000, 45000, 55000, 65000, 75000];
     var svcInstanceTimer = null;
 
     window.doFetchSvcInst = false;
@@ -38,16 +38,32 @@ define([
                         type: "GET"
                     },
                     dataParser: svcInstDataParser,
-                    /*
-                    successCallback: function(response) {
-                        console.log("In SuccessCall");
-                    }*/
                     failureCallback: function(error) {
-                        console.log("Error");
+                        console.log("Error", error);
                     }
                 },
                 vlRemoteConfig :{
                     vlRemoteList : self.getVlRemoteGLConfig(),
+                    completeCallback: function() {
+                        window.hostList = [];
+                        var userRoles = window.svcInstProjRole;
+                        userRoles = null;
+                        if (null == userRoles) {
+                            userRoles = getValueByJsonPath(globalObj,
+                                                           'webServerInfo;role',
+                                                           []);
+                        }
+                        if (-1 != userRoles.indexOf('superAdmin')) {
+                            var ajaxConfig = {
+                                url: '/api/tenants/config/getHostList',
+                                type: "GET"
+                            };
+                            contrail.ajaxHandler(ajaxConfig, null,
+                                                 function(result) {
+                                window.hostList = result;
+                            });
+                        }
+                    }
                 },
                 cacheConfig: {
                     ucid: 'service-instances',
@@ -202,7 +218,71 @@ define([
                 }
             },
             failureCallback: function(error, contrailListModel) {
-                console.log("We are in failureCallback");
+                console.log("We are in failureCallback", error);
+            }
+        },
+        {
+            getAjaxConfig: function(response) {
+                var postData = {'data': [{
+                        'type': 'service-health-checks',
+                    },
+                    {
+                        'type': 'interface-route-tables',
+                    },
+                    {
+                        'type': 'routing-policys',
+                    },
+                    {
+                        'type': 'route-aggregates',
+                    },
+                    {
+                        'type': 'virtual-machine-interfaces',
+                        /*
+                        'parent_fq_name_str': getCookie('domain') + ':' +
+                            getCookie('project'),
+                        'parent_type': 'project'
+                        */
+                    }]
+                };
+                var lazyAjaxConfig = {
+                    url:
+                        '/api/tenants/config/get-config-list',
+                    type: 'POST',
+                    data: JSON.stringify(postData)
+                };
+                return lazyAjaxConfig;
+            },
+            successCallback: function(response, contrailListModel) {
+                window.healthCheckServiceList = [];
+                window.interfaceRouteTableList = [];
+                window.routingPolicyList = [];
+                window.routeAggregateList = [];
+                window.vmiList = [];
+                if (null == response) {
+                    return;
+                }
+                window.healthCheckServiceList =
+                    buildTextValueByConfigList(response[0],
+                                               'service-health-checks');
+                window.interfaceRouteTableList =
+                    buildTextValueByConfigList(response[1],
+                                               'interface-route-tables');
+                window.routingPolicyList =
+                    buildTextValueByConfigList(response[2],
+                                               'routing-policys');
+                window.routeAggregateList =
+                    buildTextValueByConfigList(response[3],
+                                               'route-aggregates');
+                window.vmiList =
+                    buildTextValueByConfigList(response[4],
+                                               'virtual-machine-interfaces');
+            },
+            failureCallback: function(error, contrailListModel) {
+                window.healthCheckServiceList = [];
+                window.interfaceRouteTableList = [];
+                window.routingPolicyList = [];
+                window.routeAggregateList = [];
+                window.vmiList = [];
             }
         },
         {
@@ -275,19 +355,7 @@ define([
                 return lazyAjaxConfig;
             },
             successCallback: function(response, contrailListModel) {
-                window.userRoles = response;
-            }
-        },
-        {
-            getAjaxConfig: function(response) {
-                var lazyAjaxConfig = {
-                    url: '/api/tenants/config/getHostList',
-                    type: 'GET'
-                };
-                return lazyAjaxConfig;
-            },
-            successCallback: function(response, contrailListModel) {
-                window.hostList = response;
+                window.svcInstProjRole = response;
             }
         },
         {
@@ -352,10 +420,62 @@ define([
                     $(gridElId).data('svcInstTmplts', svcTmplObjsByFqn);
                 });
             }
+        },
+        {
+            getAjaxConfig: function(response) {
+                var lazyAjaxConfig = {
+                    url: '/api/service/networking/web-server-info?project=' +
+                        contrail.getCookie('project'),
+                    type: 'GET'
+                };
+                return lazyAjaxConfig;
+            },
+            successCallback: function(response, contrailListModel) {
+                var roles = getValueByJsonPath(response, 'role', []);
+                window.svcInstProjRole = roles;
+            }
         }];
         return vlRemoteGLConfig;
     }
     });
+
+    function buildTextValueByConfigList (configListObj, type) {
+        if ((null == configListObj[type]) || (!configListObj[type].length)) {
+            return [];
+        }
+        var domain = contrail.getCookie('domain');
+        var project = contrail.getCookie('project');
+        var results = [];
+
+        var configList = configListObj[type];
+        var cnt = configList.length;
+        for (var i = 0; i < cnt; i++) {
+            var fqn = JSON.parse(JSON.stringify(configList[i]['fq_name']));
+            var domProj = fqn.splice(0, 2);
+            if ((domain == domProj[0]) && (project == domProj[1])) {
+                var text = fqn.join(':');
+                if ('virtual-machine-interfaces' == type) {
+                    text = configList[i]['uuid'];
+                }
+                results.push({text: text, value:
+                             configList[i]['fq_name'].join(':') +
+                             "~~" + configList[i]['uuid']});
+            } else {
+                var tmpFqn =
+                    JSON.parse(JSON.stringify(configList[i]['fq_name']));
+                var domProj = tmpFqn.splice(0, 2);
+                var text = fqn[fqn.length - 1];
+                if ('virtual-machine-interfaces' == type) {
+                    text = configList[i]['uuid'];
+                }
+                results.push({text: text +" (" + domProj.join(':')
+                             + ")",
+                              value: configList[i]['fq_name'].join(':') +
+                              "~~" + configList[i]['uuid']});
+            }
+        }
+        return results;
+    }
 
     var svcInstDataParser = function (response) {
         var retArr = [];
