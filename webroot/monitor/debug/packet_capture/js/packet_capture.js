@@ -1111,8 +1111,7 @@ function getVNName(vnFullName) {
 };
 
 function check4AnalyzerImage() {
-    var selectedDomain = $("#ddDomainSwitcher").data('contrailDropdown').text();
-    var url = '/api/tenants/config/service-template-images/' + selectedDomain;
+    var url = '/api/tenants/config/service-template-images';
     doAjaxCall(url, "GET", null, "successHandler4AnalyzerImage", "failureHandler4AnalyzerImage");
 };
 
