@@ -25,24 +25,6 @@ define([
             }
             return policyData;
         };
-        /*this.formAddedRule = function() {
-            $('th.wrap').each(function(i, item) {
-                cIndex=item.cellIndex + 1;
-                var headerString = $(item).html();
-                var element = $( this ).parent().parent().parent().find('td:nth-child('+cIndex +')');
-                var idVal = element[0].id;
-                var className = element.attr('class');
-                var bodyString= element.html();
-                var hideElement = $(this).parent().parent().parent().find('td:nth-child('+cIndex+')').hide();
-                if(hideElement != true) {
-                    var rowCount=($(item).closest('tr').parent().parent().find('tbody tr.data-row').length);
-                    $(item).closest('tr').parent().parent().find('tbody tr.data-row.nowrap').after("<tr><td colspan='2'><label style='text-align:left;padding-right:10px' >"+headerString+"</label></td><td colspan="+cIndex+" id='"+idVal+"' class='"+className+"'>"+bodyString+"</td></tr>");
-//                  $(item).closest('tr').parent().parent().find('tbody tr.data-row').removeClass('nowrap');
-                    $(item).hide();
-                }
-            });
-            $('th.wrap').closest('tr').parent().parent().find('tbody tr.data-row').removeClass('nowrap');
-        }*/
 
         this.check4DynamicPolicy = function(policy) {
             var isDynamicPolicy = false;
@@ -360,6 +342,34 @@ define([
                }if(dc["virtual_network_back_refs"].length == 0) {
                    returnString = "-";
                }
+            }
+            return returnString;
+        };
+        this.AssociatedNetworksFormatterExpand = function(r, c, v, cd, dc) {
+            var returnString = "";
+            if("virtual_network_back_refs" in dc &&
+               dc["virtual_network_back_refs"].length > 0) {
+                var vnLen = dc["virtual_network_back_refs"].length
+                var domainName = ctwu.getGlobalVariable('domain').name;
+                var projectName = ctwu.getGlobalVariable('project').name;
+                for(var i=0; i < vnLen; i++) {
+                    if("to" in dc["virtual_network_back_refs"][i] &&
+                       dc["virtual_network_back_refs"][i]["to"].length >= 2) {
+                        var network_to =
+                            dc["virtual_network_back_refs"][i]["to"];
+                        if (network_to[0] == domainName &&
+                           network_to[1] == projectName) {
+                           returnString += network_to[2] + "<br>";
+                        } else {
+                           returnString += network_to[2]+
+                                                " (" +network_to[0] +":"+
+                                                network_to[1] +") <br>";
+                        }
+                    }
+                }
+                if(dc["virtual_network_back_refs"].length == 0) {
+                    returnString = "-";
+                }
             }
             return returnString;
         };

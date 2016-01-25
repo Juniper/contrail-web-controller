@@ -67,14 +67,13 @@ define([
                         $("#" + modalId).find("#" + modalId + "-form"),
                         self.model, getConfigureViewConfig
                         (disableElement, allData),
-                        null, null, null, function(){
+                        'policyValidations', null, null, function(){
                             self.model.showErrorAttr(prefixId +
                                             cowc.FORM_SUFFIX_ID, false);
                             Knockback.applyBindings(self.model,
                                             document.getElementById(modalId));
-                            kbValidation.bind(self);
-                            //kbValidation.bind(self,{collection:
-                            //      self.model.model().attributes.policyRules});
+                            kbValidation.bind(self,{collection:
+                                  self.model.model().attributes.PolicyRules});
                    });
                    return;
                }
@@ -87,7 +86,7 @@ define([
             var rowIdxLen = selectedGridData.length;
             for (var i = 0; i < rowIdxLen; i++) {
                 items +=
-                    selectedGridData[i]["name"]
+                    selectedGridData[i]["name"];
                 if (i < rowIdxLen - 1) {
                     items += ',';
                 }
@@ -261,85 +260,39 @@ define([
                     var serviceInsts = [];
                     if (null !== sts && sts.length > 0) {
                         for (var i = 0; i < sts.length; i++) {
-                            if (sts[i].service_template_properties.service_type
-                                                          === "analyzer") {
-                                if (typeof sts[i].service_instance_back_refs
-                                                          !== "undefined" &&
-                                    sts[i].service_instance_back_refs.length
-                                                          > 0) {
-                                    var si_backRef =
-                                        sts[i].service_instance_back_refs;
-                                    var si_backRef_len =
-                                       sts[i].service_instance_back_refs.length;
-                                    var st = "";
-                                    st = "analyzer";
-                                    for (var j = 0; j < si_backRef_len; j++) {
-                                        if(si_backRef[j].to[0]
-                                                          === selectedDomain &&
-                                            si_backRef[j].to[1]
-                                                          === selectedProject) {
-                                                var si_val_obj =
-                                                {"text":si_backRef[j].to[2],
-                                                "id":
-                                                   (si_backRef[j].to).join(":"),
-                                                "value":
-                                                   (si_backRef[j].to).join(":"),
-                                                "st":st}
-                                            analyzerInsts[analyzerInsts.length]
-                                                 = si_val_obj;
-                                            serviceInsts.push(si_val_obj);
-                                                ;
-                                        } else {
-                                            var si_backRef_format =
-                                                si_backRef[j].to[2] + "(" +
-                                                si_backRef[j].to[0] + ":" +
-                                                si_backRef[j].to[1] + ")";
-                                            var si_backRefVal =
-                                               (si_backRef[j].to).join(":");
-                                            var si_val_obj = {
-                                                "text":si_backRef_format,
-                                                "value":si_backRefVal,
-                                                "id":si_backRefVal,
-                                                "st":st
-                                            };
-                                            analyzerInsts[analyzerInsts.length] =
-                                                si_val_obj;
-                                            serviceInsts.push(si_val_obj);
-                                        }
+                            var serviceTemplateMode = getValueByJsonPath(sts[i],
+                                    "service_template_properties;service_mode",
+                                    "");
+                            var serviceTemplateType = getValueByJsonPath(sts[i],
+                                    "service_template_properties;service_type",
+                                    "");
+                            if (typeof sts[i].service_instance_back_refs
+                                                      !== "undefined" &&
+                                sts[i].service_instance_back_refs.length > 0) {
+                                var si_backRef =
+                                    sts[i].service_instance_back_refs;
+                                var si_backRef_len =
+                                   sts[i].service_instance_back_refs.length;
+                                for (var j = 0; j < si_backRef_len; j++) {
+                                    var siBackRefTo = getValueByJsonPath(
+                                                  si_backRef[j], "to" , []);
+                                    var text = fqnameDisplayFormat(
+                                                    siBackRefTo ,
+                                                    selectedDomain,
+                                                    selectedProject);
+                                    var si_backRef_join = siBackRefTo.join(":");
+                                    var si_val_obj =
+                                                    {"text":text,
+                                                    "value":si_backRef_join,
+                                                    "id":si_backRef_join};
+                                    if(serviceTemplateType == "analyzer") {
+                                        analyzerInsts.push(si_val_obj);
                                     }
-                                }
-                            } else {
-                                if (typeof sts[i].service_instance_back_refs
-                                    !== "undefined" &&
-                                    sts[i].service_instance_back_refs.length > 0) {
-                                        var si_backRef =
-                                            sts[i].service_instance_back_refs;
-                                        var si_backRef_len =
-                                            sts[i].service_instance_back_refs.length;
-                                    var st =
-                                        sts[i].service_template_properties.service_type;
-                                    for (var j = 0; j < si_backRef_len; j++) {
-                                        if(si_backRef[j].to[0] === selectedDomain &&
-                                            si_backRef[j].to[1] === selectedProject) {
-                                            serviceInsts[serviceInsts.length] =
-                                                {"text":si_backRef[j].to[2],
-                                                "value":(si_backRef[j].to).join(":"),
-                                                "id":(si_backRef[j].to).join(":"),
-                                                "st":st};
-                                        } else {
-                                               var si_backRef_join =
-                                                   si_backRef[j].to.join(":")
-                                               var si_backref_val =
-                                                   si_backRef[j].to[2] + "(" +
-                                                   si_backRef[j].to[0] + ":" +
-                                                   si_backRef[j].to[1] + ")";
-                                               serviceInsts[serviceInsts.length] =
-                                               {"text": si_backref_val,
-                                               "value": si_backRef_join,
-                                               "id":si_backRef_join,
-                                               "st":st};
-                                        }
-                                    }
+                                    var si_val_objClon = 
+                                            $.extend(true,{},si_val_obj);
+                                    si_val_objClon.value +=
+                                            " " + serviceTemplateMode;
+                                    serviceInsts.push(si_val_objClon);
                                 }
                             }
                         }
@@ -378,8 +331,18 @@ define([
             )
         }
     });
+    fqnameDisplayFormat = function(fqname, selectedDomain, selectedProject) {
+        var returnText = "";
+        returnText = getValueByJsonPath(fqname, "2", "");
+        if(returnText != "" && (
+           fqname[0] != selectedDomain || 
+           fqname[1] != selectedProject)) {
+            returnText += "("+ fqname[0] + ":" + fqname[1] +")";
+        }
+        return returnText;
+    }
 
-    var getConfigureViewConfig = function(isDisable, allData) {
+    getConfigureViewConfig = function(isDisable, allData) {
         return {
             elementId: cowu.formatElementId(
                             [prefixId, ctwl.TITLE_EDIT_POLICY]),
@@ -387,16 +350,15 @@ define([
             viewConfig:{
             rows: [{
                     columns: [{
-                        elementId: 'name',
-                        name: 'Name',
+                        elementId: 'policyName',
                         view: "FormInputView",
                         viewConfig: {
-                                    disabled: isDisable,
-                                    placeHolder: ctwl.POLICY_NAME,
-                                    path: 'name',
-                                    label:'Policy Name',
-                                    dataBindValue: 'name',
-                                    class: "span6"}
+                            placeholder: "Policy Name",
+                            disabled: isDisable,
+                            path: 'policyName',
+                            label:'Policy Name',
+                            dataBindValue: 'policyName',
+                            class: "span6"}
                     }]
                 },{
                     columns: [{
@@ -408,7 +370,7 @@ define([
                             path: "PolicyRules",
                             validation: 'ruleValidation',
                             templateId: cowc.TMPL_COLLECTION_HEADING_VIEW,
-                            collection: "policyRules",
+                            collection: "PolicyRules",
                             rows:[{
                                rowActions: [
                                    {onClick:
@@ -441,6 +403,7 @@ define([
                                      templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_VIEW,
                                      path: "protocol",
                                      dataBindValue: "protocol()",
+                                     disabled: "mirror_to_check()",
                                      elementConfig:{
                                      data:['ANY', 'TCP', 'UDP', 'ICMP']
                                     }}
@@ -611,7 +574,7 @@ define([
                                      viewConfig: {
                                          colSpan: "11",
                                          class: "span10",
-                                         placeHolder:"Select a service to apply...",
+                                         placeholder:"Select a service to apply...",
                                          //visible: "$root.showService",
                                          visible: "apply_service_check()",
                                          templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_LEFT_LABEL_VIEW,
@@ -632,7 +595,7 @@ define([
                                      view: "FormDropdownView",
                                      width: 100,
                                      viewConfig: {
-                                         placeHolder:"Select a service to mirror...",
+                                         placeholder:"Select a service to mirror...",
                                          colSpan: "11",
                                          visible: "mirror_to_check()",
                                          templateId: cowc.TMPL_EDITABLE_GRID_DROPDOWN_LEFT_LABEL_VIEW,

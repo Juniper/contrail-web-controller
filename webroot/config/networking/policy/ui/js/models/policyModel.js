@@ -18,7 +18,7 @@ define([
             'network_policy_entries':{'policy_rule':[]},
             'templateGeneratorData': 'rawData',
             'PolicyUUID':'',
-            'name':''
+            'policyName':''
         },
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
@@ -27,7 +27,7 @@ define([
             var rulesList = modelConfig["network_policy_entries"]["policy_rule"];
             if(modelConfig['fq_name'] != null &&
                modelConfig['fq_name'].length >= 3) {
-                modelConfig["name"] = modelConfig['fq_name'][2];
+                modelConfig["policyName"] = modelConfig['fq_name'][2];
             }
             if(rulesList != null && rulesList.length > 0) {
                 for(var i = 0; i < rulesList.length; i++) {
@@ -39,21 +39,21 @@ define([
             }
             var rulesCollectionModel =
                                      new Backbone.Collection(ruleModels);
-            modelConfig['policyRules'] = rulesCollectionModel;
+            modelConfig['PolicyRules'] = rulesCollectionModel;
             modelConfig["network_policy_entries"]["policy_rule"] =
                                                      rulesCollectionModel;
             return modelConfig;
         },
         validations: {
             policyValidations: {
-                'name': {
+                'policyName': {
                     required: true,
                     msg: 'Enter a valid Policy Name.'
                 }
             }
         },
         addRule: function() {
-            var rulesList = this.model().attributes['policyRules'],
+            var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
             /*newRuleModel.__kb.model.on('change:apply_service_check',
                         function(updatedModel) {
@@ -81,22 +81,39 @@ define([
                 }
             }), ruleModels);
             ruleModels.showMirror = ko.computed((function(){
-                return (this.mirror_to_check)
+                if(this.mirror_to_check() == true) {
+                    this.protocol("ANY");
+                    return (this.mirror_to_check);
+                } else {
+                    return false;
+                }
             }), ruleModels);
         },
         configurePolicy: function (mode, allData, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
             popupData = allData;
-            if (this.model().isValid(true, "policyValidations")) {
+            var validations = [
+                {
+                    key : null,
+                    type : cowc.OBJECT_TYPE_MODEL,
+                    getValidation : 'policyValidations'
+                },
+                {
+                    key : 'PolicyRules',
+                    type : cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation : 'ruleValidation'
+                },
+            ];
+            if(this.isDeepValid(validations)) {
                 var newPolicyData = $.extend(true,{},this.model().attributes);
                 var selectedProjectUUID = ctwu.getGlobalVariable('project').uuid;
                 var selectedDomain = ctwu.getGlobalVariable('domain').name;
                 var selectedProject = ctwu.getGlobalVariable('project').name;
 
                 newPolicyData["fq_name"] =
-                          [selectedDomain,selectedProject,newPolicyData.name];
+                          [selectedDomain,selectedProject,newPolicyData.policyName];
                 newPolicyData["parent_uuid"] = selectedProjectUUID;
-
+                newPolicyData["parent_type"] = "project";
                 var policeyRuleJSON =
                   newPolicyData["network_policy_entries"]["policy_rule"];
                 var policeyRuleVal = $.extend(true,{},policeyRuleJSON);
@@ -183,8 +200,12 @@ define([
                             newPoliceyRule[i].action_list.apply_service = null;
                         } else {
                             newPoliceyRule[i].action_list.apply_service = [];
-                            newPoliceyRule[i].action_list.apply_service =
-                                policeyRule[i].service_instance().split(",");
+                            var SIVal = policeyRule[i].service_instance().split(",");
+                            var SIValLen = SIVal.lengh;
+                            for(var m = 0; m < SIValLen; m++) {
+                                SIVal[m] = SIVal[m].split(" ")[0];
+                            }
+                            newPoliceyRule[i].action_list.apply_service = SIVal;
                         }
                     }
                     delete(policeyRule[i])
@@ -192,21 +213,21 @@ define([
                 if(policeyRuleLen > 0) {
                     newPolicyData["network_policy_entries"]["policy_rule"] =
                                                            newPoliceyRule;
-                    delete(newPolicyData.policyRules);
+                    delete(newPolicyData.PolicyRules);
                 } else {
                     delete newPolicyData.network_policy_entries;
                 }
                 if (mode=="add") {
-                    newPolicyData["display_name"] = newPolicyData.name;
+                    newPolicyData["display_name"] = newPolicyData.policyName;
                     delete(newPolicyData.PolicyUUID);
                 } else {
                     delete(newPolicyData.parent_uuid);
                 }
                 delete(newPolicyData.errors);
                 delete(newPolicyData.locks);
-                delete(newPolicyData.policyRules);
+                delete(newPolicyData.PolicyRules);
                 delete(newPolicyData.rawData);
-                delete(newPolicyData.name);
+                delete(newPolicyData.policyName);
                 delete(newPolicyData.templateGeneratorData);
                 delete(newPolicyData.elementConfigMap);
                 if('cgrid' in newPolicyData)

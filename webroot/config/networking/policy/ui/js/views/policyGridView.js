@@ -76,7 +76,7 @@ define([
             policyCreateEditView.model = policyModel;
             policyCreateEditView.renderDeletePolicy({
                                   "title": ctwl.TITLE_REMOVE,
-                                  selectedGridData: [dataItem],
+                                  selectedGridData: [dataItem.name],
                                   callback: function() {
                 var dataView =
                     $(gridElId).data("contrailGrid")._dataView;
@@ -253,7 +253,7 @@ define([
         return policyFormatters.PolicyRulesExpandFormatter("", "", v, "", dc);
     };
     this.AssociatedNetworksFormatter = function (v, dc) {
-        return policyFormatters.AssociatedNetworksFormatter("", "", v, "", dc);
+        return policyFormatters.AssociatedNetworksFormatterExpand("", "", v, "", dc);
     };
     this.PolicyNameFormatter = function(v, dc) {
         return policyFormatters.PoliceyNameFormatter("", "", v, "", dc);

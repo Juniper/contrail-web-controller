@@ -9,6 +9,7 @@ define([
 ], function (_, ContrailModel, PolicyFormatters) {
     var policyFormatters = new PolicyFormatters();
     var popupData = [];
+    var self;
     var RuleModel = ContrailModel.extend({
         defaultConfig: {
             'action_list':{'simple_action':'pass',
@@ -58,6 +59,7 @@ define([
             }
         },
         formatModelConfig: function (modelConfig) {
+            self = this;
             var domain = ctwu.getGlobalVariable('domain').name,
                 project = ctwu.getGlobalVariable('project').name;
             modelConfig["action_list"]["simple_action"] =
@@ -65,7 +67,7 @@ define([
             modelConfig["simple_action"] =
                     (modelConfig["action_list"]["simple_action"]).toUpperCase();
             modelConfig["protocol"] = (modelConfig["protocol"]).toUpperCase();
-            if(modelConfig["action_list"]["apply_service"] != null &&
+            if (modelConfig["action_list"]["apply_service"] != null &&
                modelConfig["action_list"]["apply_service"].length > 0) {
                 modelConfig["service_instance"] =
                        modelConfig["action_list"]["apply_service"].join(",");
@@ -74,11 +76,11 @@ define([
             }
             modelConfig["mirror"] = modelConfig["action_list"]["mirror_to"];
             modelConfig["log_checked"] = modelConfig["action_list"]["log"];
-            if(modelConfig["service_instance"] == null)
+            if (modelConfig["service_instance"] == null)
                 modelConfig["apply_service_check"] = false;
             else
                 modelConfig["apply_service_check"] = true;
-            if(modelConfig["action_list"]["mirror_to"] == null ||
+            if (modelConfig["action_list"]["mirror_to"] == null ||
                (modelConfig["action_list"]["mirror_to"] != null &&
                 "analyzer_name" in modelConfig["action_list"]["mirror_to"] &&
                 modelConfig["action_list"]["mirror_to"]["analyzer_name"] == null))
@@ -91,18 +93,18 @@ define([
                 modelConfig["mirror_to_check"] = true;
             }
             popupData = modelConfig["popupData"];
-            if(modelConfig["src_addresses"][0] != null) {
+            if (modelConfig["src_addresses"][0] != null) {
                 modelConfig["src_addresses_arr"] =
                            modelConfig["src_addresses"][0];
             } else {
                 modelConfig["src_addresses"][0] =
                            modelConfig["src_addresses_arr"];
             }
-            if(modelConfig["src_addresses"][0]["virtual_network"] != null){
+            if (modelConfig["src_addresses"][0]["virtual_network"] != null) {
                 var vnText = modelConfig["src_addresses"][0]["virtual_network"];
-                if(modelConfig["src_addresses"][0]["virtual_network"] == "any") {
+                if (modelConfig["src_addresses"][0]["virtual_network"] == "any") {
                     vnText = "ANY (All Networks in Current Project)";
-                } else if(modelConfig["src_addresses"][0]["virtual_network"] == "local") {
+                } else if (modelConfig["src_addresses"][0]["virtual_network"] == "local") {
                     vnText = "LOCAL (All Networks to which this policy is associated)";
                 }
                 var src_addresses =
@@ -119,7 +121,7 @@ define([
                     'id':src_addresses,
                     'groupName': 'Networks'};
                 modelConfig["src_addresses"] = src_addresses;
-            } else if(modelConfig["src_addresses"][0]["network_policy"] != null) {
+            } else if (modelConfig["src_addresses"][0]["network_policy"] != null) {
                 var src_addresses =
                            modelConfig["src_addresses"][0]["network_policy"]+
                            "~network_policy";
@@ -134,7 +136,7 @@ define([
                     'id':src_addresses,
                     'groupName': 'Policies'};
                 modelConfig["src_addresses"] = src_addresses;
-            } else if(modelConfig["src_addresses"][0]["subnet"] != null) {
+            } else if (modelConfig["src_addresses"][0]["subnet"] != null) {
                 var subnet =
                     modelConfig["src_addresses"][0]["subnet"]["ip_prefix"]
                     + "/" +
@@ -145,16 +147,16 @@ define([
                                                   'groupName': 'CIDR'}
             }
 
-            if(modelConfig["dst_addresses"][0] != null) {
+            if (modelConfig["dst_addresses"][0] != null) {
                 modelConfig["dst_addresses_arr"] = modelConfig["dst_addresses"][0];
             } else {
                 modelConfig["dst_addresses"][0] = modelConfig["dst_addresses_arr"];
             }
-            if(modelConfig["dst_addresses"][0]["virtual_network"] != null){
+            if (modelConfig["dst_addresses"][0]["virtual_network"] != null) {
                 var vnText = modelConfig["dst_addresses"][0]["virtual_network"];
-                if(modelConfig["dst_addresses"][0]["virtual_network"] == "any") {
+                if (modelConfig["dst_addresses"][0]["virtual_network"] == "any") {
                     vnText = "ANY (All Networks in Current Project)";
-                } else if(modelConfig["dst_addresses"][0]["virtual_network"] == "local") {
+                } else if (modelConfig["dst_addresses"][0]["virtual_network"] == "local") {
                     vnText = "LOCAL (All Networks to which this policy is associated)";
                 }
                 var dst_addresses =
@@ -172,7 +174,7 @@ define([
                     'id':dst_addresses,
                     'groupName': 'Networks'};
                 modelConfig["dst_addresses"] = dst_addresses;
-            } else if(modelConfig["dst_addresses"][0]["network_policy"] != null) {
+            } else if (modelConfig["dst_addresses"][0]["network_policy"] != null) {
                 var dst_addresses =
                            modelConfig["dst_addresses"][0]["network_policy"]+
                            "~network_policy";
@@ -186,7 +188,7 @@ define([
                     'id':dst_addresses,
                     'groupName': 'Policies'};
                 modelConfig["dst_addresses"] = dst_addresses;
-            } else if(modelConfig["dst_addresses"][0]["subnet"] != null) {
+            } else if (modelConfig["dst_addresses"][0]["subnet"] != null) {
                 var subnet =
                     modelConfig["dst_addresses"][0]["subnet"]["ip_prefix"]
                     + "/" +
@@ -216,138 +218,161 @@ define([
         },
         validations: {
             ruleValidation: {
-               /*'service_instance': function(val, attr, data) {
-                    if(val != "") {
-                        if(data.src_ports != "ANY") {
-                             return "Source Port has to be ANY if Service\
-                                    Instance is enabled.";
-                        }
-                        if(data.dst_ports != "ANY") {
-                             return "Destination Port has to be ANY if Service\
-                                     Instance is enabled.";
-                        }
+               'service_instance': function(val, attr, data) {
+                    if (data.apply_service_check != true) {
+                        return;
                     }
-                },*/
-                'src_address': function(val, attr, data) {
-                    if(val != "") {
-                        var address = val.split("~");
-                        if(address.length == 2 && address[1] == 'subnet') {
-                            if(!validateIPAddress(address[0].trim()) ||
-                                address[0]("/").length != 2) {
-                                return "Enter a valid CIDR in \
-                                       xxx.xxx.xxx.xxx/xx format for Source";
+                    if (val == "" || val == null) {
+                        return "Select atleast one service to apply.";
+                    }
+                    var valArr = val.split(",");
+                    var valArrLen = valArr.length;
+                    var SIValue = valArr[valArrLen-1].split(" ");
+                    if (SIValue.length >= 2 && SIValue[1] != "in-network-nat") {
+                        return "Last instance should be of 'in-network-nat'\
+                                service mode while applying services."
+                    }
+                    var inNetworkTypeCount = 0;
+                    for (var i = 0; i < valArrLen; i++) {
+                        var SIValue = valArr[i].split(" ");
+                        if (SIValue.length >= 2 && SIValue[1] == "in-network-nat") {
+                            inNetworkTypeCount++;
+                            if (inNetworkTypeCount >= 2) {
+                                return "Cannot have more than one 'in-network-nat'\
+                                        services."
                             }
                         }
+                    }
+                    var error = self.isBothSrcDscCIDR(data);
+                    if (error != "") {
+                        return error;
+                    }
+                    var result = self.checkAnyOrLocal(data, "src_address");
+                    if(result == true) {
+                        return "Source network cannot be 'any' or 'local' while applying services.";
+                    }
+                    result = self.checkAnyOrLocal(data, "dst_address");
+                    if(result == true) {
+                        return "Destination network cannot be 'any' or 'local' while applying services.";
+                    }
+
+                },
+                'src_address': function(val, attr, data) {
+                    var result = self.validateAddressFormat(val, "Source");
+                    if (result != "") {
+                        return result
+                    }
+                    var error = self.isBothSrcDscCIDR(data);
+                    if (error != "") {
+                        return error;
+                    }
+                    var result = self.checkAnyOrLocal(data, "src_address");
+                    if(result == true) {
+                        return "Source network cannot be 'any' or 'local' while applying services.";
                     }
                 },
                 'dst_address': function(val, attr, data) {
-                    if(val != "") {
-                        var address = val.split("~");
-                        if(address.length == 2 && address[1] == 'subnet') {
-                            if(!validateIPAddress(address[0].trim()) ||
-                                address[0]("/").length != 2) {
-                                return "Enter a valid CIDR in \
-                                    xxx.xxx.xxx.xxx/xx format for Destination";
-                            }
-                        }
+                    var result = self.validateAddressFormat(val, "Destination");
+                    if (result != "") {
+                        return result
+                    }
+                    var error = self.isBothSrcDscCIDR(data);
+                    if (error != "") {
+                        return error;
+                    }
+                    var result = self.checkAnyOrLocal(data, "dst_address");
+                    if(result == true) {
+                        return "Destination network cannot be 'any' or 'local' while applying services.";
                     }
                 },
-                'mirror_to_check': function(val, attr, data) {
-                    if(val == true) {
-                        if(data.mirror.length == 0) {
-                            return "Select atleast one instance to mirror.";
-                        }
-                        if(data.mirror.length > 0) {
-                            return "Select only one instance to mirror.";
-                        }
-                        // Only Protocol ANY is allowed when service chaining is selected.
-                        if(data.apply_service_check === true &&
-                           data.protocol !== "any") {
-                           return "Only 'ANY' protocol allowed while mirroring services."
-                        }
+                'protocol' : function(val, attr, data) {
+                    if (val == "") {
+                        return "Select a valid Protocol.";
                     }
                 },
-                'apply_service_check': function(val, attr, data) {
-                    if(val == true) {
-                        if(data.service_instance.length == 0) {
-                            return "Select atleast one service to apply.";
-                        }
-                        if(data.src_addresses == "any" ||
-                          data.src_addresses == "local") {
-                            return "Source network cannot be 'any' or 'local' \
-                                   while applying services."
-                        }
-                        if(data.dst_addresses == "any" ||
-                          data.dst_addresses == "local") {
-                            return "Destination network cannot be 'any' or\
-                                    'local' while applying services."
-                        }
+                'simple_action' : function(val, attr, data) {
+                    if (val == "") {
+                        return "Select a valid Action.";
                     }
-                    /* need to be done
-                    var allTemplates =
-                        jsonPath(configObj, "$.service_templates[*].service-template")
-                    for(var j=0; j<applyServices.length; j++) {
-                        var as = [];
-                        if(applyServices[j].indexOf(":") === -1) {
-                            as = [selectedDomain,
-                                  selectedProject,
-                                  applyServices[j]];
-                        } else {
-                            as = applyServices[j].split(":");
-                        }
-                        for(tmplCount = 0; tmplCount < allTemplates.length;
-                              tmplCount++) {
-                            var template = allTemplates[tmplCount];
-                            var insts = template.service_instance_back_refs;
-                            if(null !== insts &&
-                                typeof insts !== "undefined" &&
-                                insts.length > 0) {
-                                for(var instCount=0; instCount < insts.length;
-                                instCount++) {
-                                    if(insts[instCount]["to"][0] == as[0] &&
-                                        insts[instCount]["to"][1] == as[1] &&
-                                        insts[instCount]["to"][2] == as[2]) {
-                                        var smode =
-                                         template.service_template_properties.service_mode;
-                                        if(typeof smode === "undefined" ||
-                                            null === smode)
-                                            smode = "transparent";
-                                        allTypes[allTypes.length] = smode;
-                                        asArray[asArray.length] = as.join(":");
-                                        allInterface.push(
-                                                   {"mode":smode,"inst":as[2]});
-                                        break;
-                                    }
-                                }
-                            }
-                        }
+                },
+                'mirror': function(val, attr, data) {
+                    if (data.mirror_to_check != true) {
+                        return;
                     }
-                    var inNetworkCount = 0;
-                    for(var temp = 0;temp < allInterface.length;temp++){
-                        if(allInterface[temp].mode == "in-network-nat")
-                            inNetworkCount++;
-                        if(inNetworkCount >= 2){
-                             return "Cannot have more than one 'in-network-nat'\
-                                     services.";
-                        }
+                    var error = self.isBothSrcDscCIDR(data);
+                    if (error != "") {
+                        return error;
                     }
-                    if(inNetworkCount >= 1 &&
-                       allInterface[allInterface.length-1].mode
-                       != "in-network-nat"){
-                        return "Last instance should be of 'in-network-nat'\
-                                service mode while applying services.";
-                        return false;
-                    }*/
                 }
             }
         },
+        isBothSrcDscCIDR: function(data) {
+            var msg = "";
+            if (data.apply_service_check != true) {
+                return msg;
+            }
+            var sourceAddress = getValueByJsonPath(data, "src_address", "");
+            var destAddress = getValueByJsonPath(data, "dst_address", "");
+            var sourceAddressArr = sourceAddress.split("~");
+            var destAddressArr = destAddress.split("~");
+            if (sourceAddressArr[1] == "subnet" && destAddressArr[1] == "subnet") {
+                msg =  "Both Source and Destination cannot be CIDRs\
+                                while applying/mirroring services.";
+            }
+            return msg;
+        },
+        checkAnyOrLocal: function(data, path) {
+            if (data.apply_service_check != true) {
+                return false;
+            }
+            var address = getValueByJsonPath(data, path, "");
+            var addressArr = address.split("~");
+            if (addressArr.length >= 2 && 
+                addressArr[1] == "virtual_network" &&
+                (addressArr[0] == "any" ||
+                 addressArr[0] == "local")) {
+                 return true
+            }
+            return false;
+        },
+        validateAddressFormat: function(val, srcOrDesString) {
+            if (val == "") {
+                return "Enter a valid "+srcOrDesString+" Address";
+            }
+            var address = val.split("~");
+            if (address.length == 2) {
+                var value = address[0].trim();
+                var group = address[1];
+                if (group == 'subnet') {
+                    if (!isValidIP(value) ||
+                        value.split("/").length != 2) {
+                        return "Enter a valid CIDR in \
+                            xxx.xxx.xxx.xxx/xx format for "+srcOrDesString;
+                    }
+                }
+                var addValue = value.split(":");
+                if (addValue.length != 1 && addValue.length != 3) {
+                    var groupSelectedString = "";
+                    if (group == "virtual_network") {
+                        groupSelectedString = "Network";
+                    } else if (group == "network_policy") {
+                        groupSelectedString = "Policy";
+                    }
+                    return "Fully Qualified Name of "+srcOrDesString+ " " +
+                                groupSelectedString +
+                                " should be in the format \
+                                Domain:Project:NetworkName.";
+                }
+            }
+            return "";
+        },
         formatPortAddress: function(portArr) {
             var ports_text = "";
-            if(portArr != "" && portArr.length > 0) {
+            if (portArr != "" && portArr.length > 0) {
                 var ports_len = portArr.length;
-                for(var i=0;i< ports_len; i++) {
-                    if(ports_text != "") ports_text += ", ";
-                    if(portArr[i]["start_port"] == -1 &&
+                for (var i=0;i< ports_len; i++) {
+                    if (ports_text != "") ports_text += ", ";
+                    if (portArr[i]["start_port"] == -1 &&
                        portArr[i]["end_port"] == -1) {
                         ports_text = "ANY";
                     } else {
@@ -358,7 +383,7 @@ define([
                     }
                 }
             }
-            if(ports_text == "") {
+            if (ports_text == "") {
                 ports_text = "ANY";
             }
             return ports_text;
