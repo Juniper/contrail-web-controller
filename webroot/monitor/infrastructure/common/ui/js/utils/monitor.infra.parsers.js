@@ -1815,7 +1815,14 @@ define(
                        obj['formattedSrcVN'] = formattedSrcVN[0];
                        obj['formattedDestVN'] = formattedDestVN[0];
                     });
-
+                    response['data'].sort(function(dataItem1,dataItem2){
+                        if(dataItem1['vrouter_ip'] != null  && dataItem1['other_vrouter_ip']!= null)
+                            return -2;
+                        else if (dataItem1['vrouter_ip'] != null || dataItem1['other_vrouter_ip'] != null)
+                            return -1;
+                        else
+                            return 1;
+                    });
                     return response['data'];
                 }
 
