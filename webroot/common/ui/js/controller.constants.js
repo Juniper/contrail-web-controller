@@ -562,9 +562,9 @@ define([
             '/api/tenants/config/virtual-routers-detail';
         this.URL_PHYSICAL_ROUTER_CREATE =
             '/api/tenants/config/physical-routers';
-        this.URL_BGP_ROUTER_DETAILS = 'api/admin/nodes/bgp';
+        this.URL_BGP_ROUTER_DETAILS = '/api/admin/nodes/bgp';
         this.URL_VIRTUAL_NETWORK_DETAILS =
-            'api/tenants/config/virtual-networks';
+            '/api/tenants/config/virtual-networks';
         this.SNMP_VERSION_DATA = [
             {'value' : '2', "label" : '2c'},
             {'value' : '3', "label" : '3'}

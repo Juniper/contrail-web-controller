@@ -217,7 +217,7 @@ define([
                                         dataValueField : "id",
                                         dataSource : {
                                             type: 'remote',
-                                            url: 'api/tenants/config/service-template-images',
+                                            url: '/api/tenants/config/service-template-images',
                                             parse: formatSvcTemplateCfg.imageDropDownFormatter
                                         }
                                     }
@@ -399,7 +399,7 @@ define([
                                                     dataSource : {
                                                         type: 'remote',
                                                         //domain for , why?
-                                                        url: 'api/tenants/config/system-flavors',
+                                                        url: '/api/tenants/config/system-flavors',
                                                         parse: formatSvcTemplateCfg.flavorDropDownFormatter
                                                     }
                                                 }
