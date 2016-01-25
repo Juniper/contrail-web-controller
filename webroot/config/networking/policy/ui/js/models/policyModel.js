@@ -9,7 +9,6 @@ define([
     'config/networking/policy/ui/js/views/policyFormatters'
 ], function (_, ContrailModel, RuleModel, PolicyFormatters) {
     var policyFormatters = new PolicyFormatters();
-    var popupData = [];
     var policyModel = ContrailModel.extend({
         defaultConfig: {
             'fq_name':null,
@@ -18,52 +17,45 @@ define([
             'network_policy_entries':{'policy_rule':[]},
             'templateGeneratorData': 'rawData',
             'PolicyUUID':'',
-            'name':''
+            'policyName':''
         },
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
             modelConfig['rawData'] = config;
             var ruleModels = [];
             var rulesList = modelConfig["network_policy_entries"]["policy_rule"];
-            if(modelConfig['fq_name'] != null &&
-               modelConfig['fq_name'].length >= 3) {
-                modelConfig["name"] = modelConfig['fq_name'][2];
+            var policyName = getValueByJsonPath(modelConfig, "fq_name;2", "");
+            if (policyName != "") {
+                modelConfig["policyName"] = policyName;
             }
-            if(rulesList != null && rulesList.length > 0) {
-                for(var i = 0; i < rulesList.length; i++) {
+            if (rulesList != null && rulesList.length > 0) {
+                for (var i = 0; i < rulesList.length; i++) {
                     var rule_obj = rulesList[i];
                     var ruleModel = new RuleModel(rule_obj);
                     this.showHideServiceInstance(ruleModel);
                     ruleModels.push(ruleModel)
                 }
             }
-            var rulesCollectionModel =
-                                     new Backbone.Collection(ruleModels);
-            modelConfig['policyRules'] = rulesCollectionModel;
+            var rulesCollectionModel = new Backbone.Collection(ruleModels);
+            modelConfig['PolicyRules'] = rulesCollectionModel;
             modelConfig["network_policy_entries"]["policy_rule"] =
                                                      rulesCollectionModel;
             return modelConfig;
         },
         validations: {
             policyValidations: {
-                'name': {
+                'policyName': {
                     required: true,
                     msg: 'Enter a valid Policy Name.'
                 }
             }
         },
         addRule: function() {
-            var rulesList = this.model().attributes['policyRules'],
+            var rulesList = this.model().attributes['PolicyRules'],
                 newRuleModel = new RuleModel();
-            /*newRuleModel.__kb.model.on('change:apply_service_check',
-                        function(updatedModel) {
-                            console.info('name changed',updatedModel);
-                        });*/
             this.showHideServiceInstance(newRuleModel);
 
             rulesList.add([newRuleModel]);
-            //to wrap
-            //policyFormatters.formAddedRule();
         },
         deleteRules: function(data, rules) {
             var rulesCollection = data.model().collection,
@@ -72,7 +64,7 @@ define([
         },
         showHideServiceInstance: function(ruleModels) {
             ruleModels.showService = ko.computed((function() {
-                if(this.apply_service_check() == true) {
+                if (this.apply_service_check() == true) {
                         this.direction("<>");
                         this.simple_action("PASS");
                         return true;
@@ -81,29 +73,44 @@ define([
                 }
             }), ruleModels);
             ruleModels.showMirror = ko.computed((function(){
-                return (this.mirror_to_check)
+                if (this.mirror_to_check() == true) {
+                    this.protocol("ANY");
+                    return (this.mirror_to_check);
+                } else {
+                    return false;
+                }
             }), ruleModels);
         },
-        configurePolicy: function (mode, allData, callbackObj) {
+        configurePolicy: function (mode, callbackObj) {
             var ajaxConfig = {}, returnFlag = true;
-            popupData = allData;
-            if (this.model().isValid(true, "policyValidations")) {
-                var newPolicyData = $.extend(true,{},this.model().attributes);
-                var selectedProjectUUID = ctwu.getGlobalVariable('project').uuid;
-                var selectedDomain = ctwu.getGlobalVariable('domain').name;
-                var selectedProject = ctwu.getGlobalVariable('project').name;
-
+            var validations = [
+                {
+                    key : null,
+                    type : cowc.OBJECT_TYPE_MODEL,
+                    getValidation : 'policyValidations'
+                },
+                {
+                    key : 'PolicyRules',
+                    type : cowc.OBJECT_TYPE_COLLECTION,
+                    getValidation : 'ruleValidation'
+                },
+            ];
+            if (this.isDeepValid(validations)) {
+                var newPolicyData = $.extend(true,{},this.model().attributes),
+                    selectedProjectUUID = ctwu.getGlobalVariable('project').uuid,
+                    selectedDomain = ctwu.getGlobalVariable('domain').name,
+                    selectedProject = ctwu.getGlobalVariable('project').name;
                 newPolicyData["fq_name"] =
-                          [selectedDomain,selectedProject,newPolicyData.name];
+                    [selectedDomain,selectedProject,newPolicyData.policyName];
                 newPolicyData["parent_uuid"] = selectedProjectUUID;
-
+                newPolicyData["parent_type"] = "project";
                 var policeyRuleJSON =
-                  newPolicyData["network_policy_entries"]["policy_rule"];
-                var policeyRuleVal = $.extend(true,{},policeyRuleJSON);
-                var policeyRule = policeyRuleVal.toJSON();
-                var newPoliceyRule = [];
+                  newPolicyData["network_policy_entries"]["policy_rule"],
+                    policeyRuleVal = $.extend(true,{},policeyRuleJSON),
+                    policeyRule = policeyRuleVal.toJSON(),
+                    newPoliceyRule = [];
                 policeyRuleLen = policeyRule.length;
-                for (var i=0;i<policeyRuleLen;i++){
+                for (var i = 0; i < policeyRuleLen; i++){
                     newPoliceyRule[i] = {};
                     newPoliceyRule[i].action_list =
                                       policeyRule[i].action_list();
@@ -128,7 +135,7 @@ define([
                     newPoliceyRule[i].dst_addresses[0]["network_policy"] = null;
                     var desArr = policeyRule[i].dst_address().split("~");
                     //var desArr = policeyRule[i].dst_customValue().value.split("~");
-                    if(desArr.length == 2 && desArr[1] !== 'subnet') {
+                    if (desArr.length == 2 && desArr[1] !== 'subnet') {
                         var remoteAddrArr = desArr[0].split(':');
                         newPoliceyRule[i].dst_addresses[0][desArr[1]] = desArr[0];
                     } else {
@@ -147,7 +154,7 @@ define([
                     newPoliceyRule[i].src_addresses[0]["network_policy"] = null;
                     var srcArr = policeyRule[i].src_address().split("~");
                     //var srcArr = policeyRule[i].src_customValue().value.split("~");
-                    if(srcArr.length == 2 && srcArr[1] != 'subnet') {
+                    if (srcArr.length == 2 && srcArr[1] != 'subnet') {
                         newPoliceyRule[i].src_addresses[0][srcArr[1]] = srcArr[0];
                     } else {
                         newPoliceyRule[i].src_addresses[0]["subnet"] = {};
@@ -163,10 +170,10 @@ define([
                     newPoliceyRule[i].dst_ports =
                             policyFormatters.formatPort
                                             (policeyRule[i].dst_ports_text());
-                    if(policeyRule[i].mirror_to_check() != true) {
+                    if (policeyRule[i].mirror_to_check() != true) {
                         newPoliceyRule[i].action_list.mirror_to = null;
                     } else {
-                        if(policeyRule[i].mirror() == "") {
+                        if (policeyRule[i].mirror() == "") {
                             newPoliceyRule[i].action_list.mirror_to = null;
                         } else {
                             newPoliceyRule[i].action_list.mirror_to = {};
@@ -175,45 +182,49 @@ define([
                                  mirrorVal;
                         }
                     }
-                    if(policeyRule[i].apply_service_check() != true) {
+                    if (policeyRule[i].apply_service_check() != true) {
                         newPoliceyRule[i].action_list.apply_service = null;
                     } else {
-                        if(policeyRule[i].service_instance() == "" ||
+                        if (policeyRule[i].service_instance() == "" ||
                            policeyRule[i].service_instance() == null) {
                             newPoliceyRule[i].action_list.apply_service = null;
                         } else {
                             newPoliceyRule[i].action_list.apply_service = [];
-                            newPoliceyRule[i].action_list.apply_service =
-                                policeyRule[i].service_instance().split(",");
+                            var SIVal = policeyRule[i].service_instance().split(",");
+                            var SIValLen = SIVal.lengh;
+                            for (var m = 0; m < SIValLen; m++) {
+                                SIVal[m] = SIVal[m].split(" ")[0];
+                            }
+                            newPoliceyRule[i].action_list.apply_service = SIVal;
                         }
                     }
                     delete(policeyRule[i])
                 }
-                if(policeyRuleLen > 0) {
+                if (policeyRuleLen > 0) {
                     newPolicyData["network_policy_entries"]["policy_rule"] =
                                                            newPoliceyRule;
-                    delete(newPolicyData.policyRules);
+                    delete(newPolicyData.PolicyRules);
                 } else {
                     delete newPolicyData.network_policy_entries;
                 }
-                if (mode=="add") {
-                    newPolicyData["display_name"] = newPolicyData.name;
+                if (mode == "add") {
+                    newPolicyData["display_name"] = newPolicyData.policyName;
                     delete(newPolicyData.PolicyUUID);
                 } else {
                     delete(newPolicyData.parent_uuid);
                 }
                 delete(newPolicyData.errors);
                 delete(newPolicyData.locks);
-                delete(newPolicyData.policyRules);
+                delete(newPolicyData.PolicyRules);
                 delete(newPolicyData.rawData);
-                delete(newPolicyData.name);
+                delete(newPolicyData.policyName);
                 delete(newPolicyData.templateGeneratorData);
                 delete(newPolicyData.elementConfigMap);
-                if('cgrid' in newPolicyData)
+                if ('cgrid' in newPolicyData)
                     delete(newPolicyData.cgrid);
-                if('parent_href' in newPolicyData)
+                if ('parent_href' in newPolicyData)
                     delete(newPolicyData.parent_href);
-                if('PolicyUUID' in newPolicyData)
+                if ('PolicyUUID' in newPolicyData)
                     delete(newPolicyData.PolicyUUID);
 
                 console.log(newPolicyData);
@@ -222,7 +233,7 @@ define([
                 postData["network-policy"] = newPolicyData;
                 var type = "";
                 var url = "";
-                if(mode == "add") {
+                if (mode == "add") {
                 //create//
                     type = "POST";
                     url = "/api/tenants/config/policys";
@@ -264,10 +275,9 @@ define([
             return returnFlag;
         },
         deletePolicy: function(selectedGridData, callbackObj) {
-            var ajaxConfig = {}, returnFlag = false;
-            var uuid = selectedGridData[0]["uuid"];
-            var delDataID = [];
-            for(var i=0;i<selectedGridData.length;i++) {
+            var ajaxConfig = {}, returnFlag = false,
+                delDataID = [];
+            for (var i = 0; i < selectedGridData.length; i++) {
                 delDataID.push(selectedGridData[i]["uuid"]);
             }
             var sentData = [{"type": "network-policy", "deleteIDs": delDataID}];
