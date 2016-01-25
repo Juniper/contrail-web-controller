@@ -1234,10 +1234,10 @@ define([
                             _this.populateModelAndAddToGraph(null);
                         }
                     }]
-                },
-                cacheConfig: {
+                }
+                /*cacheConfig: {
                     ucid: ctwc.UNDERLAY_TOPOLOGY_CACHE
-                },
+                }*/,
             };
         },
 
