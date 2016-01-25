@@ -140,6 +140,20 @@ define([
         };
 
         /*
+         * @physicalInfRefsFormatter
+         */
+        self.physicalInfRefsFormatter = function(r, c, v, cd, dc) {
+            var physicalInfStr = "";
+            if(dc.type === ctwl.PHYSICAL_INF) {
+                physicalInfStr = getValueByJsonPath(dc,
+                    "physical_interface_refs;0;to;2", "-");
+            } else {
+                physicalInfStr = "-";
+            }
+            return physicalInfStr;
+        };
+
+        /*
          * @vlanFormatter
          */
         self.vlanFormatter = function(r, c, v, cd, dc) {

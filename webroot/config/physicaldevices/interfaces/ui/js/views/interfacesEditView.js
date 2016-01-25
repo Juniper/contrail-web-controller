@@ -218,7 +218,7 @@ define([
         setJunosPhysicalInf : function(inf) {
             var actInf = inf;
             var junosInf = inf + '.0';
-            if(self.isItemExists(junosInf, self.getParentData())) {
+            if(self.isItemExists(junosInf, self.model.getPhysicalInterfaceData())) {
                 actInf = junosInf;
             }
             return actInf;
@@ -431,13 +431,6 @@ define([
             }
             return mac;
         },
-        getParentData : function() {
-            var pInterfaceDS = [];
-            if(window.inf !== undefined){
-                pInterfaceDS = window.inf.pInterfaceDS;
-            }
-            return pInterfaceDS;
-        },
         getInterfaceConfig : function(disableId) {
             return {
                 elementId: ctwl.INTERFACE_PREFIX_ID,
@@ -445,7 +438,7 @@ define([
                 viewConfig: {
                     rows: [
                         infConfigTemplates.infFixedSection(disableId,
-                            self.getParentData()),
+                            self.model.getPhysicalInterfaceData()),
                         infConfigTemplates.infVariableSection(disableId, self)
                     ]
                 }

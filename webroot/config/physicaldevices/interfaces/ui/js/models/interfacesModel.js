@@ -30,7 +30,10 @@ define([
                     }
                 }
             },
-            'parent_type' : null
+            'parent_type' : null,
+            'physical_interface_refs' : [],
+            'user_created_physical_interface' : null,
+            'physicalInfRefsDataSrc' : []
         },
         formatModelConfig: function (modelConfig) {
             self = this;
@@ -78,6 +81,24 @@ define([
             }
             serverCollectionModel = new Backbone.Collection(serverModels);
             modelConfig['servers'] = serverCollectionModel;
+
+            //populate physical interface refs data source
+            if(modelConfig["type"] ===  ctwl.PHYSICAL_INF) {
+                modelConfig["physicalInfRefsDataSrc"] =
+                   self.getPhysicalInterfaceData("refs", modelConfig["name"]);
+                var physicalInf = getValueByJsonPath(modelConfig,
+                    "physical_interface_refs;0;to;2", null);
+                if(physicalInf) {
+                    modelConfig["user_created_physical_interface"] = physicalInf;
+                } else {
+                    modelConfig["user_created_physical_interface"] =  "None";
+                }
+
+            } else {
+                modelConfig["physicalInfRefsDataSrc"] =
+                   self.getPhysicalInterfaceData("refs");
+                modelConfig["user_created_physical_interface"] =  "None";
+            }
             return modelConfig;
         },
         subscribeServerModelChangeEvents: function (serverModel) {
@@ -86,6 +107,25 @@ define([
                      self.setServerIP(model, text);
                 }
             );
+        },
+        getPhysicalInterfaceData : function(refs, physicalInfName) {
+            var pInterfaceDS = [];
+            if(window.inf !== undefined){
+                pInterfaceDS = $.extend(true, [], window.inf.pInterfaceDS);
+            }
+            if(refs) {
+                pInterfaceDS =
+                    [{text: "None", value: "none"}].concat(pInterfaceDS);
+            }
+            if(physicalInfName) {
+                $.each(pInterfaceDS, function(id, pInterface) {
+                    if(pInterface.text === physicalInfName) {
+                        pInterfaceDS.splice(id, 1);
+                        return false;
+                    }
+                });
+            }
+            return pInterfaceDS;
         },
         setServerDataSource : function() {
             var servers = this.model().attributes['servers'].toJSON();
@@ -469,6 +509,35 @@ define([
             }
             return uuid;
         },
+        setPostDataPhysicaInfDetails : function(piName, piDispName, prName,
+            attr, ajaxOpt) {
+            var postObject = {};
+            var ajaxConfig = {};
+            var piRef = attr.user_created_physical_interface;
+            ajaxConfig.url = ajaxOpt.url + '/' + ctwl.PHYSICAL_INF;
+            postObject["physical-interface"] = {};
+            postObject["physical-interface"]["fq_name"] =
+                ["default-global-system-config",
+                prName, piName];
+            postObject["physical-interface"]["parent_type"] =
+                "physical-router";
+            postObject["physical-interface"]["name"] = piName;
+            postObject["physical-interface"]["display_name"] =
+                piDispName;
+            if(piRef && piRef != "None") {
+                postObject["physical-interface"]["physical_interface_refs"] =
+                    [{ "to" : ["default-global-system-config", prName, piRef]}];
+            } else {
+                postObject["physical-interface"]["physical_interface_refs"] = [];
+            }
+            if(ajaxOpt.type === 'PUT') {
+                postObject["physical-interface"]["uuid"] = attr.uuid;
+                ajaxConfig.url = ajaxConfig.url + '/' + attr.uuid;
+            }
+            ajaxConfig.data = JSON.stringify(postObject);
+            ajaxConfig.type = ajaxOpt.type;
+            return ajaxConfig;
+        },
         createUpdatePhysicalInterface : function(attr, callbackObj, ajaxOpt,
             editView) {
             var ajaxConfig = {};
@@ -487,18 +556,8 @@ define([
             ajaxConfig.type = ajaxOpt.type;
             //Only Physical interface case
             if(type === ctwl.PHYSICAL_INF) {
-                postObject["physical-interface"] = {};
-                postObject["physical-interface"]["fq_name"] =
-                ["default-global-system-config", pRouterDD.name, actName];
-                postObject["physical-interface"]["parent_type"] =
-                    'physical-router';
-                postObject["physical-interface"]["name"] = actName;
-                postObject["physical-interface"]["display_name"] = name;
-                if(ajaxOpt.type === 'PUT') {
-                    postObject["physical-interface"]["uuid"] = attr.uuid;
-                }
-                ajaxConfig.url = ajaxOpt.url + '/' + ctwl.PHYSICAL_INF;
-                ajaxConfig.data = JSON.stringify(postObject);
+                ajaxConfig = self.setPostDataPhysicaInfDetails(actName,
+                    name, pRouterDD.name, attr, ajaxOpt);
                 contrail.ajaxHandler(ajaxConfig, function () {
                         callbackObj.init();
                 }, function (response) {
@@ -589,26 +648,10 @@ define([
                     var piName = self.handleInterfaceName(piDispName);
                     /*Double creation case where Physical
                     interface is created first*/
-                    var pInterfaceDS;
-                    if(window.inf !== undefined){
-                        pInterfaceDS = window.inf.pInterfaceDS;
-                    }
+                    var pInterfaceDS = self.getPhysicalInterfaceData();
                     if(!editView.isItemExists(parent, pInterfaceDS)) {
-                        postObject["physical-interface"] = {};
-                        postObject["physical-interface"]["fq_name"] =
-                            ["default-global-system-config",
-                            pRouterDD.name, piName];
-                        postObject["physical-interface"]["parent_type"] =
-                            "physical-router";
-                        postObject["physical-interface"]["name"] = piName;
-                        postObject["physical-interface"]["display_name"] =
-                            piDispName;
-                        if(ajaxOpt.type === 'PUT') {
-                            postObject["physical-interface"]["uuid"] =
-                                attr.uuid;
-                        }
-                        ajaxConfig.data = JSON.stringify(postObject);
-                        ajaxConfig.url = ajaxOpt.url + '/' + 'physical';
+                        ajaxConfig = self.setPostDataPhysicaInfDetails(piName,
+                            piDispName, pRouterDD.name, attr, ajaxOpt);
                         contrail.ajaxHandler(ajaxConfig, function () {
                             callbackObj.init();
                         },
