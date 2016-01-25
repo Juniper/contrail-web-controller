@@ -1448,25 +1448,29 @@ define([
             }
         }
         //Default tooltip contents to show for infra nodes
-        self.getNodeTooltipContents = function(currObj,formatType) {
+        self.getNodeTooltipContents = function(currObj,cfg) {
             var tooltipContents = [
                 {label:'Host Name', value: currObj['name']},
                 {label:'Version', value:currObj['version']},
                 {label:'CPU', value:$.isNumeric(currObj['cpu']) ? currObj['cpu']  + '%' : '-'},
                 {label:'Memory', value:$.isNumeric(currObj['memory']) ? formatMemory(currObj['memory']) : currObj['memory']}
             ];
-            if(formatType == 'simple') {
+            //Get tooltipAlerts
+            tooltipContents = tooltipContents.concat(self.getTooltipAlerts(currObj));
+            var cfg = ifNull(cfg,{});
+            if(cfg['formatType'] == 'simple') {
                 return tooltipContents;
             } else {
                 return {
                     content: {
+                        iconClass : false,
                         info: tooltipContents.slice(1),
                         actions: [
                             {
                                 type: 'link',
                                 text: 'View',
                                 iconClass: 'icon-external-link',
-                                // callback: onScatterChartClick
+                                callback: cfg.onClickHandler
                             }
                         ]
                     },title : {
@@ -1720,25 +1724,60 @@ define([
             });
         },
         self.onvRouterDrillDown = function(currObj) {
-            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_vrouter'});
+            layoutHandler.setURLHashParams({
+                type: "vRouter",
+                view: "details",
+                focusedElement: {
+                    node: currObj['name'],
+                    tab: 'details'
+                }
+            }, {
+                p: 'mon_infra_vrouter'
+            });
         },
         self.onControlNodeDrillDown = function(currObj) {
-            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_control'});
+            layoutHandler.setURLHashParams({
+                node: currObj['name'],
+                tab: ''
+            }, {
+                p: 'mon_infra_control'
+            });
         },
         self.onAnalyticNodeDrillDown = function(currObj) {
-            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_analytics'});
+            layoutHandler.setURLHashParams({
+                node: currObj['name'],
+                tab: ''
+            }, {
+                p: 'mon_infra_analytics'
+            });
         },
         self.onConfigNodeDrillDown = function(currObj) {
-            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_config'});
+            layoutHandler.setURLHashParams({
+                node: currObj['name'],
+                tab: ''
+            }, {
+                p: 'mon_infra_config'
+            });
         },
         self.onDbNodeDrillDown = function(currObj) {
-            layoutHandler.setURLHashParams({node:currObj['name'], tab:''}, {p:'mon_infra_database'});
+            layoutHandler.setURLHashParams({
+                node: currObj['name'],
+                tab: ''
+            }, {
+                p: 'mon_infra_database'
+            });
         },
         self.vRouterTooltipFn = function(currObj,formatType) {
             if(currObj['children'] != null && currObj['children'].length == 1)
-                return self.getNodeTooltipContents(currObj['children'][0],formatType);
+                return self.getNodeTooltipContents(currObj['children'][0], {
+                    formatType: formatType,
+                    onClickHandler: monitorInfraUtils.onvRouterDrillDown
+                });
             else
-                return self.getNodeTooltipContents(currObj,formatType);
+                return self.getNodeTooltipContents(currObj, {
+                    formatType: formatType,
+                    onClickHandler: monitorInfraUtils.onvRouterDrillDown
+                });
         },
         self.vRouterBucketTooltipFn = function(currObj,formatType) {
             return self.getNodeTooltipContentsForBucket(currObj,formatType);
