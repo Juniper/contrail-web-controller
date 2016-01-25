@@ -28,8 +28,12 @@ define([
         validations: {
             svcApplInterfaceValidation: {
                 'interface_type': {
+                    required: true
                 },
-                'interface_name': {
+                'interface_name': function(val, attr, fieldObj) {
+                    if ((null == val) || (!val.trim().length)) {
+                        return 'Interface is required';
+                    }
                 }
             }
         }

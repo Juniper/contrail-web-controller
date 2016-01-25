@@ -61,6 +61,21 @@ define([
                 svcIntfTypes.join(', ') + ")]";
             return dispStr + ' - v' + svcTempVersion;
         },
+        this.getSvcTmplDetailsBySvcTmplStr = function(svcTmplStr) {
+            /* This function must be called after grid is initialized */
+            if (null == svcTmplStr) {
+                return null;
+            }
+            var gridElId = "#" + ctwl.SERVICE_INSTANCES_GRID_ID;
+            try {
+                var svcTmpls = $(gridElId).data('svcInstTmplts');
+            } catch(e) {
+                return null;
+            }
+            var svcTmplFqn = getCookie('domain') + ":" +
+                svcTmplStr.split(' - [')[0];
+            return svcTmpls[svcTmplFqn];
+        },
         this.getSvcTmplIntfTypes = function(svcTmpl) {
             var svcIntfTypes = [];
             var svcTempProp =
@@ -74,6 +89,43 @@ define([
                 svcIntfTypes.push(intfType[j]['service_interface_type']);
             }
             return svcIntfTypes;
+        },
+        this.getPortTuples = function(svcInstName, portTupleCollection) {
+            var nameList = [];
+            if (null == portTupleCollection) {
+                return nameList;
+            }
+            var len = portTupleCollection.length;
+            var models = portTupleCollection['models'];
+            for (var i = 0; i < len; i++) {
+                var attr = models[i]['attributes'];
+                nameList[i] = {};
+                var name = attr['portTupleName']();
+                var portTupleData = attr['portTupleData']();
+                nameList[i]['to'] = [contrail.getCookie('domain'),
+                    contrail.getCookie('project'), svcInstName, name];
+                if (null != portTupleData) {
+                    nameList[i]['uuid'] = portTupleData['uuid'];
+                }
+                var intfs = attr['portTupleInterfaces']();
+                var intfsCnt = intfs.length;
+                for (var j = 0; j < intfsCnt; j++) {
+                    if (0 == j) {
+                        nameList[i]['vmis'] = [];
+                    }
+                    var intfAttr = intfs[j].model().attributes;
+                    var vmi = intfAttr['interface']();
+                    if (null == vmi) {
+                        continue;
+                    }
+                    var vmiArr = vmi.split('~~');
+                    var intfObj = {'fq_name': vmiArr[0].split(':'),
+                        'interfaceType': intfAttr['interfaceType'](),
+                        'uuid': vmiArr[1]};
+                    nameList[i]['vmis'].push(intfObj);
+                }
+            }
+            return nameList;
         },
         this.getVNByTmplType = function(intfType, svcTmpl) {
             if ((null == window.vnList) ||
@@ -330,7 +382,7 @@ define([
                                 viewConfig: {
                                     path: 'portTuples',
                                     collection: 'portTuples()',
-                                    validations: 'portTuplesValidation',
+                                    validation: 'portTuplesValidation',
                                     //accordionable: true,
                                     templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
                                     collectionActions: {
@@ -685,7 +737,7 @@ define([
                                 viewConfig: {
                                     path: 'interfaces',
                                     collection: 'interfaces()',
-                                    validations: 'interfacesValidation',
+                                    validation: 'interfacesValidation',
                                     //accordionable: true,
                                     templateId: cowc.TMPL_GEN_COLLECTION_VIEW,
                                     rows: [

@@ -6,13 +6,11 @@ define([
     'underscore',
     'contrail-view',
     'knockback',
-    'config/networking/routetable/ui/js/RtTableUtils'
-], function (_, ContrailView, Knockback, RtTableUtils) {
+], function (_, ContrailView, Knockback) {
     var gridElId = '#' + ctwl.RT_TABLE_GRID_ID;
     var prefixId = ctwl.RT_TABLE_PREFIX_ID;
     var modalId = 'configure-' + prefixId;
     var formId = '#' + modalId + '-form';
-    var rtUtils = new RtTableUtils();
 
     var RtTableEditView = ContrailView.extend({
         renderConfigureRtTable: function(options) {
@@ -55,7 +53,9 @@ define([
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.routes});
             });
         },
         renderDeleteRtTables: function(options) {
@@ -110,7 +110,7 @@ define([
                         viewConfig: {
                             path: 'routes',
                             collection: 'routes',
-                            validation: 'routesValidation',
+                            validation: 'rtTableRoutesValidation',
                             class: "span12",
                             columns: [{
                                 elementId: 'prefix',

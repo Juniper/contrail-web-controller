@@ -130,7 +130,6 @@ define([
                 var putData = {};
                 putData['quota'] = newQuotaLimit;
 
-                ajaxConfig.async = false;
                 ajaxConfig.type = "PUT";
                 ajaxConfig.data = JSON.stringify(putData);
                 ajaxConfig.url = '/api/tenants/config/update-quotas/' + projUUID;

@@ -78,6 +78,137 @@ define([
                             'Instance Name';
                     }
                 },
+                'service_health_check': function(val, attr, data) {
+                    var svcTmpl = data.service_template;
+                    var svcTmplObj =
+                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
+                    var tmplVer =
+                        getValueByJsonPath(svcTmplObj,'service_template_properties;version',
+                                           1);
+                    if (1 == tmplVer) {
+                        return;
+                    }
+                    var svcHealthChecks = data['svcHealtchChecks'];
+                    if (null == svcHealthChecks) {
+                        return;
+                    }
+                    svcHealthChecks = svcHealthChecks.toJSON();
+                    var len = svcHealthChecks.length;
+                    var intfTypes = [];
+                    var svcHealthChks = [];
+                    for (var i = 0; i < len; i++) {
+                        var intfType = svcHealthChecks[i]['interface_type']();
+                        var svcHealthChkEntry =
+                            svcHealthChecks[i]['service_health_check']();
+                        if (null == intfType) {
+                            return 'Interface type is required for service '+
+                                'health check';
+                        }
+                        if (null == svcHealthChkEntry) {
+                            return 'Select service health check entry';
+                        }
+                        intfTypes.push(intfType);
+                        svcHealthChks.push(svcHealthChkEntry);
+                    }
+                    if (intfTypes.length > 1) {
+                        if (intfTypes.length != (_.uniq(intfTypes)).length) {
+                            return 'Same interface types selected for ' +
+                                'multiple service health check';
+                        }
+                        if (svcHealthChks.length !=
+                            (_.uniq(svcHealthChks)).length) {
+                            return 'Same service health check entries ' +
+                                'selected for multiple interface types';
+                        }
+                    }
+                },
+                'virtualNetwork': function(val, attr, data) {
+                    var svcTmpl = data.service_template;
+                    var svcTmplObj =
+                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
+                    var svcTmplIntfs =
+                        getValueByJsonPath(svcTmplObj,
+                                           'service_template_properties;interface_type',
+                                           []);
+                    var svcMode =
+                        getValueByJsonPath(svcTmplObj,
+                                           'service_template_properties;service_mode',
+                                           null);
+                    var interfaceCollection = data['interfaces'];
+                    if (null == interfaceCollection) {
+                        return;
+                    }
+                    var models = interfaceCollection['models'];
+                    var len = interfaceCollection.length;
+                    var errStr = "Auto Configured network not allowed";
+                    var vnList = [];
+                    for (var i = 0; i < len; i++) {
+                        var attr = models[i]['attributes'];
+                        var vn = attr['virtualNetwork']();
+                        if ("" != vn) {
+                            vnList.push(vn);
+                        }
+                        if ('management' !=
+                             svcTmplIntfs[i]['service_interface_type']) {
+                            if (('in-network' == svcMode) ||
+                                ('in-network-nat' == svcMode) ||
+                                ('other' ==
+                                 svcTmplIntfs[i]['service_interface_type'])) {
+                                if ("" == vn) {
+                                    return errStr;
+                                }
+                            }
+                        }
+                        if (true == svcTmplIntfs[i]["static_route_enable"]) {
+                            if ("" == vn) {
+                                return errStr;
+                            }
+                        }
+                    }
+                    if (vnList.length != (_.uniq(vnList)).length) {
+                        return 'Same virtual network assigned to multiple ' +
+                            'interface types';
+                    }
+                },
+                'interface': function(val, attr, data) {
+                    var portTuples =
+                        svcInstUtils.getPortTuples(data['display_name'],
+                                                   data['portTuples']);
+                    if (null == portTuples) {
+                        return;
+                    }
+                    var cnt = portTuples.length;
+                    var vmiListPerPortTuple = [];
+                    for (var i = 0; i < cnt; i++) {
+                        vmiListPerPortTuple[i] = [];
+                        var vmis = portTuples[i]['vmis'];
+                        if (null == vmis) {
+                            continue;
+                        }
+                        var vmisCnt = vmis.length;
+                        for (var j = 0; j < vmisCnt; j++) {
+                            vmiListPerPortTuple[i].push(vmis[j]['uuid']);
+                        }
+                        var uniqVmisList = _.uniq(vmiListPerPortTuple[i]);
+                        if (uniqVmisList.length !=
+                            vmiListPerPortTuple[i].length) {
+                            var errorStr = 'Same interface assigned for ' +
+                                'multiple interface types';
+                            if ((null != portTuples[i]['to']) &&
+                                (null != portTuples[i]['to'][3])) {
+                                errorStr += ' for port tuple ' +
+                                    portTuples[i]['to'][3];
+                            }
+                            return errorStr;
+                        }
+                    }
+                    var tmpVmiListPerPortTuple = _.flatten(vmiListPerPortTuple);
+                    if (tmpVmiListPerPortTuple.length !=
+                        (_.uniq(tmpVmiListPerPortTuple)).length) {
+                        return 'One or more same interfaces assigned to ' +
+                            'multiple port tuple';
+                    }
+                },
                 'service_template': function(val, attr, data) {
                     if (null == val) {
                         return "Select Service Template";
@@ -621,38 +752,6 @@ define([
             siProp['interface_list'] = intfList;
             return siProp;
         },
-        getPortTuples: function(svcInstName) {
-            var nameList = [];
-            var coll = this.model().get('portTuples');
-            var len = coll.length;
-            var models = coll['models'];
-            for (var i = 0; i < len; i++) {
-                var attr = models[i]['attributes'];
-                nameList[i] = {};
-                var name = attr['portTupleName']();
-                var portTupleData = attr['portTupleData']();
-                nameList[i]['to'] = [contrail.getCookie('domain'),
-                    contrail.getCookie('project'), svcInstName, name];
-                if (null != portTupleData) {
-                    nameList[i]['uuid'] = portTupleData['uuid'];
-                }
-                var intfs = attr['portTupleInterfaces']();
-                var intfsCnt = intfs.length;
-                for (var j = 0; j < intfsCnt; j++) {
-                    if (0 == j) {
-                        nameList[i]['vmis'] = [];
-                    }
-                    var intfAttr = intfs[j].model().attributes;
-                    var vmi = intfAttr['interface']();
-                    var vmiArr = vmi.split('~~');
-                    var intfObj = {'fq_name': vmiArr[0].split(':'),
-                        'interfaceType': intfAttr['interfaceType'](),
-                        'uuid': vmiArr[1]};
-                    nameList[i]['vmis'].push(intfObj);
-                }
-            }
-            return nameList;
-        },
         getSvcInstProperties: function() {
             var propObjs = {};
             var list =
@@ -785,7 +884,9 @@ define([
                 var newSvcInst =
                     $.extend({}, true, this.model().attributes);
                 var siProp = this.getSIProperties();
-                var portTuples = this.getPortTuples(newSvcInst['display_name']);
+                var portTuples =
+                    svcInstUtils.getPortTuples(newSvcInst['display_name'],
+                                               this.model().get('portTuples'));
                 if (portTuples.length > 0) {
                     newSvcInst['port_tuples'] = portTuples;
                 }
@@ -849,7 +950,6 @@ define([
                 ajaxConfig = {};
                 ctwu.deleteCGridData(newSvcInst);
                 var putData = {'service-instance': newSvcInst};
-                ajaxConfig.async = false;
                 ajaxConfig.url = '/api/tenants/config/service-instances';
                 if (true == isEdit) {
                     ajaxConfig.type = "PUT";

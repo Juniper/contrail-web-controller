@@ -7,16 +7,13 @@ define([
     'contrail-view',
     'config/networking/routetable/ui/js/models/RtTableModel',
     'config/networking/routetable/ui/js/views/RtTableEditView',
-    'config/networking/routetable/ui/js/RtTableUtils'
-], function (_, ContrailView, RtTableModel, RtTableEditView, RtTableUtils) {
+], function (_, ContrailView, RtTableModel, RtTableEditView) {
     var rtTableEditView = new RtTableEditView(),
         elId = "#" + ctwl.RT_TABLE_GRID_ID,
         tabId = 0, tabText = 'Tab' + tabId;
         var gridElId;
         //tabId = $('#rt-table-tab').tabs('option', 'active'),
         //tabText = 'Tab' + tabId.toString();
-
-    var rtUtils = new RtTableUtils();
 
     var RtTableGridView = ContrailView.extend({
         el: $(contentContainer),
@@ -150,10 +147,6 @@ define([
         }
     };
 
-    this.rtTableRulesFormatter = function(value, dc) {
-        return rtUtils.rtTableRulesFormatter(null, null, null, value, dc, true);
-    };
-
     this.rtTableIDFormatter = function(val, obj) {
         var dispStr = "";
         if (0 == Number(val)) {
@@ -264,7 +257,7 @@ define([
                 if (commAttr.length > 0) {
                     dispStr += 'community-attributes ';
                     dispStr += '<span class="gridLabel">' +
-                        commAttr.join(' ,') + '</span>';
+                        commAttr.join(', ') + '</span>';
                 }
                 dispStr += '<br>';
             }

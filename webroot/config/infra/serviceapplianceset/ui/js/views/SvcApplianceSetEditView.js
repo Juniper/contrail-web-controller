@@ -52,7 +52,9 @@ define([
                 self.model.showErrorAttr(prefixId + cowc.FORM_SUFFIX_ID, false);
                 Knockback.applyBindings(self.model,
                                         document.getElementById(modalId));
-                kbValidation.bind(self);
+                kbValidation.bind(self,
+                                  {collection:
+                                  self.model.model().attributes.svcApplProperties});
             });
         },
         renderDeleteSvcApplianceSet: function(options) {

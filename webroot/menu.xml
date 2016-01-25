@@ -645,7 +645,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Routing Policy</searchStrings>
                         </item>
                         <item>
-                            <label>Route Table</label>
+                            <label>Route Tables</label>
                             <hash>config_net_rttable</hash>
                             <resources>
                             <resource>

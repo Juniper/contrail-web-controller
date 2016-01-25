@@ -28,8 +28,10 @@ define([
         validations: {
             svcApplPropValidation: {
                 'key': {
+                    required: true
                 },
                 'value': {
+                    required: true
                 }
             }
         }

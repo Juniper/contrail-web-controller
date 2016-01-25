@@ -318,7 +318,7 @@ define([
                                 viewConfig: {
                                         label: 'Security Group Rules',
                                         path: 'rules',
-                                        validations: 'secGrpRulesValidation',
+                                        validation: 'secGrpRulesValidation',
                                         collection: 'rules',
                                         columns: [
                                         {
@@ -436,6 +436,7 @@ define([
                                             viewConfig: {
                                                 templateId:
                                                     cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                placeholder: 'ANY',
                                                 path: 'remotePorts',
                                                 dataBindValue: 'remotePorts()',
                                             }

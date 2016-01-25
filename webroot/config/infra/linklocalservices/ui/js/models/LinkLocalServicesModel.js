@@ -17,38 +17,6 @@ define([
             'ip_fabric_service_port': null,
             'ip_fabric_service_ip': [],
         },
-        validateAttr: function(attributePath, validation, data) {
-            var needValidate = true;
-            var model = this.model();
-            var isValid = true;
-            var attr = cowu.getAttributeFromPath(attributePath);
-            var attributes = model.attributes;
-            var errors = model.get(cowc.KEY_MODEL_ERRORS);
-            var attrErrorObj = {};
-
-            switch (attributePath) {
-            case 'ip_fabric_service_ip':
-                if ('DNS' == attributes['lls_fab_address_ip']) {
-                    needValidate = false;
-                }
-                break;
-            case 'ip_fabric_DNS_service_name':
-                if ('IP' == attributes['lls_fab_address_ip']) {
-                    needValidate = false;
-                }
-                break;
-            default:
-                break;
-            }
-            if (true == needValidate) {
-                isValid = model.isValid(attributePath, validation);
-            } else {
-                isValid = true;
-            }
-            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
-                (isValid == true) ? false : isValid;
-            errors.set(attrErrorObj);
-        },
         validations: {
             llsConfigValidations: {
                 'linklocal_service_name': function(val, attr, data) {
@@ -95,13 +63,18 @@ define([
                 },
                 'ip_fabric_DNS_service_name': function(value, attr, obj) {
                     if ('DNS' == obj['lls_fab_address_ip']) {
-                        if (value.trim() === "") {
+                        if ((null == value) || (value.trim() === "")) {
                             return "DNS Service IP is required";
                         }
-                        return Backbone.Validation.validators.pattern(value,
-                                                                      attr,
-                                                                      cowc.PATTERN_IP_ADDRESS,
-                                                                      this);
+                        var ip = value.trim();
+                        if (-1 != ip.indexOf('/')) {
+                            return 'Enter valid IP address in ' +
+                                'xxx.xxx.xxx.xxx format';
+                        }
+                        if (!isValidIP(ip)) {
+                            return 'Enter valid IP address in ' +
+                                'xxx.xxx.xxx.xxx format';
+                        }
                     }
                 },
                 'ip_fabric_service_port': {
@@ -210,7 +183,6 @@ define([
                         putData['global-vrouter-config']['linklocal_services']
                         ['linklocal_service_entry'][i]['ipFabAddresses'];
                 }
-                ajaxConfig.async = false;
                 if (null == uuid) {
                     ajaxConfig.type = "POST";
                     ajaxConfig.url =

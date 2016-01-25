@@ -21,7 +21,6 @@ define([
                 contrail.getTemplate4Id(ctwl.TMPL_CORE_GENERIC_EDIT);
             var editLayout = editTemplate({prefixId: prefixId, modalId: modalId}),
                 self = this;
-                self.editView = SvcInstEditView;
             cowu.createModal({'modalId': modalId, 'className': 'modal-700',
                              'title': options['title'], 'body': editLayout,
                              'onSave': function () {
@@ -143,47 +142,6 @@ define([
         }
         return svcTmpList;
     }
-
-    function getFlowSeriesViewConfig(config) {
-        var hashParams = config['hashParams'];
-
-        return {
-            view: "SectionView",
-            viewConfig: {
-                rows: [
-                    {
-                        columns: [
-                            {
-                                elementId: cowl.QE_FLOW_SERIES_ID,
-                                view: "FlowSeriesFormView",
-                                viewPathPrefix: "reports/qe/ui/js/views/",
-                                app: cowc.APP_CONTRAIL_CONTROLLER,
-                                viewConfig: {
-                                    widgetConfig: {
-                                        elementId: cowl.QE_FLOW_SERIES_ID + '-widget',
-                                        view: "WidgetView",
-                                        viewConfig: {
-                                            header: {
-                                                title: cowl.TITLE_QUERY,
-                                                iconClass: "icon-search"
-                                            },
-                                            controls: {
-                                                top: {
-                                                    default: {
-                                                        collapseable: true
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    };
 
     function getEditSvcInstViewConfig (self, isDisabled) {
         var prefixId = ctwl.SERVICE_INSTANCES_PREFIX_ID;

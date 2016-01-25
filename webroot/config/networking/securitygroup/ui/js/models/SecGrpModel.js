@@ -19,34 +19,6 @@ define([
             'is_sec_grp_id_auto': true,
             'configured_security_group_id': null
         },
-        validateAttr: function(attributePath, validation, data) {
-            var needValidate = true;
-            var model = this.model();
-            var isValid = true;
-            var attr = cowu.getAttributeFromPath(attributePath);
-            var attributes = model.attributes;
-            var errors = model.get(cowc.KEY_MODEL_ERRORS);
-            var attrErrorObj = {};
-
-            switch (attributePath) {
-            case 'configured_security_group_id':
-                if ((true == attributes['is_sec_grp_id_auto']) ||
-                    ("true" == attributes['is_sec_grp_id_auto'])) {
-                    needValidate = false;
-                }
-                break;
-            default:
-               break;
-            }
-            if (true == needValidate) {
-                isValid = model.isValid(attributePath, validation);
-            } else {
-                isValid = true;
-            }
-            attrErrorObj[attr + cowc.ERROR_SUFFIX_ID] =
-                (isValid == true) ? false : isValid;
-            errors.set(attrErrorObj);
-        },
         validations: {
             secGrpConfigValidations: {
                 'display_name': {
@@ -170,10 +142,24 @@ define([
             }
             return rulesArr;
         },
+        deepValidationList: function () {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'secGrpConfigValidations'
+            },
+            {
+                key: 'rules',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'secGrpRulesValidation'
+            }];
+            return validationList;
+        },
         configureSecGrp: function (projFqn, dataItem, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
 
-            if (this.model().isValid(true, "secGrpConfigValidations")) {
+            var validationList = this.deepValidationList();
+            if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newSecGrpData = $.extend({}, true, this.model().attributes);
 
@@ -209,7 +195,6 @@ define([
                 var putData = {};
                 putData['security-group'] = newSecGrpData;
 
-                ajaxConfig.async = false;
                 if (null != newSecGrpData['uuid']) {
                     ajaxConfig.type = "PUT";
                     ajaxConfig.url = '/api/tenants/config/securitygroup/' +

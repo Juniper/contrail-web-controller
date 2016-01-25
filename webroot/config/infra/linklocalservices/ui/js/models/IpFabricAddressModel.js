@@ -31,10 +31,15 @@ define([
                         if (value.trim() === "") {
                             return "Fabric Service IP is required"
                         }
-                        return Backbone.Validation.validators.pattern(value,
-                                                                   attr,
-                                                                   cowc.PATTERN_IP_ADDRESS,
-                                                                   this);
+                        var ip = value.trim();
+                        if (-1 != ip.indexOf('/')) {
+                            return 'Enter valid IP address in ' +
+                                'xxx.xxx.xxx.xxx format';
+                        }
+                        if (!isValidIP(ip)) {
+                            return 'Enter valid IP address in ' +
+                                'xxx.xxx.xxx.xxx format';
+                        }
                     }
                 }
             }

@@ -105,6 +105,26 @@ define([
                 'portTupleName': {
                     required: true
                 },
+                'interface': function(val, attr, fieldObj) {
+                    console.log("Getting fieldObj as:", fieldObj);
+                    var intfs = fieldObj['portTupleInterfaces'].toJSON();
+                    var len = intfs.length;
+                    var intfsList = [];
+                    for (var i = 0; i < len; i++) {
+                        var intf = intfs[i]['interface']();
+                        if (null != intf) {
+                            intfsList.push(intf);
+                        } else {
+                            /* NULL case will be handled by child model
+                             * validator
+                             */
+                        }
+                    }
+                    if (intfsList.length != (_.uniq(intfsList)).length) {
+                        return 'Same interface assigned to multiple interface' +
+                            ' types';
+                    }
+                }
             }
         }
     });

@@ -5,9 +5,8 @@
 define([
     'underscore',
     'contrail-model',
-    'config/networking/routetable/ui/js/models/CommAttrModel'
-], function (_, ContrailModel, CommAttrModel) {
-    var rtTableModel = ContrailModel.extend({
+], function (_, ContrailModel) {
+    var rtTableRoutesModel = ContrailModel.extend({
         defaultConfig: {
             'prefix': '',
             'next_hop': '',
@@ -27,35 +26,14 @@ define([
             errors.set(attrErrorObj);
         },
         validations: {
-            rtTableConfigValidations: {
+            rtTableRoutesValidation: {
+                'prefix': {
+                    required: true
+                }
             }
-        },
-        formatModelConfig: function(modelConfig) {
-            var commAttrModel;
-            var commAttrModels = [];
-            var commAttrCollectionModel;
-            var commAttrs =
-                getValueByJsonPath(modelConfig,
-                                   'community_attributes;community_attribute',
-                                   []);
-            var cnt = commAttrs.length;;
-            for (var i = 0; i < cnt; i++) {
-                commAttrModel =
-                    new CommAttrModel({community_attr: commAttrs[i]});
-                commAttrModels.push(commAttrModel);
-            }
-            commAttrCollectionModel = new Backbone.Collection(commAttrModels);
-            modelConfig['communityAttrs'] = commAttrCollectionModel;
-            return modelConfig;
-        },
-        addCommunityAttr: function() {
-            var newCommAttr = new CommAttrModel({community_attr: ""});
-            var communityAttrs =
-                this.model().attributes.model().get('communityAttrs');
-            communityAttrs.add([newCommAttr]);
         }
     });
-    return rtTableModel;
+    return rtTableRoutesModel;
 });
 
 

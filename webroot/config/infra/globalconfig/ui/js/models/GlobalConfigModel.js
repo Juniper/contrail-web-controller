@@ -38,8 +38,28 @@ define([
                 'flow_export_rate': {
                     pattern: 'number',
                     required: false
+                },
+                'encapsulation_priorities': function(val, attr, fieldObj) {
+                    var encapPriOrdArr = [];
+                    var encapPriOrdCollection =
+                        fieldObj.encapPriorityOrders.toJSON();
+                    var encapPriOrdCnt = encapPriOrdCollection.length;
+                    for (var i = 0; i < encapPriOrdCnt; i++) {
+                        encapPriOrdArr.push(encapPriOrdCollection[i].encapsulation_priorities());
+                    }
+                    var uniqPrioOrdList = _.uniq(encapPriOrdArr);
+                    if (encapPriOrdArr.length != uniqPrioOrdList.length) {
+                        return 'Same priority specified multiple times';
+                    }
+                    if ('configured' ==
+                        fieldObj['vxlan_network_identifier_mode']) {
+                        if (-1 == uniqPrioOrdList.indexOf('VxLAN')) {
+                            return "Encapsulation type 'VxLAN' is required " +
+                                "while setting VxLAN identifier mode";
+                        }
+                    }
                 }
-            },
+            }
         },
         formatModelConfig: function(modelConfig) {
             /* Encap Priority Order */
@@ -359,7 +379,6 @@ define([
                 }
                 putData['global-vrouter-config']['ecmp_hashing_include_fields']
                     = ecmpHashIncFields;
-                ajaxConfig.async = false;
                 ajaxConfig.type = "PUT";
                 ajaxConfig.data = JSON.stringify(putData);
                 ajaxConfig.url = '/api/tenants/config/update-global-config';

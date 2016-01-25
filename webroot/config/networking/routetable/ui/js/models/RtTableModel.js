@@ -6,10 +6,8 @@
 define([
     'underscore',
     'contrail-model',
-    'config/networking/routetable/ui/js/RtTableUtils',
     'config/networking/routetable/ui/js/models/RtTableRoutesModel'
-], function (_, ContrailModel, RtTableUtils, RtTableRoutesModel) {
-    var sgUtils = new RtTableUtils();
+], function (_, ContrailModel, RtTableRoutesModel) {
     var RtTableModel = ContrailModel.extend({
         defaultConfig: {
             'display_name': ""
@@ -99,10 +97,24 @@ define([
             }
             return routesArr;
         },
+        deepValidationList: function () {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'rtTableConfigValidations'
+            },
+            {
+                key: 'routes',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'rtTableRoutesValidation'
+            }];
+            return validationList;
+        },
         configureRtTable: function (type, projFqn, dataItem, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
 
-            if (this.model().isValid(true, "rtTableConfigValidations")) {
+            var validationList = this.deepValidationList();
+            if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newRtTableData = $.extend({}, true, this.model().attributes);
 
@@ -131,7 +143,6 @@ define([
                 var putData = {};
                 putData[type] = newRtTableData;
 
-                ajaxConfig.async = false;
                 if (null != newRtTableData['uuid']) {
                     ajaxConfig.type = "PUT";
                     ajaxConfig.url = '/api/tenants/config/route-table/' + type + '/' +

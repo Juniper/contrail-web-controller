@@ -122,6 +122,7 @@ define([
         var svcInstModel = new SvcInstModel(dataItem);
         addModelAttr(svcInstModel);
         svcInstEditView.model = svcInstModel;
+        svcInstModel.editView = svcInstEditView;
         svcInstEditView.renderConfigureSvcInst({
                               "title": ctwl.TITLE_EDIT_SERVICE_INSTANCE +
                               ' (' + dataItem['display_name'] +

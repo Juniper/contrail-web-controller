@@ -35,6 +35,25 @@ define([
                 },
                 'service_appliance_user_credentials.password': {
                     required: false
+                },
+                'interface_name': function(val, attr, fieldObj) {
+                    var interfaces = getValueByJsonPath(fieldObj, 'interfaces',
+                                                        null);
+                    if (null == interfaces) {
+                        return 'Interface is required';
+                    }
+                    var interfaces = interfaces.toJSON();
+                    var len = interfaces.length;
+                    var intfList = [];
+                    for (var i = 0; i < len; i++) {
+                        var intf = interfaces[i].interface_name();
+                        intfList.push(intf);
+                    }
+                    var tmpIntfList = _.uniq(intfList);
+                    if (tmpIntfList.length != intfList.length) {
+                        return 'One or multiple interfaces assigned ' +
+                            'for multiple interface type';
+                    }
                 }
             }
         },
@@ -212,10 +231,29 @@ define([
             }
             return modelConfig;
         },
+        deepValidationList: function () {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'svcApplianceConfigValidations'
+            },
+            {
+                key: 'interfaces',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'svcApplInterfaceValidation'
+            },
+            {
+                key: 'svcApplProperties',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'svcApplPropValidation'
+            }];
+            return validationList;
+        },
         configureSvcAppliance: function (isEdit, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
 
-            if (this.model().isValid(true, "svcApplianceConfigValidations")) {
+            var validationList = this.deepValidationList();
+            if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newSvcAppl = $.extend({}, true, this.model().attributes);
 
@@ -259,7 +297,6 @@ define([
 
                 putData['service-appliance'] = newSvcAppl;
 
-                ajaxConfig.async = false;
                 ajaxConfig.data = JSON.stringify(putData);
                 if (true == isEdit) {
                     ajaxConfig.type = "PUT";

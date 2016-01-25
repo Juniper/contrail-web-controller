@@ -72,10 +72,24 @@ define([
             }
             return modelConfig;
         },
+        deepValidationList: function () {
+            var validationList = [{
+                key: null,
+                type: cowc.OBJECT_TYPE_MODEL,
+                getValidation: 'svcApplianceSetConfigValidations'
+            },
+            {
+                key: 'svcApplProperties',
+                type: cowc.OBJECT_TYPE_COLLECTION,
+                getValidation: 'svcApplPropValidation'
+            }];
+            return validationList;
+        },
         configureSvcApplianceSet: function (isEdit, callbackObj) {
             var ajaxConfig = {}, returnFlag = false;
 
-            if (this.model().isValid(true, "svcApplianceSetConfigValidations")) {
+            var validationList = this.deepValidationList();
+            if (this.isDeepValid(validationList)) {
                 var locks = this.model().attributes.locks.attributes;
                 var newSvcAppl = $.extend({}, true, this.model().attributes);
 
@@ -100,7 +114,6 @@ define([
 
                 putData['service-appliance-set'] = newSvcAppl;
 
-                ajaxConfig.async = false;
                 ajaxConfig.data = JSON.stringify(putData);
                 if (true == isEdit) {
                     ajaxConfig.type = "PUT";

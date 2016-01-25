@@ -289,8 +289,7 @@ define([
             getAjaxConfig: function(response) {
                 var lazyAjaxConfig = {
                     url:
-                    '/api/tenants/config/service-template-images?' +
-                        getCookie('domain'),
+                    '/api/tenants/config/service-template-images',
                     type: 'GET'
                 };
                 return lazyAjaxConfig;

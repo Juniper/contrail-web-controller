@@ -6,12 +6,10 @@ define([
     'underscore',
     'contrail-view',
     'contrail-list-model',
-    'config/networking/routetable/ui/js/RtTableUtils',
     'config/networking/routetable/ui/js/models/RtTableModel'
-], function (_, ContrailView, ContrailListModel, RtTableUtils, RtTableModel) {
+], function (_, ContrailView, ContrailListModel, RtTableModel) {
     var gridElId = '#' + ctwl.RT_TABLE_GRID_ID;
     var selectedProject = null;
-    var sgUtils = new RtTableUtils();
     var rtTableList = [];
     var RtTableListView = ContrailView.extend({
         el: $(contentContainer),
