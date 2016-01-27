@@ -1273,8 +1273,8 @@ define(
                         } else {
                             $.each(response,function(idx,obj) {
                                 var rawJson = obj;
-                                ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn'],noDataStr),
-                                    dst_vn:ifNullOrEmptyObject(obj['dst_vn'],noDataStr),
+                                ret.push({src_vn:ifNullOrEmptyObject(obj['src_vn_match'],noDataStr),
+                                    dst_vn:ifNullOrEmptyObject(obj['dst_vn_match'],noDataStr),
                                     protocol:ifNullOrEmptyObject(obj['protocol'],noDataStr),
                                     sip:ifNullOrEmptyObject(obj['sip'],noDataStr),
                                     src_port:ifNullOrEmptyObject(obj['src_port'],noDataStr),
