@@ -1275,7 +1275,16 @@ function getUnderlayPath (req, res, appData)
             }
             if ((null != err) || (null == result) ||
                 (null == result['value']) || (!result['value'].length)) {
-                commonUtils.handleJSONResponse(err, res, topoData);
+                getUnderlayPathByNodelist(req, topoData, srcNode, destNode,
+                        appData, function(err, endpoints,
+                                          wholeTopo) {
+                    if (true == wholeTopo) {
+                        commonUtils.handleJSONResponse(err, res, endpoints);
+                        return;
+                    }
+                    topoData['links'] = endpoints;
+                    commonUtils.handleJSONResponse(err, res, topoData);
+                });
                 return;
             }
             result = result['value'];
