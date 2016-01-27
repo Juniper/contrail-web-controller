@@ -70,7 +70,16 @@ define([
             'subInterfaceVMIValue':'',
             'templateGeneratorData': 'rawData',
             'disable_sub_interface' : false,
-            'subnetGroupVisible': true
+            'subnetGroupVisible': true,
+            'ecmp_hashing_include_fields': {
+                'source_mac': true,
+                'destination_mac': true,
+                'source_ip': true,
+                'destination_ip': true,
+                'ip_protocol': true,
+                'source_port': true,
+                'destination_port': true
+            }
         },
         setVNData: function(allNetworks) {
             self.allNetworks = allNetworks;
@@ -229,6 +238,21 @@ define([
                     modelConfig['staticRoute'].push(SRVal);
                 }
             }
+
+            //Modal config default ECMP formatting
+            var ecmpHashIncFields = [];
+            if ('ecmp_hashing_include_fields' in modelConfig) {
+                var ecmpHashIncFieldsObj =
+                    modelConfig['ecmp_hashing_include_fields'];
+                for (var key in ecmpHashIncFieldsObj) {
+                    if (true == ecmpHashIncFieldsObj[key]) {
+                        ecmpHashIncFields.push(key);
+                    }
+                }
+            }
+            modelConfig['ecmp_hashing_include_fields'] =
+                ecmpHashIncFields.join(',');
+
             //Modal config default Fat Flow option formatting
             var fatFlows = [];
             var fatFlowList =
@@ -558,6 +582,7 @@ define([
                 portBindingCollection.remove(delPortBinding);
             }
         },
+
         //Binding value disable
         enableDisablePortBindingValue: function(portBindingModel, mode) {
             portBindingModel.disablePortBindValue = ko.computed((function() {
@@ -580,6 +605,12 @@ define([
             }), portBindingModel);
         },
 
+        getNonDefaultECMPHashingFields: function() {
+            return { 'source_mac': false, 'destination_mac': false,
+                'source_ip': false, 'destination_ip': false,
+                'ip_protocol': false, 'source_port': false,
+                'destination_port': false};
+        },
         groupBy: function(array, f) {
             var groups = {};
             array.forEach( function(o) {
@@ -813,6 +844,24 @@ define([
                 } else {
                     newPortData.interface_route_table_refs = [];
                 }
+        /* ECMP Hashing */
+                var ecmpHashIncFields = this.getNonDefaultECMPHashingFields();
+                if (null != newPortData['ecmp_hashing_include_fields']) {
+                    var tmpEcmpHashIncFields =
+                        newPortData['ecmp_hashing_include_fields'].split(',');
+                    var cnt = tmpEcmpHashIncFields.length;
+                    for (var i = 0; i < cnt; i++) {
+                        if (tmpEcmpHashIncFields[i].length > 0) {
+                            ecmpHashIncFields[tmpEcmpHashIncFields[i]] = true;
+                        }
+                    }
+                } else {
+                    for (key in ecmpHashIncFields) {
+                        ecmpHashIncFields[key] = true;
+                    }
+                }
+                newPortData['ecmp_hashing_include_fields']
+                    = ecmpHashIncFields;
         /* Fixed IP*/
         var allFixedIPCollectionValue =
                       newPortData["fixedIPCollection"].toJSON();
@@ -1015,6 +1064,7 @@ define([
                 delete(newPortData.disablePort);
                 delete(newPortData.disable_sub_interface);
                 delete(newPortData.subnetGroupVisible);
+                delete(newPortData.disablePort);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }

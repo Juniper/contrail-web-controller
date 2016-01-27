@@ -236,6 +236,22 @@ define([
             }
             return staticRout;
         };
+        //Grid column expand label: Static Routes//
+        this.ECMPHashingFormatter = function(d, c, v, cd, dc) {
+            var ecmp = getValueByJsonPath(dc, "ecmp_hashing_include_fields", ""),
+                dispStr = '-';
+                fields = [];
+            for (var key in ecmp) {
+                if (true == ecmp[key]) {
+                    key = key.replace('_', '-');
+                    fields.push(key);
+                }
+            }
+            if (fields.length > 0) {
+                return fields.join(', ');
+            }
+            return dispStr;
+        };
         //Grid column expand label: Fat Flow//
         this.FatFlowFormatter = function(d, c, v, cd, dc) {
             var fatFlow = "";
