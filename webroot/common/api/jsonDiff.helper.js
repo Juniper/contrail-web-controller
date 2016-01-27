@@ -50,6 +50,11 @@ var configJsonModifyObj = {
         'optFields': ['service_instance_properties'],
         'mandateFields': ['fq_name', 'uuid', 'display_name']
     },
+    'physical-interface': {
+        'isConfig': true,
+        'optFields': ['physical_interface_refs'],
+        'mandateFields': ['fq_name', 'uuid', 'display_name']
+    },
     'logical-interface': {
         'isConfig': true,
         'preProcessCB': {

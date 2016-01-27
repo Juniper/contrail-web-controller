@@ -140,6 +140,10 @@ define([
             return (this.type() === ctwl.LOGICAL_INF);
         }), interfacesModel);
 
+        interfacesModel.showPhysicalInterfaceRefs = ko.computed((function(){
+            return (this.type() === ctwl.PHYSICAL_INF);
+        }), interfacesModel);
+
         interfacesModel.showParent = ko.computed((function(){
             return (this.type() === ctwl.LOGICAL_INF &&
                 this.parent_type() === ctwl.PARENT_TYPE_PINF);
@@ -168,8 +172,7 @@ define([
     };
     function getRowActionConfig(dc) {
         var rowActionConfig = [];
-        if(dc.type != ctwl.PHYSICAL_INF &&
-            dc.logical_interface_type != ctwl.LOGICAL_INF_L3_TYPE) {
+        if(dc.logical_interface_type != ctwl.LOGICAL_INF_L3_TYPE) {
             rowActionConfig.push(ctwgc.getEditAction(function (rowIndex) {
                 var dataItem =
                     $('#' + ctwl.INTERFACES_GRID_ID).data("contrailGrid").
@@ -338,6 +341,14 @@ define([
                                                    }
                                                 },
                                                 {
+                                                   key : "physical_interface_refs",
+                                                   label : "Physical Interface(s)",
+                                                   templateGenerator:ctwl.INF_TG,
+                                                   templateGeneratorConfig : {
+                                                       formatter : "PhysicalInfRefsFormatter"
+                                                   }
+                                                },
+                                                {
                                                    key : 'logical_interfaces',
                                                    label : 'Logical Interfaces',
                                                    templateGenerator:ctwl.INF_TG,
@@ -414,6 +425,10 @@ define([
 
     this.ParentFormatter =  function(v, dc) {
         return infFormatters.parentFormatter("", "", v, "", dc);
+    };
+
+    this.PhysicalInfRefsFormatter =  function(v, dc) {
+        return infFormatters.physicalInfRefsFormatter("", "", v, "", dc);
     };
 
     this.LogicalInterfacesFormatter =  function(v, dc) {

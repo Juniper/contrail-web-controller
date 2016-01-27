@@ -35,6 +35,23 @@ define([
                         }
                     },
                     {
+                        elementId: 'user_created_physical_interface',
+                        view: "FormDropdownView",
+                        viewConfig: {
+                            label: "Physical Interface",
+                            path: "user_created_physical_interface",
+                            dataBindValue: "user_created_physical_interface",
+                            visible : "showPhysicalInterfaceRefs",
+                            class: "span6",
+                            dataBindOptionList: "physicalInfRefsDataSrc",
+                            elementConfig:{
+                                dataTextField: "text",
+                                dataValueField: "text",
+                                placeholder : "Select Physical Interface",
+                            }
+                        }
+                    },
+                    {
                         elementId: 'parent_type',
                         view: "FormDropdownView",
                         viewConfig: {
