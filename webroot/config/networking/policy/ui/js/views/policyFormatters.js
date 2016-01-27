@@ -11,12 +11,12 @@ define([
         //Formating the result from api//
         this.PolicyDataParser = function(response) {
             var policyData = [];
-            var policies = response.data;
-            if(policies != null &&
-                policies != undefined){
+            var policies = getValueByJsonPath(response, "data", []);
+            if(policies.length > 0){
                 var policiesLen = policies.length;
                 for(var j=0; j < policiesLen; j++) {
-                    var policy = policies[j]['network-policy'];
+                    var policy = getValueByJsonPath(policies[j],
+                                 "network-policy", "");
                     if(this.check4DynamicPolicy(policy)) {
                         continue;
                     }
@@ -25,24 +25,6 @@ define([
             }
             return policyData;
         };
-        /*this.formAddedRule = function() {
-            $('th.wrap').each(function(i, item) {
-                cIndex=item.cellIndex + 1;
-                var headerString = $(item).html();
-                var element = $( this ).parent().parent().parent().find('td:nth-child('+cIndex +')');
-                var idVal = element[0].id;
-                var className = element.attr('class');
-                var bodyString= element.html();
-                var hideElement = $(this).parent().parent().parent().find('td:nth-child('+cIndex+')').hide();
-                if(hideElement != true) {
-                    var rowCount=($(item).closest('tr').parent().parent().find('tbody tr.data-row').length);
-                    $(item).closest('tr').parent().parent().find('tbody tr.data-row.nowrap').after("<tr><td colspan='2'><label style='text-align:left;padding-right:10px' >"+headerString+"</label></td><td colspan="+cIndex+" id='"+idVal+"' class='"+className+"'>"+bodyString+"</td></tr>");
-//                  $(item).closest('tr').parent().parent().find('tbody tr.data-row').removeClass('nowrap');
-                    $(item).hide();
-                }
-            });
-            $('th.wrap').closest('tr').parent().parent().find('tbody tr.data-row').removeClass('nowrap');
-        }*/
 
         this.check4DynamicPolicy = function(policy) {
             var isDynamicPolicy = false;
@@ -51,10 +33,9 @@ define([
                     var vn = policy.virtual_network_back_refs;
                     if(vn.length > 0) {
                         for(var i = 0; i < vn.length; i++) {
-                            if("attr" in vn[i] && "timer" in vn[i].attr &&
-                               vn[i].attr.timer != null &&
-                               "start_time" in vn[i].attr.timer &&
-                               vn[i].attr.timer.start_time != null) {
+                            var startTime = getValueByJsonPath(vn[i],
+                                            "attr;timer;start_time" , "");
+                            if(startTime != "") {
                                 isDynamicPolicy = true;
                                 break;
                             }
@@ -321,94 +302,81 @@ define([
         };
 
         this.PoliceyNameFormatter = function(d, c, v, cd, dc) {
-            var policyName = "-";
-            if(dc["fq_name"] != "" &&
-               dc["fq_name"] != undefined &&
-               dc["fq_name"] != null){
-                var policyName = dc["fq_name"][2];
+            var policyName = getValueByJsonPath(dc, "fq_name;2", "");
+            if (policyName == ""){
+                policyName = "-";
             }
             return policyName;
         };
         this.AssociatedNetworksFormatter = function(r, c, v, cd, dc) {
+            var showAll = true;
+                count = 0;
+            if (!(isNumber(cd))) {
+                showAll = false;
+                count = cd = 2;
+            }
             var returnString = "";
-            if("virtual_network_back_refs" in dc &&
-               dc["virtual_network_back_refs"].length > 0) {
-                var vnLen = dc["virtual_network_back_refs"].length
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
-                for(var i=0; i < 2; i++) {
-                    if(i < vnLen) {
-                    if("to" in dc["virtual_network_back_refs"][i] &&
-                       dc["virtual_network_back_refs"][i]["to"].length >= 2) {
-                        var network_to =
-                            dc["virtual_network_back_refs"][i]["to"];
-                        if (network_to[0] == domainName &&
-                           network_to[1] == projectName) {
-                           returnString += network_to[2] + "<br>";
-                        } else {
-                           returnString += network_to[2]+
-                                                " (" +network_to[0] +":"+
-                                                network_to[1] +") <br>";
-                        }
-                    }
+            var vnBackRef = getValueByJsonPath(dc, "virtual_network_back_refs", []);
+            if (vnBackRef.length > 0) {
+                var vnLen = vnBackRef.length,
+                    domainName = ctwu.getGlobalVariable('domain').name,
+                    projectName = ctwu.getGlobalVariable('project').name;
+                if (showAll == true || count > vnLen) {
+                    count = vnLen;
+                }
+                for(var i = 0; i < count; i++) {
+                    var network_to = getValueByJsonPath(vnBackRef[i], "to", []);
+                    if(network_to.length >= 2) {
+                        returnString += self.prepareFQN(domainName, projectName,
+                                             network_to.join(":"));
+                        returnString += "<br>";
                     }
                 }
-               if(vnLen > 2) {
+               if (showAll == false && vnLen > cd) {
                returnString += '<span class="moredataText">('
-                   + (vnLen-2) + ' more)</span>' +
+                   + (vnLen - cd) + ' more)</span>' +
                    '<span class="moredata" style="display:none;" ></span>';
-               }if(dc["virtual_network_back_refs"].length == 0) {
-                   returnString = "-";
                }
             }
-            return returnString;
-        };
-        this.PolicyRulesFormatter = function(r, c, v, cd, dc) {
-            var returnString = "";
-            if("network_policy_entries" in dc &&
-               "policy_rule" in dc["network_policy_entries"] &&
-               dc["network_policy_entries"]["policy_rule"].length > 0) {
-                var rule = dc["network_policy_entries"]["policy_rule"];
-                var ruleLen = rule.length
-                var domainName = ctwu.getGlobalVariable('domain').name;
-                var projectName = ctwu.getGlobalVariable('project').name;
-                for(var i=0; i < ruleLen, i < 2; i++) {
-                    var ruleString = self.formatPolicyRule(
-                                          rule[i],
-                                          domainName,
-                                          projectName);
-                        returnString += ruleString + "<br>";
-                }
-               if(ruleLen > 2) {
-               returnString += '<span class="moredataText">('
-                   + (ruleLen-2) + ' more)</span>' +
-                   '<span class="moredata" style="display:none;" ></span>';
-               }if(dc["network_policy_entries"].length == 0) {
-                   returnString = "-";
-               }
+            if(vnBackRef.length == 0) {
+                returnString = "-";
             }
             return returnString;
         };
 
-        this.PolicyRulesExpandFormatter = function(r, c, v, cd, dc) {
+        this.PolicyRulesFormatter = function(r, c, v, cd, dc) {
+            var showAll = true;
+                count = 0;
+            if (!(isNumber(cd))) {
+                showAll = false;
+                count = cd = 2;
+            }
             var returnString = "";
-            if("network_policy_entries" in dc &&
-               "policy_rule" in dc["network_policy_entries"] &&
-               dc["network_policy_entries"]["policy_rule"].length > 0) {
-                var rule = dc["network_policy_entries"]["policy_rule"];
+            var policyRule = getValueByJsonPath(dc,
+                         "network_policy_entries;policy_rule", []);
+            if (policyRule.length > 0) {
+                var rule = policyRule;
                 var ruleLen = rule.length
                 var domainName = ctwu.getGlobalVariable('domain').name;
                 var projectName = ctwu.getGlobalVariable('project').name;
-                for(var i=0; i < ruleLen; i++) {
+                if (showAll == true || count > ruleLen) {
+                    count = ruleLen;
+                }
+                for (var i = 0; i < count; i++) {
                     var ruleString = self.formatPolicyRule(
                                           rule[i],
                                           domainName,
                                           projectName);
                         returnString += ruleString + "<br>";
                 }
+               if (showAll == false && ruleLen > cd) {
+               returnString += '<span class="moredataText">('
+                   + (ruleLen - cd) + ' more)</span>' +
+                   '<span class="moredata" style="display:none;" ></span>';
+               }
             }
-            if(dc["network_policy_entries"].length == 0) {
-                 returnString = "-";
+            if(policyRule.length == 0) {
+                returnString = "-";
             }
             return returnString;
         };
