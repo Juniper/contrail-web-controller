@@ -409,6 +409,14 @@ define([
                                         formatter: "staticRoutFormatter"
                                     }
                                 }, {
+                                    key: 'id_perms',
+                                    name:"id_perms",
+                                    label:"ECMP Hashing",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "ECMPHashingFormatter"
+                                    }
+                                }, {
                                     key: 'virtual_machine_interface_fat_flow_protocols',
                                     name:"virtual_machine_interface_fat_flow_protocols",
                                     label:"FatFlow",
@@ -518,6 +526,9 @@ define([
     };
     this.staticRoutFormatter = function(v, dc) {
         return portFormatters.staticRoutFormatter("", "", v, "", dc);
+    };
+    this.ECMPHashingFormatter = function(v, dc) {
+        return portFormatters.ECMPHashingFormatter("", "", v, "", dc);
     };
     this.AAPFormatter = function(v, dc) {
         return portFormatters.AAPFormatter("", "", v, "", dc);
