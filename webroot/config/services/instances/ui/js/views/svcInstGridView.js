@@ -118,6 +118,13 @@ define([
         return gridElementConfig;
     };
 
+    function subscribeModelChangeEvents (svcInstModel) {
+        svcInstModel.__kb.view_model.model().on('change:display_name',
+                                            function(model, newValue) {
+            svcInstModel.changePortTupleName();
+        });
+    }
+
     function editSvcInstPopUp (dataItem) {
         var svcInstModel = new SvcInstModel(dataItem);
         addModelAttr(svcInstModel);
@@ -1055,6 +1062,7 @@ define([
                         return;
                     }
                     addModelAttr(svcInstModel);
+                    subscribeModelChangeEvents(svcInstModel);
                     svcInstEditView.model = svcInstModel;
                     svcInstModel.editView = svcInstEditView;
                     svcInstEditView.renderConfigureSvcInst({

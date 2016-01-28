@@ -353,7 +353,7 @@ define([
                                     dataBindValue: 'interface()',
                                     elementConfig: {
                                         placeholder: 'Select Virtual Machine' +
-                                                     ' Inetrface',
+                                                     ' Interface',
                                         dataTextField: 'text',
                                         dataValueField: 'value',
                                         data: window.vmiList
@@ -552,7 +552,7 @@ define([
                                         elementConfig: {
                                             minimumResultsForSearch: 1,
                                             placeholder: 'Select ' +
-                                                         ' Route Table',
+                                                         'Route Table',
                                             dataTextField: 'text',
                                             dataValueField: 'value',
                                             data: window.interfaceRouteTableList

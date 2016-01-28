@@ -30,6 +30,7 @@ var jsonPath = require('JSONPath').eval;
 var jsonDiff = require(process.mainModule.exports["corePath"] +
                        '/src/serverroot/common/jsondiff');
 var ctrlGlobal = require('../../../../common/api/global');
+var _ = require('underscore');
 
 /**
  * Bail out if called directly as "nodejs serviceinstanceconfig.api.js"
@@ -281,18 +282,80 @@ function getServiceInstanceStatusByProject (request, response, appData)
     var instCnt = filteredResults.length;
     var serviceInstances = {};
     serviceInstances['service_instances'] = filteredResults;
+    var svcInstIdxToTmplUUIDMapArr = [];
+    var uuidList = [];
+    if (!instCnt) {
+        commonUtils.handleJSONResponse(null, response, []);
+        return;
+    }
     for (var i = 0; i < instCnt; i++) {
-        siObjArr[i] = {};
-        siObjArr[i]['req'] = response.req;
-        siObjArr[i]['appData'] = appData;
-        siObjArr[i]['servInstId'] = filteredResults[i]['service-instance']['uuid'];
-        siObjArr[i]['servInstData'] = filteredResults[i];
-     }
-     logutils.logger.debug("VM Status Nova Query Started at:" + new Date());
-     async.map(siObjArr, getServiceInstDetails, function(err, data) {
-        logutils.logger.debug("VM Status Nova Response processed at:" + new
-                              Date());
-        commonUtils.handleJSONResponse(null, response, data);
+        var tmplUUID =
+            commonUtils.getValueByJsonPath(filteredResults[i],
+                                           'service-instance;service_template_refs;0;uuid',
+                                           null);
+        if (null != tmplUUID) {
+            uuidList.push(tmplUUID);
+            svcInstIdxToTmplUUIDMapArr[i] = tmplUUID;
+        } else {
+            svcInstIdxToTmplUUIDMapArr[i] = null;
+        }
+    }
+    uuidList = _.uniq(uuidList);
+    if (!uuidList.length) {
+        var error = new appErrors.RESTServerError('Service Template reference' +
+                                                  ' not found');
+        commonUtils.handleJSONResponse(error, response, null);
+        return;
+    }
+    var svcTmplUrl = '/service-templates?detail=true&obj_uuids=' +
+        uuidList.join(',');
+    configApiServer.apiGet(svcTmplUrl, appData,
+                           function(error, svcTmplDetails) {
+        if ((null != error) || (null == svcTmplDetails['service-templates'])) {
+            commonUtils.handleJSONResponse(error, response, null);
+            return;
+        }
+        var svcTmplDetails = svcTmplDetails['service-templates'];
+        var svcTmplCnt = svcTmplDetails.length;
+        var svcTmpls = {};
+        for (var i = 0; i < svcTmplCnt; i++) {
+            var svcTmplUUID =
+                commonUtils.getValueByJsonPath(svcTmplDetails[i],
+                                               'service-template;uuid', null);
+            if (null != svcTmplUUID) {
+                svcTmpls[svcTmplUUID] = svcTmplDetails[i]['service-template'];
+            }
+        }
+        var svcTmpl = null;
+        for (var i = 0; i < instCnt; i++) {
+            var version = 1;
+            if (null != svcInstIdxToTmplUUIDMapArr[i]) {
+                svcTmpl = svcTmpls[svcInstIdxToTmplUUIDMapArr[i]];
+                version =
+                    commonUtils.getValueByJsonPath(svcTmpl,
+                                                   'service_template_properties;version',
+                                                   1);
+            }
+            var svcInstUUID =
+                commonUtils.getValueByJsonPath(filteredResults[i],
+                                               'service-instance;uuid', null);
+            if (null == svcInstUUID) {
+                continue;
+            }
+            siObjArr[i] = {};
+            siObjArr[i]['req'] = response.req;
+            siObjArr[i]['appData'] = appData;
+            siObjArr[i]['servInstId'] = svcInstUUID;
+            siObjArr[i]['servInstData'] = filteredResults[i];
+            siObjArr[i]['svcTmplVersion'] = version;
+        }
+
+        logutils.logger.debug("VM Status Nova Query Started at:" + new Date());
+        async.map(siObjArr, getServiceInstDetails, function(err, data) {
+            logutils.logger.debug("VM Status Nova Response processed at:" + new
+                                  Date());
+            commonUtils.handleJSONResponse(null, response, data);
+        });
     });
 }
 
@@ -2051,19 +2114,105 @@ function getServiceInstanceDetails(siObj, callback) {
 
 function getServiceInstDetails(siObj, callback)
 {
+    var svcTmplVersion = siObj['svcTmplVersion'];
+    if (1 == svcTmplVersion) {
+        getServiceInstDetailsV1(siObj, callback);
+    } else {
+        getServiceInstDetailsV2(siObj, callback);
+    }
+}
+
+function getServiceInstDetailsV2 (siObj, callback) {
     var req = siObj['req'];
     var appData = siObj['appData'];
     var servInstId = siObj['servInstId'];
     var data = siObj['servInstData'];
     var vmFound = true;
-
     var result = {};
-    try {
-        var vmRefs = data['service-instance']['virtual_machine_back_refs'];
-        if (null == vmRefs) {
-            vmFound = false;
+    var portTuples =
+        commonUtils.getValueByJsonPath(data,
+                                       'service-instance;port_tuples',
+                                       []);
+    if (!portTuples.length) {
+        result['ConfigData'] = data;
+        result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
+        updateVMStatusByCreateTS(result);
+        callback(null, result);
+        return;
+    }
+    var portTuplesLen = portTuples.length;
+    var uuidList = [];
+    for (var i = 0; i < portTuplesLen; i++) {
+        uuidList.push(portTuples[i]['uuid']);
+    }
+    var vmiUrl =
+        '/virtual-machine-interfaces?&fields=virtual_machine_refs&'
+        + 'back_ref_id=' + uuidList.join(',');
+    configApiServer.apiGet(vmiUrl, appData, function(error, vmiData) {
+        if ((null != error) || (null == vmiData) ||
+            (null == vmiData['virtual-machine-interfaces'])) {
+            result['ConfigData'] = data;
+            result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
+            updateVMStatusByCreateTS(result);
+            callback(null, result);
+            return;
         }
-    } catch (e) {
+        var vmiData = vmiData['virtual-machine-interfaces'];
+        var vmiCnt = vmiData.length;
+        var vmRefs = null;
+        var vmRefsList = [];
+        var tmpVMIUuids = {};
+        for (var i = 0; i < vmiCnt; i++) {
+            vmRefs =
+                commonUtils.getValueByJsonPath(vmiData[i],
+                                               'virtual_machine_refs',
+                                               []);
+            var vmRefsCnt = vmRefs.length;
+            for (var j = 0; j < vmRefsCnt; j++) {
+                var vmiID = vmRefs[j]['uuid'];
+                if (null == tmpVMIUuids[vmiID]) {
+                    vmRefsList.push(vmRefs[j]);
+                    tmpVMIUuids[vmiID] = vmiID;
+                }
+            }
+        }
+        if (!vmRefsList.length) {
+            result['ConfigData'] = data;
+            result['vmStatus'] = global.STR_VM_STATE_SPAWNING;
+            updateVMStatusByCreateTS(result);
+            callback(null, result);
+            return;
+        }
+        computeApi.getServiceInstanceVMStatus(req, vmRefsList,
+                                              function (err, result) {
+            if (err) {
+                logutils.logger.debug('Error in retrieving VM details for ' +
+                                      ' Instance Id: ' + servInstId +
+                                      ' with error:' + err);
+            }
+            var resultJSON = {};
+            resultJSON['ConfigData'] = data;
+            resultJSON['VMDetails'] = result;
+            /* Now update the vmStatus field */
+            resultJSON = updateVMStatus(resultJSON);
+            updateVMStatusByCreateTS(resultJSON);
+            callback(null, resultJSON);
+        });
+    });
+}
+
+function getServiceInstDetailsV1 (siObj, callback) {
+    var req = siObj['req'];
+    var appData = siObj['appData'];
+    var servInstId = siObj['servInstId'];
+    var data = siObj['servInstData'];
+    var vmFound = true;
+    var result = {};
+    var vmRefs =
+        commonUtils.getValueByJsonPath(data,
+                                       'service-instance;virtual_machine_back_refs',
+                                       null);
+    if (null == vmRefs) {
         vmFound = false;
     }
     if (false == vmFound) {

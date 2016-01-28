@@ -130,6 +130,13 @@ define([
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;interface_type',
                                            []);
+                    var version =
+                        getValueByJsonPath(svcTmplObj,
+                                           'service_template_properties;version',
+                                           1);
+                    if (1 != version) {
+                        return;
+                    }
                     var svcMode =
                         getValueByJsonPath(svcTmplObj,
                                            'service_template_properties;service_mode',
