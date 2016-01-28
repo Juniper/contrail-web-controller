@@ -61,16 +61,16 @@ define([
 
         this.termFormatting = function(term) {
             var formattedTerm = "";
-            var from = getValueByJsonPath(term, "from", "")
+            var from = getValueByJsonPath(term, "fromxx", "")
             formattedTerm += "from ";
             if(from != ""){
-                var community = getValueByJsonPath(term, "from;community", "");
+                var community = getValueByJsonPath(term, "fromxx;community", "");
                 if(community != "") {
                     formattedTerm +=  "community " + self.termFormat(community) + " ";
                 }
                 var type = getValueByJsonPath(term,
-                                             "from;prefix;type", "");
-                var prefix = getValueByJsonPath(term, "from;prefix;prefix", "");
+                                             "fromxx;prefix;type", "");
+                var prefix = getValueByJsonPath(term, "fromxx;prefix;prefix", "");
                 if(prefix != "") {
                     formattedTerm +=  "prefix " + self.termFormat(prefix) + " ";
                 }
@@ -115,7 +115,7 @@ define([
             }
 
             var localPref = getValueByJsonPath(term,
-                                       "then;update;local-pref", "")
+                                       "then;update;local_pref", "")
             if(localPref != "") {
                 thenValue +=  "local-preference "
                               + self.termFormat(localPref) + " ";
@@ -374,7 +374,7 @@ define([
                                             returnObject.error.available = true;
                                             return returnObject;
                                         }
-                                        returnObject["local-pref"]
+                                        returnObject["local_pref"]
                                             = Number(thenArraySplit[1]);
                                     }
                                 } else {
@@ -441,10 +441,10 @@ define([
                     returnStr += "community " + communityObj.remove.community;
                 }
             }
-            if("local-pref" in thenObj &&
-               thenObj["local-pref"] != "") {
+            if("local_pref" in thenObj &&
+               thenObj["local_pref"] != "") {
                 if(returnStr != "") returnStr += "\n"
-                returnStr += "local-pref " + thenObj["local-pref"];
+                returnStr += "local-pref " + thenObj["local_pref"];
             }
             return returnStr;
         };
