@@ -139,7 +139,10 @@ function buildvRouterVMTopology (nodeList, appData, callback)
                              opApiServer, null, appData);
     url = '/analytics/uves/vrouter';
     var vrPostData = {};
-    vrPostData['cfilt'] = ['VrouterAgent:self_ip_list','VrouterAgent:sandesh_http_port'];
+    // cfilts are not working for ContrailConfig object, so whole object is there.
+    // Once it start working need to pass virtual_router_type
+    vrPostData['cfilt'] = ['VrouterAgent:self_ip_list',
+        'VrouterAgent:sandesh_http_port', 'ContrailConfig:elements'];
     commonUtils.createReqObj(dataObjArr, url, global.HTTP_REQUEST_POST, vrPostData,
                              opApiServer, null, appData);
     var vmiUrl = '/analytics/uves/virtual-machine-interface';
@@ -228,7 +231,7 @@ function buildTopology (req, appData, callback)
                 for (var i = 0; i < vrCnt; i++) {
                     try {
                         tmpVRouterObjs[vrData[i]['name']] =
-                            vrData[i]['value']['VrouterAgent'];
+                            vrData[i]['value'];
                     } catch(e) {
                         continue;
                     }
@@ -239,7 +242,9 @@ function buildTopology (req, appData, callback)
                         phyTopo['nodes'][i]['node_type']) {
                         if (null != tmpVRouterObjs[phyTopo['nodes'][i]['name']]) {
                             phyTopo['nodes'][i]['more_attributes']['VrouterAgent']
-                                = tmpVRouterObjs[phyTopo['nodes'][i]['name']];
+                                = tmpVRouterObjs[phyTopo['nodes'][i]['name']]['VrouterAgent'];
+                            phyTopo['nodes'][i]['more_attributes']['ContrailConfig']
+                                = tmpVRouterObjs[phyTopo['nodes'][i]['name']]['ContrailConfig'];
                         }
                     }
                 }

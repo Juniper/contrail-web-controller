@@ -518,7 +518,7 @@ define([
         };
 
         self.getVRouterDetailsPageTabs = function (viewConfig) {
-            return [
+            var tabViewConfig = [
                 {
                     elementId: 'vrouter_detail_tab_id',
                     title: 'Details',
@@ -678,24 +678,6 @@ define([
                         renderOnActivate: true
                     }
                 },{
-                    elementId: 'vrouter_virtualmachines',
-                    title: 'Instances',
-                    view: "VRouterVirtualMachinesGridView",
-                    viewPathPrefix:
-                        ctwl.VROUTER_VIEWPATH_PREFIX,
-                    app: cowc.APP_CONTRAIL_CONTROLLER,
-                    viewConfig: viewConfig,
-                    tabConfig: {
-                        activate: function(event, ui) {
-                            if ($('#' + ctwl.VROUTER_INSTANCE_GRID_ID).data('contrailGrid')) {
-                                $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
-                                    data('contrailGrid').refreshView();
-                            }
-                        },
-                        renderOnActivate: true
-                    }
-                },
-                {
                     elementId: ctwl.VROUTER_CONSOLE_LOGS_VIEW_ID,
                     title: 'Console',
                     view: "NodeConsoleLogsView",
@@ -710,8 +692,7 @@ define([
                         },
                         renderOnActivate: true
                     }
-                },
-                {
+                },{
                     elementId:
                         ctwl.VROUTER_ALARMS_GRID_VIEW_ID,
                     title: 'Alarms',
@@ -730,7 +711,30 @@ define([
                         renderOnActivate: true
                     }
                 }
-            ]
+            ];
+            var vRouterType = viewConfig['vRouterType'];
+            if (vRouterType != null && vRouterType.indexOf('hypervisor') > -1 ) {
+                var instanceTabViewConfig = {
+                    elementId: 'vrouter_virtualmachines',
+                    title: 'Instances',
+                    view: "VRouterVirtualMachinesGridView",
+                    viewPathPrefix:
+                        ctwl.VROUTER_VIEWPATH_PREFIX,
+                    app: cowc.APP_CONTRAIL_CONTROLLER,
+                    viewConfig: viewConfig,
+                    tabConfig: {
+                        activate: function(event, ui) {
+                            if ($('#' + ctwl.VROUTER_INSTANCE_GRID_ID).data('contrailGrid')) {
+                                $('#' + ctwl.VROUTER_INSTANCE_GRID_ID).
+                                    data('contrailGrid').refreshView();
+                            }
+                        },
+                        renderOnActivate: true
+                    }
+                };
+                tabViewConfig.splice(7,0,instanceTabViewConfig);
+            }
+            return tabViewConfig;
         };
         self.getDetailRowInstanceTemplateConfig = function () {
             return {
