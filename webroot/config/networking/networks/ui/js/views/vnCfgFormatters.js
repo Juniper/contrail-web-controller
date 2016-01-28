@@ -137,8 +137,12 @@ define([
             }
 
             var sortedPols = 
-             _(pols).chain().sortBy('attr.sequence.major').
-                             sortBy('attr.sequence.minor').value();
+             _.sortBy(pols, function (pol) {
+                 var sequence =
+                    Number(getValueByJsonPath(pol, 'attr;sequence;major', 0));
+                 return ((1 + sequence) * 100000 ) - sequence;
+            });
+
             var pLen = 2;
             if (cd == -1) {
                 pLen = pols.length
@@ -178,8 +182,12 @@ define([
             }
 
             var sortedPols = 
-             _(pols).chain().sortBy('attr.sequence.major').
-                             sortBy('attr.sequence.minor').value();
+             _.sortBy(pols, function (pol) {
+                 var sequence =
+                    Number(getValueByJsonPath(pol, 'attr;sequence;major', 0));
+                 return ((1 + sequence) * 100000 ) - sequence;
+            });
+
             pLen = pols.length;
 
             $.each(sortedPols,
@@ -426,7 +434,7 @@ define([
         this.routeTargetFormatter = function(d, c, v, cd, dc) {
             var rtObj =
                 contrail.handleIfNull(
-                        dc['route_target_list']['route_target'], []);
+                        dc[v]['route_target'], []);
             var rtArr = [];
             var returnStr = '';
 
@@ -513,6 +521,17 @@ define([
         };
 
         /*
+         * @multiSvcChainFormatter
+         */
+        this.multiSvcChainFormatter = function(d, c, v, cd, dc) {
+            var multiSvcChainEnabled = getValueByJsonPath(dc,
+                'multi_policy_service_chains_enabled', false);
+
+            return multiSvcChainEnabled ? 'Enabled' : 'Disabled';
+        };
+
+
+        /*
          * @phyRouterFormatter
          */
         this.phyRouterFormatter = function(d, c, v, cd, dc) {
@@ -533,6 +552,26 @@ define([
                         phyRouterList.join('<br/>'): '-';
         };
 
+        /*
+         * @staticRouteFormatter
+         */
+        this.staticRouteFormatter = function(d, c, v, cd, dc) {
+            var staticRoutes = getValueByJsonPath(dc,
+                    'route_table_refs', []);
+            var staticRouteList = [], staticRouteArr = [];
+
+            $.each(staticRoutes, function (i, obj) {
+                var flatName = '';
+                cd == -1 ? flatName = obj.to.join(':') :
+                        flatName = obj['to'][2] + ' (' + obj['to'][1] + ')';
+                staticRouteList.push(flatName);
+                staticRouteArr.push(flatName);
+            });
+
+            return cd == -1 ? staticRouteArr :
+                    staticRouteList.length ?
+                        staticRouteList.join('<br/>'): '-';
+        };
         /*
          * @polMSFormatter
          */
@@ -581,6 +620,23 @@ define([
             });
 
             return phyRouterList;
+        };
+
+        /*
+         * @staticRouteMSFormatter
+         */
+        this.staticRouteMSFormatter = function(response) {
+            var staticRouteResponse = getValueByJsonPath(response,
+                    '0;route-tables', []);
+            var staticRouteList = [];
+
+            $.each(staticRouteResponse, function (i, obj) {
+                var flatName = obj.fq_name;
+                staticRouteList.push({id: obj.fq_name.join(':'),
+                                text: flatName[2]+ ' (' + flatName[1] + ')'});
+            });
+
+            return staticRouteList;
         };
 
         /*

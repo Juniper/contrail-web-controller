@@ -409,7 +409,7 @@ define([
                 for (var i = 0; i < len; i++) {
                     if (isShared && isShared == true) {
                         var vn = response['virtual-networks'][i]['virtual-network']
-                        if (!(domain == vn['fq_name'][0] && project == vn['fq_name'][1])) { 
+                        if (!(domain == vn['fq_name'][0] && project == vn['fq_name'][1])) {
                             retArr.push(response['virtual-networks'][i]['virtual-network']);
                         }
                     } else {
