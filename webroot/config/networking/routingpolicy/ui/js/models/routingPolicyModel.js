@@ -103,9 +103,9 @@ define([
                         var fromStructured =
                                 routingPolicyFormatter.buildFromStructure(from);
                         if(fromStructured.error.available == false) {
-                            newPoliceyRule[i].from = {};
+                            newPoliceyRule[i].fromxx = {};
                             delete fromStructured.error;
-                            newPoliceyRule[i].from = fromStructured;
+                            newPoliceyRule[i].fromxx = fromStructured;
                         } else {
                             if (contrail.checkIfFunction(callbackObj.error)) {
                                 callbackObj.error(this.getFormErrorText

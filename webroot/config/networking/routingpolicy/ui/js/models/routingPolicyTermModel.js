@@ -10,17 +10,17 @@ define([
     var routingPolicyFormatter = new RoutingPolicyFormatter();
     var RoutingPolicyTermModel = ContrailModel.extend({
         defaultConfig: {
-            "from":{
+            "fromxx":{
                 "community":"",
                 "prefix":{
                     "prefix":"",
-                    "type":""
+                    "type_":""
                 }
             },
             "then":{
                 "update": {
                     "community":{},
-                    "local-pref" : "",
+                    "local_pref" : "",
                 },
                 "action": ""
             },
@@ -31,17 +31,17 @@ define([
         formatModelConfig: function (config) {
             var modelConfig = $.extend({},true,config);
             var community =
-                getValueByJsonPath(modelConfig, "from;community", "");
+                getValueByJsonPath(modelConfig, "fromxx;community", "");
             var prefix =
-                getValueByJsonPath(modelConfig, "from;prefix;prefix", "");
+                getValueByJsonPath(modelConfig, "fromxx;prefix;prefix", "");
             if(community != "" || prefix != "") {
                 modelConfig["fromValue"] =
-                    routingPolicyFormatter.fromObjToStr(modelConfig["from"]);
+                    routingPolicyFormatter.fromObjToStr(modelConfig["fromxx"]);
             }
             var thenComm =
                 getValueByJsonPath(modelConfig, "then;update;community", "");
             var localpref =
-                getValueByJsonPath(modelConfig, "then;update;local-pref", "");
+                getValueByJsonPath(modelConfig, "then;update;local_pref", "");
             if(thenComm != "" || localpref != "") {
                 modelConfig["thenValue"] =
                   routingPolicyFormatter.thenObjToStr(modelConfig["then"]["update"]);
