@@ -437,11 +437,11 @@ define([
                             }
                             portBindingArr[i].value =
                                 value.models[i].attributes.value()
-                            if(portBindingArr[i].key == "vnic_type" &&
+                            /*if(portBindingArr[i].key == "vnic_type" &&
                                portBindingArr[i].value == "direct" &&
                                 finalObj.deviceOwnerValue != "compute") {
                                 return "Device owner compute has to be set for SRIOV.";
-                            }
+                            }*/
                         }
                         var key1 = "", key2 = "";
                         for(var i = 0; i < portBindingLength-1; i++) {
@@ -1064,7 +1064,6 @@ define([
                 delete(newPortData.disablePort);
                 delete(newPortData.disable_sub_interface);
                 delete(newPortData.subnetGroupVisible);
-                delete(newPortData.disablePort);
                 if("parent_href" in newPortData) {
                     delete(newPortData.parent_href);
                 }
