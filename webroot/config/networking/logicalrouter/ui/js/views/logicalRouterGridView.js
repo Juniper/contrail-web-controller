@@ -161,7 +161,7 @@ define([
         {
             field:"id_perms",
             name:"Admin State",
-            minWidth : 70,
+            minWidth : 120,
             formatter: lRFormatters.idPermsFormatter
         }
     ];

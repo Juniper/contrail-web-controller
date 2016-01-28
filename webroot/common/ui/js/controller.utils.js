@@ -545,7 +545,9 @@ define([
                 } else if ($.inArray(name, ['network']) > -1) {
                     fqName = selRowDataItem['name'];
                     ctwu.setNetworkURLHashParams(null, fqName, true)
-
+                } else if ($.inArray(name, ['vn']) > -1) {
+                    fqName = selRowDataItem['vnFQN'];
+                    ctwu.setNetworkURLHashParams(null, fqName, true)
                 } else if ($.inArray(name, ['instance']) > -1) {
                     fqName = selRowDataItem['vnFQN'];
                     uuid = selRowDataItem['name'];
