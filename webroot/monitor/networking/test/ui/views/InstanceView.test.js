@@ -146,7 +146,7 @@ define([
                     ]
                 },
                 {
-                    viewId: ctwl.INSTANCE_TRAFFIC_STATS_ID,
+                    viewId: ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID,
                     suites: [
                         {
                             class: LineWithFocusChartViewTestSuite,

@@ -4,10 +4,8 @@
 
 define([
     'underscore',
-    'contrail-view',
-    'core-basedir/js/views/LineWithFocusChartView',
-    'contrail-list-model',
-], function (_, ContrailView, LineWithFocusChartView, ContrailListModel) {
+    'contrail-view'
+], function (_, ContrailView) {
     var InstanceTrafficStatsView = ContrailView.extend({
         render: function () {
             var instanceTrafficStatsTemplate = contrail.getTemplate4Id(ctwc.TMPL_TRAFFIC_STATS_TAB),
@@ -24,7 +22,7 @@ define([
                         null, viewConfig.widgetConfig, null, null, null);
             }
             var instanceTrafficStatsDropdown = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_DROPDOWN_ID),
-                instanceTrafficStatsChart = $('#' + ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID);
+                instanceTrafficStatsChartId = ctwl.INSTANCE_TRAFFIC_STATS_CHART_ID;
 
             if (modelMap != null && modelMap[viewConfig['modelKey']] != null) {
                 var contrailViewModel = modelMap[viewConfig['modelKey']],
@@ -32,14 +30,14 @@ define([
 
                 if (!contrailViewModel.isRequestInProgress()) {
                     interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_details;
-                    constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChart,
-                        interfaceList, getInstanceTrafficStatsChangeCB(instanceTrafficStatsDropdown, instanceTrafficStatsChart, viewConfig));
+                    constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChartId,
+                        interfaceList, getInstanceTrafficStatsChangeCB(self, instanceTrafficStatsDropdown, instanceTrafficStatsChartId, viewConfig));
                 } else {
                     contrailViewModel.onAllRequestsComplete.subscribe(function () {
                         if (contrail.checkIfKeyExistInObject(true, contrailViewModel.attributes, 'value.UveVirtualMachineAgent.interface_details')) {
                             interfaceList = contrailViewModel.attributes.value.UveVirtualMachineAgent.interface_details;
-                            constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChart,
-                                interfaceList, getInstanceTrafficStatsChangeCB(instanceTrafficStatsDropdown, instanceTrafficStatsChart, viewConfig));
+                            constructInstanceTrafficStatsDropdown(instanceTrafficStatsDropdown, instanceTrafficStatsChartId,
+                                interfaceList, getInstanceTrafficStatsChangeCB(self, instanceTrafficStatsDropdown, instanceTrafficStatsChartId, viewConfig));
                         }
                     });
                 }
@@ -47,7 +45,7 @@ define([
         }
     });
 
-    var constructInstanceTrafficStatsDropdown = function(instanceTrafficStatsDropdown, instanceTrafficStatsChart, interfaceList, changeCB) {
+    var constructInstanceTrafficStatsDropdown = function(instanceTrafficStatsDropdown, instanceTrafficStatsChartId, interfaceList, changeCB) {
         if(contrail.checkIfExist(interfaceList) && interfaceList.length > 0) {
             var dropdownData = $.map(interfaceList, function (n, i) {
                 return {
@@ -67,11 +65,11 @@ define([
             instanceTrafficStatsDropdown.text(dropdownData[0].name);
             changeCB();
         } else {
-            instanceTrafficStatsChart.append(ctwm.NO_TRAFFIC_STATS_FOUND); //TODO - Style
+            $('#'+instanceTrafficStatsChartId).append(ctwm.NO_TRAFFIC_STATS_FOUND); //TODO - Style
         }
     };
 
-    var getInstanceTrafficStatsChangeCB = function(instanceTrafficStatsDropdown, instanceTrafficStatsChart, viewConfig) {
+    var getInstanceTrafficStatsChangeCB = function(self, instanceTrafficStatsDropdown, instanceTrafficStatsChartId, viewConfig) {
         var instanceUUID = viewConfig.instanceUUID,
             parseFn = viewConfig.parseFn;
 
@@ -96,13 +94,14 @@ define([
                     parseFn: parseFn
                 };
 
-            var lineFocusChartView = new LineWithFocusChartView({
-                el: instanceTrafficStatsChart,
+            var lineChartViewConfig = {
+                elementId: instanceTrafficStatsChartId,
                 model: null,
-                attributes: {viewConfig: lineChartConfig}
-            });
+                view: "LineWithFocusChartView",
+                viewConfig: lineChartConfig
+            };
 
-            lineFocusChartView.render();
+            self.renderView4Config(self.$el.find("#" + instanceTrafficStatsChartId), null, lineChartViewConfig, null, null, null);
         }
     };
 
