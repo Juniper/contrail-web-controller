@@ -280,6 +280,7 @@ define([
                                                                 placeholder: 'Select IPAM',
                                                                 dataTextField : "text",
                                                                 dataValueField : "id",
+                                                                defaultValueId : 0,
                                                                 dataSource : {
                                                                     type: 'remote',
                                                                     url: '/api/tenants/config/ipams',
@@ -574,93 +575,6 @@ define([
                                     {
                                         columns: [
                                         {
-                                            elementId: 'forwarding_mode',
-                                            view: "FormDropdownView",
-                                            viewConfig: {
-                                                label: 'Forwarding Mode',
-                                                path : 'virtual_network_properties.forwarding_mode',
-                                                class: 'span6',
-                                                dataBindValue :
-                                                    'virtual_network_properties().forwarding_mode',
-                                                elementConfig : {
-                                                    dataTextField : "text",
-                                                    dataValueField : "id",
-                                                    placeholder : 'Select Forwarding Mode',
-                                                    data : [{id: 'default', text:'Default'},
-                                                            {id: 'l2_l3', text:'L2 and L3'},
-                                                            {id: 'l3', text:'L3 Only'},
-                                                            {id: 'l2', text:'L2 Only'}]
-                                                }
-                                            }
-                                        },
-                                        {
-                                            elementId: 'vxlan_network_identifier',
-                                            view: 'FormInputView',
-                                            viewConfig: {
-                                                label: 'VxLAN Identifier',
-                                                path: 'virtual_network_properties.vxlan_network_identifier',
-                                                class: 'span6',
-                                                dataBindValue: 'virtual_network_properties().vxlan_network_identifier',
-                                                disabled: function () {
-                                                    var vxMode =
-                                                        (!(getValueByJsonPath(window.globalObj,
-                                                        'global-vrouter-config;global-vrouter-config;vxlan_network_identifier_mode',
-                                                        'automatic') == 'configured'));
-                                                    return vxMode;
-
-                                                }
-                                            }
-                                        }
-                                        ]
-                                    },
-                                    {
-                                        columns: [
-                                        {
-                                             elementId: 'user_created_dns_servers',
-                                             view: "FormEditableGridView",
-                                             viewConfig: {
-                                                 path : 'user_created_dns_servers',
-                                                 validation:
-                                                'subnetDNSModelConfigValidations',
-                                                 collection:
-                                                     'user_created_dns_servers',
-                                                 columns: [
-                                                     {
-                                                      elementId: 'ip_address',
-                                                      name:
-                                                        'DNS Server(s)',
-                                                      view: "FormInputView",
-                                                      viewConfig:
-                                                        {
-                                                         width: 400,
-                                                         placeholder: 'Enter space separated IP addresses',
-                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
-                                                         path: "ip_address",
-                                                         dataBindValue:
-                                                             'ip_address()',
-                                                        }
-                                                     },
-                                                 ],
-                                                 rowActions: [
-                                                    {onClick: "function() {\
-                                                         $root.deleteSubnetDNS($data, this);\
-                                                        }",
-                                                      iconClass: 'icon-minus'
-                                                    }
-                                                 ],
-                                                 gridActions: [
-                                                    {onClick: "function() {\
-                                                         addSubnetDNS();\
-                                                         }",
-                                                      buttonTitle: "DNS Server"
-                                                    }
-                                                 ]
-                                             }
-                                        }]
-                                    },
-                                    {
-                                        columns: [
-                                        {
                                             elementId: 'allow_transit',
                                             view: "FormCheckboxView",
                                             viewConfig : {
@@ -703,11 +617,70 @@ define([
                                     },
                                     {
                                         columns: [
+                                        {
+                                            elementId: 'multi_policy_service_chains_enabled',
+                                            view: "FormCheckboxView",
+                                            viewConfig : {
+                                                path : 'multi_policy_service_chains_enabled',
+                                                class : "span4",
+                                                label:'Multiple Service Chains',
+                                                dataBindValue : 'multi_policy_service_chains_enabled',
+                                                elementConfig : {
+                                                    isChecked:false
+                                                }
+                                            }
+                                        },
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                        {
+                                            elementId: 'forwarding_mode',
+                                            view: "FormDropdownView",
+                                            viewConfig: {
+                                                label: 'Forwarding Mode',
+                                                path : 'virtual_network_properties.forwarding_mode',
+                                                class: 'span6',
+                                                dataBindValue :
+                                                    'virtual_network_properties().forwarding_mode',
+                                                elementConfig : {
+                                                    dataTextField : "text",
+                                                    dataValueField : "id",
+                                                    placeholder : 'Select Forwarding Mode',
+                                                    data : [{id: 'default', text:'Default'},
+                                                            {id: 'l2_l3', text:'L2 and L3'},
+                                                            {id: 'l3', text:'L3 Only'},
+                                                            {id: 'l2', text:'L2 Only'}]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            elementId: 'vxlan_network_identifier',
+                                            view: 'FormInputView',
+                                            viewConfig: {
+                                                label: 'VxLAN Identifier',
+                                                path: 'virtual_network_properties.vxlan_network_identifier',
+                                                class: 'span6',
+                                                dataBindValue: 'virtual_network_properties().vxlan_network_identifier',
+                                                disabled: function () {
+                                                    var vxMode =
+                                                        (!(getValueByJsonPath(window.globalObj,
+                                                        'global-vrouter-config;global-vrouter-config;vxlan_network_identifier_mode',
+                                                        'automatic') == 'configured'));
+                                                    return vxMode;
+
+                                                }
+                                            }
+                                        }
+                                        ]
+                                    },
+                                    {
+                                        columns: [
                                             {
                                                 elementId: 'physical_router_back_refs',
                                                 view: 'FormMultiselectView',
                                                 viewConfig: {
-                                                    label: 'Physical Router(s)',
+                                                    label: 'Extend to Physical Router(s)',
                                                     path: 'physical_router_back_refs',
                                                     class: 'span6',
                                                     dataBindValue: 'physical_router_back_refs',
@@ -724,6 +697,97 @@ define([
                                                 }
                                             }
                                         }
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                            {
+                                                elementId: 'route_table_refs',
+                                                view: 'FormMultiselectView',
+                                                viewConfig: {
+                                                    label: 'Static Route(s)',
+                                                    path: 'route_table_refs',
+                                                    class: 'span6',
+                                                    dataBindValue: 'route_table_refs',
+                                                    elementConfig: {
+                                                        dataTextField: "text",
+                                                        dataValueField: "id",
+                                                        dataSource : {
+                                                            type: 'remote',
+                                                            requestType: 'POST',
+                                                            postData: JSON.stringify({'data':
+                                                                [{'type':'route-tables'}]}),
+                                                            url:
+                                                            '/api/tenants/config/get-config-list',
+                                                            parse:
+                                                            formatVNCfg.staticRouteMSFormatter,
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        ]
+                                    },
+                                    ]
+                                }
+                            }]
+                        }]
+                    },
+                    {
+                    columns: [
+                        {
+                        elementId: 'dns_servers',
+                        view: "AccordianView",
+                        viewConfig: [
+                            {
+                            elementId: 'dnsServers',
+                            title: 'DNS Servers',
+                            view: "SectionView",
+                            viewConfig: {
+                                    rows: [
+                                    {
+                                        columns: [
+                                        { 
+                                            elementId: 'user_created_dns_servers',
+                                             view: "FormEditableGridView",
+                                             viewConfig: {
+                                                 path : 'user_created_dns_servers',
+                                                 validation:
+                                                'subnetDNSModelConfigValidations',
+                                                 collection:
+                                                     'user_created_dns_servers',
+                                                 columns: [
+                                                     {
+                                                      elementId: 'ip_address',
+                                                      name:
+                                                        'DNS IPs',
+                                                      view: "FormInputView",
+                                                      viewConfig:
+                                                        {
+                                                         width: 400,
+                                                         placeholder: 'Enter space separated IP addresses',
+                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                         path: "ip_address",
+                                                         dataBindValue:
+                                                             'ip_address()',
+                                                        }
+                                                     },
+                                                 ],
+                                                 rowActions: [
+                                                    {onClick: "function() {\
+                                                         $root.deleteSubnetDNS($data, this);\
+                                                        }",
+                                                      iconClass: 'icon-minus'
+                                                    }
+                                                 ],
+                                                 gridActions: [
+                                                    {onClick: "function() {\
+                                                         addSubnetDNS();\
+                                                         }",
+                                                      buttonTitle: "DNS Server"
+                                                    }
+                                                 ]
+                                             }
+                                         }
                                         ]
                                     },
                                     ]
@@ -844,7 +908,7 @@ define([
                                                      {
                                                       elementId: 'asn',
                                                       name:
-                                                        'Route Target',
+                                                        'ASN',
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
@@ -859,7 +923,7 @@ define([
                                                      {
                                                       elementId: 'target',
                                                       name:
-                                                        '',
+                                                        'Target',
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
@@ -880,7 +944,7 @@ define([
                                                  ],
                                                  gridActions: [
                                                      {onClick: "function() {\
-                                                         addRouteTarget();\
+                                                         addRouteTarget('user_created_route_targets');\
                                                          }",
                                                       buttonTitle: "Route Target"}
                                                  ]
@@ -893,6 +957,158 @@ define([
                             }]
                         }]
                     },
+                    {
+                    columns: [
+                        {
+                        elementId: 'export_route_target_accordian',
+                        view: "AccordianView",
+                        viewConfig: [
+                            {
+                            elementId: 'export_route_target_vcfg',
+                            title: 'Export Route Target(s)',
+                            view: "SectionView",
+                            viewConfig: {
+                                    rows: [
+                                    {
+                                        columns: [
+                                        {
+                                             elementId: 'user_created_export_route_targets',
+                                             view: "FormEditableGridView",
+                                             viewConfig: {
+                                                 path : 'user_created_export_route_targets',
+                                                 validation:
+                                                'routeTargetModelConfigValidations',
+                                                 collection:
+                                                     'user_created_export_route_targets',
+                                                 columns: [
+                                                     {
+                                                      elementId: 'e_asn',
+                                                      name:
+                                                        'ASN',
+                                                      view: "FormInputView",
+                                                      viewConfig:
+                                                        {
+                                                         class: "", width: 250,
+                                                         placeholder: 'ASN 1-65534 or IP',
+                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                         path: "asn",
+                                                         dataBindValue:
+                                                             'asn()',
+                                                        }
+                                                     },
+                                                     {
+                                                      elementId: 'e_target',
+                                                      name:
+                                                        'Target',
+                                                      view: "FormInputView",
+                                                      viewConfig:
+                                                        {
+                                                         placeholder: 'Target 1-4294967295',
+                                                         class: "", width: 250,
+                                                         path: "target",
+                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                         dataBindValue:
+                                                             'target()',
+                                                        }
+                                                     },
+                                                 ],
+                                                 rowActions: [
+                                                     {onClick: "function() {\
+                                                         $root.deleteRouteTarget($data, this);\
+                                                        }",
+                                                      iconClass: 'icon-minus'}
+                                                 ],
+                                                 gridActions: [
+                                                     {onClick: "function() {\
+                                                         addRouteTarget('user_created_export_route_targets');\
+                                                         }",
+                                                      buttonTitle: "Export Route Target"}
+                                                 ]
+                                             }
+                                         }
+                                        ]
+                                    },
+                                    ]
+                                }
+                            }]
+                        }]
+                    },
+                    {
+                    columns: [
+                        {
+                        elementId: 'import_route_target_accordian',
+                        view: "AccordianView",
+                        viewConfig: [
+                            {
+                            elementId: 'import_route_target_vcfg',
+                            title: 'Import Route Target(s)',
+                            view: "SectionView",
+                            viewConfig: {
+                                    rows: [
+                                    {
+                                        columns: [
+                                        {
+                                             elementId: 'user_created_import_route_targets',
+                                             view: "FormEditableGridView",
+                                             viewConfig: {
+                                                 path : 'user_created_import_route_targets',
+                                                 validation:
+                                                'routeTargetModelConfigValidations',
+                                                 collection:
+                                                     'user_created_import_route_targets',
+                                                 columns: [
+                                                     {
+                                                      elementId: 'i_asn',
+                                                      name:
+                                                        'ASN',
+                                                      view: "FormInputView",
+                                                      viewConfig:
+                                                        {
+                                                         class: "", width: 250,
+                                                         placeholder: 'ASN 1-65534 or IP',
+                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                         path: "asn",
+                                                         dataBindValue:
+                                                             'asn()',
+                                                        }
+                                                     },
+                                                     {
+                                                      elementId: 'i_target',
+                                                      name:
+                                                        'Target',
+                                                      view: "FormInputView",
+                                                      viewConfig:
+                                                        {
+                                                         placeholder: 'Target 1-4294967295',
+                                                         class: "", width: 250,
+                                                         path: "target",
+                                                         templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
+                                                         dataBindValue:
+                                                             'target()',
+                                                        }
+                                                     },
+                                                 ],
+                                                 rowActions: [
+                                                     {onClick: "function() {\
+                                                         $root.deleteRouteTarget($data, this);\
+                                                        }",
+                                                      iconClass: 'icon-minus'}
+                                                 ],
+                                                 gridActions: [
+                                                     {onClick: "function() {\
+                                                         addRouteTarget('user_created_import_route_targets');\
+                                                         }",
+                                                      buttonTitle: "Import Route Target"}
+                                                 ]
+                                             }
+                                         }
+                                        ]
+                                    },
+                                    ]
+                                }
+                            }]
+                        }]
+                    }
                 ]  // End Rows
             }
         }

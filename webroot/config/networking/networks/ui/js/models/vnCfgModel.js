@@ -34,17 +34,26 @@ define([
             'route_target_list': {
                 'route_target': [], //collection
             },
+            'import_route_target_list': {
+                'route_target': [], //collection
+            },
+            'export_route_target_list': {
+                'route_target': [], //collection
+            },
             'is_shared': false,
             'router_external': false,
             'id_perms' : {
                 'enable': true,
             },
             'flood_unknown_unicast': false, //cross verify with Manish
+            'multi_policy_service_chains_enabled': false,
             'network_ipam_refs': [], // subnet collection
             'floating_ip_pools': [], // collection with projects
             'physical_router_back_refs': [],
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
+            'user_created_import_route_targets': [], //fake created for import_rt_list.rt collection
+            'user_created_export_route_targets': [], //fake created for export_rt_list.rt collection
             'user_created_dns_servers': [] , //fake created for dns in dhcp options under each subnet
             'pVlanId': null , //fake created for vcenter pvlan
             'sVlanId': null , //fake created for vcenter sec pvlan
@@ -62,6 +71,10 @@ define([
                     formatVNCfg.phyRouterFormatter(null, null,
                                                         null, -1, modelConfig);
 
+            modelConfig['route_table_refs'] =
+                    formatVNCfg.staticRouteFormatter(null, null,
+                                                        null, -1, modelConfig);
+            
             modelConfig['id_perms']['enable'] =
                          getValueByJsonPath(modelConfig, 'id_perms;enable', true);
 
@@ -92,7 +105,9 @@ define([
             }
 
             this.readSubnetHostRoutes(modelConfig);
-            this.readRouteTargetList(modelConfig);
+            this.readRouteTargetList(modelConfig, 'user_created_route_targets');
+            this.readRouteTargetList(modelConfig, 'user_created_import_route_targets');
+            this.readRouteTargetList(modelConfig, 'user_created_export_route_targets');
             this.readFipPoolList(modelConfig);
             this.readSubnetDNSList(modelConfig);
             this.readSubnetList(modelConfig);
@@ -158,23 +173,27 @@ define([
             return retAllocPool;
         },
 
-        readRouteTargetList: function (modelConfig) {
+        readRouteTargetList: function (modelConfig, type) {
+            var rtType = (type == 'user_created_route_targets' ?
+                            'route_target_list': 
+                            type == 'user_created_export_route_targets' ? 
+                                    'export_route_target_list' : 'import_route_target_list');
+
             var routeTargetModels = [], routeTargetList = [];
             routeTargetList =
                     formatVNCfg.routeTargetFormatter(null, null,
-                                                    null, -1, modelConfig);
+                                                     rtType, -1, modelConfig);
             if (routeTargetList.length) {
                 for(var i = 0; i < routeTargetList.length; i++) {
                     var routeTargetModel = new RouteTargetModel(routeTargetList[i]);
                     routeTargetModels.push(routeTargetModel);
                 }
             }
-            modelConfig['user_created_route_targets'] =
-                                        new Backbone.Collection(routeTargetModels);
+            modelConfig[type] = new Backbone.Collection(routeTargetModels);
         },
 
-        addRouteTarget: function() {
-            var routeTarget = this.model().attributes['user_created_route_targets'],
+        addRouteTarget: function(type) {
+            var routeTarget = this.model().attributes[type],
                 newRouteTarget = new RouteTargetModel({'asn': null,
                                                     'target': null,
                                                       });
@@ -189,12 +208,13 @@ define([
             routeTargetCollection.remove(routeTarget);
         },
 
-        getRouteTargetList : function(attr) {
-            var routeTargetCollection = attr.user_created_route_targets.toJSON(),
+        getRouteTargetList : function(attr, type) {
+            var routeTargetCollection = attr[type].toJSON(),
                 routeTargetArray = [];
             for(var i = 0; i < routeTargetCollection.length; i++) {
-                routeTargetArray.push('target:' + routeTargetCollection[i].asn().trim() + ':' +
-                                        routeTargetCollection[i].target().trim());
+                routeTargetArray.push('target:' +
+                            routeTargetCollection[i].asn().trim() + ':' +
+                            routeTargetCollection[i].target().trim());
             }
             return routeTargetArray;
         },
@@ -258,8 +278,7 @@ define([
                     fipPoolArray.push({'to': fipFQN})
                 }
             }
-            
-            attr['floating_ip_pools'] = fipPoolArray; 
+            attr['floating_ip_pools'] = fipPoolArray;
         },
 
 
@@ -322,7 +341,7 @@ define([
                 subnetModels.push(subnetModel);
             }
 
-            modelConfig['network_ipam_refs'] = 
+            modelConfig['network_ipam_refs'] =
                                     new Backbone.Collection(subnetModels);
         },
 
@@ -405,6 +424,20 @@ define([
             attr['network_policy_refs'] = policyList;
         },
 
+        getStaticRouteList: function(attr) {
+            var routes = [], routeList = [];
+
+            if (attr.route_table_refs.length) {
+                routes = attr.route_table_refs.split(',');
+            }
+            routes.every(function(route) {
+                routeList.push({'to': route.split(':')});
+                return true;
+            });
+
+            attr['route_table_refs'] = routeList;
+        },
+
         getSubnetList: function(attr) {
             var subnetCollection = attr.network_ipam_refs.toJSON(),
                 subnetArray = [], ipamAssocArr = {};
@@ -423,7 +456,7 @@ define([
                     }
                 } else if (!(subnet.user_created_enable_dns)) {
                     if (typeof subnet.dhcp_option_list == "function") {
-                        subnet.dhcp_option_list().dhcp_option = disabledDNS; 
+                        subnet.dhcp_option_list().dhcp_option = disabledDNS;
                     } else {
                         subnet['dhcp_option_list'] = {};
                         subnet['dhcp_option_list']['dhcp_option'] = disabledDNS;
@@ -477,18 +510,18 @@ define([
                 delete subnet['user_created_enable_gateway'];
                 delete subnet['user_created_ipam_fqn'];
                 delete subnet['user_created_cidr'];
-               
+
                 if (!(ipam_fqn in ipamAssocArr)) {
                     ipamAssocArr[ipam_fqn] = [];
                 }
-                ipamAssocArr[ipam_fqn].push(subnet);                   
+                ipamAssocArr[ipam_fqn].push(subnet);
             }
             for (var ipam in ipamAssocArr) {
                 subnetArray.push({'to': ipam.split(':'),
                                   'attr' :
                                   {'ipam_subnets': ipamAssocArr[ipam]}
                                   });
-            } 
+            }
             attr['network_ipam_refs'] = subnetArray;
         },
 
@@ -519,6 +552,21 @@ define([
             } else {
                 attr['virtual_network_properties']['rpf'] = 'false';
             }
+        },
+
+        getRouteTargets: function(attr) {
+            attr['route_target_list'] = {};
+            attr['route_target_list']['route_target'] =
+                                             this.getRouteTargetList(attr,
+                                                      'user_created_route_targets');
+            attr['export_route_target_list'] = {};
+            attr['export_route_target_list']['route_target'] =
+                                             this.getRouteTargetList(attr,
+                                                      'user_created_export_route_targets');
+            attr['import_route_target_list'] = {};
+            attr['import_route_target_list']['route_target'] =
+                                             this.getRouteTargetList(attr,
+                                                      'user_created_import_route_targets');
         },
 
         getPhysicalRouters: function(attr) {
@@ -554,8 +602,8 @@ define([
             });
             if (value) {
                 fipPools.add([fipPoolModel]);
-            } 
-        }, 
+            }
+        },
 
         validations: {
             vnCfgConfigValidations: {
@@ -660,13 +708,11 @@ define([
                 this.getFipPools(newVNCfgData);
                 this.getAdminState(newVNCfgData);
                 this.getPhysicalRouters(newVNCfgData);
-                this.getProperties(newVNCfgData); 
+                this.getProperties(newVNCfgData);
                 this.getSubnetList(newVNCfgData);
                 this.getPolicyList(newVNCfgData);
-                newVNCfgData['route_target_list'] = {};
-                newVNCfgData['route_target_list']['route_target'] =
-                                                 this.getRouteTargetList(newVNCfgData);
-
+                this.getStaticRouteList(newVNCfgData);
+                this.getRouteTargets(newVNCfgData);
                 delete newVNCfgData['virtual_network_network_id'];
 
                 delete newVNCfgData.errors;
@@ -678,6 +724,8 @@ define([
                 delete newVNCfgData.parent_href;
                 delete newVNCfgData.user_created_host_routes;
                 delete newVNCfgData.user_created_route_targets;
+                delete newVNCfgData.user_created_export_route_targets;
+                delete newVNCfgData.user_created_import_route_targets;
                 delete newVNCfgData.user_created_dns_servers;
                 delete newVNCfgData.physical_router_back_refs;
                 delete newVNCfgData.sVlanId;
@@ -688,7 +736,7 @@ define([
                     delete newVNCfgData.external_ipam;
                 } else {
                     newVNCfgData['pVlanId'] =
-                        Number(getValueByJsonPath(newVNCfgData, 'pVlanId', 0)); 
+                        Number(getValueByJsonPath(newVNCfgData, 'pVlanId', 0));
                 }
 
                 postData['virtual-network'] = newVNCfgData;

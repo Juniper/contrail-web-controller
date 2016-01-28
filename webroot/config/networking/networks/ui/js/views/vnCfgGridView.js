@@ -298,6 +298,22 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Export Route Target(s)',
+                                                    key: 'export_route_target_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'exportRouteTargetFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Import Route Target(s)',
+                                                    key: 'import_route_target_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'importRouteTargetFormatter',
+                                                    }
+                                                },
+                                                {
                                                     label: 'Forwarding Mode',
                                                     key: 'virtual_network_properties.forwarding_mode',
                                                     templateGenerator: 'TextGenerator',
@@ -338,6 +354,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'Multiple Service Chains',
+                                                    key: 'multi_policy_service_chains_enabled',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'multiSvcChainFormatter',
+                                                    }
+                                                },
+                                                {
                                                     label: 'Host Route(s)',
                                                     key: 'route_target_list',
                                                     templateGenerator: 'TextGenerator',
@@ -354,11 +378,19 @@ define([
                                                     }
                                                 },
                                                 {
-                                                    label: 'Extend to Physical Router(s)',
+                                                    label: 'Extended to Physical Router(s)',
                                                     key: 'physical_router_back_refs',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'phyRouterFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Attached Static Route(s)',
+                                                    key: 'route_table_refs',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'staticRouteFormatter',
                                                     }
                                                 },
                                             ]
@@ -399,7 +431,15 @@ define([
     }
     this.routeTargetFormatter = function (v, dc) {
         return formatVNCfg.routeTargetFormatter(null,
-                                        null, null, null, dc);
+                                        null, 'route_target_list', null, dc);
+    }
+    this.exportRouteTargetFormatter = function (v, dc) {
+        return formatVNCfg.routeTargetFormatter(null,
+                                        null, 'export_route_target_list', null, dc);
+    }
+    this.importRouteTargetFormatter = function (v, dc) {
+        return formatVNCfg.routeTargetFormatter(null,
+                                        null, 'import_route_target_list', null, dc);
     }
     this.subnetHostRouteFormatter = function (v, dc) {
         return formatVNCfg.subnetHostRouteFormatter(null,
@@ -425,12 +465,20 @@ define([
         return formatVNCfg.floodUnUcastFormatter(null,
                                         null, null, null, dc);
     }
+    this.multiSvcChainFormatter = function (v, dc) {
+        return formatVNCfg.multiSvcChainFormatter(null,
+                                        null, null, null, dc);
+    }
     this.subnetDNSFormatter = function (v, dc) {
         return formatVNCfg.subnetDNSFormatter(null,
                                         null, null, null, dc);
     }
     this.phyRouterFormatter = function (v, dc) {
         return formatVNCfg.phyRouterFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.staticRouteFormatter = function (v, dc) {
+        return formatVNCfg.staticRouteFormatter(null,
                                         null, null, null, dc);
     }
     return vnCfgGridView;
