@@ -161,9 +161,6 @@ define([
                             path: 'display_name',
                             class: 'span6',
                             dataBindValue: 'display_name',
-                            onBlur: function() {
-                                self.model.changePortTupleName()
-                            }
                         }
                     },
                     {

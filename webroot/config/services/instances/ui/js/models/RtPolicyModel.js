@@ -9,8 +9,8 @@ define([
     var RtPolicyModel = ContrailModel.extend({
 
         defaultConfig: {
-            routing_policy: "",
-            interface_type: "",
+            routing_policy: null,
+            interface_type: null,
             interfaceTypesData: []
         },
 
