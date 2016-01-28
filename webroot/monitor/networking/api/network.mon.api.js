@@ -1453,6 +1453,9 @@ function getInstanceDetailsForVRouter (req, res, appData) {
                     return;
                 }
             );
+        } else {
+            commonUtils.handleJSONResponse(null, res, resultJSON);
+            return;
         }
     });
 }

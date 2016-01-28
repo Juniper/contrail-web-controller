@@ -2635,7 +2635,14 @@ define([
         };
 
         self.getUnderlayVRouterParams = function (nodeDetails) {
-          return {
+            var vRouterType = JSON.parse(getValueByJsonPath(nodeDetails,
+                'more_attributes;ContrailConfig;elements;virtual_router_type',
+                []));
+            //Default type is hypervisor, so we are inserting hypervisor
+            if (vRouterType.length == 0) {
+                vRouterType.push('hypervisor');
+            }
+            return {
               hostname: nodeDetails['name'],
               ip: getValueByJsonPath(nodeDetails,
                   'more_attributes;VrouterAgent;self_ip_list;0',
@@ -2643,8 +2650,9 @@ define([
               introspectPort:
                   getValueByJsonPath(nodeDetails,
                   'more_attributes;VrouterAgent;sandesh_http_port',
-                  ctwc.DEFAULT_INTROSPECTPORT)
-          };
+                  ctwc.DEFAULT_INTROSPECTPORT),
+              vRouterType: vRouterType.toString()
+            };
         };
 
         self.getMarkersForUnderlay = function () {
