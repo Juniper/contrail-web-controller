@@ -25,7 +25,7 @@ define([
             'virtual_network_properties': {
                 'forwarding_mode': 'default', // l2 | l3 | l2_l3 | null = default. Delete property if it is set as default / null
                 'allow_transit': false,
-                'rpf': 'enable', //cross verify with Manish enable | disable
+                'rpf': 'enable',
                 'vxlan_network_identifier': null, //delete if it is null
             },
             'external_ipam': false, // set only when vcenter is enabled
@@ -45,18 +45,23 @@ define([
             'id_perms' : {
                 'enable': true,
             },
-            'flood_unknown_unicast': false, //cross verify with Manish
+            'flood_unknown_unicast': false,
             'multi_policy_service_chains_enabled': false,
             'network_ipam_refs': [], // subnet collection
             'floating_ip_pools': [], // collection with projects
             'physical_router_back_refs': [],
+            'provider_properties': {
+                'segmentation_id': null,
+                'physical_network': null
+            },
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
             'user_created_import_route_targets': [], //fake created for import_rt_list.rt collection
             'user_created_export_route_targets': [], //fake created for export_rt_list.rt collection
             'user_created_dns_servers': [] , //fake created for dns in dhcp options under each subnet
-            'pVlanId': null , //fake created for vcenter pvlan
-            'sVlanId': null , //fake created for vcenter sec pvlan
+            'user_created_sriov_enabled': false , //fake checkbox created for SRIOV
+            'pVlanId': null, //fake created for vcenter pvlan
+            'sVlanId': null, //fake created for vcenter sec pvlan
             //'routing_instance_refs': [], // not for now
             'route_table_refs': [],
             'disable': false,
@@ -111,6 +116,7 @@ define([
             this.readFipPoolList(modelConfig);
             this.readSubnetDNSList(modelConfig);
             this.readSubnetList(modelConfig);
+            this.readSRIOV(modelConfig);
 
             return modelConfig;
         },
@@ -605,6 +611,29 @@ define([
             }
         },
 
+        readSRIOV: function (modelConfig) {
+            var segment_id   = getValueByJsonPath(modelConfig,
+                                'provider_properties;segmentation_id', null);
+            var physical_net = getValueByJsonPath(modelConfig,
+                                'provider_properties;physical_network', null);
+
+            if (segment_id != null && physical_net != null) {
+                modelConfig['user_created_sriov_enabled'] = true;
+            }
+        },
+
+        getSRIOV: function (attr) {
+            var sriovEnabled = getValueByJsonPath(attr,
+                            'user_created_sriov_enabled', false);
+            if (sriovEnabled) {
+                attr['provider_properties']['segmentation_id'] =
+                    Number(getValueByJsonPath(attr,
+                                'provider_properties;segmentation_id', 1));
+            } else {
+                attr['provider_properties'] = null;
+            }
+        },
+
         validations: {
             vnCfgConfigValidations: {
                 'name': {
@@ -642,6 +671,28 @@ define([
                         if (isNaN(vlan) ||
                             vlan < 1 || vlan > 4094) {
                             return "Enter Secondary VLAN Identifier between 1 - 4094";
+                        }
+                    }
+                },
+                'provider_properties.physical_network':
+                function (value, attr, finalObj) {
+                    var sriovEnabled =
+                        getValueByJsonPath(finalObj,
+                        'user_created_sriov_enabled', false);
+                    if (sriovEnabled) {
+                        if (!value) {
+                            return "Enter Physical Network Name";
+                        }
+                    }
+                },
+                'provider_properties.segmentation_id':
+                function (value, attr, finalObj) {
+                    var sriovEnabled =
+                        getValueByJsonPath(finalObj,
+                        'user_created_sriov_enabled', false);
+                    if (sriovEnabled) {
+                        if (!value || (Number(value) < 1 || Number(value) > 4094))  {
+                            return "1 - 4094";
                         }
                     }
                 },
@@ -713,8 +764,9 @@ define([
                 this.getPolicyList(newVNCfgData);
                 this.getStaticRouteList(newVNCfgData);
                 this.getRouteTargets(newVNCfgData);
-                delete newVNCfgData['virtual_network_network_id'];
+                this.getSRIOV(newVNCfgData);
 
+                delete newVNCfgData['virtual_network_network_id'];
                 delete newVNCfgData.errors;
                 delete newVNCfgData.locks;
                 delete newVNCfgData.cgrid;
@@ -726,6 +778,7 @@ define([
                 delete newVNCfgData.user_created_route_targets;
                 delete newVNCfgData.user_created_export_route_targets;
                 delete newVNCfgData.user_created_import_route_targets;
+                delete newVNCfgData.user_created_sriov_enabled;
                 delete newVNCfgData.user_created_dns_servers;
                 delete newVNCfgData.physical_router_back_refs;
                 delete newVNCfgData.sVlanId;

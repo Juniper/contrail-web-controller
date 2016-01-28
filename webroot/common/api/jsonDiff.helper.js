@@ -16,7 +16,7 @@ var configJsonModifyObj = {
             'import_route_target_list', 'is_shared',
             'router_external', 'id_perms:enable',
             'flood_unknown_unicast', 'multi_policy_service_chains_enabled',
-            'route_table_refs'],
+            'route_table_refs', 'provider_properties'],
         'mandateFields': ['fq_name', 'uuid', 'display_name'],
         'subType': {
             'project': {

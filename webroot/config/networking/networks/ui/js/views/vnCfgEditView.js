@@ -674,6 +674,7 @@ define([
                                         }
                                         ]
                                     },
+
                                     {
                                         columns: [
                                             {
@@ -725,6 +726,51 @@ define([
                                                 }
                                             }
                                         }
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                            {
+                                                elementId: 'user_created_sriov_enabled',
+                                                view: 'FormCheckboxView',
+                                                viewConfig: {
+                                                    label: 'SRIOV',
+                                                    path: 'user_created_sriov_enabled',
+                                                    class: 'span2',
+                                                    dataBindValue: 'user_created_sriov_enabled',
+                                                    elementConfig: {
+                                                        isChecked: false
+                                                }
+                                            }
+                                        },
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                        {
+                                            elementId: 'physical_network',
+                                            view: 'FormInputView',
+                                            viewConfig: {
+                                                placeholder: 'Network Name',
+                                                label: 'Physical Network',
+                                                path: 'provider_properties.physical_network',
+                                                class: 'span6',
+                                                dataBindValue: 'provider_properties().physical_network',
+                                                visible: 'user_created_sriov_enabled()',
+                                            }
+                                        },
+                                        {
+                                            elementId: 'segmentation_id',
+                                            view: 'FormInputView',
+                                            viewConfig: {
+                                                placeholder: '1 - 4094',
+                                                label: 'VLAN',
+                                                path: 'provider_properties.segmentation_id',
+                                                class: 'span6',
+                                                dataBindValue: 'provider_properties().segmentation_id',
+                                                visible: 'user_created_sriov_enabled()',
+                                            }
+                                        },
                                         ]
                                     },
                                     ]
