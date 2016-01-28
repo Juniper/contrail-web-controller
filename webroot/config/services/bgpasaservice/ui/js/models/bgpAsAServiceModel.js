@@ -15,14 +15,15 @@ define([
             "fq_name": null,
             "parent_type": 'project',
             "bgpaas_ip_address": null,
+            "autonomous_system": null,
             "bgpaas_session_attributes": {
                 "admin_down": false,
-                "passive": false,
+                "passive": true,
                 "auth_data": null,
                 "hold_time": null,
                 "loop_count": null,
                 "address_families": {
-                    "family": ["inet"]
+                    "family": ["inet", "inet6"]
                 },
                 "family_attributes": []
             },
@@ -30,8 +31,6 @@ define([
             "user_created_virtual_machine_interface": null,
             "user_created_auth_key_type": "none",
             "user_created_auth_key": null,
-            "user_created_address_family" : "inet",
-            "user_created_admin_state" : true
         },
         formatModelConfig : function(modelConfig) {
             //prepare family attributes collection
@@ -61,12 +60,8 @@ define([
                         authData.key_items.length > 0 ?
                         authData.key_items[0].key : '';
                 }
-                if(bgpaasSessionAttrs['address_families']['family'].length > 0) {
-                    modelConfig['user_created_address_family'] =
-                        bgpaasSessionAttrs['address_families']['family'];
-                }
-                if(bgpaasSessionAttrs["admin_down"]) {
-                    modelConfig['user_created_admin_state'] =
+                if(bgpaasSessionAttrs["admin_down"] != null) {
+                    modelConfig["bgpaas_session_attributes"]['admin_down'] =
                         !bgpaasSessionAttrs["admin_down"];
                 }
             }
@@ -87,11 +82,20 @@ define([
             return modelConfig;
         },
         addFamilyAttr: function() {
-            var familyAttrs = this.model().attributes["familyAttrs"]
-            if(familyAttrs.length === 1){
+            var familyAttrs = this.model().attributes["familyAttrs"],
+                familyAttrsArry = familyAttrs.toJSON();
+            var addressFamily = "";
+            var inetFamily = "inet";
+            if(familyAttrsArry.length === 0) {
+                addressFamily = inetFamily;
+            } else if(familyAttrsArry.length === 1) {
+                addressFamily =
+                    familyAttrsArry[0].address_family() === inetFamily ?
+                    "inet6" : inetFamily;
+            } else if(familyAttrsArry.length === 2) {
                 return;
             }
-            var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({address_family: "inet",
+            var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({address_family: addressFamily,
                 loop_count: null, prefix_limit: null});
             familyAttrs.add([newFamilyAttr]);
         },
@@ -160,9 +164,22 @@ define([
                 var sessionAttrs =
                     newBGPAsAServiceData["bgpaas_session_attributes"];
 
+                //autonomous system
+                newBGPAsAServiceData["autonomous_system"] =
+                    newBGPAsAServiceData["autonomous_system"] ?
+                    Number(newBGPAsAServiceData["autonomous_system"]) : null;
+
+                //address families
+                newBGPAsAServiceData["bgpaas_session_attributes"]["address_families"]["family"] =
+                     sessionAttrs.address_families.family.split(",");
+
                 //family attrs
                 newBGPAsAServiceData["bgpaas_session_attributes"]
                     ["family_attributes"] = self.getFamilyAttrs(attr);
+
+                //admin down
+                newBGPAsAServiceData["bgpaas_session_attributes"]["admin_down"] =
+                    !sessionAttrs.admin_down;
 
                 //hold time
                 newBGPAsAServiceData["bgpaas_session_attributes"]["hold_time"] =
@@ -266,9 +283,15 @@ define([
                     msg: 'Enter BGP as a Service Name'
                 },
                 'bgpaas_ip_address' : function(value, attr, finalObj){
-                    if (!isValidIP(value) || value.trim().indexOf("/") != -1) {
+                    if (value && (!isValidIP(value) || value.trim().indexOf("/") != -1)) {
                         return "Enter an IP Address in the format xxx.xxx.xxx.xxx";
                     }
+                },
+                'autonomous_system' : function(value, attr, finalObj){
+                     var asn = Number(value);
+                     if (isNaN(asn) || asn < 1 || asn > 65534) {
+                         return "Enter ASN number between 1-65534";
+                     }
                 },
                 'bgpaas_session_attributes.hold_time' :  function(value, attr, finalObj){
                     if(value) {

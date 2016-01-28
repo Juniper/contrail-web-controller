@@ -51,17 +51,6 @@ define([
         }
     };
     function subscribeModelChangeEvents(bgpaasModel) {
-        bgpaasModel.__kb.view_model.model().on('change:user_created_address_family',
-            function(model, newValue){
-                bgpaasModel.bgpaas_session_attributes().address_families.family =
-                    newValue.split(',');
-            }
-        );
-        bgpaasModel.__kb.view_model.model().on('change:user_created_admin_state',
-            function(model, newValue){
-                bgpaasModel.bgpaas_session_attributes().admin_down = !newValue;
-            }
-        );
         bgpaasModel.disableAuthKey = ko.computed((function(){
             var disable;
             if(this.user_created_auth_key_type() === 'none') {
@@ -123,6 +112,7 @@ define([
                     field: "bgpaas_ip_address",
                     name: "IP Address",
                     sortable: true,
+                    formatter: bgpAsAServiceFormatter.ipAddressFormatter
                 },                {
                     field: "virtual_machine_interface_refs",
                     name: "Ports",
@@ -250,15 +240,22 @@ define([
                                 templateGeneratorConfig: [{
                                     key: 'name',
                                     templateGenerator: 'TextGenerator',
-                                    label: 'Name',
+                                    label: 'Name'
                                 },{
                                     key: "uuid",
                                     templateGenerator: "TextGenerator",
-                                    label: "UUID",
+                                    label: "UUID"
                                 },{
                                     key: "bgpaas_ip_address",
                                     templateGenerator: "TextGenerator",
                                     label: "IP Address",
+                                    templateGeneratorConfig: {
+                                        formatter: "IPAddressFormatter"
+                                    }
+                                },{
+                                    key: "autonomous_system",
+                                    templateGenerator: "TextGenerator",
+                                    label: "Autonomous System"
                                 },{
                                     key: "virtual_machine_interface_refs",
                                     templateGenerator: "TextGenerator",
@@ -325,6 +322,9 @@ define([
     };
 
 
+    this.IPAddressFormatter = function(v, dc) {
+        return bgpAsAServiceFormatter.ipAddressFormatter("", "", v, "", dc);
+    };
     this.VMIFormatter = function(v, dc) {
         return bgpAsAServiceFormatter.vmiFormatter("", "", v, "", dc);
     };
