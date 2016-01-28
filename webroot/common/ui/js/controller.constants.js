@@ -634,6 +634,11 @@ define([
                 text: "inet",
                 value: "inet",
                 locked: true
+            },
+            {
+                text: "inet6",
+                value: "inet6",
+                locked: true
             }
         ];
 

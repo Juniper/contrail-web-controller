@@ -6,6 +6,15 @@
      var bgpAsASSvcFormatter = function(){
 
          /*
+          * ipAddressFormatter
+          */
+          this.ipAddressFormatter = function(r, c, v, cd, dc) {
+              return getValueByJsonPath(dc,
+                  "bgpaas_ip_address", "-");
+          };
+
+
+         /*
           *  parseVMIDetails
           */
          this.parseVMIDetails = function(response) {

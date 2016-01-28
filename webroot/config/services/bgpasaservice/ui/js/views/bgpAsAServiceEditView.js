@@ -124,24 +124,35 @@ define([
                                     elementId: "bgpaas_ip_address",
                                     view: "FormInputView",
                                     viewConfig: {
-                                        placeholder: "IP Address",
+                                        placeholder: "Enter IP Address",
                                         path: "bgpaas_ip_address",
                                         dataBindValue: "bgpaas_ip_address",
-                                        label : "BGP Peer IP Address",
+                                        label : "IP Address",
                                         class: "span6"
                                     }
                                 }
                             ]
                         },{
                             columns:[
-                               {
-                                    elementId: "user_created_address_family",
+                                {
+                                    elementId: "autonomous_system",
+                                    view: "FormInputView",
+                                    viewConfig: {
+                                        placeholder: "1 - 65534",
+                                        path: "autonomous_system",
+                                        dataBindValue: "autonomous_system",
+                                        label : "Autonomous System",
+                                        class: "span6"
+                                    }
+                                },
+                                {
+                                    elementId: "family",
                                     view: "FormMultiselectView",
                                     viewConfig: {
                                         disabled: true,
                                         label: "Address Family",
-                                        dataBindValue: "user_created_address_family",
-                                        path: "user_created_address_family",
+                                        dataBindValue: "bgpaas_session_attributes().address_families.family",
+                                        path: "bgpaas_session_attributes.address_families.family",
                                         class: "span6",
                                         elementConfig: {
                                             placeholder: "Select Address Family",
@@ -191,12 +202,12 @@ define([
                                     viewConfig: {
                                         rows: [{
                                             columns: [{
-                                                elementId: "user_created_admin_state",
+                                                elementId: "admin_down",
                                                 view: "FormCheckboxView",
                                                 viewConfig: {
                                                     label: "Admin State",
-                                                    dataBindValue: "user_created_admin_state",
-                                                    path: "user_created_admin_state",
+                                                    dataBindValue: "bgpaas_session_attributes().admin_down",
+                                                    path: "bgpaas_session_attributes.admin_down",
                                                     class: "span6",
                                                 }
                                             },{
