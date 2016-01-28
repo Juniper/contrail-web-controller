@@ -530,6 +530,22 @@ define([
             return multiSvcChainEnabled ? 'Enabled' : 'Disabled';
         };
 
+        /*
+         * @sriovFormatter
+         */
+        this.sriovFormatter = function(d, c, v, cd, dc) {
+            var segment_id   = getValueByJsonPath(dc,
+                                'provider_properties;segmentation_id', null);
+            var physical_net = getValueByJsonPath(dc,
+                                'provider_properties;physical_network', null);
+
+            if (segment_id != null && physical_net != null) {
+                return 'Physical Network: ' + physical_net +
+                        ' , VLAN: ' + segment_id;        
+            } else {
+                return 'Disabled';
+            }
+        };
 
         /*
          * @phyRouterFormatter

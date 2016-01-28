@@ -362,6 +362,14 @@ define([
                                                     }
                                                 },
                                                 {
+                                                    label: 'SRIOV',
+                                                    key: 'provider_properties',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'sriovFormatter',
+                                                    }
+                                                },
+                                                {
                                                     label: 'Host Route(s)',
                                                     key: 'route_target_list',
                                                     templateGenerator: 'TextGenerator',
@@ -467,6 +475,10 @@ define([
     }
     this.multiSvcChainFormatter = function (v, dc) {
         return formatVNCfg.multiSvcChainFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.sriovFormatter = function (v, dc) {
+        return formatVNCfg.sriovFormatter(null,
                                         null, null, null, dc);
     }
     this.subnetDNSFormatter = function (v, dc) {
