@@ -64,6 +64,7 @@ define([
                 'destination_port': false
                 */
             },
+            'route_table_refs': [],
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
             'user_created_import_route_targets': [], //fake created for import_rt_list.rt collection
@@ -72,8 +73,7 @@ define([
             'user_created_sriov_enabled': false , //fake checkbox created for SRIOV
             'pVlanId': null, //fake created for vcenter pvlan
             'sVlanId': null, //fake created for vcenter sec pvlan
-            //'routing_instance_refs': [], // not for now
-            'route_table_refs': [],
+            'user_created_vxlan_mode': false,
             'disable': false,
         },
 
@@ -89,26 +89,6 @@ define([
             modelConfig['route_table_refs'] =
                     formatVNCfg.staticRouteFormatter(null, null,
                                                         null, -1, modelConfig);
-
-            modelConfig['id_perms']['enable'] =
-                         getValueByJsonPath(modelConfig, 'id_perms;enable', true);
-
-            modelConfig['virtual_network_properties'] =
-                         getValueByJsonPath(modelConfig, 'virtual_network_properties', {});
-
-            modelConfig['virtual_network_properties']['allow_transit'] =
-                         getValueByJsonPath(modelConfig,
-                                 'virtual_network_properties;allow_transit', false);
-
-            modelConfig['virtual_network_properties']['forwarding_mode'] =
-                         getValueByJsonPath(modelConfig,
-                                 'virtual_network_properties;forwarding_mode', 'default');
-
-            modelConfig['virtual_network_properties']['rpf'] =
-                    getValueByJsonPath(modelConfig,
-                        'virtual_network_properties;rpf', 'disable') == 'disable' ?
-                         false : true;
-
             modelConfig['uuid'] = getValueByJsonPath(modelConfig, 'uuid', null);
 
             if (modelConfig['uuid'] != null) {
@@ -130,6 +110,7 @@ define([
             this.readSubnetList(modelConfig);
             this.readSRIOV(modelConfig);
             this.readEcmpHashing(modelConfig);
+            this.readProperties(modelConfig);
 
             return modelConfig;
         },
@@ -169,6 +150,7 @@ define([
                 hostRouteArray = [];
             for(var i = 0; i < hostRouteCollection.length; i++) {
                 hostRouteArray.push({'prefix': hostRouteCollection[i].prefix(),
+                                     'next_hop_type': null,
                                      'next_hop': hostRouteCollection[i].next_hop()});
             }
             return hostRouteArray;
@@ -491,7 +473,7 @@ define([
                 if (subnet.user_created_enable_gateway == false) {
                     subnet.default_gateway = '0.0.0.0';
                 } else if (subnet.default_gateway == null) {
-                    var defGw = genarateGateway(subnet.user_created_cidr(), "start");
+                    var defGw = genarateGateway(subnet.user_created_cidr, "start");
                     //funny api
                     if (defGw != false) {
                         subnet.default_gateway = defGw;
@@ -568,23 +550,62 @@ define([
             if (rpf == null || rpf == true || rpf == 'enable') {
                 attr['virtual_network_properties']['rpf'] = 'enable';
             } else {
-                attr['virtual_network_properties']['rpf'] = 'false';
+                attr['virtual_network_properties']['rpf'] = 'disable';
             }
         },
+
+        readProperties: function(attr) {
+
+            attr['id_perms']['enable'] =
+                         getValueByJsonPath(attr, 'id_perms;enable', true);
+
+            attr['virtual_network_properties'] =
+                         getValueByJsonPath(attr, 'virtual_network_properties', {});
+
+            attr['virtual_network_properties']['allow_transit'] =
+                         getValueByJsonPath(attr,
+                                 'virtual_network_properties;allow_transit', false);
+
+            attr['virtual_network_properties']['forwarding_mode'] =
+                         getValueByJsonPath(attr,
+                                 'virtual_network_properties;forwarding_mode', 'default');
+
+            attr['virtual_network_properties']['rpf'] =
+                    getValueByJsonPath(attr,
+                        'virtual_network_properties;rpf', 'disable') == 'disable' ?
+                         false : true;
+
+            attr['user_created_vxlan_mode'] =
+                (getValueByJsonPath(window.globalObj,
+                'global-vrouter-config;global-vrouter-config;vxlan_network_identifier_mode',
+                                'automatic') == 'configured');
+        },
+
 
         getRouteTargets: function(attr) {
             attr['route_target_list'] = {};
             attr['route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_route_targets');
+            if (attr['route_target_list']['route_target'] == []) {
+                attr['route_target_list'] = {};
+            }
+
             attr['export_route_target_list'] = {};
             attr['export_route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_export_route_targets');
+            if (attr['export_route_target_list']['route_target'] == []) {
+                attr['export_route_target_list'] = {};
+            }
+
             attr['import_route_target_list'] = {};
             attr['import_route_target_list']['route_target'] =
                                              this.getRouteTargetList(attr,
                                                       'user_created_import_route_targets');
+            if (attr['import_route_target_list']['route_target'] == []) {
+                attr['import_route_target_list'] = {};
+            }
         },
 
         getPhysicalRouters: function(attr) {
@@ -710,7 +731,7 @@ define([
                 },
                 'pVlanId' :
                 function (value, attr, finalObj) {
-                    if (isVCenter()) {
+                    if (isVCenter() && finalObj['uuid'] == null) {
                         var vlan = Number(value);
                         if (isNaN(vlan) ||
                             vlan < 1 || vlan > 4094) {
@@ -720,7 +741,7 @@ define([
                 },
                 'sVlanId' :
                 function (value, attr, finalObj) {
-                    if (isVCenter()) {
+                    if (isVCenter() && finalObj['uuid'] == null) {
                         var vlan = Number(value);
                         if (isNaN(vlan) ||
                             vlan < 1 || vlan > 4094) {
@@ -820,7 +841,7 @@ define([
                 this.getSRIOV(newVNCfgData);
                 this.getEcmpHashing(newVNCfgData);
 
-                delete newVNCfgData['virtual_network_network_id'];
+                delete newVNCfgData.virtual_network_network_id;
                 delete newVNCfgData.errors;
                 delete newVNCfgData.locks;
                 delete newVNCfgData.cgrid;
@@ -837,6 +858,7 @@ define([
                 delete newVNCfgData.physical_router_back_refs;
                 delete newVNCfgData.sVlanId;
                 delete newVNCfgData.disable;
+                delete newVNCfgData.user_created_vxlan_mode;
 
                 if (!isVCenter()) {
                     delete newVNCfgData.pVlanId;

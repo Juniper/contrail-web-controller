@@ -535,6 +535,7 @@ define([
                                                 label:'Static IP Addressing',
                                                 dataBindValue : 'external_ipam',
                                                 visible : 'isVCenter()',
+                                                disabled: disableOnEdit,
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
@@ -662,14 +663,7 @@ define([
                                                 path: 'virtual_network_properties.vxlan_network_identifier',
                                                 class: 'span6',
                                                 dataBindValue: 'virtual_network_properties().vxlan_network_identifier',
-                                                disabled: function () {
-                                                    var vxMode =
-                                                        (!(getValueByJsonPath(window.globalObj,
-                                                        'global-vrouter-config;global-vrouter-config;vxlan_network_identifier_mode',
-                                                        'automatic') == 'configured'));
-                                                    return vxMode;
-
-                                                }
+                                                visible: 'user_created_vxlan_mode()',
                                             }
                                         }
                                         ]
@@ -763,7 +757,7 @@ define([
                                                 elementId: 'user_created_sriov_enabled',
                                                 view: 'FormCheckboxView',
                                                 viewConfig: {
-                                                    label: 'SRIOV',
+                                                    label: 'SR-IOV',
                                                     path: 'user_created_sriov_enabled',
                                                     class: 'span2',
                                                     dataBindValue: 'user_created_sriov_enabled',

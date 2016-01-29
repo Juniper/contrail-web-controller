@@ -47,13 +47,15 @@ define([
             subnetModelConfigValidations: {
                 'user_created_cidr':
                 function (value, attr, finalObj) {
-                    if ((value && value.indexOf('/') == -1) || value && !isValidIP(value)) {
+                    if ((value && value.indexOf('/') == -1) || value && !isValidIP(value) ||
+                            !value || !value.length) {
                         return "Enter valid IPv4 or IPv6 Subnet/Mask";
                     }
                 },
                 'default_gateway':
                 function (value, attr, finalObj) {
-                    if (value && value.indexOf('/') != -1 || value && !isValidIP(value)) {
+                    if (value && value.indexOf('/') != -1 || value && !isValidIP(value)
+                            || !value || !value.length) {
                         return "Enter valid IPv4 or IPv6 Gateway";
                     }
                 },

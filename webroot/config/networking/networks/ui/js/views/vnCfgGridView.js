@@ -229,7 +229,7 @@ define([
                                             templateGeneratorConfig: [
                                                 {
                                                     label: 'Subnet(s)',
-                                                    key: 'network_ipam_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'subnetTmplFormatter'
@@ -259,7 +259,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Shared',
-                                                    key: 'is_shared',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'sharedFormatter'
@@ -268,7 +268,7 @@ define([
                                                 
                                                 {
                                                     label: 'External',
-                                                    key: 'router_external',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'rtrExternalFormatter'
@@ -276,7 +276,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Attached Network Policies',
-                                                    key: 'network_policy_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'polColFormatter',
@@ -285,7 +285,7 @@ define([
 
                                                 {
                                                     label: 'Forwarding Mode',
-                                                    key: 'virtual_network_properties.forwarding_mode',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'fwdModeFormatter',
@@ -293,7 +293,7 @@ define([
                                                 },
                                                 {
                                                     label: 'VxLAN Identifier',
-                                                    key: 'virtual_network_properties',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'vxLanIdFormatter',
@@ -301,7 +301,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Allow Transit',
-                                                    key: 'virtual_network_properties',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'allowTransitFormatter',
@@ -309,7 +309,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Reverse Path Forwarding',
-                                                    key: 'virtual_network_properties',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'rpfFormatter',
@@ -317,7 +317,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Flood Unknown Unicast',
-                                                    key: 'flood_unknown_unicast',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'floodUnUcastFormatter',
@@ -325,7 +325,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Multiple Service Chains',
-                                                    key: 'multi_policy_service_chains_enabled',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'multiSvcChainFormatter',
@@ -333,7 +333,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Host Route(s)',
-                                                    key: 'route_target_list',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'subnetHostRouteFormatter',
@@ -341,7 +341,7 @@ define([
                                                 },
                                                 {
                                                     label: 'DNS Server(s)',
-                                                    key: 'network_ipam_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'subnetDNSFormatter',
@@ -349,15 +349,15 @@ define([
                                                 },
                                                 {
                                                     label: 'Ecmp Hashing Fields',
-                                                    key: 'ecmp_hashing_include_fields',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'ecmpHashFormatter',
                                                     }
                                                 },
                                                 {
-                                                    label: 'SRIOV',
-                                                    key: 'provider_properties',
+                                                    label: 'SR-IOV',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'sriovFormatter',
@@ -365,7 +365,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Extended to Physical Router(s)',
-                                                    key: 'physical_router_back_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'phyRouterFormatter',
@@ -373,7 +373,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Attached Static Route(s)',
-                                                    key: 'route_table_refs',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'staticRouteFormatter',
@@ -381,7 +381,7 @@ define([
                                                 },
                                                 {
                                                     label: 'Floating IP Pool(s)',
-                                                    key: 'floating_ip_pools',
+                                                    key: 'uuid',
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'fipPoolTmplFormatter',
@@ -411,7 +411,6 @@ define([
                                                         formatter: 'importRouteTargetFormatter',
                                                     }
                                                 },
-
                                             ]
                                         }
                                     ]
@@ -452,20 +451,24 @@ define([
                                         null, null, null, dc);
     }
     this.routeTargetFormatter = function (v, dc) {
-        return formatVNCfg.routeTargetFormatter(null,
+        var retStr = formatVNCfg.routeTargetFormatter(null,
                                         null, 'route_target_list', null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.exportRouteTargetFormatter = function (v, dc) {
-        return formatVNCfg.routeTargetFormatter(null,
+        var retStr = formatVNCfg.routeTargetFormatter(null,
                                         null, 'export_route_target_list', null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.importRouteTargetFormatter = function (v, dc) {
-        return formatVNCfg.routeTargetFormatter(null,
+        var retStr = formatVNCfg.routeTargetFormatter(null,
                                         null, 'import_route_target_list', null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.subnetHostRouteFormatter = function (v, dc) {
-        return formatVNCfg.subnetHostRouteFormatter(null,
+        var retStr = formatVNCfg.subnetHostRouteFormatter(null,
                                         null, null, null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.fwdModeFormatter = function (v, dc) {
         return formatVNCfg.fwdModeFormatter(null,
@@ -496,12 +499,14 @@ define([
                                         null, null, null, dc);
     }
     this.ecmpHashFormatter = function (v, dc) {
-        return formatVNCfg.ecmpHashFormatter(null,
+        var retStr =  formatVNCfg.ecmpHashFormatter(null,
                                         null, null, null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.subnetDNSFormatter = function (v, dc) {
-        return formatVNCfg.subnetDNSFormatter(null,
+        var retStr =  formatVNCfg.subnetDNSFormatter(null,
                                         null, null, null, dc);
+        return retStr.length ? retStr : '-';
     }
     this.phyRouterFormatter = function (v, dc) {
         return formatVNCfg.phyRouterFormatter(null,
