@@ -12,10 +12,7 @@ define([
         defaultConfig: {
             "fromxx":{
                 "community":"",
-                "prefix":{
-                    "prefix":"",
-                    "type_":""
-                }
+                "prefix":[]
             },
             "then":{
                 "update": {
@@ -33,8 +30,8 @@ define([
             var community =
                 getValueByJsonPath(modelConfig, "fromxx;community", "");
             var prefix =
-                getValueByJsonPath(modelConfig, "fromxx;prefix;prefix", "");
-            if(community != "" || prefix != "") {
+                getValueByJsonPath(modelConfig, "fromxx;prefix", []);
+            if(community != "" || prefix.length > 0) {
                 modelConfig["fromValue"] =
                     routingPolicyFormatter.fromObjToStr(modelConfig["fromxx"]);
             }

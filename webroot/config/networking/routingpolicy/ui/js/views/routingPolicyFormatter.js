@@ -63,19 +63,26 @@ define([
             var formattedTerm = "";
             var from = getValueByJsonPath(term, "fromxx", "")
             formattedTerm += "from ";
-            if(from != ""){
+            if (from != "") {
                 var community = getValueByJsonPath(term, "fromxx;community", "");
                 if(community != "") {
                     formattedTerm +=  "community " + self.termFormat(community) + " ";
                 }
-                var type = getValueByJsonPath(term,
-                                             "fromxx;prefix;type_", "");
-                var prefix = getValueByJsonPath(term, "fromxx;prefix;prefix", "");
-                if(prefix != "") {
-                    formattedTerm +=  "prefix " + self.termFormat(prefix) + " ";
-                }
-                if(type != "") {
-                    formattedTerm += self.termFormat(type) + " ";
+                var termPrefix = getValueByJsonPath(term,
+                                             "fromxx;prefix", []);
+                if (termPrefix.length > 0) {
+                    var prefixLen = termPrefix.length;
+                    for (var i = 0; i < prefixLen; i++) {
+                        var perPrefix = termPrefix[i],
+                            type = getValueByJsonPath(perPrefix, "type_", ""),
+                            prefix = getValueByJsonPath(perPrefix, "prefix", "");
+                        if(prefix != "") {
+                            formattedTerm +=  "prefix " + self.termFormat(prefix) + " ";
+                        }
+                        if(type != "") {
+                            formattedTerm += self.termFormat(type) + " ";
+                        }
+                    }
                 }
             } else {
                 formattedTerm += self.termFormat("any ");
@@ -191,8 +198,9 @@ define([
                                 }
                                 if(fromArraySplit.length == 2 ||
                                    fromArraySplit.length == 3) {
-                                    returnObject.prefix = {};
-                                    returnObject.prefix.prefix =
+                                    returnObject.prefix = [];
+                                    returnObject.prefix[0] = {};
+                                    returnObject.prefix[0].prefix =
                                                  fromArraySplit[1];
                                     if(fromArraySplit.length == 2) {
                                         if(fromArraySplit[1] == "exact" ||
@@ -203,7 +211,7 @@ define([
                                             returnObject.error.available = true;
                                             return returnObject;
                                         }
-                                        returnObject.prefix.type_ =
+                                        returnObject.prefix[0].type_ =
                                                             "exact";
                                     } else {
                                         var prefixType =
@@ -211,7 +219,7 @@ define([
                                         if(prefixType == "orlonger" ||
                                            prefixType == "longer" ||
                                            prefixType == "exact") {
-                                        returnObject.prefix.type_ =
+                                        returnObject.prefix[0].type_ =
                                                             fromArraySplit[2];
                                         } else {
                                             returnObject.error.message =
@@ -413,11 +421,19 @@ define([
             if(fromObj.community != "") {
                 returnStr += "community " + fromObj.community;
             }
-            var prefixVal = getValueByJsonPath(fromObj, "prefix;prefix", "");
-            if(prefixVal != "") {
-                if(returnStr != "") returnStr += "\n"
-                returnStr += "prefix " + fromObj.prefix.prefix;
-                returnStr += " " + fromObj.prefix.type_;
+
+            var prefixVal = getValueByJsonPath(fromObj, "prefix", []),
+                prefixLen = prefixVal.length;
+            if (returnStr != "" && prefixLen > 0) {
+                returnStr += "\n"
+            }
+            for (var i = 0; i < prefixLen; i++) {
+                var prefixIP = getValueByJsonPath(prefixVal[i], "prefix", "");
+                    prefixType = getValueByJsonPath(prefixVal[i], "type_", "");
+                if(prefixIP != "") {
+                    returnStr += "prefix " + prefixIP;
+                    returnStr += " " + prefixType;
+                }
             }
             return returnStr;
         };
