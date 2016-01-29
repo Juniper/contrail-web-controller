@@ -48,7 +48,7 @@ and need to add the iconClass tag wherever we need to show some icons
                             <searchStrings>Infrastructure Dashboard</searchStrings>
                             <resources>
                                 <resource>
-                                    <rootDir>.</rootDir>
+                                    <rootDir></rootDir>
                                     <js>monInfraDashboard.main.js</js>
                                     <class>monInfraDashboardLoader</class>
                                 </resource>
