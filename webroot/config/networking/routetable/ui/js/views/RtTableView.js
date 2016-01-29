@@ -50,8 +50,7 @@ define([
                        if ($('#' + ctwl.NETWORK_ROUTE_TABLE_ID)) {
                            $('#' + ctwl.NETWORK_ROUTE_TABLE_ID).trigger('refresh');
                        }
-                   },
-                   renderOnActivate: true
+                   }
                }
            },
            {

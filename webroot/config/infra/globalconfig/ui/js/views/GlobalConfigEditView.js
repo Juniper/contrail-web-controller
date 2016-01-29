@@ -162,7 +162,7 @@ define([
                                 elementId: 'ecmpHashingIncFields',
                                 view: 'FormMultiselectView',
                                 viewConfig: {
-                                    label: 'ECMP Hashing',
+                                    label: 'ECMP Hashing Fields',
                                     path: 'ecmp_hashing_include_fields',
                                     class: 'span12',
                                     dataBindValue:

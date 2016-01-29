@@ -158,7 +158,7 @@ define([
         {'key': 'flow_export_rate', 'name': 'Flow Export Rate'},
         {'key': 'flow_aging_timeout_list', 'name': 'Flow Aging Timeout'},
         {'key': 'ecmp_hashing_include_fields',
-            'name': 'ECMP Hashing'},
+            'name': 'ECMP Hashing Fields'},
         {'key': 'autonomous_system', 'name': 'Global ASN'},
         {'key': 'ibgp_auto_mesh', 'name': 'iBGP Auto Mesh'},
         {'key': 'ip_fabric_subnets', 'name': 'IP Fabric Subnets'}

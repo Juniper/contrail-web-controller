@@ -362,6 +362,15 @@ define([
                                             formatter: 'portTuplesFormatter'
                                         }
                                     },
+                                                                        {
+                                        key: 'service_health_check_back_refs',
+                                        keyClass: 'span2',
+                                        label: 'Service Health Checks',
+                                        templateGenerator: 'TextGenerator',
+                                        templateGeneratorConfig: {
+                                            formatter: 'svcHealtchChksFormatter'
+                                        }
+                                    },
                                     {
                                         key: 'interface_route_table_back_refs',
                                         keyClass: 'span2',
@@ -369,15 +378,6 @@ define([
                                         templateGenerator: 'TextGenerator',
                                         templateGeneratorConfig: {
                                             formatter: 'intfRtTablesFormatter'
-                                        }
-                                    },
-                                    {
-                                        key: 'service_health_check_back_refs',
-                                        keyClass: 'span2',
-                                        label: 'Service Health Checks',
-                                        templateGenerator: 'TextGenerator',
-                                        templateGeneratorConfig: {
-                                            formatter: 'svcHealtchChksFormatter'
                                         }
                                     },
                                     {
@@ -627,19 +627,92 @@ define([
         return "-";
     }
 
-    function svcInstBackRefsFormatter (row, col, val, d, rowData) {
+    function routingPolicyFormatter (row, col, val, d, rowData) {
         var dispStr = "";
         if (null == val) {
             return "-";
         }
         var len = val.length;
+        var leftList = [];
+        var rightList = [];
         for (var i = 0; i < len; i++) {
-            dispStr += val[i]['to'][2];
-            dispStr += ' (' + '<span class="gridLabel">Interface Type: </span>';
+            var leftIntfSeq =
+                getValueByJsonPath(val[i], 'attr;left_sequence',
+                                   null);
+            var rtPolicyStr =
+                ((contrail.getCookie('domain') == val[i]['to'][0]) &&
+                 (contrail.getCookie('project') == val[i]['to'][1])) ?
+                val[i]['to'][2] : val[i]['to'][2] + ' (' +
+                    val[i]['to'][0] + ':' + val[i]['to'][1] + ')';
+            if (null != leftIntfSeq) {
+                leftList.push({seqId: Number(leftIntfSeq),
+                              rtPolicy: rtPolicyStr});
+            }
+            var rtIntfSeq =
+                getValueByJsonPath(val[i], 'attr;right_sequence',
+                                   null);
+            if (null != rtIntfSeq) {
+                rightList.push({seqId: Number(rtIntfSeq),
+                               rtPolicy: rtPolicyStr});
+            }
+        }
+        var rtList = [];
+        if (leftList.length > 0) {
+            leftList.sort(function(entry1, entry2) {
+                return entry1.seqId - entry2.seqId;
+            });
+            var len = leftList.length;
+            for (var i = 0; i < len; i++) {
+                rtList.push(leftList[i]['rtPolicy']);
+            }
+            dispStr += '(Interface Type: ';
+            dispStr += '<span class="gridLabel">left</span>';
+            dispStr += ") ";
+            dispStr += rtList.join(', ');
+            dispStr += '<br>';
+        }
+        rtList = [];
+        if (rightList.length > 0) {
+            rightList.sort(function(entry1, entry2) {
+                return entry1.seqId - entry2.seqId;
+            });
+            var len = rightList.length;
+            for (var i = 0; i < len; i++) {
+                rtList.push(rightList[i]['rtPolicy']);
+            }
+            dispStr += '(Interface Type: ';
+            dispStr += '<span class="gridLabel">right</span>';
+            dispStr += ") ";
+            dispStr += rtList.join(', ');
+        }
+        return dispStr;
+    }
+
+    function svcInstBackRefsFormatter (row, col, val, d, rowData) {
+        var dispStr = "";
+        if (null == val) {
+            return "-";
+        }
+        var refObjs = {};
+        var len = val.length;
+        for (var i = 0; i < len; i++) {
             var intfType =
                 getValueByJsonPath(val[i], 'attr;interface_type', "");
-            dispStr += intfType;
-            dispStr += ")";
+            if (null == refObjs[intfType]) {
+                refObjs[intfType] = [];
+            }
+            var value =
+                ((contrail.getCookie('domain') == val[i]['to'][0]) &&
+                 (contrail.getCookie('project') == val[i]['to'][1])) ?
+                val[i]['to'][2] : val[i]['to'][2] + ' (' +
+                    val[i]['to'][0] + ':' + val[i]['to'][1] + ')';
+            refObjs[intfType].push(value);
+        }
+        for (intfType in refObjs) {
+            dispStr += '(Interface Type: ';
+            dispStr += '<span class="gridLabel">' + intfType + '</span>';
+            dispStr += ") ";
+            dispStr += refObjs[intfType].join(', ');
             dispStr += "<br>";
         }
         return dispStr;
@@ -845,7 +918,7 @@ define([
     }
 
     this.routingPolicyFormatter = function(val, rowData) {
-        return svcInstBackRefsFormatter(null, null, val, null, rowData);
+        return routingPolicyFormatter(null, null, val, null, rowData);
     }
 
     this.rtAggFormatter = function(val, rowData) {
@@ -918,7 +991,7 @@ define([
             }
         },
         {
-            name: 'Networks/Port Tuples',
+            name: 'Networks / Port Tuples',
             formatter: function(row, col, val, d, rowData) {
                 return networksFormatter(row, col, val, d, rowData, false);
             }

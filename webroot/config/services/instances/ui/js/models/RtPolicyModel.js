@@ -11,7 +11,7 @@ define([
         defaultConfig: {
             routing_policy: null,
             interface_type: null,
-            interfaceTypesData: []
+            rtPolicyInterfaceTypesData: []
         },
 
         validateAttr: function (attributePath, validation, data) {

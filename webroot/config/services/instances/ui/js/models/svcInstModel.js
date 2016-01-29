@@ -122,6 +122,44 @@ define([
                         }
                     }
                 },
+                'routing_policy': function(val, attr, data) {
+                    var svcTmpl = data.service_template;
+                    var svcTmplObj =
+                        svcInstUtils.getSvcTmplDetailsBySvcTmplStr(svcTmpl);
+                    var tmplVer =
+                        getValueByJsonPath(svcTmplObj,'service_template_properties;version',
+                                           1);
+                    if (1 == tmplVer) {
+                        return;
+                    }
+                    var rtPolicys = data['rtPolicys'];
+                    if (null == rtPolicys) {
+                        return;
+                    }
+                    rtPolicys = rtPolicys.toJSON();
+                    var len = rtPolicys.length;
+                    var intfTypes = [];
+                    var rtPolicyList = [];
+                    for (var i = 0; i < len; i++) {
+                        var intfType = rtPolicys[i]['interface_type']();
+                        if (null == intfType) {
+                            return 'Interface type is required for routing '+
+                                'policy';
+                        }
+                        var entry =
+                            rtPolicys[i]['routing_policy']();
+                        if (null == entry) {
+                            return 'Select routing policy in order';
+                        }
+                        intfTypes.push(intfType);
+                    }
+                    if (intfTypes.length > 1) {
+                        if (intfTypes.length != (_.uniq(intfTypes)).length) {
+                            return 'Same interface types selected for ' +
+                                'multiple routing policy';
+                        }
+                    }
+                },
                 'virtualNetwork': function(val, attr, data) {
                     var svcTmpl = data.service_template;
                     var svcTmplObj =
@@ -285,6 +323,27 @@ define([
                 portTuples.models[i].attributes.portTupleName(splitArr.join(''));
             }
         },
+        formRoutingPolicyToDisplay (rtList, intfType) {
+            if (!rtList.length) {
+                return null;
+            }
+            var policyList = [];
+            rtList.sort(function(entry1, entry2) {
+                return entry1.seqId - entry2.seqId;
+            });
+            var entryObj = {};
+            var cnt = rtList.length;
+            for (var i = 0; i < cnt; i++) {
+                policyList.push(rtList[i]['rtPolicy']);
+            }
+            entryObj['routing_policy'] = policyList.join(',');
+            entryObj['interface_type'] = intfType;
+            var types = [{text: 'left', id: 'left'},
+                {text: 'right', id: 'right'}];
+            entryObj['rtPolicyInterfaceTypesData'] = types;
+            var newEntry = new RtPolicyModel(entryObj);
+            return newEntry;
+        },
         getBackRefsByType: function(modelConfig, type) {
             var svcInstProps = [];
             var backRefs = null;
@@ -333,21 +392,44 @@ define([
                 intfTypesList.push({text: intfTypes[i], id: intfTypes[i]});
             }
             var intfTypeToBackRefsMap = {};
+            var leftRtPolSeqList = [];
+            var rightRtPolSeqList = [];
             var dataObjArr = [];
             if ((null != backRefs) && (backRefsLen > 0)) {
                 for (var i = 0; i < backRefsLen; i++) {
+                    var value = backRefs[i]['to'].join(':') +
+                        '~~' + backRefs[i]['uuid'];
                     var intfType =
                         getValueByJsonPath(backRefs[i],
                                            'attr;interface_type', null);
-                    if (null == intfType) {
-                        continue;
+                    if ('routing_policy' == type) {
+                        var leftRtPolSeq =
+                            getValueByJsonPath(backRefs[i],
+                                               'attr;left_sequence', null);
+                        var rightRtPolSeq =
+                            getValueByJsonPath(backRefs[i],
+                                               'attr;right_sequence', null);
+                        if ((null == leftRtPolSeq) && (null == rightRtPolSeq)) {
+                            continue;
+                        }
+                        if (null != leftRtPolSeq) {
+                            leftRtPolSeqList.push({seqId: Number(leftRtPolSeq),
+                                                  rtPolicy: value});
+                        }
+                        if (null != rightRtPolSeq) {
+                            rightRtPolSeqList.push({seqId:
+                                                   Number(rightRtPolSeq),
+                                                   rtPolicy: value});
+                        }
+                    } else {
+                        if (null == intfType) {
+                            continue;
+                        }
                     }
                     if (null == intfTypeToBackRefsMap[intfType]) {
                         intfTypeToBackRefsMap[intfType] = [];
                     }
 
-                    var value = backRefs[i]['to'].join(':') +
-                        '~~' + backRefs[i]['uuid'];
                     intfTypeToBackRefsMap[intfType].push(value);
                     if ('service_health_check' == type) {
                         var entryObj = {};
@@ -358,8 +440,21 @@ define([
                         properties.push(newEntry);
                     }
                 }
+                if (leftRtPolSeqList.length > 0) {
+                    var newEntry =
+                        this.formRoutingPolicyToDisplay(leftRtPolSeqList,
+                                                        'left');
+                    properties.push(newEntry);
+                }
+                if (rightRtPolSeqList.length > 0) {
+                    var newEntry =
+                        this.formRoutingPolicyToDisplay(rightRtPolSeqList,
+                                                        'right');
+                    properties.push(newEntry);
+                }
             }
-            if ('service_health_check' != type) {
+            if (('routing_policy' != type) &&
+                ('service_health_check' != type)) {
                 for (var key in intfTypeToBackRefsMap) {
                     var entryObj = {};
                     entryObj[type] = intfTypeToBackRefsMap[key].join(',');
@@ -439,9 +534,12 @@ define([
                 }
                 var interfaeTypesCnt = interfaeTypes.length;
                 for (var i = 0; i < intfsCnt; i++) {
+                    var intfType = intfTypes[i];
+                    /*
                     var intfType =
                         intfTypes[i].replace(intfTypes[i][0],
                                              intfTypes[i][0].toUpperCase());
+                    */
                     var vn = "";
                     if ((null != window.vnList) && (window.vnList.length > 0)) {
                         vn = svcInstUtils.getVNByTmplType(intfType, svcTmpl);
@@ -459,7 +557,9 @@ define([
             var cnt = intfTypes.length;
             for (var i = 0; i < cnt; i++) {
                 var intfType = intfTypes[i];
+                /*
                 intfType = intfType.replace(intfType[0], intfType[0].toUpperCase());
+                */
                 var interfacesModel =
                     new InterfacesModel({interfaceType: intfType,
                                         virtualNetwork:
@@ -507,8 +607,9 @@ define([
             }
         },
         formatModelConfigColl: function(intfTypes, isDisabled) {
-            this.deleteModelCollectionData(this.model(), 'interfaces');
-            var interfaces = this.model().attributes['interfaces'];
+            if (true == isDisabled) {
+                return;
+            }
             var cnt = intfTypes.length;
             var svcTmpl = this.model().get('service_template');
             var svcTmpls = $(gridElId).data('svcInstTmplts');
@@ -519,22 +620,21 @@ define([
             var tmplVer = getValueByJsonPath(svcTmpls[svcTmplFqn],
                                              'service_template_properties;version',
                                              1);
-            if (false == isDisabled) {
-                /* Create Case */
-                this.deleteModelCollectionData(this.model(), 'portTuples');
-                this.deleteModelCollectionData(this.model(), 'svcHealtchChecks');
-                this.deleteModelCollectionData(this.model(), 'intfRtTables');
-                this.deleteModelCollectionData(this.model(), 'rtPolicys');
-                this.deleteModelCollectionData(this.model(), 'rtAggregates');
-                if (2 == tmplVer) {
-                    return;
-                }
-            }
+            this.deleteModelCollectionData(this.model(), 'interfaces');
+            this.deleteModelCollectionData(this.model(), 'portTuples');
+            this.deleteModelCollectionData(this.model(), 'svcHealtchChecks');
+            this.deleteModelCollectionData(this.model(), 'intfRtTables');
+            this.deleteModelCollectionData(this.model(), 'rtPolicys');
+            this.deleteModelCollectionData(this.model(), 'rtAggregates');
+            var interfaces = this.model().attributes['interfaces'];
             for (var i = 0; i < cnt; i++) {
+                var intfType = intfTypes[i];
+                /*
                 var intfType =
                     intfTypes[i].replace(intfTypes[i][0],
                                          intfTypes[i][0].toUpperCase());
-                var vn = null
+                */
+                var vn = null;
                 if ((null != window.vnList) && (window.vnList.length > 0)) {
                     vn = svcInstUtils.getVNByTmplType(intfTypes[i], svcTmplObj);
                     if (null != vn) {
@@ -667,11 +767,12 @@ define([
         },
         addPropRtPolicy: function() {
             var rtPolicys = this.model().get('rtPolicys');
-            var types = this.getIntfTypes(false);
+            var types = [{text: 'left', id: 'left'},
+                {text: 'right', id: 'right'}];
             var newEntry =
                 new RtPolicyModel({routing_policy: null,
                                    interface_type: null,
-                                   interfaceTypesData: types});
+                                   rtPolicyInterfaceTypesData: types});
             rtPolicys.add([newEntry]);
         },
         addPropRtAggregate: function() {
@@ -807,25 +908,62 @@ define([
             var collection = this.model().get(collKey);
             var len = collection.length;
             var models = collection['models'];
+            var leftSeqId = 1;
+            var rightSeqId = 1;
+            var tmpRtPolicyObjs = {};
+            var tmpLeftPolicyObjs = {};
             for (var i = 0; i < len; i++) {
-                var attr = models[i]['attributes'];
-                var intfType = attr['interface_type']();
-                var propValue = attr[type]();
+                var modelAttr = models[i]['attributes'];
+                var intfType = modelAttr['interface_type']();
+                var propValue = modelAttr[type]();
                 if (null == propValue) {
                     propValue = "";
                 }
                 var values = propValue.split(',');
                 var valCnt = values.length;
                 for (var j = 0; j < valCnt; j++) {
+                    var attr = {};
                     if ((null != values[j]) && ("" != values[j])) {
                         var data = values[j].split('~~');
                         if ((null != data[0]) && (null != data[1]) &&
                             ("" != data[0]) && ("" != data[1])) {
+                            if ('routing_policy_back_refs' == backRefKey) {
+                                if ('left' == intfType) {
+                                    var propListIdx = tmpRtPolicyObjs[data[1]];
+                                    if (null != propListIdx) {
+                                        propList[propListIdx]['attr']['left_sequence']
+                                            = leftSeqId.toString();
+                                        leftSeqId++;
+                                        continue;
+                                    } else {
+                                        attr['left_sequence'] =
+                                            leftSeqId.toString();
+                                        leftSeqId++;
+                                    }
+                                    tmpLeftPolicyObjs[data[1]] =
+                                        propList.length;
+                                } else {
+                                    var propListIdx =
+                                        tmpLeftPolicyObjs[data[1]];
+                                    if (null != propListIdx) {
+                                        propList[propListIdx]['attr']['right_sequence']
+                                            = rightSeqId.toString();
+                                        rightSeqId++;
+                                        continue;
+                                    } else {
+                                        attr['right_sequence'] =
+                                            rightSeqId.toString();
+                                        rightSeqId++;
+                                    }
+                                    tmpRtPolicyObjs[data[1]] =
+                                        propList.length;
+                                }
+                            } else {
+                                attr = {'interface_type': intfType};
+                            }
                             propList.push({
                                 'to': data[0].split(':'), 'uuid': data[1],
-                                'attr': {
-                                    'interface_type': intfType
-                                }
+                                'attr': attr
                             });
                         }
                     }
