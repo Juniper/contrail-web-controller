@@ -149,7 +149,6 @@ define([
                                     elementId: "family",
                                     view: "FormMultiselectView",
                                     viewConfig: {
-                                        disabled: true,
                                         label: "Address Family",
                                         dataBindValue: "bgpaas_session_attributes().address_families.family",
                                         path: "bgpaas_session_attributes.address_families.family",

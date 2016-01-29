@@ -41,7 +41,18 @@ define([
             if(bgpaasSessionAttrs) {
                 var familyAttrs = getValueByJsonPath(bgpaasSessionAttrs,
                     "family_attributes", []);
-                if(familyAttrs.length > 0) {
+                if(!familyAttrs.length) {
+                    familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
+                                           address_family: "inet",
+                                           loop_count: 0,
+                                           prefix_limit: 0
+                                       }));
+                    familyAttrArray.push(new BGPAsAServiceFamilyAttrModel({
+                                           address_family: "inet6",
+                                           loop_count: 0,
+                                           prefix_limit: 0
+                                       }));
+                } else {
                     for(var i = 0; i < familyAttrs.length; i++) {
                         var familyAttr =  new BGPAsAServiceFamilyAttrModel({
                                                address_family: familyAttrs[i].address_family,
@@ -96,7 +107,7 @@ define([
                 return;
             }
             var newFamilyAttr = new BGPAsAServiceFamilyAttrModel({address_family: addressFamily,
-                loop_count: null, prefix_limit: null});
+                loop_count: 0, prefix_limit: 0});
             familyAttrs.add([newFamilyAttr]);
         },
         deleteFamilyAttr: function(data, kbInterface) {
