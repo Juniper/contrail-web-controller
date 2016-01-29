@@ -54,14 +54,15 @@ define([
                 'segmentation_id': null,
                 'physical_network': null
             },
-            'ecmp_hashing_include_fields': {
-                'source_mac': true,
-                'destination_mac': true,
-                'source_ip': true,
-                'destination_ip': true,
-                'ip_protocol': true,
-                'source_port': true,
-                'destination_port': true
+            'ecmp_hashing_include_fields': { /*
+                'source_mac': false,
+                'destination_mac': false,
+                'source_ip': false,
+                'destination_ip': false,
+                'ip_protocol': false,
+                'source_port': false,
+                'destination_port': false
+                */
             },
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
@@ -117,6 +118,8 @@ define([
                 delete modelConfig['pVlanId'];
                 delete modelConfig['sVlanId'];
             }
+
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
 
             this.readSubnetHostRoutes(modelConfig);
             this.readRouteTargetList(modelConfig, 'user_created_route_targets');
@@ -657,6 +660,7 @@ define([
         },
 
         getEcmpHashing: function (attr) {
+            var hashDisableCnt = 0, keyLen = 0;
             var hashingFields = getValueByJsonPath(attr,
                                 'ecmp_hashing_include_fields', "");
             var hashObj       = {
@@ -670,9 +674,15 @@ define([
                                 };
 
             for (var key in hashObj) {
+                keyLen++;
                 if (hashingFields.indexOf(key) == -1) {
                     hashObj[key] = false;
+                    hashDisableCnt++;
                 }
+            }
+
+            if (hashDisableCnt == keyLen) {
+                hashObj = {}
             }
 
             attr['ecmp_hashing_include_fields'] = hashObj;
@@ -680,7 +690,7 @@ define([
 
         validations: {
             vnCfgConfigValidations: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter Name'
                 },
@@ -789,9 +799,8 @@ define([
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
 
-                if (newVNCfgData['display_name'] == '') {
-                    newVNCfgData['display_name'] = newVNCfgData['name'];
-                }
+                ctwu.setNameFromDisplayName(newVNCfgData);
+
                 if (newVNCfgData['fq_name'] == [] ||
                     newVNCfgData['fq_name'] == null) {
                     newVNCfgData['fq_name'] = [];

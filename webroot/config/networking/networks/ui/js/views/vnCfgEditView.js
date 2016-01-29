@@ -179,14 +179,13 @@ define([
                     {
                         columns: [
                             {
-                                elementId: 'name',
+                                elementId: 'display_name',
                                 view: 'FormInputView',
                                 viewConfig: {
                                     label: 'Name',
-                                    path: 'name',
+                                    path: 'display_name',
                                     class: 'span6',
-                                    dataBindValue: 'name',
-                                    disabled: disableOnEdit
+                                    dataBindValue: 'display_name',
                                 }
                             }
                         ]
@@ -903,7 +902,7 @@ define([
                                                       viewConfig:
                                                         {
                                                          placeholder: 'Enter Pool Name',
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          path: "name",
                                                          disabled: 'disable()',
@@ -920,7 +919,7 @@ define([
                                                             class: 'span6',
                                                             dataBindValue: 'projects()',
                                                             templateId: cowc.TMPL_EDITABLE_GRID_MULTISELECT_VIEW,
-                                                            class: "", width: 250,
+                                                            class: "", width: 400,
                                                             disabled: 'disable()',
                                                             elementConfig: {
                                                                 dataTextField: "text",
@@ -988,7 +987,7 @@ define([
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          placeholder: 'ASN 1-65534 or IP',
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          path: "asn",
@@ -1004,7 +1003,7 @@ define([
                                                       viewConfig:
                                                         {
                                                          placeholder: 'Target 1-4294967295',
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          path: "target",
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          dataBindValue:
@@ -1064,7 +1063,7 @@ define([
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          placeholder: 'ASN 1-65534 or IP',
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          path: "asn",
@@ -1080,7 +1079,7 @@ define([
                                                       viewConfig:
                                                         {
                                                          placeholder: 'Target 1-4294967295',
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          path: "target",
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          dataBindValue:
@@ -1140,7 +1139,7 @@ define([
                                                       view: "FormInputView",
                                                       viewConfig:
                                                         {
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          placeholder: 'ASN 1-65534 or IP',
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          path: "asn",
@@ -1156,7 +1155,7 @@ define([
                                                       viewConfig:
                                                         {
                                                          placeholder: 'Target 1-4294967295',
-                                                         class: "", width: 250,
+                                                         class: "", width: 400,
                                                          path: "target",
                                                          templateId: cowc.TMPL_EDITABLE_GRID_INPUT_VIEW,
                                                          dataBindValue:
