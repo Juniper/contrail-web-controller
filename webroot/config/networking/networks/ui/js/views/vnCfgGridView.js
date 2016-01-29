@@ -281,38 +281,7 @@ define([
                                                         formatter: 'polColFormatter',
                                                     }
                                                 },
-                                                {
-                                                    label: 'Floating IP Pool(s)',
-                                                    key: 'floating_ip_pools',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'fipPoolTmplFormatter',
-                                                    }
-                                                },
-                                                {
-                                                    label: 'Route Target(s)',
-                                                    key: 'route_target_list',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'routeTargetFormatter',
-                                                    }
-                                                },
-                                                {
-                                                    label: 'Export Route Target(s)',
-                                                    key: 'export_route_target_list',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'exportRouteTargetFormatter',
-                                                    }
-                                                },
-                                                {
-                                                    label: 'Import Route Target(s)',
-                                                    key: 'import_route_target_list',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'importRouteTargetFormatter',
-                                                    }
-                                                },
+
                                                 {
                                                     label: 'Forwarding Mode',
                                                     key: 'virtual_network_properties.forwarding_mode',
@@ -362,14 +331,6 @@ define([
                                                     }
                                                 },
                                                 {
-                                                    label: 'SRIOV',
-                                                    key: 'provider_properties',
-                                                    templateGenerator: 'TextGenerator',
-                                                    templateGeneratorConfig: {
-                                                        formatter: 'sriovFormatter',
-                                                    }
-                                                },
-                                                {
                                                     label: 'Host Route(s)',
                                                     key: 'route_target_list',
                                                     templateGenerator: 'TextGenerator',
@@ -383,6 +344,22 @@ define([
                                                     templateGenerator: 'TextGenerator',
                                                     templateGeneratorConfig: {
                                                         formatter: 'subnetDNSFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Ecmp Hashing Fields',
+                                                    key: 'ecmp_hashing_include_fields',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'ecmpHashFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'SRIOV',
+                                                    key: 'provider_properties',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'sriovFormatter',
                                                     }
                                                 },
                                                 {
@@ -401,6 +378,39 @@ define([
                                                         formatter: 'staticRouteFormatter',
                                                     }
                                                 },
+                                                {
+                                                    label: 'Floating IP Pool(s)',
+                                                    key: 'floating_ip_pools',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'fipPoolTmplFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Route Target(s)',
+                                                    key: 'route_target_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'routeTargetFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Export Route Target(s)',
+                                                    key: 'export_route_target_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'exportRouteTargetFormatter',
+                                                    }
+                                                },
+                                                {
+                                                    label: 'Import Route Target(s)',
+                                                    key: 'import_route_target_list',
+                                                    templateGenerator: 'TextGenerator',
+                                                    templateGeneratorConfig: {
+                                                        formatter: 'importRouteTargetFormatter',
+                                                    }
+                                                },
+
                                             ]
                                         }
                                     ]
@@ -479,6 +489,10 @@ define([
     }
     this.sriovFormatter = function (v, dc) {
         return formatVNCfg.sriovFormatter(null,
+                                        null, null, null, dc);
+    }
+    this.ecmpHashFormatter = function (v, dc) {
+        return formatVNCfg.ecmpHashFormatter(null,
                                         null, null, null, dc);
     }
     this.subnetDNSFormatter = function (v, dc) {

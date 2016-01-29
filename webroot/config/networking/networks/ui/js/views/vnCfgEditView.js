@@ -515,7 +515,7 @@ define([
                                             viewConfig: {
                                                 label: 'Admin State',
                                                 path : 'id_perms.enable',
-                                                class: 'span4',
+                                                class: 'span6',
                                                 dataBindValue :
                                                     'id_perms().enable',
                                                 elementConfig : {
@@ -524,6 +524,20 @@ define([
                                                     placeholder : 'Select Admin State',
                                                     data : [{id: 'true', text:'Up'},
                                                             {id: 'false', text:'Down'}]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            elementId: 'external_ipam',
+                                            view: "FormCheckboxView",
+                                            viewConfig : {
+                                                path : 'external_ipam',
+                                                class : "span6",
+                                                label:'Static IP Addressing',
+                                                dataBindValue : 'external_ipam',
+                                                visible : 'isVCenter()',
+                                                elementConfig : {
+                                                    isChecked:false
                                                 }
                                             }
                                         },
@@ -536,7 +550,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'is_shared',
-                                                class : "span4",
+                                                class : "span6",
                                                 label:'Shared',
                                                 dataBindValue : 'is_shared',
                                                 elementConfig : {
@@ -549,23 +563,9 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'router_external',
-                                                class : "span4",
+                                                class : "span6",
                                                 label:'External',
                                                 dataBindValue : 'router_external',
-                                                elementConfig : {
-                                                    isChecked:false
-                                                }
-                                            }
-                                        },
-                                        {
-                                            elementId: 'external_ipam',
-                                            view: "FormCheckboxView",
-                                            viewConfig : {
-                                                path : 'external_ipam',
-                                                class : "span4",
-                                                label:'Static IP Addressing',
-                                                dataBindValue : 'external_ipam',
-                                                visible : 'isVCenter()',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
@@ -580,7 +580,7 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'virtual_network_properties.allow_transit',
-                                                class : "span4",
+                                                class : "span6",
                                                 label:'Allow Transit',
                                                 dataBindValue : 'virtual_network_properties().allow_transit',
                                                 elementConfig : {
@@ -593,22 +593,9 @@ define([
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'flood_unknown_unicast',
-                                                class : "span4",
+                                                class : "span6",
                                                 label:'Flood Unknown Unicast',
                                                 dataBindValue : 'flood_unknown_unicast',
-                                                elementConfig : {
-                                                    isChecked:false
-                                                }
-                                            }
-                                        },
-                                        {
-                                            elementId: 'rpf',
-                                            view: "FormCheckboxView",
-                                            viewConfig : {
-                                                path : 'virtual_network_properties.rpf',
-                                                class : "span4",
-                                                label:'Reverse Path Forwarding',
-                                                dataBindValue : 'virtual_network_properties().rpf',
                                                 elementConfig : {
                                                     isChecked:false
                                                 }
@@ -619,11 +606,24 @@ define([
                                     {
                                         columns: [
                                         {
+                                            elementId: 'rpf',
+                                            view: "FormCheckboxView",
+                                            viewConfig : {
+                                                path : 'virtual_network_properties.rpf',
+                                                class : "span6",
+                                                label:'Reverse Path Forwarding',
+                                                dataBindValue : 'virtual_network_properties().rpf',
+                                                elementConfig : {
+                                                    isChecked:false
+                                                }
+                                            }
+                                        },
+                                        {
                                             elementId: 'multi_policy_service_chains_enabled',
                                             view: "FormCheckboxView",
                                             viewConfig : {
                                                 path : 'multi_policy_service_chains_enabled',
-                                                class : "span4",
+                                                class : "span6",
                                                 label:'Multiple Service Chains',
                                                 dataBindValue : 'multi_policy_service_chains_enabled',
                                                 elementConfig : {
@@ -675,7 +675,6 @@ define([
                                         }
                                         ]
                                     },
-
                                     {
                                         columns: [
                                             {
@@ -698,12 +697,8 @@ define([
                                                     }
                                                 }
                                             }
-                                        }
-                                        ]
-                                    },
-                                    {
-                                        columns: [
-                                            {
+                                        },
+                                        {
                                                 elementId: 'route_table_refs',
                                                 view: 'FormMultiselectView',
                                                 viewConfig: {
@@ -724,6 +719,40 @@ define([
                                                             parse:
                                                             formatVNCfg.staticRouteMSFormatter,
                                                     }
+                                                }
+                                            }
+                                        },
+                                        ]
+                                    },
+                                    {
+                                        columns: [
+                                        {
+                                                elementId: 'ecmp_hashing_include_fields',
+                                                view: 'FormMultiselectView',
+                                                viewConfig: {
+                                                    label: 'ECMP Hashing Fields',
+                                                    path: 'ecmp_hashing_include_fields',
+                                                    class: 'span12',
+                                                    dataBindValue: 'ecmp_hashing_include_fields',
+                                                    elementConfig: {
+                                                        dataTextField: "text",
+                                                        dataValueField: "id",
+                                                        data: [
+                                                            {text: 'source-mac',
+                                                             id: 'source_mac'},
+                                                            {text: 'destination-mac',
+                                                             id: 'destination_mac'},
+                                                            {text: 'source-ip',
+                                                             id: 'source_ip'},
+                                                            {text: 'destination-ip',
+                                                             id: 'destination_ip'},
+                                                            {text: 'ip-protocol',
+                                                             id: 'ip_protocol'},
+                                                            {text: 'source-port',
+                                                             id: 'source_port'},
+                                                            {text: 'destination-port',
+                                                             id: 'destination_port'}
+                                                        ]
                                                 }
                                             }
                                         }

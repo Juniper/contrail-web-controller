@@ -54,6 +54,15 @@ define([
                 'segmentation_id': null,
                 'physical_network': null
             },
+            'ecmp_hashing_include_fields': {
+                'source_mac': true,
+                'destination_mac': true,
+                'source_ip': true,
+                'destination_ip': true,
+                'ip_protocol': true,
+                'source_port': true,
+                'destination_port': true
+            },
             'user_created_host_routes': [],//fake created for host routes under each subnet
             'user_created_route_targets': [], //fake created for rt_list.rt collection
             'user_created_import_route_targets': [], //fake created for import_rt_list.rt collection
@@ -117,6 +126,7 @@ define([
             this.readSubnetDNSList(modelConfig);
             this.readSubnetList(modelConfig);
             this.readSRIOV(modelConfig);
+            this.readEcmpHashing(modelConfig);
 
             return modelConfig;
         },
@@ -141,7 +151,6 @@ define([
                 newHostRoute = new HostRouteModel({'prefix': null,
                                                     'next_hop': null,
                                                    });
-
             hostRoute.add([newHostRoute]);
         },
 
@@ -634,6 +643,41 @@ define([
             }
         },
 
+        readEcmpHashing: function (modelConfig) {
+            var hashArr       = [];
+            var hashingFields = getValueByJsonPath(modelConfig,
+                                'ecmp_hashing_include_fields', {});
+
+            for (var key in hashingFields) {
+                if (true == hashingFields[key]) {
+                    hashArr.push(key);
+                }
+            }
+            modelConfig['ecmp_hashing_include_fields'] = hashArr.join(',');
+        },
+
+        getEcmpHashing: function (attr) {
+            var hashingFields = getValueByJsonPath(attr,
+                                'ecmp_hashing_include_fields', "");
+            var hashObj       = {
+                                    'source_mac': true,
+                                    'destination_mac': true,
+                                    'source_ip': true,
+                                    'destination_ip': true,
+                                    'ip_protocol': true,
+                                    'source_port': true,
+                                    'destination_port': true
+                                };
+
+            for (var key in hashObj) {
+                if (hashingFields.indexOf(key) == -1) {
+                    hashObj[key] = false;
+                }
+            }
+
+            attr['ecmp_hashing_include_fields'] = hashObj;
+        },
+
         validations: {
             vnCfgConfigValidations: {
                 'name': {
@@ -765,6 +809,7 @@ define([
                 this.getStaticRouteList(newVNCfgData);
                 this.getRouteTargets(newVNCfgData);
                 this.getSRIOV(newVNCfgData);
+                this.getEcmpHashing(newVNCfgData);
 
                 delete newVNCfgData['virtual_network_network_id'];
                 delete newVNCfgData.errors;

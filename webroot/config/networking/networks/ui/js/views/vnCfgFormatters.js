@@ -548,6 +548,22 @@ define([
         };
 
         /*
+         * @ecmpHashFormatter
+         */
+        this.ecmpHashFormatter = function(d, c, v, cd, dc) {
+            var hashArr       = [];
+            var hashingFields = getValueByJsonPath(dc,
+                                'ecmp_hashing_include_fields', {});
+
+            for (var key in hashingFields) {
+                if (true == hashingFields[key]) {
+                    hashArr.push(key.replace(/_/,'-'));
+                }
+            }
+            return hashArr.join(', ');
+        };
+
+        /*
          * @phyRouterFormatter
          */
         this.phyRouterFormatter = function(d, c, v, cd, dc) {
