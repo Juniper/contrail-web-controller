@@ -107,7 +107,8 @@ define([
                 columns: [
                      {
                          field:  'display_name',
-                         name:   'Network'
+                         name:   'Network',
+                         formatter: showName
                      },
                      {
                          field:  'network_ipam_refs',
@@ -423,6 +424,9 @@ define([
         };
     };
 
+    this.showName = function (r, c, v, cd, dc) {
+        return ctwu.getDisplayNameOrName(dc);
+    }
     this.subnetTmplFormatter = function (v, dc) {
         return formatVNCfg.subnetTmplFormatter(null,
                                         null, null, null, dc);

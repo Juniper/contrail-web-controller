@@ -721,7 +721,32 @@ define([
             return ['monitor-infra-analyticsnode-model','monitor-infra-databasenode-model',
                 'monitor-infra-confignode-model','monitor-infra-controlnode-model',
                 'monitor-infra-vrouter-model'];
-        }
+        };
+
+        /**
+         * If a resource's display_name is not set then use name
+         */
+        this.getDisplayNameOrName = function (cfgModel) {
+            var displayName = getValueByJsonPath(cfgModel, 'display_name', "");
+            var name = getValueByJsonPath(cfgModel, 'name', "");
+
+            if (displayName.length) {
+                return displayName;
+            } else {
+                return name;
+            }
+        };
+
+        /**
+         * Set a resource's name from display_name
+         */
+        this.setNameFromDisplayName = function (cfgModel) {
+            var displayName = getValueByJsonPath(cfgModel, 'display_name', "");
+            if (cfgModel['name'] == '') {
+                cfgModel['name'] = cfgModel['display_name'];
+            }
+        };
+
     };
     return CTUtils;
 });

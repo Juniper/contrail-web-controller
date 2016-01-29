@@ -58,7 +58,7 @@ define([
                 title: {
                     text: ctwl.CFG_IPAM_TITLE
                 },
-                advanceControls: getHeaderActionConfig(),
+                advanceControls: isVCenter() ? [] : getHeaderActionConfig(),
             },
             body: {
                 options: {
@@ -92,7 +92,7 @@ define([
                 //Change these once the ajax url is changed
                 columns: [
                      {
-                         field:  'display_name',
+                         field:  'name',
                          name:   'IPAM'
                      },
                      {
@@ -169,19 +169,21 @@ define([
                                   callback: function () {
                                       dataView.refreshData();
             }});
-        }),
-        ctwgc.getDeleteConfig('Delete', function(rowIndex) {
-            dataView = $('#' + ctwl.CFG_IPAM_GRID_ID).data("contrailGrid")._dataView;
-            ipamCfgEditView.model = new IpamCfgModel();
-            ipamCfgEditView.renderMultiDeleteIpamCfg({
-                                  "title": ctwl.CFG_IPAM_TITLE_DELETE,
-                                  checkedRows: [dataView.getItem(rowIndex)],
-                                  callback: function () {
-                                      dataView.refreshData();
-            }});
-        })
-    ];
+        })];
 
+        if (!isVCenter()) {
+            rowActionConfig.push(
+            ctwgc.getDeleteConfig('Delete', function(rowIndex) {
+                dataView = $('#' + ctwl.CFG_IPAM_GRID_ID).data("contrailGrid")._dataView;
+                ipamCfgEditView.model = new IpamCfgModel();
+                ipamCfgEditView.renderMultiDeleteIpamCfg({
+                                      "title": ctwl.CFG_IPAM_TITLE_DELETE,
+                                      checkedRows: [dataView.getItem(rowIndex)],
+                                      callback: function () {
+                                          dataView.refreshData();
+                }});
+            }));
+        }
 
     function getIpamCfgDetailsTemplateConfig() {
         return {
