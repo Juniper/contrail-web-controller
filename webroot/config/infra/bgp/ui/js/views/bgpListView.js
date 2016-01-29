@@ -39,6 +39,10 @@ define([
                     if(bgpParams) {
                         var routerType = getValueByJsonPath(bgpParams,
                             "router_type", "");
+                        if(routerType === "bgpaas-server" ||
+                            routerType === "bgpaas-client") {
+                            continue;
+                        }
                         if(!routerType) {
                             var vendor = getValueByJsonPath(bgpParams,
                                 "vendor", "");

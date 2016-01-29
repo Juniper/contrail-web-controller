@@ -250,7 +250,12 @@ define([
                             window.bgp.globalASN);
                     }
 
-                } else {
+                } else if(newValue === ctwl.EXTERNAL_CONTROL_NODE_TYPE) {
+                    bgpModel.user_created_physical_router('none');
+                    bgpModel.addressFamilyData(ctwc.CN_ADDRESS_FAMILY_DATA);
+                    bgpModel.user_created_address_family(
+                        'route-target,inet-vpn,inet6-vpn,e-vpn,erm-vpn');
+                } else if(newValue === ctwl.BGP_ROUTER_TYPE) {
                     bgpModel.user_created_vendor('');
                     bgpModel.addressFamilyData(ctwc.BGP_ADDRESS_FAMILY_DATA);
                     bgpModel.user_created_address_family(
@@ -314,7 +319,7 @@ define([
                 this.user_created_router_type() !== ctwl.CONTROL_NODE_TYPE);
         }), bgpModel);
         bgpModel.showPhysicalRouter = ko.computed((function(){
-            return (this.user_created_router_type() !== ctwl.CONTROL_NODE_TYPE);
+            return (this.user_created_router_type() === ctwl.BGP_ROUTER_TYPE);
         }), bgpModel);
         bgpModel.disableAuthKey = ko.computed((function(){
             var disable;

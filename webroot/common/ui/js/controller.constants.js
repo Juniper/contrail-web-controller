@@ -521,27 +521,22 @@ define([
                                           {
                                               text : 'route-target',
                                               value : 'route-target',
-                                              locked : true
                                           },
                                           {
                                               text : 'inet-vpn',
                                               value : 'inet-vpn',
-                                              locked : true
                                           },
                                           {
                                                text : 'inet6-vpn',
                                                value : 'inet6-vpn',
-                                               locked : true
                                           },
                                           {
                                                text : 'e-vpn',
                                                value : 'e-vpn',
-                                               locked : true
                                           },
                                           {
                                                text : 'erm-vpn',
                                                value : 'erm-vpn',
-                                               locked : true
                                           }
                                       ];
          this.AUTHENTICATION_DATA = [
