@@ -82,7 +82,7 @@ define([
                 hierarchical: {
                     direction: 'UD',
                     sortMethod: 'directed',
-                    levelSeparation: 80,
+                    levelSeparation: 100,
                 },
                 improvedLayout: true
             },
@@ -924,7 +924,7 @@ define([
                     nodeConfig.icon.code = '\ue602';
                     break;
             }
-            //nodeConfig.level = level;
+            nodeConfig.level = level;
             var id = UUIDjs.create().hex;
             nodeConfig.id = id;
             nodeConfig.label = labelNodeName;
