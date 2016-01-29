@@ -118,6 +118,8 @@ define([
                 delete modelConfig['sVlanId'];
             }
 
+            modelConfig['display_name'] = ctwu.getDisplayNameOrName(modelConfig);
+
             this.readSubnetHostRoutes(modelConfig);
             this.readRouteTargetList(modelConfig, 'user_created_route_targets');
             this.readRouteTargetList(modelConfig, 'user_created_import_route_targets');
@@ -680,7 +682,7 @@ define([
 
         validations: {
             vnCfgConfigValidations: {
-                'name': {
+                'display_name': {
                     required: true,
                     msg: 'Enter Name'
                 },
@@ -789,9 +791,8 @@ define([
                 var domain = contrail.getCookie(cowc.COOKIE_DOMAIN);
                 var project = contrail.getCookie(cowc.COOKIE_PROJECT);
 
-                if (newVNCfgData['display_name'] == '') {
-                    newVNCfgData['display_name'] = newVNCfgData['name'];
-                }
+                ctwu.setNameFromDisplayName(newVNCfgData);
+
                 if (newVNCfgData['fq_name'] == [] ||
                     newVNCfgData['fq_name'] == null) {
                     newVNCfgData['fq_name'] = [];
