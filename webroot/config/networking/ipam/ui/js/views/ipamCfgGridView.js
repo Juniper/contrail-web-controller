@@ -92,7 +92,7 @@ define([
                 //Change these once the ajax url is changed
                 columns: [
                      {
-                         field:  'display_name',
+                         field:  'name',
                          name:   'IPAM'
                      },
                      {
