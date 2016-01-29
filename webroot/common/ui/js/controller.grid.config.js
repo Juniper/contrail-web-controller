@@ -62,10 +62,13 @@ define([
                 field: 'vn',
                 name: 'Networks',
                 formatter: function (r, c, v, cd, dc) {
-                    return ctwu.formatValues4TableColumn(dc['vn']);
+                    return cowf.formatElementName({name: 'vn', value: dc['vn'], cssClass: 'cell-hyperlink-blue'});
                 },
                 minWidth: 230,
-                searchable: true
+                searchable: true,
+                events: {
+                    onClick: ctwu.onClickNetworkMonitorGrid
+                },
             },
             {
                 field: 'intfCnt',
