@@ -151,11 +151,6 @@ define([
                     }
                     var valArr = val.split(",");
                     var valArrLen = valArr.length;
-                    var SIValue = valArr[valArrLen-1].split(" ");
-                    if (SIValue.length >= 2 && SIValue[1] != "in-network-nat") {
-                        return "Last instance should be of 'in-network-nat'\
-                                service mode while applying services."
-                    }
                     var inNetworkTypeCount = 0;
                     for (var i = 0; i < valArrLen; i++) {
                         var SIValue = valArr[i].split(" ");
@@ -166,6 +161,11 @@ define([
                                         services."
                             }
                         }
+                    }
+                    var SIValue = valArr[valArrLen-1].split(" ");
+                    if (inNetworkTypeCount >= 1 && SIValue[1] != "in-network-nat") {
+                        return "Last instance should be of 'in-network-nat'\
+                                service mode while applying services."
                     }
                     var error = self.isBothSrcDscCIDR(data);
                     if (error != "") {
