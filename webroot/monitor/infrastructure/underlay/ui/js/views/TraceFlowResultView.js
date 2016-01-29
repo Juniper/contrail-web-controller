@@ -352,21 +352,26 @@ define([
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
             $.ajax({
-                url:'api/tenant/networking/virtual-network/summary?fqNameRegExp='
-                    +nwFqName,
+                url:'/api/tenants/config/get-config-list',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    data: [{
+                        type: 'virtual-networks',
+                        fields: ['routing_instances'],
+                        fq_name: nwFqName,
+                    }]
+                },
             }).always(function(networkDetails){
-                if(networkDetails['value']!= null &&
-                      networkDetails['value'][0] != null &&
-                      networkDetails['value'][0]['value'] != null) {
-                    var vrfList =
-                        getValueByJsonPath(networkDetails,
-                        'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
-                    if(vrfList[0] != null)
-                        nwFqName = vrfList[0];
-                } else
-                    // if there is no vrf name in the response then
+                var vrfList = getValueByJsonPath(networkDetails,
+                    '0;virtual-networks;0;routing_instances',[]);
+                if(vrfList[0] != null && vrfList[0]['to'] != null) {
+                    nwFqName = vrfList[0]['to'].join(':');
+                } else {
+                 // if there is no vrf name in the response then
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
+                }
                 postData['vrfName'] = nwFqName;
                 doTraceFlowRequest(postData, graphModel, deferredObj);
             });
@@ -443,20 +448,26 @@ define([
             doTraceFlowRequest(postData, graphModel, deferredObj);
         } else {
             $.ajax({
-                url:'/api/tenant/networking/virtual-network/summary?fqNameRegExp='
-                    +nwFqName,
+                url:'/api/tenants/config/get-config-list',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    data: [{
+                        type: 'virtual-networks',
+                        fields: ['routing_instances'],
+                        fq_name: nwFqName,
+                    }]
+                },
             }).always(function(networkDetails){
-                if(networkDetails['value']!= null &&
-                    networkDetails['value'][0] != null &&
-                    networkDetails['value'][0]['value'] != null) {
-                    var vrfList = getValueByJsonPath(networkDetails,
-                        'value;0;value;UveVirtualNetworkConfig;routing_instance_list',[]);
-                    if(vrfList[0] != null)
-                        nwFqName = vrfList[0];
-                } else
-                    // if there is no vrf name in the response then
+                var vrfList = getValueByJsonPath(networkDetails,
+                    '0;virtual-networks;0;routing_instances',[]);
+                if(vrfList[0] != null && vrfList[0]['to'] != null) {
+                    nwFqName = vrfList[0]['to'].join(':');
+                } else {
+                 // if there is no vrf name in the response then
                     // just constructing it in general format
                     nwFqName += ":"+nwFqName.split(':')[2];
+                }
                 postData['vrfName'] = nwFqName;
                 doTraceFlowRequest(postData, graphModel, deferredObj);
             });

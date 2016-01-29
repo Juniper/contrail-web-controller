@@ -419,11 +419,17 @@ define([
                     graphModel.flowPath.set('links',graphModel.flowPath._previousAttributes.links, {silent: true});
                     showInfoWindow("Cannot find the underlay path for selected flow", "Info");
                     return false;
-                } else {
-                    self.resetTopology({
-                        resetBelowTabs: true,
-                    });
                 }
+                if(_.isEqual(graphModel.flowPath._previousAttributes.nodes, 
+                    graphModel.flowPath.attributes.nodes) &&
+                    _.isEqual(graphModel.flowPath._previousAttributes.links,
+                    graphModel.flowPath.attributes.links))
+                    return false;
+
+                self.resetTopology({
+                    resetBelowTabs: true,
+                });
+
                 var elementMap = graphModel['elementMap'];
                 var adjList = graphModel.prepareData("virtual-router");
                 var nodeNames = [];
@@ -521,7 +527,7 @@ define([
                             var parentName = parentNode.name;
                             var parentNodeType = parentNode.node_type;
                             var currentEl = self.createNode(parentNode);
-                            graphmodel.conElements.push(currentEl);
+                            graphModel.connectedElements.push(currentEl);
                             var currentElId = currentEl.id;
                             elementMap.node[parentName] = currentElId;
                         }
@@ -536,7 +542,7 @@ define([
                             var childName = childNode.name;
                             var childNodeType = childNode.node_type;
                             var currentEl = self.createNode(childNode);
-                            graphmodel.conElements.push(currentEl);
+                            graphModel.connectedElements.push(currentEl);
                             var currentElId = currentEl.id;
                             elementMap.node[childName] = currentElId;
                         }
@@ -653,7 +659,7 @@ define([
                         self.nodesDataSet.add(newChildNode);
                     }
 
-                    var newLink = self.createLink(links[i], link_type,
+                    var newLink = self.createLink(_.clone(links[i]), link_type,
                         newParentNode.id, newChildNode.id, arrowPosition, eventName);
                     var currentLinkId = newLink.id;
                     self.edgesDataSet.add(newLink);
@@ -1095,7 +1101,11 @@ define([
                     endpoint1NodeType.split("-")[1][0];
                 if(null != elMap["node"] && typeof elMap["node"] !== "undefined") {
                     if(null != elMap["node"][endpoint0] && typeof elMap["node"][endpoint0] !== "undefined" &&
-                    null != elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined") {
+                    null != elMap["node"][endpoint1] && typeof elMap["node"][endpoint1] !== "undefined" &&
+                    null != adjacencyList[endpoint0] &&
+                    typeof adjacencyList[endpoint0] !== "undefined" &&
+                    null != adjacencyList[endpoint1] &&
+                    typeof adjacencyList[endpoint1] !== "undefined") {
                         if(null == elMap["link"][linkName] && typeof elMap["link"][linkName] === "undefined" &&
                             null == elMap["link"][altLinkName] && typeof elMap["link"][altLinkName] === "undefined") {
                             linkElements.push(
@@ -1107,7 +1117,7 @@ define([
                             elMap.link[linkName] = currentLinkId;
                             elMap.link[altLinkName] = currentLinkId;
                         } else {
-                            var el = jsonPath(linkElements, '$[?(@.id=="' + linkName + '")]');
+                            var el = jsonPath(linkElements, '$[?(@.id=="' + elMap.link[linkName] + '")]');
                             var linkEl = edgesDataSet.get(elMap.link[linkName]);
                             if(false == el && null != linkEl) {
                                 linkElements.push(linkEl);

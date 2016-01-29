@@ -732,7 +732,7 @@ define([
                         renderOnActivate: true
                     }
                 };
-                tabViewConfig.splice(7,0,instanceTabViewConfig);
+                tabViewConfig.splice(6,0,instanceTabViewConfig);
             }
             return tabViewConfig;
         };
