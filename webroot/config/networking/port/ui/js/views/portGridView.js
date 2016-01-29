@@ -411,7 +411,7 @@ define([
                                 }, {
                                     key: 'id_perms',
                                     name:"id_perms",
-                                    label:"ECMP Hashing",
+                                    label:"ECMP Hashing Fields",
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
                                         formatter: "ECMPHashingFormatter"
