@@ -409,6 +409,14 @@ define([
                                         formatter: "staticRoutFormatter"
                                     }
                                 }, {
+                                    key: 'virtual_machine_interface_properties',
+                                    name:"virtual_machine_interface_properties",
+                                    label:"Local Preference",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "localPrefFormater"
+                                    }
+                                }, {
                                     key: 'id_perms',
                                     name:"id_perms",
                                     label:"ECMP Hashing Fields",
@@ -439,6 +447,14 @@ define([
                                     templateGenerator: 'TextGenerator',
                                     templateGeneratorConfig:{
                                         formatter: "AAPFormatter"
+                                    }
+                                }, {
+                                    key: 'virtual_machine_interface_properties',
+                                    name:"virtual_machine_interface_properties",
+                                    label:"Mirror to",
+                                    templateGenerator: 'TextGenerator',
+                                    templateGeneratorConfig:{
+                                        formatter: "mirrorFormatter"
                                     }
                                 },  {
                                     key: 'virtual_machine_interface_refs',
@@ -556,6 +572,12 @@ define([
     };
     this.parentUUIDFormatter = function(v, dc) {
         return portFormatters.parentUUIDFormatter("", "", v, "", dc);
+    };
+    this.mirrorFormatter = function(v, dc) {
+        return portFormatters.mirrorFormatter("", "", v, "", dc);
+    };
+    this.localPrefFormater = function(v, dc) {
+        return portFormatters.localPrefFormater("", "", v, "", dc);
     };
     return portGridView;
 });
