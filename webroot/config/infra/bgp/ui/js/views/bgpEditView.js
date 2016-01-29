@@ -293,7 +293,6 @@ define([
                                     elementId: 'user_created_address_family',
                                     view: 'FormMultiselectView',
                                     viewConfig: {
-                                        disabled : 'disableAttr',
                                         path: 'user_created_address_family',
                                         dataBindValue:
                                             'user_created_address_family',

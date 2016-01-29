@@ -16,7 +16,7 @@ define([
             'parent_type' : 'routing-instance',
             'parent_name' : '__default__',
             'bgp_router_parameters' : {
-                'router_type' : null,
+                'router_type' : "router",
                 'vendor' : null,
                 'port' : 179,
                 'source_port' : null,
@@ -53,6 +53,13 @@ define([
             if(bgpParams["router_type"]) {
                 modelConfig["user_created_router_type"] =
                     bgpParams["router_type"];
+                if(bgpParams["router_type"] === ctwl.BGP_ROUTER_TYPE) {
+                    modelConfig["addressFamilyData"] =
+                        ctwc.BGP_ADDRESS_FAMILY_DATA;
+                } else {
+                    modelConfig["addressFamilyData"] =
+                        ctwc.CN_ADDRESS_FAMILY_DATA;
+                }
             } else {
                 modelConfig["user_created_router_type"] = "router";
             }
