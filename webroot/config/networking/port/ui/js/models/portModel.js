@@ -71,14 +71,14 @@ define([
             'templateGeneratorData': 'rawData',
             'disable_sub_interface' : false,
             'subnetGroupVisible': true,
-            'ecmp_hashing_include_fields': {
+            'ecmp_hashing_include_fields': {/*
                 'source_mac': true,
                 'destination_mac': true,
                 'source_ip': true,
                 'destination_ip': true,
                 'ip_protocol': true,
                 'source_port': true,
-                'destination_port': true
+                'destination_port': true*/
             }
         },
         setVNData: function(allNetworks) {
@@ -846,6 +846,7 @@ define([
                 }
         /* ECMP Hashing */
                 var ecmpHashIncFields = this.getNonDefaultECMPHashingFields();
+                var count = 0;
                 if (null != newPortData['ecmp_hashing_include_fields']) {
                     var tmpEcmpHashIncFields =
                         newPortData['ecmp_hashing_include_fields'].split(',');
@@ -853,12 +854,12 @@ define([
                     for (var i = 0; i < cnt; i++) {
                         if (tmpEcmpHashIncFields[i].length > 0) {
                             ecmpHashIncFields[tmpEcmpHashIncFields[i]] = true;
+                            count++;
                         }
                     }
-                } else {
-                    for (key in ecmpHashIncFields) {
-                        ecmpHashIncFields[key] = true;
-                    }
+                }
+                if (count == 0) {
+                    ecmpHashIncFields = {};
                 }
                 newPortData['ecmp_hashing_include_fields']
                     = ecmpHashIncFields;
