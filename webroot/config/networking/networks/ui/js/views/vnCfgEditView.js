@@ -659,6 +659,7 @@ define([
                                             elementId: 'vxlan_network_identifier',
                                             view: 'FormInputView',
                                             viewConfig: {
+                                                placeholder: '1 - 16777215',
                                                 label: 'VxLAN Identifier',
                                                 path: 'virtual_network_properties.vxlan_network_identifier',
                                                 class: 'span6',
@@ -679,6 +680,7 @@ define([
                                                     class: 'span6',
                                                     dataBindValue: 'physical_router_back_refs',
                                                     elementConfig: {
+                                                        placeholder: 'Select Physical Router(s)',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
                                                         dataSource : {
@@ -700,6 +702,7 @@ define([
                                                     class: 'span6',
                                                     dataBindValue: 'route_table_refs',
                                                     elementConfig: {
+                                                        placeholder: 'Select Static Route(s)',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
                                                         dataSource : {
@@ -728,6 +731,7 @@ define([
                                                     class: 'span12',
                                                     dataBindValue: 'ecmp_hashing_include_fields',
                                                     elementConfig: {
+                                                        placeholder: 'Select ECMP Hashing Fields',
                                                         dataTextField: "text",
                                                         dataValueField: "id",
                                                         data: [

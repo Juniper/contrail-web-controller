@@ -98,22 +98,26 @@ define([
                      {
                          field:  'virtual_network_back_refs',
                          name:   'IP Blocks',
-                         formatter: formatipamCfg.IPBlockFormatter
+                         formatter: formatipamCfg.IPBlockFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'network_ipam_mgmt',
                          name:   'DNS Server',
-                         formatter: formatipamCfg.dnsModeFormatter
-                     },/*
-                     {
-                         field:  'network_ipam_mgmt',
-                         name:   'Domain',
-                         formatter: formatipamCfg.dnsDomainFormatter
-                     },*/
+                         formatter: formatipamCfg.dnsModeFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
+                     },
                      {
                          field:  'network_ipam_mgmt',
                          name:   'NTP Server',
-                         formatter: formatipamCfg.dnsNTPFormatter
+                         formatter: formatipamCfg.dnsNTPFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      }
                 ]
             },
@@ -206,7 +210,8 @@ define([
                                                     label: 'Name',
                                                     key: 'name',
                                                     templateGenerator: 'TextGenerator'
-                                                },                                               {
+                                                },
+                                                {
                                                     label: 'Display Name',
                                                     key: 'display_name',
                                                     templateGenerator: 'TextGenerator'

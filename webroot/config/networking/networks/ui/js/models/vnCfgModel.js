@@ -212,9 +212,12 @@ define([
             var routeTargetCollection = attr[type].toJSON(),
                 routeTargetArray = [];
             for(var i = 0; i < routeTargetCollection.length; i++) {
-                routeTargetArray.push('target:' +
-                            routeTargetCollection[i].asn().trim() + ':' +
-                            routeTargetCollection[i].target().trim());
+                var asn = routeTargetCollection[i].asn();
+                var target = routeTargetCollection[i].target();
+                if (asn && target) {
+                    routeTargetArray.push('target:' +
+                                    asn.trim() + ':' + target.trim());
+                }
             }
             return routeTargetArray;
         },
@@ -805,6 +808,16 @@ define([
                               },
                               {
                                 key: 'user_created_route_targets',
+                                type: cowc.OBJECT_TYPE_COLLECTION,
+                                getValidation: 'routeTargetModelConfigValidations'
+                              },
+                              {
+                                key: 'user_created_export_route_targets',
+                                type: cowc.OBJECT_TYPE_COLLECTION,
+                                getValidation: 'routeTargetModelConfigValidations'
+                              },
+                              {
+                                key: 'user_created_import_route_targets',
                                 type: cowc.OBJECT_TYPE_COLLECTION,
                                 getValidation: 'routeTargetModelConfigValidations'
                               }

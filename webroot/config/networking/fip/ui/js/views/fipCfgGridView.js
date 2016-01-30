@@ -96,12 +96,18 @@ define([
                      {
                          field:  'virtual_machine_back_refs',
                          name:   'Mapped Fixed IP Address',
-                         formatter: formatFipCfg.fixedIPFormatter
+                         formatter: formatFipCfg.fixedIPFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'fq_name',
                          name:   'Floating IP Pool',
-                         formatter: formatFipCfg.fipPoolFormatter
+                         formatter: formatFipCfg.fipPoolFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
                      }
                 ]
             },
