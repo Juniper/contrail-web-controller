@@ -108,27 +108,42 @@ define([
                      {
                          field:  'display_name',
                          name:   'Network',
-                         formatter: showName
+                         formatter: showName,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'network_ipam_refs',
                          name:   'Subnets',
-                         formatter: formatVNCfg.IPBlockFormatter
+                         formatter: formatVNCfg.IPBlockFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'network_policy_refs',
                          name:   'Attached Policies',
-                         formatter: formatVNCfg.polColFormatter
+                         formatter: formatVNCfg.polColFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'is_shared',
                          name:   'Shared',
-                         formatter: formatVNCfg.sharedFormatter
+                         formatter: formatVNCfg.sharedFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'id_perms.enable',
                          name:   'Admin State',
-                         formatter: formatVNCfg.adminStateFormatter
+                         formatter: formatVNCfg.adminStateFormatter,
+                         sortable: {
+                            sortBy: 'formattedValue'
+                         },
                      }
                 ]
             },

@@ -98,54 +98,43 @@ define([
                     {
                          field:  'display_name',
                          name:   'Template',
-                         formatter: formatSvcTemplateCfg.displayNameFormatter
+                         formatter: formatSvcTemplateCfg.displayNameFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
                     },
-              /*
                     {
-                         field:  'service_template_properties',
-                         name:   'Properties',
-                         formatter: formatSvcTemplateCfg.servicePropertyFormatter
-                     },
-                */
-                     {
                          field:  'service_template_properties.service_mode',
                          name:   'Mode',
-                         formatter: formatSvcTemplateCfg.serviceModeFormatter
-                     },
-                     {
+                         formatter: formatSvcTemplateCfg.serviceModeFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
+                    },
+                    {
                          field:  'service_template_properties.service_type',
                          name:   'Type',
-                         formatter: formatSvcTemplateCfg.serviceTypeFormatter
-                     },
-                     /*
-                     {
-                         field:  'service_template_properties.service_scaling',
-                         name:   'Scaling',
-                         formatter: formatSvcTemplateCfg.serviceScalingFormatter
-                     },
-                     */
-                     {
+                         formatter: formatSvcTemplateCfg.serviceTypeFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
+                    },
+                    {
                          field:  'service_template_properties.interface_type',
                          name:   'Interface (s)',
-                         formatter: formatSvcTemplateCfg.interfaceFormatter
-                     },
-                     {
+                         formatter: formatSvcTemplateCfg.interfaceFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
+                    },
+                    {
                          field:  'service_template_properties',
                          name:   'Image & Flavor',
-                         formatter: formatSvcTemplateCfg.imageFlavorFormatter
-                     },
-                     /*
-                     {
-                         field:  'service_template_properties.image_name',
-                         name:   'Image Name',
-                         formatter: formatSvcTemplateCfg.imageNameFormatter
-                     },
-                     {
-                         field:  'service_template_properties.flavor',
-                         name:   'Flavor',
-                         formatter: formatSvcTemplateCfg.flavorFormatter
-                     }
-                     */
+                         formatter: formatSvcTemplateCfg.imageFlavorFormatter,
+                             sortable: {
+                             sortBy: 'formattedValue'
+                         },
+                    },
                 ]
             },
         };

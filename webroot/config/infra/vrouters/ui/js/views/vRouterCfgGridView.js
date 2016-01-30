@@ -99,7 +99,10 @@ define([
                          name:   'Type',
                          formatter: function(r, c, v, cd, dc) {
                              return formatVirtualRouterType(dc.virtual_router_type);
-                         }
+                         },
+                         sortable: {
+                         sortBy: 'formattedValue'
+                         },
                      },
                      {
                          field:  'virtual_router_ip_address',
