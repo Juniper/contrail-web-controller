@@ -7,8 +7,8 @@ define([
     'contrail-model',
     'config/networking/policy/ui/js/views/policyFormatters'
 ], function (_, ContrailModel, PolicyFormatters) {
-    var policyFormatters = new PolicyFormatters();
-    var self;
+    var policyFormatters = new PolicyFormatters(),
+        self;
     var RuleModel = ContrailModel.extend({
         defaultConfig: {
             'action_list':{'simple_action':'pass',
@@ -226,6 +226,14 @@ define([
                     var error = self.isBothSrcDscCIDR(data);
                     if (error != "") {
                         return error;
+                    }
+                    var srcProt = getValueByJsonPath(data, "src_ports_text", "");
+                    if(srcProt.toUpperCase() != "ANY") {
+                        return "Only 'ANY' protocol allowed while mirroring services."
+                    }
+                    var dscProt = getValueByJsonPath(data, "dst_ports_text", "");
+                    if(dscProt.toUpperCase() != "ANY") {
+                        return "Only 'ANY' protocol allowed while mirroring services."
                     }
                 }
             }
